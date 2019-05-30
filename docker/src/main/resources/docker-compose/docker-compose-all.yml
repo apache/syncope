@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Full deployment (Core, Console, Enduser) on PostgreSQL, with Keymaster on Zookeeper
+# Full deployment (Core, Console, Enduser, SRA) on PostgreSQL, with Keymaster on Zookeeper
 
 # Zookeeper is configured without JAAS, hence empty KEYMASTER_USERNAME / KEYMASTER_PASSWORD
 # are passed to other containers
@@ -38,6 +38,7 @@ services:
    syncope:
      depends_on:
        - db
+       - keymaster
      image: apache/syncope:${SYNCOPE_VERSION}
      ports:
        - "18080:8080"
@@ -58,6 +59,7 @@ services:
    syncope-console:
      depends_on:
        - syncope
+       - keymaster
      image: apache/syncope-console:${SYNCOPE_VERSION}
      ports:
        - "28080:8080"
@@ -71,6 +73,7 @@ services:
    syncope-enduser:
      depends_on:
        - syncope
+       - keymaster
      image: apache/syncope-enduser:${SYNCOPE_VERSION}
      ports:
        - "38080:8080"
@@ -80,3 +83,17 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/
+
+   syncope-sra:
+     depends_on:
+       - syncope
+       - keymaster
+     image: apache/syncope-sra:${SYNCOPE_VERSION}
+     ports:
+       - "48080:8080"
+     restart: always
+     environment:
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-sra:8080/

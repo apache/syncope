@@ -277,13 +277,11 @@ public class SyncopeClientFactoryBean {
 
     /**
      * Builds client instance which will be passing the provided value in the
-     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION}
-     * request header.
+     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION} request header.
      *
      * @param jwt value received after login, in the {@link RESTHeaders#TOKEN} response header
      * @return client instance which will be passing the provided value in the
-     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION}
-     * request header
+     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION} request header
      */
     public SyncopeClient create(final String jwt) {
         return create(new JWTAuthenticationHandler(jwt));

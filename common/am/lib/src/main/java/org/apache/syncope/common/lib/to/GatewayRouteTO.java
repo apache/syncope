@@ -25,12 +25,16 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.GatewayFilter;
-import org.apache.syncope.common.lib.types.GatewayPredicate;
+import org.apache.syncope.common.lib.types.GatewayRouteFilter;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
 import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 
+@XmlRootElement(name = "gatewayRoute")
+@XmlType
 public class GatewayRouteTO implements EntityTO {
 
     private static final long serialVersionUID = 4044528284951757870L;
@@ -39,11 +43,13 @@ public class GatewayRouteTO implements EntityTO {
 
     private String name;
 
+    private int order = 0;
+
     private URI target;
 
-    private final List<GatewayFilter> filters = new ArrayList<>();
+    private final List<GatewayRouteFilter> filters = new ArrayList<>();
 
-    private final List<GatewayPredicate> predicates = new ArrayList<>();
+    private final List<GatewayRoutePredicate> predicates = new ArrayList<>();
 
     private GatewayRouteStatus status;
 
@@ -66,6 +72,14 @@ public class GatewayRouteTO implements EntityTO {
         this.name = name;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(final int order) {
+        this.order = order;
+    }
+
     public URI getTarget() {
         return target;
     }
@@ -77,14 +91,14 @@ public class GatewayRouteTO implements EntityTO {
     @XmlElementWrapper(name = "filters")
     @XmlElement(name = "filter")
     @JsonProperty("filters")
-    public List<GatewayFilter> getFilters() {
+    public List<GatewayRouteFilter> getFilters() {
         return filters;
     }
 
     @XmlElementWrapper(name = "predicates")
     @XmlElement(name = "predicate")
     @JsonProperty("predicates")
-    public List<GatewayPredicate> getPredicates() {
+    public List<GatewayRoutePredicate> getPredicates() {
         return predicates;
     }
 

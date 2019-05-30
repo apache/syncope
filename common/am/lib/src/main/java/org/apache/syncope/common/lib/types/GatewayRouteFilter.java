@@ -19,23 +19,22 @@
 package org.apache.syncope.common.lib.types;
 
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class GatewayPredicate implements Serializable {
+@XmlRootElement(name = "gatewayRouteFilter")
+@XmlType
+public class GatewayRouteFilter implements Serializable {
 
     private static final long serialVersionUID = -635785645207375128L;
 
     public static class Builder {
 
-        private final GatewayPredicate instance = new GatewayPredicate();
+        private final GatewayRouteFilter instance = new GatewayRouteFilter();
 
-        public Builder cond(final PredicateCond cond) {
-            instance.setCond(cond);
-            return this;
-        }
-
-        public Builder factory(final PredicateFactory factory) {
+        public Builder factory(final FilterFactory factory) {
             instance.setFactory(factory);
             return this;
         }
@@ -45,30 +44,20 @@ public class GatewayPredicate implements Serializable {
             return this;
         }
 
-        public GatewayPredicate build() {
+        public GatewayRouteFilter build() {
             return instance;
         }
     }
 
-    private PredicateCond cond;
-
-    private PredicateFactory factory;
+    private FilterFactory factory;
 
     private String args;
 
-    public PredicateCond getCond() {
-        return cond;
-    }
-
-    public void setCond(final PredicateCond cond) {
-        this.cond = cond;
-    }
-
-    public PredicateFactory getFactory() {
+    public FilterFactory getFactory() {
         return factory;
     }
 
-    public void setFactory(final PredicateFactory factory) {
+    public void setFactory(final FilterFactory factory) {
         this.factory = factory;
     }
 
@@ -83,7 +72,6 @@ public class GatewayPredicate implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(cond).
                 append(factory).
                 append(args).
                 build();
@@ -100,11 +88,18 @@ public class GatewayPredicate implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final GatewayPredicate other = (GatewayPredicate) obj;
+        final GatewayRouteFilter other = (GatewayRouteFilter) obj;
         return new EqualsBuilder().
-                append(cond, other.cond).
                 append(factory, other.factory).
                 append(args, other.args).
                 build();
+    }
+
+    @Override
+    public String toString() {
+        return "GatewayFilter{"
+                + "factory=" + factory
+                + ", args=" + args
+                + '}';
     }
 }

@@ -69,7 +69,7 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+        return Ordered.LOWEST_PRECEDENCE;
     }
 
     @Override

@@ -32,8 +32,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.GatewayRouteTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FilterFactory;
-import org.apache.syncope.common.lib.types.GatewayFilter;
-import org.apache.syncope.common.lib.types.GatewayPredicate;
+import org.apache.syncope.common.lib.types.GatewayRouteFilter;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
 import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.common.lib.types.PredicateFactory;
 import org.apache.syncope.common.rest.api.service.GatewayRouteService;
@@ -69,9 +69,9 @@ public class GatewayRouteITCase extends AbstractITCase {
         GatewayRouteTO route = new GatewayRouteTO();
         route.setName("just for test");
         route.setTarget(URI.create("http://httpbin.org:80"));
-        route.getPredicates().add(new GatewayPredicate.Builder().
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
                 factory(PredicateFactory.METHOD).args(HttpMethod.GET).build());
-        route.getFilters().add(new GatewayFilter.Builder().
+        route.getFilters().add(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.ADD_REQUEST_HEADER).args("X-Request-Foo, Bar").build());
         route.setStatus(GatewayRouteStatus.DRAFT);
 
@@ -102,5 +102,49 @@ public class GatewayRouteITCase extends AbstractITCase {
 
         int endCount = gatewayRouteService.list().size();
         assertEquals(endCount, beforeCount);
+    }
+
+    @Test
+    public void exceptions() {
+        GatewayRouteTO route = new GatewayRouteTO();
+        try {
+            gatewayRouteService.create(route);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+        }
+
+        route.setName("createException");
+        try {
+            gatewayRouteService.create(route);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+        }
+
+        route.setTarget(URI.create("http://httpbin.org:80"));
+        Response response = gatewayRouteService.create(route);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
+
+        try {
+            gatewayRouteService.create(route);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
+        }
+
+        route.setKey(UUID.randomUUID().toString());
+        try {
+            gatewayRouteService.update(route);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+        try {
+            gatewayRouteService.delete(route.getKey());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
     }
 }

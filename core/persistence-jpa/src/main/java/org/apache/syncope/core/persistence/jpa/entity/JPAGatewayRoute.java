@@ -29,8 +29,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.GatewayFilter;
-import org.apache.syncope.common.lib.types.GatewayPredicate;
+import org.apache.syncope.common.lib.types.GatewayRouteFilter;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
 import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.core.persistence.api.entity.GatewayRoute;
 import org.apache.syncope.core.persistence.jpa.validation.entity.GatewayRouteCheck;
@@ -48,6 +48,9 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     @Column(unique = true, nullable = false)
     private String name;
 
+    private Integer routeOrder;
+
+    @NotNull
     private String target;
 
     @Lob
@@ -71,6 +74,16 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     }
 
     @Override
+    public int getOrder() {
+        return routeOrder == null ? 0 : routeOrder;
+    }
+
+    @Override
+    public void setOrder(final int order) {
+        this.routeOrder = order;
+    }
+
+    @Override
     public URI getTarget() {
         return URI.create(target);
     }
@@ -81,26 +94,26 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     }
 
     @Override
-    public List<GatewayFilter> getFilters() {
+    public List<GatewayRouteFilter> getFilters() {
         return filters == null
                 ? Collections.emptyList()
-                : Arrays.asList(POJOHelper.deserialize(filters, GatewayFilter[].class));
+                : Arrays.asList(POJOHelper.deserialize(filters, GatewayRouteFilter[].class));
     }
 
     @Override
-    public void setFilters(final List<GatewayFilter> filters) {
+    public void setFilters(final List<GatewayRouteFilter> filters) {
         this.filters = POJOHelper.serialize(filters);
     }
 
     @Override
-    public List<GatewayPredicate> getPredicates() {
+    public List<GatewayRoutePredicate> getPredicates() {
         return predicates == null
                 ? Collections.emptyList()
-                : Arrays.asList(POJOHelper.deserialize(predicates, GatewayPredicate[].class));
+                : Arrays.asList(POJOHelper.deserialize(predicates, GatewayRoutePredicate[].class));
     }
 
     @Override
-    public void setPredicates(final List<GatewayPredicate> predicates) {
+    public void setPredicates(final List<GatewayRoutePredicate> predicates) {
         this.predicates = POJOHelper.serialize(predicates);
     }
 

@@ -129,16 +129,4 @@ public interface GatewayRouteService extends JAXRSService {
     @Path("push")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void pushToSRA();
-
-    /**
-     * Push route with matching key to SRA.
-     *
-     * @param key route key
-     */
-    @ApiResponses(
-            @ApiResponse(responseCode = "204", description = "Operation was successful"))
-    @POST
-    @Path("push/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void pushToSRA(@NotNull @PathParam("key") String key);
 }

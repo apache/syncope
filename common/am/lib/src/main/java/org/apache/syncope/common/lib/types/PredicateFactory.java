@@ -32,7 +32,6 @@ public enum PredicateFactory {
     PATH,
     QUERY,
     REMOTE_ADDR,
-    READ_BODY,
     CUSTOM
 
 }

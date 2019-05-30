@@ -42,26 +42,36 @@ under the License.
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-sra</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>org.apache.syncope.sra.SyncopeSRAApplication</mainClass>
+          <layout>ZIP</layout>
+        </configuration>
         <executions>
           <execution>
             <goals>
-              <goal>run</goal>
+              <goal>repackage</goal>
             </goals>
-            <phase>package</phase>
             <configuration>
-              <target>
-                <copy file="${settings.localRepository}/org/apache/syncope/syncope-sra/${syncope.version}/syncope-sra-${syncope.version}.jar"
-                      todir="${project.build.outputDirectory}"/>
-              </target>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -103,14 +113,6 @@ under the License.
     <resources>
       <resource>
         <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-
-      <resource>
-        <directory>${project.basedir}/../../sra/src/main/resources</directory>
-        <includes>
-          <include>application.properties</include>
-        </includes>
         <filtering>true</filtering>
       </resource>
     </resources>

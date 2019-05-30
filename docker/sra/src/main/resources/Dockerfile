@@ -26,10 +26,10 @@ RUN mkdir /opt/syncope/conf
 RUN mkdir /opt/syncope/lib
 RUN mkdir /opt/syncope/log
 
-COPY application.properties /opt/syncope/conf/
+COPY *.properties /opt/syncope/conf/
 COPY log4j2.xml /opt/syncope/conf/
 
-COPY syncope-sra-*jar /opt/syncope/lib/syncope-sra.jar
+COPY syncope-docker-sra-*jar /opt/syncope/lib/syncope-sra.jar
 
 COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh

@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.HttpMethod;
 import org.apache.syncope.common.lib.types.FilterFactory;
-import org.apache.syncope.common.lib.types.GatewayFilter;
-import org.apache.syncope.common.lib.types.GatewayPredicate;
+import org.apache.syncope.common.lib.types.GatewayRouteFilter;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
 import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.common.lib.types.PredicateFactory;
 import org.apache.syncope.core.persistence.api.dao.GatewayRouteDAO;
@@ -68,9 +68,9 @@ public class GatewayRouteTest extends AbstractTest {
         GatewayRoute route = entityFactory.newEntity(GatewayRoute.class);
         route.setName("just for test");
         route.setTarget(URI.create("http://httpbin.org:80"));
-        route.setPredicates(Arrays.asList(new GatewayPredicate.Builder().
+        route.setPredicates(Arrays.asList(new GatewayRoutePredicate.Builder().
                 factory(PredicateFactory.METHOD).args(HttpMethod.GET).build()));
-        route.setFilters(Arrays.asList(new GatewayFilter.Builder().
+        route.setFilters(Arrays.asList(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.ADD_REQUEST_HEADER).args("X-Request-Foo, Bar").build()));
         route.setStatus(GatewayRouteStatus.DRAFT);
 

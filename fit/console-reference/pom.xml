@@ -291,8 +291,7 @@ under the License.
                     -Dspring.profiles.active=embedded
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate,disablePlugin=CxfJAXRS
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+CMSClassUnloadingEnabled
-                    -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

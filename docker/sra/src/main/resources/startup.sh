@@ -19,4 +19,5 @@
 
 export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
 java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
- -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope-sra.jar
+ -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom \
+ -Dreactor.netty.http.server.accessLogEnabled=true -jar /opt/syncope/lib/syncope-sra.jar

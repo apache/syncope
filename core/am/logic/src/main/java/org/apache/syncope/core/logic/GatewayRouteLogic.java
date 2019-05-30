@@ -19,9 +19,20 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.GatewayRouteTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.GatewayRouteDAO;
@@ -45,6 +56,16 @@ public class GatewayRouteLogic extends AbstractTransactionalLogic<GatewayRouteTO
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private ServiceOps serviceOps;
+
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
+    @Resource(name = "anonymousKey")
+    private String anonymousKey;
+
+    @PreAuthorize("isAuthenticated()")
     public List<GatewayRouteTO> list() {
         return routeDAO.findAll().stream().map(binder::getGatewayRouteTO).collect(Collectors.toList());
     }
@@ -57,7 +78,7 @@ public class GatewayRouteLogic extends AbstractTransactionalLogic<GatewayRouteTO
         return binder.getGatewayRouteTO(routeDAO.save(route));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_READ + "')")
+    @PreAuthorize("isAuthenticated()")
     public GatewayRouteTO read(final String key) {
         GatewayRoute route = routeDAO.find(key);
         if (route == null) {
@@ -92,12 +113,18 @@ public class GatewayRouteLogic extends AbstractTransactionalLogic<GatewayRouteTO
 
     @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_PUSH + "')")
     public void pushToSRA() {
-        // TODO
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_PUSH + "')")
-    public void pushToSRA(final String key) {
-        // TODO
+        try {
+            NetworkService sra = serviceOps.get(NetworkService.Type.SRA);
+            HttpClient.newBuilder().build().sendAsync(
+                    HttpRequest.newBuilder(URI.create(
+                            StringUtils.appendIfMissing(sra.getAddress(), "/") + "management/routes/refresh")).
+                            header(HttpHeaders.AUTHORIZATION,
+                                    DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                            POST(HttpRequest.BodyPublishers.noBody()).build(),
+                    HttpResponse.BodyHandlers.discarding());
+        } catch (KeymasterException e) {
+            throw new NotFoundException("Could not find any SRA instance", e);
+        }
     }
 
     @Override

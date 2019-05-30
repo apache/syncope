@@ -59,7 +59,8 @@ public class ZookeeperKeymasterClientContext {
     @Value("${keymaster.maxRetries:3}")
     private Integer maxRetries;
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
+    @ConditionalOnExpression("#{'${keymaster.address}' "
+            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
     @Bean
     public CuratorFramework curatorFramework() throws InterruptedException {
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
@@ -86,20 +87,18 @@ public class ZookeeperKeymasterClientContext {
                 connectString(address).
                 retryPolicy(new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries));
         if (StringUtils.isNotBlank(username)) {
-            clientBuilder.
-                    authorization("digest", (username).getBytes()).
-                    aclProvider(new ACLProvider() {
+            clientBuilder.authorization("digest", username.getBytes()).aclProvider(new ACLProvider() {
 
-                        @Override
-                        public List<ACL> getDefaultAcl() {
-                            return ZooDefs.Ids.CREATOR_ALL_ACL;
-                        }
+                @Override
+                public List<ACL> getDefaultAcl() {
+                    return ZooDefs.Ids.CREATOR_ALL_ACL;
+                }
 
-                        @Override
-                        public List<ACL> getAclForPath(final String path) {
-                            return ZooDefs.Ids.CREATOR_ALL_ACL;
-                        }
-                    });
+                @Override
+                public List<ACL> getAclForPath(final String path) {
+                    return ZooDefs.Ids.CREATOR_ALL_ACL;
+                }
+            });
         }
         CuratorFramework client = clientBuilder.build();
         client.start();
@@ -108,20 +107,23 @@ public class ZookeeperKeymasterClientContext {
         return client;
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
+    @ConditionalOnExpression("#{'${keymaster.address}' "
+            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
     @Bean
     public ConfParamOps selfConfParamOps() {
         return new ZookeeperConfParamOps();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
+    @ConditionalOnExpression("#{'${keymaster.address}' "
+            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
     @Bean
     public ServiceOps serviceOps() {
         return new ZookeeperServiceDiscoveryOps();
         //return new ZookeeperServiceOps();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^(?!http).+'}")
+    @ConditionalOnExpression("#{'${keymaster.address}' "
+            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
     @Bean
     public DomainOps domainOps() {
         return new ZookeeperDomainOps();

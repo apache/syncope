@@ -103,10 +103,13 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
-                || ex instanceof PersistenceException && ex.getCause() instanceof EntityExistsException) {
+                || ((ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException)
+                && ex.getCause() instanceof EntityExistsException)) {
 
             builder = builder(ClientExceptionType.EntityExists,
-                    getPersistenceErrorMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
+                    getPersistenceErrorMessage(
+                            ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException
+                                    ? ex.getCause() : ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof UncategorizedDataAccessException) {
             builder = builder(ClientExceptionType.DataIntegrityViolation, getPersistenceErrorMessage(ex));
         } else if (ex instanceof ConnectorException) {

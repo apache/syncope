@@ -32,11 +32,23 @@ under the License.
     <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
       <appender-ref ref="console"/>
     </asyncLogger>
-
     <asyncLogger name="org.apache.syncope.sra" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
-    
+
+    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.springframework.cloud.gateway" additivity="false" level="INFO">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
+    <!-- Requires -Dreactor.netty.http.server.accessLogEnabled=true to work-->
+    <asyncLogger name="reactor.netty.http.server.AccessLog" additivity="false" level="INFO">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
     <root level="INFO">
       <appender-ref ref="console"/>
     </root>

@@ -53,7 +53,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
             ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).
-                    forEach(loader -> {
+                    forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
@@ -72,7 +72,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
             ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
-                    forEach(loader -> {
+                    forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);

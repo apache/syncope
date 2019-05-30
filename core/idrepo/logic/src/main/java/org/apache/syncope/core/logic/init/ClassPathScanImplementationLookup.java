@@ -61,6 +61,7 @@ import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.Ordered;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 
@@ -91,7 +92,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     @Override
     public int getOrder() {
-        return 250;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     /**

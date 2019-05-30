@@ -20,7 +20,9 @@ package org.apache.syncope.sra;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SyncopeSRAStartup extends SyncopeSRAStartStop
         implements ApplicationListener<ContextRefreshedEvent> {
 

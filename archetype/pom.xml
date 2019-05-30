@@ -42,7 +42,7 @@ under the License.
       <extension>
         <groupId>org.apache.maven.archetype</groupId>
         <artifactId>archetype-packaging</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
       </extension>
     </extensions>
 
@@ -333,6 +333,18 @@ under the License.
       <resource>
         <directory>../fit/enduser-reference/src/main/webapp/WEB-INF</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+      
+      <resource>
+        <directory>../sra/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../sra/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
+        <includes>
+          <include>keymaster.properties</include>          
+        </includes>
       </resource>
     </resources>
   </build>

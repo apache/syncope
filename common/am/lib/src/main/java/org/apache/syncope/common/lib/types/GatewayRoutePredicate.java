@@ -19,18 +19,32 @@
 package org.apache.syncope.common.lib.types;
 
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class GatewayFilter implements Serializable {
+@XmlRootElement(name = "gatewayRoutePredicate")
+@XmlType
+public class GatewayRoutePredicate implements Serializable {
 
     private static final long serialVersionUID = -635785645207375128L;
 
     public static class Builder {
 
-        private final GatewayFilter instance = new GatewayFilter();
+        private final GatewayRoutePredicate instance = new GatewayRoutePredicate();
 
-        public Builder factory(final FilterFactory factory) {
+        public Builder negate() {
+            instance.setNegate(true);
+            return this;
+        }
+
+        public Builder cond(final PredicateCond cond) {
+            instance.setCond(cond);
+            return this;
+        }
+
+        public Builder factory(final PredicateFactory factory) {
             instance.setFactory(factory);
             return this;
         }
@@ -40,20 +54,40 @@ public class GatewayFilter implements Serializable {
             return this;
         }
 
-        public GatewayFilter build() {
+        public GatewayRoutePredicate build() {
             return instance;
         }
     }
 
-    private FilterFactory factory;
+    private boolean negate;
+
+    private PredicateCond cond;
+
+    private PredicateFactory factory;
 
     private String args;
 
-    public FilterFactory getFactory() {
+    public boolean isNegate() {
+        return negate;
+    }
+
+    public void setNegate(final boolean negate) {
+        this.negate = negate;
+    }
+
+    public PredicateCond getCond() {
+        return cond;
+    }
+
+    public void setCond(final PredicateCond cond) {
+        this.cond = cond;
+    }
+
+    public PredicateFactory getFactory() {
         return factory;
     }
 
-    public void setFactory(final FilterFactory factory) {
+    public void setFactory(final PredicateFactory factory) {
         this.factory = factory;
     }
 
@@ -68,6 +102,7 @@ public class GatewayFilter implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                append(cond).
                 append(factory).
                 append(args).
                 build();
@@ -84,10 +119,21 @@ public class GatewayFilter implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final GatewayFilter other = (GatewayFilter) obj;
+        final GatewayRoutePredicate other = (GatewayRoutePredicate) obj;
         return new EqualsBuilder().
+                append(cond, other.cond).
                 append(factory, other.factory).
                 append(args, other.args).
                 build();
+    }
+
+    @Override
+    public String toString() {
+        return "GatewayPredicate{"
+                + "negate=" + negate
+                + ", cond=" + cond
+                + ", factory=" + factory
+                + ", args=" + args
+                + '}';
     }
 }

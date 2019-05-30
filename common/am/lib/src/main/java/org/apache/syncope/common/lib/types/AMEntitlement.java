@@ -26,11 +26,7 @@ import java.util.TreeSet;
 
 public final class AMEntitlement {
 
-    public static final String GATEWAY_ROUTE_LIST = "GATEWAY_ROUTE_LIST";
-
     public static final String GATEWAY_ROUTE_CREATE = "GATEWAY_ROUTE_CREATE";
-
-    public static final String GATEWAY_ROUTE_READ = "GATEWAY_ROUTE_READ";
 
     public static final String GATEWAY_ROUTE_UPDATE = "GATEWAY_ROUTE_UPDATE";
 

@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlEnum;
 @XmlEnum
 public enum PredicateCond {
     AND,
-    OR,
-    NOT
+    OR
 
 }

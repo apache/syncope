@@ -33,7 +33,7 @@ public class GatewayRouteServiceImpl extends AbstractServiceImpl implements Gate
 
     @Autowired
     private GatewayRouteLogic logic;
-    
+
     @Override
     public List<GatewayRouteTO> list() {
         return logic.list();
@@ -66,10 +66,5 @@ public class GatewayRouteServiceImpl extends AbstractServiceImpl implements Gate
     @Override
     public void pushToSRA() {
         logic.pushToSRA();
-    }
-
-    @Override
-    public void pushToSRA(final String key) {
-        logic.pushToSRA(key);
     }
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic.init;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,7 +29,7 @@ public class IdRepoImplementationTypeLoader implements SyncopeCoreLoader {
 
     @Override
     public int getOrder() {
-        return Integer.MIN_VALUE;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     @Override

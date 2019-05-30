@@ -51,7 +51,7 @@ public class SyncopeCoreStartup extends SyncopeCoreStartStop
     public void onApplicationEvent(final ContextRefreshedEvent event) {
         event.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().stream().
                 sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).
-                forEach(loader -> {
+                forEachOrdered(loader -> {
                     String loaderName = AopUtils.getTargetClass(loader).getName();
 
                     LOG.debug("[{}] Starting initialization", loaderName);

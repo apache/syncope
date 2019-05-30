@@ -20,7 +20,9 @@ package org.apache.syncope.sra;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SyncopeSRAShutdown extends SyncopeSRAStartStop
         implements ApplicationListener<ContextClosedEvent> {
 
