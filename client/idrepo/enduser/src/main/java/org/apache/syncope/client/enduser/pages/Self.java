@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -30,6 +32,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Self extends BaseEnduserWebPage implements IEventSource {
@@ -38,6 +41,8 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
 
     private UserWizardBuilder userWizardBuilder;
 
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
+
     protected static final String WIZARD_ID = "wizard";
 
     public Self(final PageParameters parameters) {
@@ -45,7 +50,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
 
         body.add(buildWizard(SyncopeEnduserSession.get().isAuthenticated()
                 ? SyncopeEnduserSession.get().getSelfTO()
-                : buildNewUserTO(),
+                : buildNewUserTO(parameters),
                 SyncopeEnduserSession.get().isAuthenticated()
                 ? AjaxWizard.Mode.EDIT
                 : AjaxWizard.Mode.CREATE));
@@ -56,8 +61,15 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                SyncopeEnduserSession.get().invalidate();
-                setResponsePage(Login.class);
+                @SuppressWarnings("unchecked")
+                final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeEnduserSession.get().
+                        getAttribute(Constants.BEFORE_LOGOUT_PAGE);
+                if (beforeLogout == null) {
+                    SyncopeEnduserSession.get().invalidate();
+                    setResponsePage(Login.class);
+                } else {
+                    setResponsePage(beforeLogout);
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeEnduserSession.get().invalidate();
 
@@ -68,7 +80,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         }
         super.onEvent(event);
     }
-    
+
     @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
@@ -86,8 +98,17 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         return userWizardBuilder.build(WIZARD_ID, mode);
     }
 
-    private UserTO buildNewUserTO() {
+    private UserTO buildNewUserTO(final PageParameters parameters) {
         final UserTO userTO = new UserTO();
+
+        if (parameters != null) {
+            if (!parameters.get("saml2SPUserAttrs").isNull()) {
+                SyncopeWebApplication.extractAttrsFromExt(parameters.get("saml2SPUserAttrs").toString(), userTO);
+            } else if (!parameters.get("oidcClientUserAttrs").isNull()) {
+                SyncopeWebApplication.extractAttrsFromExt(parameters.get("oidcClientUserAttrs").toString(), userTO);
+            }
+        }
+
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         return userTO;
     }

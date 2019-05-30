@@ -303,6 +303,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return service;
     }
 
+    @Override
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getAnonymousClient().getService(serviceClass);
+    }
+
     public <T> T getService(final Class<T> serviceClass) {
         return getCachedService(serviceClass);
     }

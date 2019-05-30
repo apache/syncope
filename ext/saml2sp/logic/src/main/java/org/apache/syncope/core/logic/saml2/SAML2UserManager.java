@@ -264,8 +264,8 @@ public class SAML2UserManager {
         }
 
         UserTO userTO = new UserTO();
-        EntityTOUtils.toAnyTO(userCR, userTO);
         fill(idp.getKey(), responseTO, userTO);
+        EntityTOUtils.toAnyCR(userTO, userCR);
 
         if (userCR.getRealm() == null) {
             userCR.setRealm(SyncopeConstants.ROOT_REALM);

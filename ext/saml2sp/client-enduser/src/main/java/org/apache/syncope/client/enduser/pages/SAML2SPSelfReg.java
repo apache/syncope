@@ -45,6 +45,6 @@ public class SAML2SPSelfReg extends WebPage {
 
             params.add("errorMessage", SAML_ACCESS_ERROR);
         }
-        setResponsePage(getApplication().getHomePage(), params);
+        setResponsePage(Self.class, params);
     }
 }

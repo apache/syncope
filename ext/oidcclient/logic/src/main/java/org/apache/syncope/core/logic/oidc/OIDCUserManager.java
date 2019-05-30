@@ -176,10 +176,10 @@ public class OIDCUserManager {
 
     public void fill(final OIDCProvider op, final OIDCLoginResponseTO responseTO, final UserTO userTO) {
         op.getItems().forEach(item -> {
-            List<String> values = Collections.emptyList();
+            List<String> values = new ArrayList<>();
             Optional<Attr> oidcAttr = responseTO.getAttr(item.getExtAttrName());
             if (oidcAttr.isPresent() && !oidcAttr.get().getValues().isEmpty()) {
-                values = oidcAttr.get().getValues();
+                values.addAll(oidcAttr.get().getValues());
 
                 List<Object> transformed = new ArrayList<>(values);
                 for (ItemTransformer transformer : MappingUtils.getItemTransformers(item)) {
@@ -246,8 +246,8 @@ public class OIDCUserManager {
         }
 
         UserTO userTO = new UserTO();
-        EntityTOUtils.toAnyTO(userCR, userTO);
         fill(op, responseTO, userTO);
+        EntityTOUtils.toAnyCR(userTO, userCR);
 
         if (userCR.getRealm() == null) {
             userCR.setRealm(SyncopeConstants.ROOT_REALM);

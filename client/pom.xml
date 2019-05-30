@@ -80,7 +80,6 @@ under the License.
     <module>idrepo</module>
     <module>idm</module>
     <module>am</module>
-    <module>enduser</module>
   </modules>
 
 </project>

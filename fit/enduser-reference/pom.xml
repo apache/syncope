@@ -54,9 +54,21 @@ under the License.
       <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.syncope.ext.flowable</groupId>
       <artifactId>syncope-ext-flowable-client-enduser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
     

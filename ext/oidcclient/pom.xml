@@ -50,6 +50,7 @@ under the License.
     <module>client-enduser</module>
     <module>provisioning-api</module>
     <module>provisioning-java</module>
+    <module>client-common-ui</module>
   </modules>
 
 </project>

@@ -29,7 +29,9 @@ public class OIDCClientLogout extends WebPage {
     public OIDCClientLogout(final PageParameters parameters) {
         super(parameters);
 
-        SyncopeEnduserSession.get().invalidateNow();
+        SyncopeEnduserSession.get().cleanup();
+
+        SyncopeEnduserSession.get().invalidate();
 
         setResponsePage(getApplication().getHomePage());
     }

@@ -319,7 +319,7 @@ fieldset[disabled] .form-control {
 /* Basic styles */
 .checkbox label,
 .radio label { 
-  position: relative;
+  position: initial;
   display: inline-block;
   padding: 0 0 0 2em;
   height: 1.5em;
@@ -364,7 +364,7 @@ input {
 
   /* Checkbox */
   &[type="checkbox"] + label::after {
-    content: "\2714";
+    content: "\2713";
     color: #ffffff;
     line-height: 1.5;
     text-align: center;
@@ -559,6 +559,25 @@ option {
       }
     }
   }
+
+  .subnav {
+    a {
+      padding-left: 30px;
+    }
+  }
+
+  .navbar-right {
+    padding-right: 4rem;
+
+    .btn-navbar-right {
+      i {
+        font-size: 26px;
+      }
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 
@@ -566,14 +585,10 @@ option {
 /* Accessibility
 ============================================================================= */
 
-.btn-accessibility {
-  i {
-    font-size: 26px;
-  }
-  &:hover {
-    cursor: pointer;
-  }
-}
+
+
+
+
 
 
 
@@ -601,10 +616,6 @@ option {
 
 .enduser_fieldset {
   padding: 0 10px;
-}
-
-#navbarAccessibility {
-  padding-right: 4rem;
 }
 
 #mcp_logo {

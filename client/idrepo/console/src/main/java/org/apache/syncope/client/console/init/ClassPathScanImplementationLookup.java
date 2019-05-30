@@ -44,7 +44,7 @@ import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
 import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
@@ -131,7 +131,7 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends ExtAlertWidget<?>>> extAlertWidgets;
 
-    private List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels;
+    private List<Class<? extends BaseSSOLoginFormPanel>> ssoLoginFormPanels;
 
     private Map<String, Class<? extends ReportletConf>> reportletConfs;
 
@@ -176,7 +176,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ExtAlertWidget.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(SSOLoginFormPanel.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BaseSSOLoginFormPanel.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ReportletConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
@@ -196,7 +196,6 @@ public class ClassPathScanImplementationLookup {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
-
                 if (!isAbstractClazz) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtPage.class)) {
@@ -227,8 +226,8 @@ public class ClassPathScanImplementationLookup {
                         }
                     } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
                         previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
-                    } else if (SSOLoginFormPanel.class.isAssignableFrom(clazz)) {
-                        ssoLoginFormPanels.add((Class<? extends SSOLoginFormPanel>) clazz);
+                    } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
+                        ssoLoginFormPanels.add((Class<? extends BaseSSOLoginFormPanel>) clazz);
                     } else if (ReportletConf.class.isAssignableFrom(clazz)) {
                         reportletConfs.put(clazz.getName(), (Class<? extends ReportletConf>) clazz);
                     } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
@@ -402,7 +401,7 @@ public class ClassPathScanImplementationLookup {
         return extAlertWidgets;
     }
 
-    public List<Class<? extends SSOLoginFormPanel>> getSSOLoginFormPanels() {
+    public List<Class<? extends BaseSSOLoginFormPanel>> getSSOLoginFormPanels() {
         return ssoLoginFormPanels;
     }
 

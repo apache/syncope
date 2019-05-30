@@ -23,4 +23,7 @@ public interface BaseSession {
     void setDomain(String domain);
 
     String getDomain();
+
+    <T> T getAnonymousService(Class<T> serviceClass);
+
 }

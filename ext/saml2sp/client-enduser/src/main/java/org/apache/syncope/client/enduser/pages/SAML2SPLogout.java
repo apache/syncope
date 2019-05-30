@@ -29,7 +29,10 @@ public class SAML2SPLogout extends WebPage {
     public SAML2SPLogout(final PageParameters parameters) {
         super(parameters);
 
-        SyncopeEnduserSession.get().invalidateNow();
+        // this is needed because the actual logout was already performed by the SAML agent
+        SyncopeEnduserSession.get().cleanup();
+
+        SyncopeEnduserSession.get().invalidate();
 
         setResponsePage(getApplication().getHomePage());
     }

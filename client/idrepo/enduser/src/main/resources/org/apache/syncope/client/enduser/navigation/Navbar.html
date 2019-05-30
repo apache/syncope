@@ -49,29 +49,6 @@ under the License.
         </div>
 
         <div id="navbarDetails" class="navbar-collapse collapse in" aria-expanded="true">
-          <!--         
-          <ul wicket:id="extPages" class="nav navbar-nav">
-            <li wicket:id="detailsLI">
-              <a href="#"
-                 wicket:id="detailsLILink"
-                 aria-label="'Details' menu element"
-                 tabindex="0">
-
-                <span wicket:id="detailsLILabel" /> 
-                <span class="sr-only">(current)</span>
-              </a>
-            </li>
-            <li wicket:id="extPageLI">
-              <a href="#" 
-                 wicket:id="extPageLink"
-                 aria-label="'User requests' menu element"
-                 tabindex="0">
-
-                <span wicket:id="extPageLabel" />
-              </a>
-            </li>
-          </ul>
-          -->
           <ul class="nav navbar-nav">
             <li wicket:id="detailsLI">
               <a href="#"
@@ -84,7 +61,7 @@ under the License.
               </a>
             </li>
             <li wicket:id="extensionsLI">
-              <ul wicket:id="extPages" class="nav navbar-nav">
+              <ul wicket:id="extPages" class="subnav nav navbar-nav">
                 <li wicket:id="extPageLI">
                   <a href="#" 
                      wicket:id="extPageLILink"
@@ -98,12 +75,24 @@ under the License.
             </li>
           </ul>
 
-          <ul id="navbarAccessibility" class="nav navbar-nav navbar-right" aria-expanded="true">
+          <ul class="nav navbar-nav navbar-right" aria-expanded="true">
+            <li>
+              <a href="#"
+                 wicket:id="logout"
+                 aria-label="'Logout' menu element">
+
+                <div id="logout" class="btn-navbar-right">
+                  <i aria-label="Logout" tabindex="0" accesskey="H"
+                     class="fa fa-sign-out">
+                  </i>
+                </div>
+              </a>
+            </li>
             <li>
               <a href="#"
                  aria-label="'Accessibility' menu element">
 
-                <div id="change_contrast" class="btn-accessibility">
+                <div id="change_contrast" class="btn-navbar-right">
                   <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
                      class="fa fa-adjust">
                   </i>
@@ -114,7 +103,7 @@ under the License.
               <a href="#"
                  aria-label="'Accessibility' menu element">
 
-                <div id="change_fontSize" class="btn-accessibility">
+                <div id="change_fontSize" class="btn-navbar-right">
                   <i aria-label="Toggle font size increment" tabindex="0" accesskey="F"
                      class="fa fa-font">
                   </i>

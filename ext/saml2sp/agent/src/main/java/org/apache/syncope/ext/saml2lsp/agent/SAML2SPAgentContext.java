@@ -51,19 +51,26 @@ public class SAML2SPAgentContext {
 
     @Bean
     public ServletRegistrationBean<Login> saml2SPLogin() {
-        return new ServletRegistrationBean<>(
+        ServletRegistrationBean<Login> bean = new ServletRegistrationBean<>(
                 new Login(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/saml2sp/login");
+        bean.setName("saml2SPLogin");
+        return bean;
     }
 
     @Bean
     public ServletRegistrationBean<AssertionConsumer> saml2SPAssertionConsumer() {
-        return new ServletRegistrationBean<>(
+        ServletRegistrationBean<AssertionConsumer> bean = new ServletRegistrationBean<>(
                 new AssertionConsumer(ctx, anonymousUser, anonymousKey, useGZIPCompression),
                 "/saml2sp/assertion-consumer");
+        bean.setName("saml2SPAssertionConsumer");
+        return bean;
     }
 
     @Bean
     public ServletRegistrationBean<Logout> saml2SPLogout() {
-        return new ServletRegistrationBean<>(new Logout(ctx, useGZIPCompression), "/saml2sp/logout");
+        ServletRegistrationBean<Logout> bean =
+                new ServletRegistrationBean<>(new Logout(ctx, useGZIPCompression), "/saml2sp/logout");
+        bean.setName("saml2SPLogout");
+        return bean;
     }
 }

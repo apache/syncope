@@ -45,22 +45,18 @@ under the License.
 
     <dependency>
       <groupId>org.apache.syncope.ext.oidcclient</groupId>
-      <artifactId>syncope-ext-oidcclient-common-lib</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.oidcclient</groupId>
-      <artifactId>syncope-ext-oidcclient-rest-api</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.oidcclient</groupId>
       <artifactId>syncope-ext-oidcclient-agent</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-enduser</artifactId>
+      <groupId>org.apache.syncope.client.idrepo</groupId>
+      <artifactId>syncope-client-idrepo-enduser</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.ext.oidcclient</groupId>
+      <artifactId>syncope-ext-oidcclient-client-common-ui</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

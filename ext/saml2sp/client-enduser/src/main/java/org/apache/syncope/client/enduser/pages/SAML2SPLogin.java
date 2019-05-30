@@ -20,7 +20,7 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.commons.Constants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
@@ -46,21 +46,24 @@ public class SAML2SPLogin extends WebPage {
 
             PageParameters params = new PageParameters();
             params.add("errorMessage", SAML_ACCESS_ERROR);
-            setResponsePage(getApplication().getHomePage(), params);
+            setResponsePage(Login.class, params);
         }
 
         IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
         if (SyncopeEnduserSession.get().authenticate(token)) {
             if (parameters.get("sloSupported").toBoolean(false)) {
-                SyncopeEnduserSession.get().setAttribute(Constants.BEFORE_LOGOUT, SAML2SPBeforeLogout.class);
+                SyncopeEnduserSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, SAML2SPBeforeLogout.class);
             }
 
+            // If login has been called because the user was not yet logged in, than continue to the
+            // original destination, otherwise to the Home page
+            continueToOriginalDestination();
             setResponsePage(getApplication().getHomePage());
         } else {
             PageParameters params = new PageParameters();
             params.add("errorMessage", SAML_ACCESS_ERROR);
-            setResponsePage(getApplication().getHomePage(), params);
+            setResponsePage(Login.class, params);
         }
         strategy.remove();
     }

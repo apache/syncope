@@ -45,23 +45,32 @@ public class OIDCClientAgentContext {
 
     @Bean
     public ServletRegistrationBean<Login> oidcClientLogin() {
-        return new ServletRegistrationBean<>(
+        ServletRegistrationBean<Login> bean = new ServletRegistrationBean<>(
                 new Login(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/oidcclient/login");
+        bean.setName("oidcClientLogin");
+        return bean;
     }
 
     @Bean
     public ServletRegistrationBean<CodeConsumer> oidcClientCodeConsumer() {
-        return new ServletRegistrationBean<>(
+        ServletRegistrationBean<CodeConsumer> bean = new ServletRegistrationBean<>(
                 new CodeConsumer(ctx, anonymousUser, anonymousKey, useGZIPCompression), "/oidcclient/code-consumer");
+        bean.setName("oidcClientCodeConsumer");
+        return bean;
     }
 
     @Bean
     public ServletRegistrationBean<BeforeLogout> oidcClientBeforeLogout() {
-        return new ServletRegistrationBean<>(new BeforeLogout(ctx, useGZIPCompression), "/oidcclient/beforelogout");
+        ServletRegistrationBean<BeforeLogout> bean =
+                new ServletRegistrationBean<>(new BeforeLogout(ctx, useGZIPCompression), "/oidcclient/beforelogout");
+        bean.setName("oidcClientBeforeLogout");
+        return bean;
     }
 
     @Bean
     public ServletRegistrationBean<Logout> oidcClientLogout() {
-        return new ServletRegistrationBean<>(new Logout(), "/oidcclient/logout");
+        ServletRegistrationBean<Logout> bean = new ServletRegistrationBean<>(new Logout(), "/oidcclient/logout");
+        bean.setName("oidcClientLogout");
+        return bean;
     }
 }

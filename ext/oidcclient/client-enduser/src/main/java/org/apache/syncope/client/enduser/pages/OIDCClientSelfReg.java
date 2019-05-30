@@ -45,6 +45,6 @@ public class OIDCClientSelfReg extends WebPage {
 
             params.add("errorMessage", OIDC_ACCESS_ERROR);
         }
-        setResponsePage(getApplication().getHomePage(), params);
+        setResponsePage(Self.class, params);
     }
 }

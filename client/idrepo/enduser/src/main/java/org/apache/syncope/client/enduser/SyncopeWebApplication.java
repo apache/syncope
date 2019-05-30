@@ -33,7 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -53,7 +55,9 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.PropertyUtils;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -330,12 +334,12 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     @Override
     public Class<? extends Page> getHomePage() {
-        return SyncopeEnduserSession.get().isAuthenticated() && SyncopeEnduserSession.get().getSelfTO().
-                isMustChangePassword()
-                        ? MustChangePassword.class
-                        : SyncopeEnduserSession.get().isAuthenticated()
-                        ? Self.class
-                        : Login.class;
+        return SyncopeEnduserSession.get().isAuthenticated()
+                && SyncopeEnduserSession.get().getSelfTO().isMustChangePassword()
+                ? MustChangePassword.class
+                : SyncopeEnduserSession.get().isAuthenticated()
+                ? Self.class
+                : Login.class;
     }
 
     @Override
@@ -397,4 +401,22 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         this.customFormAttributes.clear();
         this.customFormAttributes.putAll(customFormAttributes);
     }
+
+    public static void extractAttrsFromExt(final String extAttrs, final UserTO userTO) {
+        try {
+            Set<Attr> attrs = MAPPER.readValue(extAttrs, new TypeReference<Set<Attr>>() {
+            });
+            Optional<Attr> username = attrs.stream().
+                    filter(attr -> attr.getSchema().equals("username")).
+                    findFirst();
+            if (username.isPresent()) {
+                userTO.setUsername(username.get().getValues().get(0));
+                attrs.remove(username.get());
+            }
+            userTO.getPlainAttrs().addAll(attrs);
+        } catch (IOException e) {
+            LOG.error("While extracting ext attributes", e);
+        }
+    }
+
 }

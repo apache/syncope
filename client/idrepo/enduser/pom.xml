@@ -149,12 +149,6 @@ under the License.
           <resources>
             <resource>
               <source>
-                <directory>${basedir}/src/main/resources/META-INF/resources/css</directory>
-              </source>
-              <destination>${project.build.outputDirectory}/META-INF/resources/css</destination>
-            </resource>
-            <resource>
-              <source>
                 <directory>${basedir}/src/main/resources/org/apache/syncope/client/enduser/assets/css</directory>
               </source>
               <destination>${project.build.outputDirectory}/org/apache/syncope/client/enduser/assets/css</destination>

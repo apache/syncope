@@ -27,8 +27,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 @SpringBootApplication
 @EnableAutoConfiguration(exclude = {
@@ -58,5 +60,12 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
         MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
         mimeTypesLoader.load();
         return mimeTypesLoader;
+    }
+
+    @Bean
+    public FilterRegistrationBean<HiddenHttpMethodFilter> registration(final HiddenHttpMethodFilter filter) {
+        FilterRegistrationBean<HiddenHttpMethodFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false);
+        return registration;
     }
 }

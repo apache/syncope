@@ -32,7 +32,7 @@ under the License.
   </context-param>
   <context-param>
     <param-name>saml2sp.login.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage</param-value>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Login</param-value>
   </context-param>
   
   <context-param>
@@ -41,7 +41,7 @@ under the License.
   </context-param>
   <context-param>
     <param-name>saml2sp.logout.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage</param-value>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Login</param-value>
   </context-param>
   
   <context-param>
@@ -56,7 +56,7 @@ under the License.
   </context-param>
   <context-param>
     <param-name>oidcclient.login.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage</param-value>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Login</param-value>
   </context-param>
   
   <context-param>
@@ -65,7 +65,7 @@ under the License.
   </context-param>
   <context-param>
     <param-name>oidcclient.logout.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage</param-value>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Login</param-value>
   </context-param>
 
   <context-param>

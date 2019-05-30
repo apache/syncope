@@ -57,7 +57,8 @@ public class Login extends BaseLogin {
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
         lookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
-                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class).newInstance("ssoLogin"));
+                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).newInstance(
+                        "ssoLogin", SyncopeEnduserSession.get()));
             } catch (Exception e) {
                 LOG.error("Could not initialize the provided SSO login form panel", e);
             }

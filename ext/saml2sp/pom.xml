@@ -49,6 +49,7 @@ under the License.
     <module>agent</module>
     <module>client-console</module>
     <module>client-enduser</module>
+    <module>client-common-ui</module>
   </modules>
 
 </project>

@@ -21,17 +21,24 @@ package org.apache.syncope.client.enduser.navigation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.enduser.pages.Login;
+import org.apache.syncope.client.enduser.pages.Logout;
 import org.apache.syncope.client.enduser.pages.Self;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -100,6 +107,32 @@ public class Navbar extends Panel {
             }
         });
         add(logoLinkWmc);
+
+        @SuppressWarnings("unchecked")
+        final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeEnduserSession.get().
+                getAttribute(Constants.BEFORE_LOGOUT_PAGE);
+        if (beforeLogout == null) {
+            add(new BookmarkablePageLink<>("logout", Logout.class));
+        } else {
+            add(new AjaxLink<Page>("logout") {
+
+                private static final long serialVersionUID = -4889563567201424183L;
+
+                @Override
+                protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                    super.updateAjaxAttributes(attributes);
+
+                    AjaxCallListener ajaxCallListener = new AjaxCallListener();
+                    ajaxCallListener.onPrecondition("return confirm('" + getString("confirmGlobalLogout") + "');");
+                    attributes.getAjaxCallListeners().add(ajaxCallListener);
+                }
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    setResponsePage(beforeLogout);
+                }
+            });
+        }
     }
 
     public ListView<Class<? extends BaseExtPage>> getExtPages() {

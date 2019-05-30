@@ -173,6 +173,11 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         super.invalidate();
     }
 
+    @Override
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getService(serviceClass);
+    }
+
     public <T> T getService(final Class<T> serviceClass) {
         T service = (client == null || !isAuthenticated())
                 ? anonymousClient.getService(serviceClass)

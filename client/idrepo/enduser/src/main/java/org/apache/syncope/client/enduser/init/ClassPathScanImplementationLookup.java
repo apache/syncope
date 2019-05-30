@@ -28,7 +28,7 @@ import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
-import org.apache.syncope.client.ui.commons.panels.SSOLoginFormPanel;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +43,13 @@ public class ClassPathScanImplementationLookup {
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope";
 
-    private final List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels = new ArrayList<>();
+    private List<Class<? extends BaseSSOLoginFormPanel>> ssoLoginFormPanels;
 
-    private List<Class<? extends AbstractResource>> resources = new ArrayList<>();
+    private List<Class<? extends AbstractResource>> resources;
 
-    private final List<Class<? extends AbstractBinaryPreviewer>> previewers = new ArrayList<>();
+    private List<Class<? extends AbstractBinaryPreviewer>> previewers;
 
-    private final List<Class<? extends BaseExtPage>> extPages = new ArrayList<>();
+    private List<Class<? extends BaseExtPage>> extPages;
 
     /**
      * This method can be overridden by subclasses to customize classpath scan.
@@ -62,9 +62,16 @@ public class ClassPathScanImplementationLookup {
 
     @SuppressWarnings("unchecked")
     public void load() {
+        previewers = new ArrayList<>();
+        extPages = new ArrayList<>();
+        ssoLoginFormPanels = new ArrayList<>();
+        resources = new ArrayList<>();
+
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BaseSSOLoginFormPanel.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
@@ -81,12 +88,14 @@ public class ClassPathScanImplementationLookup {
                     } else if (AbstractResource.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(Resource.class)) {
                             resources.add((Class<? extends AbstractResource>) clazz);
-                        } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
-                            previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     Resource.class.getName(), clazz.getName());
                         }
+                    } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
+                        previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
+                    } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
+                        ssoLoginFormPanels.add((Class<? extends BaseSSOLoginFormPanel>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -94,6 +103,13 @@ public class ClassPathScanImplementationLookup {
             }
         }
         resources = Collections.unmodifiableList(resources);
+
+        ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
+
+        LOG.debug("Binary previewers found: {}", previewers);
+        LOG.debug("Extension pages found: {}", extPages);
+        LOG.debug("SSO Login pages found: {}", ssoLoginFormPanels);
+        LOG.debug("Wicket Resources found: {}", resources);
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -114,7 +130,7 @@ public class ClassPathScanImplementationLookup {
         return resources;
     }
 
-    public List<Class<? extends SSOLoginFormPanel>> getSSOLoginFormPanels() {
+    public List<Class<? extends BaseSSOLoginFormPanel>> getSSOLoginFormPanels() {
         return this.ssoLoginFormPanels;
     }
 
