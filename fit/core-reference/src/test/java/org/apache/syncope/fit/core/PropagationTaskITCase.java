@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,7 +39,10 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -48,13 +52,20 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
@@ -392,6 +403,113 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             Attribute carLicense = AttributeUtil.find("carLicense", propagationAttrs);
             assertNotNull(carLicense);
             assertEquals(sdf.format(loginDate.getTime()), carLicense.getValue().get(0));
+        } finally {
+            try {
+                resourceService.delete(ldap.getKey());
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1473() throws ParseException {
+        // create a new group schema
+        PlainSchemaTO schemaTO = new PlainSchemaTO();
+        schemaTO.setKey("ldapGroups" + getUUIDString());
+        schemaTO.setType(AttrSchemaType.String);
+        schemaTO.setMultivalue(true);
+        schemaTO.setReadonly(true);
+        schemaTO.setAnyTypeClass("minimal user");
+
+        schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
+        assertNotNull(schemaTO);
+
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        try {
+            // 1. clone the LDAP resource and add some sensible mappings
+            ProvisionTO provisionGroup = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()));
+            assertNotNull(provisionGroup);
+            provisionGroup.getVirSchemas().clear();
+            
+            ProvisionTO provisionUser = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()));
+            assertNotNull(provisionUser);
+            CollectionUtils.filterInverse(provisionUser.getMapping().getItems(), new Predicate<ItemTO>() {
+
+                @Override
+                public boolean evaluate(final ItemTO item) {
+                    return "mail".equals(item.getExtAttrName());
+                }
+            });
+            provisionUser.getVirSchemas().clear();
+
+            ItemTO ldapGroups = new ItemTO();
+            ldapGroups.setPurpose(MappingPurpose.PROPAGATION);
+            ldapGroups.setIntAttrName(schemaTO.getKey());
+            ldapGroups.setExtAttrName("ldapGroups");
+            provisionUser.getMapping().add(ldapGroups);
+
+            ldap.getProvisions().clear();
+            ldap.getProvisions().add(provisionUser);
+            ldap.getProvisions().add(provisionGroup);
+            ldap.setKey(RESOURCE_NAME_LDAP + "1473" + getUUIDString());
+            resourceService.create(ldap);
+
+            // 1. create group with the new resource assigned
+            GroupTO groupTO = new GroupTO();
+            groupTO.setName("SYNCOPEGROUP1473-" + getUUIDString());
+            groupTO.setRealm("/");
+            groupTO.getResources().add(ldap.getKey());
+
+            groupTO = createGroup(groupTO).getEntity();
+            assertNotNull(groupTO);
+
+            // 2. create user with the new resource assigned
+            UserTO userTO = UserITCase.getUniqueSampleTO("syncope1473@syncope.apache.org");
+            userTO.getResources().clear();
+            userTO.getResources().add(ldap.getKey());
+            userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
+
+            userTO = createUser(userTO).getEntity();
+            assertNotNull(userTO);
+
+            // 3. check attributes prepared for propagation
+            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(userTO.getResources().iterator().next()).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            groupService.deassociate(new DeassociationPatch.Builder().key(groupTO.getKey()).
+                    action(ResourceDeassociationAction.UNLINK).resource(ldap.getKey()).build());
+            groupService.delete(groupTO.getKey());
+
+            GroupTO newGroupTO = new GroupTO();
+            newGroupTO.setName("NEWSYNCOPEGROUP1473-" + getUUIDString());
+            newGroupTO.setRealm("/");
+            newGroupTO.getResources().add(ldap.getKey());
+
+            newGroupTO = createGroup(newGroupTO).getEntity();
+            assertNotNull(newGroupTO);
+
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(userTO.getKey());
+            userPatch.getMemberships().add(
+                    new MembershipPatch.Builder().group(
+                            newGroupTO.getKey()).operation(PatchOperation.ADD_REPLACE).build());
+            userService.update(userPatch);
+
+            Set<Attribute> propagationAttrs = new HashSet<>();
+            if (StringUtils.isNotBlank(tasks.getResult().get(0).getAttributes())) {
+                propagationAttrs.addAll(Arrays.asList(
+                        POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
+            }
+
+            ConnObjectTO connObject =
+                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
+            assertNotNull(connObject);
+            assertNotNull(connObject.getAttr("ldapGroups"));
+            assertTrue(connObject.getAttr("ldapGroups").getValues().size() == 2);
+
         } finally {
             try {
                 resourceService.delete(ldap.getKey());
