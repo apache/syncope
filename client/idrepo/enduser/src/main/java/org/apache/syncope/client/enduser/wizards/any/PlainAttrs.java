@@ -25,17 +25,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.enduser.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.enduser.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.ui.commons.SchemaUtils;
-import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
@@ -87,7 +85,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             final Form<?> form,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
-            final List<String> whichPlainAttrs) throws IllegalArgumentException {
+            final Map<String, CustomizationOption> whichPlainAttrs) throws IllegalArgumentException {
 
         super(modelObject, anyTypeClasses, whichPlainAttrs);
         this.mode = mode;
@@ -138,6 +136,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     public WebMarkupContainer getPanel(final String panelId) {
                         return new PlainSchemas(
                                 panelId,
+                                membershipTO.getGroupName(),
                                 membershipSchemas.get(membershipTO.getGroupKey()),
                                 new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
@@ -152,8 +151,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     }
 
     @Override
-    protected boolean reoderSchemas() {
-        return super.reoderSchemas() && mode != AjaxWizard.Mode.TEMPLATE;
+    protected boolean filterSchemas() {
+        return super.filterSchemas() && mode != AjaxWizard.Mode.TEMPLATE;
     }
 
     @Override
@@ -189,7 +188,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> plainAttrs = new ArrayList<>();
 
         final Map<String, Attr> attrMap;
         if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
@@ -199,7 +198,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             attrMap = new HashMap<>();
         }
 
-        attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
+        plainAttrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
                 map(schema -> {
                     Attr attrTO = new Attr();
                     attrTO.setSchema(schema.getKey());
@@ -212,28 +211,20 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 }).collect(Collectors.toList()));
 
         membershipTO.getPlainAttrs().clear();
-        membershipTO.getPlainAttrs().addAll(attrs);
+        membershipTO.getPlainAttrs().addAll(plainAttrs);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
-        final boolean required;
-        final boolean readOnly;
-        final AttrSchemaType type;
-        final boolean jexlHelp;
+        return getFieldPanel(schemaTO, null);
+    }
 
-        if (mode == AjaxWizard.Mode.TEMPLATE) {
-            required = false;
-            readOnly = false;
-            type = AttrSchemaType.String;
-            jexlHelp = true;
-        } else {
-            required = schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
-            readOnly = schemaTO.isReadonly();
-            type = schemaTO.getType();
-            jexlHelp = false;
-
-        }
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected FieldPanel getFieldPanel(final PlainSchemaTO schemaTO, final String groupName) {
+        final boolean required = schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
+        final boolean readOnly = schemaTO.isReadonly() || renderAsReadonly(schemaTO.getKey(), groupName);
+        final AttrSchemaType type = schemaTO.getType();
+        final boolean jexlHelp = false;
 
         FieldPanel panel;
         switch (type) {
@@ -387,6 +378,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
                 final IModel<List<Attr>> attrTOs) {
+            this(id, null, schemas, attrTOs);
+        }
+
+        public PlainSchemas(
+                final String id,
+                final String groupName,
+                final Map<String, PlainSchemaTO> schemas,
+                final IModel<List<Attr>> attrTOs) {
             super(id);
 
             add(new ListView<Attr>("schemas", attrTOs) {
@@ -398,11 +397,15 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attrTO = item.getModelObject();
 
+                    // set default values, if any
+                    if (attrTO.getValues().stream().filter(value -> StringUtils.isNotBlank(value))
+                            .collect(Collectors.toList()).isEmpty()) {
+                        attrTO.getValues().clear();
+                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
+                    }
+
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (mode == AjaxWizard.Mode.TEMPLATE
-                            || !schemas.get(attrTO.getSchema()).isMultivalue()) {
-                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
-                    } else {
+                    if (schemas.get(attrTO.getSchema()).isMultivalue()) {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(attrTO, "values")).build(
                                 "panel",
@@ -410,25 +413,10 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                                 FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
                         ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
+                    } else {
+                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     }
                     item.add(panel);
-
-                    Optional<Attr> prevAttr = previousObject == null
-                            ? Optional.empty()
-                            : previousObject.getPlainAttr(attrTO.getSchema());
-                    if (previousObject != null
-                            && ((!prevAttr.isPresent() && attrTO.getValues().stream().anyMatch(StringUtils::isNotBlank))
-                            || (prevAttr.isPresent() && !ListUtils.isEqualList(
-                            prevAttr.get().getValues().stream().
-                                    filter(StringUtils::isNotBlank).collect(Collectors.toList()),
-                            attrTO.getValues().stream().
-                                    filter(StringUtils::isNotBlank).collect(Collectors.toList()))))) {
-
-                        List<String> oldValues = prevAttr.isPresent()
-                                ? prevAttr.get().getValues()
-                                : Collections.<String>emptyList();
-                        panel.showExternAction(new LabelInfo("externalAction", oldValues));
-                    }
                 }
             });
         }

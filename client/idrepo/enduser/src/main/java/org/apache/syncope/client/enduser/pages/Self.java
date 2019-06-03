@@ -19,14 +19,17 @@
 package org.apache.syncope.client.enduser.pages;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
+import org.apache.syncope.client.enduser.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -34,10 +37,14 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Self extends BaseEnduserWebPage implements IEventSource {
 
     private static final long serialVersionUID = 164651008547631054L;
+
+    @SpringBean
+    private ConfParamOps confParamOps;
 
     private UserWizardBuilder userWizardBuilder;
 
@@ -88,11 +95,18 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
     }
 
     protected final AjaxWizard<AnyWrapper<UserTO>> buildWizard(final UserTO userTO, final AjaxWizard.Mode mode) {
+        final String formLayoutConfParam = confParamOps.get(
+                SyncopeEnduserSession.get().getDomain(),
+                "enduser.form.layout.info",
+                Constants.DEFAULT_USER_FORM_LAYOUT_INFO,
+                String.class);
         userWizardBuilder = new UserWizardBuilder(
                 null,
                 userTO,
                 SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getUserClasses(),
-                new UserFormLayoutInfo(),
+                StringUtils.isBlank(formLayoutConfParam)
+                ? new UserFormLayoutInfo()
+                : FormLayoutInfoUtils.fromJsonString(formLayoutConfParam),
                 this.getPageReference());
         userWizardBuilder.setItem(new UserWrapper(userTO));
         return userWizardBuilder.build(WIZARD_ID, mode);

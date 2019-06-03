@@ -124,18 +124,16 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
 
             });
         }
-        if (formLayoutInfo.isDerAttrs() && mode != AjaxWizard.Mode.TEMPLATE) {
+        if (formLayoutInfo.isDerAttrs()) {
             wizardModel.add(new DerAttrs(modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
         }
         if (formLayoutInfo.isVirAttrs()) {
             wizardModel.add(new VirAttrs(
                     modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
         }
-
         if (formLayoutInfo.isResources()) {
             wizardModel.add(new Resources(modelObject));
         }
-
         if (SyncopeWebApplication.get().isCaptchaEnabled()) {
             // add captcha
             captcha = new Captcha();

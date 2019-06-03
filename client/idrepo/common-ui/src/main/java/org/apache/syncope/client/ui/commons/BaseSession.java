@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import javax.ws.rs.core.MediaType;
+
 public interface BaseSession {
 
     void setDomain(String domain);
@@ -25,5 +27,13 @@ public interface BaseSession {
     String getDomain();
 
     <T> T getAnonymousService(Class<T> serviceClass);
+
+    <T> T getService(Class<T> serviceClass);
+
+    <T> T getService(String etag, Class<T> serviceClass);
+
+    <T> T getService(MediaType mediaType, Class<T> serviceClass);
+
+    <T> void resetClient(Class<T> service);
 
 }

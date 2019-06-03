@@ -18,16 +18,13 @@
  */
 package org.apache.syncope.client.enduser.layout;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.rest.RoleRestClient;
 import org.apache.syncope.client.ui.commons.wizards.ModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -39,31 +36,11 @@ import org.apache.wicket.PageReference;
  */
 public final class FormLayoutInfoUtils {
 
-    private static final RoleRestClient ROLE_REST_CLIENT = new RoleRestClient();
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public static UserFormLayoutInfo fetch(
-            final Collection<String> anyTypes) {
-
-        List<String> ownedRoles = SyncopeEnduserSession.get().getSelfTO().getRoles();
+    public static UserFormLayoutInfo fromJsonString(final String content) {
         try {
-            JsonNode tree = null;
-            for (int i = 0; i < ownedRoles.size() && tree == null; i++) {
-                String consoleLayoutInfo = ROLE_REST_CLIENT.readConsoleLayoutInfo(ownedRoles.get(i));
-                if (StringUtils.isNotBlank(consoleLayoutInfo)) {
-                    tree = MAPPER.readTree(consoleLayoutInfo);
-                }
-            }
-            if (tree == null) {
-                tree = MAPPER.createObjectNode();
-            }
-
-            UserFormLayoutInfo userFormLayoutInfo = tree.has(AnyTypeKind.USER.name())
-                    ? MAPPER.treeToValue(tree.get(AnyTypeKind.USER.name()), UserFormLayoutInfo.class)
-                    : new UserFormLayoutInfo();
-
-            return userFormLayoutInfo;
+            return MAPPER.readValue(content, UserFormLayoutInfo.class);
         } catch (IOException e) {
             throw new IllegalArgumentException("While parsing console layout info for "
                     + SyncopeEnduserSession.get().getSelfTO().getUsername(), e);

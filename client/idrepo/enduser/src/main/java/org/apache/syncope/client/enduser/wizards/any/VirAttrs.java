@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.wizards.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,8 +27,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.enduser.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -65,7 +64,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             final AnyWrapper<T> modelObject,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
-            final List<String> whichVirAttrs) {
+            final Map<String, CustomizationOption> whichVirAttrs) {
 
         super(modelObject, anyTypeClasses, whichVirAttrs);
         this.mode = mode;
@@ -101,6 +100,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                             public WebMarkupContainer getPanel(final String panelId) {
                                 return new VirAttrs.VirSchemas(
                                         panelId,
+                                        membershipTO.getGroupName(),
                                         membershipSchemas.get(membershipTO.getGroupKey()),
                                         new ListModel<>(getAttrsFromTO(membershipTO)));
                             }
@@ -126,11 +126,11 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> virAttrs = new ArrayList<>();
 
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
-        attrs.addAll(schemas.values().stream().map(schema -> {
+        virAttrs.addAll(schemas.values().stream().map(schema -> {
             Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -142,12 +142,12 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
         }).collect(Collectors.toList()));
 
         anyTO.getVirAttrs().clear();
-        anyTO.getVirAttrs().addAll(attrs);
+        anyTO.getVirAttrs().addAll(virAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> virAttrs = new ArrayList<>();
 
         final Map<String, Attr> attrMap;
         if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
@@ -157,7 +157,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             attrMap = new HashMap<>();
         }
 
-        attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
+        virAttrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -169,7 +169,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
         }).collect(Collectors.toList()));
 
         membershipTO.getVirAttrs().clear();
-        membershipTO.getVirAttrs().addAll(attrs);
+        membershipTO.getVirAttrs().addAll(virAttrs);
     }
 
     public class VirSchemas extends Schemas {
@@ -178,6 +178,14 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
         public VirSchemas(
                 final String id,
+                final Map<String, VirSchemaTO> schemas,
+                final IModel<List<Attr>> attrTOs) {
+            this(id, null, schemas, attrTOs);
+        }
+
+        public VirSchemas(
+                final String id,
+                final String groupName,
                 final Map<String, VirSchemaTO> schemas,
                 final IModel<List<Attr>> attrTOs) {
             super(id);
@@ -190,6 +198,14 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 @SuppressWarnings("unchecked")
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attrTO = item.getModelObject();
+
+                    // set default values, if any
+                    if (attrTO.getValues().stream().filter(value -> StringUtils.isNotBlank(value))
+                            .collect(Collectors.toList()).isEmpty()) {
+                        attrTO.getValues().clear();
+                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
+                    }
+
                     VirSchemaTO virSchemaTO = schemas.get(attrTO.getSchema());
 
                     AbstractFieldPanel<?> panel = new AjaxTextFieldPanel(
@@ -198,25 +214,14 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                             new Model<>(),
                             false);
 
-                    if (mode == AjaxWizard.Mode.TEMPLATE) {
-                        AjaxTextFieldPanel.class.cast(panel).enableJexlHelp().setEnabled(!virSchemaTO.isReadonly());
-                    } else {
-                        panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<List<String>>(attrTO, "values")).build(
-                                "panel",
-                                virSchemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
-                                AjaxTextFieldPanel.class.cast(panel));
-                        panel.setEnabled(!virSchemaTO.isReadonly());
-                    }
+                    panel = new MultiFieldPanel.Builder<>(
+                            new PropertyModel<List<String>>(attrTO, "values")).build(
+                            "panel",
+                            virSchemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                            AjaxTextFieldPanel.class.cast(panel));
+                    panel.setEnabled(!virSchemaTO.isReadonly() && !renderAsReadonly(attrTO.getSchema(), groupName));
 
                     item.add(panel);
-
-                    if (!attrTO.getValues().isEmpty()
-                            && VirAttrs.this.modelObject instanceof UserWrapper
-                            && UserWrapper.class.cast(VirAttrs.this.modelObject).getPreviousUserTO() != null) {
-
-                        panel.showExternAction(new LabelInfo("externalAction", StringUtils.EMPTY));
-                    }
                 }
             });
         }

@@ -18,16 +18,36 @@
  */
 package org.apache.syncope.client.enduser.layout;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder;
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormBaseLayout;
 import org.apache.syncope.client.ui.commons.layout.UserForm;
 import org.apache.syncope.common.lib.to.UserTO;
 
-public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> {
+public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserForm> {
 
     private static final long serialVersionUID = -5573691733739618500L;
 
+    private final Map<String, CustomizationOption> whichPlainAttrs = new HashMap<>();
+
+    private final Map<String, CustomizationOption> whichDerAttrs = new HashMap<>();
+
+    private final Map<String, CustomizationOption> whichVirAttrs = new HashMap<>();
+
     private boolean passwordManagement = true;
+
+    public Map<String, CustomizationOption> getWhichPlainAttrs() {
+        return whichPlainAttrs;
+    }
+
+    public Map<String, CustomizationOption> getWhichDerAttrs() {
+        return whichDerAttrs;
+    }
+
+    public Map<String, CustomizationOption> getWhichVirAttrs() {
+        return whichVirAttrs;
+    }
 
     @Override
     protected Class<? extends UserForm> getDefaultFormClass() {

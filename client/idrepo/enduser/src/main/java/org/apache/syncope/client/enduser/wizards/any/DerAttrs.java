@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -56,7 +57,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     public <T extends AnyTO> DerAttrs(
             final AnyWrapper<T> modelObject,
             final List<String> anyTypeClasses,
-            final List<String> whichDerAttrs) {
+            final Map<String, CustomizationOption> whichDerAttrs) {
 
         super(modelObject, anyTypeClasses, whichDerAttrs);
         setTitleModel(new ResourceModel("attributes.derived"));
@@ -116,7 +117,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> derAttrs = new ArrayList<>();
 
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
@@ -127,16 +128,16 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
 
-            attrs.add(attrTO);
+            derAttrs.add(attrTO);
         });
 
         anyTO.getDerAttrs().clear();
-        anyTO.getDerAttrs().addAll(attrs);
+        anyTO.getDerAttrs().addAll(derAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> derAttrs = new ArrayList<>();
 
         final Map<String, Attr> attrMap;
         if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
@@ -153,11 +154,11 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
 
-            attrs.add(attrTO);
+            derAttrs.add(attrTO);
         });
 
         membershipTO.getDerAttrs().clear();
-        membershipTO.getDerAttrs().addAll(attrs);
+        membershipTO.getDerAttrs().addAll(derAttrs);
     }
 
     public class DerSchemas extends Schemas {

@@ -308,10 +308,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return getAnonymousClient().getService(serviceClass);
     }
 
+    @Override
     public <T> T getService(final Class<T> serviceClass) {
         return getCachedService(serviceClass);
     }
 
+    @Override
     public <T> T getService(final String etag, final Class<T> serviceClass) {
         T serviceInstance = getCachedService(serviceClass);
         WebClient.client(serviceInstance).match(new EntityTag(etag), false);
@@ -319,6 +321,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return serviceInstance;
     }
 
+    @Override
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
         T service;
 
@@ -338,6 +341,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return client.batch();
     }
 
+    @Override
     public <T> void resetClient(final Class<T> service) {
         T serviceInstance = getCachedService(service);
         WebClient.client(serviceInstance).reset();
