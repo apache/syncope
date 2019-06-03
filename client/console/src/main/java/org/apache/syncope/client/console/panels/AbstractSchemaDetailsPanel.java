@@ -51,6 +51,8 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
         schemaForm = new Form<>(FORM);
         schemaForm.setModel(new CompoundPropertyModel<>(schemaTO));
         schemaForm.setOutputMarkupId(true);
+        // SYNCOPE-1476
+        schemaForm.setMultiPart(true);
 
         final AjaxTextFieldPanel name =
                 new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(schemaTO, "key"));
