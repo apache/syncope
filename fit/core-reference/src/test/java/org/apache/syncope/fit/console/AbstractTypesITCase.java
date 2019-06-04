@@ -100,13 +100,8 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:details:key:textField", key);
         formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
-//        Assertions.assertTrue(formTester.getForm().isMultiPart());
-        
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
-
-        LOG.info(">>>>>>>>>>>>>>>> {} - {} - {}", TESTER.getLastResponseAsString(), TESTER.getLastResponse().
-                getDocument(), TESTER.getLastRenderedPage());
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
