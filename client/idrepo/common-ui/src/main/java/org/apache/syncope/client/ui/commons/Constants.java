@@ -103,13 +103,6 @@ public final class Constants {
 
     public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";
 
-    public static final String DEFAULT_USER_FORM_LAYOUT_INFO = "{\n"
-            + "    \"formClass\" : \"org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder\",\n"
-            + "    \"auxClasses\" : true,\n" + "    \"groups\" : true,\n" + "    \"plainAttrs\" : true,\n"
-            + "    \"derAttrs\" : true,\n" + "    \"virAttrs\" : true,\n" + "    \"resources\" : true,\n"
-            + "    \"whichPlainAttrs\" : {},\n" + "    \"whichDerAttrs\" : {},\n" + "    \"whichVirAttrs\" : {},\n"
-            + "    \"passwordManagement\" : true\n" + "  }";
-
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
         return getJEXLPopover(caller, placement, caller.getString("jexl_ex1"), caller.getString("jexl_ex2"));
     }

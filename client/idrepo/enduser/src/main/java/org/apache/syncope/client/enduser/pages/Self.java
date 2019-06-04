@@ -98,7 +98,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         final String formLayoutConfParam = confParamOps.get(
                 SyncopeEnduserSession.get().getDomain(),
                 "enduser.form.layout.info",
-                Constants.DEFAULT_USER_FORM_LAYOUT_INFO,
+                FormLayoutInfoUtils.getDefaultValue(),
                 String.class);
         userWizardBuilder = new UserWizardBuilder(
                 null,

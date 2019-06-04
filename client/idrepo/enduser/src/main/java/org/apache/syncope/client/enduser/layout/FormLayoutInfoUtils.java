@@ -36,7 +36,23 @@ import org.apache.wicket.PageReference;
  */
 public final class FormLayoutInfoUtils {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER;
+
+    private static final String DEFAULT_USER_FORM_LAYOUT_INFO;
+
+    static {
+        MAPPER = new ObjectMapper();
+        try {
+            DEFAULT_USER_FORM_LAYOUT_INFO = MAPPER.writeValueAsString(new UserFormLayoutInfo());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("While generating default enduser layout info for "
+                    + SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
+        }
+    }
+
+    public static String getDefaultValue() {
+        return DEFAULT_USER_FORM_LAYOUT_INFO;
+    }
 
     public static UserFormLayoutInfo fromJsonString(final String content) {
         try {
