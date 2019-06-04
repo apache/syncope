@@ -86,6 +86,9 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         super(id, true, pageRef);
         this.schemaType = schemaType;
 
+        // SYNCOPE-1476
+        setFormAsMultipart(true);
+
         disableCheckBoxes();
 
         try {
@@ -264,10 +267,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             AjaxRequestTarget target = payload.getTarget();
 
             keyword = payload.getKeyword();
-            if (!keyword.startsWith("*")) {
+            if (!StringUtils.startsWith(keyword, "*")) {
                 keyword = "*" + keyword;
             }
-            if (!keyword.endsWith("*")) {
+            if (!StringUtils.endsWith(keyword, "*")) {
                 keyword = keyword + "*";
             }
 
