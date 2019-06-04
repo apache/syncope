@@ -353,12 +353,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         return this;
     }
 
-    // SYNCOPE-1476
-    public WizardMgtPanel<T> setFormAsMultipart(final boolean multipart) {
-        this.modal.setFormMultipart(multipart);
-        return this;
-    }
-
     /**
      * Set window close callback for the given modal.
      *

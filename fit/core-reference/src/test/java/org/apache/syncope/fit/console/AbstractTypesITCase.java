@@ -23,6 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.wicket.util.tester.FormTester;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
@@ -99,8 +100,13 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:details:key:textField", key);
         formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
+//        Assertions.assertTrue(formTester.getForm().isMultiPart());
+        
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
+
+        LOG.info(">>>>>>>>>>>>>>>> {} - {} - {}", TESTER.getLastResponseAsString(), TESTER.getLastResponse().
+                getDocument(), TESTER.getLastRenderedPage());
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
