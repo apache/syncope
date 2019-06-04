@@ -442,6 +442,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             }
                         });
                     } else {
+                        // SYNCOPE-1476 set form as multipart to properly manage membership attributes
                         panel = new MultiFieldPanel.Builder<>(new ListModel<String>() {
 
                             private static final long serialVersionUID = -1765231556272935141L;
@@ -452,7 +453,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             }
                         }).build("panel",
                                 attrTO.getSchema(),
-                                FieldPanel.class.cast(panel));
+                                FieldPanel.class.cast(panel)).setFormAsMultipart(true);
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
                         ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
                     }
@@ -490,11 +491,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     } else {
+                        // SYNCOPE-1476 set form as multipart to properly manage membership attributes
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(attrTO, "values")).build(
                                 "panel",
                                 attrTO.getSchema(),
-                                FieldPanel.class.cast(panel));
+                                FieldPanel.class.cast(panel)).setFormAsMultipart(true);
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
                         ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
                     }

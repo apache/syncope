@@ -84,9 +84,6 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         super(id, true, pageRef);
         this.schemaType = schemaType;
 
-        // SYNCOPE-1476
-        setFormAsMultipart(true);
-
         disableCheckBoxes();
 
         try {

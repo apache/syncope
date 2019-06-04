@@ -59,7 +59,6 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
         form = new Form<>("innerForm");
         form.setDefaultButton(null);
-        form.setMultiPart(true);
         container.add(form);
         // -----------------------
 
@@ -71,6 +70,12 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         } else {
             form.addOrReplace(getDataFragment());
         }
+    }
+
+    // SYNCOPE-1476
+    public AbstractMultiPanel<INNER> setFormAsMultipart(final boolean multipart) {
+        form.setMultiPart(multipart);
+        return this;
     }
 
     private Fragment getNoDataFragment(final IModel<List<INNER>> model, final String label) {
