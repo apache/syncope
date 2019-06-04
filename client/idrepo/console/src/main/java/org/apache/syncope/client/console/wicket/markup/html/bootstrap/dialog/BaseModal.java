@@ -127,6 +127,12 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return this;
     }
 
+    // SYNCOPE-1476
+    public BaseModal<T> setFormMultipart(final boolean multipart) {
+        form.setMultiPart(multipart);
+        return this;
+    }
+
     public T getFormModel() {
         return form.getModelObject();
     }
