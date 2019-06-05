@@ -72,6 +72,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>com.googlecode.wicket-jquery-ui</groupId>
+      <artifactId>wicket-jquery-ui-theme-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.wicket-jquery-ui</groupId>
       <artifactId>wicket-kendo-ui</artifactId>
     </dependency>
     <dependency>

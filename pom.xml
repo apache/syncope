@@ -1405,6 +1405,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.googlecode.wicket-jquery-ui</groupId>
+        <artifactId>wicket-jquery-ui-theme-base</artifactId>
+        <version>${wicket-jqueryui.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.wicket-jquery-ui</groupId>
         <artifactId>wicket-kendo-ui</artifactId>
         <version>${wicket-jqueryui.version}</version>
       </dependency>
