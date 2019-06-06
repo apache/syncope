@@ -165,7 +165,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + "second:container:actions:actionRepeater:0:action:action",
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -220,7 +220,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + "second:container:actions:actionRepeater:1:action:action",
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"

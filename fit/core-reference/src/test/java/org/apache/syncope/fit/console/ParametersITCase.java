@@ -61,7 +61,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.cleanupFeedbackMessages();
         TESTER.assertRenderedPage(Parameters.class);
@@ -87,7 +87,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
                              
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.cleanupFeedbackMessages();
         TESTER.assertRenderedPage(Parameters.class);
@@ -110,7 +110,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
@@ -120,7 +120,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
     }
 }

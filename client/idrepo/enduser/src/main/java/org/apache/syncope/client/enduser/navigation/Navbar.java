@@ -24,7 +24,6 @@ import java.util.Optional;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
-import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.Logout;
 import org.apache.syncope.client.enduser.pages.Self;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -103,7 +102,7 @@ public class Navbar extends Panel {
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                setResponsePage(Login.class);
+                setResponsePage(getApplication().getHomePage());
             }
         });
         add(logoLinkWmc);

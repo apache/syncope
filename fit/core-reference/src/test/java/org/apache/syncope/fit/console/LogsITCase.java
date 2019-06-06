@@ -68,7 +68,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     @Test
@@ -93,7 +93,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     private Component searchLog(final String property, final String searchPath, final String key) {

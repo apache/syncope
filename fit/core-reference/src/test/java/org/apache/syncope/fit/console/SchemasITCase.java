@@ -75,7 +75,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.cleanupFeedbackMessages();
         TESTER.assertRenderedPage(Types.class);
@@ -111,7 +111,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     @Test
@@ -137,7 +137,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");;
+        TESTER.assertInfoMessages("Operation successfully executed");;
 
         TESTER.cleanupFeedbackMessages();
 
@@ -163,7 +163,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName));
@@ -199,7 +199,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
         TESTER.assertRenderedPage(Types.class);
 
@@ -216,7 +216,7 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir"));

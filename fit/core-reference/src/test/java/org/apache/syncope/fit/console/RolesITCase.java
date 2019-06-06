@@ -62,7 +62,7 @@ public class RolesITCase extends AbstractConsoleITCase {
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
@@ -123,7 +123,7 @@ public class RolesITCase extends AbstractConsoleITCase {
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -146,7 +146,7 @@ public class RolesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:4:action:action"), "onclick");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(KEY, "body:content:tabbedPanel:panel:container:content:searchContainer:"

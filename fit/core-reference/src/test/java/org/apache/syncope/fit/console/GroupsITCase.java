@@ -107,7 +107,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         formTester.setValue("view:name:textField", group + "_clone");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
@@ -134,7 +134,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:9:action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -200,7 +200,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(TAB_PANEL
@@ -223,7 +223,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:9:action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
     }
 

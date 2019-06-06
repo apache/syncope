@@ -46,7 +46,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
 
             final PageParameters parameters = new PageParameters();
             parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.success"));
-            setResponsePage(Login.class, parameters);
+            setResponsePage(getApplication().getHomePage(), parameters);
 
             setResponsePage(getApplication().getHomePage(), parameters);
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
 
     @Override
     protected void doCancel() {
-        setResponsePage(Login.class);
+        setResponsePage(getApplication().getHomePage());
     }
 
 }

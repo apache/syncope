@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -99,7 +100,8 @@ $(document).ready(function () {
       locationDomain + '/ui-commons/css/accessibility/accessibilityHC.css'
     ];
 
-    var darkThemeMainClass = 'skin-blue';
+    var darkThemeMainClass = 'dark-theme';
+    var darkThemeSkinClass = 'skin-blue';
     var defaultThemeMainClass = 'skin-green-light';
 
     var doSwitch = function (check, files) {
@@ -118,9 +120,9 @@ $(document).ready(function () {
       doSwitch(check, files);
 
       if ($('body').hasClass(defaultThemeMainClass) && check) {
-        $('body').removeClass(defaultThemeMainClass).addClass(darkThemeMainClass);
+        $('body').removeClass(defaultThemeMainClass).addClass(darkThemeMainClass).addClass(darkThemeSkinClass);
       } else {
-        $('body').removeClass(darkThemeMainClass).addClass(defaultThemeMainClass);
+        $('body').addClass(defaultThemeMainClass).removeClass(darkThemeMainClass).removeClass(darkThemeSkinClass);
       }
     };
 

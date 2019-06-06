@@ -56,7 +56,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.executeAjaxEvent("body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
@@ -75,7 +75,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:3:action:action");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel("body:content:body:container:content:tabbedPanel:panel:container:accountPolicy:field-label",
@@ -94,7 +94,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.executeAjaxEvent("body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
@@ -124,7 +124,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         formTester.setValue("view:username:textField", "'k' + firstname");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
@@ -147,7 +147,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         formTester.setValue("view:username:textField", "");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -169,7 +169,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         // ----------------------------------
@@ -215,7 +215,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         // ----------------------------------

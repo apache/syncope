@@ -102,7 +102,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
 
         TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:finish");
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.cleanupFeedbackMessages();
         TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
@@ -134,7 +134,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -165,7 +165,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:3:action:action");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
@@ -218,7 +218,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"

@@ -50,7 +50,7 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
                 + "3:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.clearFeedbackMessages();
     }

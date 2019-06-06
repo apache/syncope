@@ -298,3 +298,16 @@ div.infolabel,
 .login-card {
   background-color: #0f1417;
 }
+
+
+
+
+/* From Console Admin LTE
+============================================================================= */
+.dark-theme .callout.callout-danger, .dark-theme .callout.callout-warning, 
+.dark-theme .callout.callout-info, .dark-theme .callout.callout-success, 
+.dark-theme .alert-success, .dark-theme .alert-danger, .dark-theme .label-success, 
+.dark-theme .alert-error, .dark-theme .alert-warning, .dark-theme .alert-info, .dark-theme .label-danger, 
+.dark-theme .label-info, .dark-theme .label-warning, .dark-theme .label-primary {
+  color: #fff !important;
+}

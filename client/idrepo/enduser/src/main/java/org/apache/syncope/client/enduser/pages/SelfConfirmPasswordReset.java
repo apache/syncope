@@ -72,7 +72,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
         if (parameters == null || parameters.get("token").isEmpty()) {
             LOG.debug("No token parameter found in the request url");
             parameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
-            setResponsePage(Login.class, parameters);
+            setResponsePage(getApplication().getHomePage(), parameters);
         }
 
         navbar.setEnabled(false);
@@ -135,7 +135,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
                             parameters.get("token").toString(), passwordField.getDefaultModelObjectAsString());
                     PageParameters parameters = new PageParameters();
                     parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.success"));
-                    setResponsePage(Login.class, parameters);
+                    setResponsePage(getApplication().getHomePage(), parameters);
                 } catch (SyncopeClientException sce) {
                     LOG.error("Unable to complete the 'Password Reset Confirmation' process", sce);
                     SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
@@ -159,7 +159,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
 
             @Override
             public void onSubmit() {
-                setResponsePage(Login.class);
+                setResponsePage(getApplication().getHomePage());
             }
 
         };

@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -64,6 +65,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -113,7 +115,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new PlainSchemas(panelId, schemas, attrs);
+                return new PlainSchemasOwn(panelId, schemas, attrs);
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
@@ -134,11 +136,20 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new PlainSchemas(
+                        return new PlainSchemasMemberships(
                                 panelId,
                                 membershipTO.getGroupName(),
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new ListModel<>(getAttrsFromTO(membershipTO)));
+                                new LoadableDetachableModel<Attributable>() { // SYNCOPE-1439
+
+                            private static final long serialVersionUID = 526768546610546553L;
+
+                            @Override
+                            protected Attributable load() {
+                                return membershipTO;
+                            }
+
+                        });
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -370,22 +381,67 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         return panel;
     }
 
-    public class PlainSchemas extends Schemas {
+    protected class PlainSchemasMemberships extends Schemas {
 
-        private static final long serialVersionUID = -4730563859116024676L;
+        private static final long serialVersionUID = 456754923340249215L;
 
-        public PlainSchemas(
-                final String id,
-                final Map<String, PlainSchemaTO> schemas,
-                final IModel<List<Attr>> attrTOs) {
-            this(id, null, schemas, attrTOs);
-        }
-
-        public PlainSchemas(
+        public PlainSchemasMemberships(
                 final String id,
                 final String groupName,
                 final Map<String, PlainSchemaTO> schemas,
+                final IModel<Attributable> attributableTO) {
+
+            super(id);
+
+            add(new ListView<Attr>("schemas",
+                    new ListModel<Attr>(new ArrayList<Attr>(
+                            attributableTO.getObject().getPlainAttrs().stream().sorted(attrComparator).
+                                    collect(Collectors.toList())))) {
+
+                private static final long serialVersionUID = 5306618783986001008L;
+
+                @Override
+                @SuppressWarnings({ "unchecked", "rawtypes" })
+                protected void populateItem(final ListItem<Attr> item) {
+                    Attr attrTO = item.getModelObject();
+
+                    // set default values, if any
+                    if (attrTO.getValues().stream().anyMatch(value -> StringUtils.isNotBlank(value))) {
+                        attrTO.getValues().clear();
+                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
+                    }
+
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
+
+                    panel = new MultiFieldPanel.Builder<>(new ListModel<String>() {
+
+                        private static final long serialVersionUID = -1765231556272935141L;
+
+                        @Override
+                        public List<String> getObject() {
+                            return attributableTO.getObject().getPlainAttr(attrTO.getSchema()).get().getValues();
+                        }
+                    }).build("panel",
+                            attrTO.getSchema(),
+                            FieldPanel.class.cast(panel));
+                    // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
+                    ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
+
+                    item.add(panel);
+                }
+            });
+        }
+    }
+
+    protected class PlainSchemasOwn extends Schemas {
+
+        private static final long serialVersionUID = -4730563859116024676L;
+
+        public PlainSchemasOwn(
+                final String id,
+                final Map<String, PlainSchemaTO> schemas,
                 final IModel<List<Attr>> attrTOs) {
+
             super(id);
 
             add(new ListView<Attr>("schemas", attrTOs) {
@@ -396,13 +452,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attrTO = item.getModelObject();
-
-                    // set default values, if any
-                    if (attrTO.getValues().stream().filter(value -> StringUtils.isNotBlank(value))
-                            .collect(Collectors.toList()).isEmpty()) {
-                        attrTO.getValues().clear();
-                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
-                    }
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (schemas.get(attrTO.getSchema()).isMultivalue()) {
@@ -421,4 +470,5 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             });
         }
     }
+
 }

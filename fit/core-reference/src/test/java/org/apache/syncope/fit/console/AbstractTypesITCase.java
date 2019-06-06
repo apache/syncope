@@ -106,7 +106,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.cleanupFeedbackMessages();
     }
@@ -124,7 +124,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
         TESTER.clearFeedbackMessages();
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.clearFeedbackMessages();
     }
@@ -141,7 +141,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.clearFeedbackMessages();
     }
@@ -161,7 +161,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.clearFeedbackMessages();
         TESTER.assertRenderedPage(Types.class);

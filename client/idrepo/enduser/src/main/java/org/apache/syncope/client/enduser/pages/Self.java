@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
@@ -48,8 +47,6 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
 
     private UserWizardBuilder userWizardBuilder;
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
-
     protected static final String WIZARD_ID = "wizard";
 
     public Self(final PageParameters parameters) {
@@ -73,7 +70,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
                         getAttribute(Constants.BEFORE_LOGOUT_PAGE);
                 if (beforeLogout == null) {
                     SyncopeEnduserSession.get().invalidate();
-                    setResponsePage(Login.class);
+                    setResponsePage(getApplication().getHomePage());
                 } else {
                     setResponsePage(beforeLogout);
                 }
@@ -82,7 +79,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
 
                 final PageParameters parameters = new PageParameters();
                 parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.wizard.success"));
-                setResponsePage(Login.class, parameters);
+                setResponsePage(getApplication().getHomePage(), parameters);
             }
         }
         super.onEvent(event);

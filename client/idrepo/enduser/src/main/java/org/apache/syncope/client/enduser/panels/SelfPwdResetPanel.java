@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
-import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.wizards.any.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DomainDropDown;
@@ -170,7 +169,7 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
                                 requestPasswordReset(usernameText, securityAnswerModel.getObject());
                         final PageParameters parameters = new PageParameters();
                         parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success"));
-                        setResponsePage(Login.class, parameters);
+                        setResponsePage(getApplication().getHomePage(), parameters);
                     } catch (SyncopeClientException sce) {
                         LOG.error("Unable to reset password of [{}]", usernameText, sce);
                         SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
@@ -192,7 +191,7 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
 
             @Override
             public void onSubmit() {
-                setResponsePage(Login.class);
+                setResponsePage(getApplication().getHomePage());
             }
 
         };

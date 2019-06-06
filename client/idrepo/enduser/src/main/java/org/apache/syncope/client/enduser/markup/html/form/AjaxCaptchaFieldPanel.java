@@ -20,16 +20,19 @@ package org.apache.syncope.client.enduser.markup.html.form;
 
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.RequiredTextField;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidator;
 
-public class AjaxCaptchaFieldPanel extends FieldPanel<String> {
+public class AjaxCaptchaFieldPanel extends Panel {
 
     private static final long serialVersionUID = 238940918106696068L;
+
+    private RequiredTextField<String> field;
 
     public AjaxCaptchaFieldPanel(final String id, final String name, final IModel<String> model) {
         this(id, name, model, true);
@@ -37,7 +40,8 @@ public class AjaxCaptchaFieldPanel extends FieldPanel<String> {
 
     public AjaxCaptchaFieldPanel(
             final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
-        super(id, name, model);
+
+        super(id, model);
 
         field = new RequiredTextField<String>("textField", model, String.class) {
 
@@ -50,10 +54,11 @@ public class AjaxCaptchaFieldPanel extends FieldPanel<String> {
                 tag.put("value", "");
             }
         };
+        field.setLabel(new ResourceModel(name, name));
 
         add(field.setOutputMarkupId(true));
 
-        if (enableOnChange && !isReadOnly()) {
+        if (enableOnChange && !field.isEnabled()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;

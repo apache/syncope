@@ -114,7 +114,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"
