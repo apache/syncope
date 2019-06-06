@@ -153,27 +153,20 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
+    public UserRequestForm getForm(final String userKey, final String taskId) {
+        evaluateKey(userKey);
+
+        return userRequestHandler.getForm(userKey, taskId);
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<Integer, List<UserRequestForm>> getForms(
             final String userKey,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
-
-        if (userKey == null) {
-            securityChecks(null,
-                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
-                    "Listing forms not allowed");
-        } else {
-            User user = userDAO.find(userKey);
-            if (user == null) {
-                throw new NotFoundException("User " + userKey);
-            }
-
-            securityChecks(user.getUsername(),
-                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
-                    "Listing forms for user" + user.getUsername() + " not allowed");
-        }
+        evaluateKey(userKey);
 
         return userRequestHandler.getForms(userKey, page, size, orderByClauses);
     }
@@ -219,5 +212,22 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();
+    }
+
+    private void evaluateKey(final String userKey) {
+        if (userKey == null) {
+            securityChecks(null,
+                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
+                    "Listing forms not allowed");
+        } else {
+            User user = userDAO.find(userKey);
+            if (user == null) {
+                throw new NotFoundException("User " + userKey);
+            }
+
+            securityChecks(user.getUsername(),
+                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
+                    "Listing forms for user" + user.getUsername() + " not allowed");
+        }
     }
 }

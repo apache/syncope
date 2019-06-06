@@ -62,7 +62,7 @@ under the License.
   padding: 2%;
 }
 
-#attribute {
+#attribute, #form-submit {
   margin: auto;
   max-width:480px;
   padding: 10px;
@@ -379,6 +379,12 @@ div[role="tablist"] {
   background-color: #f5f5f5;
   border-color: #ddd;
 }
+
+.search-box {
+  padding-bottom: 5px !important;
+  margin: 3%
+}
+
 /* end default style
 ============================================================================= */
 

@@ -237,16 +237,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
                   }]
               }
             })
-            .state('update.userRequestForms', {
-              url: '/user-request-forms',
-              templateUrl: 'views/user-request-forms.html',
-              resolve: {
-                'authenticated': ['AuthService',
-                  function (AuthService) {
-                    return AuthService.islogged();
-                  }]
-              }
-            })
             /* </Extensions> */
             .state('update.finish', {
               url: '/finish',
@@ -456,9 +446,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                     /* <Extensions> */
                     $scope.wizard.userRequests = {
                       "url": "/user-requests"
-                    };
-                    $scope.wizard.userRequestForms = {
-                      "url": "/user-request-forms"
                     };
                     /* </Extensions> */
                     $scope.wizardFirstStep = response.wizard.firstStep;

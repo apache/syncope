@@ -57,10 +57,10 @@
   "SELECT_PROCESS": "プロセスを1つ（または複数）選択して、要求を開始します。",
   "PAGE_SIZE": "ページサイズ",
   "EXECUTION_ID": "実行ID",
+  "TASK_ID": "タスクID",
   "START_TIME": "始まる時間",
   "START": "開始",
   "userRequests": "リクエスト",
-  "userRequestForms": "フォーム",
   "own": "自分"
 }
 

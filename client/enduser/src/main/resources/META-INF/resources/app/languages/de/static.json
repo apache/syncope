@@ -57,10 +57,10 @@
   "SELECT_PROCESS": "Wählen Sie einen oder mehrere Prozesse aus, um die Anfragen zu starten",
   "PAGE_SIZE": "Seitengröße",
   "EXECUTION_ID": "Ausführungs-ID",
+  "TASK_ID": "Aufgaben-ID",
   "START_TIME": "Startzeit",
   "START": "Start",
   "own": "Besitzen",
-  "userRequests": "Anfragen",
-  "userRequestForms": "Formen"
+  "userRequests": "Anfragen"
 }
 

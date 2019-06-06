@@ -18,16 +18,20 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import org.apache.syncope.client.enduser.model.UserRequestWrapper;
+
 import static org.apache.syncope.client.enduser.resources.BaseResource.LOG;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
@@ -47,7 +51,6 @@ public class UserRequestsResource extends BaseResource {
 
         ResourceResponse response = new AbstractResource.ResourceResponse();
         response.setContentType(MediaType.APPLICATION_JSON);
-        StringValue username = StringValue.valueOf(SyncopeEnduserSession.get().getSelfTO().getUsername());
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
@@ -81,21 +84,15 @@ public class UserRequestsResource extends BaseResource {
                 case HttpMethod.GET:
                     StringValue page = requestParameters.getParameterValue("page");
                     StringValue size = requestParameters.getParameterValue("size");
-                    LOG.debug("List available Flowable User Requests for user [{}]", username);
-                    final PagedResult<UserRequest> userRequests = SyncopeEnduserSession.get().
-                            getService(UserRequestService.class).list(
-                            new UserRequestQuery.Builder()
-                                    .user(username.isEmpty()
-                                            ? SyncopeEnduserSession.get().getSelfTO().getUsername()
-                                            : username.toString())
-                                    .page(page.isEmpty()
-                                            ? 1
-                                            : Integer.parseInt(
-                                                    page.toString()))
-                                    .size(size.isEmpty()
-                                            ? 10
-                                            : Integer.parseInt(
-                                                    size.toString())).build());
+                    StringValue withForm = requestParameters.getParameterValue("withForm");
+                    LOG.debug("List available Flowable User Requests for user [{}]",
+                            SyncopeEnduserSession.get().getSelfTO().getUsername());
+
+                    final PagedResult<? extends BaseBean> userRequests =
+                            withForm.toBoolean(false)
+                            ? fillWithForms(list(page, size))
+                            : list(page, size);
+
                     response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                         @Override
@@ -117,7 +114,8 @@ public class UserRequestsResource extends BaseResource {
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving user requests for [{}]", username, e);
+            LOG.error("Error retrieving user requests for [{}]", SyncopeEnduserSession.get().getSelfTO().getUsername(),
+                    e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())
@@ -126,5 +124,35 @@ public class UserRequestsResource extends BaseResource {
         }
 
         return response;
+    }
+
+    private static PagedResult<UserRequest> list(final StringValue page, final StringValue size)
+            throws NumberFormatException {
+        return SyncopeEnduserSession.get().getService(UserRequestService.class)
+                .list(new UserRequestQuery.Builder()
+                        .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
+                        .page(page.isEmpty()
+                                ? 1
+                                : Integer.parseInt(
+                                        page.toString()))
+                        .size(size.isEmpty()
+                                ? 10
+                                : Integer.parseInt(
+                                        size.toString())).build());
+    }
+
+    private PagedResult<UserRequestWrapper> fillWithForms(final PagedResult<UserRequest> reqsResult) {
+        PagedResult<UserRequestWrapper> result = new PagedResult<>();
+        result.getResult().addAll(reqsResult.getResult().stream()
+                .map(ur -> new UserRequestWrapper(ur, SyncopeEnduserSession.get().getService(UserRequestService.class)
+                .getForm(SyncopeEnduserSession.get().getSelfTO().getUsername(), ur.getTaskId())))
+                .collect(Collectors.toList()));
+        result.setPage(reqsResult.getPage());
+        result.setSize(reqsResult.getSize());
+        result.setTotalCount(reqsResult.getTotalCount());
+        result.setPrev(reqsResult.getPrev());
+        result.setNext(reqsResult.getNext());
+
+        return result;
     }
 }

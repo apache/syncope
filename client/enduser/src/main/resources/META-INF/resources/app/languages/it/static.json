@@ -46,7 +46,6 @@
   "virtualSchemas": "VirtualSchemas",
   "resources": "Risorse",
   "userRequests": "Richieste",
-  "userRequestForms": "Form",
   "finish": "Fine",
   "RESOURCES_PLACEHOLDER": "Clicca per selezionare risorse...",
   "NEWUSER": "Nuovo utente",
@@ -59,6 +58,7 @@
   "SELECT_PROCESS": "Selezionare uno (o più) processi per far partire una richiesta(e)",
   "PAGE_SIZE": "Elementi per pagina",
   "EXECUTION_ID": "Id Esecuzione",
+  "TASK_ID": "Id Task",
   "START_TIME": "Effettuata il",
   "START": "Start",
   "own": "Propri"

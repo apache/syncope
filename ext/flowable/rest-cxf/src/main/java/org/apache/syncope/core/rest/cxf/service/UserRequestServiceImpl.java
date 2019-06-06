@@ -75,6 +75,11 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
+    public UserRequestForm getForm(final String username, final String taskId) {
+        return logic.getForm(getActualKey(userDAO, username), taskId);
+    }
+    
+    @Override
     public PagedResult<UserRequestForm> getForms(final UserRequestFormQuery query) {
         if (query.getUser() != null) {
             query.setUser(getActualKey(userDAO, query.getUser()));

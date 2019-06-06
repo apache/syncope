@@ -38,6 +38,10 @@ public class UserRequest extends BaseBean {
     private String executionId;
 
     private String activityId;
+    
+    private String taskId;
+
+    private boolean hasForm;
 
     public String getBpmnProcess() {
         return bpmnProcess;
@@ -77,5 +81,21 @@ public class UserRequest extends BaseBean {
 
     public void setActivityId(final String activityId) {
         this.activityId = activityId;
+    }
+    
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(final String taskId) {
+        this.taskId = taskId;
+    }
+
+    public boolean getHasForm() {
+        return hasForm;
+    }
+
+    public void setHasForm(final boolean hasForm) {
+        this.hasForm = hasForm;
     }
 }

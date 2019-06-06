@@ -27,18 +27,7 @@ angular.module('self')
             userRequestsService.getUserRequests = function (query) {
               return  $http.get("../api/flowable/userRequests?user=" + query.user
                       + (query.page ? "&page=" + query.page + (query.size ? "&size=" + query.size : "") : "")
-                      + (query.orderBy ? "&orderBy=" + query.orderby : ""))
-                      .then(function (response) {
-                        return response.data;
-                      }, function (response) {
-                        return $q.reject(response.data || response.statusText);
-                      });
-            };
-
-            userRequestsService.getUserRequestForms = function (query) {
-              return  $http.get("../api/flowable/userRequests/forms?user=" + query.user
-                      + (query.page ? "&page=" + query.page + (query.size ? "&size=" + query.size : "") : "")
-                      + (query.orderBy ? "&orderBy=" + query.orderby : ""))
+                      + (query.orderBy ? "&orderBy=" + query.orderby : "") + "&withForm=true")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

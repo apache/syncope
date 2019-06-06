@@ -19,9 +19,8 @@
 'use strict';
 
 angular.module('self')
-        .directive('requests', ['UserRequestsService', 'BpmnProcessService', "$uibModal", "$document", '$filter',
-          '$rootScope',
-          function (UserRequestsService, BpmnProcessService, $uibModal, $document, $filter, $rootScope) {
+        .directive('requests', ['UserRequestsService', 'BpmnProcessService', '$rootScope',
+          function (UserRequestsService, BpmnProcessService, $rootScope) {
             return {
               restrict: 'E',
               templateUrl: 'views/requests.html',
@@ -46,18 +45,14 @@ angular.module('self')
                   // update query pagination parameters
                   $scope.query.page = page;
                   $scope.query.size = size;
-                  // recalculate pages
-                  calculatePages();
-                  if (page < 1 || page > $scope.totalPages) {
-                    return;
-                  }
-                  // get current page of items
 
                   $scope.getUserRequests($scope.query, function (requests) {
                     $scope.requests = requests;
                     if (successMsg) {
                       $scope.$parent.showSuccess(successMsg, $scope.$parent.notification);
                     }
+                    // recalculate pages
+                    calculatePages();
                   });
                 };
                 // </Pagination>
@@ -80,18 +75,19 @@ angular.module('self')
 
                 var init = function () {
                   $scope.requests = [];
+                  $scope.availableSizes = [{id: 1, value: 10}, {id: 2, value: 25}, {id: 3, value: 50}];
+                  $scope.selectedSize = $scope.availableSizes[0];
+                  // date formatting
+                  $scope.formatDate = $rootScope.formatDate;
+                  // init requests
                   $scope.getUserRequests($scope.query, function (requests) {
                     $scope.requests = requests;
                     calculatePages();
-                    $scope.availableSizes = [{id: 1, value: 10}, {id: 2, value: 25}, {id: 3, value: 50}];
-                    $scope.selectedSize = $scope.availableSizes[0];
-                    // date formatting
-                    $scope.formatDate = $rootScope.formatDate;
                   });
-
                 };
 
                 var initBpmnProcesses = function () {
+                  $scope.selectedBpmnProcess = "";
                   $scope.bpmnProcesses = [];
                   BpmnProcessService.getBpmnProcesses().then(function (response) {
                     $scope.bpmnProcesses = response;
@@ -112,15 +108,15 @@ angular.module('self')
                 init();
                 initBpmnProcesses();
 
-                $scope.cancel = function (request, reason) {
-                  console.log("Cancel request ", request.executionId, reason);
-                  UserRequestsService.cancel(request.executionId, reason).then(function (response) {
-                    var index = $scope.requests.result.indexOf(request);
+                $scope.cancel = function (requestWrapper, reason) {
+                  console.log("Cancel request ", requestWrapper.request.executionId, reason);
+                  UserRequestsService.cancel(requestWrapper.request.executionId, reason).then(function (response) {
+                    var index = $scope.requests.result.indexOf(requestWrapper);
                     if (index > -1) {
                       $scope.requests.result.splice(index, 1);
                       $scope.requests.totalCount--;
-                      $scope.reloadPage($scope.query.page, $scope.query.size, 
-                      "Process " + request.executionId + " successfully canceled");
+                      $scope.reloadPage($scope.query.page, $scope.query.size,
+                              "Process " + requestWrapper.request.executionId + " successfully canceled");
                     }
                   }, function (response) {
                     var errorMessage;
@@ -129,49 +125,12 @@ angular.module('self')
                       errorMessage = response.split("ErrorMessage{{")[1];
                       errorMessage = errorMessage.split("}}")[0];
                     }
-                    console.error("Error canceling User Request: ", request.executionId, errorMessage);
+                    console.error("Error canceling User Request: ", requestWrapper.executionId, errorMessage);
                   });
                 };
 
-                $scope.openComponentModal = function (size, parentSelector) {
-                  $scope.selectedProcesses = [];
-                  var parentElem = parentSelector ?
-                          angular.element($document[0].querySelector(parentSelector)) : undefined;
-                  var modalInstance = $uibModal.open({
-                    animation: true,
-                    ariaLabelledBy: 'modal-title',
-                    ariaDescribedBy: 'modal-body',
-                    component: 'modalWindow',
-                    appendTo: parentElem,
-                    size: size,
-                    windowClass: 'in',
-                    backdropClass: 'in',
-                    resolve: {
-                      bpmnProcesses: function () {
-                        return $scope.bpmnProcesses;
-                      },
-                      selectedProcesses: function () {
-                        return $scope.selectedProcesses;
-                      },
-                      modalHtml: function () {
-                        return '<bpmn-processes></bpmn-processes>';
-                      },
-                      title: function () {
-                        return $filter('translate')(["SELECT_PROCESS"]).SELECT_PROCESS;
-                      }
-                    }
-                  });
-
-                  modalInstance.result.then(function () {
-                    for (var i = 0; i < $scope.selectedProcesses.length; i++) {
-                      startRequest(i);
-                    }
-                  }, function () {
-                  });
-                };
-
-                var startRequest = function (i) {
-                  var currentProc = $scope.selectedProcesses[i];
+                $scope.startRequest = function () {
+                  var currentProc = $scope.selectedBpmnProcess;
                   UserRequestsService.start(currentProc).then(function (response) {
                     console.log("Process " + currentProc + " successfully started");
                     $scope.reloadPage($scope.query.page, $scope.query.size,
@@ -187,6 +146,25 @@ angular.module('self')
                     console.error("Error starting User Request: ", errorMessage);
                   });
                 };
+
+                $scope.submitForm = function (form) {
+                  UserRequestsService.submitForm(form).then(function (response) {
+                    console.debug("Form successfully submitted");
+                    $scope.$parent.showSuccess("Form successfully submitted", $scope.$parent.notification);
+                    $scope.reloadPage($scope.query.page, $scope.query.size, "Form successfully submitted");
+                  }, function (response) {
+                    var errorMessage;
+                    // parse error response 
+                    if (response !== undefined) {
+                      errorMessage = response.split("ErrorMessage{{")[1];
+                      errorMessage = errorMessage.split("}}")[0];
+                    }
+                    console.error("Error retrieving User Request Forms: ", errorMessage);
+                    $scope.$parent.showError("Error: " + (errorMessage || response), $scope.$parent.notification);
+                  });
+
+                };
+                
               }
             };
           }]);

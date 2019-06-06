@@ -46,7 +46,6 @@
   "virtualSchemas": "VirtualSchemas",
   "resources": "Resources",
   "userRequests": "Requests",
-  "userRequestForms": "Forms",
   "finish": "Finish",
   "RESOURCES_PLACEHOLDER": "Click to select resources...",
   "REALM": "Realm",
@@ -59,6 +58,7 @@
   "SELECT_PROCESS": "Select one (or many) processes to start request(s)",
   "PAGE_SIZE": "Page size",
   "EXECUTION_ID": "Execution id",
+  "TASK_ID": "Task id",
   "START_TIME": "Start time",
   "START": "Start",
   "own": "Own"

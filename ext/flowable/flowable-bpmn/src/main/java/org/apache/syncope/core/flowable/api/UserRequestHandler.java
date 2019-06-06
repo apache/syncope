@@ -85,6 +85,15 @@ public interface UserRequestHandler {
     void cancelByUser(AnyDeletedEvent event);
 
     /**
+     * Get the form matching the provided task id.
+     *
+     * @param userKey user key
+     * @param taskId task id
+     * @return the form for the given task id
+     */
+    UserRequestForm getForm(String userKey, String taskId);
+    
+    /**
      * Get the forms matching the provided parameters.
      *
      * @param userKey user key (optional)
