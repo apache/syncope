@@ -444,9 +444,12 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
                     $scope.wizard = response.wizard.steps;
                     $scope.creationWizard = $scope.clone($scope.wizard);
                     /* <Extensions> */
+                    var finish = $scope.wizard.finish;
+                    delete $scope.wizard['finish'];
                     $scope.wizard.userRequests = {
                       "url": "/user-requests"
                     };
+                    $scope.wizard.finish = finish;
                     /* </Extensions> */
                     $scope.wizardFirstStep = response.wizard.firstStep;
 
