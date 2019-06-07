@@ -43,9 +43,9 @@ under the License.
   <div class="col-xs-9">
     <div id="navButtons" class="float-left"
          ng-class="(!createMode || (createMode && endReached)) ? 'col-xs-10' : 'col-xs-12'">
-      <navigation-buttons-partial ng-show="createMode" base="create" current="groups" wizard="{{wizard}}">
+      <navigation-buttons-partial ng-show="createMode" base="create" current="groups" wizard="{{createMode ? creationWizard : wizard}}">
       </navigation-buttons-partial>
-      <navigation-buttons-partial ng-show="!createMode" base="update" current="groups" wizard="{{wizard}}">
+      <navigation-buttons-partial ng-show="!createMode" base="update" current="groups" wizard="{{createMode ? creationWizard : wizard}}">
       </navigation-buttons-partial>
     </div>
     <div class="float-right p-0" 

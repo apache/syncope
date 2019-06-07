@@ -23,11 +23,10 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', "$state",
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
-  'GroupService', 'AnyService', 'BpmnProcessService', 'UserRequestsService', 'UserUtil', 'GenericUtil',
-  'ValidationExecutor', '$translate', '$filter',
+  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', 'ValidationExecutor', '$translate', '$filter',
   function ($scope, $rootScope, $location, $state, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, GroupService, AnyService, BpmnProcessService, UserRequestsService,
-          UserUtil, GenericUtil, ValidationExecutor, $translate, $filter) {
+          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, 
+          ValidationExecutor, $translate, $filter) {
 
     $scope.user = {};
     $scope.confirmPassword = {

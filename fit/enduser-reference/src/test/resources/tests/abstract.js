@@ -25,6 +25,10 @@ exports.doNext = function () {
   element.all(by.id('next')).last().click();
 };
 
+exports.doFinish = function () {
+  element.all(by.id('finish')).last().click();
+};
+
 exports.doCancel = function () {
   element.all(by.id('cancel')).last().click();
 };

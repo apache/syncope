@@ -88,6 +88,8 @@ describe('syncope enduser user edit', function () {
     abstract.doNext();
     //Resources
     abstract.doNext();
+    //Go directly to finish
+    abstract.doFinish();
     //Captcha
     abstract.waitSpinner();
     element.all(by.id('save')).last().click();
