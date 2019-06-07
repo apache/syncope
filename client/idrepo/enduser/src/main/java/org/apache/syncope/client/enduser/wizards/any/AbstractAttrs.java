@@ -136,6 +136,10 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         return whichAttrs.get(schemaName) == null ? false : whichAttrs.get(schemaName).isReadonly();
     }
 
+    protected List<String> getDefaultValues(final String schema) {
+        return getDefaultValues(schema, null);
+    }
+    
     protected List<String> getDefaultValues(final String schema, final String groupName) {
         String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
                 ? org.apache.commons.lang3.StringUtils.EMPTY

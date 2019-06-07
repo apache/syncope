@@ -23,9 +23,9 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
-import org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -45,7 +45,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
     @SpringBean
     private ConfParamOps confParamOps;
 
-    private UserWizardBuilder userWizardBuilder;
+    private AjaxWizardBuilder<AnyWrapper<UserTO>> wizardBuilder;
 
     protected static final String WIZARD_ID = "wizard";
 
@@ -97,16 +97,19 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
                 "enduser.form.layout.info",
                 FormLayoutInfoUtils.getDefaultValue(),
                 String.class);
-        userWizardBuilder = new UserWizardBuilder(
-                null,
-                userTO,
-                SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getUserClasses(),
+
+        final UserFormLayoutInfo formLayoutInfo =
                 StringUtils.isBlank(formLayoutConfParam)
                 ? new UserFormLayoutInfo()
-                : FormLayoutInfoUtils.fromJsonString(formLayoutConfParam),
+                : FormLayoutInfoUtils.fromJsonString(formLayoutConfParam);
+
+        wizardBuilder = (AjaxWizardBuilder<AnyWrapper<UserTO>>) FormLayoutInfoUtils.instantiate(
+                userTO,
+                SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getUserClasses(),
+                formLayoutInfo,
                 this.getPageReference());
-        userWizardBuilder.setItem(new UserWrapper(userTO));
-        return userWizardBuilder.build(WIZARD_ID, mode);
+        wizardBuilder.setItem(new UserWrapper(userTO));
+        return wizardBuilder.build(WIZARD_ID, mode);
     }
 
     private UserTO buildNewUserTO(final PageParameters parameters) {

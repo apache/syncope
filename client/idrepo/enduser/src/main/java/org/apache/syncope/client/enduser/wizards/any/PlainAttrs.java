@@ -406,7 +406,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     Attr attrTO = item.getModelObject();
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().anyMatch(value -> StringUtils.isNotBlank(value))) {
+                    if (attrTO.getValues().stream().noneMatch(value -> StringUtils.isNotBlank(value))) {
                         attrTO.getValues().clear();
                         attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
                     }
@@ -452,6 +452,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attrTO = item.getModelObject();
+
+                    // set default values, if any
+                    if (attrTO.getValues().stream().noneMatch(value -> StringUtils.isNotBlank(value))) {
+                        attrTO.getValues().clear();
+                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema()));
+                    }
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (schemas.get(attrTO.getSchema()).isMultivalue()) {
