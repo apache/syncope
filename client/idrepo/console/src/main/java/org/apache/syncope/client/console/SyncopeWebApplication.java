@@ -73,7 +73,6 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.resource.JQueryResourceReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -210,8 +209,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getResourceSettings().setThrowExceptionOnMissingResource(true);
 
-        getJavaScriptLibrarySettings().setJQueryReference(JQueryResourceReference.getV2());
-
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
 
         resourceProvider = lookup.getResourceProvider();
@@ -227,7 +224,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
-        
+
         if (csrf) {
             getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }

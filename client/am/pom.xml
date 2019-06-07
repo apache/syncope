@@ -39,5 +39,6 @@ under the License.
   
   <modules>
     <module>lib</module>
+    <module>console</module>
   </modules>
 </project>

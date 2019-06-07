@@ -38,5 +38,4 @@ public class Remediations extends BasePage {
 
         content.add(new RemediationDirectoryPanel("remediations", getPageReference()));
     }
-
 }

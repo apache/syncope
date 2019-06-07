@@ -32,7 +32,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "report")
 @XmlType
-public class ReportTO extends AbstractStartEndBean implements EntityTO {
+public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
     private static final long serialVersionUID = 5274568072084814410L;
 
@@ -67,10 +67,12 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO {
         this.key = key;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }

@@ -306,8 +306,8 @@ public abstract class ReportDirectoryPanel
         }
 
         @Override
-        public IModel<ReportTO> model(final ReportTO object) {
-            return new CompoundPropertyModel<>(object);
+        public IModel<ReportTO> model(final ReportTO report) {
+            return new CompoundPropertyModel<>(report);
         }
     }
 }

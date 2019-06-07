@@ -16,24 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form;
+package org.apache.syncope.common.lib.to;
 
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
+public interface NamedEntityTO extends EntityTO {
 
-/**
- * This empty class must exist because there not seems to be alternative to
- * provide specialized HTML for links.
- */
-public class LinkPanel extends Panel {
+    String getName();
 
-    private static final long serialVersionUID = 4799005986804366330L;
-
-    public LinkPanel(final String id) {
-        super(id);
-    }
-
-    public LinkPanel(final String id, final IModel<?> model) {
-        super(id, model);
-    }
+    void setName(String name);
 }

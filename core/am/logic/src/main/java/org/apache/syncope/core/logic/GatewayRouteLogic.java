@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,6 +27,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -115,7 +117,7 @@ public class GatewayRouteLogic extends AbstractTransactionalLogic<GatewayRouteTO
     public void pushToSRA() {
         try {
             NetworkService sra = serviceOps.get(NetworkService.Type.SRA);
-            HttpClient.newBuilder().build().sendAsync(
+            HttpClient.newBuilder().build().send(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(sra.getAddress(), "/") + "management/routes/refresh")).
                             header(HttpHeaders.AUTHORIZATION,
@@ -124,6 +126,8 @@ public class GatewayRouteLogic extends AbstractTransactionalLogic<GatewayRouteTO
                     HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any SRA instance", e);
+        } catch (IOException | InterruptedException e) {
+            throw new InternalServerErrorException("Errors while communicating with SRA instance", e);
         }
     }
 

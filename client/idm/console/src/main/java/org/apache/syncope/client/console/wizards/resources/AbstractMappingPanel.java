@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
 import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
 import org.apache.syncope.client.console.widgets.ItemTransformerWidget;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -184,7 +183,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 // -------------------------------
                 AjaxTextFieldPanel intAttrName = new AjaxTextFieldPanel(
                         "intAttrName",
-                        getString("intAttrName"),
+                        "intAttrName",
                         new PropertyModel<>(itemTO, "intAttrName"),
                         false);
                 intAttrName.setChoices(Collections.<String>emptyList());
@@ -195,9 +194,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // External attribute
                 // -------------------------------
-                final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
+                AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
                         "extAttrName",
-                        getString("extAttrName"),
+                        "extAttrName",
                         new PropertyModel<>(itemTO, "extAttrName"));
                 extAttrName.setChoices(getExtAttrNames().getObject());
 
@@ -224,9 +223,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Mandatory
                 // -------------------------------
-                final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
+                AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
                         "mandatoryCondition",
-                        new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
+                        "mandatoryCondition",
                         new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
@@ -237,9 +236,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Connector object key
                 // -------------------------------
-                final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
+                AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
                         "connObjectKey",
-                        new ResourceModel("connObjectKey", "connObjectKey").getObject(),
+                        "connObjectKey",
                         new PropertyModel<>(itemTO, "connObjectKey"), false);
                 connObjectKey.hideLabel();
                 item.add(connObjectKey);
@@ -248,9 +247,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Password
                 // -------------------------------
-                final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
+                AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
                         "password",
-                        new ResourceModel("password", "password").getObject(),
+                        "password",
                         new PropertyModel<>(itemTO, "password"), false);
                 item.add(password.hideLabel());
                 // -------------------------------
@@ -261,7 +260,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 WebMarkupContainer purpose = new WebMarkupContainer("purpose");
                 purpose.setOutputMarkupId(true);
 
-                final MappingPurposePanel purposeActions = new MappingPurposePanel(
+                MappingPurposePanel purposeActions = new MappingPurposePanel(
                         "purposeActions", new PropertyModel<>(itemTO, "purpose"), purpose);
                 purpose.add(purposeActions.setRenderBodyOnly(true));
                 item.add(purpose);
@@ -270,25 +269,17 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Remove
                 // -------------------------------
-                final ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
+                ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
                 actions.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        int index = -1;
-                        for (int i = 0; i < model.getObject().size() && index == -1; i++) {
-                            if (itemTO.equals(model.getObject().get(i))) {
-                                index = i;
-                            }
-                        }
+                        model.getObject().remove(item.getIndex());
 
-                        if (index != -1) {
-                            model.getObject().remove(index);
-                            item.getParent().removeAll();
-                            target.add(AbstractMappingPanel.this);
-                        }
+                        item.getParent().removeAll();
+                        target.add(AbstractMappingPanel.this);
                     }
                 }, ActionLink.ActionType.DELETE, IdMEntitlement.RESOURCE_UPDATE, true).hideLabel();
                 item.add(actions);

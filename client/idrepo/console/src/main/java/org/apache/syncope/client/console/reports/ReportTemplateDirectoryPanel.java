@@ -225,7 +225,7 @@ public class ReportTemplateDirectoryPanel
 
         @Override
         public Iterator<ReportTemplateTO> iterator(final long first, final long count) {
-            final List<ReportTemplateTO> list = restClient.listTemplates();
+            List<ReportTemplateTO> list = restClient.listTemplates();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
@@ -237,15 +237,7 @@ public class ReportTemplateDirectoryPanel
 
         @Override
         public IModel<ReportTemplateTO> model(final ReportTemplateTO reportTemplateTO) {
-            return new IModel<ReportTemplateTO>() {
-
-                private static final long serialVersionUID = 774694801558497248L;
-
-                @Override
-                public ReportTemplateTO getObject() {
-                    return reportTemplateTO;
-                }
-            };
+            return () -> reportTemplateTO;
         }
     }
 

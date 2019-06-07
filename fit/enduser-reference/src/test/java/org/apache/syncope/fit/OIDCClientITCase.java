@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Test;
 public class OIDCClientITCase extends AbstractITCase {
 
     @BeforeAll
-    public static void samlSetup() {
+    public static void oidcSetup() {
         OIDCProviderTO keycloak = new OIDCProviderTO();
         keycloak.setName("Keyloack");
         keycloak.setClientID("oidc-syncope");

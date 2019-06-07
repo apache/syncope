@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form;
+package org.apache.syncope.client.console.wizards.resources;
 
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.AttributeModifier;

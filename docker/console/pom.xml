@@ -48,6 +48,11 @@ under the License.
       <artifactId>syncope-client-idm-console</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.ext.self-keymaster</groupId>

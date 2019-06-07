@@ -468,7 +468,7 @@ under the License.
     <wicket.version>8.5.0</wicket.version>
     <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.9</wicket-bootstrap.version>
-    <wicket-spring-boot.version>2.1.6</wicket-spring-boot.version>
+    <wicket-spring-boot.version>2.1.7</wicket-spring-boot.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
     <lodash.version>4.17.4</lodash.version>
@@ -1417,6 +1417,11 @@ under the License.
         <version>${wicket.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-native-websocket-javax</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.googlecode.wicket-jquery-ui</groupId>
         <artifactId>wicket-jquery-ui</artifactId>
         <version>${wicket-jqueryui.version}</version>
@@ -1440,11 +1445,6 @@ under the License.
         <groupId>com.googlecode.wicket-jquery-ui</groupId>
         <artifactId>wicket-kendo-ui-theme-bootstrap</artifactId>
         <version>${wicket-jqueryui.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-native-websocket-javax</artifactId>
-        <version>${wicket.version}</version>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>
@@ -2400,9 +2400,8 @@ under the License.
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>syncope-@{project.version}</tagNameFormat>
         </configuration>
-      </plugin>      
+      </plugin>
     </plugins>
-    
   </build>
 
   <reporting>

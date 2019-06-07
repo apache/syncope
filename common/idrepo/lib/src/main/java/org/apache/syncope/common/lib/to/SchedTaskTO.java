@@ -33,7 +33,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @XmlType
 @XmlSeeAlso({ ProvisioningTaskTO.class })
 @Schema(allOf = { TaskTO.class }, subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "@class")
-public class SchedTaskTO extends TaskTO {
+public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 
@@ -111,12 +111,14 @@ public class SchedTaskTO extends TaskTO {
         this.description = description;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
     @JsonProperty(required = true)
     @XmlElement(required = true)
+    @Override
     public void setName(final String name) {
         this.name = name;
     }

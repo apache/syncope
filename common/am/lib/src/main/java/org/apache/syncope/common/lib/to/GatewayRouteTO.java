@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 
 @XmlRootElement(name = "gatewayRoute")
 @XmlType
-public class GatewayRouteTO implements EntityTO {
+public class GatewayRouteTO implements NamedEntityTO {
 
     private static final long serialVersionUID = 4044528284951757870L;
 
@@ -64,10 +64,12 @@ public class GatewayRouteTO implements EntityTO {
         this.key = key;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }

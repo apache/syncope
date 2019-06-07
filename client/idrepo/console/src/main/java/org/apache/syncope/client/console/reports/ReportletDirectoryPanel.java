@@ -90,7 +90,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         this.report = report;
         this.restClient = new ReportRestClient();
 
-        enableExitButton();
+        enableUtilityButton();
 
         this.addNewItemPanelBuilder(
                 new ReportletWizardBuilder(report, new ReportletWrapper(true), pageRef), true);

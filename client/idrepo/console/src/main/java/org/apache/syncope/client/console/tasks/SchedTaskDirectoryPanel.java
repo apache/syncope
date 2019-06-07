@@ -103,7 +103,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_CREATE);
 
-        enableExitButton();
+        enableUtilityButton();
         setFooterVisibility(false);
 
         initResultTable();

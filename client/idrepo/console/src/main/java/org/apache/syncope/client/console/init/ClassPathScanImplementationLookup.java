@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
@@ -125,6 +126,8 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends BasePage>> idmPages;
 
+    private List<Class<? extends BasePage>> amPages;
+
     private List<Class<? extends BaseExtPage>> extPages;
 
     private List<Class<? extends BaseExtWidget>> extWidgets;
@@ -159,6 +162,7 @@ public class ClassPathScanImplementationLookup {
         pages = new ArrayList<>();
         previewers = new ArrayList<>();
         idmPages = new ArrayList<>();
+        amPages = new ArrayList<>();
         extPages = new ArrayList<>();
         extWidgets = new ArrayList<>();
         extAlertWidgets = new ArrayList<>();
@@ -221,6 +225,8 @@ public class ClassPathScanImplementationLookup {
                     } else if (BasePage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(IdMPage.class)) {
                             idmPages.add((Class<? extends BasePage>) clazz);
+                        } else if (clazz.isAnnotationPresent(AMPage.class)) {
+                            amPages.add((Class<? extends BasePage>) clazz);
                         } else {
                             pages.add((Class<? extends BasePage>) clazz);
                         }
@@ -314,6 +320,11 @@ public class ClassPathScanImplementationLookup {
                 o2.getAnnotation(IdMPage.class).priority()));
         idmPages = Collections.unmodifiableList(idmPages);
 
+        amPages.sort((o1, o2) -> ObjectUtils.compare(
+                o1.getAnnotation(IdMPage.class).priority(),
+                o2.getAnnotation(IdMPage.class).priority()));
+        amPages = Collections.unmodifiableList(amPages);
+
         extPages.sort((o1, o2) -> ObjectUtils.compare(
                 o1.getAnnotation(ExtPage.class).priority(),
                 o2.getAnnotation(ExtPage.class).priority()));
@@ -387,6 +398,10 @@ public class ClassPathScanImplementationLookup {
 
     public List<Class<? extends BasePage>> getIdMPageClasses() {
         return idmPages;
+    }
+
+    public List<Class<? extends BasePage>> getAMPageClasses() {
+        return amPages;
     }
 
     public List<Class<? extends BaseExtPage>> getExtPageClasses() {

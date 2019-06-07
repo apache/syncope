@@ -38,13 +38,13 @@ public class GatewayRouteValidator extends AbstractValidator<GatewayRouteCheck, 
             isValid = false;
         }
 
-        if (route.getPredicates().size() > 1) {
-            if (route.getPredicates().stream().allMatch(predicate -> predicate.getCond() != null)) {
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidValueList,
-                                "Cond must be set when predicates are more than one")).
-                        addPropertyNode("predicates").addConstraintViolation();
-            }
+        if (route.getPredicates().size() > 1
+                && route.getPredicates().stream().allMatch(predicate -> predicate.getCond() != null)) {
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidValueList,
+                            "Cond must be set when predicates are more than one")).
+                    addPropertyNode("predicates").addConstraintViolation();
 
             isValid = false;
         }

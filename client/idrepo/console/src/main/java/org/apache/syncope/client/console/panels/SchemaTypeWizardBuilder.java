@@ -207,18 +207,10 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
 
                         @Override
                         public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                            int index = -1;
-                            for (int i = 0; i < translations.getObject().size() && index == -1; i++) {
-                                if (entry.equals(translations.getObject().get(i))) {
-                                    index = i;
-                                }
-                            }
+                            translations.getObject().remove(item.getIndex());
 
-                            if (index != -1) {
-                                translations.getObject().remove(index);
-                                item.getParent().removeAll();
-                                target.add(Labels.this);
-                            }
+                            item.getParent().removeAll();
+                            target.add(Labels.this);
                         }
                     }, ActionLink.ActionType.DELETE, IdRepoEntitlement.SCHEMA_UPDATE, true).hideLabel();
                     item.add(actions);

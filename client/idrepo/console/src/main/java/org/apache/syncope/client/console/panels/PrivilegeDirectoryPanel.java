@@ -73,7 +73,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
         restClient = new ApplicationRestClient();
 
         disableCheckBoxes();
-        enableExitButton();
+        enableUtilityButton();
 
         this.addNewItemPanelBuilder(new PrivilegeWizardBuilder(application, new PrivilegeTO(), pageRef), true);
 

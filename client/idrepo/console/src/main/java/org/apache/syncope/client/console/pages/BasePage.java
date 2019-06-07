@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
@@ -159,7 +160,6 @@ public class BasePage extends BaseWebPage {
         liContainer.add(link);
 
         List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
-
         ListView<Class<? extends BasePage>> idmPages = new ListView<Class<? extends BasePage>>(
                 "idmPages", idmPageClasses) {
 
@@ -198,6 +198,46 @@ public class BasePage extends BaseWebPage {
         idmPages.setRenderBodyOnly(true);
         idmPages.setOutputMarkupId(true);
         body.add(idmPages);
+
+        List<Class<? extends BasePage>> amPageClasses = lookup.getAMPageClasses();
+        ListView<Class<? extends BasePage>> amPages = new ListView<Class<? extends BasePage>>(
+                "amPages", amPageClasses) {
+
+            private static final long serialVersionUID = -9112553137618363167L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
+                WebMarkupContainer containingLI = new WebMarkupContainer("amPageLI");
+                item.add(containingLI);
+                if (item.getModelObject().equals(BasePage.this.getClass())) {
+                    containingLI.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.put("class", "active");
+                        }
+                    });
+                }
+
+                AMPage ann = item.getModelObject().getAnnotation(AMPage.class);
+
+                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("amPage", item.getModelObject());
+                link.add(new Label("amPageLabel", ann.label()));
+                if (StringUtils.isNotBlank(ann.listEntitlement())) {
+                    MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
+                }
+                containingLI.add(link);
+
+                Label amPageIcon = new Label("amPageIcon");
+                amPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
+                link.add(amPageIcon);
+            }
+        };
+        amPages.setRenderBodyOnly(true);
+        amPages.setOutputMarkupId(true);
+        body.add(amPages);
 
         WebMarkupContainer keymasterLIContainer = new WebMarkupContainer(getLIContainerId("keymaster"));
         body.add(keymasterLIContainer);

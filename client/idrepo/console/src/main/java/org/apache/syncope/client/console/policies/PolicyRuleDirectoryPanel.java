@@ -102,7 +102,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         this.policy = policy;
         this.restClient = new PolicyRestClient();
 
-        enableExitButton();
+        enableUtilityButton();
 
         this.addNewItemPanelBuilder(
                 new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(true), pageRef), true);

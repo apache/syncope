@@ -33,7 +33,6 @@ import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
@@ -41,7 +40,6 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -51,6 +49,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.syncope.client.console.panels.ToggleableTarget;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.to.NamedEntityTO;
 
 public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<Serializable> {
 
@@ -88,8 +87,6 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof AnyWrapper
                 && AnyWrapper.class.cast(modelObject).getInnerObject() instanceof AnyObjectTO) {
             header = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getName();
-        } else if (modelObject instanceof ReportTO) {
-            header = ((ReportTO) modelObject).getName();
         } else if (modelObject instanceof Attr) {
             header = ((Attr) modelObject).getSchema();
         } else if (modelObject instanceof ConfParam) {
@@ -102,10 +99,6 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((AccessTokenTO) modelObject).getOwner();
         } else if (modelObject instanceof ExecTO) {
             header = ((ExecTO) modelObject).getKey();
-        } else if (modelObject instanceof SchedTaskTO) {
-            header = ((SchedTaskTO) modelObject).getName();
-        } else if (modelObject instanceof EntityTO) {
-            header = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {
             header = ((StatusBean) modelObject).getResource();
         } else if (modelObject instanceof PolicyRuleWrapper) {
@@ -121,6 +114,10 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ToggleableTarget) modelObject).getAnyType();
         } else if (modelObject instanceof Domain) {
             header = ((Domain) modelObject).getKey();
+        } else if (modelObject instanceof NamedEntityTO) {
+            header = ((NamedEntityTO) modelObject).getName();
+        } else if (modelObject instanceof EntityTO) {
+            header = ((EntityTO) modelObject).getKey();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

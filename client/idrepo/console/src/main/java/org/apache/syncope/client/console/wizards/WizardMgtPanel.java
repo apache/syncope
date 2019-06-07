@@ -62,7 +62,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private final WebMarkupContainer container;
 
-    private final Fragment initialFragment;
+    protected final Fragment initialFragment;
 
     protected final boolean wizardInModal;
 
@@ -72,7 +72,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     protected final AjaxLink<?> addAjaxLink;
 
-    protected final AjaxLink<?> exitAjaxLink;
+    protected Label utilityIcon;
+
+    protected AjaxLink<?> utilityAjaxLink;
 
     protected ModalPanelBuilder<T> newItemPanelBuilder;
 
@@ -133,7 +135,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         addAjaxLink.setVisible(false);
         initialFragment.addOrReplace(addAjaxLink);
 
-        exitAjaxLink = new AjaxLink<T>("exit") {
+        utilityAjaxLink = new AjaxLink<T>("utility") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -143,9 +145,12 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             }
         };
 
-        exitAjaxLink.setEnabled(false);
-        exitAjaxLink.setVisible(false);
-        initialFragment.addOrReplace(exitAjaxLink);
+        utilityAjaxLink.setEnabled(false);
+        utilityAjaxLink.setVisible(false);
+        initialFragment.addOrReplace(utilityAjaxLink);
+
+        utilityIcon = new Label("utilityIcon");
+        utilityAjaxLink.add(utilityIcon);
 
         add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
 
@@ -276,13 +281,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     }
 
     /**
-     * Show exit butto sending ExitEvent paylad.
+     * Show utility button sending ExitEvent payload by default.
      *
      * @return the current instance.
      */
-    protected final WizardMgtPanel<T> enableExitButton() {
-        exitAjaxLink.setEnabled(true);
-        exitAjaxLink.setVisible(true);
+    protected final WizardMgtPanel<T> enableUtilityButton() {
+        utilityAjaxLink.setEnabled(true);
+        utilityAjaxLink.setVisible(true);
         return this;
     }
 
