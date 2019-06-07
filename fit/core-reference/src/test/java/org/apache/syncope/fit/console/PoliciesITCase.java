@@ -486,7 +486,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:exit");
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:utility");
 
         closeCallBack(modal);
     }
@@ -583,7 +583,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:exit");
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:utility");
 
         closeCallBack(modal);
 
