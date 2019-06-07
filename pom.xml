@@ -469,15 +469,6 @@ under the License.
     <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.9</wicket-bootstrap.version>
     <wicket-spring-boot.version>2.1.6</wicket-spring-boot.version>
-
-    <angular.version>1.7.5</angular.version>
-    <angular-resource.version>1.7.0</angular-resource.version>
-    <angular-ui-router.version>1.0.20</angular-ui-router.version>
-    <ui-bootstrap.version>3.0.6</ui-bootstrap.version>
-    <angular-ui-select.version>0.19.8</angular-ui-select.version>
-    <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
-    <angular-translate.version>2.18.1</angular-translate.version>
-    <angular-translate-loader-partial.version>2.17.1</angular-translate-loader-partial.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
     <lodash.version>4.17.4</lodash.version>
@@ -1618,83 +1609,6 @@ under the License.
         <artifactId>jquery-cookie</artifactId>
         <version>${jquery-cookie.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular</artifactId>
-        <version>${angular.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-resource</artifactId>
-        <version>${angular-resource.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-cookies</artifactId>
-        <version>${angular.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-ui-router</artifactId>
-        <version>${angular-ui-router.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.webjars</groupId>
-            <artifactId>angularjs</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-animate</artifactId>
-        <version>${angular.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.npm</groupId>
-        <artifactId>ui-bootstrap4</artifactId>
-        <version>${ui-bootstrap.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>angular-ui-select</artifactId>
-        <version>${angular-ui-select.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.webjars</groupId>
-            <artifactId>angularjs</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-sanitize</artifactId>
-        <version>${angular.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-treasure-overlay-spinner</artifactId>
-        <version>${angular-treasure-overlay-spinner.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-translate</artifactId>
-        <version>${angular-translate.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-translate-loader-partial</artifactId>
-        <version>${angular-translate-loader-partial.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-translate-storage-cookie</artifactId>
-        <version>${angular-translate.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>angular-aria</artifactId>
-        <version>${angular.version}</version>
-      </dependency>  
 
       <dependency>
         <groupId>org.webjars.bower</groupId>
