@@ -43,8 +43,10 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthenticationPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthenticationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
@@ -72,6 +74,9 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAAuthenticationPolicy authenticationPolicy;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = TABLE + "Action",
             joinColumns =
@@ -90,7 +95,8 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
             @JoinColumn(name = "realm_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "realm_id", "resource_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "realm_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @Override
@@ -121,6 +127,13 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     }
 
     @Override
+    public AuthenticationPolicy getAuthenticationPolicy() {
+        return authenticationPolicy == null && getParent() != null
+                ? getParent().getAuthenticationPolicy() 
+                : authenticationPolicy;
+    }
+
+    @Override
     public void setName(final String name) {
         this.name = name;
     }
@@ -141,6 +154,12 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     public void setPasswordPolicy(final PasswordPolicy passwordPolicy) {
         checkType(passwordPolicy, JPAPasswordPolicy.class);
         this.passwordPolicy = (JPAPasswordPolicy) passwordPolicy;
+    }
+
+    @Override
+    public void setAuthenticationPolicy(final AuthenticationPolicy authenticationPolicy) {
+        checkType(authenticationPolicy, JPAAuthenticationPolicy.class);
+        this.authenticationPolicy = (JPAAuthenticationPolicy) authenticationPolicy;
     }
 
     @Override

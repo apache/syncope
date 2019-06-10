@@ -126,6 +126,12 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
+import org.apache.syncope.core.persistence.api.entity.authentication.AuthenticationChain;
+import org.apache.syncope.core.persistence.api.entity.authentication.AuthenticationModule;
+import org.apache.syncope.core.persistence.api.entity.authentication.AuthenticationPostProcessor;
+import org.apache.syncope.core.persistence.api.entity.authentication.AuthenticationPreProcessor;
+import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthenticationPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
@@ -134,6 +140,12 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.entity.authentication.JPAAuthenticationChain;
+import org.apache.syncope.core.persistence.jpa.entity.authentication.JPAAuthenticationModule;
+import org.apache.syncope.core.persistence.jpa.entity.authentication.JPAAuthenticationPostProcessor;
+import org.apache.syncope.core.persistence.jpa.entity.authentication.JPAAuthenticationPreProcessor;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthenticationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
@@ -284,6 +296,18 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPABatch();
         } else if (reference.equals(GatewayRoute.class)) {
             result = (E) new JPAGatewayRoute();
+        } else if (reference.equals(AuthenticationModule.class)) {
+            result = (E) new JPAAuthenticationModule();
+        } else if (reference.equals(AuthenticationChain.class)) {
+            result = (E) new JPAAuthenticationChain();
+        } else if (reference.equals(AuthenticationPolicy.class)) {
+            result = (E) new JPAAuthenticationPolicy();
+        } else if (reference.equals(AuthenticationPostProcessor.class)) {
+            result = (E) new JPAAuthenticationPostProcessor();
+        } else if (reference.equals(AuthenticationPreProcessor.class)) {
+            result = (E) new JPAAuthenticationPreProcessor();
+        } else if (reference.equals(AccessPolicy.class)) {
+            result = (E) new JPAAccessPolicy();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

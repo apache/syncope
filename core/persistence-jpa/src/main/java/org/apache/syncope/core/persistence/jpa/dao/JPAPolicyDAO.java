@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthenticationPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
@@ -32,6 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthenticationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
@@ -61,6 +63,8 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
                 ? JPAPullPolicy.class
                 : PushPolicy.class.isAssignableFrom(reference)
                 ? JPAPushPolicy.class
+                : AuthenticationPolicy.class.isAssignableFrom(reference)
+                ? JPAAuthenticationPolicy.class
                 : null;
     }
 
@@ -119,6 +123,16 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
     }
 
     @Override
+    public List<AuthenticationPolicy> findByAuthenticationPolicy(final Implementation authenticationRule) {
+        TypedQuery<AuthenticationPolicy> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAAuthenticationPolicy.class.getSimpleName() + " e "
+                + "WHERE :authenticationRule MEMBER OF e.configurations", AuthenticationPolicy.class);
+        query.setParameter("authenticationRule", authenticationRule);
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<AccountPolicy> findByResource(final ExternalResource resource) {
         TypedQuery<AccountPolicy> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAAccountPolicy.class.getSimpleName() + " e "
@@ -147,20 +161,24 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
                 realm.setAccountPolicy(null);
             } else if (policy instanceof PasswordPolicy) {
                 realm.setPasswordPolicy(null);
+            } else if (policy instanceof AuthenticationPolicy) {
+                realm.setAuthenticationPolicy(null);
             }
         });
 
-        resourceDAO.findByPolicy(policy).forEach(resource -> {
-            if (policy instanceof AccountPolicy) {
-                resource.setAccountPolicy(null);
-            } else if (policy instanceof PasswordPolicy) {
-                resource.setPasswordPolicy(null);
-            } else if (policy instanceof PullPolicy) {
-                resource.setPullPolicy(null);
-            } else if (policy instanceof PushPolicy) {
-                resource.setPushPolicy(null);
-            }
-        });
+        if (!(policy instanceof AuthenticationPolicy)) {
+            resourceDAO.findByPolicy(policy).forEach(resource -> {
+                if (policy instanceof AccountPolicy) {
+                    resource.setAccountPolicy(null);
+                } else if (policy instanceof PasswordPolicy) {
+                    resource.setPasswordPolicy(null);
+                } else if (policy instanceof PullPolicy) {
+                    resource.setPullPolicy(null);
+                } else if (policy instanceof PushPolicy) {
+                    resource.setPushPolicy(null);
+                }
+            });
+        }
 
         entityManager().remove(policy);
     }

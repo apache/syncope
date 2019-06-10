@@ -40,7 +40,7 @@ public final class IdRepoImplementationType {
     public static final String RECIPIENTS_PROVIDER = "RECIPIENTS_PROVIDER";
 
     public static final String AUDIT_APPENDER = "AUDIT_APPENDER";
-
+    
     private static final Map<String, String> VALUES = Map.ofEntries(
             Pair.of(JWT_SSO_PROVIDER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
             Pair.of(REPORTLET, "org.apache.syncope.core.persistence.api.dao.Reportlet"),

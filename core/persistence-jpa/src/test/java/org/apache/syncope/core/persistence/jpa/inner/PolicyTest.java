@@ -29,12 +29,14 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
+import org.apache.syncope.common.lib.types.AMImplementationType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthenticationPolicyRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -46,6 +48,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.entity.authentication.AuthenticationPostProcessor;
+import org.apache.syncope.core.persistence.api.entity.authentication.AuthenticationPreProcessor;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthenticationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
@@ -93,6 +98,9 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(pushCRConf);
         assertEquals(1, pushCRConf.getSchemas().size());
         assertTrue(pushCRConf.getSchemas().contains("email"));
+
+        AuthenticationPolicy authenticationPolicy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
+        assertNotNull(authenticationPolicy);
     }
 
     @Test
@@ -144,6 +152,54 @@ public class PolicyTest extends AbstractTest {
                 policy.getCorrelationRule(anyTypeDAO.findUser()).get().getImplementation().getKey());
         assertEquals(pullGRuleName,
                 policy.getCorrelationRule(anyTypeDAO.findGroup()).get().getImplementation().getKey());
+
+        AuthenticationPolicy authenticationPolicy = entityFactory.newEntity(AuthenticationPolicy.class);
+        authenticationPolicy.setAuthenticationAttemptsInterval(1);
+        authenticationPolicy.setAuthenticationFailureLockoutDuration(10);
+
+        AuthenticationPostProcessor authenticationPostProcessor =
+                entityFactory.newEntity(AuthenticationPostProcessor.class);
+        authenticationPostProcessor.setDefaultFailureLoginURL("login/error");
+        authenticationPostProcessor.setDefaultSuccessLoginURL("login");
+        authenticationPostProcessor.setAuthenticationPolicy(authenticationPolicy);
+        Implementation postProcessing = entityFactory.newEntity(Implementation.class);
+        postProcessing.setKey("PostProcessingKey");
+        postProcessing.setEngine(ImplementationEngine.JAVA);
+        postProcessing.setType(AMImplementationType.AUTH_POST_PROCESSING);
+        postProcessing.setBody(AuthenticationPolicyRule.class.getName());
+        postProcessing = implementationDAO.save(postProcessing);
+        authenticationPostProcessor.addAuthPostProcessing(postProcessing);
+        authenticationPolicy.setAuthenticationPostProcessor(authenticationPostProcessor);
+
+        AuthenticationPreProcessor authenticationPreProcessor =
+                entityFactory.newEntity(AuthenticationPreProcessor.class);
+        authenticationPreProcessor.setAuthenticationPolicy(authenticationPolicy);
+        Implementation preProcessing = entityFactory.newEntity(Implementation.class);
+        preProcessing.setKey("PreProcessingKey");
+        preProcessing.setEngine(ImplementationEngine.JAVA);
+        preProcessing.setType(AMImplementationType.AUTH_PRE_PROCESSING);
+        preProcessing.setBody(AuthenticationPolicyRule.class.getName());
+        preProcessing = implementationDAO.save(preProcessing);
+        authenticationPreProcessor.addAuthPreProcessing(preProcessing);
+        authenticationPolicy.setAuthenticationPreProcessor(authenticationPreProcessor);
+
+        authenticationPolicy.setDescription("Syncope Account Policy");
+        authenticationPolicy.setLockoutAttributeName("locked");
+        authenticationPolicy.setLockoutAttributeValue("true");
+        authenticationPolicy.setMaxAuthenticationAttempts(5);
+
+        Implementation type = entityFactory.newEntity(Implementation.class);
+        type.setKey("AuthPolicyConfKey");
+        type.setEngine(ImplementationEngine.JAVA);
+        type.setType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        type.setBody(AuthenticationPolicyRule.class.getName());
+        type = implementationDAO.save(type);
+
+        authenticationPolicy.addConfiguration(type);
+        authenticationPolicy = policyDAO.save(authenticationPolicy);
+
+        assertNotNull(authenticationPolicy);
+
     }
 
     @Test
@@ -184,6 +240,17 @@ public class PolicyTest extends AbstractTest {
         policyDAO.delete(policy);
 
         Policy actual = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
+        assertNull(actual);
+    }
+
+    @Test
+    public void deleteAuthenticationPolicy() {
+        Policy policy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
+        assertNotNull(policy);
+
+        policyDAO.delete(policy);
+
+        Policy actual = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
         assertNull(actual);
     }
 }

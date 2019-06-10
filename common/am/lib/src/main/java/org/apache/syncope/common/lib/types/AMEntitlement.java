@@ -34,6 +34,16 @@ public final class AMEntitlement {
 
     public static final String GATEWAY_ROUTE_PUSH = "GATEWAY_ROUTE_PUSH";
 
+    public static final String AUTHENTICATION_MODULE_READ = "AUTHENTICATION_MODULE_READ";
+
+    public static final String AUTHENTICATION_MODULE_LIST = "AUTHENTICATION_MODULE_LIST";
+
+    public static final String AUTHENTICATION_MODULE_CREATE = "AUTHENTICATION_MODULE_CREATE";
+
+    public static final String AUTHENTICATION_MODULE_UPDATE = "AUTHENTICATION_MODULE_UPDATE";
+
+    public static final String AUTHENTICATION_MODULE_DELETE = "AUTHENTICATION_MODULE_DELETE";
+
     private static final Set<String> VALUES;
 
     static {
