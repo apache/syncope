@@ -35,16 +35,17 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
     public void read() {
         browsingToRelationshipType();
 
-        Component result = findComponentByProp(KEY, DATATABLE_PATH, "inclusion");
+        Component result = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, "inclusion");
 
-        TESTER.assertComponent(
+        UTILITY_UI.getTester().assertComponent(
                 result.getPageRelativePath() + ":cells:1:cell", Label.class);
 
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        TESTER.assertComponent(
+        UTILITY_UI.getTester().assertComponent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
     }
 
@@ -54,12 +55,12 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
         createRelationshipType(name);
         browsingToRelationshipType();
 
-        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
-        Component result = findComponentByProp(KEY, DATATABLE_PATH, name);
+        Component result = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
 
-        TESTER.assertLabel(result.getPageRelativePath() + ":cells:1:cell", name);
-        TESTER.assertLabel(result.getPageRelativePath() + ":cells:2:cell", "test relationshipType");
+        UTILITY_UI.getTester().assertLabel(result.getPageRelativePath() + ":cells:1:cell", name);
+        UTILITY_UI.getTester().assertLabel(result.getPageRelativePath() + ":cells:2:cell", "test relationshipType");
     }
 
     @Test
@@ -68,21 +69,22 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
         createRelationshipType(name);
         browsingToRelationshipType();
 
-        Component result = findComponentByProp(KEY, DATATABLE_PATH, name);
+        Component result = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
         assertNotNull(result);
 
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        final FormTester formTester = TESTER.newFormTester(
+        final FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "new description");
 
-        TESTER.clickLink(
+        UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation successfully executed");
+        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
     }
 
     @Test
@@ -91,26 +93,26 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
         createRelationshipType(name);
         browsingToRelationshipType();
 
-        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
-        Component result = findComponentByProp(KEY, DATATABLE_PATH, name);
+        Component result = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
         assertNotNull(result);
 
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.getRequest().addParameter("confirm", "true");
+        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
 
-        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"));
 
-        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
+        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
 
-        TESTER.cleanupFeedbackMessages();
-        result = findComponentByProp(KEY, DATATABLE_PATH, name);
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        result = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNull(result);
     }

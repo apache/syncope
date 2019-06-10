@@ -34,60 +34,67 @@ public class RolesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
-        TESTER.assertRenderedPage(Security.class);
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:securityLI:security");
+        UTILITY_UI.getTester().assertRenderedPage(Security.class);
     }
 
     private void createRole(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
+        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+                Modal.class);
 
-        FormTester formTester = TESTER.newFormTester(
+        FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", name);
         formTester.submit("content:form:buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = UTILITY_UI.getTester().newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:entitlements:paletteField:recorder",
                 "WORKFLOW_DEF_READ,NOTIFICATION_UPDATE,RELATIONSHIPTYPE_READ,RELATIONSHIPTYPE_LIST");
         formTester.submit("content:form:buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = UTILITY_UI.getTester().newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = UTILITY_UI.getTester().newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = UTILITY_UI.getTester().newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
-        TESTER.cleanupFeedbackMessages();
+        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:securityLI:security");
     }
 
     @Test
     public void read() {
-        Component result = findComponentByProp(KEY, "body:content:tabbedPanel:panel:container:content:searchContainer:"
+        Component result = UTILITY_UI.findComponentByProp(KEY,
+                "body:content:tabbedPanel:panel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "Other");
         assertNotNull(result);
 
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
 
-        TESTER.assertModelValue(
+        UTILITY_UI.getTester().assertModelValue(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:dialog:header:header-label",
                 "Role 'Other' members");
 
-        assertNotNull(findComponentByProp("username",
+        assertNotNull(UTILITY_UI.findComponentByProp("username",
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:"
                 + "content:searchResult:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "rossini"));
 
-        TESTER.executeAjaxEvent(
+        UTILITY_UI.getTester().executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
     }
@@ -100,56 +107,61 @@ public class RolesITCase extends AbstractConsoleITCase {
     @Test
     public void update() {
         createRole("updateRole");
-        Component result = findComponentByProp(KEY, "body:content:tabbedPanel:panel:container:content:searchContainer:"
+        Component result = UTILITY_UI.findComponentByProp(KEY,
+                "body:content:tabbedPanel:panel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "updateRole");
 
         assertNotNull(result);
 
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(
+        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = TESTER.newFormTester(
+        FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", "updateRole");
         formTester.submit("content:form:buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = UTILITY_UI.getTester().newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:entitlements:paletteField:recorder",
                 "WORKFLOW_DEF_READ,NOTIFICATION_UPDATE");
         formTester.submit("content:form:buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester = UTILITY_UI.getTester().newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
-        TESTER.cleanupFeedbackMessages();
+        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
     }
 
     @Test
     public void delete() {
         createRole("deleteRole");
-        Component result = findComponentByProp(KEY, "body:content:tabbedPanel:panel:container:content:searchContainer:"
+        Component result = UTILITY_UI.findComponentByProp(KEY,
+                "body:content:tabbedPanel:panel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteRole");
 
         assertNotNull(result);
 
-        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
 
-        TESTER.getRequest().addParameter("confirm", "true");
-        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
+        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:4:action:action"));
 
-        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
+        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:4:action:action"), "onclick");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
-        TESTER.cleanupFeedbackMessages();
+        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
 
-        assertNull(findComponentByProp(KEY, "body:content:tabbedPanel:panel:container:content:searchContainer:"
+        assertNull(UTILITY_UI.findComponentByProp(KEY,
+                "body:content:tabbedPanel:panel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteRole"));
     }
 }

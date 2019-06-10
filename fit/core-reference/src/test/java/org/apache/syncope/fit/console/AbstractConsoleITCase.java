@@ -34,6 +34,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
+import org.apache.syncope.fit.ui.UtilityUIT;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,9 +45,11 @@ import org.springframework.context.annotation.Configuration;
 
 public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
+    protected static UtilityUIT UTILITY_UI;
+
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class })
     @Configuration
-    public static class SyncopeWebApplicationTestConfig {
+    public static class SyncopeConsoleWebApplicationTestConfig {
 
         @Bean
         public GeneralSettingsProperties generalSettingsProperties() {
@@ -91,13 +94,13 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
     @BeforeAll
     public static void setUp() {
         synchronized (LOG) {
-            if (TESTER == null) {
+            if (UTILITY_UI == null) {
                 AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-                ctx.register(SyncopeWebApplicationTestConfig.class);
+                ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
                 ctx.register(SyncopeWebApplication.class);
                 ctx.refresh();
 
-                TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
+                UTILITY_UI = new UtilityUIT(new WicketTester(ctx.getBean(SyncopeWebApplication.class)));
             }
 
             if (SYNCOPE_SERVICE == null) {
@@ -109,10 +112,10 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
     }
 
     protected void doLogin(final String user, final String passwd) {
-        TESTER.startPage(Login.class);
-        TESTER.assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().startPage(Login.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
 
-        FormTester formTester = TESTER.newFormTester("login");
+        FormTester formTester = UTILITY_UI.getTester().newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");

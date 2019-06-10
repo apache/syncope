@@ -31,8 +31,10 @@ import org.apache.wicket.extensions.markup.html.form.palette.component.Choices;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("WIP")
 public class SelfRegistrationITCase extends AbstractEnduserITCase {
 
     private static final String WIZARD_FORM = "body:wizard:form";
@@ -41,35 +43,39 @@ public class SelfRegistrationITCase extends AbstractEnduserITCase {
     public void selfCreate() {
         String username = "testUser";
 
-        TESTER.startPage(Login.class);
-        TESTER.assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().startPage(Login.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
 
-        TESTER.clickLink("self-registration");
+        UTILITY_UI.getTester().clickLink("self-registration");
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
-        FormTester formTester = TESTER.newFormTester(WIZARD_FORM);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
+        FormTester formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
         assertNotNull(formTester);
         formTester.setValue("view:username:textField", username);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
         // check required field is correctly set
-        TESTER.assertNoInfoMessage();
-        TESTER.assertNoErrorMessage();
+        UTILITY_UI.getTester().assertNoInfoMessage();
+        UTILITY_UI.getTester().assertNoErrorMessage();
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField", TextField.class);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField",
                 TextField.class);
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:12:panel:textField",
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField",
                 TextField.class);
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:12:panel:textField",
+                TextField.class);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField",
                 TextField.class);
 
-        formTester = TESTER.newFormTester(WIZARD_FORM);
+        formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
         assertNotNull(formTester);
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField",
                 "User fullname");
@@ -78,41 +84,44 @@ public class SelfRegistrationITCase extends AbstractEnduserITCase {
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField",
                 "test@email.com");
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
         // check required fields were correctly set
-        TESTER.assertNoInfoMessage();
-        TESTER.assertNoErrorMessage();
+        UTILITY_UI.getTester().assertNoInfoMessage();
+        UTILITY_UI.getTester().assertNoErrorMessage();
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:derSchemas:tabs:0:body:content:schemas:0:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:derSchemas:tabs:0:body:content:schemas:0:panel:textField",
                 TextField.class);
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        TESTER.assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
                 + "multiValueContainer:innerForm:content:field-label",
                 Label.class);
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        TESTER.assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
 
-        TESTER.assertRenderedPage(Login.class);
-        TESTER.assertComponent("login:username", TextField.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
 
         assertFalse(userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(username).query()).
                 build()).getResult().isEmpty());
+        
+        assertNotNull(userService.read(username));
 
-        TESTER.cleanupFeedbackMessages();
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
     }
 
     @Test
     public void selfPasswordReset() {
-        TESTER.startPage(Login.class);
-        TESTER.assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().startPage(Login.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
 
-        TESTER.clickLink("self-pwd-reset");
+        UTILITY_UI.getTester().clickLink("self-pwd-reset");
     }
 
     @Test
@@ -120,59 +129,61 @@ public class SelfRegistrationITCase extends AbstractEnduserITCase {
         String username = "puccini";
         String newEmail = "giacomo.puccini@email.com";
 
-        TESTER.startPage(Login.class);
+        UTILITY_UI.getTester().startPage(Login.class);
         doLogin(username, "password");
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField", TextField.class);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField",
                 TextField.class);
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:12:panel:textField",
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField",
                 TextField.class);
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:12:panel:textField",
+                TextField.class);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField",
                 TextField.class);
 
-        FormTester formTester = TESTER.newFormTester(WIZARD_FORM);
+        FormTester formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
         assertNotNull(formTester);
-        TESTER.assertComponent(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas:4:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:plainSchemas:tabs:0:body:content:schemas:4:panel:textField",
                 TextField.class);
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:4:panel:textField", newEmail);
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
         // check required fields were correctly set
-        TESTER.assertNoInfoMessage();
-        TESTER.assertNoErrorMessage();
+        UTILITY_UI.getTester().assertNoInfoMessage();
+        UTILITY_UI.getTester().assertNoErrorMessage();
 
-        TESTER.assertComponent(WIZARD_FORM + ":view:derSchemas:tabs:0:body:content:schemas:0:panel:textField",
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+                + ":view:derSchemas:tabs:0:body:content:schemas:0:panel:textField",
                 TextField.class);
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        TESTER.assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
                 + "multiValueContainer:innerForm:content:field-label",
                 Label.class);
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        TESTER.assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
 
-        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
 
-        TESTER.assertRenderedPage(Login.class);
-        TESTER.assertComponent("login:username", TextField.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
 
-        assertTrue(userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(username).query()).
-                build()).getResult().stream().anyMatch(userTO -> {
-                    return userTO.getPlainAttr("email").get().getValues().get(0).equals(newEmail);
-                }));
+        assertTrue(userService.read(username).getPlainAttr("email").get().getValues().get(0).equals(newEmail));
 
-        TESTER.cleanupFeedbackMessages();
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
     }
 
     @Test

@@ -42,17 +42,19 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        TESTER.clickLink("body:realmsLI:realms");
+        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
 
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
+        UTILITY_UI.getTester().clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
 
-        TESTER.executeAjaxEvent("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
+        UTILITY_UI.getTester().executeAjaxEvent(
+                "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
                 + "content:searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panelPlus:add",
                 Constants.ON_CLICK);
 
-        TESTER.assertComponent(
+        UTILITY_UI.getTester().assertComponent(
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
                 + "searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:value:"
                 + "textField", TextField.class);
@@ -60,19 +62,21 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void clickToClonePrinter() {
-        TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
+        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = findComponentByProp("key", CONTAINER
+        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().clickLink(TAB_PANEL
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:1:action:action");
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL
+                + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
         formTester.submit("buttons:cancel");
@@ -80,49 +84,52 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void editPrinter() {
-        TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
+        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = findComponentByProp("key", CONTAINER
+        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().clickLink(TAB_PANEL
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL
+                + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        TESTER.cleanupFeedbackMessages();
+        UTILITY_UI.getTester().cleanupFeedbackMessages();
 
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
 
-        TESTER.assertComponent(TAB_PANEL
+        UTILITY_UI.getTester().assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", Label.class);
 
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
+        UTILITY_UI.getTester().clickLink(TAB_PANEL
+                + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
-        component = findComponentByProp("key", CONTAINER
+        component = UTILITY_UI.findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
@@ -130,16 +137,16 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeletePrinterLink() {
-        TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
+        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = findComponentByProp("key", CONTAINER
+        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.assertComponent(TAB_PANEL
+        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        UTILITY_UI.getTester().assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:5:action:action",
                 IndicatingOnConfirmAjaxLink.class);

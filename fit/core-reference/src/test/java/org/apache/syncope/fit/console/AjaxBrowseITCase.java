@@ -36,50 +36,50 @@ public class AjaxBrowseITCase extends AbstractConsoleITCase {
 
     @Test
     public void loginPage() {
-        TESTER.startPage(Login.class);
-        TESTER.assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().startPage(Login.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
     }
 
     @Test
     public void successfulLogin() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.assertRenderedPage(Dashboard.class);
+        UTILITY_UI.getTester().assertRenderedPage(Dashboard.class);
     }
 
     @Test
     public void unsuccessfulLogin() {
         doLogin(ADMIN_UNAME, ADMIN_PWD + 1);
-        TESTER.assertRenderedPage(Login.class);
+        UTILITY_UI.getTester().assertRenderedPage(Login.class);
     }
 
     @Test
     public void browsingBookmarkablePageLink() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
 
-        TESTER.assertRenderedPage(Dashboard.class);
+        UTILITY_UI.getTester().assertRenderedPage(Dashboard.class);
 
-        TESTER.clickLink("body:realmsLI:realms");
-        TESTER.assertRenderedPage(Realms.class);
+        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
+        UTILITY_UI.getTester().assertRenderedPage(Realms.class);
 
-        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
-        TESTER.assertRenderedPage(Topology.class);
+        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
+        UTILITY_UI.getTester().assertRenderedPage(Topology.class);
 
-        TESTER.clickLink("body:reportsLI:reports");
-        TESTER.assertRenderedPage(Reports.class);
+        UTILITY_UI.getTester().clickLink("body:reportsLI:reports");
+        UTILITY_UI.getTester().assertRenderedPage(Reports.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
-        TESTER.assertRenderedPage(Logs.class);
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        UTILITY_UI.getTester().assertRenderedPage(Logs.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
-        TESTER.assertRenderedPage(Types.class);
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
+        UTILITY_UI.getTester().assertRenderedPage(Types.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
-        TESTER.assertRenderedPage(Security.class);
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:securityLI:security");
+        UTILITY_UI.getTester().assertRenderedPage(Security.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
-        TESTER.assertRenderedPage(Policies.class);
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        UTILITY_UI.getTester().assertRenderedPage(Policies.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-        TESTER.assertRenderedPage(Notifications.class);
+        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        UTILITY_UI.getTester().assertRenderedPage(Notifications.class);
     }
 }
