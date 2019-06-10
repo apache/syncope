@@ -467,7 +467,7 @@ under the License.
     
     <wicket.version>8.5.0</wicket.version>
     <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.9</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.10</wicket-bootstrap.version>
     <wicket-spring-boot.version>2.1.7</wicket-spring-boot.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
