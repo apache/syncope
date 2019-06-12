@@ -490,7 +490,7 @@ under the License.
     <fileSaver.version>0.0.2</fileSaver.version>
     
     <izpack.version>5.1.3</izpack.version>
-    <httpclient.version>4.5.8</httpclient.version>
+    <httpclient.version>4.5.9</httpclient.version>
     <maven-invoker.version>3.0.1</maven-invoker.version>
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
@@ -523,7 +523,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.5.41</tomcat.version>
+    <tomcat.version>8.5.42</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
