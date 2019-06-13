@@ -41,7 +41,7 @@ import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class SelfRegistrationITCase extends AbstractEnduserITCase {
+public class EnduserITCase extends AbstractEnduserITCase {
 
     private static final String WIZARD_FORM = "body:wizard:form";
 
