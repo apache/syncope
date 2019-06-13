@@ -90,10 +90,6 @@ body, html {
   box-sizing: border-box;
 }
 
-.form-signin .dropdown {
-  width: 100% !important;
-}
-
 .form-signin .form-control:focus {
   border-color: rgb(104, 145, 162);
   outline: 0;
