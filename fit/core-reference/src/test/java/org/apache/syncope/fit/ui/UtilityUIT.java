@@ -83,6 +83,16 @@ public class UtilityUIT {
                     }
                 });
     }
+    
+    public Component findComponentByMarkupId(final String searchPath, final String markupId) {
+        Component component = tester.getComponentFromLastRenderedPage(searchPath);
+        return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
+                visitChildren(Component.class, (final Component object, final IVisit<Component> visit) -> {
+                    if (object.getMarkupId().equals(markupId)) {
+                        visit.stop(object);
+                    }
+                });
+    }
 
     public void closeCallBack(final Component modal) {
         modal.getBehaviors().stream().
