@@ -422,7 +422,7 @@ under the License.
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
 
-    <log4j.version>2.11.2</log4j.version>
+    <log4j.version>2.12.0</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <commons-jexl.version>3.1</commons-jexl.version>
@@ -436,7 +436,7 @@ under the License.
 
     <h2.version>1.4.199</h2.version>
 
-    <junit.version>5.4.2</junit.version>
+    <junit.version>5.5.0</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1516,7 +1516,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.14</version>
+        <version>2.0.16</version>
       </dependency>
       
       <dependency>
