@@ -76,7 +76,7 @@ jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1
 with
 
 [source,java]
-jdbc:h2:~/syncopedb;DB_CLOSE_DELAY=-1
+jdbc:h2:~/syncopedb:syncopedb;DB_CLOSE_DELAY=-1
 
 in `webapps/syncope/WEB-INF/classes/domains/Master.properties` (for `Master` domain) or
 `webapps/syncope/WEB-INF/classes/domains/Two.properties` (for `Two` domain) from the Apache Tomcat directory.
