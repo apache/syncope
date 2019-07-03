@@ -37,13 +37,8 @@ import org.springframework.cloud.gateway.filter.NettyWriteResponseFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.client.reactive.ClientHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -81,121 +76,80 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
 
         @Override
         public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
+            return chain.filter(exchange.mutate().response(decorate(exchange)).build());
+        }
+
+        private ServerHttpResponse decorate(final ServerWebExchange exchange) {
             ServerHttpResponse originalResponse = exchange.getResponse();
 
             DataBufferFactory bufferFactory = originalResponse.bufferFactory();
-            ServerHttpResponseDecorator responseDecorator = new ServerHttpResponseDecorator(originalResponse) {
+            return new ServerHttpResponseDecorator(originalResponse) {
 
                 @Override
                 public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                    if (body instanceof Flux) {
-                        Flux<? extends DataBuffer> flux = (Flux<? extends DataBuffer>) body;
-
-                        return super.writeWith(flux.buffer().map(dataBuffers -> {
-                            ByteArrayOutputStream payload = new ByteArrayOutputStream();
-                            dataBuffers.forEach(buffer -> {
-                                byte[] array = new byte[buffer.readableByteCount()];
-                                buffer.read(array);
-                                try {
-                                    payload.write(array);
-                                } catch (IOException e) {
-                                    LOG.error("While reading original body content", e);
-                                }
-                            });
-
-                            byte[] input = payload.toByteArray();
-
-                            InputStream is = null;
-                            boolean compressed = false;
-                            byte[] output;
+                    return super.writeWith(Flux.from(body).buffer().map(dataBuffers -> {
+                        ByteArrayOutputStream payload = new ByteArrayOutputStream();
+                        dataBuffers.forEach(buffer -> {
+                            byte[] array = new byte[buffer.readableByteCount()];
+                            buffer.read(array);
                             try {
-                                if (isCompressed(input)) {
-                                    compressed = true;
-                                    is = new GZIPInputStream(new ByteArrayInputStream(input));
-                                } else {
-                                    is = new ByteArrayInputStream(input);
-                                }
-
-                                ObjectNode content = (ObjectNode) MAPPER.readTree(is);
-                                String[] kv = config.getData().split("=");
-                                content.put(kv[0], kv[1]);
-
-                                output = MAPPER.writeValueAsBytes(content);
+                                payload.write(array);
                             } catch (IOException e) {
-                                LOG.error("While (de)serializing as JSON", e);
-                                output = ArrayUtils.clone(input);
-                            } finally {
-                                IOUtils.closeStream(is);
+                                LOG.error("While reading original body content", e);
+                            }
+                        });
+
+                        byte[] input = payload.toByteArray();
+
+                        InputStream is = null;
+                        boolean compressed = false;
+                        byte[] output;
+                        try {
+                            if (isCompressed(input)) {
+                                compressed = true;
+                                is = new GZIPInputStream(new ByteArrayInputStream(input));
+                            } else {
+                                is = new ByteArrayInputStream(input);
                             }
 
-                            if (compressed) {
-                                try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);
-                                        GZIPOutputStream gzipos = new GZIPOutputStream(baos)) {
+                            ObjectNode content = (ObjectNode) MAPPER.readTree(is);
+                            String[] kv = config.getData().split("=");
+                            content.put(kv[0], kv[1]);
 
-                                    gzipos.write(output);
-                                    gzipos.close();
-                                    output = baos.toByteArray();
-                                } catch (IOException e) {
-                                    LOG.error("While GZIP-encoding output", e);
-                                }
+                            output = MAPPER.writeValueAsBytes(content);
+                        } catch (IOException e) {
+                            LOG.error("While (de)serializing as JSON", e);
+                            output = ArrayUtils.clone(input);
+                        } finally {
+                            IOUtils.closeStream(is);
+                        }
+
+                        if (compressed) {
+                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);
+                                    GZIPOutputStream gzipos = new GZIPOutputStream(baos)) {
+
+                                gzipos.write(output);
+                                gzipos.close();
+                                output = baos.toByteArray();
+                            } catch (IOException e) {
+                                LOG.error("While GZIP-encoding output", e);
                             }
+                        }
 
-                            return bufferFactory.wrap(output);
-                        }));
-                    }
+                        return bufferFactory.wrap(output);
+                    }));
+                }
 
-                    return super.writeWith(body);
+                @Override
+                public Mono<Void> writeAndFlushWith(final Publisher<? extends Publisher<? extends DataBuffer>> body) {
+                    return writeWith(Flux.from(body).flatMapSequential(p -> p));
                 }
             };
-
-            return chain.filter(exchange.mutate().response(responseDecorator).build());
         }
 
         @Override
         public int getOrder() {
             return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
-        }
-    }
-
-    public class ResponseAdapter implements ClientHttpResponse {
-
-        private final Flux<DataBuffer> flux;
-
-        private final HttpHeaders headers;
-
-        @SuppressWarnings("unchecked")
-        public ResponseAdapter(final Publisher<? extends DataBuffer> body, final HttpHeaders headers) {
-            this.headers = headers;
-            if (body instanceof Flux) {
-                flux = (Flux) body;
-            } else {
-                flux = ((Mono) body).flux();
-            }
-        }
-
-        @Override
-        public Flux<DataBuffer> getBody() {
-            return flux;
-        }
-
-        @Override
-        public HttpHeaders getHeaders() {
-            return headers;
-        }
-
-        @Override
-        public HttpStatus getStatusCode() {
-            return null;
-        }
-
-        @Override
-        public int getRawStatusCode() {
-            return 0;
-        }
-
-        @Override
-        public MultiValueMap<String, ResponseCookie> getCookies() {
-            return null;
         }
     }
 }
