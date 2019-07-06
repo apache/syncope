@@ -432,7 +432,7 @@ under the License.
     
     <tika.version>1.21</tika.version>
 
-    <joda.version>2.10.2</joda.version>
+    <joda.version>2.10.3</joda.version>
 
     <h2.version>1.4.199</h2.version>
 
@@ -853,7 +853,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson.version}.1</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
