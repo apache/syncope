@@ -1531,7 +1531,7 @@ under the License.
               <container>
                 <containerId>wildfly16x</containerId>
                 <zipUrlInstaller>
-                  <url>https://download.jboss.org/wildfly/17.0.0.Final/wildfly-17.0.0.Final.zip</url>
+                  <url>https://download.jboss.org/wildfly/17.0.1.Final/wildfly-17.0.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
