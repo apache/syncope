@@ -21,7 +21,7 @@ under the License.
      
   <route id="createAnyObject">
     <from uri="direct:createAnyObject"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
@@ -40,7 +40,7 @@ under the License.
          
   <route id="updateAnyObject">
     <from uri="direct:updateAnyObject"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
