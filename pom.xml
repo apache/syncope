@@ -408,11 +408,11 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>3.0.0-beta-1</groovy.version>
+    <groovy.version>3.0.0-beta-2</groovy.version>
 
-    <flowable.version>6.4.1</flowable.version>
+    <flowable.version>6.4.2</flowable.version>
 
-    <camel.version>3.0.0-M2</camel.version>
+    <camel.version>3.0.0-M4</camel.version>
 
     <slf4j.version>1.7.26</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
@@ -444,7 +444,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.8</swagger-core.version>    
-    <swagger-ui.version>3.22.2</swagger-ui.version>
+    <swagger-ui.version>3.23.0</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
@@ -507,7 +507,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.21</tomcat.version>
+    <tomcat.version>9.0.22</tomcat.version>
 
     <docker.postgresql.version>11.2</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
@@ -719,21 +719,6 @@ under the License.
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-spring-javaconfig</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-script</artifactId>
         <version>${camel.version}</version>
         <exclusions>
           <exclusion>
@@ -2026,7 +2011,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.5</version>
+          <version>1.7.6</version>
           <configuration>
             <configuration>
               <type>standalone</type>
