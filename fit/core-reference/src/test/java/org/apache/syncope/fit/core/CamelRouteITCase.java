@@ -74,7 +74,7 @@ public class CamelRouteITCase extends AbstractITCase {
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
                 + "  <from uri=\"direct:createUser\"/>\n"
-                + "  <setProperty propertyName=\"actual\">\n"
+                + "  <setProperty name=\"actual\">\n"
                 + "    <simple>${body}</simple>\n"
                 + "  </setProperty>\n"
                 + "  <doTry>\n"
@@ -108,7 +108,7 @@ public class CamelRouteITCase extends AbstractITCase {
         String routeContent = ""
                 + "  <route id=\"createUser\">\n"
                 + "    <from uri=\"direct:createUser\"/>\n"
-                + "    <setProperty propertyName=\"actual\">\n"
+                + "    <setProperty name=\"actual\">\n"
                 + "      <simple>${body}</simple>\n"
                 + "    </setProperty>\n"
                 + "    <setBody>\n"
@@ -170,7 +170,7 @@ public class CamelRouteITCase extends AbstractITCase {
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
                 + "  <from uri=\"direct:createUser\"/>\n"
-                + "  <setProperty propertyName=\"actual\">\n"
+                + "  <setProperty name=\"actual\">\n"
                 + "    <simple>${body}</simple>\n"
                 + "  </setProperty>\n"
                 + "  <doTry>\n"
