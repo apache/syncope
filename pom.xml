@@ -733,6 +733,21 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
+        <artifactId>camel-groovy</artifactId>
+        <version>${camel.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
         <artifactId>camel-metrics</artifactId>
         <version>${camel.version}</version>
         <exclusions>

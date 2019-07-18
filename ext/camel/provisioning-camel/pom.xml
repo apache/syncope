@@ -52,6 +52,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
+      <artifactId>camel-groovy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
       <artifactId>camel-metrics</artifactId>
     </dependency>
     <dependency>
