@@ -391,7 +391,7 @@ under the License.
 
     <cxf.version>3.1.18</cxf.version>
 
-    <jackson.version>2.9.9</jackson.version>
+    <jackson.version>2.10.0.pr1</jackson.version>
 
     <spring.version>4.3.24.RELEASE</spring.version>
     <spring-security.version>4.2.13.RELEASE</spring-security.version>
@@ -464,7 +464,7 @@ under the License.
     <font-awesome.version>4.7.0</font-awesome.version>
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
-    <highlightjs.version>9.8.0</highlightjs.version>
+    <highlightjs.version>9.15.8</highlightjs.version>
     <codemirror.version>5.45.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
@@ -906,7 +906,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}.1</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
