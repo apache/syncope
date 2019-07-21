@@ -322,13 +322,13 @@ sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.12.1\/smoothness\/jquery-ui.mi
 
 # if releasing from 2_0_X
 curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope2.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' /tmp/schema_1_syncope2.html 
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope2.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.8\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.8\/styles\/default.min.css/' /tmp/schema_1_syncope2.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.8\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.8\/highlight.min.js/' /tmp/schema_1_syncope2.html 
 
 # else if releasing from 2_1_X
 curl -o /tmp/schema_1_syncope21.html http://localhost:9080/syncope/schema_1_syncope21.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/styles\/default.min.css/' /tmp/schema_1_syncope21.html 
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.8.0\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.8.0\/highlight.min.js/' /tmp/schema_1_syncope21.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.8\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.8\/styles\/default.min.css/' /tmp/schema_1_syncope21.html 
+sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.8\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.8\/highlight.min.js/' /tmp/schema_1_syncope21.html 
 
 ./bin/shutdown.sh && cd - 
               
