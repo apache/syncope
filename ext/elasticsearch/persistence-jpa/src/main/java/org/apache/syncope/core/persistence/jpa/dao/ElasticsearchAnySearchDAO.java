@@ -56,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchType;
@@ -139,7 +140,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 size(size);
         sortBuilders.forEach(sort -> sourceBuilder.sort(sort));
 
-        return new SearchRequest(elasticsearchUtils.getContextDomainName(kind)).
+        return new SearchRequest(elasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QUERY_THEN_FETCH).
                 source(sourceBuilder);
     }

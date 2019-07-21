@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,7 +208,7 @@ public class ElasticsearchUtils {
         return builder.endObject();
     }
 
-    public String getContextDomainName(final AnyTypeKind kind) {
-        return AuthContextUtils.getDomain().toLowerCase() + "_" + kind.name().toLowerCase();
+    public String getContextDomainName(final String domain, final AnyTypeKind kind) {
+        return domain.toLowerCase() + "_" + kind.name().toLowerCase();
     }
 }
