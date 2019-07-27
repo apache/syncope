@@ -61,10 +61,10 @@ under the License.
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="http://syncope-vm.apache.org:9080/syncope/">REST documentation</a>
+              <a href="https://syncope-vm.apache.org/syncope/">REST documentation</a>
             </li>
             <li>
-              <a href="http://syncope-vm.apache.org:9080/syncope/swagger/">Swagger UI</a>
+              <a href="https://syncope-vm.apache.org/syncope/swagger/">Swagger UI</a>
             </li>
           </ul>
         </div>
@@ -75,7 +75,7 @@ under the License.
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="http://syncope-vm.apache.org:9080/syncope-console/">Web UI</a>
+              <a href="https://syncope-vm.apache.org/syncope-console/">Web UI</a>
             </li>
           </ul>
         </div>
@@ -86,7 +86,7 @@ under the License.
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="http://syncope-vm.apache.org:9080/syncope-enduser/">Web UI</a>
+              <a href="https://syncope-vm.apache.org/syncope-enduser/">Web UI</a>
             </li>
           </ul>
         </div>
