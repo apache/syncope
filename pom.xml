@@ -415,7 +415,7 @@ under the License.
     <slf4j.version>1.7.26</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>6.8.1</elasticsearch.version>
+    <elasticsearch.version>6.8.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
@@ -444,7 +444,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.8</swagger-core.version>    
-    <swagger-ui.version>3.23.0</swagger-ui.version>
+    <swagger-ui.version>3.23.2</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.3.1-1</jquery.version>
@@ -2439,7 +2439,7 @@ under the License.
             <link>https://docs.spring.io/spring-security/site/docs/5.0.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.8.1/index.html</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.8.2/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.0.8/apidocs/</link>
           </links>
         </configuration>
@@ -2533,7 +2533,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>1.5.0-alpha.18</version>
+                <version>1.5.0-beta.2</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -2625,7 +2625,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.7.1</version>
+            <version>3.8.2</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
