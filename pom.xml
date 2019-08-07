@@ -395,7 +395,7 @@ under the License.
 
     <spring.version>5.1.9.RELEASE</spring.version>
     <spring-security.version>5.1.6.RELEASE</spring-security.version>
-    <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+    <spring-boot.version>2.1.7.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.1.2.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
@@ -414,7 +414,7 @@ under the License.
 
     <camel.version>3.0.0-M4</camel.version>
 
-    <slf4j.version>1.7.26</slf4j.version>
+    <slf4j.version>1.7.27</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
     <elasticsearch.version>7.3.0</elasticsearch.version>
@@ -444,7 +444,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.8</swagger-core.version>    
-    <swagger-ui.version>3.23.2</swagger-ui.version>
+    <swagger-ui.version>3.23.4</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
@@ -460,7 +460,7 @@ under the License.
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.15.8</highlightjs.version>
-    <codemirror.version>5.45.0</codemirror.version>
+    <codemirror.version>5.48.2</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
