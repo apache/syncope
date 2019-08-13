@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -118,6 +119,33 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
         };
 
         field.setModel(model);
+        return this;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public FieldPanel<Boolean> setNewModel(final Attributable attributableTO, final String schema) {
+        field.setModel(new Model() {
+
+            private static final long serialVersionUID = -4214654722524358000L;
+
+            @Override
+            public Serializable getObject() {
+                if (!attributableTO.getPlainAttr(schema).get().getValues().isEmpty()) {
+                    return Boolean.TRUE.toString().equalsIgnoreCase(
+                            attributableTO.getPlainAttr(schema).get().getValues().get(0));
+                }
+                return null;
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                attributableTO.getPlainAttr(schema).get().getValues().clear();
+                attributableTO.getPlainAttr(schema).get().getValues().add(
+                        object == null ? Boolean.FALSE.toString() : object.toString());
+            }
+
+        });
+
         return this;
     }
 
