@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -415,29 +414,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
                             || !schemas.get(attrTO.getSchema()).isMultivalue()) {
-
-                        FieldPanel.class.cast(panel).setNewModel(new Model() {
-
-                            private static final long serialVersionUID = -4214654722524358000L;
-
-                            @Override
-                            public Serializable getObject() {
-                                return (!attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
-                                        get().getValues().isEmpty())
-                                                ? attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
-                                                        get().getValues().get(0)
-                                                : null;
-                            }
-
-                            @Override
-                            public void setObject(final Serializable object) {
-                                attributableTO.getObject().getPlainAttr(attrTO.getSchema()).get().getValues().clear();
-                                if (object != null) {
-                                    attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
-                                            get().getValues().add(object.toString());
-                                }
-                            }
-                        });
+                        FieldPanel.class.cast(panel).setNewModel(attributableTO.getObject(), attrTO.getSchema());
                     } else {
                         // SYNCOPE-1476 set form as multipart to properly manage membership attributes
                         panel = new MultiFieldPanel.Builder<>(new ListModel<String>() {
