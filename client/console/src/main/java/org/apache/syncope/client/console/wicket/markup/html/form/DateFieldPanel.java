@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -120,6 +121,37 @@ public class DateFieldPanel extends FieldPanel<Date> {
         };
 
         field.setModel(model);
+        return this;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public FieldPanel<Date> setNewModel(final AttributableTO attributableTO, final String schema) {
+        field.setModel(new Model() {
+
+            private static final long serialVersionUID = -4214654722524358000L;
+
+            @Override
+            public Serializable getObject() {
+                if (!attributableTO.getPlainAttr(schema).getValues().isEmpty()) {
+                    try {
+                        return fmt.parse(attributableTO.getPlainAttr(schema).getValues().get(0));
+                    } catch (ParseException ex) {
+                        LOG.error("While parsing date", ex);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                attributableTO.getPlainAttr(schema).getValues().clear();
+                if (object != null) {
+                    attributableTO.getPlainAttr(schema).getValues().add(fmt.format(object));
+                }
+            }
+
+        });
+
         return this;
     }
 

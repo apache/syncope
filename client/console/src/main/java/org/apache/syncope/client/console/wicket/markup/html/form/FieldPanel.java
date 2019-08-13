@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -123,6 +124,31 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     public FieldPanel<T> setNewModel(final IModel<T> model) {
         field.setModel(model == null ? new Model<T>() : model);
+        return this;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public FieldPanel<T> setNewModel(final AttributableTO attributableTO, final String schema) {
+        field.setModel(new Model() {
+
+            private static final long serialVersionUID = -4214654722524358000L;
+
+            @Override
+            public Serializable getObject() {
+                return (!attributableTO.getPlainAttr(schema).getValues().isEmpty())
+                        ? attributableTO.getPlainAttr(schema).getValues().get(0)
+                        : null;
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                attributableTO.getPlainAttr(schema).getValues().clear();
+                if (object != null) {
+                    attributableTO.getPlainAttr(schema).getValues().add(object.toString());
+                }
+            }
+        });
+        
         return this;
     }
 

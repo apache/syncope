@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -402,29 +401,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
                             || !schemas.get(attrTO.getSchema()).isMultivalue()) {
-
-                        FieldPanel.class.cast(panel).setNewModel(new Model() {
-
-                            private static final long serialVersionUID = -4214654722524358000L;
-
-                            @Override
-                            public Serializable getObject() {
-                                return attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
-                                        getValues().isEmpty()
-                                                ? null
-                                                : attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
-                                                        getValues().get(0);
-                            }
-
-                            @Override
-                            public void setObject(final Serializable object) {
-                                attributableTO.getObject().getPlainAttr(attrTO.getSchema()).getValues().clear();
-                                if (object != null) {
-                                    attributableTO.getObject().getPlainAttr(attrTO.getSchema()).
-                                            getValues().add(object.toString());
-                                }
-                            }
-                        });
+                        FieldPanel.class.cast(panel).setNewModel(attributableTO.getObject(), attrTO.getSchema());
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
                                 new ListModel<String>() {
