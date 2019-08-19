@@ -1529,7 +1529,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly16x</containerId>
+                <containerId>wildfly17x</containerId>
                 <zipUrlInstaller>
                   <url>https://download.jboss.org/wildfly/17.0.1.Final/wildfly-17.0.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
