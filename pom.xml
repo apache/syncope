@@ -408,7 +408,7 @@ under the License.
 
     <groovy.version>2.5.8</groovy.version>
 
-    <activiti.version>5.22.0</activiti.version>
+    <activiti.version>5.23.0</activiti.version>
     <flowable.version>5.23.0</flowable.version>
 
     <camel.version>2.17.7</camel.version>	
@@ -2048,7 +2048,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.6</version>
+          <version>1.7.7</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
