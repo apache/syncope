@@ -415,9 +415,9 @@ under the License.
     <camel.version>3.0.0-M4</camel.version>
 
     <slf4j.version>1.7.28</slf4j.version>
-    <opensaml.version>3.3.0</opensaml.version>
+    <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>7.3.0</elasticsearch.version>
+    <elasticsearch.version>7.3.1</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
@@ -443,7 +443,7 @@ under the License.
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
 
-    <swagger-core.version>2.0.8</swagger-core.version>    
+    <swagger-core.version>2.0.9</swagger-core.version>    
     <swagger-ui.version>3.23.5</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
@@ -2458,9 +2458,9 @@ under the License.
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.3.0/index.html</link>
-            <link>http://docs.swagger.io/swagger-core/v2.0.8/apidocs/</link>
+            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.3.1/index.html</link>
+            <link>http://docs.swagger.io/swagger-core/v2.0.9/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
