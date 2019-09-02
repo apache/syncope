@@ -391,7 +391,7 @@ under the License.
 
     <cxf.version>3.3.3</cxf.version>
 
-    <jackson.version>2.10.0.pr1</jackson.version>
+    <jackson.version>2.10.0.pr2</jackson.version>
 
     <spring.version>5.1.9.RELEASE</spring.version>
     <spring-security.version>5.1.6.RELEASE</spring-security.version>
@@ -2083,7 +2083,7 @@ under the License.
         <plugin>
           <groupId>org.vafer</groupId>
           <artifactId>jdeb</artifactId>
-          <version>1.7</version>
+          <version>1.8</version>
         </plugin>
 
         <plugin>
