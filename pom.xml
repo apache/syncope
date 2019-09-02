@@ -509,7 +509,7 @@ under the License.
 
     <tomcat.version>9.0.24</tomcat.version>
 
-    <docker.postgresql.version>11.2</docker.postgresql.version>
+    <docker.postgresql.version>11.5</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
 

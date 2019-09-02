@@ -28,7 +28,7 @@ services:
      restart: always
 
    db:
-     image: postgres:11.2
+     image: postgres:11.5
      restart: always
      environment:
        POSTGRES_DB: syncope
