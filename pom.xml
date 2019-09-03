@@ -1833,10 +1833,6 @@ under the License.
       </snapshots>
     </repository>
     <repository>
-      <id>netbeans</id>
-      <url>http://bits.netbeans.org/maven2/</url>
-    </repository>
-    <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
