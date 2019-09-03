@@ -495,7 +495,7 @@ under the License.
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
     <tycho.version>0.23.1</tycho.version>
-    <netbeans.version>RELEASE82</netbeans.version>
+    <netbeans.version>RELEASE111</netbeans.version>
 
     <antlr4.version>4.7.2</antlr4.version>
 
@@ -1878,10 +1878,6 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-    </repository>
-    <repository>
-      <id>netbeans</id>
-      <url>http://bits.netbeans.org/maven2/</url>
     </repository>
   </repositories>
 
