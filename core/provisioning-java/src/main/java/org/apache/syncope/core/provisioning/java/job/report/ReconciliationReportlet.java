@@ -258,9 +258,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             values = Collections.emptySet();
         } else if (attr.getValue().get(0) instanceof byte[]) {
             values = new HashSet<>(attr.getValue().size());
-            attr.getValue().forEach(single -> {
-                values.add(Base64.getEncoder().encode((byte[]) single));
-            });
+            attr.getValue().forEach(single -> values.add(Base64.getEncoder().encode((byte[]) single)));
         } else {
             values = new HashSet<>(attr.getValue());
         }
@@ -310,28 +308,22 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                 connObjectKeyItem.get().getExtAttrName(), preparedAttrs.getLeft()));
 
                         final Map<String, Set<Object>> syncopeAttrs = new HashMap<>();
-                        preparedAttrs.getRight().forEach(attr -> {
-                            syncopeAttrs.put(attr.getName(), getValues(attr));
-                        });
+                        preparedAttrs.getRight().forEach(attr -> syncopeAttrs.put(attr.getName(), getValues(attr)));
 
                         final Map<String, Set<Object>> resourceAttrs = new HashMap<>();
                         connectorObject.getAttributes().stream().
                                 filter(attr -> (!OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
                                 && !OperationalAttributes.ENABLE_NAME.equals(attr.getName()))).
-                                forEachOrdered(attr -> {
-                                    resourceAttrs.put(attr.getName(), getValues(attr));
-                                });
+                                forEachOrdered(attr -> resourceAttrs.put(attr.getName(), getValues(attr)));
 
                         syncopeAttrs.keySet().stream().
                                 filter(syncopeAttr -> !resourceAttrs.containsKey(syncopeAttr)).
-                                forEach(name -> {
-                                    misaligned.add(new Misaligned(
-                                            resource.getKey(),
-                                            connObjectKeyValue,
-                                            name,
-                                            syncopeAttrs.get(name),
-                                            Collections.emptySet()));
-                                });
+                                forEach(name -> misaligned.add(new Misaligned(
+                                        resource.getKey(),
+                                        connObjectKeyValue,
+                                        name,
+                                        syncopeAttrs.get(name),
+                                        Collections.emptySet())));
 
                         resourceAttrs.forEach((key, values) -> {
                             if (syncopeAttrs.containsKey(key)) {

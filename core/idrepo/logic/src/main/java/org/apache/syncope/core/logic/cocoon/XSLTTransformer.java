@@ -111,9 +111,7 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
             transformerFactory = TRAX_FACTORY;
         } else {
             transformerFactory = createNewSAXTransformerFactory();
-            attributes.forEach((key, values) -> {
-                transformerFactory.setAttribute(key, values);
-            });
+            attributes.forEach(transformerFactory::setAttribute);
         }
 
         try {

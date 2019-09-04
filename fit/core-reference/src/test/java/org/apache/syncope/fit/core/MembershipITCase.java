@@ -293,7 +293,7 @@ public class MembershipITCase extends AbstractITCase {
                     getPlainAttr("aLong").get().getValues().get(0));
         } catch (Exception e) {
             LOG.error("Unexpected error", e);
-            fail(e.getMessage());
+            fail(e::getMessage);
         } finally {
             if (newTask != null && !"83f7e85d-9774-43fe-adba-ccd856312994".equals(newTask.getKey())) {
                 taskService.delete(TaskType.PULL, newTask.getKey());

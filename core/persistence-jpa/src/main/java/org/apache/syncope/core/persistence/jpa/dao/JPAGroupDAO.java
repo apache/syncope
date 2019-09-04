@@ -139,7 +139,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 || realm.equals(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
         if (!authorized) {
             authorized = findDynRealms(group.getKey()).stream().
-                    filter(dynRealm -> authRealms.contains(dynRealm)).
+                    filter(authRealms::contains).
                     count() > 0;
         }
         if (authRealms.isEmpty() || !authorized) {
@@ -172,11 +172,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             return Collections.<Group>emptyList();
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils().anyClass().getSimpleName()).
-                append(" e WHERE e.userOwner=:owner ");
-        userDAO.findAllGroupKeys(owner).forEach(groupKey -> {
-            queryString.append("OR e.groupOwner.id='").append(groupKey).append("' ");
-        });
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils().anyClass().getSimpleName())
+                .append(" e WHERE e.userOwner=:owner ");
+        userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString
+                .append("OR e.groupOwner.id='").append(groupKey).append("' "));
 
         TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
@@ -372,9 +371,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                     ? (String) ((Object[]) key)[0]
                     : ((String) key)).
                     filter(anyObject -> !result.contains((String) anyObject)).
-                    forEach(anyObject -> {
-                        result.add((String) anyObject);
-                    });
+                    forEach(anyObject -> result.add((String) anyObject));
         });
 
         return result;

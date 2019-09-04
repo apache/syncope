@@ -466,7 +466,7 @@ public class RouteProvider {
 
         return client.getService(GatewayRouteService.class).list().stream().
                 filter(gwroute -> gwroute.getStatus() == GatewayRouteStatus.PUBLISHED).
-                map(gwroute -> toRoute(gwroute)).
+                map(this::toRoute).
                 collect(Collectors.toList());
     }
 }

@@ -274,9 +274,7 @@ public class PropagationByResource implements Serializable {
     public Map<String, ResourceOperation> asMap() {
         Map<String, ResourceOperation> result = new HashMap<>();
         Stream.of(ResourceOperation.values()).
-                forEach(operation -> get(operation).forEach(resource -> {
-            result.put(resource, operation);
-        }));
+                forEach(operation -> get(operation).forEach(resource -> result.put(resource, operation)));
 
         return result;
     }

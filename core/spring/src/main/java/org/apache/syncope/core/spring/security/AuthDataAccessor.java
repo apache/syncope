@@ -19,7 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Arrays;
-import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,17 +29,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -48,12 +48,14 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
@@ -134,9 +136,7 @@ public class AuthDataAccessor {
                 implementationLookup.getJWTSSOProviderClasses().stream().
                         map(clazz -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
                         createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true)).
-                        forEachOrdered(jwtSSOProvider -> {
-                            jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
-                        });
+                        forEach(jwtSSOProvider -> jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider));
             }
         }
 
@@ -191,9 +191,9 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
             }
 
-            List<String> authStatuses = Arrays.asList(confParamOps.get(domain,
-                    "authentication.statuses", new String[] {}, String[].class));
-            if (!authStatuses.contains(user.getStatus())) {
+            String[] authStatuses = confParamOps.get(
+                    domain, "authentication.statuses", new String[] {}, String[].class);
+            if (!ArrayUtils.contains(authStatuses, user.getStatus())) {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
             }
 
@@ -293,20 +293,18 @@ public class AuthDataAccessor {
 
             // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
             // either statically and dynamically
-            userDAO.findAllRoles(user).forEach(role -> {
-                role.getEntitlements().forEach(entitlement -> {
-                    Set<String> realms = entForRealms.get(entitlement);
-                    if (realms == null) {
-                        realms = new HashSet<>();
-                        entForRealms.put(entitlement, realms);
-                    }
-                    realms.addAll(role.getRealms().stream().
-                            map(realm -> realm.getFullPath()).collect(Collectors.toSet()));
-                    if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                        realms.addAll(role.getDynRealms().stream().map(r -> r.getKey()).collect(Collectors.toList()));
-                    }
-                });
-            });
+            userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().forEach(entitlement -> {
+                Set<String> realms = entForRealms.get(entitlement);
+                if (realms == null) {
+                    realms = new HashSet<>();
+                    entForRealms.put(entitlement, realms);
+                }
+                realms.addAll(role.getRealms().stream().
+                        map(Realm::getFullPath).collect(Collectors.toSet()));
+                if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                    realms.addAll(role.getDynRealms().stream().map(Entity::getKey).collect(Collectors.toList()));
+                }
+            }));
 
             // Give group entitlements for owned groups
             groupDAO.findOwnedByUser(user.getKey()).forEach((group) -> {
@@ -326,7 +324,7 @@ public class AuthDataAccessor {
                 SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
                 authority.addRealms(RealmUtils.normalize(entry.getValue()));
                 return authority;
-            }).forEachOrdered(authority -> authorities.add(authority));
+            }).forEachOrdered(authorities::add);
         }
 
         return authorities;
@@ -422,5 +420,4 @@ public class AuthDataAccessor {
 
         auditManager.audit(who, type, category, subcategory, event, result, before, output, input);
     }
-
 }

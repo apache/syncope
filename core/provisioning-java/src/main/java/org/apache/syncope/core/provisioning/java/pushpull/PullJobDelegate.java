@@ -27,44 +27,49 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.collections.IteratorChain;
-import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SyncToken;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
+
+    protected final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
+
+    protected final Map<ObjectClass, MutablePair<Integer, String>> handled = new HashMap<>();
 
     @Autowired
     protected UserDAO userDAO;
@@ -80,10 +85,6 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
-
-    protected final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
-
-    protected final Map<ObjectClass, MutablePair<Integer, String>> handled = new HashMap<>();
 
     protected ProvisioningProfile<PullTask, PullActions> profile;
 
@@ -118,12 +119,10 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         synchronized (status) {
             if (!handled.isEmpty()) {
                 StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((key, value) -> {
-                    builder.append(' ').append(value.getLeft()).append('\t').
-                            append(key.getObjectClassValue()).
-                            append(" / latest: ").append(value.getRight()).
-                            append('\n');
-                });
+                handled.forEach((key, value) -> builder.append(' ').append(value.getLeft()).append('\t').
+                        append(key.getObjectClassValue()).
+                        append(" / latest: ").append(value.getRight()).
+                        append('\n'));
                 status.set(builder.toString());
             }
         }
@@ -163,9 +162,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 }
             }
             return group;
-        }).forEachOrdered(group -> {
-            groupDAO.save(group);
-        });
+        }).forEachOrdered(group -> groupDAO.save(group));
     }
 
     protected RealmPullResultHandler buildRealmHandler() {
@@ -311,7 +308,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                 try {
                     Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                            map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
+                            map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
                     Iterator<MappingItem> mapItems = new IteratorChain<>(
                             provision.getMapping().getItems().iterator(),
                             linkingMappingItems.iterator());
@@ -354,12 +351,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                     if (provision.getUidOnCreate() != null) {
                         AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
-                        profile.getResults().stream().
-                                filter(result -> result.getUidValue() != null
-                                && result.getOperation() == ResourceOperation.CREATE).
-                                forEach(result -> {
-                                    anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
-                                });
+                        profile.getResults().stream()
+                                .filter(result -> result.getUidValue() != null
+                                && result.getOperation() == ResourceOperation.CREATE)
+                                .forEach(result -> anyUtils.addAttr(result.getKey(),
+                                provision.getUidOnCreate(), result.getUidValue()));
                     }
                 } catch (Throwable t) {
                     throw new JobExecutionException("While pulling from connector", t);

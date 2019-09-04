@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,31 +26,32 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class Groups extends AbstractGroups {
 
@@ -59,15 +59,15 @@ public class Groups extends AbstractGroups {
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    private boolean templateMode;
+    private final ConsoleGroupsModel groupsModel;
+
+    private final List<DynRealmTO> allDynRealms = new ArrayList<>();
 
     protected WebMarkupContainer dyngroupsContainer;
 
     protected WebMarkupContainer dynrealmsContainer;
 
-    private final ConsoleGroupsModel groupsModel;
-
-    private final List<DynRealmTO> allDynRealms = new ArrayList<>();
+    private boolean templateMode;
 
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super(modelObject);
@@ -156,10 +156,8 @@ public class Groups extends AbstractGroups {
                                             isAssignable().and().is("name").equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
-                                    null)).stream().map(input -> {
-
-                                return new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build();
-                            }).collect(Collectors.toList());
+                                    null)).stream().map(input -> new MembershipTO.Builder(input.getKey())
+                            .groupName(input.getName()).build()).collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));
 
@@ -173,7 +171,8 @@ public class Groups extends AbstractGroups {
                     return Groups.this.groupsModel.getDynMemberships();
                 }
 
-            }, new ListModel<>(groupsModel.getObject().stream().map(GroupTO::getName).collect(Collectors.toList()))).
+            }, new ListModel<>(groupsModel.getObject().stream()
+                            .map(GroupTO::getName).collect(Collectors.toList()))).
                     hideLabel().setEnabled(false).setOutputMarkupId(true));
 
             // ---------------------------------

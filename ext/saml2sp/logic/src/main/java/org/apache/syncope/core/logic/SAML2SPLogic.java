@@ -477,9 +477,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                     attrTO.setSchema(attrName);
                     attr.getAttributeValues().stream().
                             filter(value -> value.getDOM() != null).
-                            forEachOrdered(value -> {
-                                attrTO.getValues().add(value.getDOM().getTextContent());
-                            });
+                            forEachOrdered(value -> attrTO.getValues().add(value.getDOM().getTextContent()));
                     responseTO.getAttrs().add(attrTO);
                 }
             }

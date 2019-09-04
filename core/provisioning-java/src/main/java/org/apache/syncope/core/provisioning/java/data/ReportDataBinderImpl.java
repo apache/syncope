@@ -112,7 +112,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         }
 
         reportTO.getExecutions().addAll(report.getExecs().stream().
-                map(reportExec -> getExecTO(reportExec)).collect(Collectors.toList()));
+                map(this::getExecTO).collect(Collectors.toList()));
 
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
         try {

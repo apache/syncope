@@ -90,7 +90,8 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
             @JoinColumn(name = "realm_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "realm_id", "resource_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "realm_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @Override
@@ -181,7 +182,9 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @Override
     public List<String> getResourceKeys() {
-        return getResources().stream().map(resource -> resource.getKey()).collect(Collectors.toList());
+        return getResources().stream().
+                map(org.apache.syncope.core.persistence.api.entity.Entity::getKey).
+                collect(Collectors.toList());
     }
 
     @Override

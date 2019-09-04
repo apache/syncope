@@ -229,20 +229,14 @@ public class RealmDataBinderImpl implements RealmDataBinder {
             realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
             realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
 
-            realm.getActions().forEach(action -> {
-                realmTO.getActions().add(action.getKey());
-            });
+            realm.getActions().forEach(action -> realmTO.getActions().add(action.getKey()));
 
-            realm.getTemplates().forEach(template -> {
-                realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
-            });
+            realm.getTemplates().
+                    forEach(template -> realmTO.getTemplates().put(template.getAnyType().getKey(), template.get()));
 
-            realm.getResources().forEach(resource -> {
-                realmTO.getResources().add(resource.getKey());
-            });
+            realm.getResources().forEach(resource -> realmTO.getResources().add(resource.getKey()));
         }
 
         return realmTO;
     }
-
 }

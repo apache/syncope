@@ -137,7 +137,7 @@ public class ConnInstanceTest extends AbstractTest {
         // perform save operation
         ConnInstance actual = connInstanceDAO.save(connInstance);
 
-        assertNotNull("save did not work", actual.getKey());
+        assertNotNull("save did not work", actual::getKey);
 
         assertEquals("WebService", actual.getConnectorName());
 

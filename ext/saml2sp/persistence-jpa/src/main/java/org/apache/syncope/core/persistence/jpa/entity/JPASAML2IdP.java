@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SAML2IdPCheck;
 
 @Entity
@@ -213,7 +214,7 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
 
     @Override
     public Optional<? extends SAML2IdPItem> getConnObjectKeyItem() {
-        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst();
+        return getItems().stream().filter(Item::isConnObjectKey).findFirst();
     }
 
     @Override

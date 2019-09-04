@@ -107,9 +107,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 Set<String> groups = new HashSet<>(groupConnObjectLinks);
                 Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
                 if (ldapGroups != null) {
-                    ldapGroups.getValue().forEach(obj -> {
-                        groups.add(obj.toString());
-                    });
+                    ldapGroups.getValue().forEach(obj -> groups.add(obj.toString()));
                     attributes.remove(ldapGroups);
 
                     if (beforeObj != null && beforeObj.getAttributeByName(getGroupMembershipAttrName()) != null) {
@@ -152,8 +150,6 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     private void buildManagedGroupConnObjectLinks(final ExternalResource externalResource,
             final String connObjectLinkTemplate, final Set<String> connObjectLinks) {
         List<Group> managedGroups = groupDAO.findByResource(externalResource);
-        managedGroups.forEach(group -> {
-            connObjectLinks.add(evaluateGroupConnObjectLink(connObjectLinkTemplate, group));
-        });
+        managedGroups.forEach(group -> connObjectLinks.add(evaluateGroupConnObjectLink(connObjectLinkTemplate, group)));
     }
 }

@@ -283,7 +283,7 @@ public class UserTest extends AbstractTest {
         try {
             password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
         } catch (InvalidPasswordRuleConf e) {
-            fail(e.getMessage());
+            fail(e::getMessage);
         }
         assertNotNull(password);
 

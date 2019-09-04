@@ -107,9 +107,7 @@ public class ProvisioningImpl implements Provisioning {
 
         List<WSAttribute> schema = schema();
         Set<String> schemaNames = new HashSet<>();
-        schema.forEach(attr -> {
-            schemaNames.add(attr.getName());
-        });
+        schema.forEach(attr -> schemaNames.add(attr.getName()));
         schemaNames.add("__NAME__");
         schemaNames.add("__PASSWORD__");
 
@@ -241,9 +239,7 @@ public class ProvisioningImpl implements Provisioning {
 
         final List<WSAttribute> schema = schema();
         final Set<String> schemaNames = new HashSet<>();
-        schema.forEach(attr -> {
-            schemaNames.add(attr.getName());
-        });
+        schema.forEach(attr -> schemaNames.add(attr.getName()));
         schemaNames.add("__NAME__");
         schemaNames.add("__PASSWORD__");
 

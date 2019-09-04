@@ -42,7 +42,7 @@ public abstract class JPAJSONEntityListener<A extends Any<?>> {
                             attr.getUniqueValue().setAttr(attr);
                         }
                         return attr;
-                    }).forEach(attr -> entity.add(attr));
+                    }).forEach(entity::add);
         }
     }
 

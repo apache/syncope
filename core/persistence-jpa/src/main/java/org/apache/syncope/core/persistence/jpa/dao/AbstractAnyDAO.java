@@ -472,38 +472,33 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // schemas given by type extensions
         Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
-            ((User) any).getMemberships().forEach(memb -> {
-                memb.getRightEnd().getTypeExtensions().forEach(typeExtension -> {
-                    typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
-                });
-            });
+            ((User) any).getMemberships().forEach(
+                    memb -> memb.getRightEnd().getTypeExtensions().forEach(
+                            typeExtension -> typeExtensionClasses.put(
+                                    memb.getRightEnd(), typeExtension.getAuxClasses())));
         } else if (any instanceof AnyObject) {
-            ((AnyObject) any).getMemberships().forEach(memb -> {
-                memb.getRightEnd().getTypeExtensions().stream().
-                        filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
-                        forEachOrdered((typeExtension) -> {
-                            typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
-                        });
-            });
+            ((AnyObject) any).getMemberships().
+                    forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
+                    filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
+                    forEach(typeExtension -> typeExtensionClasses.put(
+                    memb.getRightEnd(), typeExtension.getAuxClasses())));
         }
 
         typeExtensionClasses.entrySet().stream().map(entry -> {
             result.getForMemberships().put(entry.getKey(), new HashSet<>());
             return entry;
-        }).forEachOrdered((entry) -> {
-            entry.getValue().forEach(typeClass -> {
-                if (reference.equals(PlainSchema.class)) {
-                    result.getForMemberships().get(entry.getKey()).
-                            addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-                } else if (reference.equals(DerSchema.class)) {
-                    result.getForMemberships().get(entry.getKey()).
-                            addAll((Collection<? extends S>) typeClass.getDerSchemas());
-                } else if (reference.equals(VirSchema.class)) {
-                    result.getForMemberships().get(entry.getKey()).
-                            addAll((Collection<? extends S>) typeClass.getVirSchemas());
-                }
-            });
-        });
+        }).forEachOrdered((entry) -> entry.getValue().forEach(typeClass -> {
+            if (reference.equals(PlainSchema.class)) {
+                result.getForMemberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+            } else if (reference.equals(DerSchema.class)) {
+                result.getForMemberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
+            } else if (reference.equals(VirSchema.class)) {
+                result.getForMemberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getVirSchemas());
+            }
+        }));
 
         return result;
     }

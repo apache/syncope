@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
 
+@FunctionalInterface
 public interface SyncopeSinglePushExecutor {
 
     List<ProvisioningReport> push(

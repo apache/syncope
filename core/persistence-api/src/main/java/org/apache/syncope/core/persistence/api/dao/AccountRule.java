@@ -24,6 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 /**
  * Interface for enforcing a given account rule to user.
  */
+@FunctionalInterface
 public interface AccountRule {
 
     default void setConf(AccountRuleConf conf) {

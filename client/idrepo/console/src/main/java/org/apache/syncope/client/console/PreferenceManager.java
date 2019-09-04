@@ -135,9 +135,7 @@ public class PreferenceManager implements Serializable {
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        prefs.forEach((key, values) -> {
-            current.put(key, StringUtils.join(values, ";"));
-        });
+        prefs.forEach((key, values) -> current.put(key, StringUtils.join(values, ";")));
 
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));

@@ -297,17 +297,14 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
-        mailTemplateList.forEach(mailTemplate -> {
-            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
-        });
+        mailTemplateList
+            .forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
         treeModel.reload();
     }
 
     private void addReportXslts() {
         List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
-        reportTemplates.forEach(reportTemplate -> {
-            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
-        });
+        reportTemplates.forEach(reportTemplate -> reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey())));
         treeModel.reload();
     }
 
@@ -560,7 +557,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 mailTemplatesDir.mkdirs();
             }
             File file = new File(mailTemplatesDirName + name + "." + type);
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             fw.write(content);
             fw.flush();
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
@@ -585,7 +582,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             groovyScriptsDir.mkdirs();
         }
         File file = new File(groovyScriptsDirName + name + ".groovy");
-        FileWriter fw = new FileWriter(file);
+        FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
         fw.write(node.getBody());
         fw.flush();
         FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
@@ -631,7 +628,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             }
             File file = new File(reportTemplatesDirName + name + "." + format.
                     name().toLowerCase());
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             fw.write(content);
             fw.flush();
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());

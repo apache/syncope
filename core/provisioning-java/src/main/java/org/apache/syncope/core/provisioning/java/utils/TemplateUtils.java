@@ -125,19 +125,15 @@ public class TemplateUtils {
 
     private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
-                filter(relationship -> any.getRelationship(
-                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
-                forEachOrdered(relationship -> {
-                    any.getRelationships().add(relationship);
-                });
+                filter(relationship -> !any.getRelationship(
+                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isPresent()).
+                forEachOrdered(relationship -> any.getRelationships().add(relationship));
     }
 
     private void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getMemberships().stream().
-                filter(membership -> any.getMembership(membership.getGroupKey()).isEmpty()).
-                forEachOrdered(membership -> {
-                    any.getMemberships().add(membership);
-                });
+                filter(membership -> !any.getMembership(membership.getGroupKey()).isPresent()).
+                forEachOrdered(membership -> any.getMemberships().add(membership));
     }
 
     @Transactional(readOnly = true)
@@ -230,16 +226,12 @@ public class TemplateUtils {
             value.getPlainAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
                     && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered(attrTO -> {
-                        sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-                    });
+                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
 
             value.getVirAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
                     && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered((attrTO) -> {
-                        sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-                    });
+                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
 
             if (value instanceof UserTO) {
                 UserTO template = (UserTO) value;

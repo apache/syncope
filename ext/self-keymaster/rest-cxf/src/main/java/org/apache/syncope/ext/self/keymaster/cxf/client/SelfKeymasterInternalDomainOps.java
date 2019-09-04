@@ -39,16 +39,14 @@ public class SelfKeymasterInternalDomainOps implements DomainOps {
 
     @Override
     public List<Domain> list() {
-        return AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, Collections.emptyList(), () -> {
-            return logic.list();
-        });
+        return AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, Collections.emptyList(),
+            () -> logic.list());
     }
 
     @Override
     public Domain read(final String key) {
-        return AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, Collections.emptyList(), () -> {
-            return logic.read(key);
-        });
+        return AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, Collections.emptyList(),
+            () -> logic.read(key));
     }
 
     @Override

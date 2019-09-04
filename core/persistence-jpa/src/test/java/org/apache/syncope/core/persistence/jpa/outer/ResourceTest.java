@@ -236,10 +236,8 @@ public class ResourceTest extends AbstractTest {
                 map(actualUser -> {
                     assertNotNull(actualUser);
                     return actualUser;
-                }).forEachOrdered((actualUser) -> {
-            userDAO.findAllResources(actualUser).
-                    forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey())));
-        });
+                }).forEachOrdered((actualUser) -> userDAO.findAllResources(actualUser).
+                        forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()))));
 
         // resource must be not referenced any more from the connector
         ConnInstance actualConnector = connInstanceDAO.find(connector.getKey());

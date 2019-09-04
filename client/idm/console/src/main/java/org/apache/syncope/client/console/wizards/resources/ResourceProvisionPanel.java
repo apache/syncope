@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -138,9 +139,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         if (resourceTO.getOrgUnit() != null) {
             provisions.add(new ResourceProvision(resourceTO.getOrgUnit()));
         }
-        resourceTO.getProvisions().forEach(provision -> {
-            provisions.add(new ResourceProvision(provision));
-        });
+        resourceTO.getProvisions().forEach(provision -> provisions.add(new ResourceProvision(provision)));
         // keep list ordered - SYNCOPE-1154
         sortProvisions();
 
@@ -283,7 +282,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             }
 
             new ArrayList<>(resourceTO.getProvisions()).stream().
-                    filter(provision -> provision != null).
+                    filter(Objects::nonNull).
                     forEachOrdered(provision -> {
                         if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
                             resourceTO.getProvisions().remove(provision);

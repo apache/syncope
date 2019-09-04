@@ -61,9 +61,7 @@ public class SchemaRestClient extends BaseRestClient {
                 new AnyTypeRestClient().listAnyTypes().stream().filter(
                         anyTypeTO -> (anyTypeTO.getKind() != AnyTypeKind.USER
                         && anyTypeTO.getKind() != AnyTypeKind.GROUP)).
-                        forEach((anyTypeTO) -> {
-                            classes.addAll(anyTypeTO.getClasses());
-                        });
+                        forEach((anyTypeTO) -> classes.addAll(anyTypeTO.getClasses()));
         }
         return getSchemas(schemaType, null, classes.toArray(new String[] {}));
     }

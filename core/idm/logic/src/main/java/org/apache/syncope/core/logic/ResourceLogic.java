@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -116,7 +117,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ConnectorFactory connFactory;
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
         }
@@ -320,7 +321,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         // 3. determine attributes to query
         Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
-                map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
+                map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
         Iterator<MappingItem> mapItems = new IteratorChain<>(
                 init.getRight().getMapping().getItems().iterator(),
                 linkinMappingItems.iterator());
@@ -377,7 +378,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             init.getRight().getMapping().getItems();
 
             Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
-                    map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
+                    map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
             Iterator<MappingItem> mapItems = new IteratorChain<>(
                     init.getRight().getMapping().getItems().iterator(),
                     linkinMappingItems.iterator());

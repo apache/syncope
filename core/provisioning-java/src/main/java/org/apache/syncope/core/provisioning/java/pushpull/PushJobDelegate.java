@@ -91,12 +91,10 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         synchronized (status) {
             if (!handled.isEmpty()) {
                 StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((key, value) -> {
-                    builder.append(' ').append(value.getLeft()).append('\t').
-                            append(key).
-                            append(" / latest: ").append(value.getRight()).
-                            append('\n');
-                });
+                handled.forEach((key, value) -> builder.append(' ').append(value.getLeft()).append('\t').
+                        append(key).
+                        append(" / latest: ").append(value.getRight()).
+                        append('\n'));
                 status.set(builder.toString());
             }
         }

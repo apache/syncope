@@ -46,6 +46,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class RealmITCase extends AbstractITCase {
@@ -59,9 +60,7 @@ public class RealmITCase extends AbstractITCase {
         List<RealmTO> realms = realmService.list();
         assertNotNull(realms);
         assertFalse(realms.isEmpty());
-        realms.forEach(realm -> {
-            assertNotNull(realm);
-        });
+        realms.forEach(Assertions::assertNotNull);
 
         try {
             realmService.list("a name");

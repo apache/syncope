@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -198,7 +199,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
         Set<String> matchingUserKeys = matchingUsers.getResult().stream().
-                map(user -> user.getKey()).collect(Collectors.toSet());
+                map(AnyTO::getKey).collect(Collectors.toSet());
         assertTrue(matchingUserKeys.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertFalse(matchingUserKeys.contains("74cd8ece-715a-44a4-a736-e17b46c4e7e6"));
         assertFalse(matchingUserKeys.contains("823074dc-d280-436d-a7dd-07399fae48ec"));

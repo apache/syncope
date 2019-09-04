@@ -32,6 +32,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -65,7 +66,7 @@ public class RealmDetails extends Panel {
         @Override
         protected Map<String, String> load() {
             return policyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(policyTO -> policyTO.getKey(), policyTO -> policyTO.getDescription()));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 
@@ -76,7 +77,7 @@ public class RealmDetails extends Panel {
         @Override
         protected Map<String, String> load() {
             return policyRestClient.getPolicies(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(policyTO -> policyTO.getKey(), policyTO -> policyTO.getDescription()));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 

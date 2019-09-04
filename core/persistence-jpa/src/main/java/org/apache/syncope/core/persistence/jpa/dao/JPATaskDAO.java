@@ -452,9 +452,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Override
     public void delete(final Task task) {
         if (task instanceof PullTask) {
-            remediationDAO.findByPullTask((PullTask) task).forEach(remediation -> {
-                remediation.setPullTask(null);
-            });
+            remediationDAO.findByPullTask((PullTask) task).forEach(remediation -> remediation.setPullTask(null));
         }
 
         entityManager().remove(task);
@@ -463,7 +461,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
         findAll(type, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
-                stream().map(Entity::getKey).forEach(task -> delete(task));
+                stream().map(Entity::getKey).forEach(this::delete);
     }
 
     private <T extends Task> List<T> buildResult(final List<Object> raw) {

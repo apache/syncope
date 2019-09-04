@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.ide.netbeans.view;
 
+import java.awt.EventQueue;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
-
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -34,7 +36,6 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbPreferences;
 
@@ -46,6 +47,7 @@ public class ServerDetailsView extends JDialog {
 
     /**
      * Creates new form LoginView
+     *
      * @param parent Parent Frame
      * @param modal Whether it is modal or not
      */
@@ -92,11 +94,7 @@ public class ServerDetailsView extends JDialog {
         schemeTxt.setToolTipText("");
 
         org.openide.awt.Mnemonics.setLocalizedText(okButton, "submit");
-        okButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okButtonActionPerformed(evt);
-            }
-        });
+        okButton.addActionListener(this::okButtonActionPerformed);
 
         jLabel4.setHorizontalAlignment(SwingConstants.CENTER);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, "Apache Syncope connection");
@@ -212,20 +210,16 @@ public class ServerDetailsView extends JDialog {
 
     public static void main(final String[] args) {
         /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        EventQueue.invokeLater(() -> {
+            ServerDetailsView dialog = new ServerDetailsView(new JFrame(), true);
+            dialog.addWindowListener(new WindowAdapter() {
 
-            @Override
-            public void run() {
-                ServerDetailsView dialog = new ServerDetailsView(new JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-
-                    @Override
-                    public void windowClosing(final java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+                @Override
+                public void windowClosing(final WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            dialog.setVisible(true);
         });
     }
 

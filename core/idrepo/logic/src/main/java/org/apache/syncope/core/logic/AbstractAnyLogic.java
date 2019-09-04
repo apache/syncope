@@ -225,7 +225,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     }
 
     protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             AnyDAO<?> anyDAO = this instanceof UserLogic
                     ? userDAO
@@ -233,7 +233,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
                             ? groupDAO
                             : anyObjectDAO;
             authorized = anyDAO.findDynRealms(key).stream().
-                    anyMatch(dynRealm -> effectiveRealms.contains(dynRealm));
+                    anyMatch(effectiveRealms::contains);
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(

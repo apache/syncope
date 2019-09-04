@@ -165,7 +165,7 @@ public class PasswordGeneratorTest {
         try {
             password = passwordGenerator.generate(Collections.<PasswordPolicy>emptyList());
         } catch (InvalidPasswordRuleConf e) {
-            fail(e.getMessage());
+            fail(e::getMessage);
         }
         assertNotNull(password);
 
@@ -179,7 +179,7 @@ public class PasswordGeneratorTest {
         try {
             password = passwordGenerator.generate(Collections.<PasswordPolicy>singletonList(policy1));
         } catch (InvalidPasswordRuleConf e) {
-            fail(e.getMessage());
+            fail(e::getMessage);
         }
         assertNotNull(password);
     }

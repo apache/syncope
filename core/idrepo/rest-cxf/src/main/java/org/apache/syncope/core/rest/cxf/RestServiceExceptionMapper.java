@@ -297,9 +297,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         builder.entity(response.getEntity());
         response.getMetadata().forEach((key, value) -> {
             if (!HttpHeaders.CONTENT_TYPE.equals(key)) {
-                value.forEach(headerValue -> {
-                    builder.header(key, headerValue);
-                });
+                value.forEach(headerValue -> builder.header(key, headerValue));
             }
         });
 

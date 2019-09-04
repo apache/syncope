@@ -267,7 +267,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 dataBinder.getUserTO(updated, true),
                 userUR.getPassword() == null ? null : userUR.getPassword().getValue(),
                 null,
-            Optional.ofNullable(propByResBeforeUpdate).orElse(propByRes));
+                Optional.ofNullable(propByResBeforeUpdate).orElse(propByRes));
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);
@@ -468,10 +468,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             process.getFlowElements().stream().
                     filter(SequenceFlow.class::isInstance).
                     map(SequenceFlow.class::cast).
-                    filter(sequenceFlow -> sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey())).
-                    forEach(sequenceFlow -> {
-                        navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks);
-                    });
+                    filter(flow -> flow.getSourceRef().equals(currentTask.getTaskDefinitionKey())).
+                    forEach(flow -> navigateAvailableTasks(flow.getTargetFlowElement(), availableTasks));
         } catch (FlowableException e) {
             throw new WorkflowException(
                     "While reading available tasks for workflow instance " + procInstID, e);

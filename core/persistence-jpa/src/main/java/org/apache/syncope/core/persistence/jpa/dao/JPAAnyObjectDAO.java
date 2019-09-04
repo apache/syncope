@@ -34,6 +34,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -125,7 +126,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                 anyMatch(realm -> anyObject.getRealm().getFullPath().startsWith(realm));
         if (!authorized) {
             authorized = findDynRealms(anyObject.getKey()).stream().
-                    filter(dynRealm -> authRealms.contains(dynRealm)).
+                    filter(authRealms::contains).
                     count() > 0;
         }
         if (authRealms.isEmpty() || !authorized) {
@@ -289,7 +290,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         Set<Group> result = new HashSet<>();
         result.addAll(anyObject.getMemberships().stream().
-                map(membership -> membership.getRightEnd()).collect(Collectors.toSet()));
+                map(Relationship::getRightEnd).collect(Collectors.toSet()));
         result.addAll(findDynGroups(anyObject.getKey()));
 
         return result;
@@ -298,7 +299,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
-        return findAllGroups(anyObject).stream().map(group -> group.getKey()).collect(Collectors.toList());
+        return findAllGroups(anyObject).stream().map(Entity::getKey).collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -314,6 +315,6 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return findAllResources(authFind(key)).stream().map(resource -> resource.getKey()).collect(Collectors.toList());
+        return findAllResources(authFind(key)).stream().map(Entity::getKey).collect(Collectors.toList());
     }
 }

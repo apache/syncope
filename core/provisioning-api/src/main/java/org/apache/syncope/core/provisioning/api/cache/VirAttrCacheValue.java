@@ -54,9 +54,7 @@ public class VirAttrCacheValue {
         this.values.clear();
 
         if (values != null) {
-            values.forEach(value -> {
-                this.values.add(value.toString());
-            });
+            values.forEach(value -> this.values.add(value.toString()));
         }
     }
 

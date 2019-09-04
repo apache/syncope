@@ -50,9 +50,7 @@ public class LoggerRestClient extends BaseRestClient {
         List<LogStatement> result = new ArrayList<>();
         getService(LoggerService.class).getLastLogStatements(appender).stream().
                 filter(statement -> statement.getTimeMillis() > lastStatementTime).
-                forEachOrdered(statement -> {
-                    result.add(statement);
-                });
+                forEachOrdered(result::add);
 
         return result;
     }

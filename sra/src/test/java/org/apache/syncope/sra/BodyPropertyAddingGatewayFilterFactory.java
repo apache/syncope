@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.apache.commons.lang3.ArrayUtils;
@@ -142,7 +143,7 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
 
                 @Override
                 public Mono<Void> writeAndFlushWith(final Publisher<? extends Publisher<? extends DataBuffer>> body) {
-                    return writeWith(Flux.from(body).flatMapSequential(p -> p));
+                    return writeWith(Flux.from(body).flatMapSequential(Function.identity()));
                 }
             };
         }

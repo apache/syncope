@@ -24,6 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 /**
  * Interface for enforcing a given password rule to user.
  */
+@FunctionalInterface
 public interface PasswordRule {
 
     default PasswordRuleConf getConf() {

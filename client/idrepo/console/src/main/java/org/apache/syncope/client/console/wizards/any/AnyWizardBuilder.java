@@ -27,8 +27,8 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractAnyWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
@@ -195,16 +195,16 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
 
         if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class.cast(original).getMemberships().forEach(oMemb -> {
-                GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
-                    oMemb.getPlainAttrs().stream().
-                            filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
-                            forEach(attr -> uMemb.getPlainAttrs().add(attr));
-                    oMemb.getVirAttrs().stream().
-                            filter(attr -> uMemb.getVirAttr(attr.getSchema()).isEmpty()).
-                            forEach(attr -> uMemb.getVirAttrs().add(attr));
-                });
-            });
+            GroupableRelatableTO.class.cast(original).getMemberships().
+                    forEach(oMemb -> GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).
+                    ifPresent(uMemb -> {
+                        oMemb.getPlainAttrs().stream().
+                                filter(attr -> !uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                                forEach(attr -> uMemb.getPlainAttrs().add(attr));
+                        oMemb.getVirAttrs().stream().
+                                filter(attr -> !uMemb.getVirAttr(attr.getSchema()).isPresent()).
+                                forEach(attr -> uMemb.getVirAttrs().add(attr));
+                    }));
         }
 
         // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in

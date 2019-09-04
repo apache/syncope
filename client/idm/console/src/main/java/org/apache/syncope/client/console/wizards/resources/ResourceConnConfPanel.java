@@ -92,18 +92,14 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
 
         if (resourceTO.getConnector() != null) {
             restClient.read(resourceTO.getConnector()).getConf().stream().
-                    filter(property -> (property.isOverridable())).
-                    forEachOrdered(property -> {
-                        props.add(property);
-                    });
+                    filter(ConnConfProperty::isOverridable).
+                    forEachOrdered(props::add);
         }
         if (createFlag || resourceTO.getConfOverride().isEmpty()) {
             resourceTO.getConfOverride().clear();
         } else {
             Map<String, ConnConfProperty> valuedProps = new HashMap<>();
-            resourceTO.getConfOverride().forEach(prop -> {
-                valuedProps.put(prop.getSchema().getName(), prop);
-            });
+            resourceTO.getConfOverride().forEach(prop -> valuedProps.put(prop.getSchema().getName(), prop));
 
             for (int i = 0; i < props.size(); i++) {
                 if (valuedProps.containsKey(props.get(i).getSchema().getName())) {

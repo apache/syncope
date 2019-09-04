@@ -112,10 +112,8 @@ public class ApplicationDataBinderImpl implements ApplicationDataBinder {
         applicationTO.setKey(application.getKey());
         applicationTO.setDescription(application.getDescription());
         applicationTO.getPrivileges().addAll(
-                application.getPrivileges().stream().map(privilege -> getPrivilegeTO(privilege)).
-                        collect(Collectors.toList()));
+                application.getPrivileges().stream().map(this::getPrivilegeTO).collect(Collectors.toList()));
 
         return applicationTO;
     }
-
 }

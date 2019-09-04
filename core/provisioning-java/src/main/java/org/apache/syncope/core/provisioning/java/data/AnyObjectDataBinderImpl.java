@@ -111,13 +111,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // memberships
             anyObjectTO.getMemberships().addAll(
-                    anyObject.getMemberships().stream().map(membership -> {
-                        return getMembershipTO(
-                                anyObject.getPlainAttrs(membership),
-                                derAttrHandler.getValues(anyObject, membership),
-                                virAttrHandler.getValues(anyObject, membership),
-                                membership);
-                    }).collect(Collectors.toList()));
+                    anyObject.getMemberships().stream().map(membership -> getMembershipTO(
+                    anyObject.getPlainAttrs(membership),
+                    derAttrHandler.getValues(anyObject, membership),
+                    virAttrHandler.getValues(anyObject, membership),
+                    membership)).collect(Collectors.toList()));
 
             // dynamic memberships
             anyObjectTO.getDynMemberships().addAll(
@@ -317,17 +315,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         Collection<ExternalResource> resources = anyObjectDAO.findAllResources(anyObject);
 
         Map<String, Set<String>> reasons = new HashMap<>();
-        anyObject.getResources().forEach(resource -> {
-            reasons.put(resource.getKey(), new HashSet<>(Collections.singleton(anyObject.getKey())));
-        });
-        anyObjectDAO.findAllGroupKeys(anyObject).forEach(group -> {
-            groupDAO.findAllResourceKeys(group).forEach(resource -> {
-                if (!reasons.containsKey(resource)) {
-                    reasons.put(resource, new HashSet<>());
-                }
-                reasons.get(resource).add(group);
-            });
-        });
+        anyObject.getResources().forEach(
+                resource -> reasons.put(resource.getKey(),
+                        new HashSet<>(Collections.singleton(anyObject.getKey()))));
+        anyObjectDAO.findAllGroupKeys(anyObject).forEach(
+                group -> groupDAO.findAllResourceKeys(group).forEach(resource -> {
+                    if (!reasons.containsKey(resource)) {
+                        reasons.put(resource, new HashSet<>());
+                    }
+                    reasons.get(resource).add(group);
+                }));
 
         Set<String> toBeDeprovisioned = new HashSet<>();
         Set<String> toBeProvisioned = new HashSet<>();
@@ -349,7 +346,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
                     groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
-                            filter(resource -> reasons.containsKey(resource)).
+                            filter(reasons::containsKey).
                             forEach(resource -> {
                                 reasons.get(resource).remove(membership.getRightEnd().getKey());
                                 toBeProvisioned.add(resource);
@@ -438,31 +435,19 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         // finally check if any resource assignment is to be processed due to dynamic group membership change
         dynGroupMembs.getLeft().stream().
                 filter(group -> !dynGroupMembs.getRight().contains(group)).
-                forEach(delete -> {
-                    groupDAO.find(delete).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                            });
-                });
+                forEach(delete -> groupDAO.find(delete).getResources().stream().
+                filter(resource -> !propByRes.contains(resource.getKey())).
+                forEach(resource -> propByRes.add(ResourceOperation.DELETE, resource.getKey())));
         dynGroupMembs.getLeft().stream().
                 filter(group -> dynGroupMembs.getRight().contains(group)).
-                forEach(update -> {
-                    groupDAO.find(update).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                            });
-                });
+                forEach(update -> groupDAO.find(update).getResources().stream().
+                filter(resource -> !propByRes.contains(resource.getKey())).
+                forEach(resource -> propByRes.add(ResourceOperation.UPDATE, resource.getKey())));
         dynGroupMembs.getRight().stream().
                 filter(group -> !dynGroupMembs.getLeft().contains(group)).
-                forEach(create -> {
-                    groupDAO.find(create).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.CREATE, resource.getKey());
-                            });
-                });
+                forEach(create -> groupDAO.find(create).getResources().stream().
+                filter(resource -> !propByRes.contains(resource.getKey())).
+                forEach(resource -> propByRes.add(ResourceOperation.CREATE, resource.getKey())));
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

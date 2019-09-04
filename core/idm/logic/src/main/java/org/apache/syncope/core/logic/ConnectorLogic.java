@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -73,7 +74,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     private ConnectorFactory connFactory;
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);
         }
@@ -124,9 +125,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (!connInstance.getResources().isEmpty()) {
             SyncopeClientException associatedResources = SyncopeClientException.build(
                     ClientExceptionType.AssociatedResources);
-            connInstance.getResources().forEach(resource -> {
-                associatedResources.getElements().add(resource.getKey());
-            });
+            connInstance.getResources().forEach(resource -> associatedResources.getElements().add(resource.getKey()));
             throw associatedResources;
         }
 
@@ -141,7 +140,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
         return connInstanceDAO.findAll().stream().
-                filter(connInstance -> connInstance != null).
+                filter(Objects::nonNull).
                 map(connInstance -> {
                     ConnInstanceTO result = null;
                     try {
@@ -178,25 +177,25 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<>();
-        connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> {
-            connectorBundleTOs.addAll(cim.getConnectorInfos().stream().map(bundle -> {
-                ConnBundleTO connBundleTO = new ConnBundleTO();
-                connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
+        connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> connectorBundleTOs.addAll(
+                cim.getConnectorInfos().stream().map(bundle -> {
+                    ConnBundleTO connBundleTO = new ConnBundleTO();
+                    connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
-                connBundleTO.setLocation(uri.toString());
+                    connBundleTO.setLocation(uri.toString());
 
-                ConnectorKey key = bundle.getConnectorKey();
-                connBundleTO.setBundleName(key.getBundleName());
-                connBundleTO.setConnectorName(key.getConnectorName());
-                connBundleTO.setVersion(key.getBundleVersion());
+                    ConnectorKey key = bundle.getConnectorKey();
+                    connBundleTO.setBundleName(key.getBundleName());
+                    connBundleTO.setConnectorName(key.getConnectorName());
+                    connBundleTO.setVersion(key.getBundleVersion());
 
-                ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
-                connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
-                        map(propName -> binder.build(properties.getProperty(propName))).collect(Collectors.toList()));
+                    ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
+                    connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
+                            map(propName -> binder.build(properties.getProperty(propName))).
+                            collect(Collectors.toList()));
 
-                return connBundleTO;
-            }).collect(Collectors.toList()));
-        });
+                    return connBundleTO;
+                }).collect(Collectors.toList())));
 
         return connectorBundleTOs;
     }

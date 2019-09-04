@@ -109,7 +109,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 Set<MappingItem> linkingMappingItems = new HashSet<>();
                 linkingMappingItems.add(connObjectKeyItem.get());
                 linkingMappingItems.addAll(schemasToRead.stream().
-                        map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet()));
+                        map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet()));
 
                 Connector connector = connFactory.getConnector(provision.getResource());
                 try {

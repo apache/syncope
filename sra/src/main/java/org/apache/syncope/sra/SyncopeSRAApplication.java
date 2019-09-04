@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.EnvironmentAware;
@@ -60,7 +61,7 @@ public class SyncopeSRAApplication implements EnvironmentAware {
 
     @Bean
     public RouteLocator routes(final RouteLocatorBuilder builder) {
-        return () -> Flux.fromIterable(provider.fetch()).map(routeBuilder -> routeBuilder.build());
+        return () -> Flux.fromIterable(provider.fetch()).map(Route.AbstractBuilder::build);
     }
 
     @Bean

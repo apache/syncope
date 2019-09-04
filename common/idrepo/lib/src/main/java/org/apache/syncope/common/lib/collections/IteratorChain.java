@@ -146,9 +146,7 @@ public class IteratorChain<E> implements Iterator<E> {
      */
     public IteratorChain(final Collection<Iterator<? extends E>> iteratorChain) {
         super();
-        iteratorChain.forEach(iterator -> {
-            addIterator(iterator);
-        });
+        iteratorChain.forEach(this::addIterator);
     }
 
     //-----------------------------------------------------------------------

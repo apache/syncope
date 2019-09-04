@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.wicket.markup.html.panel.Panel;
 
+@FunctionalInterface
 public interface VirSchemaDetailsPanelProvider extends Serializable {
 
     Panel get(String id, VirSchemaTO schemaTO);

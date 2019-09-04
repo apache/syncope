@@ -65,9 +65,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertFalse(tasks.getResult().isEmpty());
         tasks.getResult().stream().filter(
                 task -> !(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO).
-                forEachOrdered(item -> {
-                    fail("This should not happen");
-                });
+                forEachOrdered(item -> fail("This should not happen"));
     }
 
     @Test
@@ -196,7 +194,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs().stream().filter(job -> job.isRunning()).collect(Collectors.toList());
+            jobs = taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList());
             i++;
         } while (jobs.size() < 1 && i < maxit);
 
@@ -214,7 +212,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs().stream().filter(job -> job.isRunning()).collect(Collectors.toList());
+            jobs = taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList());
             i++;
         } while (jobs.size() >= 1 && i < maxit);
 

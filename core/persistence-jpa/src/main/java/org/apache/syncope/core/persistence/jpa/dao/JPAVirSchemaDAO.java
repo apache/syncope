@@ -59,9 +59,9 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPAVirSchema.class.getSimpleName()).
                 append(" e WHERE ");
-        anyTypeClasses.forEach(anyTypeClass -> {
-            queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
-        });
+        anyTypeClasses.forEach(anyTypeClass -> queryString.
+                append("e.anyTypeClass.id='").
+                append(anyTypeClass.getKey()).append("' OR "));
 
         TypedQuery<VirSchema> query = entityManager().createQuery(
                 queryString.substring(0, queryString.length() - 4), VirSchema.class);

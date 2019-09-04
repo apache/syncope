@@ -68,13 +68,13 @@ public class RealmChoicePanel extends Panel {
 
     private final WebMarkupContainer container;
 
-    private Model<RealmTO> model;
-
     private final Collection<String> availableRealms;
 
     private final Map<String, Pair<RealmTO, List<RealmTO>>> tree;
 
     private final List<AbstractLink> links = new ArrayList<>();
+
+    private Model<RealmTO> model;
 
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
@@ -273,10 +273,9 @@ public class RealmChoicePanel extends Panel {
 
                             @Override
                             public boolean isEnabled() {
-                                return availableRealms.stream().anyMatch(availableRealm -> {
-                                    return SyncopeConstants.ROOT_REALM.equals(availableRealm)
-                                            || realmTO.getKey().equals(availableRealm);
-                                });
+                                return availableRealms.stream()
+                                        .anyMatch(availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
+                                        || realmTO.getKey().equals(availableRealm));
                             }
                         });
                     }
@@ -364,6 +363,10 @@ public class RealmChoicePanel extends Panel {
         return null;
     }
 
+    public List<AbstractLink> getLinks() {
+        return links;
+    }
+
     public static class ChosenRealm<T> {
 
         private final AjaxRequestTarget target;
@@ -382,9 +385,5 @@ public class RealmChoicePanel extends Panel {
         public AjaxRequestTarget getTarget() {
             return target;
         }
-    }
-
-    public List<AbstractLink> getLinks() {
-        return links;
     }
 }

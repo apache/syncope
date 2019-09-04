@@ -122,9 +122,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             @Override
             public void setObject(final List<CorrelationRule> object) {
                 policyTO.getCorrelationRules().clear();
-                rules.forEach(rule -> {
-                    policyTO.getCorrelationRules().put(rule.getAnyType(), rule.getImpl().getKey());
-                });
+                rules.forEach(rule -> policyTO.getCorrelationRules().put(rule.getAnyType(), rule.getImpl().getKey()));
             }
         };
 

@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 /**
  * Holds information about domain effectively available at runtime.
  */
+@FunctionalInterface
 public interface DomainHolder {
 
     Map<String, DataSource> getDomains();

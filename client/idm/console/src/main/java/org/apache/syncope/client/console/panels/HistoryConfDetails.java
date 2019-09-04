@@ -98,9 +98,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
 
     private void showConfigurationDiffPanel(final List<T> historyConfTOs) {
         List<Pair<String, String>> infos = new ArrayList<>();
-        historyConfTOs.forEach(historyConfTO -> {
-            infos.add(getJSONInfo(historyConfTO));
-        });
+        historyConfTOs.forEach(historyConfTO -> infos.add(getJSONInfo(historyConfTO)));
 
         jsonPanel = new JsonDiffPanel(null, new PropertyModel<String>(infos.get(0), "value"),
                 new PropertyModel<String>(infos.get(1), "value"), null) {

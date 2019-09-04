@@ -242,7 +242,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     realm,
                     altDefaultModal,
                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
-                    pageRef).forEach(action -> panel.add(action));
+                    pageRef).forEach(panel::add);
 
             panel.add(new ActionLink<UserTO>() {
 

@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCProviderCheck;
 
 @Entity
@@ -257,7 +258,7 @@ public class JPAOIDCProvider extends AbstractGeneratedKeyEntity implements OIDCP
 
     @Override
     public Optional<? extends OIDCProviderItem> getConnObjectKeyItem() {
-        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst();
+        return getItems().stream().filter(Item::isConnObjectKey).findFirst();
     }
 
     @Override

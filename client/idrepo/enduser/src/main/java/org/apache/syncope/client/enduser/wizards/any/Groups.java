@@ -18,24 +18,24 @@
  */
 package org.apache.syncope.client.enduser.wizards.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.rest.GroupRestClient;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.syncope.common.lib.to.GroupableRelatableTO;
-import org.apache.wicket.markup.html.basic.Label;
 
 public class Groups extends AbstractGroups {
 
@@ -109,10 +109,9 @@ public class Groups extends AbstractGroups {
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             isAssignable().and().is("name").equalTo(filter).query(),
-                                    1, MAX_GROUP_LIST_CARDINALITY)).stream().map(input -> {
-
-                                return new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build();
-                            }).collect(Collectors.toList());
+                                    1, MAX_GROUP_LIST_CARDINALITY)).stream()
+                            .map(input -> new MembershipTO.Builder(input.getKey())
+                            .groupName(input.getName()).build()).collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));
             // ---------------------------------

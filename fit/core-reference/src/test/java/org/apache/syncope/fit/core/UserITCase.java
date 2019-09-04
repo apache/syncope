@@ -860,9 +860,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(3, statuses.size());
 
         Map<String, PropagationStatus> byResource = new HashMap<>(3);
-        statuses.forEach(status -> {
-            byResource.put(status.getResource(), status);
-        });
+        statuses.forEach(status -> byResource.put(status.getResource(), status));
         assertEquals(ExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
         assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.CREATED
                 || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.SUCCESS);
@@ -1036,10 +1034,8 @@ public class UserITCase extends AbstractITCase {
         BatchRequest batchRequest = adminClient.batch();
 
         UserService batchUserService = batchRequest.getService(UserService.class);
-        users.forEach(user -> {
-            batchUserService.status(new StatusR.Builder().key(user).type(StatusRType.SUSPEND).onSyncope(true).
-                    build());
-        });
+        users.forEach(user -> batchUserService.status(new StatusR.Builder().key(user).type(StatusRType.SUSPEND).onSyncope(true).
+                build()));
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
         assertEquals(10, batchResponseItems.stream().
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
@@ -1048,10 +1044,8 @@ public class UserITCase extends AbstractITCase {
         assertEquals("suspended", userService.read(users.get(3)).getStatus());
 
         UserService batchUserService2 = batchRequest.getService(UserService.class);
-        users.forEach(user -> {
-            batchUserService2.status(new StatusR.Builder().key(user).type(StatusRType.REACTIVATE).onSyncope(true).
-                    build());
-        });
+        users.forEach(user -> batchUserService2.status(new StatusR.Builder().key(user).type(StatusRType.REACTIVATE).onSyncope(true).
+                build()));
         batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
         assertEquals(10, batchResponseItems.stream().
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
@@ -1060,9 +1054,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals("active", userService.read(users.get(3)).getStatus());
 
         UserService batchUserService3 = batchRequest.getService(UserService.class);
-        users.forEach(user -> {
-            batchUserService3.delete(user);
-        });
+        users.forEach(batchUserService3::delete);
         batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
         assertEquals(10, batchResponseItems.stream().
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());

@@ -264,9 +264,7 @@ public abstract class EventCategoryPanel extends Panel {
 
         eventCategoryTOs.stream().filter(eventCategory
                 -> type == eventCategory.getType() && StringUtils.isNotEmpty(eventCategory.getCategory())).
-                forEachOrdered(eventCategory -> {
-                    res.add(eventCategory.getCategory());
-                });
+                forEachOrdered(eventCategory -> res.add(eventCategory.getCategory()));
 
         List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
@@ -281,9 +279,7 @@ public abstract class EventCategoryPanel extends Panel {
         eventCategoryTOs.stream().filter(eventCategory
                 -> type == eventCategory.getType() && StringUtils.equals(category, eventCategory.getCategory())
                 && StringUtils.isNotEmpty(eventCategory.getSubcategory())).
-                forEachOrdered(eventCategory -> {
-                    res.add(eventCategory.getSubcategory());
-                });
+                forEachOrdered(eventCategory -> res.add(eventCategory.getSubcategory()));
 
         List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
@@ -431,9 +427,8 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private void authorizeList() {
-        getListAuthRoles().forEach(role -> {
-            MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role);
-        });
+        getListAuthRoles().forEach(
+                role -> MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role));
     }
 
     private void authorizeChanges() {

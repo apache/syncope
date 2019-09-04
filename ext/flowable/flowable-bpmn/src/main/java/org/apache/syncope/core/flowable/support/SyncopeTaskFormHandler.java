@@ -89,7 +89,7 @@ public class SyncopeTaskFormHandler extends DefaultTaskFormHandler {
             formPropertyHandler.setName(formProperty.getName());
 
             AbstractFormType type = parseFormPropertyType(formProperty, expressionManager).
-                    orElse(formTypes.parseFormPropertyType(formProperty));
+                orElseGet(() -> formTypes.parseFormPropertyType(formProperty));
             formPropertyHandler.setType(type);
             formPropertyHandler.setRequired(formProperty.isRequired());
             formPropertyHandler.setReadable(formProperty.isReadable());

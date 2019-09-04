@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -261,7 +262,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         Optional<? extends Provision> provision = resource.getProvision(anyTypeDAO.findUser());
         if (provision.isPresent() && provision.get().getMapping() != null) {
-            result = provision.get().getMapping().getItems().stream().anyMatch(item -> item.isPassword());
+            result = provision.get().getMapping().getItems().stream().anyMatch(Item::isPassword);
         }
 
         return result;
@@ -403,17 +404,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         Collection<ExternalResource> resources = userDAO.findAllResources(user);
 
         Map<String, Set<String>> reasons = new HashMap<>();
-        user.getResources().forEach(resource -> {
-            reasons.put(resource.getKey(), new HashSet<>(Collections.singleton(user.getKey())));
-        });
-        userDAO.findAllGroupKeys(user).forEach(group -> {
-            groupDAO.findAllResourceKeys(group).forEach(resource -> {
-                if (!reasons.containsKey(resource)) {
-                    reasons.put(resource, new HashSet<>());
-                }
-                reasons.get(resource).add(group);
-            });
-        });
+        user.getResources().
+                forEach(resource -> reasons.put(resource.getKey(), Set.of(user.getKey())));
+        userDAO.findAllGroupKeys(user).forEach(group -> groupDAO.findAllResourceKeys(group).forEach(resource -> {
+            if (!reasons.containsKey(resource)) {
+                reasons.put(resource, new HashSet<>());
+            }
+            reasons.get(resource).add(group);
+        }));
 
         Set<String> toBeDeprovisioned = new HashSet<>();
         Set<String> toBeProvisioned = new HashSet<>();
@@ -436,7 +434,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                 if (membPatch.getOperation() == PatchOperation.DELETE) {
                     groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
-                            filter(resource -> reasons.containsKey(resource)).
+                            filter(reasons::containsKey).
                             forEach(resource -> {
                                 reasons.get(resource).remove(membership.getRightEnd().getKey());
                                 toBeProvisioned.add(resource);
@@ -491,10 +489,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             userUR.setPassword(new PasswordPatch());
                         }
                         group.getResources().stream().
-                                filter(resource -> isPasswordMapped(resource)).
-                                forEachOrdered(resource -> {
-                                    userUR.getPassword().getResources().add(resource.getKey());
-                                });
+                                filter(this::isPasswordMapped).
+                                forEachOrdered(resource -> userUR.getPassword().getResources().add(resource.getKey()));
                     }
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, user);
@@ -537,31 +533,19 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // finally check if any resource assignment is to be processed due to dynamic group membership change
         dynGroupMembs.getLeft().stream().
                 filter(group -> !dynGroupMembs.getRight().contains(group)).
-                forEach(delete -> {
-                    groupDAO.find(delete).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                            });
-                });
+                forEach(delete -> groupDAO.find(delete).getResources().stream().
+                filter(resource -> !propByRes.contains(resource.getKey())).
+                forEach(resource -> propByRes.add(ResourceOperation.DELETE, resource.getKey())));
         dynGroupMembs.getLeft().stream().
                 filter(group -> dynGroupMembs.getRight().contains(group)).
-                forEach(update -> {
-                    groupDAO.find(update).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                            });
-                });
+                forEach(update -> groupDAO.find(update).getResources().stream().
+                filter(resource -> !propByRes.contains(resource.getKey())).
+                forEach(resource -> propByRes.add(ResourceOperation.UPDATE, resource.getKey())));
         dynGroupMembs.getRight().stream().
                 filter(group -> !dynGroupMembs.getLeft().contains(group)).
-                forEach(create -> {
-                    groupDAO.find(create).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.CREATE, resource.getKey());
-                            });
-                });
+                forEach(create -> groupDAO.find(create).getResources().stream().
+                filter(resource -> !propByRes.contains(resource.getKey())).
+                forEach(resource -> propByRes.add(ResourceOperation.CREATE, resource.getKey())));
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -631,13 +615,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // memberships
             userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> {
-                        return getMembershipTO(
-                                user.getPlainAttrs(membership),
-                                derAttrHandler.getValues(user, membership),
-                                virAttrHandler.getValues(user, membership),
-                                membership);
-                    }).collect(Collectors.toList()));
+                    user.getMemberships().stream().map(membership -> getMembershipTO(
+                    user.getPlainAttrs(membership),
+                    derAttrHandler.getValues(user, membership),
+                    virAttrHandler.getValues(user, membership),
+                    membership)).collect(Collectors.toList()));
 
             // dynamic memberships
             userTO.getDynMemberships().addAll(

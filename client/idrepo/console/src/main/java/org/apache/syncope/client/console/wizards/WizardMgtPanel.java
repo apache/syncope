@@ -364,9 +364,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
      * @param modal target modal.
      */
     protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-        modal.setWindowClosedCallback(target -> {
-            modal.show(false);
-        });
+        modal.setWindowClosedCallback(target -> modal.show(false));
     }
 
     /**

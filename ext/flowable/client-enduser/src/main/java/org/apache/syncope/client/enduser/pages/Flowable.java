@@ -31,6 +31,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
@@ -148,7 +149,7 @@ public class Flowable extends BaseExtPage {
                 });
         bpmnProcesses.setChoices(restClient.getDefinitions().stream()
                 .filter(definition -> !definition.isUserWorkflow())
-                .map(definition -> definition.getKey()).collect(Collectors.toList()));
+                .map(BpmnProcess::getKey).collect(Collectors.toList()));
         container.add(bpmnProcesses);
 
         body.add(container);

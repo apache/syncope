@@ -224,9 +224,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     public List<String> getAuthRealms() {
         List<String> sortable = new ArrayList<>();
         List<String> available = SetUniqueList.setUniqueList(sortable);
-        auth.values().forEach(entitlement -> {
-            available.addAll(entitlement);
-        });
+        auth.values().forEach(available::addAll);
         Collections.sort(sortable);
         return sortable;
     }
@@ -251,7 +249,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 Set<String> owned = auth.get(entitlement);
                 for (String realm : requested) {
                     if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
-                        owns |= owned.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+                        owns |= owned.stream().anyMatch(realm::startsWith);
                     } else {
                         owns |= owned.contains(realm);
                     }

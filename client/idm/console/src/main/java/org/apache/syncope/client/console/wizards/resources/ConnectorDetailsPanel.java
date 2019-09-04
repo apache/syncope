@@ -93,9 +93,7 @@ public class ConnectorDetailsPanel extends WizardStep {
         List<String> bundleNames = new ArrayList<>();
         bundles.stream().
                 filter(bundle -> (!bundleNames.contains(bundle.getBundleName()))).
-                forEachOrdered(bundle -> {
-                    bundleNames.add(bundle.getBundleName());
-                });
+                forEachOrdered(bundle -> bundleNames.add(bundle.getBundleName()));
 
         bundleName.setChoices(bundleNames);
         bundleName.addRequiredLabel();

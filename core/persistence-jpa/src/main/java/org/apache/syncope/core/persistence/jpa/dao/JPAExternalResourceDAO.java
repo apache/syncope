@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
@@ -216,7 +217,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         Set<String> itemKeys = new HashSet<>();
         query.getResultList().forEach(item -> itemKeys.add(item.getKey()));
         itemKeys.stream().map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).
-                filter(item -> item != null).map(item -> {
+                filter(Objects::nonNull).map(item -> {
             item.getMapping().getItems().remove(item);
             return item;
         }).map(item -> {

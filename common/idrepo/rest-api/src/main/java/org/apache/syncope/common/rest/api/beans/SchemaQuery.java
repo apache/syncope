@@ -51,9 +51,7 @@ public class SchemaQuery implements Serializable {
         }
 
         public Builder anyTypeClasses(final Collection<String> anyTypeClasses) {
-            anyTypeClasses.forEach(anyTypeClass -> {
-                anyTypeClass(anyTypeClass);
-            });
+            anyTypeClasses.forEach(this::anyTypeClass);
             return this;
         }
 

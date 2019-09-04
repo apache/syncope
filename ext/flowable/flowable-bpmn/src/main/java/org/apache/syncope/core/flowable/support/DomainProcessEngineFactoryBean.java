@@ -106,9 +106,8 @@ public class DomainProcessEngineFactoryBean
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 
-            ctx.getBean(DomainHolder.class).getDomains().forEach((domain, datasource) -> {
-                engines.put(domain, build(domain, datasource));
-            });
+            ctx.getBean(DomainHolder.class).getDomains().forEach(
+                    (domain, datasource) -> engines.put(domain, build(domain, datasource)));
 
             engine = new DomainProcessEngine(engines);
         }

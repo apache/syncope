@@ -61,9 +61,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
     public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
         List<CamelRouteTO> routes = new ArrayList<>();
 
-        routeDAO.find(anyTypeKind).forEach(route -> {
-            routes.add(binder.getRouteTO(route));
-        });
+        routeDAO.find(anyTypeKind).forEach(route -> routes.add(binder.getRouteTO(route)));
         return routes;
     }
 
@@ -132,9 +130,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
                 meanRate.setRouteId(StringUtils.substringBetween(entry.getKey(), ".", "."));
                 meanRate.setValue(entry.getValue().getMeanRate());
                 return meanRate;
-            }).forEachOrdered(meanRate -> {
-                metrics.getResponseMeanRates().add(meanRate);
-            });
+            }).forEachOrdered(meanRate -> metrics.getResponseMeanRates().add(meanRate));
 
             Collections.sort(metrics.getResponseMeanRates(),
                     (o1, o2) -> Collections.reverseOrder(Comparator.<Double>naturalOrder()).

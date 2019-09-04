@@ -18,12 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -45,19 +41,9 @@ public class SCIMConfTabPanel extends Panel implements ModalPanel {
     }
 
     private static List<String> getPlainSchemas() {
-        final List<String> names = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
-        names.addAll(CollectionUtils.collect(new SchemaRestClient().getSchemas(SchemaType.PLAIN, AnyTypeKind.USER),
-                new Transformer<SchemaTO, String>() {
-
-            @Override
-            public String transform(final SchemaTO input) {
-                return input.getKey();
-            }
-        }, new ArrayList<String>()));
-        names.remove("password");
-        Collections.sort(names);
-
-        return names;
+        return new SchemaRestClient().getSchemas(SchemaType.PLAIN, AnyTypeKind.USER).stream().
+                map(SchemaTO::getKey).
+                filter(name -> !"password".equals(name)).
+                sorted().collect(Collectors.toList());
     }
-
 }

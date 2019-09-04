@@ -98,7 +98,7 @@ public class ImplementationManagerTest {
 
             assertTrue(
                     errorMessages.isEmpty(),
-                    errorMessages.stream().collect(Collectors.joining(System.lineSeparator())));
+                () -> errorMessages.stream().collect(Collectors.joining(System.lineSeparator())));
         });
     }
 }

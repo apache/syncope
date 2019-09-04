@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -139,7 +140,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 2. determine attributes to query
         Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
+                map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
         Iterator<MappingItem> mapItems = new IteratorChain<>(
                 provision.getMapping().getItems().iterator(),
                 linkinMappingItems.iterator());

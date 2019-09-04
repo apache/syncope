@@ -390,8 +390,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         }
 
         protected T getActualItem(final T item, final List<T> list) {
-            return Optional.ofNullable(item)
-                .map(t -> list.stream().filter(t::equals).findAny().orElse(null)).orElse(null);
+            return item == null
+                    ? null
+                    : list.stream().filter(item::equals).findAny().orElse(null);
         }
 
         @Override

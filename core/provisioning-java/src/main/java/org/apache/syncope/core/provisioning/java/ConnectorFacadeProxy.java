@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 
 public class ConnectorFacadeProxy implements Connector {
 
@@ -109,11 +110,10 @@ public class ConnectorFacadeProxy implements Connector {
         // set connector configuration according to conninstance's
         ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         connInstance.getConf().stream().
-                filter(property -> (property.getValues() != null && !property.getValues().isEmpty())).
-                forEachOrdered(property -> {
-                    properties.setPropertyValue(property.getSchema().getName(),
-                            getPropertyValue(property.getSchema().getType(), property.getValues()));
-                });
+                filter(property -> !CollectionUtils.isEmpty(property.getValues())).
+                forEach(property -> properties.setPropertyValue(
+                property.getSchema().getName(),
+                getPropertyValue(property.getSchema().getType(), property.getValues())));
 
         // set pooling configuration (if supported) according to conninstance's
         if (connInstance.getPoolConf() != null) {

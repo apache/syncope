@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import javax.xml.transform.TransformerConfigurationException;
 import org.xml.sax.SAXException;
 
+@FunctionalInterface
 public interface ContentExporter extends ContentDealer {
 
     void export(

@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.navigation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
@@ -139,10 +138,9 @@ public class Navbar extends Panel {
     }
 
     public void setActiveNavItem(final String id) {
-        Optional<WebMarkupContainer> found = navbarItems.stream().filter(containingLI -> {
-            return containingLI.getMarkupId().equals(id);
-        }).findFirst();
-        found.ifPresent(components -> components.add(new Behavior() {
+        navbarItems.stream().
+                filter(containingLI -> containingLI.getMarkupId().equals(id)).findFirst().
+                ifPresent(found -> found.add(new Behavior() {
 
             private static final long serialVersionUID = -5775607340182293596L;
 
@@ -152,5 +150,4 @@ public class Navbar extends Panel {
             }
         }));
     }
-
 }

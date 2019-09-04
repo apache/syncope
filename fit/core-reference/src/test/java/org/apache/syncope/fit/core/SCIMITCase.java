@@ -76,15 +76,11 @@ public class SCIMITCase extends AbstractITCase {
 
     private static Boolean ENABLED;
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
-            return sdf;
-        }
-    };
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(() -> {
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        return sdf;
+    });
 
     static {
         CONF = new SCIMConf();

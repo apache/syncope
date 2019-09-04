@@ -119,13 +119,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         altDefaultModal.size(Modal.Size.Large);
 
         this.pSchemaNames = new ArrayList<>();
-        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> {
-            this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas());
-        });
+        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()
+                .forEach(anyTypeClassTO -> this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas()));
         this.dSchemaNames = new ArrayList<>();
-        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> {
-            this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
-        });
+        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()
+                .forEach(anyTypeClassTO -> this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas()));
 
         initResultTable();
 
@@ -155,24 +153,18 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
                 filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
-                forEachOrdered(name -> {
-                    addPropertyColumn(
-                            name,
-                            ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
-                            prefcolumns);
-                });
+                forEachOrdered(name -> addPropertyColumn(
+                name,
+                ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                prefcolumns));
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
-                filter(name -> pSchemaNames.contains(name)).
-                forEachOrdered(name -> {
-                    prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN));
-                });
+                filter(pSchemaNames::contains).
+                forEachOrdered(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
-                filter(name -> (dSchemaNames.contains(name))).
-                forEachOrdered(name -> {
-                    prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED));
-                });
+                filter(dSchemaNames::contains).
+                forEachOrdered(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED)));
 
         // Add defaults in case of no selection
         if (prefcolumns.isEmpty()) {
@@ -231,6 +223,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         return batches;
     }
 
+    @FunctionalInterface
     public interface AnyDirectoryPanelBuilder extends Serializable {
 
         List<AnyTypeClassTO> getAnyTypeClassTOs();
