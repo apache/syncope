@@ -31,6 +31,8 @@ import org.apache.syncope.core.logic.SAML2SPLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPService {
 
@@ -70,7 +72,7 @@ public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPSe
 
     private String getJWTToken() {
         String auth = messageContext.getHttpHeaders().getHeaderString(HttpHeaders.AUTHORIZATION);
-        String[] parts = auth == null ? null : auth.split(" ");
+        String[] parts = Optional.ofNullable(auth).map(s -> s.split(" ")).orElse(null);
         if (parts == null || parts.length != 2 || !"Bearer".equals(parts[0])) {
             return null;
         }

@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.core.persistence.api.entity.Exec;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -122,7 +124,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 execStatus = ExecStatus.FAILURE;
             }
             if (execStatus != ExecStatus.SUCCESS) {
-                throw new PropagationException(task.getResource(), execution == null ? null : execution.getMessage());
+                throw new PropagationException(task.getResource(), Optional.ofNullable(execution)
+                    .map(Exec::getMessage).orElse(null));
             }
         });
 

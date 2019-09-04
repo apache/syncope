@@ -23,6 +23,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import java.util.Optional;
+
 public class ApplicationContextProvider implements ApplicationContextAware {
 
     private static ConfigurableApplicationContext CTX;
@@ -38,11 +40,8 @@ public class ApplicationContextProvider implements ApplicationContextAware {
     }
 
     public static DefaultListableBeanFactory getBeanFactory() {
-        return BEAN_FACTORY == null
-                ? CTX == null
-                        ? null
-                        : (DefaultListableBeanFactory) CTX.getBeanFactory()
-                : BEAN_FACTORY;
+        return Optional.ofNullable(BEAN_FACTORY).orElseGet(()
+            -> Optional.ofNullable(CTX).map(ctx -> (DefaultListableBeanFactory) ctx.getBeanFactory()).orElse(null));
     }
 
     public static void setBeanFactory(final DefaultListableBeanFactory beanFactory) {

@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -328,9 +330,9 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
 
                 return responseTO;
             } else {
-                throw new NotFoundException(keyValue == null
-                        ? "User marching the provided claims"
-                        : "User matching the provided value " + keyValue);
+                throw new NotFoundException(Optional.ofNullable(keyValue)
+                    .map(value -> "User matching the provided value " + value)
+                    .orElse("User marching the provided claims"));
             }
         } else if (matchingUsers.size() > 1) {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);

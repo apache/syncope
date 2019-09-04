@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
@@ -60,9 +61,8 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
 
         conf.getSchemas().forEach(schema -> {
             Item item = mappingItems.get(schema);
-            Attribute attr = item == null
-                    ? null
-                    : syncDelta.getObject().getAttributeByName(item.getExtAttrName());
+            Attribute attr = Optional.ofNullable(item)
+                .map(item1 -> syncDelta.getObject().getAttributeByName(item1.getExtAttrName())).orElse(null);
             if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);

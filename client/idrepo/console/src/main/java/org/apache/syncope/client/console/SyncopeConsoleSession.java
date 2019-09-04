@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -156,7 +157,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public String getJWT() {
-        return client == null ? null : client.getJWT();
+        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }
 
     @Override

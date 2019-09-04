@@ -70,9 +70,8 @@ public class SyncopeClientCompositeException extends SyncopeClientException {
         Optional<SyncopeClientException> alreadyAdded =
                 exceptions.stream().filter(ex -> ex.getType() == exception.getType()).findFirst();
 
-        return alreadyAdded.isPresent()
-                ? alreadyAdded.get().getElements().addAll(exception.getElements())
-                : exceptions.add(exception);
+        return alreadyAdded.map(e -> e.getElements()
+            .addAll(exception.getElements())).orElseGet(() -> exceptions.add(exception));
     }
 
     @Override

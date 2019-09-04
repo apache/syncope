@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -95,13 +96,13 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             protected ResourceProvision getActualItem(
                     final ResourceProvision item, final List<ResourceProvision> list) {
 
-                return item == null
-                        ? null
-                        : list.stream().filter(in -> ((item.getKey() == null && in.getKey() == null)
-                        || (in.getKey() != null && in.getKey().equals(item.getKey())))
-                        && ((item.getAnyType() == null && in.getAnyType() == null)
-                        || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())))).
-                                findAny().orElse(null);
+                return Optional.ofNullable(item)
+                    .map(resourceProvision -> list.stream()
+                        .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
+                    || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
+                    && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
+                    || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
+                    findAny().orElse(null)).orElse(null);
             }
 
             @Override
@@ -315,7 +316,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             @Override
             protected List<String> load() {
                 List<String> anyTypes = new AnyTypeRestClient().list().stream().
-                        filter(anyType -> !resourceTO.getProvision(anyType).isPresent()).
+                        filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
                         collect(Collectors.toList());
                 if (resourceTO.getOrgUnit() == null) {
                     anyTypes.add(SyncopeConstants.REALM_ANYTYPE);

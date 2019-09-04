@@ -78,7 +78,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         DynGroupMembership<?> dynMembership;
-        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && !group.getADynMembership(anyType).isPresent()) {
+        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType).isEmpty()) {
             dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
             dynMembership.setGroup(group);
             ((ADynGroupMembership) dynMembership).setAnyType(anyType);
@@ -299,7 +299,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
         // remove all type extensions not contained in the TO
         group.getTypeExtensions().
-                removeIf(typeExt -> !groupUR.getTypeExtension(typeExt.getAnyType().getKey()).isPresent());
+                removeIf(typeExt -> groupUR.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

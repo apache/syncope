@@ -121,12 +121,12 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
 
     @Override
     public byte[] getMetadata() {
-        return metadata == null ? null : ArrayUtils.toPrimitive(metadata);
+        return Optional.ofNullable(metadata).map(ArrayUtils::toPrimitive).orElse(null);
     }
 
     @Override
     public void setMetadata(final byte[] metadata) {
-        this.metadata = metadata == null ? null : ArrayUtils.toObject(metadata);
+        this.metadata = Optional.ofNullable(metadata).map(ArrayUtils::toObject).orElse(null);
     }
 
     @Override

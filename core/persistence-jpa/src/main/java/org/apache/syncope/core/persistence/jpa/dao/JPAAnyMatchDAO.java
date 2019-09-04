@@ -183,10 +183,9 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
     private boolean matches(final Any<?> any, final AssignableCond cond, final boolean not) {
         Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
-        boolean found = realm == null
-                ? false
-                : (cond.isFromGroup() ? realmDAO.findDescendants(realm) : realmDAO.findAncestors(realm)).
-                        stream().anyMatch(item -> item.equals(any.getRealm()));
+        boolean found = Optional.ofNullable(realm)
+            .filter(realm1 -> (cond.isFromGroup() ? realmDAO.findDescendants(realm1) : realmDAO.findAncestors(realm1)).
+            stream().anyMatch(item -> item.equals(any.getRealm()))).isPresent();
         return not ? !found : found;
     }
 

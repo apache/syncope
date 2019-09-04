@@ -20,6 +20,8 @@ package org.apache.syncope.core.flowable.support;
 
 import org.flowable.engine.form.AbstractFormType;
 
+import java.util.Optional;
+
 /**
  * Extension to predefined Flowable form types relying on the provided
  * {@link org.apache.syncope.core.flowable.api.DropdownValueProvider} bean to populate values.
@@ -54,6 +56,6 @@ public class DropdownFormType extends AbstractFormType {
 
     @Override
     public String convertModelValueToFormValue(final Object modelValue) {
-        return modelValue == null ? null : modelValue.toString();
+        return Optional.ofNullable(modelValue).map(Object::toString).orElse(null);
     }
 }

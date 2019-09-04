@@ -20,6 +20,7 @@ package org.apache.syncope.common.keymaster.client.zookeper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -76,7 +77,7 @@ public class ZookeeperConfParamOps implements ConfParamOps {
             throw new KeymasterException(e);
         }
 
-        return value == null ? defaultValue : value;
+        return Optional.ofNullable(value).orElse(defaultValue);
     }
 
     @Override

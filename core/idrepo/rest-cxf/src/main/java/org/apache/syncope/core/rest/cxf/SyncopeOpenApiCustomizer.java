@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import static org.codehaus.groovy.tools.shell.util.Logger.io;
-
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
@@ -115,7 +113,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         Optional<Parameter> domainHeaderParameter = parameters.stream().filter(parameter
                 -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).
                 findFirst();
-        if (!domainHeaderParameter.isPresent()) {
+        if (domainHeaderParameter.isEmpty()) {
             HeaderParameter parameter = new HeaderParameter();
             parameter.setName(RESTHeaders.DOMAIN);
             parameter.setRequired(true);

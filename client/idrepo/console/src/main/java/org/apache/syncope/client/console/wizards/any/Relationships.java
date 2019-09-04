@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -273,7 +274,7 @@ public class Relationships extends WizardStep implements ICondition {
 
                 @Override
                 public void setObject(final AnyTypeTO object) {
-                    rel.setOtherEndType(object == null ? null : object.getKey());
+                    rel.setOtherEndType(Optional.ofNullable(object).map(AnyTypeTO::getKey).orElse(null));
                 }
             }, false);
             otherType.setChoices(availableTypes);

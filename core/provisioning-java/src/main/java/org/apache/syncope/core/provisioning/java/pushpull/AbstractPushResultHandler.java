@@ -230,7 +230,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             if (ignoreResult == null) {
                 ignoreResult = new ProvisioningReport();
                 ignoreResult.setKey(anyKey);
-                ignoreResult.setAnyType(any == null ? null : any.getType().getKey());
+                ignoreResult.setAnyType(Optional.ofNullable(any).map(any1 -> any1.getType().getKey()).orElse(null));
 
                 profile.getResults().add(ignoreResult);
             }

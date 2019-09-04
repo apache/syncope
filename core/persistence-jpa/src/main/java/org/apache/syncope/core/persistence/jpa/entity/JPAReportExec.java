@@ -29,6 +29,8 @@ import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 
+import java.util.Optional;
+
 @Entity
 @Table(name = JPAReportExec.TABLE)
 public class JPAReportExec extends AbstractExec implements ReportExec {
@@ -63,12 +65,12 @@ public class JPAReportExec extends AbstractExec implements ReportExec {
 
     @Override
     public byte[] getExecResult() {
-        return execResult == null ? null : ArrayUtils.toPrimitive(execResult);
+        return Optional.ofNullable(execResult).map(ArrayUtils::toPrimitive).orElse(null);
     }
 
     @Override
     public void setExecResult(final byte[] execResult) {
-        this.execResult = execResult == null ? null : ArrayUtils.toObject(execResult);
+        this.execResult = Optional.ofNullable(execResult).map(ArrayUtils::toObject).orElse(null);
     }
 
     @Override

@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.syncope.client.console.layout.AnyObjectForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
@@ -45,7 +47,8 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(anyObjectTO == null ? null : new AnyObjectWrapper(anyObjectTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new)
+            .orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**

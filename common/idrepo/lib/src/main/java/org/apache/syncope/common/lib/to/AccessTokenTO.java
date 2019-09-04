@@ -19,6 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.BaseBean;
@@ -56,15 +58,11 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
     }
 
     public Date getExpiryTime() {
-        return expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     public void setExpiryTime(final Date expiryTime) {
-        this.expiryTime = expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        this.expiryTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     public String getOwner() {

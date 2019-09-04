@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -76,7 +77,8 @@ public class PolicyRestClient extends BaseRestClient {
 
         @Override
         public int compare(final PolicyTO left, final PolicyTO right) {
-            return left == null ? -1 : right == null ? 1 : left.getDescription().compareTo(right.getDescription());
+            return Optional.ofNullable(left).map(to -> Optional.ofNullable(right)
+                .map(policyTO -> to.getDescription().compareTo(policyTO.getDescription())).orElse(1)).orElse(-1);
         }
 
     }

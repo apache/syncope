@@ -20,6 +20,8 @@ package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PathParam;
@@ -86,7 +88,7 @@ public class ExecuteQuery implements Serializable {
     }
 
     public Boolean getDryRun() {
-        return dryRun == null ? Boolean.FALSE : dryRun;
+        return Optional.ofNullable(dryRun).orElse(Boolean.FALSE);
     }
 
     @QueryParam("dryRun")

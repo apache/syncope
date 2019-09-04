@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
@@ -149,9 +151,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JacksonJaxbJsonProvider getJsonProvider() {
-        return jsonProvider == null
-                ? defaultJsonProvider()
-                : jsonProvider;
+        return Optional.ofNullable(jsonProvider).orElseGet(this::defaultJsonProvider);
     }
 
     public void setJsonProvider(final JacksonJaxbJsonProvider jsonProvider) {
@@ -170,9 +170,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public RestClientExceptionMapper getExceptionMapper() {
-        return exceptionMapper == null
-                ? defaultExceptionMapper()
-                : exceptionMapper;
+        return Optional.ofNullable(exceptionMapper).orElseGet(this::defaultExceptionMapper);
     }
 
     public SyncopeClientFactoryBean setExceptionMapper(final RestClientExceptionMapper exceptionMapper) {
@@ -190,9 +188,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public ContentType getContentType() {
-        return contentType == null
-                ? ContentType.JSON
-                : contentType;
+        return Optional.ofNullable(contentType).orElse(ContentType.JSON);
     }
 
     public SyncopeClientFactoryBean setContentType(final ContentType contentType) {
@@ -243,9 +239,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JAXRSClientFactoryBean getRestClientFactoryBean() {
-        return restClientFactoryBean == null
-                ? defaultRestClientFactoryBean()
-                : restClientFactoryBean;
+        return Optional.ofNullable(restClientFactoryBean).orElseGet(this::defaultRestClientFactoryBean);
     }
 
     public SyncopeClientFactoryBean setRestClientFactoryBean(final JAXRSClientFactoryBean restClientFactoryBean) {

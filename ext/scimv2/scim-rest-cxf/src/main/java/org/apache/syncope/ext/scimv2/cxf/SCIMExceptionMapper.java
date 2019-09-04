@@ -19,6 +19,7 @@
 package org.apache.syncope.ext.scimv2.cxf;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.ValidationException;
 import javax.ws.rs.ForbiddenException;
@@ -128,7 +129,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             }
         }
 
-        return builder == null ? null : builder.build();
+        return Optional.ofNullable(builder).map(ResponseBuilder::build).orElse(null);
     }
 
     private ResponseBuilder processInvalidEntityExceptions(final Exception ex) {

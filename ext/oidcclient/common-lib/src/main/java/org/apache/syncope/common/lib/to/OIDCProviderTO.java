@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -204,9 +206,8 @@ public class OIDCProviderTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return connObjectKeyItem == null
-                ? remove(getConnObjectKeyItem())
-                : addConnObjectKeyItem(connObjectKeyItem);
+        return Optional.ofNullable(connObjectKeyItem)
+            .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
     }
 
     @XmlElementWrapper(name = "items")
@@ -219,7 +220,8 @@ public class OIDCProviderTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean add(final ItemTO item) {
-        return item == null ? false : this.items.contains(item) || this.items.add(item);
+        return Optional.ofNullable(item)
+            .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
     }
 
     public boolean remove(final ItemTO item) {

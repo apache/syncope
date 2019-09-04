@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
@@ -86,11 +88,11 @@ public class SCIMSearchRequest extends SCIMBean {
     }
 
     public int getStartIndex() {
-        return startIndex == null ? 1 : startIndex;
+        return Optional.ofNullable(startIndex).orElse(1);
     }
 
     public int getCount() {
-        return count == null ? 25 : count;
+        return Optional.ofNullable(count).orElse(25);
     }
 
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.commons;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
@@ -103,7 +104,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
             Comparable result = null;
 
-            List<String> values = attr == null ? null : attr.getValues();
+            List<String> values = Optional.ofNullable(attr).map(Attr::getValues).orElse(null);
             if (values != null && !values.isEmpty()) {
                 result = values.iterator().next();
             }

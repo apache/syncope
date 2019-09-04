@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.layout.UserForm;
@@ -129,7 +131,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
      */
     @Override
     public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
-        super.setItem(item == null ? null : new UserWrapper(item.getInnerObject()));
+        super.setItem(Optional.ofNullable(item)
+            .map(userTOAnyWrapper -> new UserWrapper(userTOAnyWrapper.getInnerObject())).orElse(null));
         return this;
     }
 }

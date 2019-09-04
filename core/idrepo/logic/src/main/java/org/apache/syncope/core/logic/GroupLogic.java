@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -161,11 +162,11 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         int count = searchDAO.count(
                 RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                searchCond == null ? groupDAO.getAllMatchingCond() : searchCond, AnyTypeKind.GROUP);
+            Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()), AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
                 RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                searchCond == null ? groupDAO.getAllMatchingCond() : searchCond,
+            Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()),
                 page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).collect(Collectors.toList());

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -623,8 +624,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // set the connector instance
         ConnInstance connector = resource.getConnector();
 
-        resourceTO.setConnector(connector == null ? null : connector.getKey());
-        resourceTO.setConnectorDisplayName(connector == null ? null : connector.getDisplayName());
+        resourceTO.setConnector(Optional.ofNullable(connector).map(Entity::getKey).orElse(null));
+        resourceTO.setConnectorDisplayName(Optional.ofNullable(connector)
+            .map(ConnInstance::getDisplayName).orElse(null));
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {
