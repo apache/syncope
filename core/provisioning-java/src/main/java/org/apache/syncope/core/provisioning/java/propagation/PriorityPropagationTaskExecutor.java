@@ -144,7 +144,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         // ...waiting for all callables to complete, if async processing was not required
         if (!nullPriority.isEmpty()) {
             if (nullPriorityAsync) {
-                nullPriority.forEach((task, exec) -> reporter.onSuccessOrNonPriorityResourceFailures(task, ExecStatus.CREATED, null, null, null));
+                nullPriority.forEach((task, exec) -> reporter.onSuccessOrNonPriorityResourceFailures(task,
+                    ExecStatus.CREATED, null, null, null));
             } else {
                 final Set<Future<TaskExec>> nullPriorityFutures = new HashSet<>(nullPriority.values());
                 try {

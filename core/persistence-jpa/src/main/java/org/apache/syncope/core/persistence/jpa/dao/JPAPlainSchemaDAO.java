@@ -57,7 +57,8 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
-        anyTypeClasses.forEach(anyTypeClass -> queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR "));
+        anyTypeClasses.forEach(anyTypeClass -> queryString.append("e.anyTypeClass.id='")
+            .append(anyTypeClass.getKey()).append("' OR "));
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(
                 queryString.substring(0, queryString.length() - 4), PlainSchema.class);

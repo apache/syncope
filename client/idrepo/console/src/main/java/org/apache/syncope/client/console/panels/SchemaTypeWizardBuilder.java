@@ -137,7 +137,8 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
             setOutputMarkupId(true);
 
             translations.getObject().clear();
-            modelObject.getLabels().forEach((locale, display) -> translations.getObject().add(MutablePair.of(locale, display)));
+            modelObject.getLabels()
+                .forEach((locale, display) -> translations.getObject().add(MutablePair.of(locale, display)));
 
             ListView<MutablePair<Locale, String>> labels =
                     new ListView<MutablePair<Locale, String>>("labels", translations) {
@@ -173,7 +174,8 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                             LOG.error("Invalid Locale: {}", validatable.getValue(), e);
                             validatable.error(new ValidationError("Invalid Locale: " + validatable.getValue()));
 
-                            RequestCycle.get().find(AjaxRequestTarget.class).ifPresent(target -> target.add(Labels.this));
+                            RequestCycle.get()
+                                .find(AjaxRequestTarget.class).ifPresent(target -> target.add(Labels.this));
                         }
                     });
                     item.add(locale);

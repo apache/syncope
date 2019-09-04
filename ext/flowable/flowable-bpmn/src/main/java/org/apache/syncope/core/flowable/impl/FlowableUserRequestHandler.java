@@ -573,7 +573,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
 
         boolean hasAssignees =
-                engine.getTaskService().getIdentityLinksForTask(taskId).stream().anyMatch(identityLink -> IdentityLinkType.ASSIGNEE.equals(identityLink.getType()));
+                engine.getTaskService().getIdentityLinksForTask(taskId)
+                    .stream().anyMatch(identityLink -> IdentityLinkType.ASSIGNEE.equals(identityLink.getType()));
         if (hasAssignees) {
             try {
                 engine.getTaskService().unclaim(taskId);

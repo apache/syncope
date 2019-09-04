@@ -54,7 +54,8 @@ public final class BatchPayloadGenerator {
             }
 
             if (item.getHeaders() != null && !item.getHeaders().isEmpty()) {
-                item.getHeaders().forEach((key, values) -> values.forEach(value -> payload.append(key).append(": ").append(value).append('\n')));
+                item.getHeaders().forEach((key, values) -> values
+                    .forEach(value -> payload.append(key).append(": ").append(value).append('\n')));
                 payload.append(SyncopeConstants.CRLF);
             }
 

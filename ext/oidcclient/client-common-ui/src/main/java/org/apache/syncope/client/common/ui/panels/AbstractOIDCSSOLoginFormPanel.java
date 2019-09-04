@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.common.ui.panels;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -40,6 +37,10 @@ import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractOIDCSSOLoginFormPanel.class);
@@ -53,7 +54,7 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
 
         final Model<OIDCProviderTO> model = new Model<>();
         AjaxDropDownChoicePanel<OIDCProviderTO> ops =
-                new AjaxDropDownChoicePanel<>("ops", "OpenID Connect", model, false);
+            new AjaxDropDownChoicePanel<>("ops", "OpenID Connect", model, false);
         ops.setChoices(available);
         ops.setChoiceRenderer(new IChoiceRenderer<OIDCProviderTO>() {
 
@@ -71,8 +72,9 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
 
             @Override
             public OIDCProviderTO getObject(final String id,
-                    final IModel<? extends List<? extends OIDCProviderTO>> choices) {
-                return IterableUtils.find(choices.getObject(), (Predicate<OIDCProviderTO>) object -> object.getName().equals(id));
+                                            final IModel<? extends List<? extends OIDCProviderTO>> choices) {
+                return IterableUtils.find(choices.getObject(),
+                    (Predicate<OIDCProviderTO>) object -> object.getName().equals(id));
             }
         });
 
@@ -85,10 +87,10 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
                 if (model.getObject() != null) {
                     try {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
-                                UrlUtils.rewriteToContextRelative("oidcclient/login?op="
-                                        + URLEncoder.encode(
-                                                model.getObject().getName(), StandardCharsets.UTF_8),
-                                        RequestCycle.get())));
+                            UrlUtils.rewriteToContextRelative("oidcclient/login?op="
+                                    + URLEncoder.encode(
+                                model.getObject().getName(), StandardCharsets.UTF_8),
+                                RequestCycle.get())));
                     } catch (Exception e) {
                         LOG.error("Could not redirect to the selected OP {}", model.getObject().getName(), e);
                     }

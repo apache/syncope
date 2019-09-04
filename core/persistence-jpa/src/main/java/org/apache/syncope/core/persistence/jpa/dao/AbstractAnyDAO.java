@@ -458,13 +458,16 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // schemas given by type extensions
         Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
-            ((User) any).getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().forEach(typeExtension -> {
+            ((User) any).getMemberships()
+                .forEach(memb -> memb.getRightEnd().getTypeExtensions().forEach(typeExtension -> {
                 typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
             }));
         } else if (any instanceof AnyObject) {
-            ((AnyObject) any).getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
-                    filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
-                    forEachOrdered((typeExtension) -> typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses())));
+            ((AnyObject) any).getMemberships()
+                .forEach(memb -> memb.getRightEnd().getTypeExtensions().stream()
+                    .filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
+                        forEachOrdered((typeExtension) ->
+                            typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses())));
         }
 
         typeExtensionClasses.entrySet().stream().map(entry -> {

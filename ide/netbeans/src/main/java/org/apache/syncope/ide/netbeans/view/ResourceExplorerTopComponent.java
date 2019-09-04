@@ -297,7 +297,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
-        mailTemplateList.forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
+        mailTemplateList
+            .forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
         treeModel.reload();
     }
 

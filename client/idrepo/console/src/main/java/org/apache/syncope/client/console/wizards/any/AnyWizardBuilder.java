@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractAnyWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
@@ -41,6 +37,11 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+
 public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizardBuilder<A> {
 
     private static final long serialVersionUID = -2480279868319546243L;
@@ -52,16 +53,16 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
     /**
      * Construct.
      *
-     * @param anyTO any
+     * @param anyTO          any
      * @param anyTypeClasses any type classes
      * @param formLayoutInfo form layout info
-     * @param pageRef caller page reference.
+     * @param pageRef        caller page reference.
      */
     public AnyWizardBuilder(
-            final A anyTO,
-            final List<String> anyTypeClasses,
-            final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
-            final PageReference pageRef) {
+        final A anyTO,
+        final List<String> anyTypeClasses,
+        final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
+        final PageReference pageRef) {
 
         super(new AnyWrapper<>(anyTO), pageRef);
         this.anyTypeClasses = anyTypeClasses;
@@ -71,16 +72,16 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
     /**
      * Construct.
      *
-     * @param wrapper any wrapper
+     * @param wrapper        any wrapper
      * @param anyTypeClasses any type classes
      * @param formLayoutInfo form layout info
-     * @param pageRef caller page reference.
+     * @param pageRef        caller page reference.
      */
     public AnyWizardBuilder(
-            final AnyWrapper<A> wrapper,
-            final List<String> anyTypeClasses,
-            final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
-            final PageReference pageRef) {
+        final AnyWrapper<A> wrapper,
+        final List<String> anyTypeClasses,
+        final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
+        final PageReference pageRef) {
 
         super(wrapper, pageRef);
         this.anyTypeClasses = anyTypeClasses;
@@ -96,8 +97,8 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
 
         if ((this instanceof GroupWizardBuilder)
-                && (modelObject.getInnerObject() instanceof GroupTO)
-                && (formLayoutInfo instanceof GroupFormLayoutInfo)) {
+            && (modelObject.getInnerObject() instanceof GroupTO)
+            && (formLayoutInfo instanceof GroupFormLayoutInfo)) {
 
             GroupFormLayoutInfo groupFormLayoutInfo = GroupFormLayoutInfo.class.cast(formLayoutInfo);
             if (groupFormLayoutInfo.isOwnership()) {
@@ -119,11 +120,11 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
             wizardModel.add(new PlainAttrs(
-                    modelObject,
-                    null,
-                    mode,
-                    anyTypeClasses,
-                    formLayoutInfo.getWhichPlainAttrs()) {
+                modelObject,
+                null,
+                mode,
+                anyTypeClasses,
+                formLayoutInfo.getWhichPlainAttrs()) {
 
                 private static final long serialVersionUID = 8167894751609598306L;
 
@@ -136,33 +137,33 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
         if (formLayoutInfo.isDerAttrs() && mode != AjaxWizard.Mode.TEMPLATE) {
             wizardModel.add(new DerAttrs(
-                    modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
+                modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
         }
         if (formLayoutInfo.isVirAttrs()) {
             wizardModel.add(new VirAttrs(
-                    modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
+                modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
         }
 
         // role panel step (just available for users)
         if ((this instanceof UserWizardBuilder)
-                && (modelObject.getInnerObject() instanceof UserTO)
-                && (formLayoutInfo instanceof UserFormLayoutInfo)
-                && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
+            && (modelObject.getInnerObject() instanceof UserTO)
+            && (formLayoutInfo instanceof UserFormLayoutInfo)
+            && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
 
             wizardModel.add(new Roles(modelObject));
         }
 
         // relationship panel step (available for users and any objects)
         if (((formLayoutInfo instanceof UserFormLayoutInfo)
-                && UserFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())
-                || ((formLayoutInfo instanceof AnyObjectFormLayoutInfo)
-                && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())) {
+            && UserFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())
+            || ((formLayoutInfo instanceof AnyObjectFormLayoutInfo)
+            && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())) {
 
             wizardModel.add(new Relationships(modelObject, pageRef));
         }
 
         SyncopeWebApplication.get().getAnyWizardBuilderAdditionalSteps().
-                buildModelSteps(modelObject, wizardModel, formLayoutInfo);
+            buildModelSteps(modelObject, wizardModel, formLayoutInfo);
 
         return wizardModel;
     }
@@ -172,10 +173,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
             return null;
         } else {
             return new Details<>(
-                    modelObject,
-                    mode == AjaxWizard.Mode.TEMPLATE,
-                    true,
-                    pageRef);
+                modelObject,
+                mode == AjaxWizard.Mode.TEMPLATE,
+                true,
+                pageRef);
         }
     }
 
@@ -195,14 +196,16 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
 
         if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class.cast(original).getMemberships().forEach(oMemb -> GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
-                oMemb.getPlainAttrs().stream().
+            GroupableRelatableTO.class.cast(original).getMemberships()
+                .forEach(oMemb -> GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey())
+                    .ifPresent(uMemb -> {
+                        oMemb.getPlainAttrs().stream().
                             filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
-                        forEach(attr -> uMemb.getPlainAttrs().add(attr));
-                oMemb.getVirAttrs().stream().
+                            forEach(attr -> uMemb.getPlainAttrs().add(attr));
+                        oMemb.getVirAttrs().stream().
                             filter(attr -> uMemb.getVirAttr(attr.getSchema()).isEmpty()).
-                        forEach(attr -> uMemb.getVirAttrs().add(attr));
-            }));
+                            forEach(attr -> uMemb.getVirAttrs().add(attr));
+                    }));
         }
 
         // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in
@@ -234,7 +237,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
     @Override
     protected Future<Pair<Serializable, Serializable>> execute(
-            final Callable<Pair<Serializable, Serializable>> future) {
+        final Callable<Pair<Serializable, Serializable>> future) {
         return SyncopeConsoleSession.get().execute(future);
     }
 }

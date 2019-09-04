@@ -18,24 +18,18 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AbstractReplacePatchItem;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.RelationshipUR;
-import org.apache.syncope.common.lib.request.AbstractReplacePatchItem;
-import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -48,6 +42,13 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for comparing {@link AnyTO} instances in order to generate {@link AnyUR} instances.
@@ -63,7 +64,7 @@ public final class AnyOperations {
     }
 
     private static <T, K extends AbstractReplacePatchItem<T>> K replacePatchItem(
-            final T updated, final T original, final K proto) {
+        final T updated, final T original, final K proto) {
 
         if ((original == null && updated == null) || (original != null && original.equals(updated))) {
             return null;
@@ -74,11 +75,11 @@ public final class AnyOperations {
     }
 
     private static void diff(
-            final AnyTO updated, final AnyTO original, final AnyUR result, final boolean incremental) {
+        final AnyTO updated, final AnyTO original, final AnyUR result, final boolean incremental) {
 
         // check same key
         if (updated.getKey() == null && original.getKey() != null
-                || (updated.getKey() != null && !updated.getKey().equals(original.getKey()))) {
+            || (updated.getKey() != null && !updated.getKey().equals(original.getKey()))) {
 
             throw new IllegalArgumentException("AnyTO's key must be the same");
         }
@@ -92,13 +93,13 @@ public final class AnyOperations {
 
         if (!incremental) {
             original.getAuxClasses().stream().filter(auxClass -> !updated.getAuxClasses().contains(auxClass)).
-                    forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
-                            operation(PatchOperation.DELETE).value(auxClass).build()));
+                forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).value(auxClass).build()));
         }
 
         updated.getAuxClasses().stream().filter(auxClass -> !original.getAuxClasses().contains(auxClass)).
-                forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
-                        operation(PatchOperation.ADD_REPLACE).value(auxClass).build()));
+            forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(auxClass).build()));
 
         // 3. plain attributes
         Map<String, Attr> updatedAttrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
@@ -107,21 +108,21 @@ public final class AnyOperations {
         result.getPlainAttrs().clear();
 
         if (!incremental) {
-            originalAttrs.keySet().stream().filter(attr -> !updatedAttrs.containsKey(attr)).
-                    forEach(schema -> result.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder(schema).build()).
-                            operation(PatchOperation.DELETE).
-                            build()));
+            originalAttrs.keySet().stream().filter(attr -> !updatedAttrs.containsKey(attr))
+                .forEach(schema -> result.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder(schema).build())
+                    .operation(PatchOperation.DELETE)
+                    .build()));
         }
 
         updatedAttrs.values().forEach(attr -> {
             if (isEmpty(attr)) {
                 if (!incremental) {
                     result.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder(attr.getSchema()).build()).
-                            operation(PatchOperation.DELETE).
-                            build());
+                        operation(PatchOperation.DELETE).
+                        build());
                 }
             } else if (!originalAttrs.containsKey(attr.getSchema())
-                    || !originalAttrs.get(attr.getSchema()).getValues().equals(attr.getValues())) {
+                || !originalAttrs.get(attr.getSchema()).getValues().equals(attr.getValues())) {
 
                 AttrPatch patch = new AttrPatch.Builder(attr).operation(PatchOperation.ADD_REPLACE).build();
                 if (!patch.isEmpty()) {
@@ -139,25 +140,25 @@ public final class AnyOperations {
 
         if (!incremental) {
             original.getResources().stream().filter(resource -> !updated.getResources().contains(resource)).
-                    forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
-                            operation(PatchOperation.DELETE).value(resource).build()));
+                forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).value(resource).build()));
         }
 
         updated.getResources().stream().filter(resource -> !original.getResources().contains(resource)).
-                forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
-                        operation(PatchOperation.ADD_REPLACE).value(resource).build()));
+            forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(resource).build()));
     }
 
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated AnyObjectTO
-     * @param original original AnyObjectTO
+     * @param updated     updated AnyObjectTO
+     * @param original    original AnyObjectTO
      * @param incremental perform incremental diff (without removing existing info)
      * @return {@link AnyObjectUR} containing differences
      */
     public static AnyObjectUR diff(
-            final AnyObjectTO updated, final AnyObjectTO original, final boolean incremental) {
+        final AnyObjectTO updated, final AnyObjectTO original, final boolean incremental) {
 
         AnyObjectUR result = new AnyObjectUR();
 
@@ -168,19 +169,19 @@ public final class AnyOperations {
 
         // 2. relationships
         Map<Pair<String, String>, RelationshipTO> updatedRels =
-                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
+            EntityTOUtils.buildRelationshipMap(updated.getRelationships());
         Map<Pair<String, String>, RelationshipTO> originalRels =
-                EntityTOUtils.buildRelationshipMap(original.getRelationships());
+            EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         updatedRels.entrySet().stream().
-                filter(entry -> (!originalRels.containsKey(entry.getKey()))).
-                forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
-                        operation(PatchOperation.ADD_REPLACE).build()));
+            filter(entry -> (!originalRels.containsKey(entry.getKey()))).
+            forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
+                operation(PatchOperation.ADD_REPLACE).build()));
 
         if (!incremental) {
             originalRels.keySet().stream().filter(relationship -> !updatedRels.containsKey(relationship)).
-                    forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
-                            operation(PatchOperation.DELETE).build()));
+                forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
+                    operation(PatchOperation.DELETE).build()));
         }
 
         // 3. memberships
@@ -189,12 +190,12 @@ public final class AnyOperations {
 
         updatedMembs.forEach((key, value) -> {
             MembershipUR membershipPatch = new MembershipUR.Builder(value.getGroupKey()).
-                    operation(PatchOperation.ADD_REPLACE).build();
+                operation(PatchOperation.ADD_REPLACE).build();
 
             diff(value, membershipPatch);
 
             if (!originalMembs.containsKey(key)
-                    || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
+                || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
 
                 result.getMemberships().add(membershipPatch);
             }
@@ -202,21 +203,22 @@ public final class AnyOperations {
 
         if (!incremental) {
             originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership)).
-                    forEach(key -> result.getMemberships().add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey()).
-                            operation(PatchOperation.DELETE).build()));
+                forEach(key -> result.getMemberships().add(
+                    new MembershipUR.Builder(originalMembs.get(key).getGroupKey())
+                        .operation(PatchOperation.DELETE).build()));
         }
 
         return result;
     }
 
     private static void diff(
-            final MembershipTO updated,
-            final MembershipUR result) {
+        final MembershipTO updated,
+        final MembershipUR result) {
 
         // 1. plain attributes
         result.getPlainAttrs().addAll(updated.getPlainAttrs().stream().
-                filter(attr -> !isEmpty(attr)).
-                collect(Collectors.toSet()));
+            filter(attr -> !isEmpty(attr)).
+            collect(Collectors.toSet()));
 
         // 2. virtual attributes
         result.getVirAttrs().clear();
@@ -226,8 +228,8 @@ public final class AnyOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated UserTO
-     * @param original original UserTO
+     * @param updated     updated UserTO
+     * @param original    original UserTO
      * @param incremental perform incremental diff (without removing existing info)
      * @return {@link UserUR} containing differences
      */
@@ -238,59 +240,59 @@ public final class AnyOperations {
 
         // 1. password
         if (updated.getPassword() != null
-                && (original.getPassword() == null || !original.getPassword().equals(updated.getPassword()))) {
+            && (original.getPassword() == null || !original.getPassword().equals(updated.getPassword()))) {
 
             result.setPassword(new PasswordPatch.Builder().
-                    value(updated.getPassword()).
-                    resources(updated.getResources()).build());
+                value(updated.getPassword()).
+                resources(updated.getResources()).build());
         }
 
         // 2. username
         result.setUsername(
-                replacePatchItem(updated.getUsername(), original.getUsername(), new StringReplacePatchItem()));
+            replacePatchItem(updated.getUsername(), original.getUsername(), new StringReplacePatchItem()));
 
         // 3. security question / answer
         if (updated.getSecurityQuestion() == null) {
             result.setSecurityQuestion(null);
             result.setSecurityAnswer(null);
         } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())
-                || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
+            || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
 
             result.setSecurityQuestion(new StringReplacePatchItem.Builder().
-                    value(updated.getSecurityQuestion()).build());
+                value(updated.getSecurityQuestion()).build());
             result.setSecurityAnswer(
-                    new StringReplacePatchItem.Builder().value(updated.getSecurityAnswer()).build());
+                new StringReplacePatchItem.Builder().value(updated.getSecurityAnswer()).build());
         }
 
         result.setMustChangePassword(replacePatchItem(
-                updated.isMustChangePassword(), original.isMustChangePassword(), new BooleanReplacePatchItem()));
+            updated.isMustChangePassword(), original.isMustChangePassword(), new BooleanReplacePatchItem()));
 
         // 4. roles
         if (!incremental) {
             original.getRoles().stream().filter(role -> !updated.getRoles().contains(role)).
-                    forEach(toRemove -> result.getRoles().add(new StringPatchItem.Builder().
-                            operation(PatchOperation.DELETE).value(toRemove).build()));
+                forEach(toRemove -> result.getRoles().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).value(toRemove).build()));
         }
 
         updated.getRoles().stream().filter(role -> !original.getRoles().contains(role)).
-                forEach(toAdd -> result.getRoles().add(new StringPatchItem.Builder().
-                        operation(PatchOperation.ADD_REPLACE).value(toAdd).build()));
+            forEach(toAdd -> result.getRoles().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(toAdd).build()));
 
         // 5. relationships
         Map<Pair<String, String>, RelationshipTO> updatedRels =
-                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
+            EntityTOUtils.buildRelationshipMap(updated.getRelationships());
         Map<Pair<String, String>, RelationshipTO> originalRels =
-                EntityTOUtils.buildRelationshipMap(original.getRelationships());
+            EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         updatedRels.entrySet().stream().
-                filter(entry -> (!originalRels.containsKey(entry.getKey()))).
-                forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
-                        operation(PatchOperation.ADD_REPLACE).build()));
+            filter(entry -> (!originalRels.containsKey(entry.getKey()))).
+            forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
+                operation(PatchOperation.ADD_REPLACE).build()));
 
         if (!incremental) {
             originalRels.keySet().stream().filter(relationship -> !updatedRels.containsKey(relationship)).
-                    forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
-                            operation(PatchOperation.DELETE).build()));
+                forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
+                    operation(PatchOperation.DELETE).build()));
         }
 
         // 6. memberships
@@ -299,21 +301,22 @@ public final class AnyOperations {
 
         updatedMembs.forEach((key, value) -> {
             MembershipUR membershipPatch = new MembershipUR.Builder(value.getGroupKey()).
-                    operation(PatchOperation.ADD_REPLACE).build();
+                operation(PatchOperation.ADD_REPLACE).build();
 
             diff(value, membershipPatch);
 
             if (!originalMembs.containsKey(key)
-                    || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
+                || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
 
                 result.getMemberships().add(membershipPatch);
             }
         });
 
         if (!incremental) {
-            originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership)).
-                    forEach(key -> result.getMemberships().add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey()).
-                            operation(PatchOperation.DELETE).build()));
+            originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership))
+                .forEach(key -> result.getMemberships()
+                    .add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey())
+                        .operation(PatchOperation.DELETE).build()));
         }
 
         return result;
@@ -322,8 +325,8 @@ public final class AnyOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated GroupTO
-     * @param original original GroupTO
+     * @param updated     updated GroupTO
+     * @param original    original GroupTO
      * @param incremental perform incremental diff (without removing existing info)
      * @return {@link GroupUR} containing differences
      */
@@ -337,9 +340,9 @@ public final class AnyOperations {
 
         // 2. ownership
         result.setUserOwner(
-                replacePatchItem(updated.getUserOwner(), original.getUserOwner(), new StringReplacePatchItem()));
+            replacePatchItem(updated.getUserOwner(), original.getUserOwner(), new StringReplacePatchItem()));
         result.setGroupOwner(
-                replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(), new StringReplacePatchItem()));
+            replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(), new StringReplacePatchItem()));
 
         // 3. dynamic membership
         result.setUDynMembershipCond(updated.getUDynMembershipCond());
@@ -353,7 +356,7 @@ public final class AnyOperations {
 
     @SuppressWarnings("unchecked")
     public static <TO extends AnyTO, P extends AnyUR> P diff(
-            final TO updated, final TO original, final boolean incremental) {
+        final TO updated, final TO original, final boolean incremental) {
 
         if (updated instanceof UserTO && original instanceof UserTO) {
             return (P) diff((UserTO) updated, (UserTO) original, incremental);
@@ -386,7 +389,7 @@ public final class AnyOperations {
         // check same key
         if (to.getKey() == null || !to.getKey().equals(req.getKey())) {
             throw new IllegalArgumentException(
-                    to.getClass().getSimpleName() + " and " + req.getClass().getSimpleName()
+                to.getClass().getSimpleName() + " and " + req.getClass().getSimpleName()
                     + " keys must be the same");
         }
 
@@ -475,39 +478,39 @@ public final class AnyOperations {
 
         // 1. relationships
         anyObjectUR.getRelationships().
-                forEach(relPatch -> {
-                    if (relPatch.getRelationshipTO() == null) {
-                        LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
-                    } else {
-                        result.getRelationships().remove(relPatch.getRelationshipTO());
-                        if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            result.getRelationships().add(relPatch.getRelationshipTO());
-                        }
+            forEach(relPatch -> {
+                if (relPatch.getRelationshipTO() == null) {
+                    LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
+                } else {
+                    result.getRelationships().remove(relPatch.getRelationshipTO());
+                    if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                        result.getRelationships().add(relPatch.getRelationshipTO());
                     }
-                });
+                }
+            });
 
         // 2. memberships
         anyObjectUR.getMemberships().
-                forEach(membPatch -> {
-                    if (membPatch.getGroup() == null) {
-                        LOG.warn("Invalid {} specified: {}", MembershipUR.class.getName(), membPatch);
-                    } else {
-                        result.getMemberships().stream().
-                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
-                                findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
+            forEach(membPatch -> {
+                if (membPatch.getGroup() == null) {
+                    LOG.warn("Invalid {} specified: {}", MembershipUR.class.getName(), membPatch);
+                } else {
+                    result.getMemberships().stream().
+                        filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
+                        findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
 
-                        if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            MembershipTO newMembershipTO = new MembershipTO.Builder(membPatch.getGroup()).
-                                    // 3. plain attributes
-                                    plainAttrs(membPatch.getPlainAttrs()).
-                                    // 4. virtual attributes
-                                    virAttrs(membPatch.getVirAttrs()).
-                                    build();
+                    if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                        MembershipTO newMembershipTO = new MembershipTO.Builder(membPatch.getGroup()).
+                            // 3. plain attributes
+                                plainAttrs(membPatch.getPlainAttrs()).
+                            // 4. virtual attributes
+                                virAttrs(membPatch.getVirAttrs()).
+                                build();
 
-                            result.getMemberships().add(newMembershipTO);
-                        }
+                        result.getMemberships().add(newMembershipTO);
                     }
-                });
+                }
+            });
 
         return result;
     }
@@ -528,39 +531,39 @@ public final class AnyOperations {
 
         // 3. relationships
         userUR.getRelationships().
-                forEach(relPatch -> {
-                    if (relPatch.getRelationshipTO() == null) {
-                        LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
-                    } else {
-                        result.getRelationships().remove(relPatch.getRelationshipTO());
-                        if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            result.getRelationships().add(relPatch.getRelationshipTO());
-                        }
+            forEach(relPatch -> {
+                if (relPatch.getRelationshipTO() == null) {
+                    LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
+                } else {
+                    result.getRelationships().remove(relPatch.getRelationshipTO());
+                    if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                        result.getRelationships().add(relPatch.getRelationshipTO());
                     }
-                });
+                }
+            });
 
         // 4. memberships
         userUR.getMemberships().
-                forEach(membPatch -> {
-                    if (membPatch.getGroup() == null) {
-                        LOG.warn("Invalid {} specified: {}", MembershipUR.class.getName(), membPatch);
-                    } else {
-                        result.getMemberships().stream().
-                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
-                                findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
+            forEach(membPatch -> {
+                if (membPatch.getGroup() == null) {
+                    LOG.warn("Invalid {} specified: {}", MembershipUR.class.getName(), membPatch);
+                } else {
+                    result.getMemberships().stream().
+                        filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
+                        findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
 
-                        if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            MembershipTO newMembershipTO = new MembershipTO.Builder(membPatch.getGroup()).
-                                    // 3. plain attributes
-                                    plainAttrs(membPatch.getPlainAttrs()).
-                                    // 4. virtual attributes
-                                    virAttrs(membPatch.getVirAttrs()).
-                                    build();
+                    if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                        MembershipTO newMembershipTO = new MembershipTO.Builder(membPatch.getGroup()).
+                            // 3. plain attributes
+                                plainAttrs(membPatch.getPlainAttrs()).
+                            // 4. virtual attributes
+                                virAttrs(membPatch.getVirAttrs()).
+                                build();
 
-                            result.getMemberships().add(newMembershipTO);
-                        }
+                        result.getMemberships().add(newMembershipTO);
                     }
-                });
+                }
+            });
 
         // 5. roles
         for (StringPatchItem rolePatch : userUR.getRoles()) {
@@ -586,8 +589,8 @@ public final class AnyOperations {
      */
     public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyUR anyUR) {
         anyUR.getPlainAttrs().addAll(anyTO.getPlainAttrs().stream().
-                filter(AnyOperations::isEmpty).
-                map(plainAttr -> new AttrPatch.Builder(new Attr.Builder(plainAttr.getSchema()).build()).
+            filter(AnyOperations::isEmpty).
+            map(plainAttr -> new AttrPatch.Builder(new Attr.Builder(plainAttr.getSchema()).build()).
                 operation(PatchOperation.DELETE).
                 build()).collect(Collectors.toSet()));
     }

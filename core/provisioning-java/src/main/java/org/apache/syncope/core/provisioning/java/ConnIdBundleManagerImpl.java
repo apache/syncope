@@ -215,7 +215,8 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
             connInfoManagers.entrySet().stream().map(entry -> {
                 LOG.debug("Connector bundles found at {}", entry.getKey());
                 return entry;
-            }).forEachOrdered(entry -> entry.getValue().getConnectorInfos().forEach(connInfo -> LOG.debug("\t{}", connInfo.getConnectorDisplayName())));
+            }).forEachOrdered(entry -> entry.getValue().getConnectorInfos()
+                .forEach(connInfo -> LOG.debug("\t{}", connInfo.getConnectorDisplayName())));
         }
 
         return connInfoManagers;

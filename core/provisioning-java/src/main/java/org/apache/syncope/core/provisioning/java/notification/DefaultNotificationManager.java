@@ -331,7 +331,8 @@ public class DefaultNotificationManager implements NotificationManager {
         List<NotificationTask> notifications = new ArrayList<>();
         for (Notification notification : notificationDAO.findAll()) {
             if (LOG.isDebugEnabled()) {
-                notification.getAbouts().forEach(about -> LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get()));
+                notification.getAbouts()
+                    .forEach(about -> LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get()));
             }
 
             if (notification.isActive()) {

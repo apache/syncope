@@ -116,7 +116,8 @@ public class InvalidEntityException extends ValidationException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        violations.forEach((key, value) -> sb.append(key.getSimpleName()).append(' ').append(value.toString()).append(", "));
+        violations.forEach((key, value) -> sb.append(key.getSimpleName())
+            .append(' ').append(value.toString()).append(", "));
         sb.delete(sb.lastIndexOf(", "), sb.length());
 
         return sb.toString();

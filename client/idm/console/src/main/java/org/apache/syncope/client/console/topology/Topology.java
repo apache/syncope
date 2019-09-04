@@ -378,7 +378,9 @@ public class Topology extends BasePage {
         // Add Resources
         // -----------------------------------------
         final Collection<String> adminConns = new HashSet<>();
-        connModel.getObject().values().forEach(connInstances -> adminConns.addAll(connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList())));
+        connModel.getObject().values()
+            .forEach(connInstances -> adminConns.addAll(connInstances.stream()
+                .map(EntityTO::getKey).collect(Collectors.toList())));
 
         final Set<String> adminRes = new HashSet<>();
         final List<String> connToBeProcessed = new ArrayList<>();
@@ -528,7 +530,8 @@ public class Topology extends BasePage {
     private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
-        targets.forEach((key, value) -> value.forEach((label, node) -> list.add(String.format("connect('%s','%s','%s');",
+        targets.forEach((key, value) -> value
+            .forEach((label, node) -> list.add(String.format("connect('%s','%s','%s');",
                     key,
                     label,
                     node.getKind()))));

@@ -119,9 +119,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         altDefaultModal.size(Modal.Size.Large);
 
         this.pSchemaNames = new ArrayList<>();
-        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas()));
+        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()
+            .forEach(anyTypeClassTO -> this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas()));
         this.dSchemaNames = new ArrayList<>();
-        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas()));
+        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()
+            .forEach(anyTypeClassTO -> this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas()));
 
         initResultTable();
 

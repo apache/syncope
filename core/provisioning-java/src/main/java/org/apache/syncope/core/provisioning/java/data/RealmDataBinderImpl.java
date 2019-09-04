@@ -231,7 +231,8 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
             realm.getActions().forEach(action -> realmTO.getActions().add(action.getKey()));
 
-            realm.getTemplates().forEach(template -> realmTO.getTemplates().put(template.getAnyType().getKey(), template.get()));
+            realm.getTemplates()
+                .forEach(template -> realmTO.getTemplates().put(template.getAnyType().getKey(), template.get()));
 
             realm.getResources().forEach(resource -> realmTO.getResources().add(resource.getKey()));
         }

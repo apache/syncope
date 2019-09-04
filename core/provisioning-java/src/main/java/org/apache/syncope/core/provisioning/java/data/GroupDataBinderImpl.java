@@ -371,9 +371,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
         }
-        group.getADynMemberships().forEach(memb -> groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
+        group.getADynMemberships()
+            .forEach(memb -> groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
 
-        group.getTypeExtensions().forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
+        group.getTypeExtensions()
+            .forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
         return groupTO;
     }
@@ -406,7 +408,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         Map<String, PropagationByResource> result = new HashMap<>();
 
-        groupDAO.findAMemberships(group).forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
+        groupDAO.findAMemberships(group)
+            .forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
 
         return result;
     }
@@ -418,7 +421,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         Map<String, PropagationByResource> result = new HashMap<>();
 
-        groupDAO.findUMemberships(group).forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
+        groupDAO.findUMemberships(group)
+            .forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
 
         return result;
     }

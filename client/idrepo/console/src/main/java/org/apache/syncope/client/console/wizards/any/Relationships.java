@@ -130,7 +130,8 @@ public class Relationships extends WizardStep implements ICondition {
         final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().map(relationship -> new AbstractTab(new ResourceModel("relationship", relationship)) {
+        viewFragment.add(new Accordion("relationships", relationships.keySet()
+            .stream().map(relationship -> new AbstractTab(new ResourceModel("relationship", relationship)) {
 
             private static final long serialVersionUID = 1037272333056449378L;
 

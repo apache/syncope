@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -37,7 +28,6 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -87,6 +77,17 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 abstract class AbstractAnyDataBinder {
 
@@ -169,19 +170,19 @@ abstract class AbstractAnyDataBinder {
     }
 
     private void fillAttr(
-            final List<String> values,
-            final AnyUtils anyUtils,
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final SyncopeClientException invalidValues) {
+        final List<String> values,
+        final AnyUtils anyUtils,
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final SyncopeClientException invalidValues) {
 
         // if schema is multivalue, all values are considered for addition;
         // otherwise only the fist one - if provided - is considered
         List<String> valuesProvided = schema.isMultivalue()
-                ? values
-                : (values.isEmpty()
-                ? Collections.<String>emptyList()
-                : Collections.singletonList(values.get(0)));
+            ? values
+            : (values.isEmpty()
+            ? Collections.<String>emptyList()
+            : Collections.singletonList(values.get(0)));
 
         valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {
@@ -191,8 +192,8 @@ abstract class AbstractAnyDataBinder {
                     attr.add(value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
                     String valueToPrint = value.length() > 40
-                            ? value.substring(0, 20) + "..."
-                            : value;
+                        ? value.substring(0, 20) + "..."
+                        : value;
                     LOG.warn("Invalid value for attribute " + schema.getKey() + ": " + valueToPrint, e);
 
                     invalidValues.getElements().add(schema.getKey() + ": " + valueToPrint + " - " + e.getMessage());
@@ -213,13 +214,13 @@ abstract class AbstractAnyDataBinder {
             }
             if (intAttrName != null && intAttrName.getSchema() != null) {
                 AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
-                        ? ((PlainSchema) intAttrName.getSchema()).getType()
-                        : AttrSchemaType.String;
+                    ? ((PlainSchema) intAttrName.getSchema()).getType()
+                    : AttrSchemaType.String;
 
                 Pair<AttrSchemaType, List<PlainAttrValue>> intValues =
-                        mappingManager.getIntValues(provision, mapItem, intAttrName, schemaType, any);
+                    mappingManager.getIntValues(provision, mapItem, intAttrName, schemaType, any);
                 if (intValues.getRight().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+                    && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
 
                     missingAttrNames.add(mapItem.getIntAttrName());
                 }
@@ -230,7 +231,7 @@ abstract class AbstractAnyDataBinder {
     }
 
     private SyncopeClientException checkMandatoryOnResources(
-            final Any<?> any, final Collection<? extends ExternalResource> resources) {
+        final Any<?> any, final Collection<? extends ExternalResource> resources) {
 
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
@@ -250,14 +251,14 @@ abstract class AbstractAnyDataBinder {
     }
 
     private void checkMandatory(
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final Any<?> any,
-            final SyncopeClientException reqValMissing) {
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final Any<?> any,
+        final SyncopeClientException reqValMissing) {
 
         if (attr == null
-                && !schema.isReadonly()
-                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)) {
+            && !schema.isReadonly()
+            && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)) {
 
             LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
 
@@ -270,12 +271,16 @@ abstract class AbstractAnyDataBinder {
 
         // Check if there is some mandatory schema defined for which no value has been provided
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
-        allowedPlainSchemas.getForSelf().forEach(schema -> checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
+        allowedPlainSchemas.getForSelf()
+            .forEach(schema -> checkMandatory(schema, any.getPlainAttr(schema.getKey())
+                .orElse(null), any, reqValMissing));
         if (any instanceof GroupableRelatable) {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
                 GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
                 Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
-                schemas.forEach(schema -> checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
+                schemas
+                    .forEach(schema -> checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership)
+                            .orElse(null),
                         any, reqValMissing));
             });
         }
@@ -283,24 +288,24 @@ abstract class AbstractAnyDataBinder {
         return reqValMissing;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected void processAttrPatch(
-            final Any any,
-            final AttrPatch patch,
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final AnyUtils anyUtils,
-            final Collection<ExternalResource> resources,
-            final PropagationByResource propByRes,
-            final SyncopeClientException invalidValues) {
+        final Any any,
+        final AttrPatch patch,
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final AnyUtils anyUtils,
+        final Collection<ExternalResource> resources,
+        final PropagationByResource propByRes,
+        final SyncopeClientException invalidValues) {
 
         switch (patch.getOperation()) {
             case ADD_REPLACE:
                 // 1.1 remove values
                 if (attr.getSchema().isUniqueConstraint()) {
                     if (attr.getUniqueValue() != null
-                            && !patch.getAttr().getValues().isEmpty()
-                            && !patch.getAttr().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
+                        && !patch.getAttr().getValues().isEmpty()
+                        && !patch.getAttr().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
 
                         plainAttrValueDAO.deleteAll(attr, anyUtils);
                     }
@@ -311,8 +316,8 @@ abstract class AbstractAnyDataBinder {
                 // 1.2 add values
                 List<String> valuesToBeAdded = patch.getAttr().getValues();
                 if (!valuesToBeAdded.isEmpty()
-                        && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
-                        || !valuesToBeAdded.get(0).equals(attr.getUniqueValue().getValueAsString()))) {
+                    && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
+                    || !valuesToBeAdded.get(0).equals(attr.getUniqueValue().getValueAsString()))) {
 
                     fillAttr(valuesToBeAdded, anyUtils, schema, attr, invalidValues);
                 }
@@ -330,26 +335,26 @@ abstract class AbstractAnyDataBinder {
         }
 
         resources.stream().
-                filter(resource -> resource.getProvision(any.getType()).isPresent()
+            filter(resource -> resource.getProvision(any.getType()).isPresent()
                 && resource.getProvision(any.getType()).get().getMapping() != null).
-                forEach(resource -> MappingUtils.getPropagationItems(
-                        resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
-                        filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
-                        forEach(item -> {
-                            propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+            forEach(resource -> MappingUtils.getPropagationItems(
+                resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
+                filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
+                forEach(item -> {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
-                            if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                                propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
-                            }
-                        }));
+                    if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                        propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                    }
+                }));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected PropagationByResource fill(
-            final Any any,
-            final AnyUR anyUR,
-            final AnyUtils anyUtils,
-            final SyncopeClientCompositeException scce) {
+        final Any any,
+        final AnyUR anyUR,
+        final AnyUtils anyUtils,
+        final SyncopeClientCompositeException scce) {
 
         PropagationByResource propByRes = new PropagationByResource();
 
@@ -396,11 +401,11 @@ abstract class AbstractAnyDataBinder {
 
         // 3. plain attributes
         anyUR.getPlainAttrs().stream().
-                filter(patch -> patch.getAttr() != null).forEach(patch -> {
+            filter(patch -> patch.getAttr() != null).forEach(patch -> {
             PlainSchema schema = getPlainSchema(patch.getAttr().getSchema());
             if (schema == null) {
                 LOG.debug("Invalid " + PlainSchema.class.getSimpleName() + " {}, ignoring...",
-                        patch.getAttr().getSchema());
+                    patch.getAttr().getSchema());
             } else {
                 PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
                 if (attr == null) {
@@ -435,48 +440,48 @@ abstract class AbstractAnyDataBinder {
         return propByRes;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected void fill(
-            final Any any,
-            final AnyCR anyCR,
-            final AnyUtils anyUtils,
-            final SyncopeClientCompositeException scce) {
+        final Any any,
+        final AnyCR anyCR,
+        final AnyUtils anyUtils,
+        final SyncopeClientCompositeException scce) {
 
         // 0. aux classes
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
-                map(className -> anyTypeClassDAO.find(className)).
-                forEachOrdered(auxClass -> {
-                    if (auxClass == null) {
-                        LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);
-                    } else {
-                        any.add(auxClass);
-                    }
-                });
+            map(className -> anyTypeClassDAO.find(className)).
+            forEachOrdered(auxClass -> {
+                if (auxClass == null) {
+                    LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);
+                } else {
+                    any.add(auxClass);
+                }
+            });
 
         // 1. attributes
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         anyCR.getPlainAttrs().stream().
-                filter(attrTO -> !attrTO.getValues().isEmpty()).
-                forEach(attrTO -> {
-                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                    if (schema != null) {
-                        PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
-                        if (attr == null) {
-                            attr = anyUtils.newPlainAttr();
-                            ((PlainAttr) attr).setOwner(any);
-                            attr.setSchema(schema);
-                        }
-                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
-
-                        if (attr.getValuesAsStrings().isEmpty()) {
-                            attr.setOwner(null);
-                        } else {
-                            any.add(attr);
-                        }
+            filter(attrTO -> !attrTO.getValues().isEmpty()).
+            forEach(attrTO -> {
+                PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                if (schema != null) {
+                    PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
+                    if (attr == null) {
+                        attr = anyUtils.newPlainAttr();
+                        ((PlainAttr) attr).setOwner(any);
+                        attr.setSchema(schema);
                     }
-                });
+                    fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+
+                    if (attr.getValuesAsStrings().isEmpty()) {
+                        attr.setOwner(null);
+                    } else {
+                        any.add(attr);
+                    }
+                }
+            });
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -503,38 +508,38 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     protected void fill(
-            final Any any,
-            final Membership membership,
-            final MembershipTO membershipTO,
-            final AnyUtils anyUtils,
-            final SyncopeClientCompositeException scce) {
+        final Any any,
+        final Membership membership,
+        final MembershipTO membershipTO,
+        final AnyUtils anyUtils,
+        final SyncopeClientCompositeException scce) {
 
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         membershipTO.getPlainAttrs().stream().
-                filter(attrTO -> !attrTO.getValues().isEmpty()).
-                forEach(attrTO -> {
-                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                    if (schema != null) {
-                        GroupablePlainAttr attr = (GroupablePlainAttr) GroupableRelatable.class.cast(any).
-                                getPlainAttr(schema.getKey(), membership).orElse(null);
-                        if (attr == null) {
-                            attr = anyUtils.newPlainAttr();
-                            attr.setOwner(any);
-                            attr.setMembership(membership);
-                            attr.setSchema(schema);
-                        }
-                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
-
-                        if (attr.getValuesAsStrings().isEmpty()) {
-                            attr.setOwner(null);
-                        } else {
-                            any.add(attr);
-                        }
+            filter(attrTO -> !attrTO.getValues().isEmpty()).
+            forEach(attrTO -> {
+                PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                if (schema != null) {
+                    GroupablePlainAttr attr = (GroupablePlainAttr) GroupableRelatable.class.cast(any).
+                        getPlainAttr(schema.getKey(), membership).orElse(null);
+                    if (attr == null) {
+                        attr = anyUtils.newPlainAttr();
+                        attr.setOwner(any);
+                        attr.setMembership(membership);
+                        attr.setSchema(schema);
                     }
-                });
+                    fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+
+                    if (attr.getValuesAsStrings().isEmpty()) {
+                        attr.setOwner(null);
+                    } else {
+                        any.add(attr);
+                    }
+                }
+            });
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -542,56 +547,61 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected void fillTO(
-            final AnyTO anyTO,
-            final String realmFullPath,
-            final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources,
-            final boolean details) {
+        final AnyTO anyTO,
+        final String realmFullPath,
+        final Collection<? extends AnyTypeClass> auxClasses,
+        final Collection<? extends PlainAttr<?>> plainAttrs,
+        final Map<DerSchema, String> derAttrs,
+        final Map<VirSchema, List<String>> virAttrs,
+        final Collection<? extends ExternalResource> resources,
+        final boolean details) {
 
         anyTO.setRealm(realmFullPath);
 
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
-        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                values(plainAttr.getValuesAsStrings()).build()));
 
-        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).value(value).build()));
+        plainAttrs
+            .forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey())
+                .values(plainAttr.getValuesAsStrings()).build()));
 
-        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).values(values).build()));
+        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs()
+            .add(new Attr.Builder(schema.getKey()).value(value).build()));
+
+        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs()
+            .add(new Attr.Builder(schema.getKey()).values(values).build()));
 
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
     }
 
     protected RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
         return new RelationshipTO.Builder().
-                type(relationshipType).otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
-                build();
+            type(relationshipType).otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
+            build();
     }
 
     protected MembershipTO getMembershipTO(
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Membership<? extends Any<?>> membership) {
+        final Collection<? extends PlainAttr<?>> plainAttrs,
+        final Map<DerSchema, String> derAttrs,
+        final Map<VirSchema, List<String>> virAttrs,
+        final Membership<? extends Any<?>> membership) {
 
-        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
-                groupName(membership.getRightEnd().getName()).
-                build();
+        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
+            .groupName(membership.getRightEnd().getName())
+            .build();
 
-        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                values(plainAttr.getValuesAsStrings()).
-                build()));
+        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs()
+            .add(new Attr.Builder(plainAttr.getSchema().getKey())
+                .values(plainAttr.getValuesAsStrings()).
+                    build()));
 
         derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
-                value(value).
-                build()));
+            value(value).
+            build()));
 
         virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
-                values(values).
-                build()));
+            values(values).
+            build()));
 
         return membershipTO;
     }
@@ -600,16 +610,16 @@ abstract class AbstractAnyDataBinder {
         Map<String, String> connObjectKeys = new HashMap<>();
 
         anyUtils.getAllResources(any).
-                forEach(resource -> resource.getProvision(any.getType()).
+            forEach(resource -> resource.getProvision(any.getType()).
                 filter(provision -> provision.getMapping() != null).
                 ifPresent(provision -> {
                     MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
-                            orElseThrow(() -> new NotFoundException(
+                        orElseThrow(() -> new NotFoundException(
                             "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
-                            + " on resource '" + resource.getKey() + "'"));
+                                + " on resource '" + resource.getKey() + "'"));
 
                     mappingManager.getConnObjectKeyValue(any, provision).
-                            ifPresent(value -> connObjectKeys.put(resource.getKey(), value));
+                        ifPresent(value -> connObjectKeys.put(resource.getKey(), value));
                 }));
 
         return connObjectKeys;

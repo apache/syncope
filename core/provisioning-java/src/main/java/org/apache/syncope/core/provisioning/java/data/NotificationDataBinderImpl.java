@@ -77,7 +77,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         notificationTO.setTraceLevel(notification.getTraceLevel());
         notificationTO.setActive(notification.isActive());
 
-        notification.getAbouts().forEach(about -> notificationTO.getAbouts().put(about.getAnyType().getKey(), about.get()));
+        notification.getAbouts().forEach(about -> notificationTO.getAbouts()
+            .put(about.getAnyType().getKey(), about.get()));
 
         if (notification.getRecipientsProvider() != null) {
             notificationTO.setRecipientsProvider(notification.getRecipientsProvider().getKey());

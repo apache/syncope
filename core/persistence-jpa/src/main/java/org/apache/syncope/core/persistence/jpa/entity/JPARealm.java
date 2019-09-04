@@ -181,7 +181,8 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @Override
     public List<String> getResourceKeys() {
-        return getResources().stream().map(org.apache.syncope.core.persistence.api.entity.Entity::getKey).collect(Collectors.toList());
+        return getResources().stream().map(org.apache.syncope.core.persistence.api.entity.Entity::getKey)
+            .collect(Collectors.toList());
     }
 
     @Override

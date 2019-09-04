@@ -70,7 +70,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
+        plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))
+            .forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getPlainSchemas().clear();
         anyTypeClassTO.getPlainSchemas().forEach(schemaName -> {
@@ -83,7 +84,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach((schema) -> schema.setAnyTypeClass(null));
+        derSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))
+            .forEach((schema) -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getDerSchemas().clear();
         anyTypeClassTO.getDerSchemas().forEach(schemaName -> {
@@ -96,7 +98,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             }
         });
 
-        virSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
+        virSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass))
+            .forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getVirSchemas().clear();
         anyTypeClassTO.getVirSchemas().forEach(schemaName -> {

@@ -25,14 +25,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.Buttons;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDownButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -54,6 +46,15 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class RealmChoicePanel extends Panel {
 
     private static final long serialVersionUID = -1100228004207271270L;
@@ -67,14 +68,10 @@ public class RealmChoicePanel extends Panel {
     private final LoadableDetachableModel<List<DynRealmTO>> dynRealmTree;
 
     private final WebMarkupContainer container;
-
-    private Model<RealmTO> model;
-
     private final Collection<String> availableRealms;
-
     private final Map<String, Pair<RealmTO, List<RealmTO>>> tree;
-
     private final List<AbstractLink> links = new ArrayList<>();
+    private Model<RealmTO> model;
 
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
@@ -91,10 +88,10 @@ public class RealmChoicePanel extends Panel {
             private static final long serialVersionUID = -7688359318035249200L;
 
             private void getChildren(
-                    final List<Pair<String, RealmTO>> full,
-                    final String key,
-                    final Map<String, Pair<RealmTO, List<RealmTO>>> tree,
-                    final String indent) {
+                final List<Pair<String, RealmTO>> full,
+                final String key,
+                final Map<String, Pair<RealmTO, List<RealmTO>>> tree,
+                final String indent) {
 
                 if (tree.containsKey(key)) {
                     Pair<RealmTO, List<RealmTO>> subtree = tree.get(key);
@@ -163,7 +160,7 @@ public class RealmChoicePanel extends Panel {
         container.addOrReplace(label);
 
         final DropDownButton realms = new DropDownButton(
-                "realms", new ResourceModel("select", ""), new Model<IconType>(GlyphIconType.folderopen)) {
+            "realms", new ResourceModel("select", ""), new Model<IconType>(GlyphIconType.folderopen)) {
 
             private static final long serialVersionUID = -5560086780455361131L;
 
@@ -172,10 +169,10 @@ public class RealmChoicePanel extends Panel {
                 RealmChoicePanel.this.links.clear();
 
                 RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
-                        ButtonList.getButtonMarkupId(),
-                        new Model<RealmTO>(),
-                        Buttons.Type.Link,
-                        new ResourceModel("realms", "Realms")) {
+                    ButtonList.getButtonMarkupId(),
+                    new Model<RealmTO>(),
+                    Buttons.Type.Link,
+                    new ResourceModel("realms", "Realms")) {
 
                     private static final long serialVersionUID = -7978723352517770744L;
 
@@ -198,10 +195,10 @@ public class RealmChoicePanel extends Panel {
                 for (Pair<String, RealmTO> link : realmTree.getObject()) {
                     final RealmTO realmTO = link.getValue();
                     RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
-                            ButtonList.getButtonMarkupId(),
-                            Model.of(realmTO),
-                            Buttons.Type.Link,
-                            new Model<>(link.getKey())) {
+                        ButtonList.getButtonMarkupId(),
+                        Model.of(realmTO),
+                        Buttons.Type.Link,
+                        new Model<>(link.getKey())) {
 
                         private static final long serialVersionUID = -7978723352517770644L;
 
@@ -217,17 +214,17 @@ public class RealmChoicePanel extends Panel {
                         @Override
                         public boolean isEnabled() {
                             return availableRealms.stream().
-                                    anyMatch(availableRealm -> realmTO.getFullPath().startsWith(availableRealm));
+                                anyMatch(availableRealm -> realmTO.getFullPath().startsWith(availableRealm));
                         }
                     });
                 }
 
                 if (!dynRealmTree.getObject().isEmpty()) {
                     RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
-                            ButtonList.getButtonMarkupId(),
-                            new Model<RealmTO>(),
-                            Buttons.Type.Link,
-                            new ResourceModel("dynrealms", "Dynamic Realms")) {
+                        ButtonList.getButtonMarkupId(),
+                        new Model<RealmTO>(),
+                        Buttons.Type.Link,
+                        new ResourceModel("dynrealms", "Dynamic Realms")) {
 
                         private static final long serialVersionUID = -7978723352517770744L;
 
@@ -255,10 +252,10 @@ public class RealmChoicePanel extends Panel {
                         realmTO.setFullPath(dynRealmTO.getKey());
 
                         RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
-                                ButtonList.getButtonMarkupId(),
-                                new Model<RealmTO>(),
-                                Buttons.Type.Link,
-                                new Model<>(realmTO.getKey())) {
+                            ButtonList.getButtonMarkupId(),
+                            new Model<RealmTO>(),
+                            Buttons.Type.Link,
+                            new Model<>(realmTO.getKey())) {
 
                             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -273,7 +270,8 @@ public class RealmChoicePanel extends Panel {
 
                             @Override
                             public boolean isEnabled() {
-                                return availableRealms.stream().anyMatch(availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
+                                return availableRealms.stream()
+                                    .anyMatch(availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
                                         || realmTO.getKey().equals(availableRealm));
                             }
                         });
@@ -306,8 +304,8 @@ public class RealmChoicePanel extends Panel {
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
         return reloadRealmParentMap(realmRestClient.list().stream().
-                sorted(Comparator.comparing(RealmTO::getName)).
-                collect(Collectors.toList()));
+            sorted(Comparator.comparing(RealmTO::getName)).
+            collect(Collectors.toList()));
     }
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
@@ -362,6 +360,10 @@ public class RealmChoicePanel extends Panel {
         return null;
     }
 
+    public List<AbstractLink> getLinks() {
+        return links;
+    }
+
     public static class ChosenRealm<T> {
 
         private final AjaxRequestTarget target;
@@ -380,9 +382,5 @@ public class RealmChoicePanel extends Panel {
         public AjaxRequestTarget getTarget() {
             return target;
         }
-    }
-
-    public List<AbstractLink> getLinks() {
-        return links;
     }
 }

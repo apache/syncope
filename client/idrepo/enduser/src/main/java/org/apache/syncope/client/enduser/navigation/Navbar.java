@@ -139,7 +139,8 @@ public class Navbar extends Panel {
     }
 
     public void setActiveNavItem(final String id) {
-        Optional<WebMarkupContainer> found = navbarItems.stream().filter(containingLI -> containingLI.getMarkupId().equals(id)).findFirst();
+        Optional<WebMarkupContainer> found = navbarItems.stream()
+            .filter(containingLI -> containingLI.getMarkupId().equals(id)).findFirst();
         found.ifPresent(components -> components.add(new Behavior() {
 
             private static final long serialVersionUID = -5775607340182293596L;

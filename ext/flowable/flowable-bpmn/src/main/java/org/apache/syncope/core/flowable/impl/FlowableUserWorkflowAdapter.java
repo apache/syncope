@@ -465,11 +465,12 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             Process process = engine.getRepositoryService().
                     getBpmnModel(FlowableRuntimeUtils.getLatestProcDefByKey(
                             engine, FlowableRuntimeUtils.WF_PROCESS_ID).getId()).getProcesses().get(0);
-            process.getFlowElements().stream().
-                    filter(SequenceFlow.class::isInstance).
-                    map(SequenceFlow.class::cast).
-                    filter(sequenceFlow -> sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey())).
-                    forEach(sequenceFlow -> navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks));
+            process.getFlowElements().stream()
+                    .filter(SequenceFlow.class::isInstance)
+                    .map(SequenceFlow.class::cast)
+                    .filter(sequenceFlow -> sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey()))
+                    .forEach(sequenceFlow ->
+                        navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks));
         } catch (FlowableException e) {
             throw new WorkflowException(
                     "While reading available tasks for workflow instance " + procInstID, e);

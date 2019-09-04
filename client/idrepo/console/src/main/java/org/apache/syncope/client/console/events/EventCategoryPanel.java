@@ -427,7 +427,8 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private void authorizeList() {
-        getListAuthRoles().forEach(role -> MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role));
+        getListAuthRoles()
+            .forEach(role -> MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role));
     }
 
     private void authorizeChanges() {

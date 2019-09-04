@@ -309,7 +309,8 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
+        MappingUtils.getPullItems(provision.getMapping().getItems())
+            .forEach(item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
         // 2. add data from defined template (if any)
         templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
@@ -320,7 +321,8 @@ public class ConnObjectUtils {
     public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        MappingUtils.getPullItems(orgUnit.getItems()).forEach(item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
+        MappingUtils.getPullItems(orgUnit.getItems())
+            .forEach(item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
 
         return realmTO;
     }

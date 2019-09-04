@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
