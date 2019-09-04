@@ -88,7 +88,8 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
 
     @Override
     public SyncToken getSyncToken() {
-        return Optional.ofNullable(serializedSyncToken).map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
+        return Optional.ofNullable(serializedSyncToken)
+            .map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
     }
 
     @Override

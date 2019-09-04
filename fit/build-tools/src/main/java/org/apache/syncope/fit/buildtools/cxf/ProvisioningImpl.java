@@ -184,7 +184,8 @@ public class ProvisioningImpl implements Provisioning {
         Connection conn = null;
         try {
 
-            String queryString = "SELECT * FROM user" + (Optional.ofNullable(query).map(operand -> " WHERE " + operand.toString()).orElse(""));
+            String queryString = "SELECT * FROM user" + (Optional.ofNullable(query)
+                .map(operand -> " WHERE " + operand.toString()).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
                     replaceAll("__UID__", "userId").

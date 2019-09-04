@@ -637,7 +637,8 @@ public class MappingManagerImpl implements MappingManager {
             preparedAttr = prepareAttr(provision, connObjectKeyItem.get(), any, null);
         }
 
-        return Optional.ofNullable(preparedAttr).map(attr -> MappingUtils.evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
+        return Optional.ofNullable(preparedAttr)
+            .map(attr -> MappingUtils.evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -666,7 +667,8 @@ public class MappingManagerImpl implements MappingManager {
     public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
         OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
 
-        return Optional.ofNullable(Optional.ofNullable(orgUnitItem).map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
+        return Optional.ofNullable(Optional.ofNullable(orgUnitItem)
+            .map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
     }
 
     @Transactional(readOnly = true)

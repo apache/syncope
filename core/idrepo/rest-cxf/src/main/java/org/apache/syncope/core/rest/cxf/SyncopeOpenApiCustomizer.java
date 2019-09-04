@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import static org.codehaus.groovy.tools.shell.util.Logger.io;
-
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;

@@ -124,7 +124,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 execStatus = ExecStatus.FAILURE;
             }
             if (execStatus != ExecStatus.SUCCESS) {
-                throw new PropagationException(task.getResource(), Optional.ofNullable(execution).map(Exec::getMessage).orElse(null));
+                throw new PropagationException(task.getResource(), Optional.ofNullable(execution)
+                    .map(Exec::getMessage).orElse(null));
             }
         });
 

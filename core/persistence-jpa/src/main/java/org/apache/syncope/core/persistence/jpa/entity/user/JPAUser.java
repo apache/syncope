@@ -312,7 +312,8 @@ public class JPAUser
 
     @Override
     public boolean checkToken(final String token) {
-        return Optional.ofNullable(this.token).map(s -> s.equals(token) && !hasTokenExpired()).orElseGet(() -> token == null);
+        return Optional.ofNullable(this.token)
+            .map(s -> s.equals(token) && !hasTokenExpired()).orElseGet(() -> token == null);
     }
 
     @Override
@@ -332,7 +333,8 @@ public class JPAUser
 
     @Override
     public void setChangePwdDate(final Date changePwdDate) {
-        this.changePwdDate = Optional.ofNullable(changePwdDate).map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
+        this.changePwdDate = Optional.ofNullable(changePwdDate)
+            .map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
     }
 
     @Override
@@ -352,7 +354,8 @@ public class JPAUser
 
     @Override
     public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = Optional.ofNullable(lastLoginDate).map(loginDate -> new Date(loginDate.getTime())).orElse(null);
+        this.lastLoginDate = Optional.ofNullable(lastLoginDate)
+            .map(loginDate -> new Date(loginDate.getTime())).orElse(null);
     }
 
     @Override

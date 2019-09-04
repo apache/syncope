@@ -61,7 +61,8 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
 
         conf.getSchemas().forEach(schema -> {
             Item item = mappingItems.get(schema);
-            Attribute attr = Optional.ofNullable(item).map(item1 -> syncDelta.getObject().getAttributeByName(item1.getExtAttrName())).orElse(null);
+            Attribute attr = Optional.ofNullable(item)
+                .map(item1 -> syncDelta.getObject().getAttributeByName(item1.getExtAttrName())).orElse(null);
             if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);

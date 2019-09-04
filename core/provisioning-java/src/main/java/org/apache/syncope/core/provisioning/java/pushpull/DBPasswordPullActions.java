@@ -85,7 +85,8 @@ public class DBPasswordPullActions implements PullActions {
 
         if (anyUR instanceof UserUR) {
             PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
-            parseEncodedPassword(Optional.ofNullable(modPassword).map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
+            parseEncodedPassword(Optional.ofNullable(modPassword)
+                .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
         }
     }
 

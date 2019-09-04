@@ -623,7 +623,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         ConnInstance connector = resource.getConnector();
 
         resourceTO.setConnector(Optional.ofNullable(connector).map(Entity::getKey).orElse(null));
-        resourceTO.setConnectorDisplayName(Optional.ofNullable(connector).map(ConnInstance::getDisplayName).orElse(null));
+        resourceTO.setConnectorDisplayName(Optional.ofNullable(connector)
+            .map(ConnInstance::getDisplayName).orElse(null));
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {

@@ -49,7 +49,8 @@ public class LocaleValueHandler extends AbstractValueHandler {
     @Override
     public Column[] map(final ValueMapping vm, final String name, final ColumnIO io, final boolean adapt) {
         DBDictionary dict = vm.getMappingRepository().getDBDictionary();
-        DBIdentifier colName = DBIdentifier.newColumn(name, Optional.ofNullable(dict).filter(DBDictionary::delimitAll).isPresent());
+        DBIdentifier colName = DBIdentifier.newColumn(name, Optional.ofNullable(dict)
+            .filter(DBDictionary::delimitAll).isPresent());
         return map(vm, colName, io, adapt);
     }
 

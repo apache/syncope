@@ -68,7 +68,8 @@ public final class StatusUtils implements Serializable {
 
         if (connObjectTO != null) {
             Boolean enabled = isEnabled(connObjectTO);
-            statusBean.setStatus(Optional.ofNullable(enabled).filter(aBoolean -> !aBoolean).map(aBoolean -> Status.SUSPENDED).orElse(Status.ACTIVE));
+            statusBean.setStatus(Optional.ofNullable(enabled)
+                .filter(aBoolean -> !aBoolean).map(aBoolean -> Status.SUSPENDED).orElse(Status.ACTIVE));
 
             statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
         }

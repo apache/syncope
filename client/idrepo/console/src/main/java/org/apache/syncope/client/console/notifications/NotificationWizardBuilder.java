@@ -400,7 +400,8 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             LOG.error("While reading all any types", e);
         }
 
-        String[] anyTypeClasses = Optional.ofNullable(type).map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[]{})).orElseGet(() -> new String[0]);
+        String[] anyTypeClasses = Optional.ofNullable(type)
+            .map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[]{})).orElseGet(() -> new String[0]);
 
         List<String> result = new ArrayList<>();
         result.add("username");
