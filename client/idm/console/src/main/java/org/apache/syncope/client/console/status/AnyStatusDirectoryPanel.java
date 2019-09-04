@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.status;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -288,10 +287,10 @@ public class AnyStatusDirectoryPanel
             final AnyTO actual = restClient.read(anyTO.getKey());
 
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
-                List<Pair<String, ReconStatus>> statuses = Collections.emptyList();
+                List<Pair<String, ReconStatus>> statuses = List.of();
                 if (statusOnly) {
                     statuses = ReconStatusUtils.
-                            getReconStatuses(anyTypeKind, anyTO.getKey(), Arrays.asList(resource));
+                            getReconStatuses(anyTypeKind, anyTO.getKey(), List.of(resource));
                 }
 
                 return StatusUtils.getStatusBean(actual,

@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,7 +126,7 @@ public class ResourceProvision implements ToggleableTarget {
     }
 
     public List<String> getAuxClasses() {
-        return provisionTO == null ? Collections.<String>emptyList() : provisionTO.getAuxClasses();
+        return provisionTO == null ? List.of() : provisionTO.getAuxClasses();
     }
 
     public boolean isIgnoreCaseMatch() {

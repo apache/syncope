@@ -20,7 +20,6 @@ package org.apache.syncope.ext.client.common.ui.panels;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -102,7 +101,7 @@ public abstract class UserRequestFormPanel extends Panel {
                                 prop.setValue(String.valueOf(object.equalsIgnoreCase("yes")));
                             }
 
-                        }, false).setChoices(Arrays.asList(new String[] { "Yes", "No" }));
+                        }, false).setChoices(List.of("Yes", "No"));
                         break;
 
                     case Date:

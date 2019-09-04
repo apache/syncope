@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -140,7 +139,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         "field",
                         "conflictResolutionAction",
                         new PropertyModel<>(policyTO, "conflictResolutionAction")).
-                        setChoices(Arrays.asList((Serializable[]) ConflictResolutionAction.values())));
+                        setChoices(List.of((Serializable[]) ConflictResolutionAction.values())));
             }
 
             add(new ListView<Component>("fields", fields) {

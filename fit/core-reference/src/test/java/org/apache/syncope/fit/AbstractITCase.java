@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -445,7 +444,7 @@ public abstract class AbstractITCase {
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
         if (staticRecipients != null) {
-            notification.getStaticRecipients().addAll(Arrays.asList(staticRecipients));
+            notification.getStaticRecipients().addAll(List.of(staticRecipients));
         }
 
         notification.setSender(sender);

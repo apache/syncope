@@ -23,7 +23,6 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -484,7 +483,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
 
         final List<String> matchingUsers = keyValue == null
-                ? Collections.<String>emptyList()
+                ? List.of()
                 : userManager.findMatchingUser(keyValue, idp.getKey());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 

@@ -24,9 +24,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
@@ -78,7 +78,7 @@ public abstract class AnyUR implements Serializable {
 
         @SuppressWarnings("unchecked")
         public B auxClasses(final StringPatchItem... auxClasses) {
-            getInstance().getAuxClasses().addAll(Arrays.asList(auxClasses));
+            getInstance().getAuxClasses().addAll(List.of(auxClasses));
             return (B) this;
         }
 
@@ -96,7 +96,7 @@ public abstract class AnyUR implements Serializable {
 
         @SuppressWarnings("unchecked")
         public B plainAttrs(final AttrPatch... plainAttrs) {
-            getInstance().getPlainAttrs().addAll(Arrays.asList(plainAttrs));
+            getInstance().getPlainAttrs().addAll(List.of(plainAttrs));
             return (B) this;
         }
 
@@ -120,7 +120,7 @@ public abstract class AnyUR implements Serializable {
 
         @SuppressWarnings("unchecked")
         public B virAttrs(final Attr... virAttrs) {
-            getInstance().getVirAttrs().addAll(Arrays.asList(virAttrs));
+            getInstance().getVirAttrs().addAll(List.of(virAttrs));
             return (B) this;
         }
 
@@ -132,7 +132,7 @@ public abstract class AnyUR implements Serializable {
 
         @SuppressWarnings("unchecked")
         public B resources(final StringPatchItem... resources) {
-            getInstance().getResources().addAll(Arrays.asList(resources));
+            getInstance().getResources().addAll(List.of(resources));
             return (B) this;
         }
 

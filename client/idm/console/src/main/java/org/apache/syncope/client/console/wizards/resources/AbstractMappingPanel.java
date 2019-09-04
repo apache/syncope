@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavi
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
@@ -186,7 +185,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         "intAttrName",
                         new PropertyModel<>(itemTO, "intAttrName"),
                         false);
-                intAttrName.setChoices(Collections.<String>emptyList());
+                intAttrName.setChoices(List.of());
                 intAttrName.setRequired(true).hideLabel();
                 item.add(intAttrName);
                 // -------------------------------
@@ -228,7 +227,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         "mandatoryCondition",
                         new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
-                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                mandatory.setChoices(List.of("true", "false"));
                 mandatory.setEnabled(!itemTO.isConnObjectKey());
                 item.add(mandatory);
                 // -------------------------------

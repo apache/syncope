@@ -164,7 +164,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
 
     }
 

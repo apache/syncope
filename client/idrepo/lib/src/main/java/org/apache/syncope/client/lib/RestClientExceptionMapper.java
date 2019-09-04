@@ -19,7 +19,6 @@
 package org.apache.syncope.client.lib;
 
 import java.security.AccessControlException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,7 +87,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
         try {
             ErrorTO error = response.readEntity(ErrorTO.class);
             if (error != null) {
-                errors = Collections.singletonList(error);
+                errors = List.of(error);
             }
         } catch (Exception e) {
             LOG.debug("Could not read {}, attempting to read composite...", ErrorTO.class.getName(), e);

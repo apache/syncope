@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -30,7 +29,7 @@ public class DummyDomainOps implements DomainOps {
 
     @Override
     public List<Domain> list() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

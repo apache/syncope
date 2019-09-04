@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +76,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 created.getPropByRes(),
                 groupCR.getVirAttrs(),
-                Collections.<String>emptySet());
+                Set.of());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
@@ -113,7 +112,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public Pair<GroupUR, List<PropagationStatus>> update(
             final GroupUR groupUR, final boolean nullPriorityAsync) {
 
-        return update(groupUR, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(groupUR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -138,7 +137,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     @Override
     public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
+        return delete(key, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

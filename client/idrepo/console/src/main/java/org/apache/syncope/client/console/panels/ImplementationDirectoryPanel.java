@@ -186,7 +186,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     protected class ImplementationProvider extends DirectoryDataProvider<ImplementationTO> {

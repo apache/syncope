@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -85,7 +85,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ITImplementationLookup implements ImplementationLookup {
 
     private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES = new HashSet<>(
-            Arrays.asList(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
+            List.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
 
     private static final Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> REPORTLET_CLASSES =
             new HashMap<Class<? extends ReportletConf>, Class<? extends Reportlet>>() {
@@ -149,7 +149,7 @@ public class ITImplementationLookup implements ImplementationLookup {
     };
 
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES = new HashSet<>(
-            Arrays.asList(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
+            List.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
 
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<String, Set<String>>() {
 

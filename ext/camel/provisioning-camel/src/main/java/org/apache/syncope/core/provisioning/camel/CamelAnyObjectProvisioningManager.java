@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class CamelAnyObjectProvisioningManager
 
     @Override
     public Pair<String, List<PropagationStatus>> create(final AnyObjectCR req, final boolean nullPriorityAsync) {
-        return create(req, Collections.<String>emptySet(), nullPriorityAsync);
+        return create(req, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -69,7 +68,7 @@ public class CamelAnyObjectProvisioningManager
     public Pair<AnyObjectUR, List<PropagationStatus>> update(
             final AnyObjectUR anyUR, final boolean nullPriorityAsync) {
 
-        return update(anyUR, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(anyUR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -97,7 +96,7 @@ public class CamelAnyObjectProvisioningManager
 
     @Override
     public List<PropagationStatus> delete(final String anyObjectObjectKey, final boolean nullPriorityAsync) {
-        return delete(anyObjectObjectKey, Collections.<String>emptySet(), nullPriorityAsync);
+        return delete(anyObjectObjectKey, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

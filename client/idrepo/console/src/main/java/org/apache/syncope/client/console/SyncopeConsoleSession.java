@@ -20,10 +20,8 @@ package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -239,8 +237,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         }
 
         Set<String> requested = ArrayUtils.isEmpty(realms)
-                ? Collections.singleton(SyncopeConstants.ROOT_REALM)
-                : new HashSet<>(Arrays.asList(realms));
+                ? Set.of(SyncopeConstants.ROOT_REALM)
+                : Set.of(realms);
 
         for (String entitlement : entitlements.split(",")) {
             if (auth.containsKey(entitlement)) {

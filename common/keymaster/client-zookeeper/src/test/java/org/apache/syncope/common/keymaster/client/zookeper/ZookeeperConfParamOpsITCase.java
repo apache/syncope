@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +71,7 @@ public class ZookeeperConfParamOpsITCase {
         assertEquals(false, booleanValue);
 
         List<String> stringValues =
-                Arrays.asList(confParamOps.get(DOMAIN, "authentication.attributes", null, String[].class));
+                List.of(confParamOps.get(DOMAIN, "authentication.attributes", null, String[].class));
         assertNotNull(stringValues);
         List<String> actualStringValues = new ArrayList<>();
         actualStringValues.add("created");
@@ -113,7 +112,7 @@ public class ZookeeperConfParamOpsITCase {
         stringValues.add("stringValue1");
         stringValues.add("stringValue2");
         confParamOps.set(DOMAIN, key, stringValues);
-        List<String> actualStringValues = Arrays.asList(confParamOps.get(DOMAIN, key, null, String[].class));
+        List<String> actualStringValues = List.of(confParamOps.get(DOMAIN, key, null, String[].class));
         assertEquals(stringValues, actualStringValues);
 
         confParamOps.remove(DOMAIN, key);

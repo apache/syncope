@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -69,7 +68,7 @@ public class PGJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
             } else {
                 ((JSONPlainAttr) container).add(attrValue);
             }
-            return "plainAttrs @> '" + POJOHelper.serialize(Arrays.asList(container)) + "'::jsonb";
+            return "plainAttrs @> '" + POJOHelper.serialize(List.of(container)) + "'::jsonb";
         }
     }
 

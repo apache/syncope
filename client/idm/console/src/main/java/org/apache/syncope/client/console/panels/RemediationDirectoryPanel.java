@@ -21,9 +21,7 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -214,7 +212,7 @@ public class RemediationDirectoryPanel
                                     previousUserTO,
                                     newUserTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getLeft(),
+                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getLeft(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, userEvent);
@@ -241,7 +239,7 @@ public class RemediationDirectoryPanel
                                     previousGroupTO,
                                     newGroupTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getMiddle(),
+                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getMiddle(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, groupEvent);
@@ -268,7 +266,7 @@ public class RemediationDirectoryPanel
                                     previousAnyObjectTO,
                                     newAnyObjectTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).
+                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).
                                             getRight().values().iterator().next(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
@@ -312,7 +310,7 @@ public class RemediationDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     public static class RemediationProvider extends DirectoryDataProvider<RemediationTO> {

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
@@ -84,14 +83,14 @@ public class SyncopeCamelContext {
     public void updateContext(final String routeKey) {
         if (!getCamelContext().getRouteDefinitions().isEmpty()) {
             getCamelContext().getRouteDefinitions().remove(getCamelContext().getRouteDefinition(routeKey));
-            loadRouteDefinitions(Arrays.asList(routeDAO.find(routeKey).getContent()));
+            loadRouteDefinitions(List.of(routeDAO.find(routeKey).getContent()));
         }
     }
 
     public void restoreRoute(final String routeKey, final String routeContent) {
         try {
             getCamelContext().getRouteDefinitions().remove(getCamelContext().getRouteDefinition(routeKey));
-            loadRouteDefinitions(Arrays.asList(routeContent));
+            loadRouteDefinitions(List.of(routeContent));
         } catch (Exception e) {
             LOG.error("While restoring Camel route {}", routeKey, e);
             throw new CamelException(e);

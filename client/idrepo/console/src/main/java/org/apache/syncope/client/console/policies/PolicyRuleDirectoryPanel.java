@@ -207,7 +207,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -263,7 +263,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
             List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual)
-                    : Collections.emptyList();
+                    : List.of();
 
             Collections.sort(rules, comparator);
             return rules.subList((int) first, (int) (first + count)).iterator();

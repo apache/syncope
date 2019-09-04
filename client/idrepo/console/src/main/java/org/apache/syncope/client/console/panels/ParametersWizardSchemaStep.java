@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -40,7 +41,7 @@ public class ParametersWizardSchemaStep extends WizardStep {
 
         AjaxDropDownChoicePanel<AttrSchemaType> type = new AjaxDropDownChoicePanel<>(
                 "type", getString("type"), new PropertyModel<>(modelObject.getSchema(), "type"));
-        type.setChoices(Arrays.asList(
+        type.setChoices(List.of(
                 AttrSchemaType.String, AttrSchemaType.Long, AttrSchemaType.Double,
                 AttrSchemaType.Boolean, AttrSchemaType.Date, AttrSchemaType.Binary));
         content.add(type);

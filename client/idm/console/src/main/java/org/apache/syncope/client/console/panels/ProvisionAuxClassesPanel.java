@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -70,8 +69,8 @@ public class ProvisionAuxClassesPanel extends Panel {
         IModel<List<String>> model;
         List<String> choices;
         if (provision == null) {
-            model = new ListModel<>(Collections.<String>emptyList());
-            choices = Collections.emptyList();
+            model = new ListModel<>(List.of());
+            choices = List.of();
         } else {
             model = new PropertyModel<>(provision, "auxClasses");
             choices = new ArrayList<>();

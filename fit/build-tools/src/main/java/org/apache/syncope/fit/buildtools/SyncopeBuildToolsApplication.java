@@ -19,7 +19,9 @@
 package org.apache.syncope.fit.buildtools;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.util.Arrays;
+
+import java.util.List;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
@@ -98,8 +100,8 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         restProvisioning.setBus(bus);
         restProvisioning.setAddress("/rest");
         restProvisioning.setStaticSubresourceResolution(true);
-        restProvisioning.setBasePackages(Arrays.asList("org.apache.syncope.fit.buildtools.cxf"));
-        restProvisioning.setProviders(Arrays.asList(new JacksonJsonProvider()));
+        restProvisioning.setBasePackages(List.of("org.apache.syncope.fit.buildtools.cxf"));
+        restProvisioning.setProviders(List.of(new JacksonJsonProvider()));
         return restProvisioning.create();
     }
 

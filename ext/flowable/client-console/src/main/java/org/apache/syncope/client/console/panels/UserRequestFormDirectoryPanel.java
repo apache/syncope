@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -249,7 +248,7 @@ public class UserRequestFormDirectoryPanel
                         previousUserTO,
                         newUserTO,
                         new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
-                        FormLayoutInfoUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getLeft(),
+                        FormLayoutInfoUtils.fetch(List.of(AnyTypeKind.USER.name())).getLeft(),
                         pageRef
                 ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
 
@@ -316,7 +315,7 @@ public class UserRequestFormDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     private void claimForm(final String taskId) {

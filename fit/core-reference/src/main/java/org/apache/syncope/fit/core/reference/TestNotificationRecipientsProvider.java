@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,7 @@ public class TestNotificationRecipientsProvider implements RecipientsProvider {
     @Transactional(readOnly = true)
     @Override
     public Set<String> provideRecipients(final Notification notification) {
-        return Collections.singleton(getClass().getSimpleName() + "@syncope.apache.org");
+        return Set.of(getClass().getSimpleName() + "@syncope.apache.org");
     }
 
 }

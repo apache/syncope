@@ -27,8 +27,6 @@ import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -91,10 +89,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private static final String CUSTOM_FORM_ATTRIBUTES_FILE = "customFormAttributes.json";
 
-    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
-            }));
+    public static final List<Locale> SUPPORTED_LOCALES = List.of(
+        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -102,7 +102,7 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
         public Details(final SchemaTO modelObject) {
             AjaxDropDownChoicePanel<SchemaType> kind =
                     new AjaxDropDownChoicePanel<>("kind", getString("kind"), new Model<>());
-            kind.setChoices(Arrays.asList(SchemaType.values()));
+            kind.setChoices(List.of(SchemaType.values()));
             kind.setOutputMarkupId(true);
             kind.setModelObject(schemaType);
             kind.setEnabled(false);

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -87,7 +87,7 @@ public class DomainProcessEngineFactoryBean
                     ctx.getBean(SpringIdmEngineConfiguration.class));
         }
         conf.setEnableSafeBpmnXml(true);
-        conf.setCustomFormTypes(Arrays.asList(new DropdownFormType(null)));
+        conf.setCustomFormTypes(List.of(new DropdownFormType(null)));
 
         return conf.buildProcessEngine();
     }

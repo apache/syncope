@@ -20,9 +20,9 @@ package org.apache.syncope.core.rest.cxf.batch;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
@@ -134,7 +134,7 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
                 ? Collections.enumeration(
                         batchItem.getHeaders().get(name).stream().map(Object::toString).collect(Collectors.toList()))
                 : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
-                ? Collections.enumeration(Arrays.asList(MediaType.ALL_VALUE))
+                ? Collections.enumeration(List.of(MediaType.ALL_VALUE))
                 : super.getHeaders(name);
     }
 

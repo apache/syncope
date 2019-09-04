@@ -404,8 +404,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         Collection<ExternalResource> resources = userDAO.findAllResources(user);
 
         Map<String, Set<String>> reasons = new HashMap<>();
-        user.getResources().
-                forEach(resource -> reasons.put(resource.getKey(), Set.of(user.getKey())));
+        user.getResources().forEach(
+                resource -> reasons.put(resource.getKey(), new HashSet<>(Set.of(user.getKey()))));
         userDAO.findAllGroupKeys(user).forEach(group -> groupDAO.findAllResourceKeys(group).forEach(resource -> {
             if (!reasons.containsKey(resource)) {
                 reasons.put(resource, new HashSet<>());

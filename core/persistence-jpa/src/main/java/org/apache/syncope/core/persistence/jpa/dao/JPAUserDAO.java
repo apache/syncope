@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -159,7 +158,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
             Set<String> authRealms = authorizations.containsKey(IdRepoEntitlement.USER_READ)
                     ? authorizations.get(IdRepoEntitlement.USER_READ)
-                    : Collections.emptySet();
+                    : Set.of();
             boolean authorized = authRealms.stream().
                     anyMatch(realm -> user.getRealm().getFullPath().startsWith(realm));
             if (!authorized) {

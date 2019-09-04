@@ -166,7 +166,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override

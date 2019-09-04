@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -79,7 +80,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
         AnyObjectCR anyObjectCR = AnyObjectCR.class.cast(anyCR);
 
         Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
-                anyObjectCR, Collections.singleton(profile.getTask().getResource().getKey()), true);
+                anyObjectCR, Set.of(profile.getTask().getResource().getKey()), true);
 
         return getAnyTO(created.getKey());
     }
@@ -94,7 +95,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
         AnyObjectUR anyObjectUR = AnyObjectUR.class.cast(req);
 
         Pair<AnyObjectUR, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
-                anyObjectUR, Collections.singleton(profile.getTask().getResource().getKey()), true);
+                anyObjectUR, Set.of(profile.getTask().getResource().getKey()), true);
 
         return updated.getLeft();
     }

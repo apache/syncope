@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,7 +79,7 @@ public class AuthDataAccessor {
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
-            Collections.singleton(new SyncopeGrantedAuthority(IdRepoEntitlement.ANONYMOUS));
+            Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.ANONYMOUS));
 
     protected static final String[] GROUP_OWNER_ENTITLEMENTS = new String[] {
         IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE, IdRepoEntitlement.GROUP_DELETE
@@ -164,7 +162,7 @@ public class AuthDataAccessor {
     public Pair<User, Boolean> authenticate(final String domain, final Authentication authentication) {
         User user = null;
 
-        List<String> authAttrValues = Arrays.asList(confParamOps.get(domain,
+        List<String> authAttrValues = List.of(confParamOps.get(domain,
                 "authentication.attributes", new String[] { "username" }, String[].class));
         for (int i = 0; user == null && i < authAttrValues.size(); i++) {
             if ("username".equals(authAttrValues.get(i))) {
@@ -274,7 +272,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return result == null ? Collections.emptySet() : result;
+        return result == null ? Set.of() : result;
     }
 
     protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {
@@ -341,7 +339,7 @@ public class AuthDataAccessor {
         } else {
             User user = userDAO.findByUsername(username);
             if (user == null) {
-                authorities = Collections.emptySet();
+                authorities = Set.of();
             } else {
                 authorities = getUserAuthorities(user);
             }
@@ -375,7 +373,7 @@ public class AuthDataAccessor {
 
             User user = resolved.getLeft();
             username = user.getUsername();
-            authorities = resolved.getRight() == null ? Collections.emptySet() : resolved.getRight();
+            authorities = resolved.getRight() == null ? Set.of() : resolved.getRight();
             LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
                     authentication.getClaims().getTokenId(),
                     authentication.getClaims().getIssuer(),
@@ -385,7 +383,7 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + username + " is suspended");
             }
 
-            List<String> authStatuses = Arrays.asList(confParamOps.get(authentication.getDetails().getDomain(),
+            List<String> authStatuses = List.of(confParamOps.get(authentication.getDetails().getDomain(),
                     "authentication.statuses", new String[] {}, String[].class));
             if (!authStatuses.contains(user.getStatus())) {
                 throw new DisabledException("User " + username + " not allowed to authenticate");
@@ -393,7 +391,7 @@ public class AuthDataAccessor {
 
             if (BooleanUtils.isTrue(user.isMustChangePassword())) {
                 LOG.debug("User {} must change password, resetting authorities", username);
-                authorities = Collections.singleton(
+                authorities = Set.of(
                         new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
             }
         }

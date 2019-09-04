@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.self.keymaster.cxf.client;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -42,7 +41,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
         return AuthContextUtils.callAs(
                 SyncopeConstants.MASTER_DOMAIN,
                 keymasterUser,
-                Collections.emptyList(),
+                List.of(),
                 () -> logic.list(serviceType));
     }
 
@@ -52,7 +51,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
             return AuthContextUtils.callAs(
                     SyncopeConstants.MASTER_DOMAIN,
                     keymasterUser,
-                    Collections.emptyList(),
+                    List.of(),
                     () -> logic.get(serviceType));
         } catch (Exception e) {
             throw new KeymasterException(e);
@@ -64,7 +63,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
         AuthContextUtils.callAs(
                 SyncopeConstants.MASTER_DOMAIN,
                 keymasterUser,
-                Collections.emptyList(),
+                List.of(),
                 () -> {
                     logic.register(service);
                     return null;
@@ -76,7 +75,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
         AuthContextUtils.callAs(
                 SyncopeConstants.MASTER_DOMAIN,
                 keymasterUser,
-                Collections.emptyList(),
+                List.of(),
                 () -> {
                     logic.unregister(service);
                     return null;

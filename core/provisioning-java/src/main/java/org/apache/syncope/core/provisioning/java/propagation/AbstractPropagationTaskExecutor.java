@@ -19,9 +19,7 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -300,7 +298,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this entity used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Collection<String> resources = Collections.emptySet();
+            Collection<String> resources = Set.of();
             if (task.getEntityKey() != null && task.getAnyTypeKind() != null) {
                 switch (task.getAnyTypeKind()) {
                     case USER:
@@ -365,7 +363,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
         Set<Attribute> attributes = new HashSet<>();
         if (StringUtils.isNotBlank(taskInfo.getAttributes())) {
-            attributes.addAll(Arrays.asList(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
+            attributes.addAll(List.of(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
         }
         task.setAttributes(attributes);
 

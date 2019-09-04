@@ -59,7 +59,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
     @Override
     public List<String> getClasses(final ImplementationTO implementation, final ViewMode viewMode) {
-        List<String> classes = Collections.emptyList();
+        List<String> classes = List.of();
         if (viewMode == ViewMode.JAVA_CLASS) {
             Optional<JavaImplInfo> javaClasses = SyncopeConsoleSession.get().getPlatformInfo().
                     getJavaImplInfo(implementation.getType());
@@ -173,7 +173,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return Collections.emptyList();
+                return List.of();
             }
         };
     }
@@ -186,7 +186,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return Collections.emptyList();
+                return List.of();
             }
         };
     }
@@ -199,7 +199,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return Collections.emptyList();
+                return List.of();
             }
         };
     }

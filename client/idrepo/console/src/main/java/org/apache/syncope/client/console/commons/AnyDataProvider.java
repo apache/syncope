@@ -93,14 +93,14 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     @Override
     public Iterator<A> iterator(final long first, final long count) {
-        List<A> result = Collections.emptyList();
+        List<A> result = List.of();
 
         try {
             final int page = ((int) first / paginatorRows);
 
             if (filtered) {
                 result = fiql == null
-                        ? Collections.<A>emptyList()
+                        ? List.of()
                         : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
             } else {
                 result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);

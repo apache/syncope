@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,7 +73,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         boolean isCreate = schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty();
 
-        type.setChoices(Arrays.asList(AttrSchemaType.values()));
+        type.setChoices(List.of(AttrSchemaType.values()));
         type.setEnabled(isCreate);
         type.addRequiredLabel();
         add(type);
@@ -189,7 +187,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 "cipherAlgorithm", getString("cipherAlgorithm"),
                 new PropertyModel<>(schemaTO, "cipherAlgorithm"));
 
-        cipherAlgorithm.setChoices(Arrays.asList(CipherAlgorithm.values()));
+        cipherAlgorithm.setChoices(List.of(CipherAlgorithm.values()));
 
         final WebMarkupContainer encryptedParams = new WebMarkupContainer("encryptedParams");
         encryptedParams.setOutputMarkupPlaceholderTag(true);
@@ -259,7 +257,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 List<String> choices = new ArrayList<>();
 
                 if (Strings.isEmpty(input)) {
-                    choices = Collections.emptyList();
+                    choices = List.of();
                 } else if ("true".startsWith(input.toLowerCase())) {
                     choices.add("true");
                 } else if ("false".startsWith(input.toLowerCase())) {

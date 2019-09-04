@@ -22,7 +22,6 @@ import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,14 +117,14 @@ public class SyncopeClient {
             restClientFactory.setPassword(((BasicAuthenticationHandler) handler).getPassword());
 
             String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
-            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
+            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
 
             restClientFactory.setUsername(null);
             restClientFactory.setPassword(null);
         } else if (handler instanceof JWTAuthenticationHandler) {
             restClientFactory.getHeaders().put(
                     HttpHeaders.AUTHORIZATION,
-                    Collections.singletonList("Bearer " + ((JWTAuthenticationHandler) handler).getJwt()));
+                    List.of("Bearer " + ((JWTAuthenticationHandler) handler).getJwt()));
         }
     }
 
@@ -140,7 +139,7 @@ public class SyncopeClient {
      */
     public void refresh() {
         String jwt = getService(AccessTokenService.class).refresh().getHeaderString(RESTHeaders.TOKEN);
-        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
+        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
     }
 
     /**

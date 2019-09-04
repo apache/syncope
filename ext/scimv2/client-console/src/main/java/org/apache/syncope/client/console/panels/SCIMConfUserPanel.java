@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
@@ -524,7 +523,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             }
 
         });
-        primaryPanel.setChoices(Arrays.asList("true", "false"));
+        primaryPanel.setChoices(List.of("true", "false"));
 
         panelList.add(displayPanel);
         panelList.add(valuePanel);
@@ -648,7 +647,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             }
 
         });
-        addressPrimaryPanel.setChoices(Arrays.asList("true", "false"));
+        addressPrimaryPanel.setChoices(List.of("true", "false"));
 
         panelList.add(addressCountryPanel);
         panelList.add(addressFormattedPanel);

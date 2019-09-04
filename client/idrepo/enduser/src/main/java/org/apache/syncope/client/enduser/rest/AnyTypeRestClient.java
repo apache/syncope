@@ -48,7 +48,7 @@ public class AnyTypeRestClient extends BaseRestClient {
     }
 
     public List<AnyTypeTO> listAnyTypes() {
-        List<AnyTypeTO> types = Collections.emptyList();
+        List<AnyTypeTO> types = List.of();
 
         try {
             types = getService(AnyTypeService.class).list();

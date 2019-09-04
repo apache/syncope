@@ -19,11 +19,12 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -33,7 +34,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -226,16 +226,16 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         ? anyDAO.getAllMatchingCond()
                         : SearchCondConverter.convert(filter);
                 int count = searchDAO.count(
-                        Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
+                        Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
                         provision.getAnyType().getKind());
                 for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
                     List<? extends Any<?>> anys = searchDAO.search(
-                            Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
+                            Set.of(profile.getTask().getSourceRealm().getFullPath()),
                             cond,
                             page,
                             AnyDAO.DEFAULT_PAGE_SIZE,
-                            Collections.<OrderByClause>emptyList(),
+                            List.of(),
                             provision.getAnyType().getKind());
                     doHandle(anys, handler, pushTask.getResource());
                 }

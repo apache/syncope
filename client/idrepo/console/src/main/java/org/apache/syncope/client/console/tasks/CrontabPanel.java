@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -96,7 +97,7 @@ public class CrontabPanel extends Panel {
                 // no detach
             }
         });
-        cronTemplateChooser.setChoices(Arrays.asList(cronTemplates));
+        cronTemplateChooser.setChoices(List.of(cronTemplates));
         cronTemplateChooser.setChoiceRenderer(new SelectChoiceRenderer<>());
         add(cronTemplateChooser);
 

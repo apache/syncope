@@ -262,7 +262,7 @@ public class ReconciliationWidget extends BaseWidget {
     }
 
     private Pair<List<ProgressBean>, ReconciliationReport> parseReconciliationReportExec() throws IOException {
-        List<ProgressBean> beans = Collections.emptyList();
+        List<ProgressBean> beans = List.of();
         ReconciliationReport report = null;
 
         Optional<ExecTO> exec = Optional.empty();
@@ -349,7 +349,7 @@ public class ReconciliationWidget extends BaseWidget {
 
         @Override
         protected Collection<ActionLink.ActionType> getBatches() {
-            return Collections.<ActionLink.ActionType>emptyList();
+            return List.of();
         }
 
         @Override

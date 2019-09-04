@@ -22,8 +22,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -302,7 +300,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         final List<String> matchingUsers = keyValue == null
-                ? Collections.<String>emptyList()
+                ? List.of()
                 : userManager.findMatchingUser(keyValue, op.getConnObjectKeyItem().get());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
@@ -373,7 +371,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     private TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
-        Response response = WebClient.create(url, Arrays.asList(new JacksonJsonProvider())).
+        Response response = WebClient.create(url, List.of(new JacksonJsonProvider())).
                 type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).
                 post(body);
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -393,7 +391,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         IdTokenReader idTokenReader = new IdTokenReader();
         idTokenReader.setClockOffset(10);
         idTokenReader.setIssuerId(op.getIssuer());
-        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), Arrays.asList(new JsonWebKeysProvider())).
+        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), List.of(new JsonWebKeysProvider())).
                 accept(MediaType.APPLICATION_JSON));
         IdToken idToken;
         try {
@@ -413,7 +411,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
             final IdToken idToken,
             final Consumer consumer) {
 
-        WebClient userInfoServiceClient = WebClient.create(endpoint, Arrays.asList(new JsonMapObjectProvider())).
+        WebClient userInfoServiceClient = WebClient.create(endpoint, List.of(new JsonMapObjectProvider())).
                 accept(MediaType.APPLICATION_JSON);
         ClientAccessToken clientAccessToken =
                 new ClientAccessToken(OAuthConstants.BEARER_AUTHORIZATION_SCHEME, accessToken);

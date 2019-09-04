@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavi
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -83,7 +82,7 @@ public class GatewayRoutePredicatePanel extends Panel {
 
                 AjaxDropDownChoicePanel<PredicateFactory> factory =
                         new AjaxDropDownChoicePanel<>("factory", "factory", new PropertyModel<>(predicate, "factory"));
-                factory.setChoices(Arrays.asList(PredicateFactory.values()));
+                factory.setChoices(List.of(PredicateFactory.values()));
                 item.add(factory.hideLabel());
 
                 AjaxTextFieldPanel args =
@@ -92,7 +91,7 @@ public class GatewayRoutePredicatePanel extends Panel {
 
                 AjaxDropDownChoicePanel<PredicateCond> cond =
                         new AjaxDropDownChoicePanel<>("cond", "cond", new PropertyModel<>(predicate, "cond"));
-                cond.setChoices(Arrays.asList(PredicateCond.values()));
+                cond.setChoices(List.of(PredicateCond.values()));
                 item.add(cond.hideLabel());
 
                 ActionsPanel<Serializable> actions = new ActionsPanel<>("actions", null);

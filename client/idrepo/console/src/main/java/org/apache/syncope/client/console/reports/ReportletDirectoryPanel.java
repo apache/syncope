@@ -194,7 +194,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

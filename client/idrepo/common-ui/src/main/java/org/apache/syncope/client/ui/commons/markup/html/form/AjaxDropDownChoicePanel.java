@@ -21,7 +21,6 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,7 +43,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
 
         super(id, name, model);
 
-        field = new BootstrapSelect<>("dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<>());
+        field = new BootstrapSelect<>("dropDownChoiceField", model, List.of(), new ChoiceRenderer<>());
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {

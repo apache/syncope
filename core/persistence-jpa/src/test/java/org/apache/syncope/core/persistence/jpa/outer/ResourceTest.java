@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -217,7 +215,7 @@ public class ResourceTest extends AbstractTest {
 
         // Get tasks
         List<PropagationTask> propagationTasks = taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList());
+                TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of());
         assertFalse(propagationTasks.isEmpty());
 
         // delete resource

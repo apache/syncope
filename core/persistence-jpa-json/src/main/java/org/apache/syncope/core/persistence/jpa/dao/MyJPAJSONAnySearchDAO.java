@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -143,7 +142,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 }
 
                 query.append("JSON_CONTAINS(plainAttrs, '").
-                        append(POJOHelper.serialize(Arrays.asList(container))).
+                        append(POJOHelper.serialize(List.of(container))).
                         append("')");
             } else {
                 String key = key(schema.getType());

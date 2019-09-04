@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic.scim;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +37,7 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
  */
 public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
-    private static final List<String> MULTIVALUE = Arrays.asList(
+    private static final List<String> MULTIVALUE = List.of(
             "emails", "phoneNumbers", "ims", "photos", "addresses");
 
     private final Resource resource;

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +144,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     @Override
     protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
-        SearchRequest request = searchRequest(adminRealms, cond, kind, 0, 0, Collections.emptyList());
+        SearchRequest request = searchRequest(adminRealms, cond, kind, 0, 0, List.of());
         try {
             return (int) client.search(request, RequestOptions.DEFAULT).getHits().getTotalHits().value;
         } catch (IOException e) {
@@ -211,7 +210,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return ArrayUtils.isEmpty(esResult)
-                ? Collections.emptyList()
+                ? List.of()
                 : buildResult(Stream.of(esResult).map(SearchHit::getId).collect(Collectors.toList()), kind);
     }
 

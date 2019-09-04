@@ -19,9 +19,10 @@
 package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Arrays;
+
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -55,7 +56,7 @@ public class MembershipUR extends AbstractPatch {
         }
 
         public Builder plainAttrs(final Attr... plainAttrs) {
-            getInstance().getPlainAttrs().addAll(Arrays.asList(plainAttrs));
+            getInstance().getPlainAttrs().addAll(List.of(plainAttrs));
             return this;
         }
 
@@ -70,7 +71,7 @@ public class MembershipUR extends AbstractPatch {
         }
 
         public Builder virAttrs(final Attr... virAttrs) {
-            getInstance().getVirAttrs().addAll(Arrays.asList(virAttrs));
+            getInstance().getVirAttrs().addAll(List.of(virAttrs));
             return this;
         }
 

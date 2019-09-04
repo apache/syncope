@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -166,7 +165,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw SyncopeClientException.build(ClientExceptionType.HasChildren);
         }
 
-        Set<String> adminRealms = Collections.singleton(realm.getFullPath());
+        Set<String> adminRealms = Set.of(realm.getFullPath());
         AnyCond keyCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
         SearchCond allMatchingCond = SearchCond.getLeafCond(keyCond);

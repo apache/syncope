@@ -25,7 +25,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -325,7 +324,7 @@ public class ProvisioningImpl implements Provisioning {
 
         LOG.debug("sync request received");
 
-        return Collections.<WSChange>emptyList();
+        return List.of();
     }
 
     @Override

@@ -20,7 +20,6 @@ package org.apache.syncope.fit.console;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -32,9 +31,9 @@ import org.junit.jupiter.api.Test;
 
 public class AjaxPalettePanelITCase extends AbstractConsoleITCase {
 
-    private static final IModel<List<String>> SELECTED = new ListModel<>(Arrays.asList("A", "D"));
+    private static final IModel<List<String>> SELECTED = new ListModel<>(List.of("A", "D"));
 
-    private static final ListModel<String> ALL = new ListModel<>(Arrays.asList("A", "B", "C", "D"));
+    private static final ListModel<String> ALL = new ListModel<>(List.of("A", "B", "C", "D"));
 
     @Test
     public void isRendered() {

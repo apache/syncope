@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +52,7 @@ public class PreferenceManager implements Serializable {
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
 
-    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
+    private static final List<Integer> PAGINATOR_CHOICES = List.of(10, 25, 50);
 
     private static final CookieUtils COOKIE_UTILS;
 
@@ -120,7 +119,7 @@ public class PreferenceManager implements Serializable {
 
         if (StringUtils.isNotBlank(compound)) {
             String[] items = compound.split(";");
-            result.addAll(Arrays.asList(items));
+            result.addAll(List.of(items));
         }
 
         return result;

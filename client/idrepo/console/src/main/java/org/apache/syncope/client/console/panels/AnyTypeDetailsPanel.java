@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -58,7 +57,7 @@ public class AnyTypeDetailsPanel extends Panel {
 
         final AjaxDropDownChoicePanel<AnyTypeKind> kind = new AjaxDropDownChoicePanel<>(
                 "kind", getString("kind"), new PropertyModel<>(anyTypeTO, "kind"));
-        kind.setChoices(Arrays.asList(AnyTypeKind.values()));
+        kind.setChoices(List.of(AnyTypeKind.values()));
         kind.setOutputMarkupId(true);
         if (anyTypeTO.getKind() == null) {
             kind.setModelObject(AnyTypeKind.ANY_OBJECT);

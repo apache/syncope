@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
@@ -41,7 +40,7 @@ public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
             final String header,
             final PageReference pageRef) {
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -52,7 +51,7 @@ public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
             final String header,
             final PageReference pageRef) {
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -64,6 +63,6 @@ public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
             final String header,
             final PageReference pageRef) {
 
-        return Collections.emptyList();
+        return List.of();
     }
 }

@@ -88,7 +88,7 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public List<ResourceTO> list() {
-        List<ResourceTO> resources = Collections.emptyList();
+        List<ResourceTO> resources = List.of();
         try {
             resources = getService(ResourceService.class).list();
             Collections.sort(resources, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));

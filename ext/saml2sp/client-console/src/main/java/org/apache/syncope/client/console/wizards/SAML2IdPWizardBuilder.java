@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -174,7 +173,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             AjaxDropDownChoicePanel<SAML2BindingType> bindingType =
                     new AjaxDropDownChoicePanel<>("field", "bindingType",
                             new PropertyModel<>(idpTO, "bindingType"), false);
-            bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
+            bindingType.setChoices(List.of(SAML2BindingType.values()));
             fields.add(bindingType);
 
             AjaxTextFieldPanel requestedAuthnContextProvider = new AjaxTextFieldPanel(

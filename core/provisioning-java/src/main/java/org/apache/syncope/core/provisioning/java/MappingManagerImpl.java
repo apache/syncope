@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -456,7 +455,7 @@ public class MappingManagerImpl implements MappingManager {
         }
         if (references.isEmpty()) {
             LOG.warn("Could not determine the reference instance for {}", mapItem.getIntAttrName());
-            return Pair.of(schemaType, Collections.<PlainAttrValue>emptyList());
+            return Pair.of(schemaType, List.of());
         }
 
         List<PlainAttrValue> values = new ArrayList<>();
@@ -655,7 +654,7 @@ public class MappingManagerImpl implements MappingManager {
                     any);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
-            intValues = Pair.of(AttrSchemaType.String, Collections.<PlainAttrValue>emptyList());
+            intValues = Pair.of(AttrSchemaType.String, List.of());
         }
         return Optional.ofNullable(intValues.getRight().isEmpty()
                 ? null
@@ -681,7 +680,7 @@ public class MappingManagerImpl implements MappingManager {
                 values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
-        values = Optional.ofNullable(values).orElse(Collections.emptyList());
+        values = Optional.ofNullable(values).orElse(List.of());
 
         IntAttrName intAttrName;
         try {

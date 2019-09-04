@@ -449,7 +449,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(groupConnObject);
         Attr groupDn = groupConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                groupDn.getValues().get(0), Collections.singletonMap("uniquemember", "uid=admin,ou=system"));
+                groupDn.getValues().get(0), Map.of("uniquemember", "uid=admin,ou=system"));
 
         execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
@@ -1261,7 +1261,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 4. update the user on the external resource
             updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                    userDn.getValues().get(0), Collections.singletonMap("mail", "pullFromLDAP2@syncope.apache.org"));
+                    userDn.getValues().get(0), Map.of("mail", "pullFromLDAP2@syncope.apache.org"));
 
             connObject = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(connObject);

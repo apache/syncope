@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -149,7 +148,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     @SuppressWarnings("unchecked")
     public List<String> findDynMembers(final Role role) {
         if (role.getDynMembership() == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         Query query = entityManager().createNativeQuery("SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");

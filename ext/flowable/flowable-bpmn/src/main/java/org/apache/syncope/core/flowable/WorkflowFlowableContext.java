@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.flowable;
 
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
@@ -129,7 +130,7 @@ public class WorkflowFlowableContext {
         conf.setJpaCloseEntityManager(false);
         conf.setHistoryLevel(historyLevel);
         conf.setIdmEngineConfigurator(syncopeIdmEngineConfigurator());
-        conf.setCustomPreVariableTypes(Arrays.asList(syncopeEntitiesVariableType()));
+        conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType()));
         conf.setFormHandlerHelper(syncopeFormHandlerHelper());
         conf.setIdGenerator(idGenerator());
         return conf;

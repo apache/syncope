@@ -23,7 +23,7 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -84,10 +84,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
-    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
-            }));
+    public static final List<Locale> SUPPORTED_LOCALES = List.of(
+        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();

@@ -22,7 +22,6 @@ import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -166,7 +165,7 @@ public class TypeExtensionDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     protected class TypeExtensionDataProvider extends DirectoryDataProvider<TypeExtensionTO> {

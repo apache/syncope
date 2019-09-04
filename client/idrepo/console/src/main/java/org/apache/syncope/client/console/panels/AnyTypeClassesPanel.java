@@ -113,7 +113,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override

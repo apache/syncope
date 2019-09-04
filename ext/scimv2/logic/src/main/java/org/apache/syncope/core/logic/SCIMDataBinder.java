@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
@@ -67,12 +65,12 @@ public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
 
-    private static final List<String> USER_SCHEMAS = Collections.singletonList(Resource.User.schema());
+    private static final List<String> USER_SCHEMAS = List.of(Resource.User.schema());
 
     private static final List<String> ENTERPRISE_USER_SCHEMAS =
             List.of(Resource.User.schema(), Resource.EnterpriseUser.schema());
 
-    private static final List<String> GROUP_SCHEMAS = Collections.singletonList(Resource.Group.schema());
+    private static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
 
     @Autowired
     private SCIMConfManager confManager;
@@ -637,7 +635,7 @@ public class SCIMDataBinder {
 
         if (output(attributes, excludedAttributes, "members")) {
             int count = userLogic.search(searchCond,
-                    1, 1, Collections.<OrderByClause>emptyList(),
+                    1, 1, List.of(),
                     SyncopeConstants.ROOT_REALM, false).getLeft();
 
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
@@ -645,7 +643,7 @@ public class SCIMDataBinder {
                         searchCond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         SyncopeConstants.ROOT_REALM,
                         false).
                         getRight();

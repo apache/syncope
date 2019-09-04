@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -60,7 +59,7 @@ public class ReconStatusPanel extends RemoteObjectPanel {
     @Override
     protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
         List<Pair<String, ReconStatus>> statuses =
-                ReconStatusUtils.getReconStatuses(anyTypeKind, anyKey, Arrays.asList(resource));
+                ReconStatusUtils.getReconStatuses(anyTypeKind, anyKey, List.of(resource));
 
         return statuses.isEmpty()
                 ? null

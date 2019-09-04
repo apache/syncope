@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -387,7 +386,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
-            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
+            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);
 
             try {

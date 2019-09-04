@@ -22,7 +22,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -168,25 +167,25 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        return Arrays.asList(SearchClause.Comparator.values());
+                        return List.of(SearchClause.Comparator.values());
 
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
                     case GROUP_MEMBER:
                     case RESOURCE:
-                        return Arrays.asList(
+                        return List.of(
                                 SearchClause.Comparator.EQUALS,
                                 SearchClause.Comparator.NOT_EQUALS);
 
                     case RELATIONSHIP:
-                        return Arrays.asList(
+                        return List.of(
                                 SearchClause.Comparator.IS_NOT_NULL,
                                 SearchClause.Comparator.IS_NULL,
                                 SearchClause.Comparator.EQUALS,
                                 SearchClause.Comparator.NOT_EQUALS);
                     default:
-                        return Collections.<Comparator>emptyList();
+                        return List.of();
                 }
             }
         };
@@ -198,7 +197,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected List<String> load() {
                 if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
-                    return Collections.<String>emptyList();
+                    return List.of();
                 }
 
                 switch (field.getModel().getObject().getType()) {
@@ -237,7 +236,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return relations;
 
                     default:
-                        return Collections.<String>emptyList();
+                        return List.of();
                 }
             }
         };

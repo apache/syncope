@@ -20,7 +20,6 @@ package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -56,7 +55,7 @@ public class SchemaQuery implements Serializable {
         }
 
         public Builder anyTypeClasses(final String... anyTypeClasses) {
-            return anyTypeClasses(Arrays.asList(anyTypeClasses));
+            return anyTypeClasses(List.of(anyTypeClasses));
         }
 
         public Builder keyword(final String keyword) {

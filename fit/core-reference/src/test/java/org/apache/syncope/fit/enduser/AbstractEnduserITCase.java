@@ -23,7 +23,7 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-import java.util.Collections;
+
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +77,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
         @Bean
         public List<WicketApplicationInitConfiguration> configurations() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         @Bean

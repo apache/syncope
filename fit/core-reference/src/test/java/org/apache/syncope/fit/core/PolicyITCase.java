@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
@@ -132,7 +131,7 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
-        assertTrue(policyTO.getUsedByRealms().containsAll(Arrays.asList("/", "/odd", "/even")));
+        assertTrue(policyTO.getUsedByRealms().containsAll(List.of("/", "/odd", "/even")));
     }
 
     @Test

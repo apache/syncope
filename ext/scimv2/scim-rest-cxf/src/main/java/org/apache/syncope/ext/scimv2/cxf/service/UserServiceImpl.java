@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -46,8 +46,8 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
                 binder().toSCIMUser(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        List.of(),
+                        List.of()));
     }
 
     @Override
@@ -58,8 +58,8 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
         return binder().toSCIMUser(
                 userLogic().read(id),
                 uriInfo.getAbsolutePathBuilder().build().toASCIIString(),
-                Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
-                Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
+                List.of(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
+                List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
     }
 
     @Override
@@ -85,8 +85,8 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
                 binder().toSCIMUser(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        List.of(),
+                        List.of()));
     }
 
     @Override
@@ -113,11 +113,11 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
         SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
         if (attributes != null) {
             request.getAttributes().addAll(
-                    Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))));
+                    List.of(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))));
         }
         if (excludedAttributes != null) {
             request.getExcludedAttributes().addAll(
-                    Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
+                    List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
         }
 
         return doSearch(Resource.User, request);

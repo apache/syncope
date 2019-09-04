@@ -167,7 +167,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override

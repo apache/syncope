@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -127,7 +126,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Override
     public <T extends Any<?>> List<T> search(final SearchCond cond, final AnyTypeKind kind) {
-        return search(cond, Collections.<OrderByClause>emptyList(), kind);
+        return search(cond, List.of(), kind);
     }
 
     @Override
@@ -332,13 +331,13 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         if (adminRealms == null || adminRealms.isEmpty()) {
             LOG.error("No realms provided");
-            return Collections.<T>emptyList();
+            return List.of();
         }
 
         LOG.debug("Search condition:\n{}", cond);
         if (cond == null || !cond.isValid()) {
             LOG.error("Invalid search condition:\n{}", cond);
-            return Collections.<T>emptyList();
+            return List.of();
         }
 
         List<OrderByClause> effectiveOrderBy;
@@ -346,7 +345,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             OrderByClause keyClause = new OrderByClause();
             keyClause.setField(kind == AnyTypeKind.USER ? "username" : "name");
             keyClause.setDirection(OrderByClause.Direction.ASC);
-            effectiveOrderBy = Collections.singletonList(keyClause);
+            effectiveOrderBy = List.of(keyClause);
         } else {
             effectiveOrderBy = orderBy.stream().
                     filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).

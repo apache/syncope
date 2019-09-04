@@ -19,7 +19,8 @@
 package org.apache.syncope.fit.core;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
+
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
@@ -63,7 +64,7 @@ public class SAML2CallbackHandler implements CallbackHandler {
                 samlCallback.setSubject(subjectBean);
                 AuthenticationStatementBean authBean = new AuthenticationStatementBean();
                 authBean.setAuthenticationMethod("Password");
-                samlCallback.setAuthenticationStatementData(Collections.singletonList(authBean));
+                samlCallback.setAuthenticationStatementData(List.of(authBean));
             } else {
                 throw new UnsupportedCallbackException(callback, "Unrecognized Callback");
             }

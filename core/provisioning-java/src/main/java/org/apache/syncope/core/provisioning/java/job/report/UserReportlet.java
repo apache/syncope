@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,7 +36,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -382,7 +380,7 @@ public class UserReportlet extends AbstractReportlet {
                         SearchCondConverter.convert(this.conf.getMatchingCond()),
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.USER);
             }
 

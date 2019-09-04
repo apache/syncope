@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -170,7 +169,7 @@ public class ResourceITCase extends AbstractITCase {
         prop.setSchema(schema);
         prop.getValues().add("http://invalidurl/");
 
-        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(prop));
+        Set<ConnConfProperty> connectorConfigurationProperties = Set.of(prop);
         resourceTO.getConfOverride().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);

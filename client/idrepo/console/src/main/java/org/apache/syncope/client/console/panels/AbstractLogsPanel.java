@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -73,7 +72,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                     MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, IdRepoEntitlement.LOG_SET_LEVEL);
 
                     loggerTOs.hideLabel();
-                    loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));
+                    loggerTOs.setChoices(List.of(LoggerLevel.values()));
                     loggerTOs.setNullValid(false);
                     loggerTOs.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 

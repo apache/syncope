@@ -161,7 +161,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
 
     }
 

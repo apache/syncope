@@ -163,7 +163,7 @@ public class NotificationDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     protected class NotificationProvider extends DirectoryDataProvider<NotificationTO> {

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +46,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Pair<String, List<PropagationStatus>> create(final UserCR req, final boolean nullPriorityAsync) {
-        return create(req, false, null, Collections.<String>emptySet(), nullPriorityAsync);
+        return create(req, false, null, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -107,7 +106,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
+        return delete(key, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

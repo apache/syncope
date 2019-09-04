@@ -102,7 +102,7 @@ public class LoggerRestClient extends BaseRestClient {
         try {
             return getService(LoggerService.class).events();
         } catch (Exception e) {
-            return Collections.<EventCategory>emptyList();
+            return List.of();
         }
     }
 }

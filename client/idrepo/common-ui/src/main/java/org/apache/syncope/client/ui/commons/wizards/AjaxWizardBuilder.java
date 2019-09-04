@@ -20,7 +20,6 @@ package org.apache.syncope.client.ui.commons.wizards;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -53,7 +52,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     }
 
     public final AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(Arrays.asList(childs));
+        outerObjects.addAll(List.of(childs));
         return this;
     }
 

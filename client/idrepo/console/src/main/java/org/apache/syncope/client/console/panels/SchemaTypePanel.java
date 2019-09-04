@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,12 +66,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] {
-                "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] {
-                "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
-                "key", "resource", "anyType", "extAttrName", "readonly" }));
+            put(SchemaType.PLAIN,
+                List.of("key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"));
+            put(SchemaType.DERIVED, List.of("key", "expression"));
+            put(SchemaType.VIRTUAL, List.of("key", "resource", "anyType", "extAttrName", "readonly"));
         }
     };
 
@@ -119,7 +116,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override

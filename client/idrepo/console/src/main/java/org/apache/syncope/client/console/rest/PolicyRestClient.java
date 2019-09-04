@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +54,7 @@ public class PolicyRestClient extends BaseRestClient {
                     collect(Collectors.toList());
         } catch (Exception ignore) {
             LOG.debug("No policy found", ignore);
-            return Collections.<T>emptyList();
+            return List.of();
         }
     }
 

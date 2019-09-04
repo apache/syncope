@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -171,7 +170,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         // Ensures that, if the self update above moves the user into a status from which no authentication
         // is possible, the existing Access Token is clean up to avoid issues with future authentications
-        List<String> authStatuses = Arrays.asList(confParamOps.get(AuthContextUtils.getDomain(),
+        List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
             String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
@@ -262,7 +261,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 updated.getRight(),
                 Collections.<LogicActions>emptyList(),
                 false,
-                Collections.<String>emptySet());
+                Set.of());
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -275,7 +274,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 updated.getRight(),
                 Collections.<LogicActions>emptyList(),
                 false,
-                Collections.<String>emptySet());
+                Set.of());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")

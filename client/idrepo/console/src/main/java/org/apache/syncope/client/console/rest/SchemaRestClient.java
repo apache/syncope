@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -87,7 +86,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getSchemaNames(final SchemaType schemaType) {
-        List<String> schemaNames = Collections.emptyList();
+        List<String> schemaNames = List.of();
 
         try {
             schemaNames = getSchemas(schemaType, null, new String[0]).stream().

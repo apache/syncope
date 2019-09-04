@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +111,7 @@ public class MailTemplateTest extends AbstractTest {
 
         UserTO recipient = SerializationUtils.clone(user);
         recipient.getPlainAttr("email").get().getValues().set(0, "another@syncope.apache.org");
-        ctx.put("recipients", Collections.singletonList(recipient));
+        ctx.put("recipients", List.of(recipient));
 
         String htmlBody = evaluate(
                 mailTemplateDAO.find("optin").getHTMLTemplate(),

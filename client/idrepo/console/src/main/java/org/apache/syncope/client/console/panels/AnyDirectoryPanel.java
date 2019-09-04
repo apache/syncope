@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -176,7 +175,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             }
 
             prefMan.setList(getRequest(), getResponse(), DisplayAttributesModalPanel.getPrefDetailView(type),
-                    Arrays.asList(getDefaultAttributeSelection()));
+                    List.of(getDefaultAttributeSelection()));
         }
 
         columns.addAll(prefcolumns);

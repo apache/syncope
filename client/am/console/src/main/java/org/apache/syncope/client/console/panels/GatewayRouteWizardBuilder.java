@@ -20,7 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.syncope.client.console.rest.GatewayRouteRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -104,7 +105,7 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
 
             add(new AjaxDropDownChoicePanel<>(
                     "status", "status", new PropertyModel<>(route, "status")).
-                    setChoices(Arrays.asList((Serializable[]) GatewayRouteStatus.values())));
+                    setChoices(List.of((Serializable[]) GatewayRouteStatus.values())));
         }
     }
 

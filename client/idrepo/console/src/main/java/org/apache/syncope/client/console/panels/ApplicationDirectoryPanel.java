@@ -212,7 +212,7 @@ public class ApplicationDirectoryPanel extends
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     public abstract static class Builder

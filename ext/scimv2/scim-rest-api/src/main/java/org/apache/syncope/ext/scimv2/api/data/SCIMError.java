@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import java.util.Arrays;
+
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
@@ -35,7 +35,7 @@ public class SCIMError extends SCIMBean {
 
     private static final long serialVersionUID = -8836902509266522394L;
 
-    private final List<String> schemas = Arrays.asList(Resource.Error.schema());
+    private final List<String> schemas = List.of(Resource.Error.schema());
 
     private ErrorType scimType;
 

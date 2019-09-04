@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.audit;
 
-import java.util.Collections;
 import java.util.Set;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +52,7 @@ public abstract class DefaultRewriteAuditAppender extends AbstractAuditAppender 
 
     @Override
     public Set<AuditLoggerName> getEvents() {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     @Override

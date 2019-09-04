@@ -78,7 +78,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
             final Map<String, CustomizationOption> whichAttrs) {
         super();
         this.anyTypeClasses = anyTypeClasses;
-        this.attrs = new ListModel<>(Collections.<Attr>emptyList());
+        this.attrs = new ListModel<>(List.of());
         this.membershipTOs = new ListModel<>(Collections.<MembershipTO>emptyList());
 
         this.setOutputMarkupId(true);
@@ -146,7 +146,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
                 : groupName + "#")
                 + schema;
         return whichAttrs.get(schemaName) == null
-                ? Collections.<String>emptyList()
+                ? List.of()
                 : whichAttrs.get(schemaName).getDefaultValues();
     }
 
@@ -171,7 +171,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     private void setSchemas(final List<String> anyTypeClasses, final String groupName, final Map<String, S> scs) {
         final List<S> allSchemas;
         if (anyTypeClasses.isEmpty()) {
-            allSchemas = Collections.emptyList();
+            allSchemas = List.of();
         } else {
             allSchemas = schemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
         }
@@ -212,7 +212,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         try {
             return syncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
         } catch (Exception e) {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

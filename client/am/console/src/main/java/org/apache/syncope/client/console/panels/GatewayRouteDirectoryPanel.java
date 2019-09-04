@@ -166,7 +166,7 @@ public class GatewayRouteDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

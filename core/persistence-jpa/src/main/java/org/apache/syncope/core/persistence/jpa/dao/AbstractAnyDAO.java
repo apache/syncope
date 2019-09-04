@@ -197,7 +197,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         String entityName = schema.isUniqueConstraint()
@@ -314,7 +314,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
-            return Collections.emptySet();
+            return Set.of();
         }
 
         // clauses to be used with INTERSECTed queries
@@ -392,7 +392,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     public List<A> findByDerAttrValue(final DerSchema schema, final String value, final boolean ignoreCaseMatch) {
         if (schema == null) {
             LOG.error("No DerSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         // query string

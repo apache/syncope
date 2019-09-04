@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -255,7 +253,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
     private Set<Object> getValues(final Attribute attr) {
         Set<Object> values;
         if (attr.getValue() == null || attr.getValue().isEmpty()) {
-            values = Collections.emptySet();
+            values = Set.of();
         } else if (attr.getValue().get(0) instanceof byte[]) {
             values = new HashSet<>(attr.getValue().size());
             attr.getValue().forEach(single -> values.add(Base64.getEncoder().encode((byte[]) single)));
@@ -319,11 +317,11 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         syncopeAttrs.keySet().stream().
                                 filter(syncopeAttr -> !resourceAttrs.containsKey(syncopeAttr)).
                                 forEach(name -> misaligned.add(new Misaligned(
-                                        resource.getKey(),
-                                        connObjectKeyValue,
-                                        name,
-                                        syncopeAttrs.get(name),
-                                        Collections.emptySet())));
+                                resource.getKey(),
+                                connObjectKeyValue,
+                                name,
+                                syncopeAttrs.get(name),
+                                Set.of())));
 
                         resourceAttrs.forEach((key, values) -> {
                             if (syncopeAttrs.containsKey(key)) {
@@ -340,7 +338,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                         resource.getKey(),
                                         connObjectKeyValue,
                                         key,
-                                        Collections.emptySet(),
+                                        Set.of(),
                                         values));
                             }
                         });
@@ -402,7 +400,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         cond,
                         page,
                         PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.USER));
             }
         }
@@ -442,7 +440,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         cond,
                         page,
                         PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.GROUP));
             }
         }
@@ -477,7 +475,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             cond,
                             page,
                             PAGE_SIZE,
-                            Collections.<OrderByClause>emptyList(),
+                            List.of(),
                             AnyTypeKind.ANY_OBJECT));
                 }
 

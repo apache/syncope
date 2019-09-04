@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
@@ -75,7 +74,7 @@ public class PushUtils {
                 .orElseGet(() -> findByConnObjectKey(connector, any, provision));
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
-            return Collections.<ConnectorObject>emptyList();
+            return List.of();
         }
     }
 
@@ -135,6 +134,6 @@ public class PushUtils {
             }
         }
 
-        return obj == null ? Collections.emptyList() : Collections.singletonList(obj);
+        return obj == null ? List.of() : List.of(obj);
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.CamelMetrics;
@@ -33,7 +32,7 @@ public class CamelRoutesRestClient extends BaseRestClient {
     public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
         return isCamelEnabledFor(anyTypeKind)
                 ? getService(CamelRouteService.class).list(anyTypeKind)
-                : Collections.<CamelRouteTO>emptyList();
+                : List.of();
     }
 
     public CamelRouteTO read(final AnyTypeKind anyTypeKind, final String key) {

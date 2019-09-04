@@ -59,7 +59,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -168,7 +167,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> noPropResourceKeys) {
 
         if (propByRes == null || propByRes.isEmpty()) {
-            return Collections.<PropagationTaskInfo>emptyList();
+            return List.of();
         }
 
         if (noPropResourceKeys != null) {
@@ -375,11 +374,11 @@ public class PropagationManagerImpl implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            Provision provision = Optional.ofNullable(resource)
-                    .map(externalResource -> externalResource.getProvision(any.getType())
-                    .orElse(null)).orElse(null);
+            Provision provision = Optional.ofNullable(resource).
+                    map(externalResource -> externalResource.getProvision(any.getType()).
+                    orElse(null)).orElse(null);
             List<? extends Item> mappingItems = provision == null
-                    ? Collections.<Item>emptyList()
+                    ? List.of()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems());
 
             if (resource == null) {

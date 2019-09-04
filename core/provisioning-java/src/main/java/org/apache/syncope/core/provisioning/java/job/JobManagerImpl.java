@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -382,7 +381,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
                             job,
                             conf.getLeft(),
                             null,
-                            Collections.emptyMap());
+                            Map.of());
                 } catch (Exception e) {
                     LOG.error("While loading {} instance", NotificationJob.class.getSimpleName(), e);
                 }
@@ -397,7 +396,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
                         job,
                         "0 * * * * ?",
                         null,
-                        Collections.emptyMap());
+                        Map.of());
             } catch (Exception e) {
                 LOG.error("While loading {} instance", SystemLoadReporterJob.class.getSimpleName(), e);
             }

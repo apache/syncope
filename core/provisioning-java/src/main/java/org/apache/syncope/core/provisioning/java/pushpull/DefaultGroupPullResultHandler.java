@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -91,7 +92,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         Map.Entry<String, List<PropagationStatus>> created = groupProvisioningManager.create(
                 groupCR,
                 groupOwnerMap,
-                Collections.singleton(profile.getTask().getResource().getKey()),
+                Set.of(profile.getTask().getResource().getKey()),
                 true);
 
         return getAnyTO(created.getKey());
@@ -107,7 +108,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         GroupUR groupUR = GroupUR.class.cast(req);
 
         Pair<GroupUR, List<PropagationStatus>> updated = groupProvisioningManager.update(
-                groupUR, Collections.singleton(profile.getTask().getResource().getKey()), true);
+                groupUR, Set.of(profile.getTask().getResource().getKey()), true);
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {

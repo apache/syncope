@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -73,13 +71,12 @@ public class Audit extends BasePage {
 
             @Override
             protected List<String> getListAuthRoles() {
-                return Collections.singletonList(IdRepoEntitlement.AUDIT_LIST);
+                return List.of(IdRepoEntitlement.AUDIT_LIST);
             }
 
             @Override
             protected List<String> getChangeAuthRoles() {
-                return Arrays.asList(
-                        new String[] { IdRepoEntitlement.AUDIT_ENABLE, IdRepoEntitlement.AUDIT_DISABLE });
+                return List.of(IdRepoEntitlement.AUDIT_ENABLE, IdRepoEntitlement.AUDIT_DISABLE);
             }
 
             @Override

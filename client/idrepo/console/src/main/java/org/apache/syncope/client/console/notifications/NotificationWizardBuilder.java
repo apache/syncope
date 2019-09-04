@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.notifications;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -151,7 +150,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
                     "traceLevel", getString("traceLevel"),
                     new PropertyModel<>(notificationTO, "traceLevel"));
-            traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+            traceLevel.setChoices(List.of(TraceLevel.values()));
             traceLevel.addRequiredLabel();
             add(traceLevel);
 
@@ -181,12 +180,12 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
                 @Override
                 protected List<String> getListAuthRoles() {
-                    return Collections.emptyList();
+                    return List.of();
                 }
 
                 @Override
                 protected List<String> getChangeAuthRoles() {
-                    return Collections.emptyList();
+                    return List.of();
                 }
             });
         }

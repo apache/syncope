@@ -65,10 +65,10 @@ public class ConnObjectPanel extends Panel {
             @Override
             protected List<String> load() {
                 List<Attr> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
-                        ? Collections.<Attr>emptyList()
+                        ? List.of()
                         : connObjectTOs.getRight().getAttrs());
                 List<Attr> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
-                        ? Collections.<Attr>emptyList()
+                        ? List.of()
                         : connObjectTOs.getLeft().getAttrs());
 
                 List<String> schemas = ListUtils.sum(right.stream().map(Attr::getSchema).collect(Collectors.toList()),

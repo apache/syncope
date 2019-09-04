@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
@@ -46,7 +45,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
 
     private static final long serialVersionUID = -6731030158762705250L;
 
-    private static final List<String> JDBC_DRIVERS = Arrays.asList(
+    private static final List<String> JDBC_DRIVERS = List.of(
             "org.postgresql.Driver",
             "com.mysql.cj.jdbc.Driver",
             "org.mariadb.jdbc.Driver",
@@ -54,7 +53,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             "oracle.jdbc.OracleDriver",
             "org.h2.Driver");
 
-    private static final List<String> DATABASE_PLATFORMS = Arrays.asList(
+    private static final List<String> DATABASE_PLATFORMS = List.of(
             "org.apache.openjpa.jdbc.sql.PostgresDictionary",
             "org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3)",
             "org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3)",
@@ -121,7 +120,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             AjaxDropDownChoicePanel<Domain.TransactionIsolation> transactionIsolation = new AjaxDropDownChoicePanel<>(
                     "transactionIsolation", "transactionIsolation",
                     new PropertyModel<>(domain, "transactionIsolation"), false);
-            transactionIsolation.setChoices(Arrays.asList(Domain.TransactionIsolation.values()));
+            transactionIsolation.setChoices(List.of(Domain.TransactionIsolation.values()));
             transactionIsolation.addRequiredLabel();
             transactionIsolation.setNullValid(false);
             add(transactionIsolation);
@@ -164,7 +163,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             AjaxDropDownChoicePanel<CipherAlgorithm> adminCipherAlgorithm = new AjaxDropDownChoicePanel<>(
                     "adminCipherAlgorithm", "adminCipherAlgorithm",
                     new PropertyModel<>(domain, "adminCipherAlgorithm"), false);
-            adminCipherAlgorithm.setChoices(Arrays.asList(CipherAlgorithm.values()));
+            adminCipherAlgorithm.setChoices(List.of(CipherAlgorithm.values()));
             adminCipherAlgorithm.addRequiredLabel();
             adminCipherAlgorithm.setNullValid(false);
             add(adminCipherAlgorithm);

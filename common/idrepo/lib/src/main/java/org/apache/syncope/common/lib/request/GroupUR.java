@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -87,7 +86,7 @@ public class GroupUR extends AnyUR {
         }
 
         public Builder typeExtensions(final TypeExtensionTO... typeExtensions) {
-            getInstance().getTypeExtensions().addAll(Arrays.asList(typeExtensions));
+            getInstance().getTypeExtensions().addAll(List.of(typeExtensions));
             return this;
         }
 

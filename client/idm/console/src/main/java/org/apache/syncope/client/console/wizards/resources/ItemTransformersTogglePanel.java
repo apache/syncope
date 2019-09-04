@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +57,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
             protected List<String> load() {
                 // [!] this is required to disable changed with close button
                 return item == null
-                        ? Collections.<String>emptyList()
+                        ? List.of()
                         : item.getTransformers();
             }
         };

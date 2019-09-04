@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -107,7 +106,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             }
             handler.setProfile(profile);
 
-            doHandle(Arrays.asList(any), handler, pushTask.getResource());
+            doHandle(List.of(any), handler, pushTask.getResource());
 
             for (PushActions action : actions) {
                 action.afterAll(profile);
