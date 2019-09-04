@@ -50,7 +50,7 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
             final IModel<ConnObjectTO> rowModel) {
 
         Optional<Attr> attr = rowModel.getObject().getAttr(name);
-        List<String> values = attr.isPresent() ? attr.get().getValues() : null;
+        List<String> values = attr.map(Attr::getValues).orElse(null);
 
         if (values == null || values.isEmpty()) {
             cellItem.add(new Label(componentId, ""));

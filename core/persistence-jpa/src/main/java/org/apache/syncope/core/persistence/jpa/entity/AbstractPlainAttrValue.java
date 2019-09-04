@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
@@ -67,16 +69,12 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     @Override
     public Date getDateValue() {
-        return dateValue == null
-                ? null
-                : new Date(dateValue.getTime());
+        return Optional.ofNullable(dateValue).map(value -> new Date(value.getTime())).orElse(null);
     }
 
     @Override
     public void setDateValue(final Date dateValue) {
-        this.dateValue = dateValue == null
-                ? null
-                : new Date(dateValue.getTime());
+        this.dateValue = Optional.ofNullable(dateValue).map(value -> new Date(value.getTime())).orElse(null);
     }
 
     @Override
@@ -250,7 +248,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
             LOG.warn("Could not find expected value for type {} in {}, reverting to getValue().toString()", type, this);
 
             Object value = getValue();
-            return value == null ? null : value.toString();
+            return Optional.ofNullable(value).map(Object::toString).orElse(null);
         }
 
         String result;

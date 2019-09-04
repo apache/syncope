@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.ws.rs.core.EntityTag;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 
@@ -51,7 +53,7 @@ public class Meta extends SCIMBean {
         this.resourceType = resourceType;
         this.created = created;
         this.lastModified = lastModified;
-        this.version = version == null ? null : new EntityTag(version, true);
+        this.version = Optional.ofNullable(version).map(s -> new EntityTag(s, true)).orElse(null);
         this.location = location;
     }
 
@@ -69,7 +71,7 @@ public class Meta extends SCIMBean {
 
     @JsonProperty
     public String getVersion() {
-        return version == null ? null : version.toString();
+        return Optional.ofNullable(version).map(EntityTag::toString).orElse(null);
     }
 
     public String getLocation() {

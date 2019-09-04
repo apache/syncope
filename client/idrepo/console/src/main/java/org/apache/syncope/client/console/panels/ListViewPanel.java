@@ -384,15 +384,11 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             LOG.debug("Field value {}", value);
 
-            return value == null
-                    ? new Label("field", StringUtils.EMPTY)
-                    : new Label("field", new ResourceModel(value.toString(), value.toString()));
+            return Optional.ofNullable(value).map(o -> new Label("field", new ResourceModel(o.toString(), o.toString()))).orElseGet(() -> new Label("field", StringUtils.EMPTY));
         }
 
         protected T getActualItem(final T item, final List<T> list) {
-            return item == null
-                    ? null
-                    : list.stream().filter(object -> item.equals(object)).findAny().orElse(null);
+            return Optional.ofNullable(item).map(t -> list.stream().filter(t::equals).findAny().orElse(null)).orElse(null);
         }
 
         @Override

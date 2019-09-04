@@ -20,6 +20,8 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.Attributable;
@@ -114,7 +116,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final Boolean object) {
-                item.setModelObject(object == null ? Boolean.FALSE.toString() : object.toString());
+                item.setModelObject(Optional.ofNullable(object).map(Object::toString).orElseGet(Boolean.FALSE::toString));
             }
         };
 

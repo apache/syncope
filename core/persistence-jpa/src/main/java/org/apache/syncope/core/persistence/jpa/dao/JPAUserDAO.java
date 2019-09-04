@@ -355,9 +355,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             for (AccountPolicy policy : getAccountPolicies(user)) {
                 for (Implementation impl : policy.getRules()) {
                     Optional<AccountRule> rule = ImplementationManager.buildAccountRule(impl);
-                    if (rule.isPresent()) {
-                        rule.get().enforce(user);
-                    }
+                    rule.ifPresent(accountRule -> accountRule.enforce(user));
                 }
 
                 suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0

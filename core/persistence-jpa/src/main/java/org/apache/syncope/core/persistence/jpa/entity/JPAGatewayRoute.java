@@ -22,6 +22,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -75,7 +77,7 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
 
     @Override
     public int getOrder() {
-        return routeOrder == null ? 0 : routeOrder;
+        return Optional.ofNullable(routeOrder).orElse(0);
     }
 
     @Override
@@ -90,7 +92,7 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
 
     @Override
     public void setTarget(final URI target) {
-        this.target = target == null ? null : target.toASCIIString();
+        this.target = Optional.ofNullable(target).map(URI::toASCIIString).orElse(null);
     }
 
     @Override

@@ -265,7 +265,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 
             Optional<ConnConfProperty> property = connInstanceTO.getConf(propName);
-            if (!property.isPresent()) {
+            if (property.isEmpty()) {
                 property = Optional.of(new ConnConfProperty());
                 connInstanceTO.getConf().add(property.get());
             }

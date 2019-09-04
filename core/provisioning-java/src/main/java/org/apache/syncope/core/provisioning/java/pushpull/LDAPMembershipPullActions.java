@@ -166,7 +166,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
 
         Optional<? extends Provision> provision = profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).
                 filter(p -> p.getMapping() != null);
-        if (!provision.isPresent()) {
+        if (provision.isEmpty()) {
             super.after(profile, delta, entity, result);
         }
 

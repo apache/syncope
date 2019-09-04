@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -63,11 +65,11 @@ public class AuditLoggerName implements Serializable {
 
         super();
 
-        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
+        this.type = Optional.ofNullable(type).orElse(EventCategoryType.CUSTOM);
         this.category = category;
         this.subcategory = subcategory;
         this.event = event;
-        this.result = result == null ? Result.SUCCESS : result;
+        this.result = Optional.ofNullable(result).orElse(Result.SUCCESS);
     }
 
     public AuditElements.EventCategoryType getType() {

@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -79,10 +80,8 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             }
         }
 
-        idpTO.setLogoutSupported(idpEntity == null
-                ? false
-                : idpEntity.getSLOLocation(SAML2BindingType.POST) != null
-                || idpEntity.getSLOLocation(SAML2BindingType.REDIRECT) != null);
+        idpTO.setLogoutSupported(Optional.ofNullable(idpEntity).filter(entity -> entity.getSLOLocation(SAML2BindingType.POST) != null
+            || entity.getSLOLocation(SAML2BindingType.REDIRECT) != null).isPresent());
         return idpTO;
     }
 

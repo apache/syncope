@@ -27,6 +27,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
+import java.util.Optional;
+
 public class TaskQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -8792519310029596796L;
@@ -129,7 +131,7 @@ public class TaskQuery extends AbstractQuery {
     }
 
     public Boolean getDetails() {
-        return details == null ? Boolean.TRUE : details;
+        return Optional.ofNullable(details).orElse(Boolean.TRUE);
     }
 
     @QueryParam(JAXRSService.PARAM_DETAILS)

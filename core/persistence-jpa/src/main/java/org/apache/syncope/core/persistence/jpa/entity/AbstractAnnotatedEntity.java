@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
@@ -73,12 +75,12 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
 
     @Override
     public Date getCreationDate() {
-        return creationDate == null ? null : new Date(creationDate.getTime());
+        return Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public void setCreationDate(final Date creationDate) {
-        this.creationDate = creationDate == null ? null : new Date(creationDate.getTime());
+        this.creationDate = Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
@@ -104,6 +106,6 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
 
     @Override
     public void setLastChangeDate(final Date lastChangeDate) {
-        this.lastChangeDate = lastChangeDate == null ? null : new Date(lastChangeDate.getTime());
+        this.lastChangeDate = Optional.ofNullable(lastChangeDate).map(changeDate -> new Date(changeDate.getTime())).orElse(null);
     }
 }

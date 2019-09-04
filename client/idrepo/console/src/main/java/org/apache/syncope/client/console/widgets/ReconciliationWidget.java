@@ -270,7 +270,7 @@ public class ReconciliationWidget extends BaseWidget {
             exec = restClient.listRecentExecutions(ROWS).stream().
                     filter(e -> reconciliationReportKey.equals(e.getRefKey())).findFirst();
         }
-        if (!exec.isPresent()) {
+        if (exec.isEmpty()) {
             LOG.error("Could not find the last execution of reconciliation report");
         } else {
             Object entity = restClient.exportExecutionResult(
@@ -312,7 +312,7 @@ public class ReconciliationWidget extends BaseWidget {
             }
         }
 
-        return Pair.of(beans, report == null ? new ReconciliationReport(new Date()) : report);
+        return Pair.of(beans, Optional.ofNullable(report).orElseGet(() -> new ReconciliationReport(new Date())));
     }
 
     private class AnysReconciliationPanel extends DirectoryPanel<Any, Any, AnysReconciliationProvider, BaseRestClient> {
@@ -400,7 +400,7 @@ public class ReconciliationWidget extends BaseWidget {
                                 filter(object -> resource.equals(object.getResource())).collect(Collectors.toList());
 
                         Component content;
-                        if (!missing.isPresent()) {
+                        if (missing.isEmpty()) {
                             if (misaligned == null || misaligned.isEmpty()) {
                                 content = new Label(componentId, StringUtils.EMPTY);
                             } else {

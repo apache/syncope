@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -228,7 +229,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
         // DEFAULT_TIMEOUT will be returned in case of null timeout:
         // * instances created by the content loader
         // * or with a timeout nullified explicitely
-        return connRequestTimeout == null ? DEFAULT_TIMEOUT : connRequestTimeout;
+        return Optional.ofNullable(connRequestTimeout).orElse(DEFAULT_TIMEOUT);
     }
 
     @Override

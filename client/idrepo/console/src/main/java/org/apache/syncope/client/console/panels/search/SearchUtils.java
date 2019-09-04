@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -453,7 +454,7 @@ public final class SearchUtils implements Serializable {
             notTheFirst = true;
         }
 
-        String fiql = condition == null ? null : condition.query();
+        String fiql = Optional.ofNullable(condition).map(CompleteCondition::query).orElse(null);
         LOG.debug("Generated FIQL: {}", fiql);
 
         return fiql;

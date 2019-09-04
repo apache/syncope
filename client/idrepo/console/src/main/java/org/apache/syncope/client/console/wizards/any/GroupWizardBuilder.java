@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.wizards.any;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.client.console.layout.GroupForm;
@@ -48,7 +50,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(groupTO == null ? null : new GroupWrapper(groupTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(groupTO).map(GroupWrapper::new).orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -399,9 +400,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             LOG.error("While reading all any types", e);
         }
 
-        String[] anyTypeClasses = type == null
-                ? new String[0]
-                : type.getClasses().toArray(new String[] {});
+        String[] anyTypeClasses = Optional.ofNullable(type).map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[]{})).orElseGet(() -> new String[0]);
 
         List<String> result = new ArrayList<>();
         result.add("username");

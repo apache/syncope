@@ -410,7 +410,7 @@ public class MappingManagerImpl implements MappingManager {
 
             if (intAttrName.getEnclosingGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup());
-                if (group == null || !groupableRelatable.getMembership(group.getKey()).isPresent()) {
+                if (group == null || groupableRelatable.getMembership(group.getKey()).isEmpty()) {
                     LOG.warn("No membership for {} in {}, ignoring",
                             intAttrName.getEnclosingGroup(), groupableRelatable);
                 } else {
@@ -636,9 +636,7 @@ public class MappingManagerImpl implements MappingManager {
             preparedAttr = prepareAttr(provision, connObjectKeyItem.get(), any, null);
         }
 
-        return preparedAttr == null
-                ? null
-                : MappingUtils.evaluateNAME(any, provision, preparedAttr.getKey()).getNameValue();
+        return Optional.ofNullable(preparedAttr).map(attr -> MappingUtils.evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -667,7 +665,7 @@ public class MappingManagerImpl implements MappingManager {
     public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
         OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
 
-        return Optional.ofNullable(orgUnitItem == null ? null : getIntValue(realm, orgUnitItem));
+        return Optional.ofNullable(Optional.ofNullable(orgUnitItem).map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
     }
 
     @Transactional(readOnly = true)
@@ -680,7 +678,7 @@ public class MappingManagerImpl implements MappingManager {
                 values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
-        values = values == null ? Collections.emptyList() : values;
+        values = Optional.ofNullable(values).orElse(Collections.emptyList());
 
         IntAttrName intAttrName;
         try {

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.status;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -293,9 +294,7 @@ public class ResourceStatusDirectoryPanel
 
         @Override
         public long size() {
-            return fiql == null
-                    ? 0
-                    : restClient.count(SyncopeConstants.ROOT_REALM, fiql, type);
+            return Optional.ofNullable(fiql).map(s -> restClient.count(SyncopeConstants.ROOT_REALM, s, type)).orElse(0);
         }
     }
 }

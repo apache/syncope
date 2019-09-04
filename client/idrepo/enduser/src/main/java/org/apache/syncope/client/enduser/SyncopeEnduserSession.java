@@ -22,6 +22,7 @@ import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -97,7 +98,7 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
     }
 
     public String getJWT() {
-        return client == null ? null : client.getJWT();
+        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }
 
     @Override

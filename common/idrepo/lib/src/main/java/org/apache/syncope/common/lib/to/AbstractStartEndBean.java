@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -36,28 +38,20 @@ public class AbstractStartEndBean extends BaseBean {
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getStart() {
-        return start == null
-                ? null
-                : new Date(start.getTime());
+        return Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setStart(final Date start) {
-        this.start = start == null
-                ? null
-                : new Date(start.getTime());
+        this.start = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getEnd() {
-        return end == null
-                ? null
-                : new Date(end.getTime());
+        return Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setEnd(final Date end) {
-        this.end = end == null
-                ? null
-                : new Date(end.getTime());
+        this.end = Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -95,8 +96,8 @@ public class ConnObjectPanel extends Panel {
                 final String prop = item.getModelObject();
 
                 final Fragment valueFragment;
-                final Attr left = leftProfile == null ? null : leftProfile.get(prop);
-                final Attr right = rightProfile == null ? null : rightProfile.get(prop);
+                final Attr left = Optional.ofNullable(leftProfile).map(stringAttrMap -> stringAttrMap.get(prop)).orElse(null);
+                final Attr right = Optional.ofNullable(rightProfile).map(profile -> profile.get(prop)).orElse(null);
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
                 valueFragment.add(getValuePanel("leftAttribute", prop, left).

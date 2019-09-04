@@ -28,6 +28,8 @@ import org.apache.openjpa.jdbc.schema.ColumnIO;
 import org.apache.openjpa.jdbc.sql.DBDictionary;
 import org.apache.openjpa.meta.JavaTypes;
 
+import java.util.Optional;
+
 public class BooleanValueHandler extends AbstractValueHandler {
 
     private static final long serialVersionUID = -6742506201236646294L;
@@ -46,7 +48,7 @@ public class BooleanValueHandler extends AbstractValueHandler {
     @Override
     public Column[] map(final ValueMapping vm, final String name, final ColumnIO io, final boolean adapt) {
         DBDictionary dict = vm.getMappingRepository().getDBDictionary();
-        DBIdentifier colName = DBIdentifier.newColumn(name, dict != null ? dict.delimitAll() : false);
+        DBIdentifier colName = DBIdentifier.newColumn(name, Optional.ofNullable(dict).filter(DBDictionary::delimitAll).isPresent());
         return map(vm, colName, io, adapt);
     }
 
@@ -59,11 +61,11 @@ public class BooleanValueHandler extends AbstractValueHandler {
 
     @Override
     public Object toDataStoreValue(final ValueMapping vm, final Object val, final JDBCStore store) {
-        return val == null ? null : BooleanUtils.isTrue((Boolean) val) ? 1 : 0;
+        return Optional.ofNullable(val).map(o -> BooleanUtils.isTrue((Boolean) o) ? 1 : 0).orElse(null);
     }
 
     @Override
     public Object toObjectValue(final ValueMapping vm, final Object val) {
-        return val == null ? null : BooleanUtils.toBoolean((int) val);
+        return Optional.ofNullable(val).map(o -> BooleanUtils.toBoolean((int) o)).orElse(null);
     }
 }

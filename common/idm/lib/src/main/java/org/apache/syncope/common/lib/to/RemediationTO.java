@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -123,15 +125,11 @@ public class RemediationTO extends BaseBean implements EntityTO {
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getInstant() {
-        return instant == null
-                ? null
-                : new Date(instant.getTime());
+        return Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setInstant(final Date instant) {
-        this.instant = instant == null
-                ? null
-                : new Date(instant.getTime());
+        this.instant = Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -272,7 +273,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 changePwd,
                 enable,
                 false,
-                propByRes == null ? new PropagationByResource() : propByRes,
+            Optional.ofNullable(propByRes).orElseGet(PropagationByResource::new),
                 vAttrs);
     }
 
@@ -371,7 +372,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            Provision provision = resource == null ? null : resource.getProvision(any.getType()).orElse(null);
+            Provision provision = Optional.ofNullable(resource).map(externalResource -> externalResource.getProvision(any.getType()).orElse(null)).orElse(null);
             List<? extends Item> mappingItems = provision == null
                     ? Collections.<Item>emptyList()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems());
@@ -458,7 +459,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            OrgUnit orgUnit = resource == null ? null : resource.getOrgUnit();
+            OrgUnit orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);
