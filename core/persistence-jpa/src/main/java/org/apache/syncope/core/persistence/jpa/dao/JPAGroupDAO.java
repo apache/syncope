@@ -229,6 +229,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return query.getResultList();
     }
 
+    @Override
+    public List<String> findAllKeys(final int page, final int itemsPerPage) {
+        return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
+    }
+
     private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
         AssignableCond cond = new AssignableCond();
         cond.setRealmFullPath(groupRealm.getFullPath());
