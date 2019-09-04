@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.utils;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -133,7 +134,7 @@ public class ConnObjectUtils {
                 Attr attrTO = new Attr();
                 attrTO.setSchema(attr.getName());
                 if (attr.getValue() != null) {
-                    attr.getValue().stream().filter(value -> value != null).forEachOrdered(value -> {
+                    attr.getValue().stream().filter(Objects::nonNull).forEachOrdered(value -> {
                         if (value instanceof GuardedString || value instanceof GuardedByteArray) {
                             attrTO.getValues().add(getPassword(value));
                         } else if (value instanceof byte[]) {
@@ -182,17 +183,13 @@ public class ConnObjectUtils {
             if (realm != null) {
                 realmDAO.findAncestors(realm).stream().
                         filter(ancestor -> ancestor.getPasswordPolicy() != null).
-                        forEach(ancestor -> {
-                            passwordPolicies.add(ancestor.getPasswordPolicy());
-                        });
+                        forEach(ancestor -> passwordPolicies.add(ancestor.getPasswordPolicy()));
             }
 
             userCR.getResources().stream().
                     map(resource -> resourceDAO.find(resource)).
                     filter(resource -> resource != null && resource.getPasswordPolicy() != null).
-                    forEach(resource -> {
-                        passwordPolicies.add(resource.getPasswordPolicy());
-                    });
+                    forEach(resource -> passwordPolicies.add(resource.getPasswordPolicy()));
 
             String password;
             try {
@@ -310,9 +307,7 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(item -> {
-            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO);
-        });
+        MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
         // 2. add data from defined template (if any)
         templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
@@ -323,9 +318,7 @@ public class ConnObjectUtils {
     public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        MappingUtils.getPullItems(orgUnit.getItems()).forEach(item -> {
-            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO);
-        });
+        MappingUtils.getPullItems(orgUnit.getItems()).forEach(item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
 
         return realmTO;
     }

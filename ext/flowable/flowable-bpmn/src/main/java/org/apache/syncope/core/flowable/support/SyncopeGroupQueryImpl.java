@@ -58,7 +58,7 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
             }
         } else if (userId != null) {
             result = userDAO.findAllGroupNames(userDAO.findByUsername(userId)).stream().
-                    map(groupName -> fromSyncopeGroup(groupName)).
+                    map(this::fromSyncopeGroup).
                     collect(Collectors.toList());
         }
     }

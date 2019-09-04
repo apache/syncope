@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -170,7 +171,7 @@ public class ElasticsearchUtils {
                     field("mustChangePassword", user.isMustChangePassword());
 
             List<Object> roles = userDAO.findAllRoles(user).stream().
-                    map(r -> r.getKey()).collect(Collectors.toList());
+                    map(Entity::getKey).collect(Collectors.toList());
             builder = builder.field("roles", roles);
 
             Set<Object> privileges = userDAO.findAllRoles(user).stream().
@@ -185,9 +186,7 @@ public class ElasticsearchUtils {
             user.getRelationships().stream().map(relationship -> {
                 relationships.add(relationship.getRightEnd().getKey());
                 return relationship;
-            }).forEachOrdered(relationship -> {
-                relationshipTypes.add(relationship.getType().getKey());
-            });
+            }).forEachOrdered(relationship -> relationshipTypes.add(relationship.getType().getKey()));
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
         }
@@ -195,7 +194,7 @@ public class ElasticsearchUtils {
         if (any.getPlainAttrs() != null) {
             for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
                 List<Object> values = plainAttr.getValues().stream().
-                        map(value -> value.getValue()).collect(Collectors.toList());
+                        map(PlainAttrValue::getValue).collect(Collectors.toList());
 
                 if (plainAttr.getUniqueValue() != null) {
                     values.add(plainAttr.getUniqueValue().getValue());

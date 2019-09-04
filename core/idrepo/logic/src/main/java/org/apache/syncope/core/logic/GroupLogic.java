@@ -123,7 +123,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 -> realm.startsWith(ownedRealm) || ownedRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
         if (!authorized) {
             authorized = groupDAO.findDynRealms(key).stream().
-                    anyMatch(dynRealm -> effectiveRealms.contains(dynRealm));
+                    anyMatch(effectiveRealms::contains);
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);

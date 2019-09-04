@@ -156,10 +156,7 @@ public class Groups extends AbstractGroups {
                                             isAssignable().and().is("name").equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
-                                    null)).stream().map(input -> {
-
-                                return new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build();
-                            }).collect(Collectors.toList());
+                                    null)).stream().map(input -> new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build()).collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));
 

@@ -468,9 +468,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                     filter(SequenceFlow.class::isInstance).
                     map(SequenceFlow.class::cast).
                     filter(sequenceFlow -> sequenceFlow.getSourceRef().equals(currentTask.getTaskDefinitionKey())).
-                    forEach(sequenceFlow -> {
-                        navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks);
-                    });
+                    forEach(sequenceFlow -> navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks));
         } catch (FlowableException e) {
             throw new WorkflowException(
                     "While reading available tasks for workflow instance " + procInstID, e);

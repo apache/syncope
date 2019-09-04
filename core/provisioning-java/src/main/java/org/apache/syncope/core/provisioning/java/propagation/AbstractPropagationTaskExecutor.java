@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -237,16 +239,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
             // difference between beforeObj - just read above from the connector - and the values to be propagated
             Map<String, Attribute> originalAttrMap = beforeObj.getAttributes().stream().
-                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), attr -> attr));
+                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
             Map<String, Attribute> updateAttrMap = attributes.stream().
-                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), attr -> attr));
+                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
 
             // Only compare attribute from beforeObj that are also being updated
             Set<String> skipAttrNames = originalAttrMap.keySet();
             skipAttrNames.removeAll(updateAttrMap.keySet());
-            new HashSet<>(skipAttrNames).forEach(attrName -> {
-                originalAttrMap.remove(attrName);
-            });
+            new HashSet<>(skipAttrNames).forEach(originalAttrMap::remove);
 
             Set<Attribute> originalAttrs = new HashSet<>(originalAttrMap.values());
 
@@ -258,9 +258,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
                 Set<Attribute> strictlyModified = new HashSet<>();
                 attributes.stream().filter(attr -> (!originalAttrs.contains(attr))).
-                        forEachOrdered(attr -> {
-                            strictlyModified.add(attr);
-                        });
+                        forEachOrdered(strictlyModified::add);
 
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());
@@ -462,9 +460,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             propagationAttempted.set(true);
 
-            actions.forEach(action -> {
-                action.onError(task, execution, e);
-            });
+            actions.forEach(action -> action.onError(task, execution, e));
         } finally {
             // Try to read remote object AFTER any actual operation
             if (connector != null) {
@@ -633,7 +629,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 : task.getOldConnObjectKey();
 
         Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
+                map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
 
         ConnectorObject obj = null;
         Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);

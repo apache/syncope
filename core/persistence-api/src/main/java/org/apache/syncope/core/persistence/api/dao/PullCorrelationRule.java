@@ -26,6 +26,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 /**
  * Interface for correlation rule to be evaluated during PullJob execution.
  */
+@FunctionalInterface
 public interface PullCorrelationRule {
 
     default void setConf(PullCorrelationRuleConf conf) {

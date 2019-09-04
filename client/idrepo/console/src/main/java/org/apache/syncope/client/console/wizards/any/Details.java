@@ -29,6 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.link.AbstractLink;
@@ -89,11 +90,9 @@ public class Details<T extends AnyTO> extends WizardStep {
         List<RealmTO> realms = new ArrayList<>();
 
         realmLinks.stream().
-                map(link -> link.getDefaultModelObject()).
+                map(Component::getDefaultModelObject).
                 filter(modelObject -> modelObject instanceof RealmTO).
-                forEachOrdered(modelObject -> {
-                    realms.add((RealmTO) modelObject);
-                });
+                forEachOrdered(modelObject -> realms.add((RealmTO) modelObject));
 
         return realms;
     }

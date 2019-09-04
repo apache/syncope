@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -118,12 +119,10 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         synchronized (status) {
             if (!handled.isEmpty()) {
                 StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((key, value) -> {
-                    builder.append(' ').append(value.getLeft()).append('\t').
-                            append(key.getObjectClassValue()).
-                            append(" / latest: ").append(value.getRight()).
-                            append('\n');
-                });
+                handled.forEach((key, value) -> builder.append(' ').append(value.getLeft()).append('\t').
+                        append(key.getObjectClassValue()).
+                        append(" / latest: ").append(value.getRight()).
+                        append('\n'));
                 status.set(builder.toString());
             }
         }
@@ -163,9 +162,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 }
             }
             return group;
-        }).forEachOrdered(group -> {
-            groupDAO.save(group);
-        });
+        }).forEachOrdered(group -> groupDAO.save(group));
     }
 
     protected RealmPullResultHandler buildRealmHandler() {
@@ -311,7 +308,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                 try {
                     Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                            map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
+                            map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
                     Iterator<MappingItem> mapItems = new IteratorChain<>(
                             provision.getMapping().getItems().iterator(),
                             linkingMappingItems.iterator());
@@ -357,9 +354,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         profile.getResults().stream().
                                 filter(result -> result.getUidValue() != null
                                 && result.getOperation() == ResourceOperation.CREATE).
-                                forEach(result -> {
-                                    anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
-                                });
+                                forEach(result -> anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue()));
                     }
                 } catch (Throwable t) {
                     throw new JobExecutionException("While pulling from connector", t);

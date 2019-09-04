@@ -423,9 +423,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     pullTaskTO.setReconFilterBuilder(pullTask.getReconFilterBuilder().getKey());
                 }
 
-                pullTask.getTemplates().forEach(template -> {
-                    pullTaskTO.getTemplates().put(template.getAnyType().getKey(), template.get());
-                });
+                pullTask.getTemplates().forEach(template -> pullTaskTO.getTemplates().put(template.getAnyType().getKey(), template.get()));
 
                 pullTaskTO.setRemediation(pullTask.isRemediation());
                 break;
@@ -442,9 +440,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 pushTaskTO.setUnmatchingRule(pushTask.getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
 
-                pushTask.getFilters().forEach(filter -> {
-                    pushTaskTO.getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
-                });
+                pushTask.getFilters().forEach(filter -> pushTaskTO.getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond()));
                 break;
 
             case NOTIFICATION:

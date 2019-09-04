@@ -200,7 +200,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                     Attr attrTO = item.getModelObject();
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().filter(value -> StringUtils.isNotBlank(value))
+                    if (attrTO.getValues().stream().filter(StringUtils::isNotBlank)
                             .collect(Collectors.toList()).isEmpty()) {
                         attrTO.getValues().clear();
                         attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));

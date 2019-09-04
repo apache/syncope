@@ -179,7 +179,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         List<UserRequest> result = engine.getRuntimeService().createNativeProcessInstanceQuery().
                 sql(query.toString()).
                 listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
-                map(procInst -> getUserRequest(procInst)).
+                map(this::getUserRequest).
                 collect(Collectors.toList());
 
         return Pair.of(count, result);
@@ -245,10 +245,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     public void cancelByProcessDefinition(final String processDefinitionId) {
         engine.getRuntimeService().
                 createProcessInstanceQuery().processDefinitionId(processDefinitionId).list().
-                forEach(procInst -> {
-                    engine.getRuntimeService().deleteProcessInstance(
-                            procInst.getId(), "Cascade Delete process definition " + processDefinitionId);
-                });
+                forEach(procInst -> engine.getRuntimeService().deleteProcessInstance(
+                        procInst.getId(), "Cascade Delete process definition " + processDefinitionId));
     }
 
     @Override
@@ -257,10 +255,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             String username = event.getAnyName();
             engine.getRuntimeService().createNativeProcessInstanceQuery().
                     sql(createProcessInstanceQuery(event.getAnyKey()).toString()).
-                    list().forEach(procInst -> {
-                        engine.getRuntimeService().deleteProcessInstance(
-                                procInst.getId(), "Cascade Delete user " + username);
-                    });
+                    list().forEach(procInst -> engine.getRuntimeService().deleteProcessInstance(
+                            procInst.getId(), "Cascade Delete user " + username));
         }
     }
 
@@ -576,9 +572,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
 
         boolean hasAssignees =
-                engine.getTaskService().getIdentityLinksForTask(taskId).stream().anyMatch(identityLink -> {
-                    return IdentityLinkType.ASSIGNEE.equals(identityLink.getType());
-                });
+                engine.getTaskService().getIdentityLinksForTask(taskId).stream().anyMatch(identityLink -> IdentityLinkType.ASSIGNEE.equals(identityLink.getType()));
         if (hasAssignees) {
             try {
                 engine.getTaskService().unclaim(taskId);
@@ -617,9 +611,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         Map<String, String> props = new HashMap<>();
         form.getProperties().stream().
                 filter(UserRequestFormProperty::isWritable).
-                forEach(prop -> {
-                    props.put(prop.getId(), prop.getValue());
-                });
+                forEach(prop -> props.put(prop.getId(), prop.getValue()));
         return Collections.unmodifiableMap(props);
     }
 

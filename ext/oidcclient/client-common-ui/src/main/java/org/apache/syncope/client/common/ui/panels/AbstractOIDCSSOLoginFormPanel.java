@@ -72,13 +72,7 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
             @Override
             public OIDCProviderTO getObject(final String id,
                     final IModel<? extends List<? extends OIDCProviderTO>> choices) {
-                return IterableUtils.find(choices.getObject(), new Predicate<OIDCProviderTO>() {
-
-                    @Override
-                    public boolean evaluate(final OIDCProviderTO object) {
-                        return object.getName().equals(id);
-                    }
-                });
+                return IterableUtils.find(choices.getObject(), (Predicate<OIDCProviderTO>) object -> object.getName().equals(id));
             }
         });
 

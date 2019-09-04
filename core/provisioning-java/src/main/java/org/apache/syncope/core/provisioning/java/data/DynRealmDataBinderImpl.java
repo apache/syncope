@@ -105,9 +105,7 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
 
         dynRealmTO.setKey(dynRealm.getKey());
 
-        dynRealm.getDynMemberships().forEach(memb -> {
-            dynRealmTO.getDynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond());
-        });
+        dynRealm.getDynMemberships().forEach(memb -> dynRealmTO.getDynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
 
         return dynRealmTO;
     }

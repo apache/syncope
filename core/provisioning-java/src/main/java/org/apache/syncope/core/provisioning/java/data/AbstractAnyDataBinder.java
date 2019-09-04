@@ -270,17 +270,13 @@ abstract class AbstractAnyDataBinder {
 
         // Check if there is some mandatory schema defined for which no value has been provided
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
-        allowedPlainSchemas.getForSelf().forEach(schema -> {
-            checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing);
-        });
+        allowedPlainSchemas.getForSelf().forEach(schema -> checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
         if (any instanceof GroupableRelatable) {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
                 GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
                 Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
-                schemas.forEach(schema -> {
-                    checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
-                            any, reqValMissing);
-                });
+                schemas.forEach(schema -> checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
+                        any, reqValMissing));
             });
         }
 
@@ -336,18 +332,16 @@ abstract class AbstractAnyDataBinder {
         resources.stream().
                 filter(resource -> resource.getProvision(any.getType()).isPresent()
                 && resource.getProvision(any.getType()).get().getMapping() != null).
-                forEach(resource -> {
-                    MappingUtils.getPropagationItems(
-                            resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
-                            filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
-                            forEach(item -> {
-                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                forEach(resource -> MappingUtils.getPropagationItems(
+                        resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
+                        filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
+                        forEach(item -> {
+                            propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
-                                if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                                    propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
-                                }
-                            });
-                });
+                            if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                                propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                            }
+                        }));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -561,18 +555,12 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
-        plainAttrs.forEach(plainAttr -> {
-            anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings()).build());
-        });
+        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
+                values(plainAttr.getValuesAsStrings()).build()));
 
-        derAttrs.forEach((schema, value) -> {
-            anyTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).value(value).build());
-        });
+        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).value(value).build()));
 
-        virAttrs.forEach((schema, values) -> {
-            anyTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).values(values).build());
-        });
+        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).values(values).build()));
 
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
     }
@@ -593,23 +581,17 @@ abstract class AbstractAnyDataBinder {
                 groupName(membership.getRightEnd().getName()).
                 build();
 
-        plainAttrs.forEach(plainAttr -> {
-            membershipTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings()).
-                    build());
-        });
+        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
+                values(plainAttr.getValuesAsStrings()).
+                build()));
 
-        derAttrs.forEach((schema, value) -> {
-            membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
-                    value(value).
-                    build());
-        });
+        derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
+                value(value).
+                build()));
 
-        virAttrs.forEach((schema, values) -> {
-            membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
-                    values(values).
-                    build());
-        });
+        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
+                values(values).
+                build()));
 
         return membershipTO;
     }

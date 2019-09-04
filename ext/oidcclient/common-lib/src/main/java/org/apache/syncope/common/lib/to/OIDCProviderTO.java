@@ -192,7 +192,7 @@ public class OIDCProviderTO implements EntityTO, ItemContainerTO {
 
     @Override
     public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst().orElse(null);
+        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
     }
 
     protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {

@@ -88,7 +88,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification> implements Not
 
         taskDAO.findAll(
                 TaskType.NOTIFICATION, null, notification, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
-                stream().map(Entity::getKey).forEach(task -> delete(task));
+                stream().map(Entity::getKey).forEach(this::delete);
 
         entityManager().remove(notification);
     }

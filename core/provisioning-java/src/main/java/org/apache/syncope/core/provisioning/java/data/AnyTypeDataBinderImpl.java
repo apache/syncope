@@ -84,9 +84,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
-                added.forEach(entitlement -> {
-                    authorities.add(new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM));
-                });
+                added.forEach(entitlement -> authorities.add(new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)));
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -164,9 +162,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
-        anyType.getClasses().forEach(anyTypeClass -> {
-            anyTypeTO.getClasses().add(anyTypeClass.getKey());
-        });
+        anyType.getClasses().forEach(anyTypeClass -> anyTypeTO.getClasses().add(anyTypeClass.getKey()));
 
         return anyTypeTO;
     }

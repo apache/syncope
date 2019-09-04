@@ -168,7 +168,7 @@ public class KeymasterITCase extends AbstractITCase {
             i++;
         } while (check.apply(list) && i < maxit);
         if (check.apply(list)) {
-            fail("Timeout when looking for network services of type " + type);
+            fail(() -> "Timeout when looking for network services of type " + type);
         }
 
         return list;
@@ -297,16 +297,12 @@ public class KeymasterITCase extends AbstractITCase {
 
     @Test
     public void domainCreateMaster() {
-        assertThrows(KeymasterException.class, () -> {
-            domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build());
-        });
+        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
     }
 
     @Test
     public void domainCreateDuplicateKey() {
-        assertThrows(KeymasterException.class, () -> {
-            domainOps.create(new Domain.Builder("Two").build());
-        });
+        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder("Two").build()));
     }
 
     @Test

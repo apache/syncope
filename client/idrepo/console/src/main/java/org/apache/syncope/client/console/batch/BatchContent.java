@@ -176,7 +176,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                             // Group bean information by anyKey
                             Map<String, List<StatusBean>> beans = new HashMap<>();
-                            items.stream().map(bean -> StatusBean.class.cast(bean)).
+                            items.stream().map(StatusBean.class::cast).
                                     forEachOrdered(sb -> {
                                         final List<StatusBean> sblist;
                                         if (beans.containsKey(sb.getKey())) {

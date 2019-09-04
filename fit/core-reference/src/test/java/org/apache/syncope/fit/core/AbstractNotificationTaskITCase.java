@@ -99,7 +99,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
             i++;
         } while (!read && i < maxWaitSeconds);
         if (i == maxWaitSeconds) {
-            fail("Timeout when attempting to read e-mail to  " + mailAddress);
+            fail(() -> "Timeout when attempting to read e-mail to  " + mailAddress);
         }
 
         return read;

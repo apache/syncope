@@ -68,9 +68,7 @@ public class OIDCClientITCase extends AbstractITCase {
             return;
         }
 
-        oidcProviderService.list().forEach(op -> {
-            oidcProviderService.delete(op.getKey());
-        });
+        oidcProviderService.list().forEach(op -> oidcProviderService.delete(op.getKey()));
     }
 
     @Test

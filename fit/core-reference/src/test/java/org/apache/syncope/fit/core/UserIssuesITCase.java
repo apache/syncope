@@ -602,9 +602,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
         ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
                 filter(item -> ("description".equals(item.getExtAttrName()))).
-                forEachOrdered(item -> {
-                    item.setExtAttrName("uniqueMember");
-                });
+                forEachOrdered(item -> item.setExtAttrName("uniqueMember"));
         resourceService.update(ldap);
 
         // 1. create group with LDAP resource
@@ -655,9 +653,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 7. restore original resource-ldap group mapping
         ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
                 filter(item -> ("uniqueMember".equals(item.getExtAttrName()))).
-                forEachOrdered(item -> {
-                    item.setExtAttrName("description");
-                });
+                forEachOrdered(item -> item.setExtAttrName("description"));
         resourceService.update(ldap);
     }
 

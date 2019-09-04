@@ -44,7 +44,7 @@ public class JAXBTest {
             marshaller.marshal(new UserTO(), new StringWriter());
             marshaller.marshal(new UserUR(), new StringWriter());
         } catch (JAXBException e) {
-            fail(ExceptionUtils.getStackTrace(e));
+            fail(() -> ExceptionUtils.getStackTrace(e));
         }
     }
 

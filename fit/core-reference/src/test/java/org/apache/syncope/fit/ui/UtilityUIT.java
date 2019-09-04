@@ -97,9 +97,7 @@ public class UtilityUIT {
     public void closeCallBack(final Component modal) {
         modal.getBehaviors().stream().
                 filter(behavior -> (behavior instanceof AbstractAjaxBehavior)).
-                forEachOrdered(behavior -> {
-                    tester.executeBehavior((AbstractAjaxBehavior) behavior);
-                });
+                forEachOrdered(behavior -> tester.executeBehavior((AbstractAjaxBehavior) behavior));
     }
 
     public WicketTester getTester() {

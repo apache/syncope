@@ -53,9 +53,7 @@ public class NotificationWrapper implements Serializable {
         if (this.aboutClauses == null) {
             this.aboutClauses = new ArrayList<>();
             SearchUtils.getSearchClauses(this.notificationTO.getAbouts()).entrySet().
-                    forEach(entry -> {
-                        this.aboutClauses.add(Pair.of(entry.getKey(), (entry.getValue())));
-                    });
+                    forEach(entry -> this.aboutClauses.add(Pair.of(entry.getKey(), (entry.getValue()))));
         }
 
         return this.aboutClauses;

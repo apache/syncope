@@ -49,7 +49,7 @@ public class DefaultAccountRule implements AccountRule {
     @Override
     public void enforce(final User user) {
         this.conf.getSchemasNotPermitted().stream().
-                map(schema -> user.getPlainAttr(schema)).
+                map(user::getPlainAttr).
                 filter(Optional::isPresent).
                 map(attr -> attr.get().getValuesAsStrings()).
                 filter(values -> (values != null && !values.isEmpty())).

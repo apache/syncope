@@ -47,13 +47,7 @@ public class SCIMConfTabPanel extends Panel implements ModalPanel {
     private static List<String> getPlainSchemas() {
         final List<String> names = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
         names.addAll(CollectionUtils.collect(new SchemaRestClient().getSchemas(SchemaType.PLAIN, AnyTypeKind.USER),
-                new Transformer<SchemaTO, String>() {
-
-            @Override
-            public String transform(final SchemaTO input) {
-                return input.getKey();
-            }
-        }, new ArrayList<String>()));
+            (Transformer<SchemaTO, String>) SchemaTO::getKey, new ArrayList<String>()));
         names.remove("password");
         Collections.sort(names);
 

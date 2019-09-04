@@ -94,9 +94,7 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE95() {
-        groupDAO.findAll(1, 100).forEach(group -> {
-            groupDAO.delete(group.getKey());
-        });
+        groupDAO.findAll(1, 100).forEach(group -> groupDAO.delete(group.getKey()));
         entityManager().flush();
 
         AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);

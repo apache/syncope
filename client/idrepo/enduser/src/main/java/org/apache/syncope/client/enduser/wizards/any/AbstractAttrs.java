@@ -186,9 +186,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
                     : !whichAttrs.containsKey(groupName + "#" + schemaTO.getKey())).collect(Collectors.toSet()));
         }
 
-        allSchemas.forEach(schemaTO -> {
-            scs.put(schemaTO.getKey(), schemaTO);
-        });
+        allSchemas.forEach(schemaTO -> scs.put(schemaTO.getKey(), schemaTO));
     }
 
     @Override

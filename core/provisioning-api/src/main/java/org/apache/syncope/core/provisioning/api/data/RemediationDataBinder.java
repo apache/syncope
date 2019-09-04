@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.data;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 
+@FunctionalInterface
 public interface RemediationDataBinder {
 
     RemediationTO getRemediationTO(Remediation remediation);

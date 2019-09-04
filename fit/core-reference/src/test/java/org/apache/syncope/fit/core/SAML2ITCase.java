@@ -167,9 +167,7 @@ public class SAML2ITCase extends AbstractITCase {
             return;
         }
 
-        saml2IdPService.list().forEach(idp -> {
-            saml2IdPService.delete(idp.getKey());
-        });
+        saml2IdPService.list().forEach(idp -> saml2IdPService.delete(idp.getKey()));
 
         Files.delete(keystorePath);
         Files.delete(truststorePath);
@@ -203,7 +201,7 @@ public class SAML2ITCase extends AbstractITCase {
             assertTrue(signature.checkSignatureValue((X509Certificate) keystore.getCertificate("sp")));
         } catch (Exception e) {
             LOG.error("During SAML 2.0 SP metadata parsing", e);
-            fail(e.getMessage());
+            fail(e::getMessage);
         }
     }
 

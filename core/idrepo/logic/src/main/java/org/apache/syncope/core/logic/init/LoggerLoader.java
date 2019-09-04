@@ -87,9 +87,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
 
         ctx.getConfiguration().getAppenders().entrySet().stream().
                 filter(entry -> (entry.getValue() instanceof MemoryAppender)).
-                forEach(entry -> {
-                    memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
-                });
+                forEach(entry -> memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue()));
 
         // Audit table and DataSource for the given domain
         Appender appender = ctx.getConfiguration().getAppender("audit_for_" + domain);
@@ -112,22 +110,20 @@ public class LoggerLoader implements SyncopeCoreLoader {
             ctx.getConfiguration().addLogger(logConf.getName(), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            auditAppenders(domain).forEach(auditAppender -> {
-                auditAppender.getEvents().stream().
-                        map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
-                        forEachOrdered(domainAuditLoggerName -> {
-                            LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
-                            boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
-                            if (isRootLogConf) {
-                                eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
-                            }
-                            addAppenderToContext(ctx, auditAppender, eventLogConf);
-                            eventLogConf.setLevel(Level.DEBUG);
-                            if (isRootLogConf) {
-                                ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
-                            }
-                        });
-            });
+            auditAppenders(domain).forEach(auditAppender -> auditAppender.getEvents().stream().
+                    map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
+                    forEachOrdered(domainAuditLoggerName -> {
+                        LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+                        boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
+                        if (isRootLogConf) {
+                            eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
+                        }
+                        addAppenderToContext(ctx, auditAppender, eventLogConf);
+                        eventLogConf.setLevel(Level.DEBUG);
+                        if (isRootLogConf) {
+                            ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
+                        }
+                    }));
 
             AuthContextUtils.callAsAdmin(domain, () -> {
                 loggerAccessor.synchronizeLog4J(ctx);

@@ -33,15 +33,11 @@ import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 @Produces(SCIMConstants.APPLICATION_SCIM_JSON)
 public class SCIMJacksonJsonProvider extends JacksonJsonProvider {
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
-
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat();
-            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
-            return sdf;
-        }
-    };
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(() -> {
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+        return sdf;
+    });
 
     public SCIMJacksonJsonProvider() {
         super(new ObjectMapper(), BASIC_ANNOTATIONS);

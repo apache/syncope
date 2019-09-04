@@ -407,7 +407,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     Attr attrTO = item.getModelObject();
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().noneMatch(value -> StringUtils.isNotBlank(value))) {
+                    if (attrTO.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
                         attrTO.getValues().clear();
                         attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
                     }
@@ -455,7 +455,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     Attr attrTO = item.getModelObject();
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().noneMatch(value -> StringUtils.isNotBlank(value))) {
+                    if (attrTO.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
                         attrTO.getValues().clear();
                         attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema()));
                     }

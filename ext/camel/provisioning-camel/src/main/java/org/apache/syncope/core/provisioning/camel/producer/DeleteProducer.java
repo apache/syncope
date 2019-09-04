@@ -90,13 +90,11 @@ public class DeleteProducer extends AbstractProducer {
                                 entry.getValue(),
                                 excludedResources));
                     }
-                    groupDataBinder.findAnyObjectsWithTransitiveResources(key).forEach((k, pbr) -> {
-                        taskInfos.addAll(getPropagationManager().getDeleteTasks(
-                                AnyTypeKind.ANY_OBJECT,
-                                k,
-                                pbr,
-                                excludedResources));
-                    }); // Generate propagation tasks for deleting this group from resources
+                    groupDataBinder.findAnyObjectsWithTransitiveResources(key).forEach((k, pbr) -> taskInfos.addAll(getPropagationManager().getDeleteTasks(
+                            AnyTypeKind.ANY_OBJECT,
+                            k,
+                            pbr,
+                            excludedResources))); // Generate propagation tasks for deleting this group from resources
                     taskInfos.addAll(getPropagationManager().getDeleteTasks(
                             AnyTypeKind.GROUP,
                             key,

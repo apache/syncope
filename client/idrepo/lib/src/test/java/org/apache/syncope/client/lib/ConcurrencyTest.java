@@ -68,7 +68,7 @@ public class ConcurrencyTest {
                 CLIENT.getService(SyncopeService.class);
             }
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e::getMessage);
         }
     }
 }

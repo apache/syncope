@@ -91,10 +91,10 @@ public class CamelMetricsWidget extends BaseExtWidget {
         bar.getOptions().setMaintainAspectRatio(true);
 
         bar.getData().getLabels().addAll(
-                meanRates.stream().map(input -> input.getRouteId()).collect(Collectors.toList()));
+                meanRates.stream().map(CamelMetrics.MeanRate::getRouteId).collect(Collectors.toList()));
 
         BarDataSet dataset = new BarDataSet(
-                meanRates.stream().map(input -> input.getValue()).collect(Collectors.toList()));
+                meanRates.stream().map(CamelMetrics.MeanRate::getValue).collect(Collectors.toList()));
         dataset.setFillColor("blue");
         bar.getData().getDatasets().add(dataset);
 

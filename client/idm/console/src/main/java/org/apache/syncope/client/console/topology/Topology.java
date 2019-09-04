@@ -377,9 +377,7 @@ public class Topology extends BasePage {
         // Add Resources
         // -----------------------------------------
         final Collection<String> adminConns = new HashSet<>();
-        connModel.getObject().values().forEach(connInstances -> {
-            adminConns.addAll(connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        });
+        connModel.getObject().values().forEach(connInstances -> adminConns.addAll(connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList())));
 
         final Set<String> adminRes = new HashSet<>();
         final List<String> connToBeProcessed = new ArrayList<>();
@@ -472,9 +470,7 @@ public class Topology extends BasePage {
                 final StringBuilder jsPlumbConf = new StringBuilder();
                 jsPlumbConf.append(String.format(Locale.US, "activate(%.2f);", 0.68f));
 
-                createConnections(connections).forEach(str -> {
-                    jsPlumbConf.append(str);
-                });
+                createConnections(connections).forEach(jsPlumbConf::append);
 
                 response.render(OnDomReadyHeaderItem.forScript(jsPlumbConf.toString()));
             }
@@ -531,14 +527,10 @@ public class Topology extends BasePage {
     private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
-        targets.forEach((key, value) -> {
-            value.forEach((label, node) -> {
-                list.add(String.format("connect('%s','%s','%s');",
-                        key,
-                        label,
-                        node.getKind()));
-            });
-        });
+        targets.forEach((key, value) -> value.forEach((label, node) -> list.add(String.format("connect('%s','%s','%s');",
+                    key,
+                    label,
+                    node.getKind()))));
         return list;
     }
 

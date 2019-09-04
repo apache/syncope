@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -807,7 +808,7 @@ public class MappingManagerImpl implements MappingManager {
                     // virtual attributes don't get transformed, iterate over original attr.getValue()
                     if (attr.getValue() != null && !attr.getValue().isEmpty()) {
                         attr.getValue().stream().
-                                filter(value -> value != null).
+                                filter(Objects::nonNull).
                                 forEachOrdered(value -> attrTO.getValues().add(value.toString()));
                     }
 

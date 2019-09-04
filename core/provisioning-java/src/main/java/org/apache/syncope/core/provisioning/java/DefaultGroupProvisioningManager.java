@@ -151,21 +151,17 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         // Generate propagation tasks for deleting users and any objects from group resources, 
         // if they are on those resources only because of the reason being deleted (see SYNCOPE-357)
         groupDataBinder.findUsersWithTransitiveResources(key).entrySet().
-                forEach(entry -> {
-                    taskInfos.addAll(propagationManager.getDeleteTasks(
-                            AnyTypeKind.USER,
-                            entry.getKey(),
-                            entry.getValue(),
-                            excludedResources));
-                });
+                forEach(entry -> taskInfos.addAll(propagationManager.getDeleteTasks(
+                        AnyTypeKind.USER,
+                        entry.getKey(),
+                        entry.getValue(),
+                        excludedResources)));
         groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet().
-                forEach(entry -> {
-                    taskInfos.addAll(propagationManager.getDeleteTasks(
-                            AnyTypeKind.ANY_OBJECT,
-                            entry.getKey(),
-                            entry.getValue(),
-                            excludedResources));
-                });
+                forEach(entry -> taskInfos.addAll(propagationManager.getDeleteTasks(
+                        AnyTypeKind.ANY_OBJECT,
+                        entry.getKey(),
+                        entry.getValue(),
+                        excludedResources)));
 
         // Generate propagation tasks for deleting this group from resources
         taskInfos.addAll(propagationManager.getDeleteTasks(

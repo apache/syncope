@@ -67,9 +67,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
                 List<UMembership> memberships = groupDAO.findUMemberships(group);
                 memberships.stream().map(membership -> fromSyncopeUser(membership.getLeftEnd())).
                         filter(user -> (!result.contains(user))).
-                        forEachOrdered(user -> {
-                            result.add(user);
-                        });
+                        forEachOrdered(user -> result.add(user));
             }
         }
     }

@@ -63,6 +63,7 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -290,7 +291,7 @@ public class ConnectorITCase extends AbstractITCase {
         List<ConnInstanceTO> connectorInstanceTOs = connectorService.list(null);
         assertNotNull(connectorInstanceTOs);
         assertFalse(connectorInstanceTOs.isEmpty());
-        connectorInstanceTOs.forEach(instance -> assertNotNull(instance));
+        connectorInstanceTOs.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -305,7 +306,7 @@ public class ConnectorITCase extends AbstractITCase {
         List<ConnBundleTO> bundles = connectorService.getBundles(Locale.ENGLISH.getLanguage());
         assertNotNull(bundles);
         assertFalse(bundles.isEmpty());
-        bundles.forEach(bundle -> assertNotNull(bundle));
+        bundles.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -434,7 +435,7 @@ public class ConnectorITCase extends AbstractITCase {
         try {
             connectorService.check(connectorTO);
         } catch (Exception e) {
-            fail(ExceptionUtils.getStackTrace(e));
+            fail(() -> ExceptionUtils.getStackTrace(e));
         }
 
         conf.remove(password);
@@ -470,7 +471,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(objectClassInfo);
 
         Collection<String> objectClasses = objectClassInfo.stream().
-                map(info -> info.getType()).collect(Collectors.toSet());
+                map(ConnIdObjectClassTO::getType).collect(Collectors.toSet());
         assertTrue(objectClasses.contains(ObjectClass.ACCOUNT_NAME));
         assertTrue(objectClasses.contains(ObjectClass.GROUP_NAME));
     }
@@ -738,7 +739,7 @@ public class ConnectorITCase extends AbstractITCase {
             try {
                 resourceService.check(resourceTO);
             } catch (Exception e) {
-                fail(ExceptionUtils.getStackTrace(e));
+                fail(() -> ExceptionUtils.getStackTrace(e));
             }
             // ----------------------------------------
         } finally {

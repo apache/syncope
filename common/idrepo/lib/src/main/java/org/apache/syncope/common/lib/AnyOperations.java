@@ -92,17 +92,13 @@ public final class AnyOperations {
 
         if (!incremental) {
             original.getAuxClasses().stream().filter(auxClass -> !updated.getAuxClasses().contains(auxClass)).
-                    forEach(auxClass -> {
-                        result.getAuxClasses().add(new StringPatchItem.Builder().
-                                operation(PatchOperation.DELETE).value(auxClass).build());
-                    });
+                    forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
+                            operation(PatchOperation.DELETE).value(auxClass).build()));
         }
 
         updated.getAuxClasses().stream().filter(auxClass -> !original.getAuxClasses().contains(auxClass)).
-                forEach(auxClass -> {
-                    result.getAuxClasses().add(new StringPatchItem.Builder().
-                            operation(PatchOperation.ADD_REPLACE).value(auxClass).build());
-                });
+                forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
+                        operation(PatchOperation.ADD_REPLACE).value(auxClass).build()));
 
         // 3. plain attributes
         Map<String, Attr> updatedAttrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
@@ -112,11 +108,9 @@ public final class AnyOperations {
 
         if (!incremental) {
             originalAttrs.keySet().stream().filter(attr -> !updatedAttrs.containsKey(attr)).
-                    forEach(schema -> {
-                        result.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder(schema).build()).
-                                operation(PatchOperation.DELETE).
-                                build());
-                    });
+                    forEach(schema -> result.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder(schema).build()).
+                            operation(PatchOperation.DELETE).
+                            build()));
         }
 
         updatedAttrs.values().forEach(attr -> {
@@ -145,17 +139,13 @@ public final class AnyOperations {
 
         if (!incremental) {
             original.getResources().stream().filter(resource -> !updated.getResources().contains(resource)).
-                    forEach(resource -> {
-                        result.getResources().add(new StringPatchItem.Builder().
-                                operation(PatchOperation.DELETE).value(resource).build());
-                    });
+                    forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
+                            operation(PatchOperation.DELETE).value(resource).build()));
         }
 
         updated.getResources().stream().filter(resource -> !original.getResources().contains(resource)).
-                forEach(resource -> {
-                    result.getResources().add(new StringPatchItem.Builder().
-                            operation(PatchOperation.ADD_REPLACE).value(resource).build());
-                });
+                forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
+                        operation(PatchOperation.ADD_REPLACE).value(resource).build()));
     }
 
     /**
@@ -184,17 +174,13 @@ public final class AnyOperations {
 
         updatedRels.entrySet().stream().
                 filter(entry -> (!originalRels.containsKey(entry.getKey()))).
-                forEach(entry -> {
-                    result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
-                            operation(PatchOperation.ADD_REPLACE).build());
-                });
+                forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
+                        operation(PatchOperation.ADD_REPLACE).build()));
 
         if (!incremental) {
             originalRels.keySet().stream().filter(relationship -> !updatedRels.containsKey(relationship)).
-                    forEach(key -> {
-                        result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
-                                operation(PatchOperation.DELETE).build());
-                    });
+                    forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
+                            operation(PatchOperation.DELETE).build()));
         }
 
         // 3. memberships
@@ -216,10 +202,8 @@ public final class AnyOperations {
 
         if (!incremental) {
             originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership)).
-                    forEach(key -> {
-                        result.getMemberships().add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey()).
-                                operation(PatchOperation.DELETE).build());
-                    });
+                    forEach(key -> result.getMemberships().add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey()).
+                            operation(PatchOperation.DELETE).build()));
         }
 
         return result;
@@ -284,17 +268,13 @@ public final class AnyOperations {
         // 4. roles
         if (!incremental) {
             original.getRoles().stream().filter(role -> !updated.getRoles().contains(role)).
-                    forEach(toRemove -> {
-                        result.getRoles().add(new StringPatchItem.Builder().
-                                operation(PatchOperation.DELETE).value(toRemove).build());
-                    });
+                    forEach(toRemove -> result.getRoles().add(new StringPatchItem.Builder().
+                            operation(PatchOperation.DELETE).value(toRemove).build()));
         }
 
         updated.getRoles().stream().filter(role -> !original.getRoles().contains(role)).
-                forEach(toAdd -> {
-                    result.getRoles().add(new StringPatchItem.Builder().
-                            operation(PatchOperation.ADD_REPLACE).value(toAdd).build());
-                });
+                forEach(toAdd -> result.getRoles().add(new StringPatchItem.Builder().
+                        operation(PatchOperation.ADD_REPLACE).value(toAdd).build()));
 
         // 5. relationships
         Map<Pair<String, String>, RelationshipTO> updatedRels =
@@ -304,17 +284,13 @@ public final class AnyOperations {
 
         updatedRels.entrySet().stream().
                 filter(entry -> (!originalRels.containsKey(entry.getKey()))).
-                forEach(entry -> {
-                    result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
-                            operation(PatchOperation.ADD_REPLACE).build());
-                });
+                forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
+                        operation(PatchOperation.ADD_REPLACE).build()));
 
         if (!incremental) {
             originalRels.keySet().stream().filter(relationship -> !updatedRels.containsKey(relationship)).
-                    forEach(key -> {
-                        result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
-                                operation(PatchOperation.DELETE).build());
-                    });
+                    forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
+                            operation(PatchOperation.DELETE).build()));
         }
 
         // 6. memberships
@@ -336,10 +312,8 @@ public final class AnyOperations {
 
         if (!incremental) {
             originalMembs.keySet().stream().filter(membership -> !updatedMembs.containsKey(membership)).
-                    forEach(key -> {
-                        result.getMemberships().add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey()).
-                                operation(PatchOperation.DELETE).build());
-                    });
+                    forEach(key -> result.getMemberships().add(new MembershipUR.Builder(originalMembs.get(key).getGroupKey()).
+                            operation(PatchOperation.DELETE).build()));
         }
 
         return result;
@@ -612,7 +586,7 @@ public final class AnyOperations {
      */
     public static void cleanEmptyAttrs(final AnyTO anyTO, final AnyUR anyUR) {
         anyUR.getPlainAttrs().addAll(anyTO.getPlainAttrs().stream().
-                filter(plainAttr -> isEmpty(plainAttr)).
+                filter(AnyOperations::isEmpty).
                 map(plainAttr -> new AttrPatch.Builder(new Attr.Builder(plainAttr.getSchema()).build()).
                 operation(PatchOperation.DELETE).
                 build()).collect(Collectors.toSet()));

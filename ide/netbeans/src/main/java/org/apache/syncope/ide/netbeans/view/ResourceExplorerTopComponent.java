@@ -295,17 +295,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
-        mailTemplateList.forEach(mailTemplate -> {
-            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
-        });
+        mailTemplateList.forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
         treeModel.reload();
     }
 
     private void addReportXslts() {
         List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
-        reportTemplates.forEach(reportTemplate -> {
-            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
-        });
+        reportTemplates.forEach(reportTemplate -> reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey())));
         treeModel.reload();
     }
 

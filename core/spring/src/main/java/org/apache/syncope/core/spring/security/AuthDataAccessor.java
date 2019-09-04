@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -134,9 +135,7 @@ public class AuthDataAccessor {
                 implementationLookup.getJWTSSOProviderClasses().stream().
                         map(clazz -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
                         createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true)).
-                        forEachOrdered(jwtSSOProvider -> {
-                            jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
-                        });
+                        forEachOrdered(jwtSSOProvider -> jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider));
             }
         }
 
@@ -293,20 +292,18 @@ public class AuthDataAccessor {
 
             // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
             // either statically and dynamically
-            userDAO.findAllRoles(user).forEach(role -> {
-                role.getEntitlements().forEach(entitlement -> {
-                    Set<String> realms = entForRealms.get(entitlement);
-                    if (realms == null) {
-                        realms = new HashSet<>();
-                        entForRealms.put(entitlement, realms);
-                    }
-                    realms.addAll(role.getRealms().stream().
-                            map(realm -> realm.getFullPath()).collect(Collectors.toSet()));
-                    if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                        realms.addAll(role.getDynRealms().stream().map(r -> r.getKey()).collect(Collectors.toList()));
-                    }
-                });
-            });
+            userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().forEach(entitlement -> {
+                Set<String> realms = entForRealms.get(entitlement);
+                if (realms == null) {
+                    realms = new HashSet<>();
+                    entForRealms.put(entitlement, realms);
+                }
+                realms.addAll(role.getRealms().stream().
+                        map(Realm::getFullPath).collect(Collectors.toSet()));
+                if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                    realms.addAll(role.getDynRealms().stream().map(Entity::getKey).collect(Collectors.toList()));
+                }
+            }));
 
             // Give group entitlements for owned groups
             groupDAO.findOwnedByUser(user.getKey()).forEach((group) -> {
@@ -326,7 +323,7 @@ public class AuthDataAccessor {
                 SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
                 authority.addRealms(RealmUtils.normalize(entry.getValue()));
                 return authority;
-            }).forEachOrdered(authority -> authorities.add(authority));
+            }).forEachOrdered(authorities::add);
         }
 
         return authorities;

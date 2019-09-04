@@ -55,7 +55,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     }
 
     public void addRealms(final Collection<String> newRealms) {
-        newRealms.forEach(newRealm -> addRealm(newRealm));
+        newRealms.forEach(this::addRealm);
     }
 
     public Set<String> getRealms() {

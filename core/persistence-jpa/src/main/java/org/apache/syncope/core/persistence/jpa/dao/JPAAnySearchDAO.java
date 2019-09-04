@@ -235,9 +235,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     private StringBuilder buildSelect(final OrderBySupport obs) {
         StringBuilder select = new StringBuilder("SELECT DISTINCT u.any_id");
 
-        obs.items.forEach(item -> {
-            select.append(',').append(item.select);
-        });
+        obs.items.forEach(item -> select.append(',').append(item.select));
         select.append(" FROM ");
 
         return select;
@@ -303,15 +301,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder where = new StringBuilder(" u");
         processOBS(svs, involvedPlainAttrs, obs, where);
         where.append(" WHERE ");
-        obs.views.forEach(searchView -> {
-            where.append("u.any_id=").append(searchView.alias).append(".any_id AND ");
-        });
+        obs.views.forEach(searchView -> where.append("u.any_id=").append(searchView.alias).append(".any_id AND "));
 
         obs.items.stream().
                 filter(item -> StringUtils.isNotBlank(item.where)).
-                forEachOrdered((item) -> {
-                    where.append(item.where).append(" AND ");
-                });
+                forEachOrdered((item) -> where.append(item.where).append(" AND "));
 
         return where;
     }
@@ -319,9 +313,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     private StringBuilder buildOrderBy(final OrderBySupport obs) {
         StringBuilder orderBy = new StringBuilder();
 
-        obs.items.forEach(item -> {
-            orderBy.append(item.orderBy).append(',');
-        });
+        obs.items.forEach(item -> orderBy.append(item.orderBy).append(','));
         if (!obs.items.isEmpty()) {
             orderBy.insert(0, " ORDER BY ");
             orderBy.deleteCharAt(orderBy.length() - 1);
@@ -795,9 +787,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
         if (cond.isFromGroup()) {
-            realmDAO.findDescendants(realm).forEach(current -> {
-                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
-            });
+            realmDAO.findDescendants(realm).forEach(current -> query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR "));
             query.setLength(query.length() - 4);
         } else {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {

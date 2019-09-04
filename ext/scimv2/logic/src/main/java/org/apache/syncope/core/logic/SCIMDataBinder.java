@@ -300,10 +300,8 @@ public class SCIMDataBinder {
             }
             if (output(attributes, excludedAttributes, "x509Certificates")) {
                 conf.getUserConf().getX509Certificates().stream().
-                        filter(certificate -> attrs.containsKey(certificate)).
-                        forEachOrdered(certificate -> {
-                            user.getX509Certificates().add(new Value(attrs.get(certificate).getValues().get(0)));
-                        });
+                        filter(attrs::containsKey).
+                        forEachOrdered(certificate -> user.getX509Certificates().add(new Value(attrs.get(certificate).getValues().get(0))));
             }
 
             if (conf.getEnterpriseUserConf() != null) {
@@ -390,33 +388,25 @@ public class SCIMDataBinder {
             }
 
             if (output(attributes, excludedAttributes, "groups")) {
-                userTO.getMemberships().forEach(membership -> {
-                    user.getGroups().add(new Group(
-                            membership.getGroupKey(),
-                            StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                            membership.getGroupName(),
-                            Function.direct));
-                });
-                userTO.getDynMemberships().forEach(membership -> {
-                    user.getGroups().add(new Group(
-                            membership.getGroupKey(),
-                            StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                            membership.getGroupName(),
-                            Function.indirect));
-                });
+                userTO.getMemberships().forEach(membership -> user.getGroups().add(new Group(
+                        membership.getGroupKey(),
+                        StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
+                        membership.getGroupName(),
+                        Function.direct)));
+                userTO.getDynMemberships().forEach(membership -> user.getGroups().add(new Group(
+                        membership.getGroupKey(),
+                        StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
+                        membership.getGroupName(),
+                        Function.indirect)));
             }
 
             if (output(attributes, excludedAttributes, "entitlements")) {
-                authDataAccessor.getAuthorities(userTO.getUsername()).forEach(authority -> {
-                    user.getEntitlements().
-                            add(new Value(authority.getAuthority() + " on Realm(s) " + authority.getRealms()));
-                });
+                authDataAccessor.getAuthorities(userTO.getUsername()).forEach(authority -> user.getEntitlements().
+                        add(new Value(authority.getAuthority() + " on Realm(s) " + authority.getRealms())));
             }
 
             if (output(attributes, excludedAttributes, "roles")) {
-                userTO.getRoles().forEach(role -> {
-                    user.getRoles().add(new Value(role));
-                });
+                userTO.getRoles().forEach(role -> user.getRoles().add(new Value(role)));
             }
         }
 
@@ -522,30 +512,28 @@ public class SCIMDataBinder {
             fill(userTO.getPlainAttrs(), conf.getUserConf().getIms(), user.getIms());
             fill(userTO.getPlainAttrs(), conf.getUserConf().getPhotos(), user.getPhotos());
 
-            user.getAddresses().stream().filter(address -> address.getType() != null).forEach(address -> {
-                conf.getUserConf().getAddresses().stream().
-                        filter(object -> address.getType().equals(object.getType().name())).findFirst().
-                        ifPresent(addressConf -> {
-                            if (addressConf.getFormatted() != null && address.getFormatted() != null) {
-                                setAttribute(userTO, addressConf.getFormatted(), address.getFormatted());
-                            }
-                            if (addressConf.getStreetAddress() != null && address.getStreetAddress() != null) {
-                                setAttribute(userTO, addressConf.getStreetAddress(), address.getStreetAddress());
-                            }
-                            if (addressConf.getLocality() != null && address.getLocality() != null) {
-                                setAttribute(userTO, addressConf.getLocality(), address.getLocality());
-                            }
-                            if (addressConf.getRegion() != null && address.getRegion() != null) {
-                                setAttribute(userTO, addressConf.getRegion(), address.getRegion());
-                            }
-                            if (addressConf.getPostalCode() != null && address.getPostalCode() != null) {
-                                setAttribute(userTO, addressConf.getPostalCode(), address.getPostalCode());
-                            }
-                            if (addressConf.getCountry() != null && address.getCountry() != null) {
-                                setAttribute(userTO, addressConf.getCountry(), address.getCountry());
-                            }
-                        });
-            });
+            user.getAddresses().stream().filter(address -> address.getType() != null).forEach(address -> conf.getUserConf().getAddresses().stream().
+                    filter(object -> address.getType().equals(object.getType().name())).findFirst().
+                    ifPresent(addressConf -> {
+                        if (addressConf.getFormatted() != null && address.getFormatted() != null) {
+                            setAttribute(userTO, addressConf.getFormatted(), address.getFormatted());
+                        }
+                        if (addressConf.getStreetAddress() != null && address.getStreetAddress() != null) {
+                            setAttribute(userTO, addressConf.getStreetAddress(), address.getStreetAddress());
+                        }
+                        if (addressConf.getLocality() != null && address.getLocality() != null) {
+                            setAttribute(userTO, addressConf.getLocality(), address.getLocality());
+                        }
+                        if (addressConf.getRegion() != null && address.getRegion() != null) {
+                            setAttribute(userTO, addressConf.getRegion(), address.getRegion());
+                        }
+                        if (addressConf.getPostalCode() != null && address.getPostalCode() != null) {
+                            setAttribute(userTO, addressConf.getPostalCode(), address.getPostalCode());
+                        }
+                        if (addressConf.getCountry() != null && address.getCountry() != null) {
+                            setAttribute(userTO, addressConf.getCountry(), address.getCountry());
+                        }
+                    }));
 
             for (int i = 0; i < user.getX509Certificates().size(); i++) {
                 Value certificate = user.getX509Certificates().get(i);
@@ -660,12 +648,10 @@ public class SCIMDataBinder {
                         SyncopeConstants.ROOT_REALM,
                         false).
                         getRight();
-                users.forEach(userTO -> {
-                    group.getMembers().add(new Member(
-                            userTO.getKey(),
-                            StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
-                            userTO.getUsername()));
-                });
+                users.forEach(userTO -> group.getMembers().add(new Member(
+                        userTO.getKey(),
+                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
+                        userTO.getUsername())));
             }
         }
 

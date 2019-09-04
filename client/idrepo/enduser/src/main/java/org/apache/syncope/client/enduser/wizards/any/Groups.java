@@ -109,10 +109,7 @@ public class Groups extends AbstractGroups {
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             isAssignable().and().is("name").equalTo(filter).query(),
-                                    1, MAX_GROUP_LIST_CARDINALITY)).stream().map(input -> {
-
-                                return new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build();
-                            }).collect(Collectors.toList());
+                                    1, MAX_GROUP_LIST_CARDINALITY)).stream().map(input -> new MembershipTO.Builder(input.getKey()).groupName(input.getName()).build()).collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));
             // ---------------------------------

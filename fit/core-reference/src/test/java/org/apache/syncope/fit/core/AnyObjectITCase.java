@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class AnyObjectITCase extends AbstractITCase {
@@ -125,7 +126,7 @@ public class AnyObjectITCase extends AbstractITCase {
                         build());
         assertNotNull(anyObjectTOs);
         assertTrue(anyObjectTOs.getResult().size() >= 2);
-        anyObjectTOs.getResult().forEach(anyObjectTO -> assertNotNull(anyObjectTO));
+        anyObjectTOs.getResult().forEach(Assertions::assertNotNull);
     }
 
     @Test

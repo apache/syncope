@@ -252,11 +252,9 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     private SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
         List<SearchCond> searchConds = new ArrayList<>();
-        sc.getSearchConditions().forEach(searchCondition -> {
-            searchConds.add(searchCondition.getStatement() == null
-                    ? visitCompount(searchCondition)
-                    : visitPrimitive(searchCondition));
-        });
+        sc.getSearchConditions().forEach(searchCondition -> searchConds.add(searchCondition.getStatement() == null
+                ? visitCompount(searchCondition)
+                : visitPrimitive(searchCondition)));
 
         SearchCond compound;
         switch (sc.getConditionType()) {

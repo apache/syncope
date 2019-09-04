@@ -110,10 +110,8 @@ public class ConnectorFacadeProxy implements Connector {
         ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         connInstance.getConf().stream().
                 filter(property -> (property.getValues() != null && !property.getValues().isEmpty())).
-                forEachOrdered(property -> {
-                    properties.setPropertyValue(property.getSchema().getName(),
-                            getPropertyValue(property.getSchema().getType(), property.getValues()));
-                });
+                forEachOrdered(property -> properties.setPropertyValue(property.getSchema().getName(),
+                        getPropertyValue(property.getSchema().getType(), property.getValues())));
 
         // set pooling configuration (if supported) according to conninstance's
         if (connInstance.getPoolConf() != null) {

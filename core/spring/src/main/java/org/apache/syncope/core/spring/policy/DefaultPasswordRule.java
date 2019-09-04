@@ -51,7 +51,7 @@ public class DefaultPasswordRule implements PasswordRule {
     @Override
     public void enforce(final User user) {
         this.conf.getSchemasNotPermitted().stream().
-                map(schema -> user.getPlainAttr(schema)).
+                map(user::getPlainAttr).
                 filter(Optional::isPresent).
                 map(attr -> attr.get().getValuesAsStrings()).
                 filter(values -> (values != null && !values.isEmpty())).
@@ -94,14 +94,14 @@ public class DefaultPasswordRule implements PasswordRule {
 
             // check prefix
             this.conf.getPrefixesNotPermitted().stream().
-                    filter(prefix -> clearPassword.startsWith(prefix)).
+                    filter(clearPassword::startsWith).
                     forEachOrdered(item -> {
                         throw new PasswordPolicyException("Prefix not permitted");
                     });
 
             // check suffix
             this.conf.getSuffixesNotPermitted().stream().
-                    filter(suffix -> clearPassword.endsWith(suffix)).
+                    filter(clearPassword::endsWith).
                     forEachOrdered(item -> {
                         throw new PasswordPolicyException("Suffix not permitted");
                     });

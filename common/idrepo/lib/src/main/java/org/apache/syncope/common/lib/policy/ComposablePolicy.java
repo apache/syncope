@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.policy;
 import java.io.Serializable;
 import java.util.List;
 
+@FunctionalInterface
 public interface ComposablePolicy extends Serializable {
 
     /**

@@ -60,9 +60,7 @@ public class JPAApplicationDAO extends AbstractDAO<Application> implements Appli
     @Override
     public void delete(final Application application) {
         application.getPrivileges().forEach(privilege -> {
-            roleDAO.findByPrivilege(privilege).forEach(role -> {
-                role.getPrivileges().remove(privilege);
-            });
+            roleDAO.findByPrivilege(privilege).forEach(role -> role.getPrivileges().remove(privilege));
 
             privilege.setApplication(null);
         });

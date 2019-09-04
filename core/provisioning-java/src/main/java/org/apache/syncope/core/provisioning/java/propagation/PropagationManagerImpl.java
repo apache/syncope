@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -231,7 +232,7 @@ public class PropagationManagerImpl implements PropagationManager {
             if (!pwdWFResult.getPropByRes().isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(allResourceNames);
                 toBeExcluded.addAll(userUR.getResources().stream().
-                        map(patchItem -> patchItem.getValue()).collect(Collectors.toList()));
+                        map(AbstractPatchItem::getValue).collect(Collectors.toList()));
                 toBeExcluded.removeAll(pwdResourceNames);
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));

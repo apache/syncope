@@ -231,9 +231,7 @@ public final class JexlUtils {
         Map<DerSchema, String> derAttrs =
                 ApplicationContextProvider.getBeanFactory().getBean(DerAttrHandler.class).getValues(any);
 
-        derAttrs.forEach((schema, value) -> {
-            jexlContext.set(schema.getKey(), value);
-        });
+        derAttrs.forEach((schema, value) -> jexlContext.set(schema.getKey(), value));
     }
 
     public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?> any) {

@@ -149,9 +149,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
             if (SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_READ, adminRealm)) {
                 selectedResource = resource;
-                selectedResource.getProvisions().forEach(provisionTO -> {
-                    anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());
-                });
+                selectedResource.getProvisions().forEach(provisionTO -> anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass()));
             }
         }
     }

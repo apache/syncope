@@ -20,5 +20,6 @@ package org.apache.syncope.core.persistence.api.content;
 
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 
+@FunctionalInterface
 public interface ConfParamLoader extends SyncopeCoreLoader {
 }

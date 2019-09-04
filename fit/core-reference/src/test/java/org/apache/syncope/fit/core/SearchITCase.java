@@ -50,6 +50,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ElasticsearchDetector;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class SearchITCase extends AbstractITCase {
@@ -74,10 +75,8 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertEquals(2, matchingUsers.getResult().stream().filter(user -> {
-            return "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
-                    || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey());
-        }).count());
+        assertEquals(2, matchingUsers.getResult().stream().filter(user -> "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
+                || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey())).count());
     }
 
     @Test
@@ -320,9 +319,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
-        matchingUsers.getResult().forEach(user -> {
-            assertNotNull(user);
-        });
+        matchingUsers.getResult().forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -444,9 +441,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
-        matchingUsers.getResult().forEach(user -> {
-            assertNotNull(user);
-        });
+        matchingUsers.getResult().forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -477,9 +472,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
-        matchingUsers.getResult().forEach(user -> {
-            assertTrue(user.getUsername().startsWith("bellini"));
-        });
+        matchingUsers.getResult().forEach(user -> assertTrue(user.getUsername().startsWith("bellini")));
     }
 
     @Test

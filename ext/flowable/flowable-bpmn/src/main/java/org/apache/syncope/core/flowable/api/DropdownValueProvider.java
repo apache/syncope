@@ -23,6 +23,7 @@ import java.util.Map;
 /**
  * Implementations of this interface are used with {@link org.apache.syncope.core.flowable.support.DropdownFormType}.
  */
+@FunctionalInterface
 public interface DropdownValueProvider {
 
     String NAME = "dropdownValueProvider";

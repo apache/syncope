@@ -129,29 +129,27 @@ public class Relationships extends WizardStep implements ICondition {
         final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().map(relationship -> {
-            return new AbstractTab(new ResourceModel("relationship", relationship)) {
+        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().map(relationship -> new AbstractTab(new ResourceModel("relationship", relationship)) {
 
-                private static final long serialVersionUID = 1037272333056449378L;
+            private static final long serialVersionUID = 1037272333056449378L;
 
-                @Override
-                public Panel getPanel(final String panelId) {
-                    return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
-                            setItems(relationships.get(relationship)).
-                            includes("otherEndType", "otherEndKey", "otherEndName").
-                            addAction(new ActionLink<RelationshipTO>() {
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
+                        setItems(relationships.get(relationship)).
+                        includes("otherEndType", "otherEndKey", "otherEndName").
+                        addAction(new ActionLink<RelationshipTO>() {
 
-                                private static final long serialVersionUID = -6847033126124401556L;
+                            private static final long serialVersionUID = -6847033126124401556L;
 
-                                @Override
-                                public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
-                                    removeRelationships(relationships, modelObject);
-                                    send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
-                                }
-                            }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
-                            build(panelId);
-                }
-            };
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
+                                removeRelationships(relationships, modelObject);
+                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
+                            }
+                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
+                        build(panelId);
+            }
         }).collect(Collectors.toList())) {
 
             private static final long serialVersionUID = 1037272333056449379L;

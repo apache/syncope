@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -184,7 +185,7 @@ public abstract class AbstractSearchPanel extends Panel {
             protected Map<String, PlainSchemaTO> load() {
                 return schemaRestClient.<PlainSchemaTO>getSchemas(
                         SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
-                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
+                        stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
 

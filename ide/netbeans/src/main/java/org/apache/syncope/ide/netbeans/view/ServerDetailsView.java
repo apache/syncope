@@ -82,11 +82,7 @@ public class ServerDetailsView extends JDialog {
         schemeTxt.setToolTipText("");
 
         org.openide.awt.Mnemonics.setLocalizedText(okButton, "submit");
-        okButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okButtonActionPerformed(evt);
-            }
-        });
+        okButton.addActionListener(this::okButtonActionPerformed);
 
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, "Apache Syncope connection");
@@ -195,20 +191,16 @@ public class ServerDetailsView extends JDialog {
 
     public static void main(final String[] args) {
         /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        java.awt.EventQueue.invokeLater(() -> {
+            ServerDetailsView dialog = new ServerDetailsView(new javax.swing.JFrame(), true);
+            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
 
-            @Override
-            public void run() {
-                ServerDetailsView dialog = new ServerDetailsView(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-
-                    @Override
-                    public void windowClosing(final java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+                @Override
+                public void windowClosing(final java.awt.event.WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            dialog.setVisible(true);
         });
     }
 

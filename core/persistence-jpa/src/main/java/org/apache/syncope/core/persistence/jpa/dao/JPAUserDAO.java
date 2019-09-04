@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -40,6 +41,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -162,7 +164,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     anyMatch(realm -> user.getRealm().getFullPath().startsWith(realm));
             if (!authorized) {
                 authorized = findDynRealms(user.getKey()).stream().
-                        filter(dynRealm -> authRealms.contains(dynRealm)).
+                        filter(authRealms::contains).
                         count() > 0;
             }
             if (authRealms.isEmpty() || !authorized) {
@@ -260,15 +262,15 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
         // add resource policies
         findAllResources(user).stream().
-                map(resource -> resource.getAccountPolicy()).
-                filter(policy -> policy != null).
-                forEachOrdered(policy -> policies.add(policy));
+                map(ExternalResource::getAccountPolicy).
+                filter(Objects::nonNull).
+                forEachOrdered(policies::add);
 
         // add realm policies
         realmDAO.findAncestors(user.getRealm()).stream().
-                map(realm -> realm.getAccountPolicy()).
-                filter(policy -> policy != null).
-                forEachOrdered(policy -> policies.add(policy));
+                map(Realm::getAccountPolicy).
+                filter(Objects::nonNull).
+                forEachOrdered(policies::add);
 
         return policies;
     }
@@ -488,7 +490,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
         result.addAll(user.getMemberships().stream().
-                map(membership -> membership.getRightEnd()).collect(Collectors.toSet()));
+                map(Relationship::getRightEnd).collect(Collectors.toSet()));
         result.addAll(findDynGroups(user.getKey()));
 
         return result;

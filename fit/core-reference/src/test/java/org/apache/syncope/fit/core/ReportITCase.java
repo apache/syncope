@@ -55,6 +55,7 @@ import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ReportITCase extends AbstractITCase {
@@ -86,7 +87,7 @@ public class ReportITCase extends AbstractITCase {
             i++;
         } while (preExecSize == reportTO.getExecutions().size() && i < maxit);
         if (i == maxit) {
-            fail("Timeout when executing report " + reportKey);
+            fail(() -> "Timeout when executing report " + reportKey);
         }
         exec = reportTO.getExecutions().get(reportTO.getExecutions().size() - 1);
         assertEquals(ReportExecStatus.SUCCESS.name(), exec.getStatus());
@@ -107,9 +108,7 @@ public class ReportITCase extends AbstractITCase {
         List<ReportTO> reports = reportService.list();
         assertNotNull(reports);
         assertFalse(reports.isEmpty());
-        reports.forEach(report -> {
-            assertNotNull(report);
-        });
+        reports.forEach(Assertions::assertNotNull);
     }
 
     @Test

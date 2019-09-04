@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api;
 import javax.sql.DataSource;
 import org.springframework.core.Ordered;
 
+@FunctionalInterface
 public interface SyncopeCoreLoader extends Ordered {
 
     /**

@@ -71,7 +71,7 @@ public class ConnectorRestClient extends BaseRestClient {
                     getLanguage());
             if (connInstance != null) {
                 result.addAll(service.buildObjectClassInfo(connInstance, true).stream().
-                        map(input -> input.getType()).collect(Collectors.toList()));
+                        map(ConnIdObjectClassTO::getType).collect(Collectors.toList()));
             }
         } catch (Exception e) {
             LOG.error("While reading object classes for connector {}", connectorKey, e);
@@ -154,15 +154,11 @@ public class ConnectorRestClient extends BaseRestClient {
             if (property.getValues() != null) {
                 property.getValues().stream().
                         filter(obj -> (obj != null && !obj.toString().isEmpty())).
-                        forEachOrdered((obj) -> {
-                            parsed.add(obj);
-                        });
+                        forEachOrdered(parsed::add);
             }
             prop.getValues().addAll(parsed);
             return prop;
-        }).forEachOrdered(prop -> {
-            newProperties.add(prop);
-        });
+        }).forEachOrdered(newProperties::add);
         return newProperties;
     }
 

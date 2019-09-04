@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
@@ -95,7 +96,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
         try {
             Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                    map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
+                    map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
             Iterator<MappingItem> mapItems = new IteratorChain<>(
                     provision.getMapping().getItems().iterator(),
                     linkinMappingItems.iterator());

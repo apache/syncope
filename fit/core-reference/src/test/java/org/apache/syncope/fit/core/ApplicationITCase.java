@@ -55,7 +55,7 @@ public class ApplicationITCase extends AbstractITCase {
         RoleTO role = roleService.read("Other");
         assertFalse(role.getPrivileges().isEmpty());
         assertEquals(1, role.getPrivileges().size());
-        assertTrue(role.getPrivileges().stream().anyMatch(privilege -> "postMighty".equals(privilege)));
+        assertTrue(role.getPrivileges().stream().anyMatch("postMighty"::equals));
     }
 
     @Test

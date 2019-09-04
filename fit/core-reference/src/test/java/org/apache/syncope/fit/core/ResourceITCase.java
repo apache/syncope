@@ -63,6 +63,7 @@ import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ResourceITCase extends AbstractITCase {
@@ -503,7 +504,7 @@ public class ResourceITCase extends AbstractITCase {
         List<ResourceTO> actuals = resourceService.list();
         assertNotNull(actuals);
         assertFalse(actuals.isEmpty());
-        actuals.forEach(resourceTO -> assertNotNull(resourceTO));
+        actuals.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -563,9 +564,7 @@ public class ResourceITCase extends AbstractITCase {
             assertEquals(totalRead, read.size());
             assertTrue(totalRead >= 10);
         } finally {
-            groupKeys.forEach(key -> {
-                groupService.delete(key);
-            });
+            groupKeys.forEach(key -> groupService.delete(key));
         }
     }
 

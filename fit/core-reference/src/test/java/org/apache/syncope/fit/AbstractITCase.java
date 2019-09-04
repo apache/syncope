@@ -616,9 +616,7 @@ public abstract class AbstractITCase {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
 
             List<ModificationItem> items = new ArrayList<>();
-            attributes.forEach((key, value) -> {
-                items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(key, value)));
-            });
+            attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(key, value))));
 
             ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
         } catch (Exception e) {
@@ -659,7 +657,7 @@ public abstract class AbstractITCase {
             i++;
         } while (object == null && i < maxit);
         if (object == null) {
-            fail("Timeout when executing query " + sql);
+            fail(() -> "Timeout when executing query " + sql);
         }
 
         return object;

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow.api;
 
+@FunctionalInterface
 public interface WorkflowAdapter {
 
     /**

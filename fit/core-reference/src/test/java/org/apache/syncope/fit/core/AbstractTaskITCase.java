@@ -147,7 +147,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             i++;
         } while (preSyncSize == taskTO.getExecutions().size() && i < maxWaitSeconds);
         if (i == maxWaitSeconds) {
-            fail("Timeout when executing task " + taskKey);
+            fail(() -> "Timeout when executing task " + taskKey);
         }
         return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
     }
@@ -208,7 +208,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             i++;
         } while (notificationTask == null && i < maxit);
         if (notificationTask == null) {
-            fail("Timeout when looking for notification tasks from notification " + notification);
+            fail(() -> "Timeout when looking for notification tasks from notification " + notification);
         }
 
         return notificationTask;

@@ -94,6 +94,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class GroupITCase extends AbstractITCase {
@@ -180,7 +181,7 @@ public class GroupITCase extends AbstractITCase {
                 groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
-        groupTOs.getResult().forEach(groupTO -> assertNotNull(groupTO));
+        groupTOs.getResult().forEach(Assertions::assertNotNull);
     }
 
     @Test

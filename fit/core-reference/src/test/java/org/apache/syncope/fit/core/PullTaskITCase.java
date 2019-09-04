@@ -194,7 +194,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             IOUtils.copy(srcStream, dstStream);
         } catch (IOException e) {
-            fail(e.getMessage());
+            fail(e::getMessage);
         } finally {
             if (propStream != null) {
                 propStream.close();
@@ -431,7 +431,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             i++;
         } while (members.getResult().isEmpty() && i < maxit);
         if (i == maxit) {
-            fail("Timeout while checking for memberships of " + groupTO.getName());
+            fail(() -> "Timeout while checking for memberships of " + groupTO.getName());
         }
         assertEquals(1, members.getResult().size());
 
@@ -469,7 +469,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             i++;
         } while (!members.getResult().isEmpty() && i < maxit);
         if (i == maxit) {
-            fail("Timeout while checking for memberships of " + groupTO.getName());
+            fail(() -> "Timeout while checking for memberships of " + groupTO.getName());
         }
         assertEquals(0, members.getResult().size());
     }
@@ -960,7 +960,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // asser for just one match
         assertTrue(executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"),
-                executed.getExecutions().get(0).getMessage().substring(0, 55) + "...");
+            () -> executed.getExecutions().get(0).getMessage().substring(0, 55) + "...");
     }
 
     @Test
@@ -1179,7 +1179,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             self = clientFactory.create(user.getUsername(), oldCleanPassword).self();
             assertNotNull(self);
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail(e::getMessage);
         } finally {
             // Delete PullTask + user + reset the connector
             if (pullTask != null) {
@@ -1283,7 +1283,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(2, propagationTasks.getSize());
         } catch (Exception e) {
             LOG.error("Unexpected during issueSYNCOPE1062()", e);
-            fail(e.getMessage());
+            fail(e::getMessage);
         } finally {
             if (pullTask != null) {
                 taskService.delete(TaskType.PULL, pullTask.getKey());

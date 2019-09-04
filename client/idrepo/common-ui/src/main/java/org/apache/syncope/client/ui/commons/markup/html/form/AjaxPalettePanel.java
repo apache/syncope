@@ -138,9 +138,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
                         // reduce number of method calls by building a lookup table
                         final Map<T, String> idForChoice = new HashMap<>(choices.size());
-                        choices.forEach(choice -> {
-                            idForChoice.put(choice, renderer.getIdValue(choice, 0));
-                        });
+                        choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
                         final String value = getValue();
                         int start = value.indexOf(';') + 1;
@@ -319,9 +317,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final List<T> selected = new ArrayList<>();
 
             final Map<T, String> idForChoice = new HashMap<>();
-            choices.forEach(choice -> {
-                idForChoice.put(choice, renderer.getIdValue(choice, 0));
-            });
+            choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
             for (final String id : Strings.split(selection, ',')) {
                 final Iterator<T> iter = choices.iterator();
@@ -344,9 +340,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final List<T> selected = new ArrayList<>(choices.size());
 
             final Map<T, String> idForChoice = new HashMap<>();
-            choices.forEach(choice -> {
-                idForChoice.put(choice, renderer.getIdValue(choice, 0));
-            });
+            choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
             final Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE);
 

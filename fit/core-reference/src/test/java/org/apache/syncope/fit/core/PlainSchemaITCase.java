@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -257,15 +258,11 @@ public class PlainSchemaITCase extends AbstractITCase {
     public void search() {
         List<PlainSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
         assertFalse(schemas.isEmpty());
-        schemas.forEach(schemaTO -> {
-            assertNotNull(schemaTO);
-        });
+        schemas.forEach(Assertions::assertNotNull);
 
         schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).keyword("fullna*").build());
         assertFalse(schemas.isEmpty());
-        schemas.forEach(schemaTO -> {
-            assertNotNull(schemaTO);
-        });
+        schemas.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -275,13 +272,11 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         assertTrue(userSchemas.stream().anyMatch(object -> "fullname".equals(object.getKey())));
 
-        assertFalse(userSchemas.stream().anyMatch(object -> {
-            return "password.cipher.algorithm".equals(object.getKey())
-                    || "rderived_dx".equals(object.getKey())
-                    || "icon".equals(object.getKey())
-                    || "mderived_sx".equals(object.getKey())
-                    || "self.membership.layout".equals(object.getKey());
-        }));
+        assertFalse(userSchemas.stream().anyMatch(object -> "password.cipher.algorithm".equals(object.getKey())
+                || "rderived_dx".equals(object.getKey())
+                || "icon".equals(object.getKey())
+                || "mderived_sx".equals(object.getKey())
+                || "self.membership.layout".equals(object.getKey())));
     }
 
     @Test

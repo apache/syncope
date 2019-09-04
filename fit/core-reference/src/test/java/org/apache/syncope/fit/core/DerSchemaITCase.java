@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class DerSchemaITCase extends AbstractITCase {
@@ -42,15 +43,11 @@ public class DerSchemaITCase extends AbstractITCase {
     public void search() {
         List<DerSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
         assertFalse(schemas.isEmpty());
-        schemas.forEach(schemaTO -> {
-            assertNotNull(schemaTO);
-        });
+        schemas.forEach(Assertions::assertNotNull);
 
         schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mder*").build());
         assertFalse(schemas.isEmpty());
-        schemas.forEach(schemaTO -> {
-            assertNotNull(schemaTO);
-        });
+        schemas.forEach(Assertions::assertNotNull);
     }
 
     @Test

@@ -75,17 +75,15 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
 
         merged.getDynMemberships().stream().map(memb -> searchDAO.search(
                 SearchCondConverter.convert(memb.getFIQLCond()), memb.getAnyType().getKind())).
-                forEach(matching -> {
-                    matching.forEach(any -> {
-                        Query insert = entityManager().createNativeQuery(
-                                "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
-                        insert.setParameter(1, any.getKey());
-                        insert.setParameter(2, merged.getKey());
-                        insert.executeUpdate();
+                forEach(matching -> matching.forEach(any -> {
+                    Query insert = entityManager().createNativeQuery(
+                            "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                    insert.setParameter(1, any.getKey());
+                    insert.setParameter(2, merged.getKey());
+                    insert.executeUpdate();
 
-                        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, any, AuthContextUtils.getDomain()));
-                    });
-                });
+                    publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, any, AuthContextUtils.getDomain()));
+                }));
 
         return merged;
     }

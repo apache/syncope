@@ -68,28 +68,26 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
             isValid[0] = false;
         }
 
-        saml2IdP.getItems().forEach(item -> {
-            item.getTransformers().stream().
-                    filter(transformer -> transformer.getEngine() == ImplementationEngine.JAVA).
-                    forEach(transformer -> {
-                        Class<?> actionsClass = null;
-                        boolean isAssignable = false;
-                        try {
-                            actionsClass = Class.forName(transformer.getBody());
-                            isAssignable = ItemTransformer.class.isAssignableFrom(actionsClass);
-                        } catch (Exception e) {
-                            LOG.error("Invalid ItemTransformer specified: {}", transformer.getBody(), e);
-                        }
+        saml2IdP.getItems().forEach(item -> item.getTransformers().stream().
+                filter(transformer -> transformer.getEngine() == ImplementationEngine.JAVA).
+                forEach(transformer -> {
+                    Class<?> actionsClass = null;
+                    boolean isAssignable = false;
+                    try {
+                        actionsClass = Class.forName(transformer.getBody());
+                        isAssignable = ItemTransformer.class.isAssignableFrom(actionsClass);
+                    } catch (Exception e) {
+                        LOG.error("Invalid ItemTransformer specified: {}", transformer.getBody(), e);
+                    }
 
-                        if (actionsClass == null || !isAssignable) {
-                            context.buildConstraintViolationWithTemplate(
-                                    getTemplate(EntityViolationType.InvalidMapping,
-                                            "Invalid item trasformer class name")).
-                                    addPropertyNode("itemTransformers").addConstraintViolation();
-                            isValid[0] = false;
-                        }
-                    });
-        });
+                    if (actionsClass == null || !isAssignable) {
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidMapping,
+                                        "Invalid item trasformer class name")).
+                                addPropertyNode("itemTransformers").addConstraintViolation();
+                        isValid[0] = false;
+                    }
+                }));
 
         return isValid[0];
     }

@@ -139,9 +139,7 @@ public class Navbar extends Panel {
     }
 
     public void setActiveNavItem(final String id) {
-        Optional<WebMarkupContainer> found = navbarItems.stream().filter(containingLI -> {
-            return containingLI.getMarkupId().equals(id);
-        }).findFirst();
+        Optional<WebMarkupContainer> found = navbarItems.stream().filter(containingLI -> containingLI.getMarkupId().equals(id)).findFirst();
         if (found.isPresent()) {
             found.get().add(new Behavior() {
 

@@ -273,10 +273,8 @@ public class RealmChoicePanel extends Panel {
 
                             @Override
                             public boolean isEnabled() {
-                                return availableRealms.stream().anyMatch(availableRealm -> {
-                                    return SyncopeConstants.ROOT_REALM.equals(availableRealm)
-                                            || realmTO.getKey().equals(availableRealm);
-                                });
+                                return availableRealms.stream().anyMatch(availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
+                                        || realmTO.getKey().equals(availableRealm));
                             }
                         });
                     }
