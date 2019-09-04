@@ -40,7 +40,8 @@ public class ApplicationContextProvider implements ApplicationContextAware {
     }
 
     public static DefaultListableBeanFactory getBeanFactory() {
-        return Optional.ofNullable(BEAN_FACTORY).orElseGet(() -> Optional.ofNullable(CTX).map(ctx -> (DefaultListableBeanFactory) ctx.getBeanFactory()).orElse(null));
+        return Optional.ofNullable(BEAN_FACTORY).orElseGet(()
+            -> Optional.ofNullable(CTX).map(ctx -> (DefaultListableBeanFactory) ctx.getBeanFactory()).orElse(null));
     }
 
     public static void setBeanFactory(final DefaultListableBeanFactory beanFactory) {

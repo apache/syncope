@@ -96,8 +96,10 @@ public class ConnObjectPanel extends Panel {
                 final String prop = item.getModelObject();
 
                 final Fragment valueFragment;
-                final Attr left = Optional.ofNullable(leftProfile).map(stringAttrMap -> stringAttrMap.get(prop)).orElse(null);
-                final Attr right = Optional.ofNullable(rightProfile).map(profile -> profile.get(prop)).orElse(null);
+                final Attr left = Optional.ofNullable(leftProfile)
+                    .map(stringAttrMap -> stringAttrMap.get(prop)).orElse(null);
+                final Attr right = Optional.ofNullable(rightProfile)
+                    .map(profile -> profile.get(prop)).orElse(null);
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
                 valueFragment.add(getValuePanel("leftAttribute", prop, left).

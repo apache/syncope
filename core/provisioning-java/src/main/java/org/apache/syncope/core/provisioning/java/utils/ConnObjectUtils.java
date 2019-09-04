@@ -117,7 +117,8 @@ public class ConnObjectUtils {
      * @return transfer object
      */
     public static ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
-        return Optional.ofNullable(connObject).map(object -> getConnObjectTO(object.getAttributes())).orElseGet(ConnObjectTO::new);
+        return Optional.ofNullable(connObject)
+            .map(object -> getConnObjectTO(object.getAttributes())).orElseGet(ConnObjectTO::new);
     }
 
     /**

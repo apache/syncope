@@ -153,7 +153,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     }
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
-        this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40 ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
+        this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40
+            ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
         target.add(this.header);
     }
 

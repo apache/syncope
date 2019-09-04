@@ -80,7 +80,8 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             }
         }
 
-        idpTO.setLogoutSupported(Optional.ofNullable(idpEntity).filter(entity -> entity.getSLOLocation(SAML2BindingType.POST) != null
+        idpTO.setLogoutSupported(Optional.ofNullable(idpEntity)
+            .filter(entity -> entity.getSLOLocation(SAML2BindingType.POST) != null
             || entity.getSLOLocation(SAML2BindingType.REDIRECT) != null).isPresent());
         return idpTO;
     }

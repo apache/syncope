@@ -116,7 +116,8 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final Boolean object) {
-                item.setModelObject(Optional.ofNullable(object).map(Object::toString).orElseGet(Boolean.FALSE::toString));
+                item.setModelObject(Optional.ofNullable(object)
+                    .map(Object::toString).orElseGet(Boolean.FALSE::toString));
             }
         };
 

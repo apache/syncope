@@ -77,7 +77,8 @@ public class PolicyRestClient extends BaseRestClient {
 
         @Override
         public int compare(final PolicyTO left, final PolicyTO right) {
-            return Optional.ofNullable(left).map(to -> Optional.ofNullable(right).map(policyTO -> to.getDescription().compareTo(policyTO.getDescription())).orElse(1)).orElse(-1);
+            return Optional.ofNullable(left).map(to -> Optional.ofNullable(right)
+                .map(policyTO -> to.getDescription().compareTo(policyTO.getDescription())).orElse(1)).orElse(-1);
         }
 
     }

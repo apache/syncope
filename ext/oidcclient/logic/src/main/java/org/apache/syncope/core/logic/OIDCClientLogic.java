@@ -330,7 +330,9 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
 
                 return responseTO;
             } else {
-                throw new NotFoundException(Optional.ofNullable(keyValue).map(value -> "User matching the provided value " + value).orElse("User marching the provided claims"));
+                throw new NotFoundException(Optional.ofNullable(keyValue)
+                    .map(value -> "User matching the provided value " + value)
+                    .orElse("User marching the provided claims"));
             }
         } else if (matchingUsers.size() > 1) {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);

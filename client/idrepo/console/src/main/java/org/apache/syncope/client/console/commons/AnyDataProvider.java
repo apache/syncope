@@ -110,7 +110,8 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             SyncopeConsoleSession.get().error(e.getMessage());
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            target.ifPresent(ajaxRequestTarget ->
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
         Collections.sort(result, comparator);
@@ -132,7 +133,8 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             SyncopeConsoleSession.get().error(e.getMessage());
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            target.ifPresent(ajaxRequestTarget ->
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
         return result;

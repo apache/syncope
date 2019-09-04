@@ -96,7 +96,9 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             protected ResourceProvision getActualItem(
                     final ResourceProvision item, final List<ResourceProvision> list) {
 
-                return Optional.ofNullable(item).map(resourceProvision -> list.stream().filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
+                return Optional.ofNullable(item)
+                    .map(resourceProvision -> list.stream()
+                        .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
                     || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
                     && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
                     || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).

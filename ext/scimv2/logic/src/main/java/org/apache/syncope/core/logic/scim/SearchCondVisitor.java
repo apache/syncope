@@ -56,7 +56,10 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     }
 
     private boolean schemaEquals(final Resource resource, final String value, final String schema) {
-        return Optional.ofNullable(resource).map(resource1 -> value.equalsIgnoreCase(schema) || (resource1.schema() + ":" + value).equalsIgnoreCase(schema)).orElseGet(() -> value.contains(":")
+        return Optional.ofNullable(resource)
+            .map(resource1 -> value.equalsIgnoreCase(schema)
+                || (resource1.schema() + ":" + value).equalsIgnoreCase(schema))
+            .orElseGet(() -> value.contains(":")
             ? StringUtils.substringAfterLast(value, ":").equalsIgnoreCase(schema)
             : value.equalsIgnoreCase(schema));
     }

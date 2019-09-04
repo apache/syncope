@@ -300,7 +300,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     protected UserRequestForm getForm(final Task task) {
-        return Optional.ofNullable(task).map(task1 -> FlowableUserRequestHandler.this.getForm(task1, engine.getFormService().getTaskFormData(task1.getId()))).orElse(null);
+        return Optional.ofNullable(task)
+            .map(t -> FlowableUserRequestHandler.this.getForm(t, engine.getFormService().getTaskFormData(t.getId())))
+            .orElse(null);
     }
 
     protected UserRequestForm getForm(final Task task, final TaskFormData fd) {
