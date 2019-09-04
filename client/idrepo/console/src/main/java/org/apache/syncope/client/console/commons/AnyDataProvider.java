@@ -110,9 +110,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             SyncopeConsoleSession.get().error(e.getMessage());
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            if (target.isPresent()) {
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-            }
+            target.ifPresent(ajaxRequestTarget -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
         Collections.sort(result, comparator);
@@ -125,7 +123,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
         try {
             if (filtered) {
-                result = fiql == null ? 0 : restClient.count(realm, fiql, type);
+                result = Optional.ofNullable(fiql).map(s -> restClient.count(realm, s, type)).orElse(0);
             } else {
                 result = restClient.count(realm, null, type);
             }
@@ -134,9 +132,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             SyncopeConsoleSession.get().error(e.getMessage());
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            if (target.isPresent()) {
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-            }
+            target.ifPresent(ajaxRequestTarget -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
         return result;

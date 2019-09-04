@@ -19,7 +19,11 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Base64;
+import java.util.Optional;
+
 import javax.xml.bind.DatatypeConverter;
+
+import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -78,7 +82,7 @@ public class LDAPPasswordPullActions implements PullActions {
 
         if (anyUR instanceof UserUR) {
             PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
-            parseEncodedPassword(modPassword == null ? null : modPassword.getValue());
+            parseEncodedPassword(Optional.ofNullable(modPassword).map(AbstractPatchItem::getValue).orElse(null));
         }
     }
 

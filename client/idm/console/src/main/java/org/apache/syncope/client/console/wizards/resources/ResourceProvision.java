@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -87,9 +89,7 @@ public class ResourceProvision implements ToggleableTarget {
     @Override
     public String getKey() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : orgUnitTO.getKey()
+                ? Optional.ofNullable(orgUnitTO).map(OrgUnitTO::getKey).orElse(null)
                 : provisionTO.getKey();
     }
 
@@ -113,9 +113,7 @@ public class ResourceProvision implements ToggleableTarget {
 
     public String getObjectClass() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : orgUnitTO.getObjectClass() : provisionTO.getObjectClass();
+                ? Optional.ofNullable(orgUnitTO).map(OrgUnitTO::getObjectClass).orElse(null) : provisionTO.getObjectClass();
     }
 
     public void setObjectClass(final String objectClass) {
@@ -131,7 +129,7 @@ public class ResourceProvision implements ToggleableTarget {
     }
 
     public boolean isIgnoreCaseMatch() {
-        return provisionTO == null ? orgUnitTO.isIgnoreCaseMatch() : provisionTO.isIgnoreCaseMatch();
+        return Optional.ofNullable(provisionTO).map(ProvisionTO::isIgnoreCaseMatch).orElseGet(() -> orgUnitTO.isIgnoreCaseMatch());
     }
 
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
@@ -144,9 +142,7 @@ public class ResourceProvision implements ToggleableTarget {
 
     public String getConnObjectLink() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : orgUnitTO.getConnObjectLink()
+                ? Optional.ofNullable(orgUnitTO).map(OrgUnitTO::getConnObjectLink).orElse(null)
                 : provisionTO.getMapping().getConnObjectLink();
     }
 

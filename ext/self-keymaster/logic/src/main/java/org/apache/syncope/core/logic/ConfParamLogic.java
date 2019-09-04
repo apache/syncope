@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
@@ -64,9 +65,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
     public JsonNode get(final String key) {
         ConfParam param = confParamDAO.find(key);
 
-        return param == null
-                ? null
-                : param.getValue();
+        return Optional.ofNullable(param).map(ConfParam::getValue).orElse(null);
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")

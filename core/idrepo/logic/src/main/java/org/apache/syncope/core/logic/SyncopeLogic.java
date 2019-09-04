@@ -486,7 +486,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             throw new NotFoundException("Group " + groupName);
         }
         Optional<? extends TypeExtension> typeExt = group.getTypeExtension(anyTypeDAO.findUser());
-        if (!typeExt.isPresent()) {
+        if (typeExt.isEmpty()) {
             throw new NotFoundException("TypeExtension in " + groupName + " for users");
         }
 

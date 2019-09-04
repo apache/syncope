@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.Response;
@@ -372,9 +373,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
-        return report == null
-                ? null
-                : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
+        return Optional.ofNullable(report).map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")

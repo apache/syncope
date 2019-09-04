@@ -307,23 +307,17 @@ public class JPAUser
 
     @Override
     public Date getTokenExpireTime() {
-        return tokenExpireTime == null
-                ? null
-                : new Date(tokenExpireTime.getTime());
+        return Optional.ofNullable(tokenExpireTime).map(expireTime -> new Date(expireTime.getTime())).orElse(null);
     }
 
     @Override
     public boolean checkToken(final String token) {
-        return this.token == null
-                ? token == null
-                : this.token.equals(token) && !hasTokenExpired();
+        return Optional.ofNullable(this.token).map(s -> s.equals(token) && !hasTokenExpired()).orElseGet(() -> token == null);
     }
 
     @Override
     public boolean hasTokenExpired() {
-        return tokenExpireTime == null
-                ? false
-                : tokenExpireTime.before(new Date());
+        return Optional.ofNullable(tokenExpireTime).filter(expireTime -> expireTime.before(new Date())).isPresent();
     }
 
     @Override
@@ -333,16 +327,12 @@ public class JPAUser
 
     @Override
     public Date getChangePwdDate() {
-        return changePwdDate == null
-                ? null
-                : new Date(changePwdDate.getTime());
+        return Optional.ofNullable(changePwdDate).map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
     }
 
     @Override
     public void setChangePwdDate(final Date changePwdDate) {
-        this.changePwdDate = changePwdDate == null
-                ? null
-                : new Date(changePwdDate.getTime());
+        this.changePwdDate = Optional.ofNullable(changePwdDate).map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
     }
 
     @Override
@@ -357,16 +347,12 @@ public class JPAUser
 
     @Override
     public Date getLastLoginDate() {
-        return lastLoginDate == null
-                ? null
-                : new Date(lastLoginDate.getTime());
+        return Optional.ofNullable(lastLoginDate).map(loginDate -> new Date(loginDate.getTime())).orElse(null);
     }
 
     @Override
     public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = lastLoginDate == null
-                ? null
-                : new Date(lastLoginDate.getTime());
+        this.lastLoginDate = Optional.ofNullable(lastLoginDate).map(loginDate -> new Date(loginDate.getTime())).orElse(null);
     }
 
     @Override

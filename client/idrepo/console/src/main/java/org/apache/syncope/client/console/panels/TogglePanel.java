@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
@@ -151,9 +153,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     }
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
-        this.header.setDefaultModelObject(header == null
-                ? StringUtils.EMPTY
-                : header.length() >= 40 ? (header.substring(0, 30) + " ... ") : header);
+        this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40 ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
         target.add(this.header);
     }
 

@@ -20,6 +20,7 @@ package org.apache.syncope.core.spring.security;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
@@ -70,7 +71,7 @@ public class JWTAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return username == null ? claims.getSubject() : username;
+        return Optional.ofNullable(username).orElseGet(claims::getSubject);
     }
 
     public void setUsername(final String username) {
@@ -89,6 +90,6 @@ public class JWTAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        return username == null ? claims.getSubject() : username;
+        return Optional.ofNullable(username).orElseGet(claims::getSubject);
     }
 }

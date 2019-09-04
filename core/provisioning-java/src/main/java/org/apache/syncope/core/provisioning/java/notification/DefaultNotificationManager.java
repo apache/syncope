@@ -325,7 +325,7 @@ public class DefaultNotificationManager implements NotificationManager {
             any = groupDAO.find(((ProvisioningResult) output).getEntity().getKey());
         }
 
-        AnyType anyType = any == null ? null : any.getType();
+        AnyType anyType = Optional.ofNullable(any).map(Any::getType).orElse(null);
         LOG.debug("Search notification for [{}]{}", anyType, any);
 
         List<NotificationTask> notifications = new ArrayList<>();
@@ -341,7 +341,7 @@ public class DefaultNotificationManager implements NotificationManager {
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
-                        || !notification.getAbout(anyType).isPresent()
+                        || notification.getAbout(anyType).isEmpty()
                         || anyMatchDAO.matches(
                                 any, SearchCondConverter.convert(notification.getAbout(anyType).get().get()))) {
 

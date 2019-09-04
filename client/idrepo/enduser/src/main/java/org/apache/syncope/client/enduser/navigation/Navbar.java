@@ -142,17 +142,15 @@ public class Navbar extends Panel {
         Optional<WebMarkupContainer> found = navbarItems.stream().filter(containingLI -> {
             return containingLI.getMarkupId().equals(id);
         }).findFirst();
-        if (found.isPresent()) {
-            found.get().add(new Behavior() {
+        found.ifPresent(components -> components.add(new Behavior() {
 
-                private static final long serialVersionUID = -5775607340182293596L;
+            private static final long serialVersionUID = -5775607340182293596L;
 
-                @Override
-                public void onComponentTag(final Component component, final ComponentTag tag) {
-                    tag.put("class", "active");
-                }
-            });
-        }
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+                tag.put("class", "active");
+            }
+        }));
     }
 
 }

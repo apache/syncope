@@ -126,7 +126,7 @@ public class PullUtils {
             final boolean ignoreCaseMatch) {
 
         Optional<? extends Provision> provision = resource.getProvision(anyType);
-        if (!provision.isPresent()) {
+        if (provision.isEmpty()) {
             return Optional.empty();
         }
 

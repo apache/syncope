@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.openjpa;
 
 import java.util.Locale;
+import java.util.Optional;
+
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.openjpa.jdbc.identifier.DBIdentifier;
 import org.apache.openjpa.jdbc.kernel.JDBCStore;
@@ -47,7 +49,7 @@ public class LocaleValueHandler extends AbstractValueHandler {
     @Override
     public Column[] map(final ValueMapping vm, final String name, final ColumnIO io, final boolean adapt) {
         DBDictionary dict = vm.getMappingRepository().getDBDictionary();
-        DBIdentifier colName = DBIdentifier.newColumn(name, dict != null ? dict.delimitAll() : false);
+        DBIdentifier colName = DBIdentifier.newColumn(name, Optional.ofNullable(dict).filter(DBDictionary::delimitAll).isPresent());
         return map(vm, colName, io, adapt);
     }
 
@@ -60,11 +62,11 @@ public class LocaleValueHandler extends AbstractValueHandler {
 
     @Override
     public Object toDataStoreValue(final ValueMapping vm, final Object val, final JDBCStore store) {
-        return val == null ? null : ((Locale) val).toString();
+        return Optional.ofNullable(val).map(o -> ((Locale) o).toString()).orElse(null);
     }
 
     @Override
     public Object toObjectValue(final ValueMapping vm, final Object val) {
-        return val == null ? null : LocaleUtils.toLocale((String) val);
+        return Optional.ofNullable(val).map(o -> LocaleUtils.toLocale((String) o)).orElse(null);
     }
 }

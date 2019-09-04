@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -113,7 +115,7 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final Date object) {
-                item.setModelObject(object != null ? fmt.format(object) : null);
+                item.setModelObject(Optional.ofNullable(object).map(fmt::format).orElse(null));
             }
         };
 

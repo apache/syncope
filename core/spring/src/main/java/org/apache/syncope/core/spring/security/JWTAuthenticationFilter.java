@@ -19,6 +19,8 @@
 package org.apache.syncope.core.spring.security;
 
 import java.io.IOException;
+import java.util.Optional;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -71,7 +73,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String[] parts = auth == null ? null : auth.split(" ");
+        String[] parts = Optional.ofNullable(auth).map(s -> s.split(" ")).orElse(null);
         if (parts == null || parts.length != 2 || !"Bearer".equals(parts[0])) {
             chain.doFilter(request, response);
             return;

@@ -502,7 +502,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     ? Optional.empty()
                     : previousObject.getPlainAttr(attrTO.getSchema());
             if (previousObject != null
-                    && ((!prevAttr.isPresent() && attrTO.getValues().stream().anyMatch(StringUtils::isNotBlank))
+                    && ((prevAttr.isEmpty() && attrTO.getValues().stream().anyMatch(StringUtils::isNotBlank))
                     || (prevAttr.isPresent() && !ListUtils.isEqualList(
                     prevAttr.get().getValues().stream().
                             filter(StringUtils::isNotBlank).collect(Collectors.toList()),

@@ -26,6 +26,8 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerAdapter;
 import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -167,7 +169,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final T object) {
-                item.setModelObject(object == null ? null : object.toString());
+                item.setModelObject(Optional.ofNullable(object).map(Object::toString).orElse(null));
             }
         });
 

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityExistsException;
@@ -150,7 +151,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             }
         }
 
-        return builder == null ? null : builder.build();
+        return Optional.ofNullable(builder).map(ResponseBuilder::build).orElse(null);
     }
 
     private ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
@@ -318,8 +319,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
         }
 
-        return message == null
-                ? (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage()
-                : message;
+        return Optional.ofNullable(message).orElseGet(() -> (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage());
     }
 }

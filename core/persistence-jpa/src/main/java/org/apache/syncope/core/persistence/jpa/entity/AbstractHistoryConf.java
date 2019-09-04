@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
@@ -56,16 +58,12 @@ public abstract class AbstractHistoryConf<E extends Entity, T extends EntityTO>
 
     @Override
     public Date getCreation() {
-        return creation == null
-                ? null
-                : new Date(creation.getTime());
+        return Optional.ofNullable(creation).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public void setCreation(final Date creation) {
-        this.creation = creation == null
-                ? null
-                : new Date(creation.getTime());
+        this.creation = Optional.ofNullable(creation).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override

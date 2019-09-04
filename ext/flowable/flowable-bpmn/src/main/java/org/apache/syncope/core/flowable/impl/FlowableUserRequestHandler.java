@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -299,9 +300,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     protected UserRequestForm getForm(final Task task) {
-        return task == null
-                ? null
-                : FlowableUserRequestHandler.this.getForm(task, engine.getFormService().getTaskFormData(task.getId()));
+        return Optional.ofNullable(task).map(task1 -> FlowableUserRequestHandler.this.getForm(task1, engine.getFormService().getTaskFormData(task1.getId()))).orElse(null);
     }
 
     protected UserRequestForm getForm(final Task task, final TaskFormData fd) {

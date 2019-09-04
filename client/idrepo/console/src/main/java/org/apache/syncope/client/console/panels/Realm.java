@@ -222,7 +222,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
                             || afterObj.getAttrs().isEmpty()
-                            || !afterObj.getAttr(ConnIdSpecialName.NAME).isPresent()
+                            || afterObj.getAttr(ConnIdSpecialName.NAME).isEmpty()
                             || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues() == null
                             || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().isEmpty()
                             ? StringUtils.EMPTY

@@ -19,6 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -57,14 +59,10 @@ public abstract class AbstractHistoryConf implements EntityTO {
     }
 
     public Date getCreation() {
-        return creation == null
-                ? null
-                : new Date(creation.getTime());
+        return Optional.ofNullable(creation).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setCreation(final Date creation) {
-        this.creation = creation == null
-                ? null
-                : new Date(creation.getTime());
+        this.creation = Optional.ofNullable(creation).map(date -> new Date(date.getTime())).orElse(null);
     }
 }

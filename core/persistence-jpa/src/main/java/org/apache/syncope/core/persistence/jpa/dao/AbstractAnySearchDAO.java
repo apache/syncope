@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
@@ -53,6 +54,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -241,7 +243,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             groupKey = cond.getGroup();
         } else {
             Group group = groupDAO.findByName(cond.getGroup());
-            groupKey = group == null ? null : group.getKey();
+            groupKey = Optional.ofNullable(group).map(Entity::getKey).orElse(null);
         }
         if (groupKey == null) {
             LOG.error("Could not find group for '" + cond.getGroup() + "'");
@@ -257,7 +259,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             rightAnyObjectKey = cond.getAnyObject();
         } else {
             AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
-            rightAnyObjectKey = anyObject == null ? null : anyObject.getKey();
+            rightAnyObjectKey = Optional.ofNullable(anyObject).map(Entity::getKey).orElse(null);
         }
         if (rightAnyObjectKey == null) {
             LOG.error("Could not find any object for '" + cond.getAnyObject() + "'");
@@ -286,7 +288,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             if (member == null) {
                 member = anyObjectDAO.findByName(cond.getMember());
             }
-            memberKey = member == null ? null : member.getKey();
+            memberKey = Optional.ofNullable(member).map(Entity::getKey).orElse(null);
         }
         if (memberKey == null) {
             LOG.error("Could not find user or any object for '" + cond.getMember() + "'");

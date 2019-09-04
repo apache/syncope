@@ -21,6 +21,8 @@ package org.apache.syncope.client.ui.commons;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
+
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -90,9 +92,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     @Override
     public String getContentType() {
-        return contentType == null
-                ? MediaType.APPLICATION_OCTET_STREAM
-                : contentType;
+        return Optional.ofNullable(contentType).orElse(MediaType.APPLICATION_OCTET_STREAM);
     }
 
     public String getFilename() {
