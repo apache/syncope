@@ -369,7 +369,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         } else {
                             Optional<? extends APlainAttr> attr =
                                     anyObject.getPlainAttr(schema.getKey(), newMembership);
-                            if (!attr.isPresent()) {
+                            if (attr.isEmpty()) {
                                 LOG.debug("No plain attribute found for {} and membership of {}",
                                         schema, newMembership.getRightEnd());
 

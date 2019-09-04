@@ -70,9 +70,7 @@ public class PushUtils {
         }
 
         try {
-            return rule.isPresent()
-                    ? findByCorrelationRule(connector, any, provision, rule.get())
-                    : findByConnObjectKey(connector, any, provision);
+            return rule.map(pushCorrelationRule -> findByCorrelationRule(connector, any, provision, pushCorrelationRule)).orElseGet(() -> findByConnObjectKey(connector, any, provision));
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
             return Collections.<ConnectorObject>emptyList();

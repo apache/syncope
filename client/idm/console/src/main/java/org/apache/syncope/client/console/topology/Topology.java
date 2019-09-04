@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -339,9 +340,9 @@ public class Topology extends BasePage {
                             hpos = 0.0;
                         }
 
-                        int x = (int) Math.round((parent == null ? origX : parent.getX())
+                        int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
-                        int y = (int) Math.round((parent == null ? origY : parent.getY())
+                        int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
                                 + 100 * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
                         topologynode.setConnectionDisplayName(conn.getBundleName());
@@ -433,9 +434,9 @@ public class Topology extends BasePage {
                             hpos = 0.0;
                         }
 
-                        int x = (int) Math.round((parent == null ? origX : parent.getX())
+                        int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
-                        int y = (int) Math.round((parent == null ? origY : parent.getY())
+                        int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
                                 + ky * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
                         topologynode.setX(x);

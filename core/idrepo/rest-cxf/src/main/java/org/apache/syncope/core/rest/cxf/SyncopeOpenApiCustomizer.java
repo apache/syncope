@@ -115,7 +115,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         Optional<Parameter> domainHeaderParameter = parameters.stream().filter(parameter
                 -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).
                 findFirst();
-        if (!domainHeaderParameter.isPresent()) {
+        if (domainHeaderParameter.isEmpty()) {
             HeaderParameter parameter = new HeaderParameter();
             parameter.setName(RESTHeaders.DOMAIN);
             parameter.setRequired(true);

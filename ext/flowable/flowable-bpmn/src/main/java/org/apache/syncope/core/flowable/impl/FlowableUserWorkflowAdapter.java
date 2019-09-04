@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -266,7 +267,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 dataBinder.getUserTO(updated, true),
                 userUR.getPassword() == null ? null : userUR.getPassword().getValue(),
                 null,
-                propByResBeforeUpdate == null ? propByRes : propByResBeforeUpdate);
+            Optional.ofNullable(propByResBeforeUpdate).orElse(propByRes));
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);

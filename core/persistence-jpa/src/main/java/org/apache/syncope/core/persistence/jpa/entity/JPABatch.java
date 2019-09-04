@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -42,9 +44,7 @@ public class JPABatch extends AbstractProvidedKeyEntity implements Batch {
 
     @Override
     public Date getExpiryTime() {
-        return expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     @Override

@@ -69,7 +69,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 Optional<Attr> attrTO =
                         bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
 
-                return !attrTO.isPresent() || attrTO.get().getValues().isEmpty()
+                return attrTO.isEmpty() || attrTO.get().getValues().isEmpty()
                         ? new Label("field", StringUtils.EMPTY)
                         : new CollectionPanel("field", attrTO.get().getValues());
             }

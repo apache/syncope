@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -371,7 +372,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
         }
 
         public String getImplKey() {
-            return impl == null ? null : impl.getKey();
+            return Optional.ofNullable(impl).map(ImplementationTO::getKey).orElse(null);
         }
 
         public void setImplKey(final String key) {

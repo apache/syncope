@@ -103,7 +103,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             String connObjectKeyValue = connObjectKeyItem.isPresent()
                     ? mappingManager.getConnObjectKeyValue(any, provision).orElse(null)
                     : null;
-            if (!connObjectKeyItem.isPresent() || connObjectKeyValue == null) {
+            if (connObjectKeyItem.isEmpty() || connObjectKeyValue == null) {
                 LOG.error("No ConnObjectKey or value found for {}, ignoring...", provision);
             } else {
                 Set<MappingItem> linkingMappingItems = new HashSet<>();

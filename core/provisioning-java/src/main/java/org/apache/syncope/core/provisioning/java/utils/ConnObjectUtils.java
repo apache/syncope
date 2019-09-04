@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.utils;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -117,7 +117,7 @@ public class ConnObjectUtils {
      * @return transfer object
      */
     public static ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
-        return connObject == null ? new ConnObjectTO() : getConnObjectTO(connObject.getAttributes());
+        return Optional.ofNullable(connObject).map(object -> getConnObjectTO(object.getAttributes())).orElseGet(ConnObjectTO::new);
     }
 
     /**

@@ -221,9 +221,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 handler.setProfile(profile);
 
                 Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(provision.getAnyType());
-                String filter = anyFilter.isPresent()
-                        ? anyFilter.get().getFIQLCond()
-                        : null;
+                String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
                 SearchCond cond = StringUtils.isBlank(filter)
                         ? anyDAO.getAllMatchingCond()
                         : SearchCondConverter.convert(filter);

@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -181,7 +182,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
                     getLastSelectedPathComponent();
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
-            String parentNodeName = parentNode == null ? null : String.valueOf(parentNode.getUserObject());
+            String parentNodeName = Optional.ofNullable(parentNode).map(node -> String.valueOf(node.getUserObject())).orElse(null);
             if (selectedNode.isLeaf() && StringUtils.isNotBlank(parentNodeName)) {
                 String leafNodeName = (String) selectedNode.getUserObject();
                 DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode) parentNode.getParent();

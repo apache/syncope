@@ -35,6 +35,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.resource.IResourceStream;
 
+import java.util.Optional;
+
 /**
  * Modal window with report executions.
  */
@@ -165,7 +167,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
         @Override
         protected String getFileName() {
             createResourceStream();
-            return stream == null ? null : stream.getFilename();
+            return Optional.ofNullable(stream).map(HttpResourceStream::getFilename).orElse(null);
         }
 
         @Override

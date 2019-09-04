@@ -169,13 +169,9 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     options);
 
             Optional<? extends Provision> userProvision = provision.getResource().getProvision(anyTypeDAO.findUser());
-            boolean userIgnoreCaseMatch = userProvision.isPresent()
-                    ? userProvision.get().isIgnoreCaseMatch()
-                    : false;
+            boolean userIgnoreCaseMatch = userProvision.map(Provision::isIgnoreCaseMatch).orElse(false);
             Optional<? extends Provision> groupProvision = provision.getResource().getProvision(anyTypeDAO.findGroup());
-            boolean groupIgnoreCaseMatch = groupProvision.isPresent()
-                    ? groupProvision.get().isIgnoreCaseMatch()
-                    : false;
+            boolean groupIgnoreCaseMatch = groupProvision.map(Provision::isIgnoreCaseMatch).orElse(false);
             try {
                 setGroupOwners(ghandler, userIgnoreCaseMatch, groupIgnoreCaseMatch);
             } catch (Exception e) {

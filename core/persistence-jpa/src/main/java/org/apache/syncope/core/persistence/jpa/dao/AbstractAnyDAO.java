@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
@@ -129,7 +130,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             lastChangeDate = (Date) result.get(0)[1];
         }
 
-        return lastChangeDate == null ? creationDate : lastChangeDate;
+        return Optional.ofNullable(lastChangeDate).orElse(creationDate);
     }
 
     protected abstract void securityChecks(A any);

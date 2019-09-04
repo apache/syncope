@@ -19,6 +19,8 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
+import java.util.Optional;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
@@ -63,11 +65,9 @@ public class ConnObjectTOListQuery implements Serializable {
     private String orderBy;
 
     public Integer getSize() {
-        return size == null
-                ? 25
-                : size > MAX_SIZE
-                        ? MAX_SIZE
-                        : size;
+        return Optional.ofNullable(size).map(integer -> integer > MAX_SIZE
+            ? MAX_SIZE
+            : integer).orElse(25);
     }
 
     @Min(1)

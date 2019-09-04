@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.jws.WebService;
@@ -149,7 +150,7 @@ public class ProvisioningImpl implements Provisioning {
                             }
                         }
 
-                        set.append(value == null ? null : "'" + value + "'");
+                        set.append(Optional.ofNullable(value).map(s -> "'" + s + "'").orElse(null));
                     }
                 }
             }
@@ -183,7 +184,7 @@ public class ProvisioningImpl implements Provisioning {
         Connection conn = null;
         try {
 
-            String queryString = "SELECT * FROM user" + (query == null ? "" : " WHERE " + query.toString());
+            String queryString = "SELECT * FROM user" + (Optional.ofNullable(query).map(operand -> " WHERE " + operand.toString()).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
                     replaceAll("__UID__", "userId").
@@ -287,7 +288,7 @@ public class ProvisioningImpl implements Provisioning {
                             values.append(",");
                         }
 
-                        values.append(value == null ? null : "'" + value + "'");
+                        values.append(Optional.ofNullable(value).map(s -> "'" + s + "'").orElse(null));
 
                         if (attr.isKey() && !attr.getValues().isEmpty()) {
                             accountid = attr.getValues().get(0).toString();

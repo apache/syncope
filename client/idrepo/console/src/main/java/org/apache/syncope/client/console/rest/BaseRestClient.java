@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.rest;
 
 import java.net.URI;
+import java.util.Optional;
+
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -86,8 +88,6 @@ public abstract class BaseRestClient implements RestClient {
 
     protected static String getStatus(final int httpStatus) {
         ExecStatus execStatus = ExecStatus.fromHttpStatus(httpStatus);
-        return execStatus == null
-                ? Constants.UNKNOWN
-                : execStatus.name();
+        return Optional.ofNullable(execStatus).map(Enum::name).orElse(Constants.UNKNOWN);
     }
 }

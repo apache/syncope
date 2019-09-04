@@ -146,9 +146,7 @@ public final class MappingUtils {
         }
 
         // Evaluate connObjectKey expression
-        String connObjectLink = orgUnit == null
-                ? null
-                : orgUnit.getConnObjectLink();
+        String connObjectLink = Optional.ofNullable(orgUnit).map(OrgUnit::getConnObjectLink).orElse(null);
         String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(connObjectLink)) {
             JexlContext jexlContext = new MapContext();

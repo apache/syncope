@@ -125,22 +125,20 @@ public class TemplateUtils {
 
     private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
-                filter(relationship -> !any.getRelationship(
-                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isPresent()).
+                filter(relationship -> any.getRelationship(
+                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
                 forEachOrdered(relationship -> any.getRelationships().add(relationship));
     }
 
     private void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getMemberships().stream().
-                filter(membership -> !any.getMembership(membership.getGroupKey()).isPresent()).
+                filter(membership -> any.getMembership(membership.getGroupKey()).isEmpty()).
                 forEachOrdered(membership -> any.getMemberships().add(membership));
     }
 
     @Transactional(readOnly = true)
     public void apply(final RealmMember realmMember, final Optional<? extends AnyTemplate> template) {
-        if (template.isPresent()) {
-            apply(realmMember, template.get().get());
-        }
+        template.ifPresent(anyTemplate -> apply(realmMember, anyTemplate.get()));
     }
 
     @Transactional(readOnly = true)

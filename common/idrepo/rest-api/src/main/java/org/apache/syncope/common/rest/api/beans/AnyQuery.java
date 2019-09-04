@@ -23,6 +23,8 @@ import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
+import java.util.Optional;
+
 public class AnyQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -6736562952418964707L;
@@ -68,7 +70,7 @@ public class AnyQuery extends AbstractQuery {
     }
 
     public Boolean getDetails() {
-        return details == null ? Boolean.TRUE : details;
+        return Optional.ofNullable(details).orElse(Boolean.TRUE);
     }
 
     @QueryParam(JAXRSService.PARAM_DETAILS)

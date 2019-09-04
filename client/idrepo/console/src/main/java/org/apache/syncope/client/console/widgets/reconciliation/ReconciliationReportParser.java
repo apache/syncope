@@ -130,7 +130,7 @@ public final class ReconciliationReportParser {
                         break;
 
                     case "value":
-                        Set<String> set = onSyncope == null ? onResource : onSyncope;
+                        Set<String> set = Optional.ofNullable(onSyncope).orElse(onResource);
                         set.add(streamReader.getElementText());
                         break;
 
