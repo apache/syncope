@@ -23,10 +23,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -120,36 +117,36 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
                 LOG.debug("Indexing users...");
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    for (User user : userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexResponse response = client.prepareIndex(
                                 AuthContextUtils.getDomain().toLowerCase(),
                                 AnyTypeKind.USER.name(),
-                                user.getKey()).
-                                setSource(elasticsearchUtils.builder(user)).
+                                user).
+                                setSource(elasticsearchUtils.builder(userDAO.find(user))).
                                 get();
                         LOG.debug("Index successfully created for {}: {}", user, response);
                     }
                 }
                 LOG.debug("Indexing groups...");
                 for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    for (Group group : groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexResponse response = client.prepareIndex(
                                 AuthContextUtils.getDomain().toLowerCase(),
                                 AnyTypeKind.GROUP.name(),
-                                group.getKey()).
-                                setSource(elasticsearchUtils.builder(group)).
+                                group).
+                                setSource(elasticsearchUtils.builder(groupDAO.find(group))).
                                 get();
                         LOG.debug("Index successfully created for {}: {}", group, response);
                     }
                 }
                 LOG.debug("Indexing any objects...");
                 for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    for (AnyObject anyObject : anyObjectDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexResponse response = client.prepareIndex(
                                 AuthContextUtils.getDomain().toLowerCase(),
                                 AnyTypeKind.ANY_OBJECT.name(),
-                                anyObject.getKey()).
-                                setSource(elasticsearchUtils.builder(anyObject)).
+                                anyObject).
+                                setSource(elasticsearchUtils.builder(anyObjectDAO.find(anyObject))).
                                 get();
                         LOG.debug("Index successfully created for {}: {}", anyObject, response);
                     }

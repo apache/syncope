@@ -65,8 +65,13 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<User> list = userDAO.findAll(1, 100);
-        assertEquals("did not get expected number of users", 5, list.size());
+        List<User> users = userDAO.findAll(1, 100);
+        assertEquals("did not get expected number of users", 5, users.size());
+
+        List<String> userKeys = userDAO.findAllKeys(1, 100);
+        assertNotNull(userKeys);
+
+        assertEquals(users.size(), userKeys.size());
     }
 
     @Test

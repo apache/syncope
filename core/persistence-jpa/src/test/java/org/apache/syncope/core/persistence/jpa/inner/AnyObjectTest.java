@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -50,6 +52,17 @@ public class AnyObjectTest extends AbstractTest {
         assertNotNull(anyObject);
         assertNotNull(anyObject.getType());
         assertFalse(anyObject.getType().getClasses().isEmpty());
+    }
+
+    @Test
+    public void findAll() {
+        List<AnyObject> anyObjects = anyObjectDAO.findAll(1, 100);
+        assertNotNull(anyObjects);
+
+        List<String> anyObjectKeys = anyObjectDAO.findAllKeys(1, 100);
+        assertNotNull(anyObjectKeys);
+
+        assertEquals(anyObjects.size(), anyObjectKeys.size());
     }
 
     @Test
