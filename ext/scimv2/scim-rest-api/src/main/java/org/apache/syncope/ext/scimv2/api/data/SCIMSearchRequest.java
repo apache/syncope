@@ -30,7 +30,7 @@ public class SCIMSearchRequest extends SCIMBean {
 
     private static final long serialVersionUID = 5759362928661983543L;
 
-    private final List<String> schemas = Arrays.asList(Resource.SearchRequest.schema());
+    private final List<String> schemas = List.of(Resource.SearchRequest.schema());
 
     private final List<String> attributes = new ArrayList<>();
 

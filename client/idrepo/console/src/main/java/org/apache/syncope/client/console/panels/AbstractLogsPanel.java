@@ -73,7 +73,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                     MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, IdRepoEntitlement.LOG_SET_LEVEL);
 
                     loggerTOs.hideLabel();
-                    loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));
+                    loggerTOs.setChoices(List.of(LoggerLevel.values()));
                     loggerTOs.setNullValid(false);
                     loggerTOs.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 

@@ -291,7 +291,7 @@ public class AnyStatusDirectoryPanel
                 List<Pair<String, ReconStatus>> statuses = Collections.emptyList();
                 if (statusOnly) {
                     statuses = ReconStatusUtils.
-                            getReconStatuses(anyTypeKind, anyTO.getKey(), Arrays.asList(resource));
+                            getReconStatuses(anyTypeKind, anyTO.getKey(), List.of(resource));
                 }
 
                 return StatusUtils.getStatusBean(actual,

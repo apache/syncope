@@ -164,7 +164,7 @@ public class AuthDataAccessor {
     public Pair<User, Boolean> authenticate(final String domain, final Authentication authentication) {
         User user = null;
 
-        List<String> authAttrValues = Arrays.asList(confParamOps.get(domain,
+        List<String> authAttrValues = List.of(confParamOps.get(domain,
                 "authentication.attributes", new String[] { "username" }, String[].class));
         for (int i = 0; user == null && i < authAttrValues.size(); i++) {
             if ("username".equals(authAttrValues.get(i))) {
@@ -191,7 +191,7 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
             }
 
-            List<String> authStatuses = Arrays.asList(confParamOps.get(domain,
+            List<String> authStatuses = List.of(confParamOps.get(domain,
                     "authentication.statuses", new String[] {}, String[].class));
             if (!authStatuses.contains(user.getStatus())) {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
@@ -387,7 +387,7 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + username + " is suspended");
             }
 
-            List<String> authStatuses = Arrays.asList(confParamOps.get(authentication.getDetails().getDomain(),
+            List<String> authStatuses = List.of(confParamOps.get(authentication.getDetails().getDomain(),
                     "authentication.statuses", new String[] {}, String[].class));
             if (!authStatuses.contains(user.getStatus())) {
                 throw new DisabledException("User " + username + " not allowed to authenticate");

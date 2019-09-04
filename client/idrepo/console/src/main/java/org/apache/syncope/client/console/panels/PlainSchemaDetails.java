@@ -75,7 +75,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         boolean isCreate = schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty();
 
-        type.setChoices(Arrays.asList(AttrSchemaType.values()));
+        type.setChoices(List.of(AttrSchemaType.values()));
         type.setEnabled(isCreate);
         type.addRequiredLabel();
         add(type);
@@ -189,7 +189,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 "cipherAlgorithm", getString("cipherAlgorithm"),
                 new PropertyModel<>(schemaTO, "cipherAlgorithm"));
 
-        cipherAlgorithm.setChoices(Arrays.asList(CipherAlgorithm.values()));
+        cipherAlgorithm.setChoices(List.of(CipherAlgorithm.values()));
 
         final WebMarkupContainer encryptedParams = new WebMarkupContainer("encryptedParams");
         encryptedParams.setOutputMarkupPlaceholderTag(true);

@@ -241,7 +241,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         Set<String> requested = ArrayUtils.isEmpty(realms)
                 ? Collections.singleton(SyncopeConstants.ROOT_REALM)
-                : new HashSet<>(Arrays.asList(realms));
+                : new HashSet<>(List.of(realms));
 
         for (String entitlement : entitlements.split(",")) {
             if (auth.containsKey(entitlement)) {

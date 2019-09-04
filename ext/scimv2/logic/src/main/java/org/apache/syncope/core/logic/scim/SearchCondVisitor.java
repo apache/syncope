@@ -38,7 +38,7 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
  */
 public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
-    private static final List<String> MULTIVALUE = Arrays.asList(
+    private static final List<String> MULTIVALUE = List.of(
             "emails", "phoneNumbers", "ims", "photos", "addresses");
 
     private final Resource resource;

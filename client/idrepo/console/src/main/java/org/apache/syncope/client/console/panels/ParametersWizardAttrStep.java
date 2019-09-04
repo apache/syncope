@@ -68,7 +68,7 @@ public class ParametersWizardAttrStep extends WizardStep {
 
             @Override
             protected List<PlainSchemaTO> load() {
-                return Arrays.asList(modelObject.getSchema());
+                return List.of(modelObject.getSchema());
             }
         };
 
@@ -100,7 +100,7 @@ public class ParametersWizardAttrStep extends WizardStep {
 
             case Boolean:
                 panel = new AjaxDropDownChoicePanel<Boolean>(id, valueHeaderName, new Model<>(), false);
-                ((AjaxDropDownChoicePanel<Boolean>) panel).setChoices(Arrays.asList(true, false));
+                ((AjaxDropDownChoicePanel<Boolean>) panel).setChoices(List.of(true, false));
 
                 if (!param.getValues().isEmpty()) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<Boolean>() {

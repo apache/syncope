@@ -66,7 +66,7 @@ public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator
                         try {
                             super.setJavaDocPaths(javaDocPaths);
                         } catch (Exception e) {
-                            LOG.error("Could not set javadoc paths from {}", Arrays.asList(javaDocPaths), e);
+                            LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
                         }
                     }
                 } else {

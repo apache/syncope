@@ -32,7 +32,7 @@ public class ServiceProviderConfig extends SCIMBean {
 
     private static final long serialVersionUID = 1027738509789460252L;
 
-    private final List<String> schemas = Arrays.asList(Resource.ServiceProviderConfig.schema());
+    private final List<String> schemas = List.of(Resource.ServiceProviderConfig.schema());
 
     private final Meta meta;
 

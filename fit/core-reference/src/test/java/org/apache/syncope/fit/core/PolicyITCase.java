@@ -132,7 +132,7 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
-        assertTrue(policyTO.getUsedByRealms().containsAll(Arrays.asList("/", "/odd", "/even")));
+        assertTrue(policyTO.getUsedByRealms().containsAll(List.of("/", "/odd", "/even")));
     }
 
     @Test

@@ -83,7 +83,7 @@ public class GatewayRoutePredicatePanel extends Panel {
 
                 AjaxDropDownChoicePanel<PredicateFactory> factory =
                         new AjaxDropDownChoicePanel<>("factory", "factory", new PropertyModel<>(predicate, "factory"));
-                factory.setChoices(Arrays.asList(PredicateFactory.values()));
+                factory.setChoices(List.of(PredicateFactory.values()));
                 item.add(factory.hideLabel());
 
                 AjaxTextFieldPanel args =
@@ -92,7 +92,7 @@ public class GatewayRoutePredicatePanel extends Panel {
 
                 AjaxDropDownChoicePanel<PredicateCond> cond =
                         new AjaxDropDownChoicePanel<>("cond", "cond", new PropertyModel<>(predicate, "cond"));
-                cond.setChoices(Arrays.asList(PredicateCond.values()));
+                cond.setChoices(List.of(PredicateCond.values()));
                 item.add(cond.hideLabel());
 
                 ActionsPanel<Serializable> actions = new ActionsPanel<>("actions", null);

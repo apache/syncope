@@ -164,7 +164,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>(
                     "pullMode", "pullMode", new PropertyModel<>(taskTO, "pullMode"), false);
-            pullMode.setChoices(Arrays.asList(PullMode.values()));
+            pullMode.setChoices(List.of(PullMode.values()));
             if (taskTO instanceof PullTaskTO) {
                 pullMode.addRequiredLabel();
             }
@@ -251,13 +251,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                     "matchingRule", "matchingRule", new PropertyModel<>(taskTO, "matchingRule"), false);
-            matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
+            matchingRule.setChoices(List.of(MatchingRule.values()));
             provisioningTaskSpecifics.add(matchingRule);
 
             AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
                     "unmatchingRule", "unmatchingRule", new PropertyModel<>(taskTO, "unmatchingRule"),
                     false);
-            unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
+            unmatchingRule.setChoices(List.of(UnmatchingRule.values()));
             provisioningTaskSpecifics.add(unmatchingRule);
 
             AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(

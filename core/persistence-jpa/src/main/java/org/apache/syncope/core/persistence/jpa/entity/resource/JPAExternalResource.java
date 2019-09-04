@@ -335,7 +335,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public Set<ConnConfProperty> getConfOverride() {
         Set<ConnConfProperty> confOverride = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
-            confOverride.addAll(Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
+            confOverride.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
         }
 
         return confOverride;

@@ -29,7 +29,7 @@ public class ListResponse<R extends SCIMResource> extends SCIMBean {
 
     private static final long serialVersionUID = -776611610457583160L;
 
-    private final List<String> schemas = Arrays.asList(Resource.ListResponse.schema());
+    private final List<String> schemas = List.of(Resource.ListResponse.schema());
 
     private final int totalResults;
 

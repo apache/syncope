@@ -346,7 +346,7 @@ public class RouteProvider {
             case HOST:
                 String[] hostArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(HostRoutePredicateFactory.class).
-                        applyAsync(c -> c.setPatterns(Arrays.asList(hostArgs)));
+                        applyAsync(c -> c.setPatterns(List.of(hostArgs)));
                 break;
 
             case METHOD:
@@ -357,7 +357,7 @@ public class RouteProvider {
             case PATH:
                 String[] pathArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(PathRoutePredicateFactory.class).
-                        applyAsync(c -> c.setPatterns(Arrays.asList(pathArgs)));
+                        applyAsync(c -> c.setPatterns(List.of(pathArgs)));
                 break;
 
             case QUERY:
@@ -370,7 +370,7 @@ public class RouteProvider {
             case REMOTE_ADDR:
                 String[] remoteAddrArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(RemoteAddrRoutePredicateFactory.class).
-                        applyAsync(c -> c.setSources(Arrays.asList(remoteAddrArgs)));
+                        applyAsync(c -> c.setSources(List.of(remoteAddrArgs)));
                 break;
 
             case CUSTOM:

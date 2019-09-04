@@ -206,7 +206,7 @@ public class Relationships extends WizardStep implements ICondition {
     }
 
     private void addNewRelationships(final RelationshipTO... rels) {
-        getCurrentRelationships().addAll(Arrays.asList(rels));
+        getCurrentRelationships().addAll(List.of(rels));
     }
 
     private void removeRelationships(

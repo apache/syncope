@@ -87,7 +87,7 @@ public class GroupUR extends AnyUR {
         }
 
         public Builder typeExtensions(final TypeExtensionTO... typeExtensions) {
-            getInstance().getTypeExtensions().addAll(Arrays.asList(typeExtensions));
+            getInstance().getTypeExtensions().addAll(List.of(typeExtensions));
             return this;
         }
 

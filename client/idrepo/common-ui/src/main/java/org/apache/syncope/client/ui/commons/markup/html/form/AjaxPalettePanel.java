@@ -118,7 +118,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         final IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
                         final Collection<? extends T> choices = getPalette().getChoices();
                         final List<T> unselected = new ArrayList<>(choices.size());
-                        final List<String> ids = Arrays.asList(getValue().split(","));
+                        final List<String> ids = List.of(getValue().split(","));
 
                         choices.forEach(choice -> {
                             final String choiceId = renderer.getIdValue(choice, 0);

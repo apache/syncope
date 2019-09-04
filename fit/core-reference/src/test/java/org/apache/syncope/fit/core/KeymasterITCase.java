@@ -82,7 +82,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(false, booleanValue);
 
         List<String> stringValues =
-                Arrays.asList(confParamOps.get(
+                List.of(confParamOps.get(
                         SyncopeConstants.MASTER_DOMAIN, "authentication.attributes", null, String[].class));
         assertNotNull(stringValues);
         List<String> actualStringValues = new ArrayList<>();
@@ -125,7 +125,7 @@ public class KeymasterITCase extends AbstractITCase {
         stringValues.add("stringValue2");
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, key, stringValues);
         List<String> actualStringValues =
-                Arrays.asList(confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, null, String[].class));
+                List.of(confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, null, String[].class));
         assertEquals(stringValues, actualStringValues);
 
         confParamOps.remove(SyncopeConstants.MASTER_DOMAIN, key);

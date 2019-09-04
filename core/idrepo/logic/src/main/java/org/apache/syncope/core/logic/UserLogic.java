@@ -170,7 +170,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         // Ensures that, if the self update above moves the user into a status from which no authentication
         // is possible, the existing Access Token is clean up to avoid issues with future authentications
-        List<String> authStatuses = Arrays.asList(confParamOps.get(AuthContextUtils.getDomain(),
+        List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
             String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();

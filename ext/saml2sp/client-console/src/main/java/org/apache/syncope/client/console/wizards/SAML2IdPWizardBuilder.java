@@ -174,7 +174,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             AjaxDropDownChoicePanel<SAML2BindingType> bindingType =
                     new AjaxDropDownChoicePanel<>("field", "bindingType",
                             new PropertyModel<>(idpTO, "bindingType"), false);
-            bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
+            bindingType.setChoices(List.of(SAML2BindingType.values()));
             fields.add(bindingType);
 
             AjaxTextFieldPanel requestedAuthnContextProvider = new AjaxTextFieldPanel(

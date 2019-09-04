@@ -147,7 +147,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             }
         }
 
-        return Arrays.asList(USER, GROUP);
+        return List.of(USER, GROUP);
     }
 
     @PreAuthorize("isAuthenticated()")

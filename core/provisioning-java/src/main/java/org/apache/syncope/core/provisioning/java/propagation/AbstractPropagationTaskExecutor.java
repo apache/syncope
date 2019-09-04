@@ -368,7 +368,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
         Set<Attribute> attributes = new HashSet<>();
         if (StringUtils.isNotBlank(taskInfo.getAttributes())) {
-            attributes.addAll(Arrays.asList(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
+            attributes.addAll(List.of(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
         }
         task.setAttributes(attributes);
 

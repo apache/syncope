@@ -320,7 +320,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
      * @return the current panel instance.
      */
     public final WizardMgtPanel<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(Arrays.asList(childs));
+        outerObjects.addAll(List.of(childs));
         return this;
     }
 

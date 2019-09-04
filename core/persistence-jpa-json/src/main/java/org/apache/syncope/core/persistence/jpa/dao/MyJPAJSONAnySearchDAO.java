@@ -143,7 +143,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 }
 
                 query.append("JSON_CONTAINS(plainAttrs, '").
-                        append(POJOHelper.serialize(Arrays.asList(container))).
+                        append(POJOHelper.serialize(List.of(container))).
                         append("')");
             } else {
                 String key = key(schema.getType());

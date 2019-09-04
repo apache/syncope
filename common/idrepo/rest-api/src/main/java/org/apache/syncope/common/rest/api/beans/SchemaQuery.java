@@ -58,7 +58,7 @@ public class SchemaQuery implements Serializable {
         }
 
         public Builder anyTypeClasses(final String... anyTypeClasses) {
-            return anyTypeClasses(Arrays.asList(anyTypeClasses));
+            return anyTypeClasses(List.of(anyTypeClasses));
         }
 
         public Builder keyword(final String keyword) {

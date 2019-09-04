@@ -91,9 +91,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private static final String CUSTOM_FORM_ATTRIBUTES_FILE = "customFormAttributes.json";
 
-    public static final List<Locale> SUPPORTED_LOCALES = List.of(new Locale[]{
-        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
-    });
+    public static final List<Locale> SUPPORTED_LOCALES = List.of(
+        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

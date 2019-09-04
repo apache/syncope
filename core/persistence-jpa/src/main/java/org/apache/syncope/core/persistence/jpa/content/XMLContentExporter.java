@@ -90,7 +90,7 @@ public class XMLContentExporter implements ContentExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
+    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(List.of(new String[] {
         "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,

@@ -29,7 +29,7 @@ public class ResourceType extends SCIMBean {
 
     private static final long serialVersionUID = -6559584102333757279L;
 
-    private final List<String> schemas = Arrays.asList(Resource.ResourceType.schema());
+    private final List<String> schemas = List.of(Resource.ResourceType.schema());
 
     private final String id;
 

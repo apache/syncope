@@ -47,7 +47,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
     private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
 
     private static final List<String> LAYOUT_PARAMETERS =
-            Arrays.asList(new String[] { "admin.user.layout", "self.user.layout",
+            List.of(new String[] { "admin.user.layout", "self.user.layout",
         "admin.group.layout", "self.group.layout", "admin.membership.layout", "self.membership.layout" });
 
     public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {

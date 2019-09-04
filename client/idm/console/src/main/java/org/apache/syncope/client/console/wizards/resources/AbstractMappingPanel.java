@@ -228,7 +228,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         "mandatoryCondition",
                         new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
-                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                mandatory.setChoices(List.of(new String[] { "true", "false" }));
                 mandatory.setEnabled(!itemTO.isConnObjectKey());
                 item.add(mandatory);
                 // -------------------------------

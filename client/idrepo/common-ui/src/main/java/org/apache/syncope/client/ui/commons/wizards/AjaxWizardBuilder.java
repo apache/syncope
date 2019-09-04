@@ -53,7 +53,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     }
 
     public final AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(Arrays.asList(childs));
+        outerObjects.addAll(List.of(childs));
         return this;
     }
 

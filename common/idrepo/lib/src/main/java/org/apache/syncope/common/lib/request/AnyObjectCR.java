@@ -65,7 +65,7 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder relationships(final RelationshipTO... relationships) {
-            getInstance().getRelationships().addAll(Arrays.asList(relationships));
+            getInstance().getRelationships().addAll(List.of(relationships));
             return this;
         }
 
@@ -80,7 +80,7 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder memberships(final MembershipTO... memberships) {
-            getInstance().getMemberships().addAll(Arrays.asList(memberships));
+            getInstance().getMemberships().addAll(List.of(memberships));
             return this;
         }
 

@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -52,7 +54,7 @@ public class DomainAdminCredentialsPanel extends AbstractModalPanel<Domain> {
         AjaxDropDownChoicePanel<CipherAlgorithm> adminCipherAlgorithm = new AjaxDropDownChoicePanel<>(
                 "adminCipherAlgorithm", "adminCipherAlgorithm",
                 new PropertyModel<>(domain, "adminCipherAlgorithm"), false);
-        adminCipherAlgorithm.setChoices(Arrays.asList(CipherAlgorithm.values()));
+        adminCipherAlgorithm.setChoices(List.of(CipherAlgorithm.values()));
         adminCipherAlgorithm.addRequiredLabel();
         adminCipherAlgorithm.setNullValid(false);
         add(adminCipherAlgorithm);

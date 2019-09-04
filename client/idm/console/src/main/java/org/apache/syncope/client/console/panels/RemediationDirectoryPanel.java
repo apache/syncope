@@ -214,7 +214,7 @@ public class RemediationDirectoryPanel
                                     previousUserTO,
                                     newUserTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getLeft(),
+                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getLeft(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, userEvent);
@@ -241,7 +241,7 @@ public class RemediationDirectoryPanel
                                     previousGroupTO,
                                     newGroupTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getMiddle(),
+                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getMiddle(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, groupEvent);
@@ -268,7 +268,7 @@ public class RemediationDirectoryPanel
                                     previousAnyObjectTO,
                                     newAnyObjectTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).
+                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).
                                             getRight().values().iterator().next(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));

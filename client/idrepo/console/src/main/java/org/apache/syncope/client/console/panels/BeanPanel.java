@@ -92,7 +92,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
         this.sCondWrapper = sCondWrapper;
 
-        this.excluded = new ArrayList<>(Arrays.asList(excluded));
+        this.excluded = new ArrayList<>(List.of(excluded));
         this.excluded.add("serialVersionUID");
         this.excluded.add("class");
 
@@ -213,7 +213,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
                                 "value",
                                 new PropertyModel<>(bean.getObject(), fieldName),
-                                new ListModel(Arrays.asList(listItemType.getEnumConstants()))).hideLabel();
+                                new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(bean.getObject(), fieldName)).build(
@@ -246,7 +246,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         } else if (type.isEnum()) {
             result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(
-                    Arrays.asList(type.getEnumConstants()));
+                    List.of(type.getEnumConstants()));
         }
 
         // treat as String if nothing matched above

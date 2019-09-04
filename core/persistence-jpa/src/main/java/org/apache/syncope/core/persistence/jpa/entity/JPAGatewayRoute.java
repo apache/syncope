@@ -97,7 +97,7 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     public List<GatewayRouteFilter> getFilters() {
         return filters == null
                 ? Collections.emptyList()
-                : Arrays.asList(POJOHelper.deserialize(filters, GatewayRouteFilter[].class));
+                : List.of(POJOHelper.deserialize(filters, GatewayRouteFilter[].class));
     }
 
     @Override
@@ -109,7 +109,7 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     public List<GatewayRoutePredicate> getPredicates() {
         return predicates == null
                 ? Collections.emptyList()
-                : Arrays.asList(POJOHelper.deserialize(predicates, GatewayRoutePredicate[].class));
+                : List.of(POJOHelper.deserialize(predicates, GatewayRoutePredicate[].class));
     }
 
     @Override

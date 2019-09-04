@@ -21,6 +21,7 @@ package org.apache.syncope.ext.scimv2.cxf.service;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
@@ -85,8 +86,8 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         return binder().toSCIMGroup(
                 groupLogic().read(id),
                 uriInfo.getAbsolutePathBuilder().build().toASCIIString(),
-                Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
-                Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
+                List.of(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
+                List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
     }
 
     @Override
@@ -193,11 +194,11 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         SCIMSearchRequest request = new SCIMSearchRequest(filter, sortBy, sortOrder, startIndex, count);
         if (attributes != null) {
             request.getAttributes().addAll(
-                    Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))));
+                    List.of(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))));
         }
         if (excludedAttributes != null) {
             request.getExcludedAttributes().addAll(
-                    Arrays.asList(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
+                    List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
         }
 
         return doSearch(Resource.Group, request);

@@ -185,7 +185,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     public Set<ConnConfProperty> getConf() {
         Set<ConnConfProperty> configuration = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
-            configuration.addAll(Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
+            configuration.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
         }
 
         return configuration;

@@ -140,7 +140,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         "field",
                         "conflictResolutionAction",
                         new PropertyModel<>(policyTO, "conflictResolutionAction")).
-                        setChoices(Arrays.asList((Serializable[]) ConflictResolutionAction.values())));
+                        setChoices(List.of((Serializable[]) ConflictResolutionAction.values())));
             }
 
             add(new ListView<Component>("fields", fields) {

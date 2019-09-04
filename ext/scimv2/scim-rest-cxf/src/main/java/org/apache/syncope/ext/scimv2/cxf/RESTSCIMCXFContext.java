@@ -20,6 +20,8 @@ package org.apache.syncope.ext.scimv2.cxf;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -83,20 +85,20 @@ public class RESTSCIMCXFContext {
         scimv2Container.setBus(bus);
         scimv2Container.setAddress("/scim");
         scimv2Container.setStaticSubresourceResolution(true);
-        scimv2Container.setBasePackages(Arrays.asList(
+        scimv2Container.setBasePackages(List.of(
                 "org.apache.syncope.ext.scimv2.api.service",
                 "org.apache.syncope.ext.scimv2.cxf.service"));
         scimv2Container.setProperties(Collections.singletonMap("convert.wadl.resources.to.dom", "false"));
 
-        scimv2Container.setInInterceptors(Arrays.asList(
+        scimv2Container.setInInterceptors(List.of(
                 ctx.getBean(GZIPInInterceptor.class),
                 ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
 
-        scimv2Container.setOutInterceptors(Arrays.asList(
+        scimv2Container.setOutInterceptors(List.of(
                 ctx.getBean(GZIPOutInterceptor.class),
                 ctx.getBean(JAXRSBeanValidationOutInterceptor.class)));
 
-        scimv2Container.setProviders(Arrays.asList(
+        scimv2Container.setProviders(List.of(
                 scimJacksonJsonProvider(),
                 scimExceptionMapper(),
                 scimAddETagFilter(),

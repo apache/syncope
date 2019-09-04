@@ -445,7 +445,7 @@ public abstract class AbstractITCase {
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
         if (staticRecipients != null) {
-            notification.getStaticRecipients().addAll(Arrays.asList(staticRecipients));
+            notification.getStaticRecipients().addAll(List.of(staticRecipients));
         }
 
         notification.setSender(sender);

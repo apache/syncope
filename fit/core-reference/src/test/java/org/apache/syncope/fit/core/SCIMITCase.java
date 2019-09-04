@@ -123,7 +123,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     private WebClient webClient() {
-        return WebClient.create(SCIM_ADDRESS, Arrays.asList(new SCIMJacksonJsonProvider())).
+        return WebClient.create(SCIM_ADDRESS, List.of(new SCIMJacksonJsonProvider())).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());

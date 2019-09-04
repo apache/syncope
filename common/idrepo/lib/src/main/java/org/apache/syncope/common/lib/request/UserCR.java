@@ -91,7 +91,7 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder relationships(final RelationshipTO... relationships) {
-            getInstance().getRelationships().addAll(Arrays.asList(relationships));
+            getInstance().getRelationships().addAll(List.of(relationships));
             return this;
         }
 
@@ -106,7 +106,7 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder memberships(final MembershipTO... memberships) {
-            getInstance().getMemberships().addAll(Arrays.asList(memberships));
+            getInstance().getMemberships().addAll(List.of(memberships));
             return this;
         }
 
@@ -121,7 +121,7 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder roles(final String... roles) {
-            getInstance().getRoles().addAll(Arrays.asList(roles));
+            getInstance().getRoles().addAll(List.of(roles));
             return this;
         }
 

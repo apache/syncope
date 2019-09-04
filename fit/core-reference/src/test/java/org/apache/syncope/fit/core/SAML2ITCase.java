@@ -581,7 +581,7 @@ public class SAML2ITCase extends AbstractITCase {
             basedir = new File(".").getCanonicalPath();
         }
 
-        List<String> fileNames = Arrays.asList("fediz.xml", "fediz_realmb.xml");
+        List<String> fileNames = List.of("fediz.xml", "fediz_realmb.xml");
         for (String fileName : fileNames) {
             Path path = FileSystems.getDefault().getPath(basedir, "/src/test/resources/" + fileName);
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);

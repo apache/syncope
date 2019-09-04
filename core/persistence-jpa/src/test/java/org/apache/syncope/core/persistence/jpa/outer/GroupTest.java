@@ -235,7 +235,7 @@ public class GroupTest extends AbstractTest {
         // 3. verify that expected users have the created group dynamically assigned
         List<String> members = groupDAO.findUDynMembers(actual);
         assertEquals(2, members.size());
-        assertEquals(new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
+        assertEquals(new HashSet<>(List.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
                 new HashSet<>(members));
 
         user = userDAO.findByUsername("bellini");
@@ -339,7 +339,7 @@ public class GroupTest extends AbstractTest {
                 -> "PRINTER".equals(anyObjectDAO.find(object).getType().getKey())).collect(Collectors.toList());
         assertEquals(2, members.size());
         assertEquals(
-                new HashSet<>(Arrays.asList("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
+                new HashSet<>(List.of("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
                 new HashSet<>(members));
 
         anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");

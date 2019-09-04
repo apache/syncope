@@ -67,11 +67,11 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] {
+            put(SchemaType.PLAIN, List.of(new String[] {
                 "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] {
+            put(SchemaType.DERIVED, List.of(new String[] {
                 "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
+            put(SchemaType.VIRTUAL, List.of(new String[] {
                 "key", "resource", "anyType", "extAttrName", "readonly" }));
         }
     };

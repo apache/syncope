@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -60,7 +61,7 @@ public class MembershipTO implements Serializable, Attributable {
         }
 
         public Builder plainAttrs(final Attr... plainAttrs) {
-            instance.getPlainAttrs().addAll(Arrays.asList(plainAttrs));
+            instance.getPlainAttrs().addAll(List.of(plainAttrs));
             return this;
         }
 
@@ -80,7 +81,7 @@ public class MembershipTO implements Serializable, Attributable {
         }
 
         public Builder virAttrs(final Attr... virAttrs) {
-            instance.getVirAttrs().addAll(Arrays.asList(virAttrs));
+            instance.getVirAttrs().addAll(List.of(virAttrs));
             return this;
         }
 

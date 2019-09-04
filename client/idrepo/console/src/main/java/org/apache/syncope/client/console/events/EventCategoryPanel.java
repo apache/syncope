@@ -108,7 +108,7 @@ public abstract class EventCategoryPanel extends Panel {
                 "type",
                 new PropertyModel<>(eventCategoryTO, "type"),
                 false);
-        type.setChoices(Arrays.asList(EventCategoryType.values()));
+        type.setChoices(List.of(EventCategoryType.values()));
         type.setStyleSheet("ui-widget-content ui-corner-all");
         type.setChoiceRenderer(new IChoiceRenderer<EventCategoryType>() {
 

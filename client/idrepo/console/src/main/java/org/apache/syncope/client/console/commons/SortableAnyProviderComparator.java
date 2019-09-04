@@ -32,7 +32,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
     private static final long serialVersionUID = 1775967163571699258L;
 
-    private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
+    private static final Set<String> INLINE_PROPS = new HashSet<>(List.of(
             new String[] { "key", "status", "token", "username", "name" }));
 
     public SortableAnyProviderComparator(final SortableDataProvider<T, String> provider) {

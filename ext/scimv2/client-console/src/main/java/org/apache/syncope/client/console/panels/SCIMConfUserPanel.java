@@ -524,7 +524,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             }
 
         });
-        primaryPanel.setChoices(Arrays.asList("true", "false"));
+        primaryPanel.setChoices(List.of("true", "false"));
 
         panelList.add(displayPanel);
         panelList.add(valuePanel);
@@ -648,7 +648,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             }
 
         });
-        addressPrimaryPanel.setChoices(Arrays.asList("true", "false"));
+        addressPrimaryPanel.setChoices(List.of("true", "false"));
 
         panelList.add(addressCountryPanel);
         panelList.add(addressFormattedPanel);

@@ -150,7 +150,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
                     "traceLevel", getString("traceLevel"),
                     new PropertyModel<>(notificationTO, "traceLevel"));
-            traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+            traceLevel.setChoices(List.of(TraceLevel.values()));
             traceLevel.addRequiredLabel();
             add(traceLevel);
 

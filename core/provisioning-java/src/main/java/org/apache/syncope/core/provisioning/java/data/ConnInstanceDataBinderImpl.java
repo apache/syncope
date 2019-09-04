@@ -233,7 +233,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         if (property.getValue() != null) {
             if (property.getValue().getClass().isArray()) {
-                connConfPropSchema.getDefaultValues().addAll(Arrays.asList((Object[]) property.getValue()));
+                connConfPropSchema.getDefaultValues().addAll(List.of((Object[]) property.getValue()));
             } else if (property.getValue() instanceof Collection<?>) {
                 connConfPropSchema.getDefaultValues().addAll((Collection<?>) property.getValue());
             } else {

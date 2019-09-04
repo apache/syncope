@@ -371,7 +371,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     private TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
-        Response response = WebClient.create(url, Arrays.asList(new JacksonJsonProvider())).
+        Response response = WebClient.create(url, List.of(new JacksonJsonProvider())).
                 type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).
                 post(body);
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -391,7 +391,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         IdTokenReader idTokenReader = new IdTokenReader();
         idTokenReader.setClockOffset(10);
         idTokenReader.setIssuerId(op.getIssuer());
-        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), Arrays.asList(new JsonWebKeysProvider())).
+        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), List.of(new JsonWebKeysProvider())).
                 accept(MediaType.APPLICATION_JSON));
         IdToken idToken;
         try {
@@ -411,7 +411,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
             final IdToken idToken,
             final Consumer consumer) {
 
-        WebClient userInfoServiceClient = WebClient.create(endpoint, Arrays.asList(new JsonMapObjectProvider())).
+        WebClient userInfoServiceClient = WebClient.create(endpoint, List.of(new JsonMapObjectProvider())).
                 accept(MediaType.APPLICATION_JSON);
         ClientAccessToken clientAccessToken =
                 new ClientAccessToken(OAuthConstants.BEARER_AUTHORIZATION_SCHEME, accessToken);

@@ -78,7 +78,7 @@ public class Audit extends BasePage {
 
             @Override
             protected List<String> getChangeAuthRoles() {
-                return Arrays.asList(
+                return List.of(
                         new String[] { IdRepoEntitlement.AUDIT_ENABLE, IdRepoEntitlement.AUDIT_DISABLE });
             }
 

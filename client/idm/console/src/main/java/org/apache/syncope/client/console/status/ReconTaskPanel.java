@@ -105,13 +105,13 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
         AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                 "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"), false);
-        matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
+        matchingRule.setChoices(List.of(MatchingRule.values()));
         form.add(matchingRule);
 
         AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
                 "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"),
                 false);
-        unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
+        unmatchingRule.setChoices(List.of(UnmatchingRule.values()));
         form.add(unmatchingRule);
 
         taskTO.setPerformCreate(true);

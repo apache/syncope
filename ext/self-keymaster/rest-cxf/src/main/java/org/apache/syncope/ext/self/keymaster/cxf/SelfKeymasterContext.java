@@ -21,6 +21,8 @@ package org.apache.syncope.ext.self.keymaster.cxf;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -86,20 +88,20 @@ public class SelfKeymasterContext {
         selfKeymasterContainer.setBus(bus);
         selfKeymasterContainer.setAddress("/keymaster");
         selfKeymasterContainer.setStaticSubresourceResolution(true);
-        selfKeymasterContainer.setBasePackages(Arrays.asList(
+        selfKeymasterContainer.setBasePackages(List.of(
                 "org.apache.syncope.ext.self.keymaster.api.service",
                 "org.apache.syncope.ext.self.keymaster.cxf.service"));
         selfKeymasterContainer.setProperties(Collections.singletonMap("convert.wadl.resources.to.dom", "false"));
 
-        selfKeymasterContainer.setInInterceptors(Arrays.asList(
+        selfKeymasterContainer.setInInterceptors(List.of(
                 ctx.getBean(GZIPInInterceptor.class),
                 ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
 
-        selfKeymasterContainer.setOutInterceptors(Arrays.asList(
+        selfKeymasterContainer.setOutInterceptors(List.of(
                 ctx.getBean(GZIPOutInterceptor.class),
                 ctx.getBean(JAXRSBeanValidationOutInterceptor.class)));
 
-        selfKeymasterContainer.setProviders(Arrays.asList(
+        selfKeymasterContainer.setProviders(List.of(
                 ctx.getBean(RestServiceExceptionMapper.class),
                 ctx.getBean(JacksonJaxbJsonProvider.class),
                 selfKeymasterWADLGenerator()));

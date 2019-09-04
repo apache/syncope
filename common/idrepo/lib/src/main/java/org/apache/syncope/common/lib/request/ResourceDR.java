@@ -66,7 +66,7 @@ public class ResourceDR implements Serializable {
         }
 
         public Builder resources(final String... resources) {
-            instance.getResources().addAll(Arrays.asList(resources));
+            instance.getResources().addAll(List.of(resources));
             return this;
         }
 

@@ -168,19 +168,19 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        return Arrays.asList(SearchClause.Comparator.values());
+                        return List.of(SearchClause.Comparator.values());
 
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
                     case GROUP_MEMBER:
                     case RESOURCE:
-                        return Arrays.asList(
+                        return List.of(
                                 SearchClause.Comparator.EQUALS,
                                 SearchClause.Comparator.NOT_EQUALS);
 
                     case RELATIONSHIP:
-                        return Arrays.asList(
+                        return List.of(
                                 SearchClause.Comparator.IS_NOT_NULL,
                                 SearchClause.Comparator.IS_NULL,
                                 SearchClause.Comparator.EQUALS,

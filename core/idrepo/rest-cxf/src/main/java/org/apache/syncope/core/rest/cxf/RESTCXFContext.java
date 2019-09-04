@@ -24,6 +24,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import javax.annotation.Resource;
@@ -218,7 +219,7 @@ public class RESTCXFContext {
         restContainer.setBus(bus);
         restContainer.setAddress("/");
         restContainer.setStaticSubresourceResolution(true);
-        restContainer.setBasePackages(Arrays.asList(
+        restContainer.setBasePackages(List.of(
                 "org.apache.syncope.common.rest.api.service",
                 "org.apache.syncope.core.rest.cxf.service"));
 
@@ -228,7 +229,7 @@ public class RESTCXFContext {
         properties.put("convert.wadl.resources.to.dom", "false");
         restContainer.setProperties(properties);
 
-        restContainer.setProviders(Arrays.asList(
+        restContainer.setProviders(List.of(
                 dateParamConverterProvider(),
                 jaxbProvider(),
                 jsonProvider(),
@@ -240,15 +241,15 @@ public class RESTCXFContext {
                 addETagFilter(),
                 wadlGenerator()));
 
-        restContainer.setInInterceptors(Arrays.asList(
+        restContainer.setInInterceptors(List.of(
                 gzipInInterceptor(),
                 validationInInterceptor()));
 
-        restContainer.setOutInterceptors(Arrays.asList(
+        restContainer.setOutInterceptors(List.of(
                 gzipOutInterceptor(),
                 validationOutInterceptor()));
 
-        restContainer.setFeatures(Arrays.asList(openapiFeature()));
+        restContainer.setFeatures(List.of(openapiFeature()));
 
         restContainer.setApplicationContext(ctx);
         return restContainer.create();

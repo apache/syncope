@@ -107,7 +107,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             }
             handler.setProfile(profile);
 
-            doHandle(Arrays.asList(any), handler, pushTask.getResource());
+            doHandle(List.of(any), handler, pushTask.getResource());
 
             for (PushActions action : actions) {
                 action.afterAll(profile);

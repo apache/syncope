@@ -184,7 +184,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             }
 
             prefMan.setList(getRequest(), getResponse(), DisplayAttributesModalPanel.getPrefDetailView(type),
-                    Arrays.asList(getDefaultAttributeSelection()));
+                    List.of(getDefaultAttributeSelection()));
         }
 
         columns.addAll(prefcolumns);

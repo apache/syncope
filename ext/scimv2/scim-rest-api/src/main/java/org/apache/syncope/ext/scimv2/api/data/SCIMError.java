@@ -35,7 +35,7 @@ public class SCIMError extends SCIMBean {
 
     private static final long serialVersionUID = -8836902509266522394L;
 
-    private final List<String> schemas = Arrays.asList(Resource.Error.schema());
+    private final List<String> schemas = List.of(Resource.Error.schema());
 
     private ErrorType scimType;
 

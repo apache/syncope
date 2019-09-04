@@ -85,9 +85,9 @@ public class BatchITCase extends AbstractITCase {
         createUser.setMethod(HttpMethod.POST);
         createUser.setRequestURI("/users");
         createUser.setHeaders(new HashMap<>());
-        createUser.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_JSON));
-        createUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, Arrays.asList(MediaType.APPLICATION_JSON));
-        createUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Arrays.asList(createUserPayload.length()));
+        createUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));
+        createUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON));
+        createUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(createUserPayload.length()));
         createUser.setContent(createUserPayload);
         reqItems.add(createUser);
 
@@ -103,9 +103,9 @@ public class BatchITCase extends AbstractITCase {
         createGroup.setMethod(HttpMethod.POST);
         createGroup.setRequestURI("/groups");
         createGroup.setHeaders(new HashMap<>());
-        createGroup.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_XML));
-        createGroup.getHeaders().put(HttpHeaders.CONTENT_TYPE, Arrays.asList(MediaType.APPLICATION_XML));
-        createGroup.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Arrays.asList(createGroupPayload.length()));
+        createGroup.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_XML));
+        createGroup.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_XML));
+        createGroup.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(createGroupPayload.length()));
         createGroup.setContent(createGroupPayload);
         reqItems.add(createGroup);
 
@@ -119,10 +119,10 @@ public class BatchITCase extends AbstractITCase {
         updateUser.setMethod(HttpMethod.PATCH);
         updateUser.setRequestURI("/users/" + userCR.getUsername());
         updateUser.setHeaders(new HashMap<>());
-        updateUser.getHeaders().put(RESTHeaders.PREFER, Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
-        updateUser.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_JSON));
-        updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, Arrays.asList(MediaType.APPLICATION_JSON));
-        updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Arrays.asList(updateUserPayload.length()));
+        updateUser.getHeaders().put(RESTHeaders.PREFER, List.of(Preference.RETURN_NO_CONTENT.toString()));
+        updateUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));
+        updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON));
+        updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(updateUserPayload.length()));
         updateUser.setContent(updateUserPayload);
         reqItems.add(updateUser);
 

@@ -20,6 +20,8 @@ package org.apache.syncope.common.keymaster.client.self;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.Arrays;
+import java.util.List;
+
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -54,9 +56,9 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setPassword(password);
         restClientFactoryBean.setThreadSafe(true);
         restClientFactoryBean.setInheritHeaders(true);
-        restClientFactoryBean.setFeatures(Arrays.asList(new LoggingFeature()));
+        restClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
         restClientFactoryBean.setProviders(
-                Arrays.asList(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
+                List.of(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
         return restClientFactoryBean;
     }
 

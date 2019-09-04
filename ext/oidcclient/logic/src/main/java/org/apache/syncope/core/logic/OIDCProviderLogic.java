@@ -53,7 +53,7 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
 
     private OIDCProviderDiscoveryDocument getDiscoveryDocument(final String issuer) {
         String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
-        WebClient client = WebClient.create(discoveryDocumentURL, Arrays.asList(new JacksonJsonProvider())).
+        WebClient client = WebClient.create(discoveryDocumentURL, List.of(new JacksonJsonProvider())).
                 accept(MediaType.APPLICATION_JSON);
         try {
             return client.get(OIDCProviderDiscoveryDocument.class);

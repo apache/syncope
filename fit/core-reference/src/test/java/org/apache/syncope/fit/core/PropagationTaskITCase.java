@@ -437,7 +437,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Set<Attribute> propagationAttrs = new HashSet<>();
             if (StringUtils.isNotBlank(tasks.getResult().get(0).getAttributes())) {
-                propagationAttrs.addAll(Arrays.asList(
+                propagationAttrs.addAll(List.of(
                         POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
             }
 

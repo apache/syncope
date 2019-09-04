@@ -102,7 +102,7 @@ public abstract class UserRequestFormPanel extends Panel {
                                 prop.setValue(String.valueOf(object.equalsIgnoreCase("yes")));
                             }
 
-                        }, false).setChoices(Arrays.asList(new String[] { "Yes", "No" }));
+                        }, false).setChoices(List.of(new String[] { "Yes", "No" }));
                         break;
 
                     case Date:

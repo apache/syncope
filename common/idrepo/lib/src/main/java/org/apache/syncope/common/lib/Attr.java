@@ -52,7 +52,7 @@ public class Attr implements Serializable {
         }
 
         public Builder values(final String... values) {
-            instance.getValues().addAll(Arrays.asList(values));
+            instance.getValues().addAll(List.of(values));
             return this;
         }
 

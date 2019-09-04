@@ -36,7 +36,7 @@ public class CapabilitiesPanel extends Panel {
 
         AjaxPalettePanel<ConnectorCapability> capabilitiesPalette = new AjaxPalettePanel.Builder<ConnectorCapability>().
                 setAllowMoveAll(true).
-                build("capabilities", model, new ListModel<>(Arrays.asList(ConnectorCapability.values())));
+                build("capabilities", model, new ListModel<>(List.of(ConnectorCapability.values())));
         capabilitiesPalette.setOutputMarkupId(true);
         add(capabilitiesPalette);
     }

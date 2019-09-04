@@ -77,7 +77,7 @@ public class GatewayRouteFilterPanel extends Panel {
 
                 AjaxDropDownChoicePanel<FilterFactory> factory =
                         new AjaxDropDownChoicePanel<>("factory", "factory", new PropertyModel<>(filter, "factory"));
-                factory.setChoices(Arrays.asList(FilterFactory.values()));
+                factory.setChoices(List.of(FilterFactory.values()));
                 item.add(factory.hideLabel());
 
                 AjaxTextFieldPanel args =
