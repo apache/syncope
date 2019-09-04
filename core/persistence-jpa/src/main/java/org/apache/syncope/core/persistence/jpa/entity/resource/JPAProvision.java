@@ -133,7 +133,8 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
 
     @Override
     public SyncToken getSyncToken() {
-        return Optional.ofNullable(serializedSyncToken).map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
+        return Optional.ofNullable(serializedSyncToken)
+            .map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
     }
 
     @Override

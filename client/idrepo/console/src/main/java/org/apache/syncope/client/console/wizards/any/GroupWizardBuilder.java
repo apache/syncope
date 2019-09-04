@@ -50,7 +50,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(Optional.ofNullable(groupTO).map(GroupWrapper::new).orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(groupTO).map(GroupWrapper::new)
+            .orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**

@@ -131,7 +131,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
      */
     @Override
     public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
-        super.setItem(Optional.ofNullable(item).map(userTOAnyWrapper -> new UserWrapper(userTOAnyWrapper.getInnerObject())).orElse(null));
+        super.setItem(Optional.ofNullable(item)
+            .map(userTOAnyWrapper -> new UserWrapper(userTOAnyWrapper.getInnerObject())).orElse(null));
         return this;
     }
 }

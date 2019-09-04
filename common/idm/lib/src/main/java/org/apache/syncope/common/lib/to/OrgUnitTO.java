@@ -102,7 +102,8 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return Optional.ofNullable(connObjectKeyItem).map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
+        return Optional.ofNullable(connObjectKeyItem)
+            .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
     }
 
     @XmlElementWrapper(name = "items")
@@ -115,7 +116,8 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item).filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
+        return Optional.ofNullable(item)
+            .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
     }
 
     public boolean remove(final ItemTO item) {

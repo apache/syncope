@@ -182,7 +182,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
                     getLastSelectedPathComponent();
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
-            String parentNodeName = Optional.ofNullable(parentNode).map(node -> String.valueOf(node.getUserObject())).orElse(null);
+            String parentNodeName = Optional.ofNullable(parentNode)
+                .map(node -> String.valueOf(node.getUserObject())).orElse(null);
             if (selectedNode.isLeaf() && StringUtils.isNotBlank(parentNodeName)) {
                 String leafNodeName = (String) selectedNode.getUserObject();
                 DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode) parentNode.getParent();

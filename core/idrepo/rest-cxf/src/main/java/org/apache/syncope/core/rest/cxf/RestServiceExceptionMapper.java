@@ -319,6 +319,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
         }
 
-        return Optional.ofNullable(message).orElseGet(() -> (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage());
+        return Optional.ofNullable(message)
+            .orElseGet(() -> (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage());
     }
 }

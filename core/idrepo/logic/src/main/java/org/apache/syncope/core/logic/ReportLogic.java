@@ -373,7 +373,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
-        return Optional.ofNullable(report).map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
+        return Optional.ofNullable(report)
+            .map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")

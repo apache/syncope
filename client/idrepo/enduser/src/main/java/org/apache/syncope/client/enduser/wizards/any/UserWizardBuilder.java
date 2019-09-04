@@ -125,7 +125,8 @@ public class UserWizardBuilder extends AnyWizardBuilder implements UserForm {
      */
     @Override
     public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
-        super.setItem(Optional.ofNullable(item).map(userTOAnyWrapper -> new UserWrapper(userTOAnyWrapper.getInnerObject())).orElse(null));
+        super.setItem(Optional.ofNullable(item)
+            .map(userTOAnyWrapper -> new UserWrapper(userTOAnyWrapper.getInnerObject())).orElse(null));
         return this;
     }
 

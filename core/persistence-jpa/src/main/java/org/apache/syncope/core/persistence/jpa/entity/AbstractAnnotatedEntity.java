@@ -106,6 +106,7 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
 
     @Override
     public void setLastChangeDate(final Date lastChangeDate) {
-        this.lastChangeDate = Optional.ofNullable(lastChangeDate).map(changeDate -> new Date(changeDate.getTime())).orElse(null);
+        this.lastChangeDate = Optional.ofNullable(lastChangeDate)
+            .map(changeDate -> new Date(changeDate.getTime())).orElse(null);
     }
 }
