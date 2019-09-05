@@ -18,15 +18,11 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -37,6 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 @Aspect
 public class LogicInvocationHandler {
@@ -66,17 +66,17 @@ public class LogicInvocationHandler {
         String event = joinPoint.getSignature().getName();
 
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                AuditElements.EventCategoryType.LOGIC, category, null, event);
+            AuditElements.EventCategoryType.LOGIC, category, null, event);
         boolean auditRequested = auditManager.auditRequested(
-                AuthContextUtils.getUsername(), AuditElements.EventCategoryType.LOGIC, category, null, event);
+            AuthContextUtils.getUsername(), AuditElements.EventCategoryType.LOGIC, category, null, event);
 
         AuditElements.Result condition = null;
         Object output = null;
         Object before = null;
 
         try {
-//            LOG.debug("Before {}.{}({})", clazz.getSimpleName(), event,
-//                    input == null || input.length == 0 ? StringUtils.EMPTY : input);
+            LOG.debug("Before {}.{}({})", clazz.getSimpleName(), event,
+                    input == null || input.length == 0 ? StringUtils.EMPTY : input);
 
             if (notificationsAvailable || auditRequested) {
                 try {
@@ -101,15 +101,15 @@ public class LogicInvocationHandler {
             if (notificationsAvailable || auditRequested) {
                 Map<String, Object> jobMap = new HashMap<>();
                 jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                        AuthContextUtils.getUsername(),
-                        AuditElements.EventCategoryType.LOGIC,
-                        category,
-                        null,
-                        event,
-                        condition,
-                        before,
-                        output,
-                        input));
+                    AuthContextUtils.getUsername(),
+                    AuditElements.EventCategoryType.LOGIC,
+                    category,
+                    null,
+                    event,
+                    condition,
+                    before,
+                    output,
+                    input));
                 AfterHandlingJob.schedule(scheduler, jobMap);
             }
         }
