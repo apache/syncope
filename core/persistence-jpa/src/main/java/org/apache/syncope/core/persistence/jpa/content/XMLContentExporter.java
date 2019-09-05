@@ -89,13 +89,13 @@ public class XMLContentExporter implements ContentExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(List.of(new String[] {
+    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(List.of(
         "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
         JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
-    }));
+    ));
 
     private static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");

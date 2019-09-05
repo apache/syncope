@@ -52,7 +52,7 @@ public class PreferenceManager implements Serializable {
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
 
-    private static final List<Integer> PAGINATOR_CHOICES = List.of(new Integer[] { 10, 25, 50 });
+    private static final List<Integer> PAGINATOR_CHOICES = List.of(10, 25, 50);
 
     private static final CookieUtils COOKIE_UTILS;
 
