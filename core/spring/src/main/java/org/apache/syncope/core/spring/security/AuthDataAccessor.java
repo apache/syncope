@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.util.Arrays;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import java.util.Collections;
 import java.util.Date;

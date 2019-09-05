@@ -20,7 +20,6 @@ package org.apache.syncope.client.ui.commons.wizards;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

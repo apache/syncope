@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

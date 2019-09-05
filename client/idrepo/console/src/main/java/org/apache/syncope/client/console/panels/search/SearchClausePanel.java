@@ -22,7 +22,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

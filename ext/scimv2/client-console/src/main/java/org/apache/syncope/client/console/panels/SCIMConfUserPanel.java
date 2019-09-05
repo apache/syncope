@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;

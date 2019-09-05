@@ -22,7 +22,6 @@ import org.apache.syncope.client.ui.commons.wizards.ModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;

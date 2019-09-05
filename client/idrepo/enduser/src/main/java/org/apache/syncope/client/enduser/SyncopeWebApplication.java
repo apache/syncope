@@ -27,8 +27,6 @@ import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;

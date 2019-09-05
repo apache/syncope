@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

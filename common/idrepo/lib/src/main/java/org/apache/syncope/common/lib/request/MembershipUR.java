@@ -19,7 +19,7 @@
 package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Arrays;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;

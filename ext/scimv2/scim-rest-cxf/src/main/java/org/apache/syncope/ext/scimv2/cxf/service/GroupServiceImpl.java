@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

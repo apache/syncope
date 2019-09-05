@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;

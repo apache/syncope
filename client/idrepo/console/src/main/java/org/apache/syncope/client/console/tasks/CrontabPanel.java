@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;

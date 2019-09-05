@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.flowable;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;

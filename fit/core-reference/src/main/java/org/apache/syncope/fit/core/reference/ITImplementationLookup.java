@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.types.ConnectorCapability;

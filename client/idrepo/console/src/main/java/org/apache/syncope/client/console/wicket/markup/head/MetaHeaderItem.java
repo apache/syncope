@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wicket.markup.head;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.markup.head.HeaderItem;

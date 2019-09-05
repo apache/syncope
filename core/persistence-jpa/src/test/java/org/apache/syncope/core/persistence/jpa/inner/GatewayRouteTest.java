@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.HttpMethod;

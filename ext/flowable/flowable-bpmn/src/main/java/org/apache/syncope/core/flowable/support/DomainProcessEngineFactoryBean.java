@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

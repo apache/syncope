@@ -20,7 +20,6 @@ package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.validation.constraints.NotNull;

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

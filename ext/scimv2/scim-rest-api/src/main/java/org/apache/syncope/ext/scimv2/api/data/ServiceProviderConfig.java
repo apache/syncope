@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 

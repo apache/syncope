@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,8 +75,8 @@ public class LogicInvocationHandler {
         Object before = null;
 
         try {
-            LOG.debug("Before {}.{}({})", clazz.getSimpleName(), event,
-                    input == null || input.length == 0 ? StringUtils.EMPTY : List.of(input));
+//            LOG.debug("Before {}.{}({})", clazz.getSimpleName(), event,
+//                    input == null || input.length == 0 ? StringUtils.EMPTY : input);
 
             if (notificationsAvailable || auditRequested) {
                 try {

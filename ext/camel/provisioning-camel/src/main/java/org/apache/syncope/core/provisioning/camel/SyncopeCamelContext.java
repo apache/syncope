@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;

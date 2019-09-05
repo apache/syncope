@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;

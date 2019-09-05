@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.BooleanUtils;

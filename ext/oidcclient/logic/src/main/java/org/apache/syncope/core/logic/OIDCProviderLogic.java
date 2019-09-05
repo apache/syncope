@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ws.rs.ClientErrorException;

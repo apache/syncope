@@ -19,7 +19,7 @@
 package org.apache.syncope.common.keymaster.client.self;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.util.Arrays;
+
 import java.util.List;
 
 import org.apache.cxf.ext.logging.LoggingFeature;

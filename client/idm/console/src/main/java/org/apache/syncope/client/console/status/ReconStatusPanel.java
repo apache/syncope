@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;

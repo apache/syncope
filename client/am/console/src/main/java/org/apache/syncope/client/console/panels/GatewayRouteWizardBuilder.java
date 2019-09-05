@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.syncope.client.console.rest.GatewayRouteRestClient;

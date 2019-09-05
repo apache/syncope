@@ -42,7 +42,6 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;

@@ -19,7 +19,7 @@
 package org.apache.syncope.ext.self.keymaster.cxf;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.List;
 

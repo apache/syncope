@@ -22,7 +22,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;

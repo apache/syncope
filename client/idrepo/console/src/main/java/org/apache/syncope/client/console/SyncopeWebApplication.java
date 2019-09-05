@@ -23,7 +23,7 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
