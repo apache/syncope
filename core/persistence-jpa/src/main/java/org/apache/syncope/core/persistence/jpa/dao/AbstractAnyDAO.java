@@ -115,6 +115,20 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return key;
     }
 
+    protected List<String> findAllKeys(final String table, final int page, final int itemsPerPage) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + table + " ORDER BY id", String.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        List<String> result = new ArrayList<>();
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEach(actualKey -> result.add(actualKey.toString()));
+        return result;
+    }
+
     protected Date findLastChange(final String key, final String table) {
         Query query = entityManager().createNativeQuery(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");

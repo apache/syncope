@@ -23,10 +23,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
@@ -83,13 +80,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
                 LOG.debug("Indexing users...");
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-
-                    for (User user : userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
                                 elasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.USER)).
-                                id(user.getKey()).
-                                source(elasticsearchUtils.builder(user));
+                                id(user).
+                                source(elasticsearchUtils.builder(userDAO.find(user)));
                         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", user, response);
                     }
@@ -97,12 +93,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
                 LOG.debug("Indexing groups...");
                 for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    for (Group group : groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
                                 elasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
-                                id(group.getKey()).
-                                source(elasticsearchUtils.builder(group));
+                                id(group).
+                                source(elasticsearchUtils.builder(groupDAO.find(group)));
                         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", group, response);
                     }
@@ -110,12 +106,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
                 LOG.debug("Indexing any objects...");
                 for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    for (AnyObject anyObject : anyObjectDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
                                 elasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
-                                id(anyObject.getKey()).
-                                source(elasticsearchUtils.builder(anyObject));
+                                id(anyObject).
+                                source(elasticsearchUtils.builder(anyObjectDAO.find(anyObject)));
                         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", anyObject, response);
                     }
