@@ -79,6 +79,15 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      */
     List<A> findAll(int page, int itemsPerPage);
 
+    /**
+     * Find any objects' keys without any limitation, according to given page and items per page.
+     *
+     * @param page search result page
+     * @param itemsPerPage items per search result page
+     * @return any objects' keys matching the provided conditions
+     */
+    List<String> findAllKeys(int page, int itemsPerPage);
+
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 
     A save(A any);

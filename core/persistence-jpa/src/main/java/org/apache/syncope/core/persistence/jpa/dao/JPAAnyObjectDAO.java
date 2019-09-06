@@ -196,6 +196,11 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return query.getResultList();
     }
 
+    @Override
+    public List<String> findAllKeys(final int page, final int itemsPerPage) {
+        return findAllKeys(JPAAnyObject.TABLE, page, itemsPerPage);
+    }
+
     protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
         AnyObject merged = super.save(anyObject);
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));

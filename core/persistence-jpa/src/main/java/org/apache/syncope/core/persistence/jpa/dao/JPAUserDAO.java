@@ -257,6 +257,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return query.getResultList();
     }
 
+    public List<String> findAllKeys(final int page, final int itemsPerPage) {
+        return findAllKeys(JPAUser.TABLE, page, itemsPerPage);
+    }
+
     protected List<AccountPolicy> getAccountPolicies(final User user) {
         List<AccountPolicy> policies = new ArrayList<>();
 
