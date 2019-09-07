@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;

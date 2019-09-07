@@ -21,6 +21,7 @@ package org.apache.syncope.ext.self.keymaster.cxf;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import org.apache.cxf.Bus;
