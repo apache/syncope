@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +129,7 @@ public class SyncopeClientFactoryBean {
         defaultRestClientFactoryBean.setAddress(address);
 
         if (StringUtils.isNotBlank(domain)) {
-            defaultRestClientFactoryBean.getHeaders().put(RESTHeaders.DOMAIN, Collections.singletonList(domain));
+            defaultRestClientFactoryBean.getHeaders().put(RESTHeaders.DOMAIN, List.of(domain));
         }
 
         defaultRestClientFactoryBean.setThreadSafe(true);

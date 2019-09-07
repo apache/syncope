@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -70,7 +70,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach(schema -> {
+        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
             schema.setAnyTypeClass(null);
         });
 
@@ -85,7 +85,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach((schema) -> {
+        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach((schema) -> {
             schema.setAnyTypeClass(null);
         });
 
@@ -100,7 +100,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             }
         });
 
-        virSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach(schema -> {
+        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
             schema.setAnyTypeClass(null);
         });
 

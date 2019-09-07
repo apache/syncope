@@ -155,7 +155,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             return Collections.emptyList();
         }
 
-        List<String> result = getValues(any, Collections.singleton(schema)).get(schema);
+        List<String> result = getValues(any, Set.of(schema)).get(schema);
         return result == null ? Collections.emptyList() : result;
     }
 
@@ -168,7 +168,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             return Collections.emptyList();
         }
 
-        List<String> result = getValues(any, Collections.singleton(schema)).get(schema);
+        List<String> result = getValues(any, Set.of(schema)).get(schema);
         return result == null ? Collections.emptyList() : result;
     }
 

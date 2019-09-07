@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,8 +31,8 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
     private static final long serialVersionUID = 1775967163571699258L;
 
-    private static final Set<String> INLINE_PROPS = new HashSet<>(List.of(
-            new String[] { "key", "status", "token", "username", "name" }));
+    private static final Set<String> INLINE_PROPS = Set.of(
+            new String[] { "key", "status", "token", "username", "name" });
 
     public SortableAnyProviderComparator(final SortableDataProvider<T, String> provider) {
         super(provider);

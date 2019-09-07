@@ -78,7 +78,7 @@ public class AuthDataAccessor {
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
-            Collections.singleton(new SyncopeGrantedAuthority(IdRepoEntitlement.ANONYMOUS));
+            Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.ANONYMOUS));
 
     protected static final String[] GROUP_OWNER_ENTITLEMENTS = new String[] {
         IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE, IdRepoEntitlement.GROUP_DELETE
@@ -394,7 +394,7 @@ public class AuthDataAccessor {
 
             if (BooleanUtils.isTrue(user.isMustChangePassword())) {
                 LOG.debug("User {} must change password, resetting authorities", username);
-                authorities = Collections.singleton(
+                authorities = Set.of(
                         new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
             }
         }

@@ -181,7 +181,7 @@ abstract class AbstractAnyDataBinder {
                 ? values
                 : (values.isEmpty()
                 ? Collections.<String>emptyList()
-                : Collections.singletonList(values.get(0)));
+                : List.of(values.get(0)));
 
         valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {

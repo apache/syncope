@@ -43,7 +43,6 @@ import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -497,8 +496,8 @@ public class SAML2ITCase extends AbstractITCase {
         conditions.setNotAfter(new DateTime().plusMinutes(5));
 
         AudienceRestrictionBean audienceRestriction = new AudienceRestrictionBean();
-        audienceRestriction.setAudienceURIs(Collections.singletonList("http://recipient.apache.org/"));
-        conditions.setAudienceRestrictions(Collections.singletonList(audienceRestriction));
+        audienceRestriction.setAudienceURIs(List.of("http://recipient.apache.org/"));
+        conditions.setAudienceRestrictions(List.of(audienceRestriction));
         callbackHandler.setConditions(conditions);
 
         SAMLCallback samlCallback = new SAMLCallback();

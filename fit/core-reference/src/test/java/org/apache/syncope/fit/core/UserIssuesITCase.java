@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -849,7 +848,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
         userTO = result.getEntity();
-        assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
+        assertEquals(Set.of(RESOURCE_NAME_WS1), userTO.getResources());
         assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertTrue(result.getPropagationStatuses().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));

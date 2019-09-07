@@ -31,7 +31,6 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +101,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
                 JAXRSUtils.getCurrentMessage(), null, MessageContext.class);
 
         String url = StringUtils.substringBeforeLast(ctx.getUriInfo().getRequestUri().getRawPath(), "/");
-        configuration.getOpenAPI().setServers(Collections.singletonList(new Server().url(url)));
+        configuration.getOpenAPI().setServers(List.of(new Server().url(url)));
 
         return configuration;
     }

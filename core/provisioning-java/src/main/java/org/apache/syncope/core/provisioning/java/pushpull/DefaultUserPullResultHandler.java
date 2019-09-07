@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -82,7 +83,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
         Map.Entry<String, List<PropagationStatus>> created =
                 userProvisioningManager.create(userCR, true, enabled,
-                        Collections.singleton(profile.getTask().getResource().getKey()), true);
+                        Set.of(profile.getTask().getResource().getKey()), true);
 
         return getAnyTO(created.getKey());
     }
@@ -101,7 +102,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 userUR,
                 result,
                 enabled,
-                Collections.singleton(profile.getTask().getResource().getKey()),
+                Set.of(profile.getTask().getResource().getKey()),
                 true);
 
         return updated.getLeft();

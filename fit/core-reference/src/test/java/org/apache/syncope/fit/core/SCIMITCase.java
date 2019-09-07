@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -342,7 +341,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     private SCIMUser getSampleUser(final String username) {
-        SCIMUser user = new SCIMUser(null, Collections.singletonList(Resource.User.schema()), null, username, true);
+        SCIMUser user = new SCIMUser(null, List.of(Resource.User.schema()), null, username, true);
         user.setPassword("password123");
 
         SCIMUserName name = new SCIMUserName();

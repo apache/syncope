@@ -249,7 +249,7 @@ public class UserRequestFormDirectoryPanel
                         previousUserTO,
                         newUserTO,
                         new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
-                        FormLayoutInfoUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getLeft(),
+                        FormLayoutInfoUtils.fetch(List.of(AnyTypeKind.USER.name())).getLeft(),
                         pageRef
                 ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
 

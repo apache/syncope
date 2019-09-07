@@ -19,7 +19,6 @@
 package org.apache.syncope.core.flowable.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -281,7 +280,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Set<String> performedTasks =
-                doExecuteNextTask(procInstID, user, Collections.singletonMap(FlowableRuntimeUtils.TASK, "suspend"));
+                doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "suspend"));
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
@@ -297,7 +296,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Set<String> performedTasks =
-                doExecuteNextTask(procInstID, user, Collections.singletonMap(FlowableRuntimeUtils.TASK, "reactivate"));
+                doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "reactivate"));
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
 
         User updated = userDAO.save(user);
@@ -364,7 +363,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     protected void doDelete(final User user) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
-        doExecuteNextTask(procInstID, user, Collections.singletonMap(FlowableRuntimeUtils.TASK, "delete"));
+        doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "delete"));
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(user.getKey()));

@@ -20,7 +20,6 @@ package org.apache.syncope.ext.self.keymaster.cxf;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -91,7 +90,7 @@ public class SelfKeymasterContext {
         selfKeymasterContainer.setBasePackages(List.of(
                 "org.apache.syncope.ext.self.keymaster.api.service",
                 "org.apache.syncope.ext.self.keymaster.cxf.service"));
-        selfKeymasterContainer.setProperties(Collections.singletonMap("convert.wadl.resources.to.dom", "false"));
+        selfKeymasterContainer.setProperties(Map.of("convert.wadl.resources.to.dom", "false"));
 
         selfKeymasterContainer.setInInterceptors(List.of(
                 ctx.getBean(GZIPInInterceptor.class),

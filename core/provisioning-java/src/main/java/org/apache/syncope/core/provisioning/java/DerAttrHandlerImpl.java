@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +68,7 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Collections.singleton(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Collections.singleton(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema);
     }
 
     @Override

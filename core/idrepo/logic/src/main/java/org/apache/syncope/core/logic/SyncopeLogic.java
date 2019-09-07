@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -472,7 +471,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 searchCond,
                 page, size,
-                Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
+                List.of(orderByClause), AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> groupDataBinder.getGroupTO(group, false)).collect(Collectors.toList());
 

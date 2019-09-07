@@ -210,7 +210,7 @@ abstract class AbstractService<R extends SCIMResource> {
             clause.setDirection(request.getSortOrder() == null || request.getSortOrder() == SortOrder.ascending
                     ? OrderByClause.Direction.ASC
                     : OrderByClause.Direction.DESC);
-            sort = Collections.singletonList(clause);
+            sort = List.of(clause);
         }
 
         Pair<Integer, ? extends List<? extends AnyTO>> result = anyLogic(type).search(

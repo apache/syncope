@@ -19,7 +19,7 @@
 package org.apache.syncope.sra;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.util.Collections;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class SyncopeSRATestCoreStartup extends SyncopeSRAStartStop
         sf.setResourceProvider(
                 GatewayRouteService.class,
                 new SingletonResourceProvider(new StubGatewayRouteService(), true));
-        sf.setProviders(Collections.singletonList(new JacksonJsonProvider()));
+        sf.setProviders(List.of(new JacksonJsonProvider()));
         sf.create();
 
         // 2. register Core in Keymaster

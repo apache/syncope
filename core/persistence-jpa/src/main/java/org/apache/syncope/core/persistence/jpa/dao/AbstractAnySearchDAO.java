@@ -346,7 +346,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             OrderByClause keyClause = new OrderByClause();
             keyClause.setField(kind == AnyTypeKind.USER ? "username" : "name");
             keyClause.setDirection(OrderByClause.Direction.ASC);
-            effectiveOrderBy = Collections.singletonList(keyClause);
+            effectiveOrderBy = List.of(keyClause);
         } else {
             effectiveOrderBy = orderBy.stream().
                     filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).

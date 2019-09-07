@@ -22,10 +22,10 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import javax.annotation.Resource;
 import javax.servlet.ServletRequestListener;
@@ -86,14 +86,14 @@ public class RESTCXFContext {
     @Bean
     public JAXBElementProvider<?> jaxbProvider() {
         JAXBElementProvider<?> jaxbProvider = new JAXBElementProvider<>();
-        jaxbProvider.setNamespacePrefixes(Collections.singletonMap(SyncopeConstants.NS, SyncopeConstants.NS_PREFIX));
+        jaxbProvider.setNamespacePrefixes(Map.of(SyncopeConstants.NS, SyncopeConstants.NS_PREFIX));
 
         DocumentDepthProperties documentDepthProperties = new DocumentDepthProperties();
         documentDepthProperties.setInnerElementCountThreshold(500);
         jaxbProvider.setDepthProperties(documentDepthProperties);
 
         jaxbProvider.setCollectionWrapperMap(
-                Collections.singletonMap("org.apache.syncope.common.lib.policy.PolicyTO", "policies"));
+                Map.of("org.apache.syncope.common.lib.policy.PolicyTO", "policies"));
 
         return jaxbProvider;
     }
@@ -191,7 +191,7 @@ public class RESTCXFContext {
         openapiFeature.setContactEmail("dev@syncope.apache.org");
         openapiFeature.setContactUrl("http://syncope.apache.org");
         openapiFeature.setScan(false);
-        openapiFeature.setResourcePackages(Collections.singleton("org.apache.syncope.common.rest.api.service"));
+        openapiFeature.setResourcePackages(Set.of("org.apache.syncope.common.rest.api.service"));
 
         SyncopeOpenApiCustomizer openApiCustomizer = new SyncopeOpenApiCustomizer(ctx.getEnvironment());
         openApiCustomizer.setDynamicBasePath(false);

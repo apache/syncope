@@ -163,7 +163,7 @@ public class DefaultRealmPullResultHandler
             create(realmTO, delta, UnmatchingRule.ASSIGN, result);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     private List<ProvisioningReport> provision(final SyncDelta delta, final OrgUnit orgUnit)
@@ -201,7 +201,7 @@ public class DefaultRealmPullResultHandler
             create(realmTO, delta, UnmatchingRule.PROVISION, result);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     private void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
@@ -514,7 +514,7 @@ public class DefaultRealmPullResultHandler
                         } else {
                             realm.add(profile.getTask().getResource());
                         }
-                        output = update(delta, Collections.singletonList(key), true);
+                        output = update(delta, List.of(key), true);
 
                         resultStatus = Result.SUCCESS;
 
@@ -589,7 +589,7 @@ public class DefaultRealmPullResultHandler
                             throw SyncopeClientException.build(ClientExceptionType.HasChildren);
                         }
 
-                        Set<String> adminRealms = Collections.singleton(realm.getFullPath());
+                        Set<String> adminRealms = Set.of(realm.getFullPath());
                         AnyCond keyCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
                         keyCond.setSchema("key");
                         SearchCond allMatchingCond = SearchCond.getLeafCond(keyCond);

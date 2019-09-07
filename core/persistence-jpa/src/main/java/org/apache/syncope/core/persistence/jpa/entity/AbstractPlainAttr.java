@@ -104,7 +104,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
         if (getUniqueValue() == null) {
             result = getValues().stream().map(value -> value.getValueAsString()).collect(Collectors.toList());
         } else {
-            result = Collections.singletonList(getUniqueValue().getValueAsString());
+            result = List.of(getUniqueValue().getValueAsString());
         }
 
         return Collections.unmodifiableList(result);

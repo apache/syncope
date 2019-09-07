@@ -22,7 +22,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.Map;
+
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
@@ -153,7 +154,7 @@ public class MasterDomain implements EnvironmentAware {
         masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
 
         if (env.containsProperty("openjpaMetaDataFactory")) {
-            masterEntityManagerFactory.setJpaPropertyMap(Collections.singletonMap(
+            masterEntityManagerFactory.setJpaPropertyMap(Map.of(
                     "openjpa.MetaDataFactory",
                     env.getProperty("openjpaMetaDataFactory").replace("##orm##", orm)));
         }

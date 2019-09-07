@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class PrintersValueProvider implements DropdownValueProvider {
         OrderByClause orderByNameAsc = new OrderByClause();
         orderByNameAsc.setField("name");
         orderByNameAsc.setDirection(OrderByClause.Direction.ASC);
-        ORDER_BY = Collections.singletonList(orderByNameAsc);
+        ORDER_BY = List.of(orderByNameAsc);
     }
 
     @Autowired

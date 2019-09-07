@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -228,12 +230,12 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         ? anyDAO.getAllMatchingCond()
                         : SearchCondConverter.convert(filter);
                 int count = searchDAO.count(
-                        Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
+                        Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
                         provision.getAnyType().getKind());
                 for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
                     List<? extends Any<?>> anys = searchDAO.search(
-                            Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
+                            Set.of(profile.getTask().getSourceRealm().getFullPath()),
                             cond,
                             page,
                             AnyDAO.DEFAULT_PAGE_SIZE,

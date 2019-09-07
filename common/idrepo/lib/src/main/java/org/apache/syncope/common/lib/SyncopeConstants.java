@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -34,7 +33,7 @@ public final class SyncopeConstants {
 
     public static final String REALM_ANYTYPE = "REALM";
 
-    public static final Set<String> FULL_ADMIN_REALMS = Collections.singleton("/");
+    public static final Set<String> FULL_ADMIN_REALMS = Set.of("/");
 
     public static final String UNAUTHENTICATED = "unauthenticated";
 

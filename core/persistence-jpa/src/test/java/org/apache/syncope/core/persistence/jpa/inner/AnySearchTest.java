@@ -481,7 +481,7 @@ public class AnySearchTest extends AbstractTest {
         orderByClause.setField("name");
 
         List<Group> groups = searchDAO.search(
-                searchCondition, Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
+                searchCondition, List.of(orderByClause), AnyTypeKind.GROUP);
         assertEquals(
                 searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.GROUP),
                 groups.size());

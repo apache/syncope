@@ -67,12 +67,12 @@ public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
 
-    private static final List<String> USER_SCHEMAS = Collections.singletonList(Resource.User.schema());
+    private static final List<String> USER_SCHEMAS = List.of(Resource.User.schema());
 
     private static final List<String> ENTERPRISE_USER_SCHEMAS =
             List.of(Resource.User.schema(), Resource.EnterpriseUser.schema());
 
-    private static final List<String> GROUP_SCHEMAS = Collections.singletonList(Resource.Group.schema());
+    private static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
 
     @Autowired
     private SCIMConfManager confManager;

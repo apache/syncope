@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.security.AccessControlException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -268,9 +267,9 @@ public class GroupITCase extends AbstractITCase {
         Map<String, Attr> attrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
         assertFalse(attrs.containsKey("icon"));
         assertFalse(attrs.containsKey("show"));
-        assertEquals(Collections.singletonList("sx"), attrs.get("rderived_sx").getValues());
-        assertEquals(Collections.singletonList("dx"), attrs.get("rderived_dx").getValues());
-        assertEquals(Collections.singletonList("mr"), attrs.get("title").getValues());
+        assertEquals(List.of("sx"), attrs.get("rderived_sx").getValues());
+        assertEquals(List.of("dx"), attrs.get("rderived_dx").getValues());
+        assertEquals(List.of("mr"), attrs.get("title").getValues());
     }
 
     @Test

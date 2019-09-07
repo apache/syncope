@@ -89,19 +89,19 @@ public class XMLContentExporter implements ContentExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(List.of(
+    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Set.of(
         "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
         JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
-    ));
+    );
 
     private static final Map<String, String> TABLES_TO_BE_FILTERED =
-            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
+            Map.of("TASK", "DTYPE <> 'PropagationTask'");
 
     private static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
-            Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
+            Map.of("SYNCOPEGROUP", Set.of("USEROWNER_ID"));
 
     @Autowired
     private DomainHolder domainHolder;

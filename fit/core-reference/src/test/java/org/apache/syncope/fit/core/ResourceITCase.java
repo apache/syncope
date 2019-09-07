@@ -168,7 +168,7 @@ public class ResourceITCase extends AbstractITCase {
         prop.setSchema(schema);
         prop.getValues().add("http://invalidurl/");
 
-        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(List.of(prop));
+        Set<ConnConfProperty> connectorConfigurationProperties = Set.of(prop);
         resourceTO.getConfOverride().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);

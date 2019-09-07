@@ -22,7 +22,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.Map;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -133,7 +134,7 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
                 addPropertyValue("jpaVendorAdapter", vendorAdapter).
                 addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf");
         if (env.containsProperty("openjpaMetaDataFactory")) {
-            emf.addPropertyValue("jpaPropertyMap", Collections.singletonMap(
+            emf.addPropertyValue("jpaPropertyMap", Map.of(
                     "openjpa.MetaDataFactory",
                     env.getProperty("openjpaMetaDataFactory").replace("##orm##", domain.getOrm())));
         }

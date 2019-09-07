@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -205,7 +207,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             create(anyCR, delta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), provision, result);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     protected List<ProvisioningReport> provision(
@@ -238,7 +240,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             create(anyCR, delta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), provision, result);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
@@ -670,7 +672,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                     try {
                         getProvisioningManager().
-                                delete(key, Collections.singleton(profile.getTask().getResource().getKey()), true);
+                                delete(key, Set.of(profile.getTask().getResource().getKey()), true);
                         output = null;
                         resultStatus = Result.SUCCESS;
 

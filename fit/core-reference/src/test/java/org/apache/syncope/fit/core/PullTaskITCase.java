@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -408,7 +407,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("odd", userConnObject.getAttr("title").get().getValues().get(0));
         Attr userDn = userConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                userDn.getValues().get(0), Collections.singletonMap("title", (String) null));
+                userDn.getValues().get(0), Map.of("title", (String) null));
 
         // SYNCOPE-317
         execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
@@ -449,7 +448,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(groupConnObject);
         Attr groupDn = groupConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                groupDn.getValues().get(0), Collections.singletonMap("uniquemember", "uid=admin,ou=system"));
+                groupDn.getValues().get(0), Map.of("uniquemember", "uid=admin,ou=system"));
 
         execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
@@ -1261,7 +1260,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 4. update the user on the external resource
             updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                    userDn.getValues().get(0), Collections.singletonMap("mail", "pullFromLDAP2@syncope.apache.org"));
+                    userDn.getValues().get(0), Map.of("mail", "pullFromLDAP2@syncope.apache.org"));
 
             connObject = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(connObject);

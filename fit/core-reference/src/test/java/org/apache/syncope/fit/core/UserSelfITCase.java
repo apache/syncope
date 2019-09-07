@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -554,7 +553,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(1, userTO.getMemberships().size());
         assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
-        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
+        assertEquals(Set.of(RESOURCE_NAME_TESTDB), userTO.getResources());
 
         assertTrue(result.getPropagationStatuses().isEmpty());
 
@@ -604,7 +603,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals(updatedUsername, userTO.getUsername());
         assertEquals("active", userTO.getStatus());
-        assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
+        assertEquals(Set.of(RESOURCE_NAME_TESTDB), userTO.getResources());
 
         String username = queryForObject(
                 jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());

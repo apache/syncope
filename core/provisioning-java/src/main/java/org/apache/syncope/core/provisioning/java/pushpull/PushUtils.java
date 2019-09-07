@@ -135,6 +135,6 @@ public class PushUtils {
             }
         }
 
-        return obj == null ? Collections.emptyList() : Collections.singletonList(obj);
+        return obj == null ? Collections.emptyList() : List.of(obj);
     }
 }

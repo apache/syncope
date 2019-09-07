@@ -56,7 +56,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
             if (user == null) {
                 result = Collections.<User>emptyList();
             } else if (groupId == null || userDAO.findAllGroupNames(user).contains(groupId)) {
-                result = Collections.singletonList(fromSyncopeUser(user));
+                result = List.of(fromSyncopeUser(user));
             }
         } else if (groupId != null) {
             Group group = groupDAO.findByName(groupId);

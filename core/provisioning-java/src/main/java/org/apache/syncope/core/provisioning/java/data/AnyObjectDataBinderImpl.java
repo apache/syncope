@@ -318,7 +318,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         Map<String, Set<String>> reasons = new HashMap<>();
         anyObject.getResources().forEach(resource -> {
-            reasons.put(resource.getKey(), new HashSet<>(Collections.singleton(anyObject.getKey())));
+            reasons.put(resource.getKey(), new HashSet<>(Set.of(anyObject.getKey())));
         });
         anyObjectDAO.findAllGroupKeys(anyObject).forEach(group -> {
             groupDAO.findAllResourceKeys(group).forEach(resource -> {

@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -202,7 +201,7 @@ public class UserITCase extends AbstractITCase {
 
             UserTO userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);
-            assertEquals(Collections.singleton(resourceTO.getKey()), userTO.getResources());
+            assertEquals(Set.of(resourceTO.getKey()), userTO.getResources());
         } finally {
             resourceService.delete(resourceTO.getKey());
         }
@@ -583,10 +582,10 @@ public class UserITCase extends AbstractITCase {
         assertFalse(userTO.getDerAttrs().isEmpty());
 
         Attr userIdAttr = userTO.getPlainAttr("userId").get();
-        assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
+        assertEquals(List.of(newUserId), userIdAttr.getValues());
 
         Attr fullNameAttr = userTO.getPlainAttr("fullname").get();
-        assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
+        assertEquals(List.of(newFullName), fullNameAttr.getValues());
 
         // update by username
         userUR = new UserUR();

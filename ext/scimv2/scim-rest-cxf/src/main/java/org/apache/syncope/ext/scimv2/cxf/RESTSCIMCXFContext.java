@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.ext.scimv2.cxf;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import org.apache.cxf.Bus;
@@ -87,7 +87,7 @@ public class RESTSCIMCXFContext {
         scimv2Container.setBasePackages(List.of(
                 "org.apache.syncope.ext.scimv2.api.service",
                 "org.apache.syncope.ext.scimv2.cxf.service"));
-        scimv2Container.setProperties(Collections.singletonMap("convert.wadl.resources.to.dom", "false"));
+        scimv2Container.setProperties(Map.of("convert.wadl.resources.to.dom", "false"));
 
         scimv2Container.setInInterceptors(List.of(
                 ctx.getBean(GZIPInInterceptor.class),
