@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.security.AccessControlException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +154,7 @@ public class KeymasterITCase extends AbstractITCase {
         int i = 0;
         int maxit = maxWaitSeconds;
 
-        List<NetworkService> list = Collections.emptyList();
+        List<NetworkService> list = List.of();
         do {
             try {
                 Thread.sleep(1000);

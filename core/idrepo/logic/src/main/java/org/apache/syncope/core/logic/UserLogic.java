@@ -261,7 +261,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 updated.getRight(),
                 Collections.<LogicActions>emptyList(),
                 false,
-                Collections.<String>emptySet());
+                Set.of());
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -274,7 +274,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 updated.getRight(),
                 Collections.<LogicActions>emptyList(),
                 false,
-                Collections.<String>emptySet());
+                Set.of());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")

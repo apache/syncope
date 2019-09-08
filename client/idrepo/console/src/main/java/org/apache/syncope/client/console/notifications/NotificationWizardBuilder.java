@@ -180,12 +180,12 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
                 @Override
                 protected List<String> getListAuthRoles() {
-                    return Collections.emptyList();
+                    return List.of();
                 }
 
                 @Override
                 protected List<String> getChangeAuthRoles() {
-                    return Collections.emptyList();
+                    return List.of();
                 }
             });
         }

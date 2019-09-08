@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ManyToOne;
@@ -203,7 +202,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Transactional(readOnly = true)
     @Override
     public <T extends Task> List<T> findAll(final TaskType type) {
-        return findAll(type, null, null, null, null, -1, -1, Collections.<OrderByClause>emptyList());
+        return findAll(type, null, null, null, null, -1, -1, List.of());
     }
 
     private StringBuilder buildFindAllQuery(
@@ -462,7 +461,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        findAll(type, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+        findAll(type, resource, null, null, null, -1, -1, List.of()).
                 stream().map(Entity::getKey).forEach(task -> delete(task));
     }
 

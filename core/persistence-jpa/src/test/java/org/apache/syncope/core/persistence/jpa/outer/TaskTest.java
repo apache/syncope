@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -137,7 +136,7 @@ public class TaskTest extends AbstractTest {
 
         resource = resourceDAO.find("ws-target-resource-1");
         assertTrue(taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
                 contains(task));
     }
 

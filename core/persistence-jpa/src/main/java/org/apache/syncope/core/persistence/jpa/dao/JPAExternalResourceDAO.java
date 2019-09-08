@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -181,7 +180,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     public List<ExternalResource> findAll() {
         final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_LIST);
         if (authRealms == null || authRealms.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         TypedQuery<ExternalResource> query = entityManager().createQuery(

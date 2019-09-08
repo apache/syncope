@@ -25,7 +25,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -208,7 +207,7 @@ public abstract class AnyCR implements Serializable, RealmMember {
     @JsonIgnore
     @Override
     public Set<Attr> getDerAttrs() {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     @JsonIgnore

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -28,7 +27,7 @@ public class JPAJSONPlainSchemaDAO extends JPAPlainSchemaDAO {
     @Override
     public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
         // not possible
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

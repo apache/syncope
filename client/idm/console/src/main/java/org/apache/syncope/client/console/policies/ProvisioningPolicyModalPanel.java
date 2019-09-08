@@ -251,7 +251,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                             ? DefaultPullCorrelationRuleConf.class.cast(conf).getSchemas()
                             : conf instanceof DefaultPushCorrelationRuleConf
                                     ? DefaultPushCorrelationRuleConf.class.cast(conf).getSchemas()
-                                    : Collections.emptyList();
+                                    : List.of();
                 }
 
                 @Override

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -52,7 +51,7 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
         if (id != null) {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.findByName(id);
             if (syncopeGroup == null) {
-                result = Collections.emptyList();
+                result = List.of();
             } else {
                 result = List.of(fromSyncopeGroup(syncopeGroup.getName()));
             }

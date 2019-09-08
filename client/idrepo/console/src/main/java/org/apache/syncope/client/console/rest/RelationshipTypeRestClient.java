@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -45,7 +44,7 @@ public class RelationshipTypeRestClient extends BaseRestClient {
     }
 
     public List<RelationshipTypeTO> list() {
-        List<RelationshipTypeTO> types = Collections.emptyList();
+        List<RelationshipTypeTO> types = List.of();
 
         try {
             types = getService(RelationshipTypeService.class).list();

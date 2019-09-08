@@ -19,7 +19,7 @@
 package org.apache.syncope.client.enduser.wizards.any;
 
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -163,7 +163,7 @@ public class Groups extends AbstractGroups {
 
         @Override
         public List<String> getDynMemberships() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         /**

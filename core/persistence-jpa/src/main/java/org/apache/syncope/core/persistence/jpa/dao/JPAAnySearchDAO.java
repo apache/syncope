@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -210,7 +209,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             LOG.error("While searching for {}", kind, e);
         }
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     protected int setParameter(final List<Object> parameters, final Object parameter) {

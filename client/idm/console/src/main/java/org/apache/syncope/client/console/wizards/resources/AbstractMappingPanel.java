@@ -185,7 +185,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         "intAttrName",
                         new PropertyModel<>(itemTO, "intAttrName"),
                         false);
-                intAttrName.setChoices(Collections.<String>emptyList());
+                intAttrName.setChoices(List.of());
                 intAttrName.setRequired(true).hideLabel();
                 item.add(intAttrName);
                 // -------------------------------

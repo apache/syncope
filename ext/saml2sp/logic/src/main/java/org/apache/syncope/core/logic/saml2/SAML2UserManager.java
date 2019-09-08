@@ -196,7 +196,7 @@ public class SAML2UserManager {
         }
 
         idp.getItems().forEach(item -> {
-            List<String> values = Collections.emptyList();
+            List<String> values = List.of();
             Optional<Attr> samlAttr = responseTO.getAttr(item.getExtAttrName());
             if (samlAttr.isPresent() && !samlAttr.get().getValues().isEmpty()) {
                 values = samlAttr.get().getValues();

@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
@@ -35,13 +36,13 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
 
     @Override
     public List<Domain> list() {
-        return client(DomainService.class, Collections.emptyMap()).list();
+        return client(DomainService.class, Map.of()).list();
     }
 
     @Override
     public Domain read(final String key) {
         try {
-            return client(DomainService.class, Collections.emptyMap()).read(key);
+            return client(DomainService.class, Map.of()).read(key);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -52,7 +53,7 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
     @Override
     public void create(final Domain domain) {
         try {
-            client(DomainService.class, Collections.emptyMap()).create(domain);
+            client(DomainService.class, Map.of()).create(domain);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
     @Override
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         try {
-            client(DomainService.class, Collections.emptyMap()).changeAdminPassword(key, password, cipherAlgorithm);
+            client(DomainService.class, Map.of()).changeAdminPassword(key, password, cipherAlgorithm);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -74,7 +75,7 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
     @Override
     public void adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
         try {
-            client(DomainService.class, Collections.emptyMap()).adjustPoolSize(key, maxPoolSize, minIdle);
+            client(DomainService.class, Map.of()).adjustPoolSize(key, maxPoolSize, minIdle);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -85,7 +86,7 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
     @Override
     public void delete(final String key) {
         try {
-            client(DomainService.class, Collections.emptyMap()).delete(key);
+            client(DomainService.class, Map.of()).delete(key);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {

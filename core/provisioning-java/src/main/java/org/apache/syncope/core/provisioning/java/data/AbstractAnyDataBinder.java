@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,11 +176,12 @@ abstract class AbstractAnyDataBinder {
 
         // if schema is multivalue, all values are considered for addition;
         // otherwise only the fist one - if provided - is considered
+        List<String> capturedValues = values.isEmpty()
+            ? List.of()
+            : List.of(StringUtils.defaultString(values.get(0)));
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
-                : (values.isEmpty()
-                ? Collections.<String>emptyList()
-                : List.of(values.get(0)));
+                : capturedValues;
 
         valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {

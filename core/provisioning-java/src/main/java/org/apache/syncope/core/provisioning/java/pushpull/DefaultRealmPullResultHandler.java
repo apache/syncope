@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -133,7 +132,7 @@ public class DefaultRealmPullResultHandler
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
@@ -172,7 +171,7 @@ public class DefaultRealmPullResultHandler
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
@@ -280,7 +279,7 @@ public class DefaultRealmPullResultHandler
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             finalize(MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to update {}", keys);
@@ -368,7 +367,7 @@ public class DefaultRealmPullResultHandler
             finalize(unlink
                     ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
                     : MatchingRule.toEventName(MatchingRule.DEPROVISION), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to deprovision {}", keys);
@@ -466,7 +465,7 @@ public class DefaultRealmPullResultHandler
             finalize(unlink
                     ? MatchingRule.toEventName(MatchingRule.UNLINK)
                     : MatchingRule.toEventName(MatchingRule.LINK), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to link {}", keys);
@@ -551,7 +550,7 @@ public class DefaultRealmPullResultHandler
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
             finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to delete {}", keys);

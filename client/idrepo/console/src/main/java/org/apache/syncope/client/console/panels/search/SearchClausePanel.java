@@ -185,7 +185,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 SearchClause.Comparator.EQUALS,
                                 SearchClause.Comparator.NOT_EQUALS);
                     default:
-                        return Collections.<Comparator>emptyList();
+                        return List.of();
                 }
             }
         };
@@ -197,7 +197,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected List<String> load() {
                 if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
-                    return Collections.<String>emptyList();
+                    return List.of();
                 }
 
                 switch (field.getModel().getObject().getType()) {
@@ -236,7 +236,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return relations;
 
                     default:
-                        return Collections.<String>emptyList();
+                        return List.of();
                 }
             }
         };

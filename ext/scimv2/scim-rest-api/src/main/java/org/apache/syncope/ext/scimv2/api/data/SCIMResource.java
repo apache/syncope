@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +35,7 @@ public abstract class SCIMResource extends SCIMBean {
 
     public SCIMResource(final String id, final List<String> schemas, final Meta meta) {
         this.id = id;
-        this.schemas = Optional.ofNullable(schemas).orElse(Collections.<String>emptyList());
+        this.schemas = Optional.ofNullable(schemas).orElse(List.of());
         this.meta = meta;
     }
 

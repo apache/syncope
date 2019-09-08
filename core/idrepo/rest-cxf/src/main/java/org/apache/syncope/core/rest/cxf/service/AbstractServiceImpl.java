@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -180,7 +179,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     protected List<OrderByClause> getOrderByClauses(final String orderBy) {
         if (StringUtils.isBlank(orderBy)) {
-            return Collections.<OrderByClause>emptyList();
+            return List.of();
         }
 
         List<OrderByClause> result = new ArrayList<>();

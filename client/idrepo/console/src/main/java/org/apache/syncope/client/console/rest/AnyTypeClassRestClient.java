@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -47,7 +46,7 @@ public class AnyTypeClassRestClient extends BaseRestClient {
     }
 
     public List<AnyTypeClassTO> list() {
-        List<AnyTypeClassTO> types = Collections.emptyList();
+        List<AnyTypeClassTO> types = List.of();
 
         try {
             types = getService(AnyTypeClassService.class).list();

@@ -42,6 +42,7 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -407,7 +408,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("odd", userConnObject.getAttr("title").get().getValues().get(0));
         Attr userDn = userConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                userDn.getValues().get(0), Map.of("title", (String) null));
+                userDn.getValues().get(0), Map.of("title", StringUtils.EMPTY));
 
         // SYNCOPE-317
         execProvisioningTask(taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);

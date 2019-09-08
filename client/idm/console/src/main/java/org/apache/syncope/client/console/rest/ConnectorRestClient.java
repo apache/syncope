@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,7 +42,7 @@ public class ConnectorRestClient extends BaseRestClient {
     private static final long serialVersionUID = -6870366819966266617L;
 
     public List<ConnInstanceTO> getAllConnectors() {
-        List<ConnInstanceTO> connectors = Collections.<ConnInstanceTO>emptyList();
+        List<ConnInstanceTO> connectors = List.of();
         try {
             connectors = getService(ConnectorService.class).list(SyncopeConsoleSession.get().getLocale().toString());
         } catch (Exception e) {
@@ -132,7 +131,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public List<ConnBundleTO> getAllBundles() {
-        List<ConnBundleTO> bundles = Collections.<ConnBundleTO>emptyList();
+        List<ConnBundleTO> bundles = List.of();
 
         try {
             bundles = getService(ConnectorService.class).getBundles(SyncopeConsoleSession.get().getLocale().toString());
@@ -187,7 +186,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public List<ConnIdObjectClassTO> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        List<ConnIdObjectClassTO> result = Collections.emptyList();
+        List<ConnIdObjectClassTO> result = List.of();
         try {
             result = getService(ConnectorService.class).buildObjectClassInfo(connInstanceTO, includeSpecial);
         } catch (Exception e) {

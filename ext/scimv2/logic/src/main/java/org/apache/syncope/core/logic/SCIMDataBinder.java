@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
@@ -647,7 +645,7 @@ public class SCIMDataBinder {
 
         if (output(attributes, excludedAttributes, "members")) {
             int count = userLogic.search(searchCond,
-                    1, 1, Collections.<OrderByClause>emptyList(),
+                    1, 1, List.of(),
                     SyncopeConstants.ROOT_REALM, false).getLeft();
 
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
@@ -655,7 +653,7 @@ public class SCIMDataBinder {
                         searchCond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         SyncopeConstants.ROOT_REALM,
                         false).
                         getRight();

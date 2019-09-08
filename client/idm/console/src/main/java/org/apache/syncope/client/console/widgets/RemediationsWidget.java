@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -107,7 +106,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
 
                     updatedRemediations = restClient.getRemediations(1, MAX_SIZE, new SortParam<>("instant", true));
                 } else {
-                    updatedRemediations = Collections.<RemediationTO>emptyList();
+                    updatedRemediations = List.of();
                 }
 
                 return updatedRemediations;

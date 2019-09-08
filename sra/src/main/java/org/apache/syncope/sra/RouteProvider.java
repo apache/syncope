@@ -19,7 +19,6 @@
 package org.apache.syncope.sra;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -458,7 +457,7 @@ public class RouteProvider {
                             create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
                 } catch (Exception e) {
                     LOG.error("Could not init SyncopeClient", e);
-                    return Collections.emptyList();
+                    return List.of();
                 }
             }
         }

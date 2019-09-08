@@ -120,7 +120,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         Query query = entityManager().createNativeQuery(
@@ -193,7 +193,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
         if (derSchema == null) {
             LOG.error("No DerSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         Parser parser = new Parser(new StringReader(derSchema.getExpression()));
@@ -239,7 +239,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
-            return Collections.emptyList();
+            return List.of();
         }
 
         Map<String, List<Object>> clauses = new LinkedHashMap<>();

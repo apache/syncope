@@ -46,7 +46,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
     @Override
     public List<String> getClasses(final ImplementationTO implementation, final ViewMode viewMode) {
-        List<String> classes = Collections.emptyList();
+        List<String> classes = List.of();
         if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdMImplementationType.PULL_CORRELATION_RULE:

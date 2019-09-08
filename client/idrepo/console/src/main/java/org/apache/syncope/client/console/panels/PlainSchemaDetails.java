@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -258,7 +257,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 List<String> choices = new ArrayList<>();
 
                 if (Strings.isEmpty(input)) {
-                    choices = Collections.emptyList();
+                    choices = List.of();
                 } else if ("true".startsWith(input.toLowerCase())) {
                     choices.add("true");
                 } else if ("false".startsWith(input.toLowerCase())) {

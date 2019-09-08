@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -113,7 +112,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         }
 
         return membAttr == null || membAttr.getValue() == null
-                ? Collections.emptyList()
+                ? List.of()
                 : membAttr.getValue();
     }
 

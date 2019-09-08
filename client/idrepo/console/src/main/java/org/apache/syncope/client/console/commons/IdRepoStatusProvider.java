@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
@@ -37,7 +36,7 @@ public class IdRepoStatusProvider implements StatusProvider {
     public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
             final AnyTO any, final Collection<String> resources) {
 
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

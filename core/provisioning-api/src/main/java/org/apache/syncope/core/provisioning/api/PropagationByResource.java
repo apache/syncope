@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -250,7 +249,7 @@ public class PropagationByResource implements Serializable {
      * @return resource matching the given type
      */
     public final Set<String> get(final ResourceOperation type) {
-        Set<String> result = Collections.<String>emptySet();
+        Set<String> result = Set.of();
 
         switch (type) {
             case CREATE:

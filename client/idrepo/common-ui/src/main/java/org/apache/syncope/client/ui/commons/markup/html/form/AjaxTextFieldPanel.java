@@ -20,7 +20,7 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
-import java.util.Collections;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -42,7 +42,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
     private Component questionMarkJexlHelp;
 
-    private List<String> choices = Collections.emptyList();
+    private List<String> choices = List.of();
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
         this(id, name, model, true);

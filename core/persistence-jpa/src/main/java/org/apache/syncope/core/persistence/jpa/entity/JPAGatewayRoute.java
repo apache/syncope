@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,7 +96,7 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     @Override
     public List<GatewayRouteFilter> getFilters() {
         return filters == null
-                ? Collections.emptyList()
+                ? List.of()
                 : List.of(POJOHelper.deserialize(filters, GatewayRouteFilter[].class));
     }
 
@@ -109,7 +108,7 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     @Override
     public List<GatewayRoutePredicate> getPredicates() {
         return predicates == null
-                ? Collections.emptyList()
+                ? List.of()
                 : List.of(POJOHelper.deserialize(predicates, GatewayRoutePredicate[].class));
     }
 

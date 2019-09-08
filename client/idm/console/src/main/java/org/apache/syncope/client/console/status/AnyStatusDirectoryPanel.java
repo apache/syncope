@@ -287,7 +287,7 @@ public class AnyStatusDirectoryPanel
             final AnyTO actual = restClient.read(anyTO.getKey());
 
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
-                List<Pair<String, ReconStatus>> statuses = Collections.emptyList();
+                List<Pair<String, ReconStatus>> statuses = List.of();
                 if (statusOnly) {
                     statuses = ReconStatusUtils.
                             getReconStatuses(anyTypeKind, anyTO.getKey(), List.of(resource));

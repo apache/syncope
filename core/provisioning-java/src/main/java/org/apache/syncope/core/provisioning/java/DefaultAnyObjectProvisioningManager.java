@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,7 +64,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public Pair<String, List<PropagationStatus>> create(
             final AnyObjectCR anyObjectCR, final boolean nullPriorityAsync) {
 
-        return create(anyObjectCR, Collections.<String>emptySet(), nullPriorityAsync);
+        return create(anyObjectCR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -91,7 +90,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public Pair<AnyObjectUR, List<PropagationStatus>> update(
             final AnyObjectUR anyObjectUR, final boolean nullPriorityAsync) {
 
-        return update(anyObjectUR, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(anyObjectUR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -116,7 +115,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     @Override
     public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
+        return delete(key, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

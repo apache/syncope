@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -144,7 +143,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @Transactional(readOnly = true)
     public List<GroupTO> own() {
         if (adminUser.equals(AuthContextUtils.getUsername())) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         return userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())).stream().

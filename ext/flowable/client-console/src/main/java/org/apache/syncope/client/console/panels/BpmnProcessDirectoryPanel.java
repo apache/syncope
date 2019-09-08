@@ -284,7 +284,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     public abstract static class Builder

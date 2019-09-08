@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -47,8 +46,8 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
                 binder().toSCIMUser(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        List.of(),
+                        List.of()));
     }
 
     @Override
@@ -86,8 +85,8 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
                 binder().toSCIMUser(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        List.of(),
+                        List.of()));
     }
 
     @Override

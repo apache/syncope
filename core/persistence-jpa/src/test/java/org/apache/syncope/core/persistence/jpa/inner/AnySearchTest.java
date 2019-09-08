@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -205,13 +204,13 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                cond, 1, 2, Collections.<OrderByClause>emptyList(),
+                cond, 1, 2, List.of(),
                 AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
         users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                cond, 2, 2, Collections.<OrderByClause>emptyList(),
+                cond, 2, 2, List.of(),
                 AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.isEmpty());

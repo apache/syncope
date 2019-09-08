@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +36,6 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
@@ -73,8 +71,8 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                 binder().toSCIMGroup(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        List.of(),
+                        List.of()));
     }
 
     @Override
@@ -112,14 +110,14 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         membCond.setGroup(id);
         SearchCond searchCond = SearchCond.getLeafCond(membCond);
         int count = userLogic().search(searchCond,
-                1, 1, Collections.<OrderByClause>emptyList(),
+                1, 1, List.of(),
                 SyncopeConstants.ROOT_REALM, false).getLeft();
         for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
             beforeMembers.addAll(userLogic().search(
                     searchCond,
                     page,
                     AnyDAO.DEFAULT_PAGE_SIZE,
-                    Collections.<OrderByClause>emptyList(),
+                    List.of(),
                     SyncopeConstants.ROOT_REALM,
                     false).
                     getRight().stream().map(EntityTO::getKey).collect(Collectors.toSet()));
@@ -165,8 +163,8 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                 binder().toSCIMGroup(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
-                        Collections.<String>emptyList(),
-                        Collections.<String>emptyList()));
+                        List.of(),
+                        List.of()));
     }
 
     @Override

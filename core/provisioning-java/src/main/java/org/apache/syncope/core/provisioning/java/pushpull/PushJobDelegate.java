@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -239,7 +237,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                             cond,
                             page,
                             AnyDAO.DEFAULT_PAGE_SIZE,
-                            Collections.<OrderByClause>emptyList(),
+                            List.of(),
                             provision.getAnyType().getKind());
                     doHandle(anys, handler, pushTask.getResource());
                 }

@@ -511,7 +511,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                 List<String> oldValues = prevAttr.isPresent()
                         ? prevAttr.get().getValues()
-                        : Collections.<String>emptyList();
+                        : List.of();
                 panel.showExternAction(new LabelInfo("externalAction", oldValues));
             }
         }

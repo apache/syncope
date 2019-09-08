@@ -19,7 +19,6 @@
 package org.apache.syncope.client.ui.commons.wizards.any;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
@@ -51,7 +50,7 @@ public abstract class AbstractResources extends WizardStep implements ICondition
         }
 
         this.setOutputMarkupId(true);
-        this.available = new ListModel<>(Collections.<String>emptyList());
+        this.available = new ListModel<>(List.of());
 
         add(new AjaxPalettePanel.Builder<String>().build("resources",
                 new PropertyModel<List<String>>(entityTO, "resources") {

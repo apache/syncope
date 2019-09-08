@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -183,7 +182,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         AnyCR anyCR = connObjectUtils.getAnyCR(delta.getObject(), profile.getTask(), provision, anyUtils);
@@ -217,7 +216,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         AnyCR anyCR = connObjectUtils.getAnyCR(delta.getObject(), profile.getTask(), provision, anyUtils);
@@ -322,7 +321,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             finalize(MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to update {}", anyKeys);
@@ -432,7 +431,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             finalize(unlink
                     ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
                     : MatchingRule.toEventName(MatchingRule.DEPROVISION), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to deprovision {}", anyKeys);
@@ -545,7 +544,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             finalize(unlink
                     ? MatchingRule.toEventName(MatchingRule.UNLINK)
                     : MatchingRule.toEventName(MatchingRule.LINK), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to update {}", anyKeys);
@@ -643,7 +642,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
             finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to delete {}", anyKeys);

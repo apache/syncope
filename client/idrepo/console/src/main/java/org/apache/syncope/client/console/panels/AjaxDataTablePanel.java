@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -282,7 +281,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                                     builder.itemKeyField),
                             target);
                 }
-                group.setModelObject(Collections.<T>emptyList());
+                group.setModelObject(List.of());
                 target.add(group);
             }
         }.setEnabled(builder.isBatchEnabled()).setVisible(builder.isBatchEnabled()));

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -168,6 +167,6 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
         return connIdObjectClass.isPresent()
                 ? connIdObjectClass.get().getAttributes()
-                : Collections.<String>emptyList();
+                : List.of();
     }
 }

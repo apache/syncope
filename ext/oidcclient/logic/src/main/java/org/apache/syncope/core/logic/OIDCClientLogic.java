@@ -22,7 +22,6 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -301,7 +300,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         final List<String> matchingUsers = keyValue == null
-                ? Collections.<String>emptyList()
+                ? List.of()
                 : userManager.findMatchingUser(keyValue, op.getConnObjectKeyItem().get());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 

@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -253,7 +252,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         private static final long serialVersionUID = -3643771352897992172L;
 
-        private IModel<? extends Collection<T>> model = Model.of(Collections.<T>emptyList());
+        private IModel<? extends Collection<T>> model = Model.of(List.of());
 
         private final List<String> includes = new ArrayList<>();
 

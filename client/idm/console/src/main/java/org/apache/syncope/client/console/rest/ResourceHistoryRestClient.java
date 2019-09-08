@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
@@ -31,7 +30,7 @@ public class ResourceHistoryRestClient extends BaseRestClient {
     private static final long serialVersionUID = -5722829010510310887L;
 
     public List<ResourceHistoryConfTO> list(final String key) {
-        List<ResourceHistoryConfTO> resHistoryConfs = Collections.<ResourceHistoryConfTO>emptyList();
+        List<ResourceHistoryConfTO> resHistoryConfs = List.of();
         try {
             resHistoryConfs = getService(ResourceHistoryService.class).list(key);
         } catch (Exception e) {

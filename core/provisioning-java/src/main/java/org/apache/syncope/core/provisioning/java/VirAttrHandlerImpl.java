@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -152,11 +151,11 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 findAllowedSchemas(any, VirSchema.class).forSelfContains(schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
-            return Collections.emptyList();
+            return List.of();
         }
 
         List<String> result = getValues(any, Set.of(schema)).get(schema);
-        return result == null ? Collections.emptyList() : result;
+        return result == null ? List.of() : result;
     }
 
     @Override
@@ -165,11 +164,11 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 findAllowedSchemas(any, VirSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
-            return Collections.emptyList();
+            return List.of();
         }
 
         List<String> result = getValues(any, Set.of(schema)).get(schema);
-        return result == null ? Collections.emptyList() : result;
+        return result == null ? List.of() : result;
     }
 
     @Override

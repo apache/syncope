@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -211,7 +210,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public List<? extends Provision> getProvisions() {
-        return provisions == null ? Collections.emptyList() : provisions;
+        return provisions == null ? List.of() : provisions;
     }
 
     @Override

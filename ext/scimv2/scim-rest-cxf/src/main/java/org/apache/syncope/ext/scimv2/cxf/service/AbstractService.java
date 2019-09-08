@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Context;
@@ -203,7 +202,7 @@ abstract class AbstractService<R extends SCIMResource> {
 
         List<OrderByClause> sort;
         if (request.getSortBy() == null) {
-            sort = Collections.<OrderByClause>emptyList();
+            sort = List.of();
         } else {
             OrderByClause clause = new OrderByClause();
             clause.setField(visitor.createAttributeCond(request.getSortBy()).getSchema());

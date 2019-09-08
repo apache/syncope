@@ -200,7 +200,7 @@ public class PullUtils {
             }
         }
         if (connObjectKey == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
@@ -355,7 +355,7 @@ public class PullUtils {
                     : findByConnObjectKey(syncDelta, provision, anyUtils);
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
-            return Collections.<String>emptyList();
+            return List.of();
         }
     }
 
@@ -381,14 +381,14 @@ public class PullUtils {
             }
         }
         if (connObjectKey == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem.get(),
                     null,
-                    Collections.<Object>singletonList(connObjectKey));
+                    List.of(connObjectKey));
             if (output != null && !output.isEmpty()) {
                 connObjectKey = output.get(0).toString();
             }

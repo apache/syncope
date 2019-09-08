@@ -208,7 +208,7 @@ public abstract class EventCategoryPanel extends Panel {
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
                             Collections.<String>singleton(eventString),
-                            Collections.<String>emptySet()));
+                            Set.of()));
                     target.add(categoryContainer);
                 }
             }
@@ -234,7 +234,7 @@ public abstract class EventCategoryPanel extends Panel {
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
-                            Collections.<String>emptySet(),
+                            Set.of(),
                             Collections.<String>singleton(eventString)));
                     target.add(categoryContainer);
                 }
@@ -305,8 +305,8 @@ public abstract class EventCategoryPanel extends Panel {
                         eventCategoryTO.setCategory(null);
                         eventCategoryTO.setSubcategory(null);
                         if (type.getModelObject() == EventCategoryType.CUSTOM) {
-                            category.setChoices(Collections.<String>emptyList());
-                            subcategory.setChoices(Collections.<String>emptyList());
+                            category.setChoices(List.of());
+                            subcategory.setChoices(List.of());
                             category.setEnabled(false);
                             subcategory.setEnabled(false);
                             custom.setVisible(true);
@@ -315,7 +315,7 @@ public abstract class EventCategoryPanel extends Panel {
                             actionsPanel.setEnabled(true);
                         } else {
                             category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
-                            subcategory.setChoices(Collections.<String>emptyList());
+                            subcategory.setChoices(List.of());
                             category.setEnabled(true);
                             subcategory.setEnabled(true);
                             custom.setVisible(false);

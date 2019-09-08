@@ -132,7 +132,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.<ActionType>emptyList();
+        return List.of();
     }
 
     @Override

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,7 +37,7 @@ public class AllowedSchemas<S extends Schema> {
     }
 
     public Set<S> getForMembership(final Group group) {
-        return forMemberships.get(group) == null ? Collections.<S>emptySet() : forMemberships.get(group);
+        return forMemberships.get(group) == null ? Set.of() : forMemberships.get(group);
     }
 
     public Map<Group, Set<S>> getForMemberships() {

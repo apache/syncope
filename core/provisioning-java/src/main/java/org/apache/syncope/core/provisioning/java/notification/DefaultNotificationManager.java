@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.notification;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -184,7 +182,7 @@ public class DefaultNotificationManager implements NotificationManager {
         if (notification.getRecipientsFIQL() != null) {
             recipients.addAll(searchDAO.<User>search(
                     SearchCondConverter.convert(notification.getRecipientsFIQL()),
-                    Collections.<OrderByClause>emptyList(), AnyTypeKind.USER));
+                    List.of(), AnyTypeKind.USER));
         }
 
         if (notification.isSelfAsRecipient() && any instanceof User) {

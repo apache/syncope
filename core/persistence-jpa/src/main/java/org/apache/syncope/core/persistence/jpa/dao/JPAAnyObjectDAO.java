@@ -120,7 +120,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
         Set<String> authRealms = authorizations.containsKey(AnyEntitlement.READ.getFor(anyObject.getType().getKey()))
                 ? authorizations.get(AnyEntitlement.READ.getFor(anyObject.getType().getKey()))
-                : Collections.emptySet();
+                : Set.of();
         boolean authorized = authRealms.stream().
                 anyMatch(realm -> anyObject.getRealm().getFullPath().startsWith(realm));
         if (!authorized) {

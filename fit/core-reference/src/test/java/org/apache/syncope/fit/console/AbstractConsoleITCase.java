@@ -23,7 +23,7 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-import java.util.Collections;
+
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.PreviewUtils;
@@ -58,7 +58,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
         @Bean
         public List<WicketApplicationInitConfiguration> configurations() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         @Bean

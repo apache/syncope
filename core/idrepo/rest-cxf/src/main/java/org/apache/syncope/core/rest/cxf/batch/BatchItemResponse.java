@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -162,7 +161,7 @@ public class BatchItemResponse implements HttpServletResponse {
     public Collection<String> getHeaders(final String name) {
         return headers.containsKey(name)
                 ? headers.get(name).stream().map(Object::toString).collect(Collectors.toList())
-                : Collections.emptyList();
+                : List.of();
     }
 
     @Override

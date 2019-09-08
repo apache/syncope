@@ -19,7 +19,7 @@
 package org.apache.syncope.core.spring.security;
 
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
-import java.util.Collections;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -273,7 +273,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return result == null ? Collections.emptySet() : result;
+        return result == null ? Set.of() : result;
     }
 
     protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {
@@ -342,7 +342,7 @@ public class AuthDataAccessor {
         } else {
             User user = userDAO.findByUsername(username);
             if (user == null) {
-                authorities = Collections.emptySet();
+                authorities = Set.of();
             } else {
                 authorities = getUserAuthorities(user);
             }
@@ -376,7 +376,7 @@ public class AuthDataAccessor {
 
             User user = resolved.getLeft();
             username = user.getUsername();
-            authorities = resolved.getRight() == null ? Collections.emptySet() : resolved.getRight();
+            authorities = resolved.getRight() == null ? Set.of() : resolved.getRight();
             LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
                     authentication.getClaims().getTokenId(),
                     authentication.getClaims().getIssuer(),
