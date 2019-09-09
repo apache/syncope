@@ -502,7 +502,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                     uwfAdapter.getPrefix(),
                     gwfAdapter.getPrefix(),
                     awfAdapter.getPrefix());
-            LOG.debug("Interal storage content successfully exported");
+            LOG.debug("Internal storage content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting internal storage content", e);
         }
