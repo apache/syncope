@@ -58,6 +58,13 @@ under the License.
         <source>set MAVEN_OPTS=-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</source>
       </p>
       <p>
+	You will also need the <a href="https://linux.die.net/man/1/patch">patch</a> program, 
+	on RPM yum style linux systems this can be installed with:
+	<source>sudo yum install patch</source>
+	and on RPM dnf style systems:
+	<source>sudo dnf install patch</source>
+      </p>
+      <p>
         To build Syncope simply execute (from within the top-level source directory):
         <source>$ mvn clean install</source>
       </p>
