@@ -449,7 +449,7 @@ under the License.
     <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>
 
     <swagger-core.version>1.5.17</swagger-core.version>    
-    <swagger-ui.version>3.23.5</swagger-ui.version>
+    <swagger-ui.version>3.23.8</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.3.1-1</jquery.version>
@@ -470,7 +470,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>7.14.0</wicket.version>
+    <wicket.version>7.15.0</wicket.version>
     <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.18</wicket-bootstrap.version>
 
