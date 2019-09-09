@@ -436,7 +436,7 @@ under the License.
 
     <h2.version>1.4.199</h2.version>
 
-    <junit.version>5.5.1</junit.version>
+    <junit.version>5.5.2</junit.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
