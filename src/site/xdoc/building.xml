@@ -50,8 +50,10 @@ under the License.
         Before building Syncope, you need to setup an environment variable to give Maven more memory.
       </p>
       <p>
-        On Unix
+        On Unix with JDK up to version 8.0
         <source>export MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"</source>
+        On Unix with JDK up after 8.0
+        <source>export MAVEN_OPTS="-Xms512m -Xmx1024m"</source>
       </p>
       <p>
         On Windows
