@@ -444,7 +444,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.9</swagger-core.version>    
-    <swagger-ui.version>3.23.5</swagger-ui.version>
+    <swagger-ui.version>3.23.8</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.3.1-1</jquery.version>
@@ -465,7 +465,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>8.5.0</wicket.version>
+    <wicket.version>8.6.0</wicket.version>
     <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.10</wicket-bootstrap.version>
 
@@ -2141,7 +2141,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>1.8.0</version>
+        <version>1.9.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
