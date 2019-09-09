@@ -135,7 +135,7 @@ under the License.
   <jar src="lib/commons-lang3-@{commons-lang.version}.jar"/>
   <jar src="lib/httpclient-@{httpclient.version}.jar"/>
   <jar src="lib/httpmime-@{httpclient.version}.jar"/>
-  <jar src="lib/httpcore-4.4.11.jar"/>
+  <jar src="lib/httpcore-4.4.12.jar"/>
   <jar src="lib/jackson-databind-@{jackson.version}.jar"/>
   <jar src="lib/jackson-core-@{jackson.version}.jar"/>
   <jar src="lib/jackson-annotations-@{jackson.version}.jar"/>
