@@ -77,6 +77,14 @@ under the License.
   <!-- See http://checkstyle.sf.net/config_whitespace.html -->
   <module name="FileTabCharacter"/>
 
+  <!-- Checks for Size Violations.                    -->
+  <!-- See http://checkstyle.sf.net/config_sizes.html -->
+  <module name="LineLength">
+    <property name="max" value="120"/>
+    <property name="ignorePattern" value="^import"/>
+    <property name="fileExtensions" value="java,xml"/>
+  </module>
+  
   <!-- Miscellaneous other checks.                   -->
   <!-- See http://checkstyle.sf.net/config_misc.html -->
   <module name="RegexpSingleline">
@@ -145,10 +153,6 @@ under the License.
 
     <!-- Checks for Size Violations.                    -->
     <!-- See http://checkstyle.sf.net/config_sizes.html -->
-    <module name="LineLength">
-      <property name="max" value="120"/>
-      <property name="ignorePattern" value="^import"/>
-    </module>
     <!--<module name="MethodLength"/>-->
     <!--<module name="ParameterNumber"/>-->
 
