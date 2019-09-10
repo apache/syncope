@@ -37,12 +37,28 @@ under the License.
         <ul>
           <li>JDK 7 or higher for &le; 2.0; JDK 8 or higher for later versions</li>
           <li>
-            Latest <a href="http://maven.apache.org/download.html">Apache Maven</a></li>
+            Latest <a href="http://maven.apache.org/download.html">Apache Maven</a>
+          </li>
           <li>
             <a href="source-repository.html">Latest source code</a>
           </li>
         </ul>
       </p>
+
+      <subsection name="Additional tools">
+        <p>
+          The <a href="http://www.gnu.org/software/patch/patch.html">patch</a> program is needed.<br/>
+          
+          For Debian GNU / Linux and derivatives (as Ubuntu), install with
+          <source>sudo apt install patch</source>
+          On RPM yum style GNU / Linux systems, install with:
+          <source>sudo yum install patch</source>
+          On RPM dnf style GNU / Linux systems, install with:
+          <source>sudo dnf install patch</source>
+          On Windows you can find it in several distributions including
+          <a href="http://gnuwin32.sourceforge.net/packages/patch.htm">GNUWin32</a>
+        </p>        
+      </subsection>      
     </section>   
 
     <section name="Building Syncope">
@@ -50,12 +66,20 @@ under the License.
         Before building Syncope, you need to setup an environment variable to give Maven more memory.
       </p>
       <p>
-        On Unix
+        On Unix with JDK 7
         <source>export MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"</source>
       </p>
       <p>
-        On Windows
+        On Unix with JDK 8 or later
+        <source>export MAVEN_OPTS="-Xms512m -Xmx1024m"</source>
+      </p>
+      <p>
+        On Windows with JDK 7
         <source>set MAVEN_OPTS=-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</source>
+      </p>
+      <p>
+        On Windows with JDK 8 or later
+        <source>set MAVEN_OPTS=-Xms512m -Xmx1024m</source>
       </p>
       <p>
         To build Syncope simply execute (from within the top-level source directory):
@@ -71,13 +95,13 @@ under the License.
       </p>
 
       <subsection name="Code analysis">
-	After build, it is possible to examine code quality by submitting the generated reports to
-	a <a href="https://www.sonarqube.org/">SonarQube</a> instance.
-	Various installation methods are available, but the quicker seems to be via Docker:
-	<source>$ docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube</source>
-	Once SonarQube is up and runninig, submit the reports as follows:
-	<source>$ mvn sonar:sonar</source>
-	At the end, browse http://localhost:9000/dashboard?id=org.apache.syncope%3Asyncope to see results.
+        After build, it is possible to examine code quality by submitting the generated reports to
+        a <a href="https://www.sonarqube.org/">SonarQube</a> instance.
+        Various installation methods are available, but the quicker seems to be via Docker:
+        <source>$ docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube</source>
+        Once SonarQube is up and runninig, submit the reports as follows:
+        <source>$ mvn sonar:sonar</source>
+        At the end, browse http://localhost:9000/dashboard?id=org.apache.syncope%3Asyncope to see results.
       </subsection>
     </section>
     
@@ -197,7 +221,7 @@ under the License.
         <p>
           Once started in debug mode, the test cases can be executed as follows:
           <source>$ cd target/enduser-test
-$ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
+            $ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
           where the actual tests to be run can be selected by modifying the <code>protractor-conf.js</code> content.
         </p>
 
