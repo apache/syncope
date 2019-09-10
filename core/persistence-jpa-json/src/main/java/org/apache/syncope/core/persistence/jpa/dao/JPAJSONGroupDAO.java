@@ -19,12 +19,14 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class JPAJSONGroupDAO extends JPAGroupDAO {
@@ -49,9 +51,9 @@ public class JPAJSONGroupDAO extends JPAGroupDAO {
     }
 
     @Override
-    public Group findByPlainAttrUniqueValue(
+    public Optional<Group> findByPlainAttrUniqueValue(
             final PlainSchema schema,
-            final PlainAttrValue attrUniqueValue,
+            final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
         return anyDAO().findByPlainAttrUniqueValue(
