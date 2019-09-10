@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,12 +118,12 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findByAttributeValue() {
-        final UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
+    public void findByPlainAttrUniqueValue() {
+        final UPlainAttrUniqueValue fullnameValue = entityFactory.newEntity(UPlainAttrUniqueValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        final List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue);
-        assertEquals("did not get expected number of users", 1, list.size());
+        User user = userDAO.findByPlainAttrUniqueValue(plainSchemaDAO.find("fullname"), fullnameValue);
+        assertNotNull(user);
     }
 
     @Test

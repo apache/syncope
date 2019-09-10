@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -251,7 +252,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public A findByPlainAttrUniqueValue(final PlainSchema schema, final PlainAttrValue attrUniqueValue) {
+    public A findByPlainAttrUniqueValue(final PlainSchema schema, final PlainAttrUniqueValue attrUniqueValue) {
         if (schema == null) {
             LOG.error("No PlainSchema");
             return null;
@@ -264,7 +265,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         List<A> result = findByPlainAttrValue(schema, attrUniqueValue);
         return result.isEmpty()
                 ? null
-                : result.iterator().next();
+                : result.get(0);
     }
 
     /**

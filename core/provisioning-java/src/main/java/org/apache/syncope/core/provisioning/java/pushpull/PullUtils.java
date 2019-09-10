@@ -26,7 +26,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -38,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -246,22 +246,27 @@ public class PullUtils {
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
                 case PLAIN:
-                    PlainAttrValue value = anyUtils.newPlainAttrValue();
-
-                    if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
+                    PlainAttrValue value = intAttrName.getSchema().isUniqueConstraint()
+                            ? anyUtils.newPlainAttrUniqueValue()
+                            : anyUtils.newPlainAttrValue();
+                    try {
+                        value.parseValue((PlainSchema) intAttrName.getSchema(), connObjectKey);
+                    } catch (ParsingValidationException e) {
+                        LOG.error("While parsing provided __UID__ {}", value, e);
                         value.setStringValue(connObjectKey);
-                    } else {
-                        try {
-                            value.parseValue((PlainSchema) intAttrName.getSchema(), connObjectKey);
-                        } catch (ParsingValidationException e) {
-                            LOG.error("While parsing provided __UID__ {}", value, e);
-                            value.setStringValue(connObjectKey);
-                        }
                     }
 
-                    result.addAll(CollectionUtils.collect(
-                            anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(), value),
-                            EntityUtils.keyTransformer()));
+                    if (intAttrName.getSchema().isUniqueConstraint()) {
+                        Any<?> found = anyUtils.dao().findByPlainAttrUniqueValue(
+                                (PlainSchema) intAttrName.getSchema(), (PlainAttrUniqueValue) value);
+                        if (found != null) {
+                            result.add(found.getKey());
+                        }
+                    } else {
+                        result.addAll(CollectionUtils.collect(
+                                anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(), value),
+                                EntityUtils.keyTransformer()));
+                    }
                     break;
 
                 case DERIVED:
