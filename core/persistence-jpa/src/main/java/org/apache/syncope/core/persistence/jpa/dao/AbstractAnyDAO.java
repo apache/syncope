@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -227,24 +228,24 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public A findByPlainAttrUniqueValue(
+    public Optional<A> findByPlainAttrUniqueValue(
             final PlainSchema schema,
-            final PlainAttrValue attrUniqueValue,
+            final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return null;
+            return Optional.empty();
         }
         if (!schema.isUniqueConstraint()) {
             LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
-            return null;
+            return Optional.empty();
         }
 
         List<A> result = findByPlainAttrValue(schema, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
-                ? null
-                : result.get(0);
+                ? Optional.empty()
+                : Optional.of(result.get(0));
     }
 
     /**

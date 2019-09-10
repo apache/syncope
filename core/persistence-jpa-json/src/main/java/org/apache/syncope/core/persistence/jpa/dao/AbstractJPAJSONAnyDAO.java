@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
@@ -134,26 +136,26 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends Any<?>> A findByPlainAttrUniqueValue(
+    public <A extends Any<?>> Optional<A> findByPlainAttrUniqueValue(
             final String table,
             final AnyUtils anyUtils,
             final PlainSchema schema,
-            final PlainAttrValue attrUniqueValue,
+            final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return null;
+            return Optional.empty();
         }
         if (!schema.isUniqueConstraint()) {
             LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
-            return null;
+            return Optional.empty();
         }
 
         List<A> result = findByPlainAttrValue(table, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
-                ? null
-                : result.get(0);
+                ? Optional.empty()
+                : Optional.of(result.get(0));
     }
 
     /**

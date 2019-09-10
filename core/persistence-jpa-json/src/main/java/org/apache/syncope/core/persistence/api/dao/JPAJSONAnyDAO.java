@@ -19,9 +19,11 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
@@ -34,11 +36,11 @@ public interface JPAJSONAnyDAO {
             PlainAttrValue attrValue,
             boolean ignoreCaseMatch);
 
-    <A extends Any<?>> A findByPlainAttrUniqueValue(
+    <A extends Any<?>> Optional<A> findByPlainAttrUniqueValue(
             String table,
             AnyUtils anyUtils,
             PlainSchema schema,
-            PlainAttrValue attrUniqueValue,
+            PlainAttrUniqueValue attrUniqueValue,
             boolean ignoreCaseMatch);
 
     <A extends Any<?>> List<A> findByDerAttrValue(
