@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.conf;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Lob;
@@ -41,7 +40,6 @@ public class JPAJSONConf extends JPAConf implements JSONAny<Conf>, Conf {
     private static final long serialVersionUID = -8543654943709531885L;
 
     @Lob
-    @Column(columnDefinition = "jsonb")
     private String plainAttrs;
 
     @Transient
