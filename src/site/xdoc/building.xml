@@ -47,14 +47,21 @@ under the License.
 
       <subsection name="Additional tools">
         <p>
-          The <a href="http://www.gnu.org/software/patch/patch.html">patch</a> program is needed.<br/>
-          
+          The <a href="http://www.gnu.org/software/patch/patch.html">patch</a> program is needed.
+        </p>
+        <p>
           For Debian GNU / Linux and derivatives (as Ubuntu), install with
           <source>sudo apt install patch</source>
+        </p>
+        <p>
           On RPM yum style GNU / Linux systems, install with:
           <source>sudo yum install patch</source>
+        </p>
+        <p>
           On RPM dnf style GNU / Linux systems, install with:
           <source>sudo dnf install patch</source>
+        </p>
+        <p>
           On Windows you can find it in several distributions including
           <a href="http://gnuwin32.sourceforge.net/packages/patch.htm">GNUWin32</a>
         </p>        
@@ -156,6 +163,9 @@ under the License.
         <source>$ mvn -Photswap,all</source>
 
         <h4>DBMSes</h4>
+        <div class="alert alert-warning">
+          <p>The build profiles enlisted below require <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
 
         <h5>PostgreSQL</h5>
         Perform the full test suite against a real <a href="http://www.postgresql.org/">PostgreSQL</a> database via
@@ -195,6 +205,14 @@ under the License.
         Perform the full test suite by deploying Syncope core in 
         <a href="http://www.wildfly.org">Wildfly</a> via
         <source>$ mvn -Pwildfly-it</source>
+        
+        <h4>Elasticsearch</h4>
+        <div class="alert alert-warning">
+          <p>This build profile require <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
+
+        Perform the full test suite relying on a real <a href="https://www.elastic.co/">Elasticsearch</a> instance via
+        <source>$ mvn -Pelasticsearch-it</source>
       </subsection>
       
       <subsection name="fit/console-reference">
@@ -220,8 +238,7 @@ under the License.
 
         <p>
           Once started in debug mode, the test cases can be executed as follows:
-          <source>$ cd target/enduser-test
-            $ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
+          <source>$ cd target/enduser-test &amp;&amp; nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
           where the actual tests to be run can be selected by modifying the <code>protractor-conf.js</code> content.
         </p>
 
