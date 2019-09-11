@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -213,16 +214,14 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 + " m WHERE m.intAttrName=:intAttrName", MappingItem.class);
         query.setParameter("intAttrName", intAttrName);
 
-        Set<String> itemKeys = new HashSet<>();
-        query.getResultList().forEach(item -> itemKeys.add(item.getKey()));
-        itemKeys.stream().map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).
-                filter(item -> item != null).map(item -> {
-            item.getMapping().getItems().remove(item);
-            return item;
-        }).map(item -> {
-            item.setMapping(null);
-            return item;
-        }).forEachOrdered(item -> entityManager().remove(item));
+        query.getResultList().stream().
+                map(Entity::getKey).
+                map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).filter(Objects::nonNull).
+                forEach(item -> {
+                    item.getMapping().getItems().remove(item);
+                    item.setMapping(null);
+                    entityManager().remove(item);
+                });
 
         // Make empty query cache for *MappingItem and related *Mapping
         entityManager().getEntityManagerFactory().getCache().evict(JPAMappingItem.class);

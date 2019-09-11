@@ -85,7 +85,6 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
             memb.setDynRealm(null);
             itor.remove();
         }
-        dynRealmDAO.clearDynMembers(dynRealm);
 
         dynRealmTO.getDynMembershipConds().forEach((type, fiql) -> {
             AnyType anyType = anyTypeDAO.find(type);
