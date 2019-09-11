@@ -34,10 +34,7 @@ public interface DynRealmDAO extends DAO<DynRealm> {
 
     void delete(String key);
 
-    void clearDynMembers(DynRealm dynRealm);
-
     void refreshDynMemberships(Any<?> any);
 
     void removeDynMemberships(String anyKey);
-
 }
