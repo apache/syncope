@@ -17,18 +17,52 @@ sudo: false
 language: java
 jdk:
   - openjdk11
-before_install:
-  - echo 'MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
-# default install is mvn install --quiet -DskipTests=true
-install: travis_wait 30 mvn --show-version --quiet -T 1C -P all,skipTests
-before_script:
-  - cd fit/core-reference
-script:
-  # invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-  - mvn --show-version verify -Dinvoker.streamLogs=true
-after_failure:
-  - cat target/log/*
-  - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+cache:
+bundler: false
+cargo: false
+directories:
+  - $HOME/.m2
+git:
+  depth: 2
+matrix:
+  fast_finish: true
+env:
+  global:
+  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+install: true
 notifications:
   email:
     - dev@syncope.apache.org
+after_failure:
+  - cat target/log/*
+  - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+stages:
+  - initialize
+  - build
+  - validate
+  - test
+  - finalize
+jobs:
+  include:
+    - stage: initialize
+      script: mvn --show-version -T 4 clean dependency:go-offline dependency:resolve-plugins
+      name: "Initialize Build System"
+      #######################################################
+    - stage: build
+      script: mvn install --show-version --quiet -T 4 -P all,skipTests -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true
+      name: "Build"
+      #######################################################
+    - stage: validate
+      script: mvn checkstyle:check --show-version -T 4
+      name: "Checkstyle Analysis"
+    - stage: validate
+      script: mvn -T 4 javadoc:aggregate javadoc:test-aggregate 
+      name: "Javadoc Analysis"
+      ######################################################
+    # - stage: test
+    #   script: 
+    #   name: "Unit Tests"
+      ######################################################
+    # - stage: finalize
+    #   script: 
+    #   name: "Dependency Versions Report"
