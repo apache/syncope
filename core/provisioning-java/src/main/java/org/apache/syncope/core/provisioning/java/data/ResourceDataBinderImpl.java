@@ -203,10 +203,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 provision.setIgnoreCaseMatch(provisionTO.isIgnoreCaseMatch());
 
-                if (StringUtils.isNotBlank(provisionTO.getUidOnCreate())) {
+                if (StringUtils.isBlank(provisionTO.getUidOnCreate())) {
+                    provision.setUidOnCreate(null);
+                } else {
                     PlainSchema uidOnCreate = plainSchemaDAO.find(provisionTO.getUidOnCreate());
                     if (uidOnCreate == null) {
-                        LOG.warn("Ignoring invalid schema for uidOnCreate(): {}", provisionTO.getUidOnCreate());
+                        LOG.warn("Ignoring invalid schema for uidOnCreate: {}", provisionTO.getUidOnCreate());
+                        provision.setUidOnCreate(null);
                     } else {
                         provision.setUidOnCreate(uidOnCreate);
                     }
