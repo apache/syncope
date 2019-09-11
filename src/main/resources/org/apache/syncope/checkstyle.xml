@@ -47,7 +47,7 @@ under the License.
 -->
 <module name="Checker">
 
-  <property name="cacheFile" value="target/checkstyle.cache"/>
+  <property name="cacheFile" value="${basedir}/checkstyle.cache"/>
 
   <!--
         If you set the basedir property below, then all reported file

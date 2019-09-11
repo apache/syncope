@@ -70,7 +70,7 @@ under the License.
       <subsection name="ASF settings">
         <p>Using the instructions from the previous step encrypt your Apache Nexus repository password and add the 
           following servers to your 
-          <code>~/.m2/settings.xml</code> file. You may already have other servers in this file, if not just create
+          <tt>~/.m2/settings.xml</tt> file. You may already have other servers in this file, if not just create
           the file.
         </p>
 
@@ -115,13 +115,13 @@ under the License.
         In the following, read
         <dl>
           <dt>
-            <code>$VERSION</code>
+            <tt>$VERSION</tt>
           </dt>
           <dd>
             <p>the version being released</p>
           </dd>
           <dt>
-            <code>$SYNCOPE_RELEASE_DIR</code>
+            <tt>$SYNCOPE_RELEASE_DIR</tt>
           </dt>
           <dd>
             <p>
@@ -129,7 +129,7 @@ under the License.
             </p>
           </dd>
           <dt>
-            <code>$SYNCOPE_SITE_DIR</code>
+            <tt>$SYNCOPE_SITE_DIR</tt>
           </dt>
           <dd>
             <p>
@@ -157,30 +157,30 @@ under the License.
             <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            From <code>$SYNCOPE_RELEASE_DIR</code>, update the <code>CHANGES</code> file,
+            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update the <tt>CHANGES</tt> file,
             based on the text release reports from JIRA, then commit and push:
             <source><![CDATA[git commit -m "Updating CHANGES for release" CHANGES
 git push]]></source>
           </li>
           <li>
-            From <code>$SYNCOPE_RELEASE_DIR</code>, update
+            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update
             <ol>
               <li>
-                <code>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</code>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</tt>
               </li>
               <li>
-                <code>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</code>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</tt>
               </li>
               <li>
-                <code>ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/category.xml</code>
+                <tt>ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/category.xml</tt>
               </li>
             </ol>
-            with <code>$VERSION</code>, then commit and push:
+            with <tt>$VERSION</tt>, then commit and push:
             <source><![CDATA[git commit -a -m "Updating Eclipse files for release"
 git push]]></source>
           </li>
           <li>
-            From <code>$SYNCOPE_SITE_DIR</code>, update the <code>src/site/xdoc/downloads.xml</code>
+            From <tt>$SYNCOPE_SITE_DIR</tt>, update the <tt>src/site/xdoc/downloads.xml</tt>
             site page by changing the relevant URLs, then commit and push:
             <source><![CDATA[git commit -m "Updating downloads site page for release" src/site/xdoc/downloads.xml
 git push]]></source>
@@ -189,10 +189,10 @@ git push]]></source>
       </subsection>
       
       <subsection name="Prepare the release">
-        <p>Perform the steps below from <code>$SYNCOPE_RELEASE_DIR</code>.</p>
+        <p>Perform the steps below from <tt>$SYNCOPE_RELEASE_DIR</tt>.</p>
         <ol>
           <li>
-            Do a dry run of the <code>release:prepare</code> step.
+            Do a dry run of the <tt>release:prepare</tt> step.
             <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" -DdryRun=true</source>
 
             The dry run will not commit any changes and gives you the opportunity to verify that the 
@@ -200,27 +200,27 @@ git push]]></source>
           
             <p>
               <em>If you cancel a 
-                <code>release:prepare</code> before it updates the pom.xml versions, then use the 
-                <code>release:clean</code> goal to just remove the extra files that were created.
+                <tt>release:prepare</tt> before it updates the pom.xml versions, then use the
+                <tt>release:clean</tt> goal to just remove the extra files that were created.
               </em>
             </p>
           </li>
           <li>
             Verify that the release process completed as expected:
             <ol>
-              <li>The release plugin will create <code>pom.xml.tag</code> files which contain the changes that would 
-                have been committed. The only differences between <code>pom.xml.tag</code> and its corresponding 
-                <code>pom.xml</code> file should be the version number.
+              <li>The release plugin will create <tt>pom.xml.tag</tt> files which contain the changes that would
+                have been committed. The only differences between <tt>pom.xml.tag</tt> and its corresponding
+                <tt>pom.xml</tt> file should be the version number.
               </li>
               <li>
                 If other formatting changes have been made you should review the changes and then commit them:
                 <source>git commit -a -m "Fixing formatting for release"</source>
               </li>
               <li>
-                Assuming the <code>.tag</code> files look OK you may proceed and do any other validation you feel 
+                Assuming the <tt>.tag</tt> files look OK you may proceed and do any other validation you feel
                 necessary. The following list may be helpful:
                 <ol>
-                  <li>Check <code>release.properties</code> and make sure that the scm properties have the
+                  <li>Check <tt>release.properties</tt> and make sure that the scm properties have the
                     right version. Sometimes the scm location can be the previous version not the next version.
                   </li>
                   <li>
@@ -244,7 +244,7 @@ gpg: Signature made ...]]></source>
             </ol>
           </li>
           <li>
-            Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
+            Run the <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version
             information and optionally your GPG passphrase again.
             <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION"</source>
           </li>
@@ -378,7 +378,7 @@ svn copy docs/2.0/ $VERSION/docs/
 svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
-            From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
+            From <tt>$SYNCOPE_RELEASE_DIR</tt> execute (this step will create a maven staging repository):
             <source>mvn -P apache-release release:perform -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
@@ -401,14 +401,14 @@ svn commit -m "Staging site for release"]]></source>
                     <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
                   </li>
                   <li>Navigate through the artifact tree and make sure that all binary, 
-                    <code>javadoc</code>,
-                    <code>sources</code>, and 
-                    <code>tests</code> jars, as well as 
-                    <code>poms</code>s, ... have 
-                    <code>.asc</code> (GPG signature) and 
+                    <tt>javadoc</tt>,
+                    <tt>sources</tt>, and
+                    <tt>tests</tt> jars, as well as
+                    <tt>poms</tt>s, ... have
+                    <tt>.asc</tt> (GPG signature) and
                     files
                     <br/>
-                    The <code>syncope-$VERSION-source-release.zip</code> 
+                    The <tt>syncope-$VERSION-source-release.zip</tt>
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
@@ -425,7 +425,7 @@ svn commit -m "Staging site for release"]]></source>
                     <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
                   </li>
                   <li>Right click on the open 
-                    <code>org.apache.syncope-XXX</code> staging repo
+                    <tt>org.apache.syncope-XXX</tt> staging repo
                     and select 
                     <strong>Close</strong>.
                   </li>
@@ -434,19 +434,19 @@ svn commit -m "Staging site for release"]]></source>
             </ol>
           </li>
           <li>
-            Set the updated version for next development iteration (as provided above to <code>release:prepare</code>) in
+            Set the updated version for next development iteration (as provided above to <tt>release:prepare</tt>) in
             <ol>
               <li>
-                <code>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</code>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</tt>
               </li>
               <li>
-                <code>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</code>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</tt>
               </li>
               <li>
-                <code>ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/category.xml</code>
+                <tt>ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/category.xml</tt>
               </li>
               <li>
-                <code>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/pom.xml</code>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/pom.xml</tt>
               </li>
             </ol>
             then commit and push:
@@ -460,7 +460,7 @@ git push]]></source>
         <ol>
           <li>
             Create a 
-            <code>VOTE</code> email thread on 
+            <tt>VOTE</tt> email thread on
             <a href="mailto:dev@syncope.apache.org">syncope-dev</a> to record votes as replies, e.g.:
             <pre><![CDATA[
 To: dev@syncope.apache.org
@@ -547,7 +547,7 @@ Best regards.
                 <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
               </li>
               <li>Right click on the closed 
-                <code>org.apache.syncope-XXX</code> staging repo and select 
+                <tt>org.apache.syncope-XXX</tt> staging repo and select
                 <strong>Release</strong>.
               </li>
             </ol>
@@ -604,7 +604,7 @@ svn commit -m "Promoting the staging site"]]></source>
       <ol>
         <li>
           <p>Reply to the initial vote email prepending 
-            <code>[CANCELED]</code> to the original subject.
+            <tt>[CANCELED]</tt> to the original subject.
           </p>
         </li>
         <li>
@@ -624,7 +624,7 @@ svn commit -m "Promoting the staging site"]]></source>
         </li>
         <li>
           <p>Delete the GIT tag created by the 
-            <code>release:perform</code> step:
+            <tt>release:perform</tt> step:
           </p>
           <source>git tag -d $VERSION &amp;&amp; git push origin</source>
         </li>
@@ -646,7 +646,7 @@ svn commit -m "Promoting the staging site"]]></source>
               <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
             </li>
             <li>Right click on the closed 
-              <code>org.apache.syncope-XXX</code> staging repo and select 
+              <tt>org.apache.syncope-XXX</tt> staging repo and select
               <strong>Drop</strong>.
             </li>
           </ol>

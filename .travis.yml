@@ -30,15 +30,15 @@ env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
 install: true
-# notifications:
-#   email:
-#     - dev@syncope.apache.org
+notifications:
+  email:
+    - dev@syncope.apache.org
 # after_failure:
 #   - cat target/log/*
 #   - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
 # before_script:
-#   - cd fit/core-reference
-#   - mvn --show-version verify -Dinvoker.streamLogs=true
+#   -
+#   -
 # script:
 stages:
   - initialize
@@ -68,11 +68,14 @@ jobs:
     - stage: validate
       script: mvn -T 4 --quiet ianal:verify-legal-files -Denforcer.skip=true
       name: "Legal Files Analysis"
+    - stage: validate
+      script: mvn -T 4 --quiet modernizer:modernizer
+      name: "Modernizer Legacy API Analysis"
       ######################################################
-    # - stage: test
-    #   script: 
-    #   name: "Unit Tests"
-      ######################################################
+    - stage: test
+      script: mvn -f fit/core-reference/pom.xml verify --quiet -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true
+      name: "Full Integration Tests"
+      #####################################################
     - stage: finalize
       script: mvn -T 4 versions:display-dependency-updates versions:display-plugin-updates
       name: "Dependency Versions Report"

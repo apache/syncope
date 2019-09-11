@@ -29,7 +29,7 @@ under the License.
     <section name="Downloads">
       <p>Apache Syncope artifacts are distributed in source and binary form under the terms of the 
         <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
-        See the <code>LICENSE</code> and <code>NOTICE</code> files included in each artifact for additional license
+        See the <tt>LICENSE</tt> and <tt>NOTICE</tt> files included in each artifact for additional license
         information.
       </p>
       <p>Use the links below to download a distribution of Apache Syncope.

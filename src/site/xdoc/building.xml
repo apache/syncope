@@ -85,7 +85,7 @@ under the License.
       <p>
         To build Syncope documentation execute (from within the top-level source directory):
         <source>$ mvn -N -P site clean generate-resources</source>
-        The documentation artifacts are now be available under <code>target/generated-docs/</code>.
+        The documentation artifacts are now be available under <tt>target/generated-docs/</tt>.
       </p>
     </section>
 
@@ -104,9 +104,9 @@ under the License.
         <source>$ mvn clean verify -Pfull-it,all</source>
 
         <h4>Other Content-Type values</h4>
-        By default, integration tests are run using <code>application/json</code> for both <code>Accept</code> and
-        <code>Content-Type</code> HTTP headers; it is possible, however, to use <code>application/xml</code> or
-        <code>application/yaml</code>.
+        By default, integration tests are run using <tt>application/json</tt> for both <tt>Accept</tt> and
+        <tt>Content-Type</tt> HTTP headers; it is possible, however, to use <tt>application/xml</tt> or
+        <tt>application/yaml</tt>.
         <source>$ mvn clean verify -DjaxrsContentType=application/xml</source>
         <source>$ mvn clean verify -DjaxrsContentType=application/yaml</source>
         
@@ -198,7 +198,7 @@ under the License.
           Once started in debug mode, the test cases can be executed as follows:
           <source>$ cd target/enduser-test
 $ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
-          where the actual tests to be run can be selected by modifying the <code>protractor-conf.js</code> content.
+          where the actual tests to be run can be selected by modifying the <tt>protractor-conf.js</tt> content.
         </p>
 
         <h4>HotSwapAgent</h4>
