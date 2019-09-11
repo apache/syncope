@@ -49,19 +49,22 @@ stages:
 jobs:
   include:
     - stage: initialize
-      script: mvn --show-version -T 4 clean dependency:go-offline dependency:resolve-plugins --quiet
+      script: mvn --show-version -T 4 clean enforcer:enforce dependency:go-offline dependency:resolve-plugins --quiet
       name: "Initialize Build System"
       #######################################################
     - stage: build
-      script: mvn install --show-version -T 4 -P all,skipTests -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true
+      script: mvn install --show-version -T 4 -P all,skipTests,skipLegalFiles -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true -Denforcer.skip=true
       name: "Build"
       #######################################################
     - stage: validate
-      script: mvn checkstyle:check -T 4
+      script: mvn checkstyle:check -T 4 -Denforcer.skip=true
       name: "Checkstyle Analysis"
     - stage: validate
-      script: mvn -T 4 --quiet javadoc:aggregate javadoc:test-aggregate
+      script: mvn -T 4 --quiet javadoc:aggregate javadoc:test-aggregate -Denforcer.skip=true
       name: "Javadoc Analysis"
+    - stage: validate
+      script: mvn -T 4 --quiet ianal:verify-legal-files -Denforcer.skip=true
+      name: "Legal Files Analysis"
       ######################################################
     # - stage: test
     #   script: 
