@@ -99,8 +99,7 @@ public class ProvisionAuxClassesPanel extends Panel {
                 "uidOnCreate", new ResourceModel("uidOnCreate", "uidOnCreate").getObject(),
                 new PropertyModel<>(provision, "uidOnCreate"));
         uidOnCreate.setChoices(getSchemas(anyType, model.getObject()));
-        uidOnCreate.setOutputMarkupId(true).
-                setEnabled(provision != null);
+        uidOnCreate.setOutputMarkupId(true).setEnabled(provision != null);
         addOrReplace(uidOnCreate);
     }
 
