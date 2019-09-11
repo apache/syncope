@@ -2141,7 +2141,7 @@ under the License.
         <version>3.0.0-M2</version>
         <executions>
           <execution>
-            <id>enforce-maven</id>
+            <id>default-cli</id>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -2153,7 +2153,7 @@ under the License.
                 <requireMavenVersion>
                   <version>3.5.0</version>
                 </requireMavenVersion>
-              </rules>    
+              </rules> 
             </configuration>
           </execution>
         </executions>
@@ -2665,7 +2665,7 @@ under the License.
         <ianal.skip>true</ianal.skip>
       </properties>
     </profile>
-    
+
     <profile>
       <id>skipTests</id>
 
