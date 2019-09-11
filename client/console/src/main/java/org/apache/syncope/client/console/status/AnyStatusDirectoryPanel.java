@@ -342,7 +342,7 @@ public class AnyStatusDirectoryPanel
                 Collections.sort(statusBeans, comparator);
                 statusBeans.add(0, syncope);
             } else {
-                statusBeans.addAll(CollectionUtils.collect(CollectionUtils.subtract(resources, anyTO.getResources()),
+                statusBeans.addAll(CollectionUtils.collect(CollectionUtils.subtract(resources, actual.getResources()),
                         new Transformer<String, StatusBean>() {
 
                     @Override
