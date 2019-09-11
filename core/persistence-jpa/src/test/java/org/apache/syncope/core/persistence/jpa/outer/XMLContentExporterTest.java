@@ -42,7 +42,7 @@ public class XMLContentExporterTest extends AbstractTest {
     /**
      * Also checks for SYNCOPE-1307.
      *
-     * @throws Exception
+     * @throws Exception exception thrown when dealing with IO.
      */
     @Test
     public void issueSYNCOPE1128() throws Exception {

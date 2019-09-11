@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Domain-sensible (via {@code @Transactional} access to any type data for entitlement init.
  *
- * @see EntitlementLoader
+ * @see IdRepoEntitlementLoader
  */
 @Component
 public class EntitlementAccessor {

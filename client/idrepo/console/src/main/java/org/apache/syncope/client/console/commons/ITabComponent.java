@@ -65,9 +65,6 @@ public abstract class ITabComponent extends Component implements ITab {
         return true;
     }
 
-    /**
-     * @see org.apache.wicket.Component#onRender()
-     */
     @Override
     protected void onRender() {
         internalRenderComponent();

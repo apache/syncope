@@ -86,7 +86,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      * @param id The component id.
      * @param item model object.
      * @param model wizard model
-     * @param mode <tt>true</tt> if edit mode.
+     * @param mode {@code true} if edit mode.
      * @param pageRef caller page reference.
      */
     public AjaxWizard(
@@ -123,7 +123,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     /**
      * Add object outside the main container.
      * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide <tt>outer</tt> as id.
+     * Be sure to provide {@code outer} as id.
      *
      * @param childs components to be added.
      * @return the current panel instance.
@@ -175,9 +175,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     protected abstract long getMaxWaitTimeInSeconds();
 
-    /**
-     * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()
-     */
     @Override
     public final void onCancel() {
         AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
@@ -196,9 +193,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         }
     }
 
-    /**
-     * @see org.apache.wicket.extensions.wizard.Wizard#onFinish()
-     */
     @Override
     public final void onFinish() {
         AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);

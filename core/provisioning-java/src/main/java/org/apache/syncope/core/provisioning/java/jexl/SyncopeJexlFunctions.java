@@ -25,8 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utility functions for usage with JEXL engine.
- *
- * @see JexlUtils#getEngine()
  */
 public class SyncopeJexlFunctions {
 

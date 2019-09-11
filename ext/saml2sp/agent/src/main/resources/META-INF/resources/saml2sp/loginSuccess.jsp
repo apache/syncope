@@ -28,7 +28,7 @@ under the License.
     <h1>Welcome ${responseTO.username}</h1>
 
     <p>You have been successfully authenticated by the requested SAML 2.0 IdP with
-      <tt>NameID ${responseTO.nameID}</tt> and <tt>SessionIndex ${responseTO.sessionIndex}</tt>.</p>
+      <code>NameID ${responseTO.nameID}</code> and <code>SessionIndex ${responseTO.sessionIndex}</code>.</p>
     
     <p>Your current session is valid:</p>
     <ul>

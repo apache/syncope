@@ -46,7 +46,7 @@ import org.apache.wicket.model.util.ListModel;
 /**
  * Modal window with Display attributes form.
  *
- * @param <T> can be {@link AnyTO} or {@link org.apache.syncope.client.console.wizards.any.AnyWrapper}
+ * @param <T> can be {@link AnyTO} or {@link org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper}
  */
 public abstract class DisplayAttributesModalPanel<T extends Serializable> extends AbstractModalPanel<T> {
 

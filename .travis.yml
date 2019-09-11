@@ -50,10 +50,10 @@ jobs:
   include:
     - stage: initialize
       script: mvn --quiet --show-version -T 4 enforcer:enforce
-      name: "Enforce Platform Requirements"
+      name: "Verify Platform"
     - stage: initialize
       script: mvn -T 4 clean dependency:go-offline dependency:resolve-plugins --quiet -Denforcer.skip=true
-      name: "Initialize Build System"
+      name: "Warm Up Dependencies"
       #######################################################
     - stage: build
       script: mvn install --quiet -T 4 -P all,skipTests,skipLegalFiles -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true -Denforcer.skip=true
@@ -63,7 +63,7 @@ jobs:
       script: mvn checkstyle:check -T 4 -Denforcer.skip=true --quiet
       name: "Checkstyle Analysis"
     - stage: validate
-      script: mvn -T 4 --quiet javadoc:aggregate javadoc:test-aggregate -Denforcer.skip=true
+      script: mvn -T 4 --quiet javadoc:javadoc javadoc:test-javadoc -Denforcer.skip=true
       name: "Javadoc Analysis"
     - stage: validate
       script: mvn -T 4 --quiet ianal:verify-legal-files -Denforcer.skip=true
@@ -73,6 +73,6 @@ jobs:
     #   script: 
     #   name: "Unit Tests"
       ######################################################
-    # - stage: finalize
-    #   script: 
-    #   name: "Dependency Versions Report"
+    - stage: finalize
+      script: mvn -T 4 versions:display-dependency-updates versions:display-plugin-updates
+      name: "Dependency Versions Report"

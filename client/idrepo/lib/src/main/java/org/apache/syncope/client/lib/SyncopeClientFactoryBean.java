@@ -210,9 +210,9 @@ public class SyncopeClientFactoryBean {
     }
 
     /**
-     * Sets the given service instance for transparent gzip <tt>Content-Encoding</tt> handling.
+     * Sets the given service instance for transparent gzip {@code Content-Encoding} handling.
      *
-     * @param useCompression whether transparent gzip <tt>Content-Encoding</tt> handling is to be enabled
+     * @param useCompression whether transparent gzip {@code Content-Encoding} handling is to be enabled
      * @return the current instance
      */
     public SyncopeClientFactoryBean setUseCompression(final boolean useCompression) {

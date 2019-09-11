@@ -85,7 +85,7 @@ under the License.
       <p>
         To build Syncope documentation execute (from within the top-level source directory):
         <source>$ mvn -N -P site clean generate-resources</source>
-        The documentation artifacts are now be available under <tt>target/generated-docs/</tt>.
+        The documentation artifacts are now be available under <code>target/generated-docs/</code>.
       </p>
     </section>
 

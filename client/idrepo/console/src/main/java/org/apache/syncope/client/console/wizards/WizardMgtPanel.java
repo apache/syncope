@@ -313,7 +313,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     /**
      * Add object outside the main container.
      * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide <tt>outer</tt> as id.
+     * Be sure to provide {@code outer} as id.
      *
      * @param childs components to be added.
      * @return the current panel instance.

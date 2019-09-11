@@ -109,7 +109,7 @@ public class WorkflowFlowableContext {
     /**
      * This is called to generate unique identifiers for database entities used by Flowable.
      *
-     * Consider to switch to {@link import org.flowable.common.engine.impl.persistence.StrongUuidGenerator} in
+     * Consider to switch to {@link org.flowable.common.engine.impl.persistence.StrongUuidGenerator} in
      * high-demanding production environments.
      *
      * @return {@link IdGenerator} used by Flowable

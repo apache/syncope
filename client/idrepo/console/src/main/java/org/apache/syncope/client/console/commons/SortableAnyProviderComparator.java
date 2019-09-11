@@ -59,9 +59,6 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
             this.anyTO = anyTO;
         }
 
-        /**
-         * @see UserAttrColumn constructor
-         */
         @Override
         public Comparable getObject() {
             int hashPos = provider.getSort().getProperty().indexOf('#');

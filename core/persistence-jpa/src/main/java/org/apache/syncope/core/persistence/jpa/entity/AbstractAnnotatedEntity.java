@@ -38,7 +38,7 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
 
     /**
      * Username of the user that has created this profile.
-     * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
+     * Reference to existing user cannot be used: the creator can either be {@code admin} or was deleted.
      */
     private String creator;
 
@@ -52,13 +52,13 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
      * Username of the user that has performed the last modification to this profile.
      * This field cannot be null: at creation time it needs to be initialized with the creator username.
      * The modifier can be the user itself if the last performed change was a self-modification.
-     * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
+     * Reference to existing user cannot be used: the creator can either be {@code admin} or was deleted.
      */
     private String lastModifier;
 
     /**
      * Last change date.
-     * This field cannot be null: at creation time it needs to be initialized with <tt>creationDate</tt> field value.
+     * This field cannot be null: at creation time it needs to be initialized with {@code creationDate} field value.
      */
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastChangeDate;
