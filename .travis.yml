@@ -18,24 +18,28 @@ language: java
 jdk:
   - openjdk11
 cache:
-bundler: false
-cargo: false
-directories:
-  - $HOME/.m2
+  bundler: false
+  cargo: false
+  directories:
+    - $HOME/.m2
 git:
   depth: 2
 matrix:
   fast_finish: true
 env:
   global:
-  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
 install: true
 # notifications:
 #   email:
 #     - dev@syncope.apache.org
-after_failure:
-  - cat target/log/*
-  - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+# after_failure:
+#   - cat target/log/*
+#   - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+# before_script:
+#   - cd fit/core-reference
+#   - mvn --show-version verify -Dinvoker.streamLogs=true
+# script:
 stages:
   - initialize
   - build
@@ -49,14 +53,14 @@ jobs:
       name: "Initialize Build System"
       #######################################################
     - stage: build
-      script: mvn install --show-version --quiet -T 4 -P all,skipTests -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true
+      script: mvn install --show-version -T 4 -P all,skipTests -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true
       name: "Build"
       #######################################################
     - stage: validate
-      script: mvn checkstyle:check --show-version -T 4
+      script: mvn checkstyle:check -T 4
       name: "Checkstyle Analysis"
     - stage: validate
-      script: mvn -T 4 javadoc:aggregate javadoc:test-aggregate 
+      script: mvn -T 4 --quiet javadoc:aggregate javadoc:test-aggregate
       name: "Javadoc Analysis"
       ######################################################
     # - stage: test
