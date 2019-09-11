@@ -21,9 +21,11 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -43,7 +45,8 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
-    A findByPlainAttrUniqueValue(PlainSchema schema, PlainAttrValue attrUniqueValue, boolean ignoreCaseMatch);
+    Optional<A> findByPlainAttrUniqueValue(
+            PlainSchema schema, PlainAttrUniqueValue attrUniqueValue, boolean ignoreCaseMatch);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained

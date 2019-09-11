@@ -289,8 +289,7 @@ public class AnyStatusDirectoryPanel
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
                 List<Pair<String, ReconStatus>> statuses = List.of();
                 if (statusOnly) {
-                    statuses = ReconStatusUtils.
-                            getReconStatuses(anyTypeKind, anyTO.getKey(), List.of(resource));
+                    statuses = ReconStatusUtils.getReconStatuses(anyTypeKind, anyTO.getKey(), List.of(resource));
                 }
 
                 return StatusUtils.getStatusBean(actual,
@@ -331,7 +330,7 @@ public class AnyStatusDirectoryPanel
                 statusBeans.add(0, syncope);
             } else {
                 statusBeans.addAll(resources.stream().
-                        filter(resource -> !anyTO.getResources().contains(resource)).
+                        filter(resource -> !actual.getResources().contains(resource)).
                         map(resource -> {
                             StatusBean statusBean = StatusUtils.getStatusBean(actual,
                                     resource,

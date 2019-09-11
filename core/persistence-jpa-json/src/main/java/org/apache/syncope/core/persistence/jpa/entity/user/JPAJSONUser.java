@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Lob;
@@ -46,7 +45,6 @@ public class JPAJSONUser extends JPAUser implements JSONAny<User>, User {
     private static final long serialVersionUID = -8543654943709531885L;
 
     @Lob
-    @Column(columnDefinition = "jsonb")
     private String plainAttrs;
 
     @Transient

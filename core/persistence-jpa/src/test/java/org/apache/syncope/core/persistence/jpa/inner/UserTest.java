@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.junit.jupiter.api.Test;
@@ -147,16 +149,18 @@ public class UserTest extends AbstractTest {
         UPlainAttrUniqueValue fullnameValue = entityFactory.newEntity(UPlainAttrUniqueValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue, false);
-        assertEquals(1, list.size());
+        PlainSchema fullname = plainSchemaDAO.find("fullname");
+
+        Optional<User> found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, false);
+        assertTrue(found.isPresent());
 
         fullnameValue.setStringValue("Gioacchino ROSSINI");
 
-        list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue, false);
-        assertEquals(0, list.size());
+        found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, false);
+        assertFalse(found.isPresent());
 
-        list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("fullname"), fullnameValue, true);
-        assertEquals(1, list.size());
+        found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, true);
+        assertTrue(found.isPresent());
     }
 
     @Test
