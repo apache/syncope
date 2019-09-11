@@ -30,9 +30,9 @@ env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 install: true
-notifications:
-  email:
-    - dev@syncope.apache.org
+# notifications:
+#   email:
+#     - dev@syncope.apache.org
 after_failure:
   - cat target/log/*
   - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
@@ -45,7 +45,7 @@ stages:
 jobs:
   include:
     - stage: initialize
-      script: mvn --show-version -T 4 clean dependency:go-offline dependency:resolve-plugins
+      script: mvn --show-version -T 4 clean dependency:go-offline dependency:resolve-plugins --quiet
       name: "Initialize Build System"
       #######################################################
     - stage: build
