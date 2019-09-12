@@ -73,7 +73,7 @@ jobs:
       name: "Modernizer Legacy API Analysis"
       ######################################################
     - stage: test
-      script: mvn -f fit/core-reference/pom.xml verify --quiet -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true
+      script: travis_wait 30 mvn -f fit/core-reference/pom.xml verify -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true
       name: "Full Integration Tests"
       #####################################################
     - stage: finalize
