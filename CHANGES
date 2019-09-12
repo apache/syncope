@@ -2,6 +2,36 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.5
+================================================================================
+
+** Bug
+    * [SYNCOPE-1462] - Requests list is not refreshed if empty
+    * [SYNCOPE-1467] - RDN not allowed when an attribute of the group present also in the DN is changed
+    * [SYNCOPE-1469] - MySQL with JSON support: errors during startup
+    * [SYNCOPE-1470] - Flowable extension not working with MariaDB
+    * [SYNCOPE-1472] - Resource association is duplicated on database after update, assign or link operations
+    * [SYNCOPE-1474] - Resource is duplicated after batch operation
+    * [SYNCOPE-1476] - Error while creating Enum schema from Admin Console
+    * [SYNCOPE-1477] - jQuery UI's spinner not rendered
+    * [SYNCOPE-1478] - Unable to remove value of "Schema to hold values for identifiers generated upon Create by the external Identity Store" from provisioning
+    * [SYNCOPE-1480] - Elasticsearch:dynrealm assignment not updated on condition change
+    * [SYNCOPE-1481] - Invalid values when saving a membership attribute of type date
+    * [SYNCOPE-1484] - syncope-ide-netbeans submodule fails to find netbeans dependency
+    * [SYNCOPE-1485] - Reindex of elasticsearch ends with memory error in case of huge amount of data
+    * [SYNCOPE-1487] - Build Instructions do not say that the "patch" program is needed
+    * [SYNCOPE-1488] - Change to MVM Env for JDK > 8.00
+    * [SYNCOPE-1492] - Build Instructions are missing an EVN (DOCKER_HOST) needed for  mvn -Ppostgres-it 
+    * [SYNCOPE-1493] - Mapping unique schema as remote key never matches internal objects
+
+** Improvement
+    * [SYNCOPE-1463] - Improve UX enduser User Request management
+    * [SYNCOPE-1468] - Allow for configurable org.quartz.jobStore.misfireThreshold
+    * [SYNCOPE-1473] - Provide a PropagationActions to maintain a conservative membership policy management
+
+** Task
+    * [SYNCOPE-1464] - Upgrade to Apache Netbeans Maven dependencies
+
 Release Notes - Syncope - Version 2.1.4
 ================================================================================
 
