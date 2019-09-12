@@ -83,6 +83,7 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
 
 @Component
@@ -280,7 +281,7 @@ public class RouteProvider {
 
             case SET_REQUEST_SIZE:
                 filter = ctx.getBean(RequestSizeGatewayFilterFactory.class).
-                        apply(c -> c.setMaxSize(Long.valueOf(gwfilter.getArgs().trim())));
+                        apply(c -> c.setMaxSize(DataSize.ofBytes(Long.valueOf(gwfilter.getArgs().trim()))));
                 break;
 
             case CUSTOM:
