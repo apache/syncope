@@ -45,6 +45,7 @@ stages:
   - build
   - validate
   - test
+  - fit
   - finalize
 jobs:
   include:
@@ -73,9 +74,13 @@ jobs:
       name: "Modernizer Legacy API Analysis"
       ######################################################
     - stage: test
+      script: mvn clean test --quiet -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true
+      name: "Unit Tests"
+      ######################################################
+    - stage: fit
       script: mvn -f fit/core-reference/pom.xml verify --quiet -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true
       name: "Full Integration Tests"
       #####################################################
     - stage: finalize
-      script: mvn -T 4 versions:display-dependency-updates versions:display-plugin-updates
+      script: mvn -T 4 --quiet versions:display-dependency-updates versions:display-plugin-updates
       name: "Dependency Versions Report"
