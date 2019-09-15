@@ -72,7 +72,7 @@ public class ProvisionProducer extends AbstractProducer {
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-            exchange.getOut().setBody(reporter.getStatuses());
+            exchange.getMessage().setBody(reporter.getStatuses());
         } else {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -92,7 +92,7 @@ public class ProvisionProducer extends AbstractProducer {
                     null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-            exchange.getOut().setBody(reporter.getStatuses());
+            exchange.getMessage().setBody(reporter.getStatuses());
         }
     }
 }

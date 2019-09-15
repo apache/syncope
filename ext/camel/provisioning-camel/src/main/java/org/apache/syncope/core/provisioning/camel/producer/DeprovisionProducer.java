@@ -73,7 +73,7 @@ public class DeprovisionProducer extends AbstractProducer {
                             userDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
                     propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
-                    exchange.getOut().setBody(propagationReporter.getStatuses());
+                    exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
                 case GROUP:
@@ -85,7 +85,7 @@ public class DeprovisionProducer extends AbstractProducer {
                             groupDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
                     propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
-                    exchange.getOut().setBody(propagationReporter.getStatuses());
+                    exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
                 case ANY_OBJECT:
@@ -97,7 +97,7 @@ public class DeprovisionProducer extends AbstractProducer {
                             anyObjectDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
                     propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
-                    exchange.getOut().setBody(propagationReporter.getStatuses());
+                    exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
                 default:

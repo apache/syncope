@@ -61,7 +61,7 @@ public class CreateProducer extends AbstractProducer {
                         excludedResources);
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                exchange.getOut().setBody(
+                exchange.getMessage().setBody(
                         Pair.of(created.getResult().getKey(), reporter.getStatuses()));
             } else if (actual instanceof AnyCR) {
                 WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
@@ -80,7 +80,7 @@ public class CreateProducer extends AbstractProducer {
                             excludedResources);
                     getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                    exchange.getOut().setBody(Pair.of(created.getResult(), null));
+                    exchange.getMessage().setBody(Pair.of(created.getResult(), null));
                 } else {
                     List<PropagationTaskInfo> taskInfos = getPropagationManager().getCreateTasks(
                             actual instanceof AnyObjectCR ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
@@ -91,7 +91,7 @@ public class CreateProducer extends AbstractProducer {
                             excludedResources);
                     PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                    exchange.getOut().setBody(Pair.of(created.getResult(), reporter.getStatuses()));
+                    exchange.getMessage().setBody(Pair.of(created.getResult(), reporter.getStatuses()));
                 }
             }
         }
