@@ -29,6 +29,7 @@ matrix:
 env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
+  - CMD_DEPENDENCY_VERSION="travis_wait 45 mvn -T 4 --quiet versions:display-dependency-updates versions:display-plugin-updates"
 install: true
 notifications:
   email:
@@ -48,6 +49,8 @@ stages:
   - fit
   - finalize
 jobs:
+  allow_failures:
+    - script: eval $CMD_DEPENDENCY_VERSION
   include:
     - stage: initialize
       script: mvn --quiet --show-version -T 4 enforcer:enforce
@@ -74,7 +77,7 @@ jobs:
       name: "Modernizer Legacy API Analysis"
       ######################################################
     - stage: test
-      script: mvn clean test -T 4 -P skipLegalFiles -T 4 --quiet -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true
+      script: mvn clean test -T 4 -P skipLegalFiles,skipSass -T 4 --quiet -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true
       name: "Unit Tests"
       ######################################################
     - stage: fit
@@ -82,5 +85,5 @@ jobs:
       name: "Full Integration Tests"
       #####################################################
     - stage: finalize
-      script: mvn -T 4 --quiet versions:display-dependency-updates versions:display-plugin-updates
+      script: eval $CMD_DEPENDENCY_VERSION
       name: "Dependency Versions Report"
