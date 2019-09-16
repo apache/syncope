@@ -56,9 +56,6 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         return this;
     }
 
-    /**
-     * {@inheritDoc }
-     */
     @Override
     public AjaxWizard<T> build(final String id, final int index, final AjaxWizard.Mode mode) {
         final AjaxWizard<T> wizard = build(id, mode);

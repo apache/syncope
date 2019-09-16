@@ -28,7 +28,7 @@ import org.apache.wicket.PageReference;
  * Modal window with Display group attributes form.
  *
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
- * {@link org.apache.syncope.client.console.wizards.any.AnyWrapper}
+ * {@link org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper}
  */
 public class GroupDisplayAttributesModalPanel<T extends Serializable> extends DisplayAttributesModalPanel<T> {
 

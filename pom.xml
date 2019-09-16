@@ -526,6 +526,8 @@ under the License.
     -->
     <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
 
+    <ianal.skip>false</ianal.skip>
+    <skip.sass>false</skip.sass>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.jacoco.utReportPath>${rootpom.basedir}/target/jacoco.ut.exec</sonar.jacoco.utReportPath>
     <sonar.jacoco.itReportPath>${rootpom.basedir}/target/jacoco.it.exec</sonar.jacoco.itReportPath>
@@ -2096,7 +2098,7 @@ under the License.
         <version>3.0.0-M2</version>
         <executions>
           <execution>
-            <id>enforce-maven</id>
+            <id>default-cli</id>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -2108,7 +2110,7 @@ under the License.
                 <requireMavenVersion>
                   <version>3.5.0</version>
                 </requireMavenVersion>
-              </rules>    
+              </rules> 
             </configuration>
           </execution>
         </executions>
@@ -2343,6 +2345,7 @@ under the License.
             <configuration>
               <!-- Fail the build if any artifacts are missing legal files -->
               <strict>true</strict>
+              <skip>${ianal.skip}</skip>
             </configuration>
           </execution>
         </executions>
@@ -2611,6 +2614,20 @@ under the License.
       </build>
     </profile>
 
+    <profile>
+      <id>skipLegalFiles</id>
+      <properties>
+        <ianal.skip>true</ianal.skip>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>skipSass</id>
+      <properties>
+        <skip.sass>true</skip.sass>
+      </properties>
+    </profile>
+    
     <profile>
       <id>skipTests</id>
 

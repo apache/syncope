@@ -128,7 +128,7 @@ under the License.
 
       <subsection name="CVE-2018-1322: Information disclosure via FIQL and ORDER BY sorting">	
         <p>An administrator with user search entitlements can recover sensitive security values using the
-          <code>fiql</code> and <code>orderby</code> parameters.</p>
+          <tt>fiql</tt> and <tt>orderby</tt> parameters.</p>
 
         <p>
           <b>Severity</b>

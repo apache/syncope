@@ -160,7 +160,6 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
      *
      * @param item item to attach.
      * @return updated FieldPanel object.
-     * @see MultiFieldPanel
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public FieldPanel<T> setNewModel(final ListItem item) {

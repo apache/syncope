@@ -191,7 +191,7 @@ public class PropagationByResource implements Serializable {
      * collection.
      *
      * @param resourceKeys collection containing resource names to be retained in the underlying resource name sets
-     * @return <tt>true</tt> if the underlying resource name sets changed as a result of the call
+     * @return {@code true} if the underlying resource name sets changed as a result of the call
      * @see Collection#removeAll(java.util.Collection)
      */
     public boolean removeAll(final Collection<String> resourceKeys) {
@@ -205,7 +205,7 @@ public class PropagationByResource implements Serializable {
      * collection.
      *
      * @param resourceKeys collection containing resource names to be retained in the underlying resource name sets
-     * @return <tt>true</tt> if the underlying resource name sets changed as a result of the call
+     * @return {@code true} if the underlying resource name sets changed as a result of the call
      * @see Collection#retainAll(java.util.Collection)
      */
     public boolean retainAll(final Collection<String> resourceKeys) {

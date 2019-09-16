@@ -61,7 +61,7 @@ public class WADLServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP {@code GET} method.
      *
      * @param request servlet request
      * @param response servlet response
