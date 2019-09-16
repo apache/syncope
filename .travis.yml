@@ -29,28 +29,17 @@ matrix:
 env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
-  - CMD_DEPENDENCY_VERSION="travis_wait 45 mvn -T 4 --quiet versions:display-dependency-updates versions:display-plugin-updates"
 install: true
-notifications:
-  email:
-    - dev@syncope.apache.org
-# after_failure:
-#   - cat target/log/*
-#   - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
-# before_script:
-#   -
-#   -
-# script:
+# notifications:
+#   email:
+#     - dev@syncope.apache.org
 stages:
   - initialize
   - build
   - validate
   - test
   - fit
-  - finalize
 jobs:
-  allow_failures:
-    - script: eval $CMD_DEPENDENCY_VERSION
   include:
     - stage: initialize
       script: mvn --quiet --show-version -T 4 enforcer:enforce
@@ -84,6 +73,6 @@ jobs:
       script: travis_wait 30 mvn -f fit/core-reference/pom.xml verify -P skipLegalFiles,skipSass -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true
       name: "Full Integration Tests"
       #####################################################
-    - stage: finalize
-      script: eval $CMD_DEPENDENCY_VERSION
-      name: "Dependency Versions Report"
+  after_failure:
+    - cat fit/core-reference/target/log/*
+    - cat fit/core-reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
