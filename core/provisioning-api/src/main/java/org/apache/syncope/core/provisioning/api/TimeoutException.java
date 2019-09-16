@@ -24,7 +24,7 @@ public class TimeoutException extends RuntimeException {
 
     /**
      * Creates a new instance of
-     * <code>TimeoutException</code> without detail message.
+     * {@code TimeoutException} without detail message.
      */
     public TimeoutException() {
         super();
@@ -32,7 +32,7 @@ public class TimeoutException extends RuntimeException {
 
     /**
      * Constructs an instance of
-     * <code>TimeoutException</code> with the specified detail message.
+     * {@code TimeoutException} with the specified detail message.
      *
      * @param msg the detail message.
      */

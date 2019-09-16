@@ -60,7 +60,7 @@ public class InvalidEntityException extends ValidationException {
     }
 
     /**
-     * Constructs a map of violations out of given <tt>ConstraintViolation</tt> set.
+     * Constructs a map of violations out of given {@code ConstraintViolation} set.
      *
      * @param entityClassSimpleName simple class name of invalid entity
      * @param violations as returned by bean validation

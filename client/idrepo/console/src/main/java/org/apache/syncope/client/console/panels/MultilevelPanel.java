@@ -103,7 +103,7 @@ public class MultilevelPanel extends Panel implements IHeaderContributor {
     }
 
     /**
-     * Add panel with id <tt>first</tt>
+     * Add panel with id {@code first}
      *
      * @param panel panel to be used into the first level.
      * @return the current MultilevelPanel instance.

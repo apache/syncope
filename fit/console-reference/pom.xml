@@ -34,6 +34,8 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
+    <ianal.skip>true</ianal.skip>
+
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
@@ -175,14 +177,6 @@ under the License.
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>

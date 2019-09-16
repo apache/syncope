@@ -39,7 +39,7 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
     /**
      * Username of the user that has created this profile.
      * <p>
-     * Cannot be used a reference to an existing user for two main reasons: the creator can be the user <tt>admin</tt>;
+     * Cannot be used a reference to an existing user for two main reasons: the creator can be the user {@code admin};
      * the creator could have been removed.
      */
     private String creator;
@@ -56,7 +56,7 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
      * <p>
      * The modifier can be the user itself whether the last performed change has been a self-modification.
      * <p>
-     * Cannot be used a reference to an existing user for two main reasons: the modifier can be the user <tt>admin</tt>;
+     * Cannot be used a reference to an existing user for two main reasons: the modifier can be the user {@code admin};
      * the modifier could have been removed.
      */
     private String lastModifier;
@@ -64,7 +64,7 @@ public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO
     /**
      * Last change date.
      * <p>
-     * This field cannot be null: at creation time it has to be initialized with <tt>creationDate</tt> field value.
+     * This field cannot be null: at creation time it has to be initialized with {@code creationDate} field value.
      */
     private Date lastChangeDate;
 

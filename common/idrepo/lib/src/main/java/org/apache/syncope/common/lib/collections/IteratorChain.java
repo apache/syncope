@@ -100,7 +100,7 @@ public class IteratorChain<E> implements Iterator<E> {
     }
 
     /**
-     * Constructs a new <code>IteratorChain</code> over the two given iterators.
+     * Constructs a new {@code IteratorChain} over the two given iterators.
      *
      * This method takes two iterators. The newly constructed iterator will
      * iterate through each one of the input iterators in turn.
@@ -116,7 +116,7 @@ public class IteratorChain<E> implements Iterator<E> {
     }
 
     /**
-     * Constructs a new <code>IteratorChain</code> over the array of iterators.
+     * Constructs a new {@code IteratorChain} over the array of iterators.
      *
      * This method takes an array of iterators. The newly constructed iterator
      * will iterate through each one of the input iterators in turn.
@@ -133,7 +133,7 @@ public class IteratorChain<E> implements Iterator<E> {
     }
 
     /**
-     * Constructs a new <code>IteratorChain</code> over the collection of
+     * Constructs a new {@code IteratorChain} over the collection of
      * iterators.
      *
      * This method takes a collection of iterators. The newly constructed

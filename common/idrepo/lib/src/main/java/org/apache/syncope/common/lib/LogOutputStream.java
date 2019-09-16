@@ -57,7 +57,6 @@ public class LogOutputStream extends OutputStream {
      * detected.
      *
      * @param cc data to log (byte).
-     * @see OutputStream#write(int)
      */
     @Override
     public void write(final int cc) {
@@ -75,7 +74,6 @@ public class LogOutputStream extends OutputStream {
     /**
      * Flush this log stream.
      *
-     * @see OutputStream#flush()
      */
     @Override
     public void flush() {
@@ -104,7 +102,6 @@ public class LogOutputStream extends OutputStream {
      * @param b the array containing the data
      * @param off the offset into the array where data starts
      * @param len the length of block
-     * @see OutputStream#write(byte[], int, int)
      */
     @Override
     public void write(final byte[] b, final int off, final int len) {

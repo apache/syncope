@@ -134,9 +134,6 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void setSAXConsumer(final SAXConsumer consumer) {
         TransformerHandler transformerHandler;

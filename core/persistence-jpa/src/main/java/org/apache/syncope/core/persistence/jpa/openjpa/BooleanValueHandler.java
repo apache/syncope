@@ -41,11 +41,10 @@ public class BooleanValueHandler extends AbstractValueHandler {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @Deprecated
+     * @deprecated
      */
     @Override
+    @Deprecated
     public Column[] map(final ValueMapping vm, final String name, final ColumnIO io, final boolean adapt) {
         DBDictionary dict = vm.getMappingRepository().getDBDictionary();
         DBIdentifier colName = DBIdentifier.newColumn(name, Optional.ofNullable(dict)
