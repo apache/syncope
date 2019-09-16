@@ -2254,8 +2254,6 @@ under the License.
             <exclude>.idea/**</exclude>
             <exclude>**/.settings/**</exclude>
             <exclude>**/.*</exclude>
-            <exclude>**/deb/control/conffiles</exclude>
-            <exclude>**/deb/control/control</exclude>
             <exclude>**/*.lst</exclude>
             <exclude>**/*.json</exclude>
             <exclude>**/banner.txt</exclude>
@@ -2678,7 +2676,6 @@ under the License.
     <module>ext</module>
     <module>archetype</module>
     <module>standalone</module>
-    <module>deb</module>
     <module>ide</module>
   </modules>
 
