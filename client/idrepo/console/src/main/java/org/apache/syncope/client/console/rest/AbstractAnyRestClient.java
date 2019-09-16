@@ -72,7 +72,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
         return result;
     }
 
-    private List<BatchResponseItem> parseBatchResponse(final Response response) throws IOException {
+    private static List<BatchResponseItem> parseBatchResponse(final Response response) throws IOException {
         return BatchPayloadParser.parse(
                 (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
     }

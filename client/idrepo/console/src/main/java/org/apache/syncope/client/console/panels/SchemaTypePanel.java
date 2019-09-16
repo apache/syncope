@@ -245,10 +245,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
             keyword = payload.getKeyword();
             if (!keyword.startsWith("*")) {
-                keyword = "*" + keyword;
+                keyword = '*' + keyword;
             }
             if (!keyword.endsWith("*")) {
-                keyword = keyword + "*";
+                keyword = keyword + '*';
             }
 
             updateResultTable(target);

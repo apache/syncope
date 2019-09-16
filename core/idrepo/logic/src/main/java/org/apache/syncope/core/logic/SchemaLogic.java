@@ -229,7 +229,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case VIRTUAL:
                 VirSchema virSchema = virSchemaDAO.find(schemaTO.getKey());
                 if (virSchema == null) {
-                    throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + "'");
+                    throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + '\'');
                 }
 
                 virSchemaDAO.save(binder.update((VirSchemaTO) schemaTO, virSchema));
@@ -238,7 +238,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case DERIVED:
                 DerSchema derSchema = derSchemaDAO.find(schemaTO.getKey());
                 if (derSchema == null) {
-                    throw new NotFoundException("Derived schema '" + schemaTO.getKey() + "'");
+                    throw new NotFoundException("Derived schema '" + schemaTO.getKey() + '\'');
                 }
 
                 derSchemaDAO.save(binder.update((DerSchemaTO) schemaTO, derSchema));
@@ -248,7 +248,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             default:
                 PlainSchema plainSchema = plainSchemaDAO.find(schemaTO.getKey());
                 if (plainSchema == null) {
-                    throw new NotFoundException("Schema '" + schemaTO.getKey() + "'");
+                    throw new NotFoundException("Schema '" + schemaTO.getKey() + '\'');
                 }
 
                 plainSchemaDAO.save(binder.update((PlainSchemaTO) schemaTO, plainSchema));

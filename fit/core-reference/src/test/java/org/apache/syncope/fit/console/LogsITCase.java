@@ -97,7 +97,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
     }
 
-    private Component searchLog(final String property, final String searchPath, final String key) {
+    private static Component searchLog(final String property, final String searchPath, final String key) {
         Component component = UTILITY_UI.getTester().getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().

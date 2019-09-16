@@ -150,7 +150,7 @@ public class DashboardOverviewPanel extends Panel {
         });
     }
 
-    private Triple<Integer, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
+    private static Triple<Integer, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
         int number;
         String label;
         String icon;
@@ -166,7 +166,7 @@ public class DashboardOverviewPanel extends Panel {
         return Triple.of(number, label, icon);
     }
 
-    private Triple<Integer, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
+    private static Triple<Integer, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
         int number;
         String label;
         String icon;

@@ -114,7 +114,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public ConnInstanceTO delete(final String key) {
         ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + "'");
+            throw new NotFoundException("Connector '" + key + '\'');
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -161,7 +161,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + "'");
+            throw new NotFoundException("Connector '" + key + '\'');
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -247,7 +247,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceName + '\'');
         }
         ConnInstanceTO connInstance = binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
         connInstance.setKey(resource.getConnector().getKey());

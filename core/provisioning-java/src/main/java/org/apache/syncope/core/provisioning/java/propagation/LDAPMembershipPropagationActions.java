@@ -136,7 +136,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
         }
     }
 
-    private String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
+    private static String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
         LOG.debug("Evaluating connObjectLink for {}", group);
 
         JexlContext jexlContext = new MapContext();

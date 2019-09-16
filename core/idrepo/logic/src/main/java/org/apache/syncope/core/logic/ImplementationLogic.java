@@ -77,7 +77,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     @Autowired
     private NotificationDAO notificationDAO;
 
-    private void checkType(final String type) {
+    private static void checkType(final String type) {
         if (!ImplementationTypesHolder.getInstance().getValues().containsKey(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementationType);
             sce.getElements().add("Implementation type not found: ");
@@ -101,7 +101,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {
-            LOG.error("Could not find implementation '" + key + "'");
+            LOG.error("Could not find implementation '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -137,7 +137,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     public ImplementationTO update(final ImplementationTO implementationTO) {
         Implementation implementation = implementationDAO.find(implementationTO.getKey());
         if (implementation == null) {
-            LOG.error("Could not find implementation '" + implementationTO.getKey() + "'");
+            LOG.error("Could not find implementation '" + implementationTO.getKey() + '\'');
 
             throw new NotFoundException(implementationTO.getKey());
         }
@@ -154,7 +154,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     public void delete(final String type, final String key) {
         Implementation implementation = implementationDAO.find(key);
         if (implementation == null) {
-            LOG.error("Could not find implementation '" + key + "'");
+            LOG.error("Could not find implementation '" + key + '\'');
 
             throw new NotFoundException(key);
         }

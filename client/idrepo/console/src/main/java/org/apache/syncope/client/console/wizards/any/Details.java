@@ -86,7 +86,7 @@ public class Details<T extends AnyTO> extends WizardStep {
         return new AnnotatedBeanPanel(id, anyTO);
     }
 
-    private List<RealmTO> getRealmsFromLinks(final List<AbstractLink> realmLinks) {
+    private static List<RealmTO> getRealmsFromLinks(final List<AbstractLink> realmLinks) {
         List<RealmTO> realms = new ArrayList<>();
 
         realmLinks.stream().

@@ -217,7 +217,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return parameters.size();
     }
 
-    private void fillWithParameters(final Query query, final List<Object> parameters) {
+    private static void fillWithParameters(final Query query, final List<Object> parameters) {
         for (int i = 0; i < parameters.size(); i++) {
             if (parameters.get(i) instanceof Date) {
                 query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
@@ -231,7 +231,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
     }
 
-    private StringBuilder buildSelect(final OrderBySupport obs) {
+    private static StringBuilder buildSelect(final OrderBySupport obs) {
         StringBuilder select = new StringBuilder("SELECT DISTINCT u.any_id");
 
         obs.items.forEach(item -> select.append(',').append(item.select));
@@ -264,10 +264,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         } else {
                             attrWhere.append(" OR ");
                         }
-                        attrWhere.append("schema_id='").append(field).append("'");
+                        attrWhere.append("schema_id='").append(field).append('\'');
 
                         nullAttrWhere.append(" UNION SELECT any_id, ").
-                                append("'").
+                                append('\'').
                                 append(field).
                                 append("' AS schema_id, ").
                                 append("null AS booleanvalue, ").
@@ -309,7 +309,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return where;
     }
 
-    private StringBuilder buildOrderBy(final OrderBySupport obs) {
+    private static StringBuilder buildOrderBy(final OrderBySupport obs) {
         StringBuilder orderBy = new StringBuilder();
 
         obs.items.forEach(item -> orderBy.append(item.orderBy).append(','));
@@ -371,8 +371,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     append(" AS ").append(fieldName).toString();
             item.where = new StringBuilder().
                     append(svs.asSearchViewSupport().uniqueAttr().alias).
-                    append(".schema_id='").append(fieldName).append("'").toString();
-            item.orderBy = fieldName + " " + clause.getDirection().name();
+                    append(".schema_id='").append(fieldName).append('\'').toString();
+            item.orderBy = fieldName + ' ' + clause.getDirection().name();
         } else {
             obs.views.add(svs.asSearchViewSupport().attr());
 
@@ -381,8 +381,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     append(" AS ").append(fieldName).toString();
             item.where = new StringBuilder().
                     append(svs.asSearchViewSupport().attr().alias).
-                    append(".schema_id='").append(fieldName).append("'").toString();
-            item.orderBy = fieldName + " " + clause.getDirection().name();
+                    append(".schema_id='").append(fieldName).append('\'').toString();
+            item.orderBy = fieldName + ' ' + clause.getDirection().name();
         }
     }
 
@@ -429,9 +429,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
                 obs.views.add(svs.field());
 
-                item.select = svs.field().alias + "." + fieldName;
+                item.select = svs.field().alias + '.' + fieldName;
                 item.where = StringUtils.EMPTY;
-                item.orderBy = svs.field().alias + "." + fieldName + " " + clause.getDirection().name();
+                item.orderBy = svs.field().alias + '.' + fieldName + ' ' + clause.getDirection().name();
             }
 
             if (item.isEmpty()) {
@@ -863,14 +863,14 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             }
             query.append(" WHERE schema_id='").append(schema.getKey());
             fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else {
             // activate ignoreCase only for EQ and LIKE operators
             boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
 
             String column = (cond instanceof AnyCond) ? cond.getSchema() : key(schema.getType());
             if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
-                column = "LOWER (" + column + ")";
+                column = "LOWER (" + column + ')';
             }
             if (!(cond instanceof AnyCond)) {
                 column = "' AND " + column;
@@ -992,19 +992,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 query.append(checked.getLeft().isUniqueConstraint()
                         ? svs.asSearchViewSupport().uniqueAttr().name
                         : svs.asSearchViewSupport().attr().name).
-                        append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'");
+                        append(" WHERE schema_id=").append('\'').append(checked.getLeft().getKey()).append('\'');
                 break;
 
             case ISNULL:
                 query.append(svs.field().name).
                         append(" WHERE any_id NOT IN ").
-                        append("(").
+                        append('(').
                         append("SELECT DISTINCT any_id FROM ").
                         append(checked.getLeft().isUniqueConstraint()
                                 ? svs.asSearchViewSupport().uniqueAttr().name
                                 : svs.asSearchViewSupport().attr().name).
-                        append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'").
-                        append(")");
+                        append(" WHERE schema_id=").append('\'').append(checked.getLeft().getKey()).append('\'').
+                        append(')');
                 break;
 
             default:

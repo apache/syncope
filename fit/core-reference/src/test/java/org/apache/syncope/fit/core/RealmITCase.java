@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test;
 
 public class RealmITCase extends AbstractITCase {
 
-    private Optional<RealmTO> getRealm(final String fullPath) {
+    private static Optional<RealmTO> getRealm(final String fullPath) {
         return realmService.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 

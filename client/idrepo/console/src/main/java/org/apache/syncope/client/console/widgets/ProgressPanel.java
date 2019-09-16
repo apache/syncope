@@ -37,8 +37,8 @@ public class ProgressPanel extends Panel {
         add(new Label("total", progressBean.getTotal()));
 
         WebMarkupContainer progress = new WebMarkupContainer("progress");
-        progress.add(new AttributeModifier("style", "width: " + progressBean.getPercent() + "%"));
-        progress.add(new AttributeAppender("class", " " + progressBean.getCssClass()));
+        progress.add(new AttributeModifier("style", "width: " + progressBean.getPercent() + '%'));
+        progress.add(new AttributeAppender("class", ' ' + progressBean.getCssClass()));
         add(progress);
     }
 

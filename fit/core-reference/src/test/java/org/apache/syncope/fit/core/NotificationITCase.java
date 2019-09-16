@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 
 public class NotificationITCase extends AbstractITCase {
 
-    private NotificationTO buildNotificationTO() {
+    private static NotificationTO buildNotificationTO() {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.getEvents().add("create");

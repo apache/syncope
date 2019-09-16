@@ -60,7 +60,7 @@ public class CamelRouteITCase extends AbstractITCase {
         groupRoutes.forEach(route -> assertNotNull(route.getContent()));
     }
 
-    private CamelRouteTO doUpdate(final AnyTypeKind anyTypeKind, final String key, final String content) {
+    private static CamelRouteTO doUpdate(final AnyTypeKind anyTypeKind, final String key, final String content) {
         CamelRouteTO route = camelRouteService.read(anyTypeKind, key);
         route.setContent(content);
         camelRouteService.update(anyTypeKind, route);

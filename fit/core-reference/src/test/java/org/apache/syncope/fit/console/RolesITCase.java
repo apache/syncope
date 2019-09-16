@@ -38,7 +38,7 @@ public class RolesITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().assertRenderedPage(Security.class);
     }
 
-    private void createRole(final String name) {
+    private static void createRole(final String name) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",

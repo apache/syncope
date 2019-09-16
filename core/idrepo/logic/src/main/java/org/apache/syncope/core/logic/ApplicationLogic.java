@@ -49,7 +49,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     public ApplicationTO read(final String key) {
         Application application = applicationDAO.find(key);
         if (application == null) {
-            LOG.error("Could not find application '" + key + "'");
+            LOG.error("Could not find application '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -62,7 +62,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     public PrivilegeTO readPrivilege(final String key) {
         Privilege privilege = applicationDAO.findPrivilege(key);
         if (privilege == null) {
-            LOG.error("Could not find privilege '" + key + "'");
+            LOG.error("Could not find privilege '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -85,7 +85,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     public ApplicationTO update(final ApplicationTO applicationTO) {
         Application application = applicationDAO.find(applicationTO.getKey());
         if (application == null) {
-            LOG.error("Could not find application '" + applicationTO.getKey() + "'");
+            LOG.error("Could not find application '" + applicationTO.getKey() + '\'');
             throw new NotFoundException(applicationTO.getKey());
         }
 
@@ -96,7 +96,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     public ApplicationTO delete(final String key) {
         Application application = applicationDAO.find(key);
         if (application == null) {
-            LOG.error("Could not find application '" + key + "'");
+            LOG.error("Could not find application '" + key + '\'');
 
             throw new NotFoundException(key);
         }

@@ -168,12 +168,12 @@ abstract class AbstractAnyDataBinder {
         return schema;
     }
 
-    private void fillAttr(
-            final List<String> values,
-            final AnyUtils anyUtils,
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final SyncopeClientException invalidValues) {
+    private static void fillAttr(
+        final List<String> values,
+        final AnyUtils anyUtils,
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final SyncopeClientException invalidValues) {
 
         // if schema is multivalue, all values are considered for addition;
         // otherwise only the fist one - if provided - is considered
@@ -249,11 +249,11 @@ abstract class AbstractAnyDataBinder {
         return reqValMissing;
     }
 
-    private void checkMandatory(
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final Any<?> any,
-            final SyncopeClientException reqValMissing) {
+    private static void checkMandatory(
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final Any<?> any,
+        final SyncopeClientException reqValMissing) {
 
         if (attr == null
                 && !schema.isReadonly()
@@ -265,7 +265,7 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    private SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
+    private static SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
@@ -613,8 +613,8 @@ abstract class AbstractAnyDataBinder {
                 ifPresent(provision -> {
                     MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
                             orElseThrow(() -> new NotFoundException(
-                            "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
-                            + " on resource '" + resource.getKey() + "'"));
+                            "ConnObjectKey mapping for " + any.getType().getKey() + ' ' + any.getKey()
+                            + " on resource '" + resource.getKey() + '\''));
 
                     mappingManager.getConnObjectKeyValue(any, provision).
                             ifPresent(value -> connObjectKeys.put(resource.getKey(), value));

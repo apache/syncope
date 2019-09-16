@@ -130,7 +130,7 @@ public class ProvisioningImpl implements Provisioning {
 
                     if (!attr.isKey() || !accountid.equals(value)) {
                         if (set.length() > 0) {
-                            set.append(",");
+                            set.append(',');
                         }
 
                         if (null == attr.getName()) {
@@ -149,7 +149,7 @@ public class ProvisioningImpl implements Provisioning {
                             }
                         }
 
-                        set.append(Optional.ofNullable(value).map(s -> "'" + s + "'").orElse(null));
+                        set.append(Optional.ofNullable(value).map(s -> '\'' + s + '\'').orElse(null));
                     }
                 }
             }
@@ -193,7 +193,7 @@ public class ProvisioningImpl implements Provisioning {
             LOG.debug("Execute query: {}", queryString);
 
             if (queryString == null || queryString.length() == 0) {
-                throw new SQLException("Invalid query [" + queryString + "]");
+                throw new SQLException("Invalid query [" + queryString + ']');
             }
 
             conn = DataSourceUtils.getConnection(dataSource);
@@ -265,7 +265,7 @@ public class ProvisioningImpl implements Provisioning {
                         }
 
                         if (keys.length() > 0) {
-                            keys.append(",");
+                            keys.append(',');
                         }
 
                         if (null == attr.getName()) {
@@ -285,17 +285,17 @@ public class ProvisioningImpl implements Provisioning {
                         }
 
                         if (values.length() > 0) {
-                            values.append(",");
+                            values.append(',');
                         }
 
-                        values.append(Optional.ofNullable(value).map(s -> "'" + s + "'").orElse(null));
+                        values.append(Optional.ofNullable(value).map(s -> '\'' + s + '\'').orElse(null));
 
                         if (attr.isKey() && !attr.getValues().isEmpty()) {
                             accountid = attr.getValues().get(0).toString();
                         }
                     }
                 }
-                query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ")";
+                query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ')';
                 LOG.debug("Execute query: " + query);
                 statement.executeUpdate(query);
             }

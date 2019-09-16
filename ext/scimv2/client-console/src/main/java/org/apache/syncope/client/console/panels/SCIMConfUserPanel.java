@@ -328,8 +328,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             final String baseTabId,
             final T canonicalType) {
 
-        Accordion accordion = new Accordion(basePanelId + "_" + complex.getType().name(),
-                Collections.<ITab>singletonList(new AbstractTab(Model.of(baseTabId + "." + complex.getType().name())) {
+        Accordion accordion = new Accordion(basePanelId + '_' + complex.getType().name(),
+                Collections.<ITab>singletonList(new AbstractTab(Model.of(baseTabId + '.' + complex.getType().name())) {
 
                     private static final long serialVersionUID = -5861786415855103549L;
 
@@ -469,7 +469,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
             final String panelId) {
 
         final List<AjaxTextFieldPanel> panelList = new ArrayList<>();
-        final String fieldName = panelId + "." + canonicalType.name();
+        final String fieldName = panelId + '.' + canonicalType.name();
 
         AjaxTextFieldPanel displayPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".display",
                 new PropertyModel<String>(complex, "accordionContent") {

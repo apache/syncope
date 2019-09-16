@@ -101,8 +101,8 @@ public class XMLContentLoader implements ContentLoader {
         }
     }
 
-    private void loadDefaultContent(
-            final String domain, final InputStream contentXML, final DataSource dataSource)
+    private static void loadDefaultContent(
+        final String domain, final InputStream contentXML, final DataSource dataSource)
             throws IOException, ParserConfigurationException, SAXException {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();

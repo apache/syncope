@@ -78,7 +78,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     protected static final Pattern USERNAME_PATTERN =
-            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Pattern.compile('^' + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 

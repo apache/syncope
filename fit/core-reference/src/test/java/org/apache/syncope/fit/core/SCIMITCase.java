@@ -116,7 +116,7 @@ public class SCIMITCase extends AbstractITCase {
         return ENABLED;
     }
 
-    private WebClient webClient() {
+    private static WebClient webClient() {
         return WebClient.create(SCIM_ADDRESS, List.of(new SCIMJacksonJsonProvider())).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
@@ -124,7 +124,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @BeforeEach
-    public void check() {
+    public static void check() {
         assumeTrue(isSCIMAvailable(webClient()));
     }
 
@@ -321,7 +321,7 @@ public class SCIMITCase extends AbstractITCase {
 
         Date value = new Date(newUser.getCreationDate().getTime() - 1000);
         response = webClient().path("Users").query("filter", "meta.created gt \""
-                + DATE_FORMAT.get().format(value) + "\"").get();
+                + DATE_FORMAT.get().format(value) + '"').get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,
@@ -336,7 +336,7 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
     }
 
-    private SCIMUser getSampleUser(final String username) {
+    private static SCIMUser getSampleUser(final String username) {
         SCIMUser user = new SCIMUser(null, List.of(Resource.User.schema()), null, username, true);
         user.setPassword("password123");
 

@@ -125,7 +125,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    private static String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         for (OrderByClause clause : orderByClauses) {

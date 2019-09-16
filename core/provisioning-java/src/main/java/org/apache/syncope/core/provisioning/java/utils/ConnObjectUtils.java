@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -101,7 +102,7 @@ public class ConnObjectUtils {
         if (pwd instanceof GuardedString) {
             result.append(SecurityUtil.decrypt((GuardedString) pwd));
         } else if (pwd instanceof GuardedByteArray) {
-            result.append(SecurityUtil.decrypt((GuardedByteArray) pwd));
+            result.append(Arrays.toString(SecurityUtil.decrypt((GuardedByteArray) pwd)));
         } else if (pwd instanceof String) {
             result.append((String) pwd);
         } else {

@@ -138,10 +138,10 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
                 || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
             String message = "Could not fetch all required information for sending e-mails:\n"
-                    + task.getRecipients() + "\n"
-                    + task.getSender() + "\n"
-                    + task.getSubject() + "\n"
-                    + task.getHtmlBody() + "\n"
+                    + task.getRecipients() + '\n'
+                    + task.getSender() + '\n'
+                    + task.getSubject() + '\n'
+                    + task.getHtmlBody() + '\n'
                     + task.getTextBody();
             LOG.error(message);
 
@@ -154,11 +154,11 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("About to send e-mails:\n"
-                        + task.getRecipients() + "\n"
-                        + task.getSender() + "\n"
-                        + task.getSubject() + "\n"
-                        + task.getHtmlBody() + "\n"
-                        + task.getTextBody() + "\n");
+                        + task.getRecipients() + '\n'
+                        + task.getSender() + '\n'
+                        + task.getSubject() + '\n'
+                        + task.getHtmlBody() + '\n'
+                        + task.getTextBody() + '\n');
             }
 
             status.set("Sending notifications to " + task.getRecipients());
@@ -266,7 +266,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
         }
     }
 
-    private boolean hasToBeRegistered(final TaskExec execution) {
+    private static boolean hasToBeRegistered(final TaskExec execution) {
         NotificationTask task = (NotificationTask) execution.getTask();
 
         // True if either failed and failures have to be registered, or if ALL

@@ -151,7 +151,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
                     Implementation rule = implementationDAO.find(impl);
                     if (rule == null) {
-                        throw new NotFoundException("Implementation " + type + " " + impl);
+                        throw new NotFoundException("Implementation " + type + ' ' + impl);
                     }
                     correlationRule.setImplementation(rule);
                 }
@@ -184,7 +184,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
                     Implementation rule = implementationDAO.find(impl);
                     if (rule == null) {
-                        throw new NotFoundException("Implementation " + type + " " + impl);
+                        throw new NotFoundException("Implementation " + type + ' ' + impl);
                     }
                     correlationRule.setImplementation(rule);
                 }

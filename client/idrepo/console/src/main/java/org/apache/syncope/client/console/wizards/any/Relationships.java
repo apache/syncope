@@ -190,7 +190,8 @@ public class Relationships extends WizardStep implements ICondition {
                 : Collections.<RelationshipTO>emptyList();
     }
 
-    private void addRelationship(final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
+    private static void addRelationship(final Map<String, List<RelationshipTO>> relationships,
+                                        final RelationshipTO... rels) {
 
         for (RelationshipTO relationship : rels) {
             final List<RelationshipTO> listrels;

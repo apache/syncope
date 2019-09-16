@@ -28,10 +28,10 @@ public class DelegatedAdministrationException extends RuntimeException {
 
     public DelegatedAdministrationException(final String realm, final String type, final String key) {
         super("Missing entitlement or realm administration under " + realm + " for "
-                + (Optional.ofNullable(key).map(s -> type + " " + s).orElseGet(() -> "new " + type)));
+                + (Optional.ofNullable(key).map(s -> type + ' ' + s).orElseGet(() -> "new " + type)));
     }
 
     public DelegatedAdministrationException(final AnyTypeKind type, final String key) {
-        super("The requested UPDATE would alter the set of dynamic realms for " + type + " " + key);
+        super("The requested UPDATE would alter the set of dynamic realms for " + type + ' ' + key);
     }
 }

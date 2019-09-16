@@ -133,7 +133,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     public ConnInstance update(final ConnInstanceTO connInstanceTO) {
         ConnInstance connInstance = connInstanceDAO.authFind(connInstanceTO.getKey());
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
+            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + '\'');
         }
 
         ConnInstanceTO current = getConnInstanceTO(connInstance);

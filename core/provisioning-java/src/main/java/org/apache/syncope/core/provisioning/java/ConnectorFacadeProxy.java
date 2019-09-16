@@ -509,7 +509,7 @@ public class ConnectorFacadeProxy implements Connector {
         return connInstance;
     }
 
-    private Object getPropertyValue(final String propType, final List<?> values) {
+    private static Object getPropertyValue(final String propType, final List<?> values) {
         Object value = null;
 
         try {
@@ -551,6 +551,6 @@ public class ConnectorFacadeProxy implements Connector {
     @Override
     public String toString() {
         return "ConnectorFacadeProxy{"
-                + "connector=" + connector + "\n" + "capabitilies=" + connInstance.getCapabilities() + '}';
+                + "connector=" + connector + '\n' + "capabitilies=" + connInstance.getCapabilities() + '}';
     }
 }

@@ -78,7 +78,7 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
 
         return Response.ok(sout).
                 header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase()).
+                        "attachment; filename=" + reportExec.getReport().getName() + '.' + format.name().toLowerCase()).
                 build();
     }
 

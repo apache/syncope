@@ -404,11 +404,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 ? inputAsArray[1]
                                 : property.getField().getInput();
                         inputValue = (inputValue.startsWith("*") && !inputValue.endsWith("*"))
-                                ? inputValue + "*"
+                                ? inputValue + '*'
                                 : (!inputValue.startsWith("*") && inputValue.endsWith("*"))
-                                ? "*" + inputValue
+                                ? '*' + inputValue
                                 : (inputValue.startsWith("*") && inputValue.endsWith("*")
-                                ? inputValue : "*" + inputValue + "*");
+                                ? inputValue : '*' + inputValue + '*');
 
                         if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
                             property.setChoices(groupRestClient.search(
@@ -639,7 +639,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
     }
 
-    private IChoiceRenderer<SearchClause.Comparator> getComparatorRender(final IModel<SearchClause> clause) {
+    private static IChoiceRenderer<SearchClause.Comparator> getComparatorRender(final IModel<SearchClause> clause) {
         return new IChoiceRenderer<SearchClause.Comparator>() {
 
             private static final long serialVersionUID = -9086043750227867686L;

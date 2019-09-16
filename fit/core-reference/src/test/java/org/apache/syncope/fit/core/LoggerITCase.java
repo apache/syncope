@@ -248,7 +248,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
     }
 
-    private boolean logFileContains(final Path path, final String message, final int maxWaitSeconds)
+    private static boolean logFileContains(final Path path, final String message, final int maxWaitSeconds)
             throws IOException {
 
         int i = 0;

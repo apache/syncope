@@ -208,6 +208,6 @@ public class ElasticsearchUtils {
     }
 
     public String getContextDomainName(final String domain, final AnyTypeKind kind) {
-        return domain.toLowerCase() + "_" + kind.name().toLowerCase();
+        return domain.toLowerCase() + '_' + kind.name().toLowerCase();
     }
 }

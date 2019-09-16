@@ -54,10 +54,10 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         return visit(ctx.expression(0));
     }
 
-    private boolean schemaEquals(final Resource resource, final String value, final String schema) {
+    private static boolean schemaEquals(final Resource resource, final String value, final String schema) {
         return Optional.ofNullable(resource)
             .map(resource1 -> value.equalsIgnoreCase(schema)
-                || (resource1.schema() + ":" + value).equalsIgnoreCase(schema))
+                || (resource1.schema() + ':' + value).equalsIgnoreCase(schema))
             .orElseGet(() -> value.contains(":")
             ? StringUtils.substringAfterLast(value, ":").equalsIgnoreCase(schema)
             : value.equalsIgnoreCase(schema));
@@ -132,7 +132,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         return attributeCond;
     }
 
-    private SearchCond setOperator(final AttributeCond attributeCond, final String operator) {
+    private static SearchCond setOperator(final AttributeCond attributeCond, final String operator) {
         switch (operator) {
             case "eq":
             default:
@@ -145,17 +145,17 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
             case "sw":
                 attributeCond.setType(AttributeCond.Type.ILIKE);
-                attributeCond.setExpression(attributeCond.getExpression() + "%");
+                attributeCond.setExpression(attributeCond.getExpression() + '%');
                 break;
 
             case "co":
                 attributeCond.setType(AttributeCond.Type.ILIKE);
-                attributeCond.setExpression("%" + attributeCond.getExpression() + "%");
+                attributeCond.setExpression('%' + attributeCond.getExpression() + '%');
                 break;
 
             case "ew":
                 attributeCond.setType(AttributeCond.Type.ILIKE);
-                attributeCond.setExpression("%" + attributeCond.getExpression());
+                attributeCond.setExpression('%' + attributeCond.getExpression());
                 break;
 
             case "gt":
@@ -281,7 +281,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
         if (result == null) {
             throw new IllegalArgumentException(
-                    "Could not handle (" + left + " " + operator + " " + right + ") for " + resource);
+                    "Could not handle (" + left + ' ' + operator + ' ' + right + ") for " + resource);
         }
         return result;
     }

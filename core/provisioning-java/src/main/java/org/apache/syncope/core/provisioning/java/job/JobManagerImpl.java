@@ -191,7 +191,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T createSpringBean(final Class<T> jobClass) {
+    private static <T> T createSpringBean(final Class<T> jobClass) {
         T jobInstance = null;
         for (int i = 0; i < 5 && jobInstance == null; i++) {
             LOG.debug("{} attempt to create Spring bean for {}", i, jobClass);

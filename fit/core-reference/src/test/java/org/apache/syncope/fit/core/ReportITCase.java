@@ -234,13 +234,13 @@ public class ReportITCase extends AbstractITCase {
         }
     }
 
-    private void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
+    private static void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
         Response response = reportService.exportExecutionResult(execKey, fmt);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).
-                endsWith("." + fmt.name().toLowerCase()));
+                endsWith('.' + fmt.name().toLowerCase()));
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);

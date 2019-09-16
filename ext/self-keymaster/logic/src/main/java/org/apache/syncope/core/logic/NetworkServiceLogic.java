@@ -42,9 +42,9 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private SelfKeymasterEntityFactory entityFactory;
 
-    private NetworkService toNetworkService(
-            final NetworkService.Type serviceType,
-            final NetworkServiceEntity service) {
+    private static NetworkService toNetworkService(
+        final NetworkService.Type serviceType,
+        final NetworkServiceEntity service) {
 
         NetworkService ns = new NetworkService();
         ns.setType(serviceType);

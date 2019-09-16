@@ -91,7 +91,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "value:textField", TextField.class);
     }
 
-    private void cloneGroup(final String group) {
+    private static void cloneGroup(final String group) {
         UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
         UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 

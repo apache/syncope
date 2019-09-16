@@ -41,7 +41,7 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
 
     private List<Group> result;
 
-    private Group fromSyncopeGroup(final String name) {
+    private static Group fromSyncopeGroup(final String name) {
         GroupEntity group = new GroupEntityImpl();
         group.setId(name);
         return group;
@@ -57,7 +57,7 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
             }
         } else if (userId != null) {
             result = userDAO.findAllGroupNames(userDAO.findByUsername(userId)).stream().
-                    map(this::fromSyncopeGroup).
+                    map(SyncopeGroupQueryImpl::fromSyncopeGroup).
                     collect(Collectors.toList());
         }
     }

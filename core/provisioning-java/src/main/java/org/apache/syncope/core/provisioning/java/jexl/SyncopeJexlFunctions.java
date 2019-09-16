@@ -62,7 +62,7 @@ public class SyncopeJexlFunctions {
 
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
         Collections.reverse(headless);
-        return prefix + attr + "=" + StringUtils.join(headless, "," + attr + "=");
+        return prefix + attr + '=' + StringUtils.join(headless, ',' + attr + '=');
     }
 
 }

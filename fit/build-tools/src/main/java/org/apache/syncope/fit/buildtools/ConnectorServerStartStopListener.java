@@ -47,7 +47,7 @@ public class ConnectorServerStartStopListener implements ServletContextListener 
      *
      * @param ctx ApplicationContext needed for getting ConnId jar bundles URLs
      */
-    private List<URL> getBundleURLs(final ApplicationContext ctx) {
+    private static List<URL> getBundleURLs(final ApplicationContext ctx) {
         final List<URL> bundleURLs = new ArrayList<>();
 
         try {

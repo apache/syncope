@@ -80,7 +80,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
         });
     }
 
-    private Bar build(final List<CamelMetrics.MeanRate> meanRates) {
+    private static Bar build(final List<CamelMetrics.MeanRate> meanRates) {
         Bar bar = new Bar();
         bar.getOptions().setScaleBeginAtZero(true);
         bar.getOptions().setBarShowStroke(true);

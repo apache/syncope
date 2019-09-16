@@ -33,7 +33,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
 
-    private BpmnProcessService getService(final MediaType mediaType) {
+    private static BpmnProcessService getService(final MediaType mediaType) {
         return SyncopeEnduserSession.get().getService(mediaType, BpmnProcessService.class);
     }
 
@@ -41,7 +41,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return getService(BpmnProcessService.class).list();
     }
 
-    public InputStream getDefinition(final MediaType mediaType, final String key) {
+    public static InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
 
         return (InputStream) response.getEntity();

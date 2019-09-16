@@ -74,7 +74,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public List<RealmTO> list(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
-            LOG.error("Could not find realm '" + fullPath + "'");
+            LOG.error("Could not find realm '" + fullPath + '\'');
 
             throw new NotFoundException(fullPath);
         }
@@ -134,7 +134,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         if (realm == null) {
-            LOG.error("Could not find realm '" + realmTO.getFullPath() + "'");
+            LOG.error("Could not find realm '" + realmTO.getFullPath() + '\'');
 
             throw new NotFoundException(realmTO.getFullPath());
         }
@@ -156,7 +156,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
-            LOG.error("Could not find realm '" + fullPath + "'");
+            LOG.error("Could not find realm '" + fullPath + '\'');
 
             throw new NotFoundException(fullPath);
         }

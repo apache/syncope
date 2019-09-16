@@ -526,7 +526,7 @@ public class Topology extends BasePage {
         newlyCreatedContainer.add(newlyCreated);
     }
 
-    private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
+    private static List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
         targets.forEach((key, value) -> value.forEach((label, node) -> list.add(

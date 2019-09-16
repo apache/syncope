@@ -64,7 +64,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
         return 300;
     }
 
-    private ColumnConfig[] buildColumnConfigs(final LoggerContext ctx) {
+    private static ColumnConfig[] buildColumnConfigs(final LoggerContext ctx) {
         ColumnConfig[] columnConfigs = {
             ColumnConfig.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),

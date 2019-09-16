@@ -496,7 +496,7 @@ public class JWTITCase extends AbstractITCase {
         jwtClaims.setTokenId(UUID.randomUUID().toString());
         jwtClaims.setSubject("puccini@apache.org");
         jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER + "_");
+        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER + '_');
         jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
         jwtClaims.setNotBefore(currentTime);
 
@@ -542,7 +542,7 @@ public class JWTITCase extends AbstractITCase {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
         JwsSignatureProvider customSignatureProvider =
-                new HmacJwsSignatureProvider((CustomJWTSSOProvider.CUSTOM_KEY + "_").getBytes(), JWS_ALGORITHM);
+                new HmacJwsSignatureProvider((CustomJWTSSOProvider.CUSTOM_KEY + '_').getBytes(), JWS_ALGORITHM);
         String signed = producer.signWith(customSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);

@@ -53,6 +53,6 @@ public enum MatchingRule {
 
     public static String toEventName(final MatchingRule rule) {
         return new StringBuilder(MatchingRule.class.getSimpleName()).
-                append("_").append(rule.name()).toString().toLowerCase();
+                append('_').append(rule.name()).toString().toLowerCase();
     }
 }

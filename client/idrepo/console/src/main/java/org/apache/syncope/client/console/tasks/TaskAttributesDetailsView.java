@@ -64,7 +64,7 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
 
     }
 
-    private String getJSONInfo(final PropagationTaskTO taskTO) {
+    private static String getJSONInfo(final PropagationTaskTO taskTO) {
         String json = "";
         try {
             JsonNode list = MAPPER.readTree(taskTO.getAttributes());

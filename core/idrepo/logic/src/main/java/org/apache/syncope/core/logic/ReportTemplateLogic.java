@@ -53,7 +53,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     @Autowired
     private EntityFactory entityFactory;
 
-    private ReportTemplateTO getReportTemplateTO(final String key) {
+    private static ReportTemplateTO getReportTemplateTO(final String key) {
         ReportTemplateTO reportTemplateTO = new ReportTemplateTO();
         reportTemplateTO.setKey(key);
         return reportTemplateTO;
@@ -64,7 +64,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     public ReportTemplateTO read(final String key) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
-            LOG.error("Could not find report template '" + key + "'");
+            LOG.error("Could not find report template '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -95,7 +95,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     public String getFormat(final String key, final ReportTemplateFormat format) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
-            LOG.error("Could not find report template '" + key + "'");
+            LOG.error("Could not find report template '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -118,7 +118,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     public void setFormat(final String key, final ReportTemplateFormat format, final String template) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
-            LOG.error("Could not find report template '" + key + "'");
+            LOG.error("Could not find report template '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -146,7 +146,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
     public ReportTemplateTO delete(final String key) {
         ReportTemplate reportTemplate = reportTemplateDAO.find(key);
         if (reportTemplate == null) {
-            LOG.error("Could not find report template '" + key + "'");
+            LOG.error("Could not find report template '" + key + '\'');
 
             throw new NotFoundException(key);
         }

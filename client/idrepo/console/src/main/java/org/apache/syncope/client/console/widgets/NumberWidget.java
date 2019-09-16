@@ -46,7 +46,7 @@ public class NumberWidget extends BaseWidget {
         setOutputMarkupId(true);
 
         WebMarkupContainer box = new WebMarkupContainer("box");
-        box.add(new AttributeAppender("class", " " + bg));
+        box.add(new AttributeAppender("class", ' ' + bg));
 
         boolean isAuthorized = true;
         final PageParameters pageParameters = new PageParameters();

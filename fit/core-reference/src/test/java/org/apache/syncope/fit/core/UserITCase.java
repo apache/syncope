@@ -98,7 +98,7 @@ import org.junit.jupiter.api.Test;
 
 public class UserITCase extends AbstractITCase {
 
-    private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
+    private static boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return Boolean.parseBoolean(connObjectTO.getAttr(attrName).get().getValues().get(0));
     }
 
@@ -855,7 +855,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(2, loginDate.getValues().size());
     }
 
-    private void verifyAsyncResult(final List<PropagationStatus> statuses) {
+    private static void verifyAsyncResult(final List<PropagationStatus> statuses) {
         assertEquals(3, statuses.size());
 
         Map<String, PropagationStatus> byResource = new HashMap<>(3);
@@ -1376,7 +1376,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals("InvalidPassword: Password pwned", e.getElements().iterator().next());
         }
 
-        userCR.setPassword("1" + RandomStringUtils.randomAlphanumeric(10));
+        userCR.setPassword('1' + RandomStringUtils.randomAlphanumeric(10));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
     }

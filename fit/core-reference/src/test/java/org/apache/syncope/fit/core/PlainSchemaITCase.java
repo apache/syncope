@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 
 public class PlainSchemaITCase extends AbstractITCase {
 
-    private PlainSchemaTO buildPlainSchemaTO(final String name, final AttrSchemaType type) {
+    private static PlainSchemaTO buildPlainSchemaTO(final String name, final AttrSchemaType type) {
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         schemaTO.setKey(name + getUUIDString());
         schemaTO.setType(type);

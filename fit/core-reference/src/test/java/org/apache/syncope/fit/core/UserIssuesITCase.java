@@ -184,11 +184,11 @@ public class UserIssuesITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
 
         userUR.setKey(userTO.getKey());
-        userUR.setUsername(new StringReplacePatchItem.Builder().value("1" + userTO.getUsername()).build());
+        userUR.setUsername(new StringReplacePatchItem.Builder().value('1' + userTO.getUsername()).build());
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
-        assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
+        assertEquals('1' + inUserTO.getUsername(), userTO.getUsername());
     }
 
     @Test

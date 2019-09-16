@@ -54,7 +54,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     public NotificationTO read(final String key) {
         Notification notification = notificationDAO.find(key);
         if (notification == null) {
-            LOG.error("Could not find notification '" + key + "'");
+            LOG.error("Could not find notification '" + key + '\'');
 
             throw new NotFoundException(String.valueOf(key));
         }
@@ -77,7 +77,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     public NotificationTO update(final NotificationTO notificationTO) {
         Notification notification = notificationDAO.find(notificationTO.getKey());
         if (notification == null) {
-            LOG.error("Could not find notification '" + notificationTO.getKey() + "'");
+            LOG.error("Could not find notification '" + notificationTO.getKey() + '\'');
             throw new NotFoundException(String.valueOf(notificationTO.getKey()));
         }
 
@@ -91,7 +91,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     public NotificationTO delete(final String key) {
         Notification notification = notificationDAO.find(key);
         if (notification == null) {
-            LOG.error("Could not find notification '" + key + "'");
+            LOG.error("Could not find notification '" + key + '\'');
 
             throw new NotFoundException(String.valueOf(key));
         }

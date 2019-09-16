@@ -141,7 +141,7 @@ public class DefaultRealmPullResultHandler
                 realmTO.setParent(profile.getTask().getDestinatioRealm().getFullPath());
             }
 
-            realmTO.setFullPath(realmTO.getParent() + "/" + realmTO.getName());
+            realmTO.setFullPath(realmTO.getParent() + '/' + realmTO.getName());
         }
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
@@ -180,7 +180,7 @@ public class DefaultRealmPullResultHandler
                 realmTO.setParent(profile.getTask().getDestinatioRealm().getFullPath());
             }
 
-            realmTO.setFullPath(realmTO.getParent() + "/" + realmTO.getName());
+            realmTO.setFullPath(realmTO.getParent() + '/' + realmTO.getName());
         }
 
         ProvisioningReport result = new ProvisioningReport();
@@ -244,7 +244,7 @@ public class DefaultRealmPullResultHandler
             RealmTO actual = binder.getRealmTO(realm, true);
 
             result.setKey(actual.getKey());
-            result.setName(profile.getTask().getDestinatioRealm().getFullPath() + "/" + actual.getName());
+            result.setName(profile.getTask().getDestinatioRealm().getFullPath() + '/' + actual.getName());
 
             output = actual;
             resultStatus = Result.SUCCESS;

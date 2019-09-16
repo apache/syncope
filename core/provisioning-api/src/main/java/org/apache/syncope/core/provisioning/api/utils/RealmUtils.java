@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public final class RealmUtils {
 
     public static String getGroupOwnerRealm(final String realmPath, final String groupKey) {
-        return realmPath + "@" + groupKey;
+        return realmPath + '@' + groupKey;
     }
 
     public static boolean normalizingAddTo(final Set<String> realms, final String newRealm) {

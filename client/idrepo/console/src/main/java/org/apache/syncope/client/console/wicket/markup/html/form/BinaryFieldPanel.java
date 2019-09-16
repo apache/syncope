@@ -147,7 +147,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         field = new TextField<>("textField", model);
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
-        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
+        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : '(' + mimeType + ')'));
 
         fileDownload = new AjaxDownload(name, fileKey, mimeType, true) {
 

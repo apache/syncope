@@ -337,7 +337,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         return PLATFORM_INFO;
     }
 
-    private void initSystemInfo() {
+    private static void initSystemInfo() {
         if (SYSTEM_INFO == null) {
             OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
@@ -350,19 +350,19 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             }
 
             SYSTEM_INFO.setOs(operatingSystemMXBean.getName()
-                    + " " + operatingSystemMXBean.getVersion()
-                    + " " + operatingSystemMXBean.getArch());
+                    + ' ' + operatingSystemMXBean.getVersion()
+                    + ' ' + operatingSystemMXBean.getArch());
             SYSTEM_INFO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
             SYSTEM_INFO.setJvm(
                     runtimeMXBean.getVmName()
-                    + " " + System.getProperty("java.version")
-                    + " " + runtimeMXBean.getVmVendor());
+                    + ' ' + System.getProperty("java.version")
+                    + ' ' + runtimeMXBean.getVmVendor());
             SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
         }
     }
 
     @EventListener
-    public void addLoadInstant(final PayloadApplicationEvent<SystemInfo.LoadInstant> event) {
+    public static void addLoadInstant(final PayloadApplicationEvent<SystemInfo.LoadInstant> event) {
         synchronized (MONITOR) {
             initSystemInfo();
             SYSTEM_INFO.getLoad().add(event.getPayload());
@@ -370,7 +370,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public SystemInfo system() {
+    public static SystemInfo system() {
         synchronized (MONITOR) {
             initSystemInfo();
         }
@@ -448,11 +448,11 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             termCond.setSchema("name");
 
             String termSearchableValue = (term.startsWith("*") && !term.endsWith("*"))
-                    ? term + "%"
+                    ? term + '%'
                     : (!term.startsWith("*") && term.endsWith("*"))
-                    ? "%" + term
+                    ? '%' + term
                     : (term.startsWith("*") && term.endsWith("*")
-                    ? term : "%" + term + "%");
+                    ? term : '%' + term + '%');
             termCond.setExpression(termSearchableValue);
 
             searchCond = SearchCond.getAndCond(

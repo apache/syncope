@@ -131,7 +131,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         // whether to render the attribute as readonly or not, without considering schema readonly property
         String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
                 ? org.apache.commons.lang3.StringUtils.EMPTY
-                : groupName + "#")
+                : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null ? false : whichAttrs.get(schemaName).isReadonly();
     }
@@ -143,7 +143,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     protected List<String> getDefaultValues(final String schema, final String groupName) {
         String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
                 ? org.apache.commons.lang3.StringUtils.EMPTY
-                : groupName + "#")
+                : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null
                 ? List.of()
@@ -183,7 +183,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
             allSchemas.removeAll(allSchemas.stream().
                     filter(schemaTO -> org.apache.commons.lang3.StringUtils.isBlank(groupName)
                     ? !whichAttrs.containsKey(schemaTO.getKey())
-                    : !whichAttrs.containsKey(groupName + "#" + schemaTO.getKey())).collect(Collectors.toSet()));
+                    : !whichAttrs.containsKey(groupName + '#' + schemaTO.getKey())).collect(Collectors.toSet()));
         }
 
         allSchemas.forEach(schemaTO -> scs.put(schemaTO.getKey(), schemaTO));

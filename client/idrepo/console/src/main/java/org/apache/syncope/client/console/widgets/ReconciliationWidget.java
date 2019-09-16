@@ -370,7 +370,7 @@ public class ReconciliationWidget extends BaseWidget {
                             rowModel.getObject().getKey()
                             + (StringUtils.isBlank(rowModel.getObject().getName())
                             ? StringUtils.EMPTY
-                            : " " + rowModel.getObject().getName())));
+                            : ' ' + rowModel.getObject().getName())));
                 }
             });
 
@@ -412,8 +412,8 @@ public class ReconciliationWidget extends BaseWidget {
                                     public void onClick(final AjaxRequestTarget target, final Any ignore) {
                                         modal.header(Model.of(
                                                 rowModel.getObject().getType()
-                                                + " " + rowModel.getObject().getKey()
-                                                + " " + rowModel.getObject().getName()));
+                                                + ' ' + rowModel.getObject().getKey()
+                                                + ' ' + rowModel.getObject().getName()));
                                         modal.setContent(new ReconDetailsModalPanel(
                                                 modal,
                                                 resource,

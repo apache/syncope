@@ -107,7 +107,7 @@ public class DBPasswordPullActions implements PullActions {
         }
     }
 
-    private String getCipherAlgorithm(final ConnInstance connInstance) {
+    private static String getCipherAlgorithm(final ConnInstance connInstance) {
         Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst();

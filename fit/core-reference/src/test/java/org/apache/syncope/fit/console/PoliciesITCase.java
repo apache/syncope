@@ -41,7 +41,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().assertRenderedPage(Policies.class);
     }
 
-    private void createAccountPolicy(final String description) {
+    private static void createAccountPolicy(final String description) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
         UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
@@ -99,7 +99,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNotNull(component);
     }
 
-    private void createPasswordPolicy(final String description) {
+    private static void createPasswordPolicy(final String description) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
         UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
@@ -150,7 +150,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private void createPullPolicy(final String description) {
+    private static void createPullPolicy(final String description) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
         UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
@@ -196,7 +196,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private void deleteAccountPolicy(final String description) {
+    private static void deleteAccountPolicy(final String description) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         Component component = UTILITY_UI.findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -221,7 +221,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private void deletePasswordPolicy(final String description) {
+    private static void deletePasswordPolicy(final String description) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         Component component = UTILITY_UI.findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -246,7 +246,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private void deletePullPolicy(final String description) {
+    private static void deletePullPolicy(final String description) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
         Component component = UTILITY_UI.findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -307,7 +307,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:0:field:textField", description + "2");
+        formTester.setValue("content:fields:0:field:textField", description + '2');
 
         UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -323,9 +323,9 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         deleteAccountPolicy(description);
 
         assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2"));
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2'));
 
-        deleteAccountPolicy(description + "2");
+        deleteAccountPolicy(description + '2');
     }
 
     @Test
@@ -358,7 +358,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:0:field:textField", description + "2");
+        formTester.setValue("content:fields:0:field:textField", description + '2');
 
         UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -374,9 +374,9 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         deletePasswordPolicy(description);
 
         assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2"));
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2'));
 
-        deletePasswordPolicy(description + "2");
+        deletePasswordPolicy(description + '2');
     }
 
     @Test
@@ -409,7 +409,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:0:field:textField", description + "2");
+        formTester.setValue("content:fields:0:field:textField", description + '2');
 
         UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -425,9 +425,9 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         deletePullPolicy(description);
 
         assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2"));
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2'));
 
-        deletePullPolicy(description + "2");
+        deletePullPolicy(description + '2');
     }
 
     @Test
@@ -485,7 +485,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         deleteAccountPolicy(description);
     }
 
-    private void composeDefaultAccountPolicy(final String policyDescription) {
+    private static void composeDefaultAccountPolicy(final String policyDescription) {
         Component component = UTILITY_UI.findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", policyDescription);
@@ -655,7 +655,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:0:field:textField", description + "2");
+        formTester.setValue("content:fields:0:field:textField", description + '2');
 
         UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -666,7 +666,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         UTILITY_UI.closeCallBack(modal);
 
         component = UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + "2");
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2');
 
         assertNotNull(component);
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
@@ -678,13 +678,13 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 Modal.class);
 
         UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:0:field:textField", description + "2");
+                + ":content:fields:0:field:textField", description + '2');
 
         UTILITY_UI.getTester().executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        deletePullPolicy(description + "2");
+        deletePullPolicy(description + '2');
     }
 
     @Test

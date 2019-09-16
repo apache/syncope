@@ -196,7 +196,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertTrue(mappingItem.get().getTransformers().isEmpty());
 
         String suffix = getUUIDString();
-        mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + "'");
+        mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + '\'');
 
         try {
             resourceService.update(resource);

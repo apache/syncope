@@ -39,7 +39,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().assertRenderedPage(Notifications.class);
     }
 
-    private void createNotification(final String sender, final String subject) {
+    private static void createNotification(final String sender, final String subject) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",

@@ -66,13 +66,13 @@ public class PreferenceManager implements Serializable {
         return PAGINATOR_CHOICES;
     }
 
-    private Map<String, String> getPrefs(final String value) {
+    private static Map<String, String> getPrefs(final String value) {
         Map<String, String> prefs;
         try {
             if (StringUtils.isNotBlank(value)) {
                 prefs = MAPPER.readValue(value, MAP_TYPE_REF);
             } else {
-                throw new Exception("Invalid cookie value '" + value + "'");
+                throw new Exception("Invalid cookie value '" + value + '\'');
             }
         } catch (Exception e) {
             LOG.debug("No preferences found", e);
@@ -82,14 +82,14 @@ public class PreferenceManager implements Serializable {
         return prefs;
     }
 
-    private String setPrefs(final Map<String, String> prefs) throws IOException {
+    private static String setPrefs(final Map<String, String> prefs) throws IOException {
         StringWriter writer = new StringWriter();
         MAPPER.writeValue(writer, prefs);
 
         return writer.toString();
     }
 
-    public String get(final Request request, final String key) {
+    public static String get(final Request request, final String key) {
         String result = null;
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);

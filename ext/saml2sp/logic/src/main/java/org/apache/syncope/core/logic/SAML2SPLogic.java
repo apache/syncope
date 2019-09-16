@@ -152,7 +152,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
     @Resource(name = "accessTokenJwsSignatureVerifier")
     private JwsSignatureVerifier jwsSignatureVerifier;
 
-    private void validateUrl(final String url) {
+    private static void validateUrl(final String url) {
         boolean isValid = true;
         if (url.contains("..")) {
             isValid = false;
@@ -168,7 +168,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
     }
 
-    private String getAssertionConsumerURL(final String spEntityID, final String urlContext) {
+    private static String getAssertionConsumerURL(final String spEntityID, final String urlContext) {
         String assertionConsumerUrl = spEntityID + urlContext + "/assertion-consumer";
         validateUrl(assertionConsumerUrl);
         return assertionConsumerUrl;
@@ -249,7 +249,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
 
         if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + entityID + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + entityID + '\'');
         }
         return idp;
     }
@@ -273,7 +273,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         if (idp == null) {
             throw new NotFoundException(StringUtils.isBlank(idpEntityID)
                     ? "Any SAML 2.0 IdP"
-                    : "SAML 2.0 IdP '" + idpEntityID + "'");
+                    : "SAML 2.0 IdP '" + idpEntityID + '\'');
         }
 
         if (idp.getSSOLocation(idp.getBindingType()) == null) {
@@ -307,7 +307,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
 
         AuthnRequest authnRequest = new AuthnRequestBuilder().buildObject();
-        authnRequest.setID("_" + SecureRandomUtils.generateRandomUUID().toString());
+        authnRequest.setID('_' + SecureRandomUtils.generateRandomUUID().toString());
         authnRequest.setForceAuthn(false);
         authnRequest.setIsPassive(false);
         authnRequest.setVersion(SAMLVersion.VERSION_20);
@@ -408,7 +408,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
         final SAML2IdPEntity idp = getIdP(samlResponse.getIssuer().getValue());
         if (idp.getConnObjectKeyItem() == null) {
-            throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + "'");
+            throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + '\'');
         }
 
         if (IDP_INITIATED_RELAY_STATE.equals(response.getRelayState()) && !idp.isSupportUnsolicited()) {
@@ -570,7 +570,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
         SAML2IdPEntity idp = cache.get(idpEntityID);
         if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + idpEntityID + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + idpEntityID + '\'');
         }
         if (idp.getSLOLocation(idp.getBindingType()) == null) {
             throw new IllegalArgumentException("No SingleLogoutService available for " + idp.getId());
@@ -578,7 +578,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
 
         // 3. create LogoutRequest
         LogoutRequest logoutRequest = new LogoutRequestBuilder().buildObject();
-        logoutRequest.setID("_" + SecureRandomUtils.generateRandomUUID().toString());
+        logoutRequest.setID('_' + SecureRandomUtils.generateRandomUUID().toString());
         logoutRequest.setDestination(idp.getSLOLocation(idp.getBindingType()).getLocation());
 
         DateTime now = new DateTime();

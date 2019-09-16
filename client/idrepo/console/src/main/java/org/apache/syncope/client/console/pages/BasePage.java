@@ -525,11 +525,11 @@ public class BasePage extends BaseWebPage {
         response.render(new PriorityHeaderItem(META_IE_EDGE));
     }
 
-    private String getLIContainerId(final String linkId) {
+    private static String getLIContainerId(final String linkId) {
         return linkId + "LI";
     }
 
-    private String getULContainerId(final String linkId) {
+    private static String getULContainerId(final String linkId) {
         return linkId + "UL";
     }
 

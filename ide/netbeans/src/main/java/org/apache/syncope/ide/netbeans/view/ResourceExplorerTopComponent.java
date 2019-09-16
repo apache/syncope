@@ -556,7 +556,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (!mailTemplatesDir.exists()) {
                 mailTemplatesDir.mkdirs();
             }
-            File file = new File(mailTemplatesDirName + name + "." + type);
+            File file = new File(mailTemplatesDirName + name + '.' + type);
             FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             fw.write(content);
             fw.flush();
@@ -576,7 +576,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void openScriptEditor(final String name, final String type) throws IOException {
         ImplementationTO node = implementationManagerService.read(type, name);
-        String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType() + "/";
+        String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType() + '/';
         File groovyScriptsDir = new File(groovyScriptsDirName);
         if (!groovyScriptsDir.exists()) {
             groovyScriptsDir.mkdirs();
@@ -626,7 +626,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (!reportTemplatesDir.exists()) {
                 reportTemplatesDir.mkdirs();
             }
-            File file = new File(reportTemplatesDirName + name + "." + format.
+            File file = new File(reportTemplatesDirName + name + '.' + format.
                     name().toLowerCase());
             FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             fw.write(content);

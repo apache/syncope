@@ -35,7 +35,7 @@ public class AnyTypeMenuItem extends Panel {
         super("anytype-menuitem");
 
         WebMarkupContainer myLink = new WebMarkupContainer("tabLink");
-        myLink.add(new AttributeModifier("href", "#" + href));
+        myLink.add(new AttributeModifier("href", '#' + href));
         myLink.add(new Label("tabLabel", label));
         add(myLink);
     }

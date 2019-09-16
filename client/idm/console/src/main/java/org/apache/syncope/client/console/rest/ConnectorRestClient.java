@@ -51,7 +51,7 @@ public class ConnectorRestClient extends BaseRestClient {
         return connectors;
     }
 
-    public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
+    public static ConnInstanceTO create(final ConnInstanceTO connectorTO) {
         List<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
@@ -116,7 +116,7 @@ public class ConnectorRestClient extends BaseRestClient {
         return connectorTO;
     }
 
-    public void update(final ConnInstanceTO connectorTO) {
+    public static void update(final ConnInstanceTO connectorTO) {
         List<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
@@ -142,7 +142,7 @@ public class ConnectorRestClient extends BaseRestClient {
         return bundles;
     }
 
-    private List<ConnConfProperty> filterProperties(final Collection<ConnConfProperty> properties) {
+    private static List<ConnConfProperty> filterProperties(final Collection<ConnConfProperty> properties) {
         List<ConnConfProperty> newProperties = new ArrayList<>();
 
         properties.stream().map(property -> {
@@ -161,7 +161,7 @@ public class ConnectorRestClient extends BaseRestClient {
         return newProperties;
     }
 
-    public Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {
+    public static Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
         toBeChecked.getConf().addAll(filterProperties(connectorTO.getConf()));

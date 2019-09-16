@@ -56,7 +56,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
 
-    private byte[] getAuthorities() {
+    private static byte[] getAuthorities() {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(

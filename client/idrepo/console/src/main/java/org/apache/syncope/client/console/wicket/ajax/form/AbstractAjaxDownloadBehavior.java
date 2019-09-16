@@ -39,7 +39,7 @@ public abstract class AbstractAjaxDownloadBehavior extends AbstractAjaxBehavior 
      */
     public void initiate(final AjaxRequestTarget target) {
         CharSequence url = getCallbackUrl();
-        target.appendJavaScript("window.location.href='" + url + "'");
+        target.appendJavaScript("window.location.href='" + url + '\'');
     }
 
     @Override

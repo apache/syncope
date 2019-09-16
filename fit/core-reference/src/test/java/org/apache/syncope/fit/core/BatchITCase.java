@@ -72,7 +72,7 @@ public class BatchITCase extends AbstractITCase {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private String requestBody(final String boundary) throws JsonProcessingException, JAXBException {
+    private static String requestBody(final String boundary) throws JsonProcessingException, JAXBException {
         List<BatchRequestItem> reqItems = new ArrayList<>();
 
         // 1. create user as JSON
@@ -149,7 +149,7 @@ public class BatchITCase extends AbstractITCase {
         return body;
     }
 
-    private void check(final List<BatchResponseItem> resItems) throws IOException, JAXBException {
+    private static void check(final List<BatchResponseItem> resItems) throws IOException, JAXBException {
         assertEquals(6, resItems.size());
 
         assertEquals(Response.Status.CREATED.getStatusCode(), resItems.get(0).getStatus());
@@ -268,7 +268,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
-    private BatchRequest batchRequest() {
+    private static BatchRequest batchRequest() {
         BatchRequest batchRequest = adminClient.batch();
 
         // 1. create user as JSON

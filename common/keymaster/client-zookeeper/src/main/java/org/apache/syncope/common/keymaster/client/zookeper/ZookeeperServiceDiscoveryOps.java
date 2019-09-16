@@ -116,9 +116,9 @@ public class ZookeeperServiceDiscoveryOps implements ServiceOps, InitializingBea
         }
     }
 
-    private NetworkService toNetworkService(
-            final NetworkService.Type serviceType,
-            final ServiceInstance<Void> serviceInstance) {
+    private static NetworkService toNetworkService(
+        final NetworkService.Type serviceType,
+        final ServiceInstance<Void> serviceInstance) {
 
         NetworkService ns = new NetworkService();
         ns.setType(serviceType);

@@ -89,7 +89,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return result;
     }
 
-    private String getEntityTableName(final TaskType type) {
+    private static String getEntityTableName(final TaskType type) {
         String result = null;
 
         switch (type) {
@@ -205,14 +205,14 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return findAll(type, null, null, null, null, -1, -1, List.of());
     }
 
-    private StringBuilder buildFindAllQuery(
-            final TaskType type,
-            final ExternalResource resource,
-            final Notification notification,
-            final AnyTypeKind anyTypeKind,
-            final String entityKey,
-            final boolean orderByTaskExecInfo,
-            final List<Object> queryParameters) {
+    private static StringBuilder buildFindAllQuery(
+        final TaskType type,
+        final ExternalResource resource,
+        final Notification notification,
+        final AnyTypeKind anyTypeKind,
+        final String entityKey,
+        final boolean orderByTaskExecInfo,
+        final List<Object> queryParameters) {
 
         if (resource != null
                 && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
@@ -233,11 +233,11 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         StringBuilder queryString = new StringBuilder("SELECT ").append(AbstractTask.TABLE).append(".*");
 
         if (orderByTaskExecInfo) {
-            queryString.append(",").append(JPATaskExec.TABLE).append(".startDate AS startDate").
-                    append(",").append(JPATaskExec.TABLE).append(".endDate AS endDate").
-                    append(",").append(JPATaskExec.TABLE).append(".status AS status").
+            queryString.append(',').append(JPATaskExec.TABLE).append(".startDate AS startDate").
+                    append(',').append(JPATaskExec.TABLE).append(".endDate AS endDate").
+                    append(',').append(JPATaskExec.TABLE).append(".status AS status").
                     append(" FROM ").append(AbstractTask.TABLE).
-                    append(",").append(JPATaskExec.TABLE).append(",").append("(SELECT ").
+                    append(',').append(JPATaskExec.TABLE).append(',').append("(SELECT ").
                     append(JPATaskExec.TABLE).append(".task_id, ").
                     append("MAX(").append(JPATaskExec.TABLE).append(".startDate) AS startDate").
                     append(" FROM ").append(JPATaskExec.TABLE).
@@ -299,7 +299,8 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return queryString;
     }
 
-    private String toOrderByStatement(final Class<? extends Task> beanClass, final List<OrderByClause> orderByClauses) {
+    private static String toOrderByStatement(final Class<? extends Task> beanClass,
+                                             final List<OrderByClause> orderByClauses) {
 
         StringBuilder statement = new StringBuilder();
 
@@ -384,7 +385,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                             false,
                             queryParameters)).
                     append(" AND id NOT IN ").
-                    append("(SELECT task_id AS id FROM ").append(JPATaskExec.TABLE).append(")").
+                    append("(SELECT task_id AS id FROM ").append(JPATaskExec.TABLE).append(')').
                     append(")) T");
         } else {
             queryString.insert(0, "SELECT T.id FROM (").append(") T");

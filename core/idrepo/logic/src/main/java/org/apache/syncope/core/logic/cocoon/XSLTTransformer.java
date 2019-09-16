@@ -191,6 +191,6 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
 
     @Override
     public String toString() {
-        return StringRepresentation.buildString(this, "src=<" + this.source + ">");
+        return StringRepresentation.buildString(this, "src=<" + this.source + '>');
     }
 }

@@ -78,7 +78,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 break;
             case CONNECTOR:
                 title = (StringUtils.isBlank(node.getConnectionDisplayName())
-                        ? "" : node.getConnectionDisplayName() + ":") + node.getDisplayName();
+                        ? "" : node.getConnectionDisplayName() + ':') + node.getDisplayName();
                 add(new AttributeAppender("class", "topology_conn", " "));
                 break;
             default:

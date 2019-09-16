@@ -195,9 +195,9 @@ public class SAML2ReaderWriter {
         signature.initSign(privateKey);
 
         String requestToSign =
-                SSOConstants.SAML_REQUEST + "=" + request + "&"
-                + SSOConstants.RELAY_STATE + "=" + relayState + "&"
-                + SSOConstants.SIG_ALG + "=" + URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8);
+                SSOConstants.SAML_REQUEST + '=' + request + '&'
+                + SSOConstants.RELAY_STATE + '=' + relayState + '&'
+                + SSOConstants.SIG_ALG + '=' + URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8);
         signature.update(requestToSign.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(signature.sign());
     }

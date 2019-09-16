@@ -42,7 +42,7 @@ public class BasicValidator extends AbstractValidator {
 
             if (!found) {
                 throw new InvalidPlainAttrValueException(
-                        "'" + value + "' is not one of: " + schema.getEnumerationValues());
+                    '\'' + value + "' is not one of: " + schema.getEnumerationValues());
             }
         }
     }

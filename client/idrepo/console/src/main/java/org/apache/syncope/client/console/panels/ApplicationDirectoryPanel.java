@@ -144,8 +144,8 @@ public class ApplicationDirectoryPanel extends
                     final String componentId,
                     final IModel<ApplicationTO> rowModel) {
 
-                item.add(new Label(componentId, "[" + rowModel.getObject().getPrivileges().stream().
-                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + "]"));
+                item.add(new Label(componentId, '[' + rowModel.getObject().getPrivileges().stream().
+                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + ']'));
             }
         });
 

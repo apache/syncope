@@ -51,7 +51,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
     public List<ResourceHistoryConfTO> list(final String key) {
         ExternalResource resource = resourceDAO.find(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + key + "'");
+            throw new NotFoundException("Resource '" + key + '\'');
         }
 
         return resourceHistoryConfDAO.findByEntity(resource).stream().
@@ -62,7 +62,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
     public void restore(final String key) {
         ExternalResourceHistoryConf resourceHistoryConf = resourceHistoryConfDAO.find(key);
         if (resourceHistoryConf == null) {
-            throw new NotFoundException("Resource History Conf '" + key + "'");
+            throw new NotFoundException("Resource History Conf '" + key + '\'');
         }
 
         binder.update(resourceHistoryConf.getEntity(), resourceHistoryConf.getConf());
@@ -72,7 +72,7 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
     public void delete(final String key) {
         ExternalResourceHistoryConf resourceHistoryConf = resourceHistoryConfDAO.find(key);
         if (resourceHistoryConf == null) {
-            throw new NotFoundException("Resource History Conf '" + key + "'");
+            throw new NotFoundException("Resource History Conf '" + key + '\'');
         }
 
         resourceHistoryConfDAO.delete(key);

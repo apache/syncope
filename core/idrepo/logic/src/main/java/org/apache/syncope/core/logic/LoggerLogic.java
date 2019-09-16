@@ -152,7 +152,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
                 collect(Collectors.toList());
     }
 
-    private void throwInvalidLogger(final LoggerType type) {
+    private static void throwInvalidLogger(final LoggerType type) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
         sce.getElements().add("Expected " + type.name());
 

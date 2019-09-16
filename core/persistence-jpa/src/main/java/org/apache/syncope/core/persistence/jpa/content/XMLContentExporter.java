@@ -111,12 +111,13 @@ public class XMLContentExporter implements ContentExporter {
     @Autowired
     private RealmDAO realmDAO;
 
-    private boolean isTableAllowed(final String tableName) {
+    private static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
                 allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
-    private List<String> sortByForeignKeys(final String dbSchema, final Connection conn, final Set<String> tableNames)
+    private static List<String> sortByForeignKeys(final String dbSchema, final Connection conn,
+                                                  final Set<String> tableNames)
             throws SQLException {
 
         Set<MultiParentNode<String>> roots = new HashSet<>();
@@ -186,7 +187,7 @@ public class XMLContentExporter implements ContentExporter {
         return sortedTableNames;
     }
 
-    private String getValues(final ResultSet rs, final String columnName, final Integer columnType)
+    private static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
             throws SQLException {
 
         String res = null;
@@ -260,7 +261,7 @@ public class XMLContentExporter implements ContentExporter {
                     String columnName = pkeyRS.getString("COLUMN_NAME");
                     if (columnName != null) {
                         if (orderBy.length() > 0) {
-                            orderBy.append(",");
+                            orderBy.append(',');
                         }
 
                         orderBy.append(columnName);

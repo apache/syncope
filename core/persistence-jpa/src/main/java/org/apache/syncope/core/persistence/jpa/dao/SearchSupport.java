@@ -117,12 +117,12 @@ public class SearchSupport {
 
     public SearchView relationship() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + "m", field().name + "_" + kind + "relationship");
+        return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "relationship");
     }
 
     public SearchView membership() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + "m", field().name + "_" + kind + "membership");
+        return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "membership");
     }
 
     public SearchView dyngroupmembership() {

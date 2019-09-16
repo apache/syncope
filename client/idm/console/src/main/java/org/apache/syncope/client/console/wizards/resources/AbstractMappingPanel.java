@@ -395,7 +395,7 @@ public abstract class AbstractMappingPanel extends Panel {
      * @param connObjectKey connObjectKey checkbox.
      * @param password password checkbox.
      */
-    private void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
+    private static void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
         if (password.getModelObject()) {
             connObjectKey.setReadOnly(true);
             connObjectKey.setModelObject(false);

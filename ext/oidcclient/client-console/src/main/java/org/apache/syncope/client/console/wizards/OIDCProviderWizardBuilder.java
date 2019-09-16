@@ -314,7 +314,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
         }
     }
 
-    private void showHide(final AjaxCheckBoxPanel hasDiscovery, final WebMarkupContainer visibleParams) {
+    private static void showHide(final AjaxCheckBoxPanel hasDiscovery, final WebMarkupContainer visibleParams) {
         if (hasDiscovery.getField().getValue().equals("false")) {
             visibleParams.setVisible(true);
         } else {

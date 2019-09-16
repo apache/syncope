@@ -98,11 +98,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 append(engine.getManagementService().getTableName(ExecutionEntity.class)).
                 append(" WHERE BUSINESS_KEY_ NOT LIKE '").
                 append(FlowableRuntimeUtils.getProcBusinessKey(FlowableRuntimeUtils.WF_PROCESS_ID, "%")).
-                append("'");
+                append('\'');
         if (userKey != null) {
             query.append(" AND BUSINESS_KEY_ LIKE '").
                     append(FlowableRuntimeUtils.getProcBusinessKey("%", userKey)).
-                    append("'");
+                    append('\'');
         }
         query.append(" AND PARENT_ID_ IS NULL");
 
@@ -608,7 +608,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         return FlowableUserRequestHandler.this.getForm(task, parsed.getRight());
     }
 
-    private Map<String, String> getPropertiesForSubmit(final UserRequestForm form) {
+    private static Map<String, String> getPropertiesForSubmit(final UserRequestForm form) {
         Map<String, String> props = new HashMap<>();
         form.getProperties().stream().
                 filter(UserRequestFormProperty::isWritable).

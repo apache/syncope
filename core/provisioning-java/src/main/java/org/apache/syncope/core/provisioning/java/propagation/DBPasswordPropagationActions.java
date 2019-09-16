@@ -84,7 +84,7 @@ public class DBPasswordPropagationActions implements PropagationActions {
         }
     }
 
-    private String getCipherAlgorithm(final ConnInstance connInstance) {
+    private static String getCipherAlgorithm(final ConnInstance connInstance) {
         Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
@@ -94,7 +94,8 @@ public class DBPasswordPropagationActions implements PropagationActions {
                 : CLEARTEXT;
     }
 
-    private boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
+    private static boolean cipherAlgorithmMatches(final String connectorAlgorithm,
+                                                  final CipherAlgorithm userAlgorithm) {
         if (userAlgorithm == null) {
             return false;
         }

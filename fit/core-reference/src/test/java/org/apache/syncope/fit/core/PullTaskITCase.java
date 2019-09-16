@@ -573,9 +573,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             // 1. create 2 users on testpull
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + "'" + user1OnTestPull + "', 'user1', 'Doe', false, 'mail1@apache.org', NULL)");
+                    + '\'' + user1OnTestPull + "', 'user1', 'Doe', false, 'mail1@apache.org', NULL)");
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + "'" + user2OnTestPull + "', 'user2', 'Rossi', false, 'mail2@apache.org', NULL)");
+                    + '\'' + user2OnTestPull + "', 'user2', 'Rossi', false, 'mail2@apache.org', NULL)");
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
             ImplementationTO reconFilterBuilder = new ImplementationTO();
@@ -612,8 +612,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
             }
         } finally {
-            jdbcTemplate.execute("DELETE FROM testpull WHERE id = '" + user1OnTestPull + "'");
-            jdbcTemplate.execute("DELETE FROM testpull WHERE id = '" + user2OnTestPull + "'");
+            jdbcTemplate.execute("DELETE FROM testpull WHERE id = '" + user1OnTestPull + '\'');
+            jdbcTemplate.execute("DELETE FROM testpull WHERE id = '" + user2OnTestPull + '\'');
             if (task != null && !"7c2242f4-14af-4ab5-af31-cdae23783655".equals(task.getKey())) {
                 taskService.delete(TaskType.PULL, task.getKey());
             }
@@ -879,7 +879,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(email);
 
         // 4. update TESTPULL on external H2 by changing e-mail address
-        jdbcTemplate.execute("UPDATE TESTPULL SET email='updatedSYNCOPE230@syncope.apache.org' WHERE id='" + id + "'");
+        jdbcTemplate.execute("UPDATE TESTPULL SET email='updatedSYNCOPE230@syncope.apache.org' WHERE id='" + id + '\'');
 
         // 5. re-execute the PullTask
         execProvisioningTask(taskService, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
@@ -1055,7 +1055,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 3. Update the password in the DB
         String newCleanPassword = "new-security";
         String newPassword = Encryptor.getInstance().encode(newCleanPassword, CipherAlgorithm.SHA1);
-        jdbcTemplate.execute("UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + "'");
+        jdbcTemplate.execute("UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + '\'');
 
         // 4. Pull the user from the resource
         ImplementationTO pullActions = new ImplementationTO();

@@ -446,7 +446,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         && intAttrName.getPrivilegesOfApplication() == null) {
 
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
-                    invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
+                    invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
                     boolean allowed = true;
                     if (intAttrName.getSchemaType() != null
@@ -577,7 +577,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         }
                     } else {
                         LOG.error("'{}' not allowed", itemTO.getIntAttrName());
-                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                        invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not allowed");
                     }
                 }
             }
@@ -591,7 +591,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
     }
 
-    private void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
+    private static void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
         items.forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());

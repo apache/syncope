@@ -334,7 +334,7 @@ public class SyncopeClient {
      * @param ifNot if true then {@code If-None-Match} is set, {@code If-Match} otherwise
      * @return given service instance, with {@code If-Match} or {@code If-None-Match} set
      */
-    private <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
+    private static <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
         WebClient.client(service).match(etag, ifNot);
         return service;
     }
@@ -347,7 +347,7 @@ public class SyncopeClient {
      * @param etag ETag value
      * @return given service instance, with {@code If-Match} set
      */
-    public <T> T ifMatch(final T service, final EntityTag etag) {
+    public static <T> T ifMatch(final T service, final EntityTag etag) {
         return match(service, etag, false);
     }
 
@@ -359,7 +359,7 @@ public class SyncopeClient {
      * @param etag ETag value
      * @return given service instance, with {@code If-None-Match} set
      */
-    public <T> T ifNoneMatch(final T service, final EntityTag etag) {
+    public static <T> T ifNoneMatch(final T service, final EntityTag etag) {
         return match(service, etag, true);
     }
 

@@ -69,11 +69,11 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
     public void onRequest() {
         HttpResourceStream stream = getResourceStream();
         ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream);
-        String key = StringUtils.isNotBlank(fileKey) ? fileKey + "_" : "";
+        String key = StringUtils.isNotBlank(fileKey) ? fileKey + '_' : "";
         String ext = "";
         if (StringUtils.isNotBlank(mimeType)) {
             String extByMimeType = mimeTypesLoader.getFileExt(mimeType);
-            ext = StringUtils.isBlank(extByMimeType) ? ".bin" : ("." + extByMimeType);
+            ext = StringUtils.isBlank(extByMimeType) ? ".bin" : ('.' + extByMimeType);
         }
         String fileName = key + (stream.getFilename() == null ? name : stream.getFilename()) + ext;
 

@@ -294,9 +294,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     @Override
     public String buildRefDesc(final Task task) {
-        return taskUtilsFactory.getInstance(task).getType().name() + " "
+        return taskUtilsFactory.getInstance(task).getType().name() + ' '
                 + "Task "
-                + task.getKey() + " "
+                + task.getKey() + ' '
                 + (task instanceof SchedTask
                         ? SchedTask.class.cast(task).getName()
                         : task instanceof PropagationTask

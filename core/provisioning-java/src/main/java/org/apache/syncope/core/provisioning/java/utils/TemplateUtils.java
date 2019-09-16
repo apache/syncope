@@ -53,7 +53,7 @@ public class TemplateUtils {
     @Autowired
     private GroupDAO groupDAO;
 
-    private Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
+    private static Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
         Attr result = new Attr();
         result.setSchema(template.getSchema());
 
@@ -69,7 +69,7 @@ public class TemplateUtils {
         return result;
     }
 
-    private void fill(final RealmMember realmMember, final RealmMember template) {
+    private static void fill(final RealmMember realmMember, final RealmMember template) {
         MapContext jexlContext = new MapContext();
         JexlUtils.addFieldsToContext(realmMember, jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
@@ -123,14 +123,14 @@ public class TemplateUtils {
         realmMember.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+    private static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
                 filter(relationship -> !any.getRelationship(
                 relationship.getOtherEndKey(), relationship.getOtherEndKey()).isPresent()).
                 forEachOrdered(relationship -> any.getRelationships().add(relationship));
     }
 
-    private void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+    private static void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getMemberships().stream().
                 filter(membership -> !any.getMembership(membership.getGroupKey()).isPresent()).
                 forEachOrdered(membership -> any.getMemberships().add(membership));

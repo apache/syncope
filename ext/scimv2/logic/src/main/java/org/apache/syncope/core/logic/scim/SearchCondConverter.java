@@ -46,7 +46,7 @@ public final class SearchCondConverter {
             return visitor.visit(parser.scimFilter());
         } catch (Exception e) {
             LOG.error("Could not parse '{}'", filter, e);
-            throw new BadRequestException(ErrorType.invalidFilter, "Could not parse '" + filter + "'");
+            throw new BadRequestException(ErrorType.invalidFilter, "Could not parse '" + filter + '\'');
         }
     }
 

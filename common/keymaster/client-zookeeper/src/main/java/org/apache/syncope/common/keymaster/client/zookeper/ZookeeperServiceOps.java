@@ -46,11 +46,11 @@ public class ZookeeperServiceOps implements ServiceOps {
     @Autowired
     private CuratorFramework client;
 
-    private String buildServicePath(final NetworkService.Type serviceType, final String... parts) {
-        String prefix = SERVICE_PATH + "/" + serviceType.name();
+    private static String buildServicePath(final NetworkService.Type serviceType, final String... parts) {
+        String prefix = SERVICE_PATH + '/' + serviceType.name();
         String suffix = StringUtils.EMPTY;
         if (parts != null && parts.length > 0) {
-            suffix = "/" + String.join("/", parts);
+            suffix = '/' + String.join("/", parts);
         }
         return prefix + suffix;
     }

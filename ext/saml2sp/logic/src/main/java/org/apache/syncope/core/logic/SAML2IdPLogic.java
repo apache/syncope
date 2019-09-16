@@ -99,7 +99,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         SAML2IdP idp = idpDAO.find(key);
         if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
         }
 
         return complete(idp, binder.getIdPTO(idp));
@@ -196,7 +196,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         SAML2IdP saml2Idp = idpDAO.find(saml2IdpTO.getKey());
         if (saml2Idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + '\'');
         }
 
         SAML2IdPEntity idpEntity = cache.get(saml2Idp.getEntityID());
@@ -227,7 +227,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         SAML2IdP idp = idpDAO.find(key);
         if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
         }
 
         idpDAO.delete(key);

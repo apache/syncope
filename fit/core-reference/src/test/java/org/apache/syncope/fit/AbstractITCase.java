@@ -575,7 +575,7 @@ public abstract class AbstractITCase {
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").get().getValues().get(0)
-                + ":" + ldapConn.getConf("port").get().getValues().get(0) + "/");
+                + ':' + ldapConn.getConf("port").get().getValues().get(0) + '/');
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL,
                 bindDn == null ? ldapConn.getConf("principal").get().getValues().get(0) : bindDn);

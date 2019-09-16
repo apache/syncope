@@ -45,7 +45,7 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    private Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
+    private static Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
@@ -90,8 +90,8 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
-    private Map<DerSchema, String> getValues(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+    private static Map<DerSchema, String> getValues(
+        final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 

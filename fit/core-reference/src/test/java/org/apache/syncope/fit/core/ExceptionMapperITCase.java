@@ -105,7 +105,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
             fail("This should not happen");
         } catch (Exception e) {
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals("EntityExists [" + message + "]", e.getMessage());
+            assertEquals("EntityExists [" + message + ']', e.getMessage());
         }
     }
 
@@ -129,7 +129,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals("EntityExists [" + message + "]", e.getMessage());
+            assertEquals("EntityExists [" + message + ']', e.getMessage());
         }
     }
 

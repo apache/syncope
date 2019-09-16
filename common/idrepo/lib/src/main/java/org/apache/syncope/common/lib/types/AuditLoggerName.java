@@ -38,11 +38,11 @@ public class AuditLoggerName implements Serializable {
     private static final long serialVersionUID = -647989486671786839L;
 
     public static String getAuditLoggerName(final String domain) {
-        return LoggerType.AUDIT.getPrefix() + "." + domain;
+        return LoggerType.AUDIT.getPrefix() + '.' + domain;
     }
 
     public static String getAuditEventLoggerName(final String domain, final String loggerName) {
-        return domain + "." + loggerName;
+        return domain + '.' + loggerName;
     }
 
     private final AuditElements.EventCategoryType type;
@@ -141,7 +141,7 @@ public class AuditLoggerName implements Serializable {
         }
 
         Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(
-                loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + ".", ""));
+                loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + '.', ""));
 
         return new AuditLoggerName(
                 eventCategory.getKey().getType(),

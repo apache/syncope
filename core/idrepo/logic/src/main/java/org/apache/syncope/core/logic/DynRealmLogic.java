@@ -47,7 +47,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     public DynRealmTO read(final String key) {
         DynRealm dynRealm = dynRealmDAO.find(key);
         if (dynRealm == null) {
-            LOG.error("Could not find dynamic realm '" + key + "'");
+            LOG.error("Could not find dynamic realm '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -69,7 +69,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     public DynRealmTO update(final DynRealmTO dynRealmTO) {
         DynRealm dynRealm = dynRealmDAO.find(dynRealmTO.getKey());
         if (dynRealm == null) {
-            LOG.error("Could not find dynamic realm '" + dynRealmTO.getKey() + "'");
+            LOG.error("Could not find dynamic realm '" + dynRealmTO.getKey() + '\'');
             throw new NotFoundException(dynRealmTO.getKey());
         }
 
@@ -80,7 +80,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     public DynRealmTO delete(final String key) {
         DynRealm dynRealm = dynRealmDAO.find(key);
         if (dynRealm == null) {
-            LOG.error("Could not find dynamic realm '" + key + "'");
+            LOG.error("Could not find dynamic realm '" + key + '\'');
 
             throw new NotFoundException(key);
         }

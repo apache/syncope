@@ -141,13 +141,13 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return false;
     }
 
-    private boolean matches(final Any<?> any, final AnyTypeCond cond, final boolean not) {
+    private static boolean matches(final Any<?> any, final AnyTypeCond cond, final boolean not) {
         boolean equals = any.getType().getKey().equals(cond.getAnyTypeKey());
         return not ? !equals : equals;
     }
 
-    private boolean matches(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
+    private static boolean matches(
+        final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
 
         boolean found = any.getRelationships().stream().
                 anyMatch(rel -> rel.getType().getKey().equals(cond.getRelationshipTypeKey()));
@@ -227,11 +227,11 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private boolean matches(
-            final List<? extends PlainAttrValue> anyAttrValues,
-            final PlainAttrValue attrValue,
-            final PlainSchema schema,
-            final AttributeCond cond) {
+    private static boolean matches(
+        final List<? extends PlainAttrValue> anyAttrValues,
+        final PlainAttrValue attrValue,
+        final PlainSchema schema,
+        final AttributeCond cond) {
 
         return anyAttrValues.stream().anyMatch(item -> {
             switch (cond.getType()) {
@@ -320,7 +320,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                         ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
                     }
                 } catch (ValidationException e) {
-                    LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+                    LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
                     return false;
                 }
 
@@ -411,7 +411,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                     try {
                         ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
                     } catch (ValidationException e) {
-                        LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+                        LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
                         return false;
                     }
                 }

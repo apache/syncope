@@ -151,7 +151,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         return query.getResultList();
     }
 
-    private StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
+    private static StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
         StringBuilder query = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
                 append(" e WHERE e.");

@@ -165,7 +165,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
-            LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+            LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
             throw new IllegalArgumentException();
         }
 
@@ -228,7 +228,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             try {
                 ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);
             } catch (ValidationException e) {
-                LOG.error("Could not validate expression '" + computed.getExpression() + "'", e);
+                LOG.error("Could not validate expression '" + computed.getExpression() + '\'', e);
                 throw new IllegalArgumentException();
             }
         }
@@ -245,7 +245,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             groupKey = Optional.ofNullable(group).map(Entity::getKey).orElse(null);
         }
         if (groupKey == null) {
-            LOG.error("Could not find group for '" + cond.getGroup() + "'");
+            LOG.error("Could not find group for '" + cond.getGroup() + '\'');
             throw new IllegalArgumentException();
         }
 
@@ -261,7 +261,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             rightAnyObjectKey = Optional.ofNullable(anyObject).map(Entity::getKey).orElse(null);
         }
         if (rightAnyObjectKey == null) {
-            LOG.error("Could not find any object for '" + cond.getAnyObject() + "'");
+            LOG.error("Could not find any object for '" + cond.getAnyObject() + '\'');
             throw new IllegalArgumentException();
         }
 
@@ -271,7 +271,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Realm check(final AssignableCond cond) {
         Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
         if (realm == null) {
-            LOG.error("Could not find realm for '" + cond.getRealmFullPath() + "'");
+            LOG.error("Could not find realm for '" + cond.getRealmFullPath() + '\'');
             throw new IllegalArgumentException();
         }
 
@@ -290,7 +290,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             memberKey = Optional.ofNullable(member).map(Entity::getKey).orElse(null);
         }
         if (memberKey == null) {
-            LOG.error("Could not find user or any object for '" + cond.getMember() + "'");
+            LOG.error("Could not find user or any object for '" + cond.getMember() + '\'');
             throw new IllegalArgumentException();
         }
 

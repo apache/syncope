@@ -161,7 +161,7 @@ public class OIDCUserManager {
         return result;
     }
 
-    private List<OIDCProviderActions> getActions(final OIDCProvider op) {
+    private static List<OIDCProviderActions> getActions(final OIDCProvider op) {
         List<OIDCProviderActions> actions = new ArrayList<>();
         op.getActions().forEach(impl -> {
             try {

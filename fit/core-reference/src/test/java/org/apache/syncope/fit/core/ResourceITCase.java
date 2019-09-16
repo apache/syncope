@@ -67,7 +67,7 @@ import org.junit.jupiter.api.Test;
 
 public class ResourceITCase extends AbstractITCase {
 
-    private ResourceTO buildResourceTO(final String resourceKey) {
+    private static ResourceTO buildResourceTO(final String resourceKey) {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setKey(resourceKey);

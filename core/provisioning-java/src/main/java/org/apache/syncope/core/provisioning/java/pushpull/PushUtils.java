@@ -78,11 +78,11 @@ public class PushUtils {
         }
     }
 
-    private List<ConnectorObject> findByCorrelationRule(
-            final Connector connector,
-            final Any<?> any,
-            final Provision provision,
-            final PushCorrelationRule rule) {
+    private static List<ConnectorObject> findByCorrelationRule(
+        final Connector connector,
+        final Any<?> any,
+        final Provision provision,
+        final PushCorrelationRule rule) {
 
         List<ConnectorObject> objs = new ArrayList<>();
 

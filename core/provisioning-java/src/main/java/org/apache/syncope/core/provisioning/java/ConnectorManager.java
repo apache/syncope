@@ -68,7 +68,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
     private EntityFactory entityFactory;
 
-    private String getBeanName(final ExternalResource resource) {
+    private static String getBeanName(final ExternalResource resource) {
         return String.format("connInstance-%s-%S-%s",
                 AuthContextUtils.getDomain(), resource.getConnector().getKey(), resource.getKey());
     }

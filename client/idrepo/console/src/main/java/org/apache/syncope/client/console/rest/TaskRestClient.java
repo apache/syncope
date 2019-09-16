@@ -144,8 +144,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends TaskTO> List<T> list(
-            final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
+    public static <T extends TaskTO> List<T> list(
+        final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
                 search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
@@ -153,12 +153,12 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends TaskTO> List<T> list(
-            final String resource,
-            final Class<T> reference,
-            final int page,
-            final int size,
-            final SortParam<String> sort) {
+    public static <T extends TaskTO> List<T> list(
+        final String resource,
+        final Class<T> reference,
+        final int page,
+        final int size,
+        final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
                 search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
@@ -174,7 +174,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                         orderBy(toOrderBy(sort)).build()).getResult();
     }
 
-    private TaskType getTaskType(final Class<?> reference) {
+    private static TaskType getTaskType(final Class<?> reference) {
         TaskType result = null;
         if (PropagationTaskTO.class.equals(reference)) {
             result = TaskType.PROPAGATION;
