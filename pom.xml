@@ -2046,12 +2046,6 @@ under the License.
         </plugin>
 
         <plugin>
-          <groupId>org.vafer</groupId>
-          <artifactId>jdeb</artifactId>
-          <version>1.8</version>
-        </plugin>
-
-        <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
           <version>0.31.0</version>
