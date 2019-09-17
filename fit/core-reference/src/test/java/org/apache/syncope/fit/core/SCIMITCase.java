@@ -124,7 +124,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @BeforeEach
-    public static void check() {
+    public void check() {
         assumeTrue(isSCIMAvailable(webClient()));
     }
 
