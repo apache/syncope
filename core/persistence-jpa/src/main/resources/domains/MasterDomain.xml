@@ -55,7 +55,7 @@ under the License.
     <property name="password" value="${Master.password}"/>
     <!-- connection pool configuration - transaction isolation, default READ_COMMITTED (see SYNCOPE-202) -->
     <property name="transactionIsolation">
-      <util:constant static-field="${Master.pool.transactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
+      <util:constant static-field="${Master.pool.transactionIsolation:TRANSACTION_READ_COMMITTED}"/>
     </property>
     <!-- connection pool configuration - default values taken from HikariConfig default values -->
     <property name="maximumPoolSize" value="${Master.pool.maxActive:8}"/>
