@@ -53,35 +53,35 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     private static final long serialVersionUID = 6284485820911028843L;
 
-    public JobTO getJob(final String key) {
+    public static JobTO getJob(final String key) {
         return getService(TaskService.class).getJob(key);
     }
 
-    public List<JobTO> listJobs() {
+    public static List<JobTO> listJobs() {
         return getService(TaskService.class).listJobs();
     }
 
-    public void actionJob(final String refKey, final JobAction jobAction) {
+    public static void actionJob(final String refKey, final JobAction jobAction) {
         getService(TaskService.class).actionJob(refKey, jobAction);
     }
 
-    public int count(final TaskType kind) {
+    public static int count(final TaskType kind) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).page(1).size(1).build()).getTotalCount();
     }
 
-    public int count(final String resource, final TaskType kind) {
+    public static int count(final String resource, final TaskType kind) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).resource(resource).page(1).size(1).build()).getTotalCount();
     }
 
-    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
+    public static int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
                 getTotalCount();
     }
 
-    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
+    public static int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).
                         anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
@@ -94,7 +94,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
     }
 
-    public List<PropagationTaskTO> listPropagationTasks(
+    public static List<PropagationTaskTO> listPropagationTasks(
             final String resource, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
@@ -105,7 +105,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public List<PropagationTaskTO> listPropagationTasks(
+    public static List<PropagationTaskTO> listPropagationTasks(
             final AnyTypeKind anyTypeKind, final String entityKey,
             final int page, final int size, final SortParam<String> sort) {
 
@@ -117,7 +117,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public List<NotificationTaskTO> listNotificationTasks(
+    public static List<NotificationTaskTO> listNotificationTasks(
             final String notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
@@ -190,19 +190,19 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return result;
     }
 
-    public PropagationTaskTO readPropagationTask(final String taskKey) {
+    public static PropagationTaskTO readPropagationTask(final String taskKey) {
         return getService(TaskService.class).read(TaskType.PROPAGATION, taskKey, false);
     }
 
-    public NotificationTaskTO readNotificationTask(final String taskKey) {
+    public static NotificationTaskTO readNotificationTask(final String taskKey) {
         return getService(TaskService.class).read(TaskType.NOTIFICATION, taskKey, false);
     }
 
-    public <T extends TaskTO> T readTask(final TaskType type, final String taskKey) {
+    public static <T extends TaskTO> T readTask(final TaskType type, final String taskKey) {
         return getService(TaskService.class).read(type, taskKey, false);
     }
 
-    public void delete(final TaskType type, final String taskKey) {
+    public static void delete(final TaskType type, final String taskKey) {
         getService(TaskService.class).delete(type, taskKey);
     }
 
@@ -211,7 +211,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         startExecution(taskKey, start, false);
     }
 
-    public void startExecution(final String taskKey, final Date start, final boolean dryRun) {
+    public static void startExecution(final String taskKey, final Date start, final boolean dryRun) {
         getService(TaskService.class).execute(
                 new ExecuteQuery.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
     }
@@ -226,11 +226,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).listRecentExecutions(max);
     }
 
-    public void create(final TaskType type, final SchedTaskTO taskTO) {
+    public static void create(final TaskType type, final SchedTaskTO taskTO) {
         getService(TaskService.class).create(type, taskTO);
     }
 
-    public void update(final TaskType type, final SchedTaskTO taskTO) {
+    public static void update(final TaskType type, final SchedTaskTO taskTO) {
         getService(TaskService.class).update(type, taskTO);
     }
 

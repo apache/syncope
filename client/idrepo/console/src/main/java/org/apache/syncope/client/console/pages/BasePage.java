@@ -122,7 +122,7 @@ public class BasePage extends BaseWebPage {
             public void onClick() {
                 try {
                     HttpResourceStream stream =
-                            new HttpResourceStream(new SyncopeRestClient().exportInternalStorageContent());
+                            new HttpResourceStream(SyncopeRestClient.exportInternalStorageContent());
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null
@@ -539,7 +539,7 @@ public class BasePage extends BaseWebPage {
      * @param modal window
      * @param container container
      */
-    public void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
+    public static void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;

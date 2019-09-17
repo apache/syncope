@@ -29,7 +29,7 @@ public class ConnectorHistoryRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1917949374689773018L;
 
-    public List<ConnInstanceHistoryConfTO> list(final String key) {
+    public static List<ConnInstanceHistoryConfTO> list(final String key) {
         List<ConnInstanceHistoryConfTO> connHistoryConfs = List.of();
         try {
             connHistoryConfs = getService(ConnectorHistoryService.class).list(key);
@@ -39,11 +39,11 @@ public class ConnectorHistoryRestClient extends BaseRestClient {
         return connHistoryConfs;
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(ConnectorHistoryService.class).delete(key);
     }
 
-    public void restore(final String key) {
+    public static void restore(final String key) {
         getService(ConnectorHistoryService.class).restore(key);
     }
 }

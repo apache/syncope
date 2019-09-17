@@ -56,8 +56,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
     @SpringBean
     private MIMETypesLoader mimeTypesLoader;
 
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final MultiFieldPanel<String> enumerationValues;
 
     private final MultiFieldPanel<String> enumerationKeys;
@@ -236,7 +234,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
+                return ImplementationRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };

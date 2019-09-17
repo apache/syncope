@@ -79,7 +79,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             AnyObjectCR req = new AnyObjectCR();
             EntityTOUtils.toAnyCR(inner, req);
 
-            result = anyObjectRestClient.create(req);
+            result = AnyObjectRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             AnyObjectUR req = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

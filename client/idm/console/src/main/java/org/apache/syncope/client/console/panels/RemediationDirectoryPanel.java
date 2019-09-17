@@ -153,7 +153,7 @@ public class RemediationDirectoryPanel
                 @Override
                 public void onClick(final AjaxRequestTarget target, final RemediationTO ignore) {
                     try {
-                        restClient.remedy(model.getObject().getKey(), model.getObject().getKeyPayload());
+                        RemediationRestClient.remedy(model.getObject().getKey(), model.getObject().getKeyPayload());
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(container);
                     } catch (SyncopeClientException e) {
@@ -211,7 +211,7 @@ public class RemediationDirectoryPanel
                                     model.getObject(),
                                     previousUserTO,
                                     newUserTO,
-                                    new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
+                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
                                     FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getLeft(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
@@ -238,7 +238,7 @@ public class RemediationDirectoryPanel
                                     model.getObject(),
                                     previousGroupTO,
                                     newGroupTO,
-                                    new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
+                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
                                     FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getMiddle(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
@@ -265,7 +265,7 @@ public class RemediationDirectoryPanel
                                     model.getObject(),
                                     previousAnyObjectTO,
                                     newAnyObjectTO,
-                                    new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
+                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
                                     FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).
                                             getRight().values().iterator().next(),
                                     pageRef
@@ -283,7 +283,7 @@ public class RemediationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final RemediationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    RemediationRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -317,8 +317,6 @@ public class RemediationDirectoryPanel
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private final RemediationRestClient restClient = new RemediationRestClient();
-
         public RemediationProvider(final int paginatorRows) {
             super(paginatorRows);
 
@@ -328,12 +326,13 @@ public class RemediationDirectoryPanel
         @Override
         public Iterator<RemediationTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getRemediations((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return RemediationRestClient.getRemediations((page < 0 ? 0 : page) + 1,
+                paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.countRemediations();
+            return RemediationRestClient.countRemediations();
         }
 
         @Override
@@ -381,7 +380,7 @@ public class RemediationDirectoryPanel
                 UserCR req = new UserCR();
                 EntityTOUtils.toAnyCR(inner, req);
 
-                result = restClient.remedy(remediationTO.getKey(), req);
+                result = RemediationRestClient.remedy(remediationTO.getKey(), req);
             } else {
                 UserUR req = AnyOperations.diff(inner, previousUserTO, false);
 
@@ -397,7 +396,7 @@ public class RemediationDirectoryPanel
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = restClient.remedy(remediationTO.getKey(), req);
+                    result = RemediationRestClient.remedy(remediationTO.getKey(), req);
                 }
             }
 
@@ -436,7 +435,7 @@ public class RemediationDirectoryPanel
                 GroupCR req = new GroupCR();
                 EntityTOUtils.toAnyCR(inner, req);
 
-                result = restClient.remedy(remediationTO.getKey(), req);
+                result = RemediationRestClient.remedy(remediationTO.getKey(), req);
             } else {
                 GroupUR req = AnyOperations.diff(inner, previousGroupTO, false);
 
@@ -445,7 +444,7 @@ public class RemediationDirectoryPanel
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = restClient.remedy(remediationTO.getKey(), req);
+                    result = RemediationRestClient.remedy(remediationTO.getKey(), req);
                 }
             }
 
@@ -484,7 +483,7 @@ public class RemediationDirectoryPanel
                 AnyObjectCR req = new AnyObjectCR();
                 EntityTOUtils.toAnyCR(inner, req);
 
-                result = restClient.remedy(remediationTO.getKey(), req);
+                result = RemediationRestClient.remedy(remediationTO.getKey(), req);
             } else {
                 AnyObjectUR req = AnyOperations.diff(inner, previousAnyObjectTO, false);
 
@@ -493,7 +492,7 @@ public class RemediationDirectoryPanel
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = restClient.remedy(remediationTO.getKey(), req);
+                    result = RemediationRestClient.remedy(remediationTO.getKey(), req);
                 }
             }
 

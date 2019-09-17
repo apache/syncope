@@ -45,9 +45,7 @@ public class Audit extends BasePage {
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
-        final LoggerRestClient loggerRestClient = new LoggerRestClient();
-
-        List<String> events = loggerRestClient.listAudits().stream().
+        List<String> events = LoggerRestClient.listAudits().stream().
                 map(audit -> AuditLoggerName.buildEvent(
                 audit.getType(),
                 audit.getCategory(),
@@ -64,7 +62,7 @@ public class Audit extends BasePage {
 
         form.add(new EventCategoryPanel(
                 "auditPanel",
-                loggerRestClient.listEvents(),
+                LoggerRestClient.listEvents(),
                 new ListModel<>(events)) {
 
             private static final long serialVersionUID = 6113164334533550277L;
@@ -97,7 +95,7 @@ public class Audit extends BasePage {
                                 ? null : eventCategory.getKey().getEvents().iterator().next(),
                                 eventCategory.getValue());
 
-                        loggerRestClient.disableAudit(auditLoggerName);
+                        LoggerRestClient.disableAudit(auditLoggerName);
                     });
 
                     eventSelectionChanged.getToBeAdded().forEach(toBeAdded -> {
@@ -112,7 +110,7 @@ public class Audit extends BasePage {
                                 ? null : eventCategory.getKey().getEvents().iterator().next(),
                                 eventCategory.getValue());
 
-                        loggerRestClient.enableAudit(auditLoggerName);
+                        LoggerRestClient.enableAudit(auditLoggerName);
                     });
                 }
             }

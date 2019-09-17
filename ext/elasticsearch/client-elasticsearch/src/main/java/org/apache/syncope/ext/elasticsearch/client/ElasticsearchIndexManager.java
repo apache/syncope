@@ -62,7 +62,7 @@ public class ElasticsearchIndexManager {
 
     public boolean existsIndex(final String domain, final AnyTypeKind kind) throws IOException {
         return client.indices().exists(
-                new GetIndexRequest(elasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
+                new GetIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
     }
 
     public void createIndex(final String domain, final AnyTypeKind kind)
@@ -104,24 +104,24 @@ public class ElasticsearchIndexManager {
                 endObject();
 
         CreateIndexResponse response = client.indices().create(
-                new CreateIndexRequest(elasticsearchUtils.getContextDomainName(domain, kind)).
+                new CreateIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)).
                         settings(settings).
                         mapping(mapping), RequestOptions.DEFAULT);
         LOG.debug("Successfully created {} for {}: {}",
-                elasticsearchUtils.getContextDomainName(domain, kind), kind.name(), response);
+                ElasticsearchUtils.getContextDomainName(domain, kind), kind.name(), response);
     }
 
     public void removeIndex(final String domain, final AnyTypeKind kind) throws IOException {
         AcknowledgedResponse acknowledgedResponse = client.indices().delete(
-                new DeleteIndexRequest(elasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
+                new DeleteIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
         LOG.debug("Successfully removed {}: {}",
-                elasticsearchUtils.getContextDomainName(domain, kind), acknowledgedResponse);
+                ElasticsearchUtils.getContextDomainName(domain, kind), acknowledgedResponse);
     }
 
     @TransactionalEventListener
     public void after(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
         GetRequest getRequest = new GetRequest(
-                elasticsearchUtils.getContextDomainName(
+                ElasticsearchUtils.getContextDomainName(
                         AuthContextUtils.getDomain(), event.getAny().getType().getKind()),
                 event.getAny().getKey());
         GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
@@ -129,7 +129,7 @@ public class ElasticsearchIndexManager {
             LOG.debug("About to update index for {}", event.getAny());
 
             UpdateRequest request = new UpdateRequest(
-                    elasticsearchUtils.getContextDomainName(
+                    ElasticsearchUtils.getContextDomainName(
                             AuthContextUtils.getDomain(), event.getAny().getType().getKind()),
                     event.getAny().getKey()).
                     retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
@@ -140,7 +140,7 @@ public class ElasticsearchIndexManager {
             LOG.debug("About to create index for {}", event.getAny());
 
             IndexRequest request = new IndexRequest(
-                    elasticsearchUtils.getContextDomainName(
+                    ElasticsearchUtils.getContextDomainName(
                             AuthContextUtils.getDomain(), event.getAny().getType().getKind())).
                     id(event.getAny().getKey()).
                     source(elasticsearchUtils.builder(event.getAny()));
@@ -154,7 +154,7 @@ public class ElasticsearchIndexManager {
         LOG.debug("About to delete index for {}[{}]", event.getAnyTypeKind(), event.getAnyKey());
 
         DeleteRequest request = new DeleteRequest(
-                elasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), event.getAnyTypeKind()),
+                ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), event.getAnyTypeKind()),
                 event.getAnyKey());
         DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
         LOG.debug("Index successfully deleted for {}[{}]: {}",

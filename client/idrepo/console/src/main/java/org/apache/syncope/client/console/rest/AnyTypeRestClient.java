@@ -33,11 +33,9 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    private static final AnyTypeComparator COMPARATOR = new AnyTypeComparator();
-
     public static final Comparator<String> KEY_COMPARATOR = new AnyTypeKeyComparator();
 
-    public AnyTypeTO read(final String key) {
+    public static AnyTypeTO read(final String key) {
         AnyTypeTO type = null;
 
         try {
@@ -49,7 +47,7 @@ public class AnyTypeRestClient extends BaseRestClient {
         return type;
     }
 
-    public List<AnyTypeTO> listAnyTypes() {
+    public static List<AnyTypeTO> listAnyTypes() {
         List<AnyTypeTO> types = List.of();
 
         try {
@@ -62,21 +60,21 @@ public class AnyTypeRestClient extends BaseRestClient {
         return types;
     }
 
-    public List<String> list() {
+    public static List<String> list() {
         List<String> types = getSyncopeService().platform().getAnyTypes();
         Collections.sort(types, new AnyTypeKeyComparator());
         return types;
     }
 
-    public void create(final AnyTypeTO anyTypeTO) {
+    public static void create(final AnyTypeTO anyTypeTO) {
         getService(AnyTypeService.class).create(anyTypeTO);
     }
 
-    public void update(final AnyTypeTO anyTypeTO) {
+    public static void update(final AnyTypeTO anyTypeTO) {
         getService(AnyTypeService.class).update(anyTypeTO);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(AnyTypeService.class).delete(key);
     }
 

@@ -94,7 +94,7 @@ public class UserWizardBuilder extends AnyWizardBuilder implements UserForm {
                     ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
 
-            result = userSelfRestClient.create(req);
+            result = UserSelfRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             UserUR userUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

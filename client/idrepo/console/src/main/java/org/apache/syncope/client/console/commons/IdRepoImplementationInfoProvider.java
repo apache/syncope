@@ -40,8 +40,6 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
     protected final ClassPathScanImplementationLookup lookup;
 
-    protected final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     public IdRepoImplementationInfoProvider(final ClassPathScanImplementationLookup lookup) {
         this.lookup = lookup;
     }
@@ -159,7 +157,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
+                return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };

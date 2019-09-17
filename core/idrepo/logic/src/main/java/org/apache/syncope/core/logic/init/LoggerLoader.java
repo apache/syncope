@@ -154,10 +154,10 @@ public class LoggerLoader implements SyncopeCoreLoader {
         }).collect(Collectors.toList());
     }
 
-    public void addAppenderToContext(
-            final LoggerContext ctx,
-            final AuditAppender auditAppender,
-            final LoggerConfig eventLogConf) {
+    public static void addAppenderToContext(
+        final LoggerContext ctx,
+        final AuditAppender auditAppender,
+        final LoggerConfig eventLogConf) {
 
         Appender targetAppender = ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName());
         if (targetAppender == null) {

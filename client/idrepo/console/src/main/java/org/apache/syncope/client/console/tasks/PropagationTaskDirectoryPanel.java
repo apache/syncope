@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -167,7 +168,7 @@ public abstract class PropagationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 try {
-                    restClient.delete(TaskType.PROPAGATION, taskTO.getKey());
+                    TaskRestClient.delete(TaskType.PROPAGATION, taskTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
@@ -211,13 +212,13 @@ public abstract class PropagationTaskDirectoryPanel
 
         @Override
         public long size() {
-            return restClient.count(resource, TaskType.PROPAGATION);
+            return TaskRestClient.count(resource, TaskType.PROPAGATION);
         }
 
         @Override
         public Iterator<PropagationTaskTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.listPropagationTasks(
+            return TaskRestClient.listPropagationTasks(
                     resource, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

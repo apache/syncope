@@ -30,8 +30,6 @@ public class MustChangePassword extends AbstractMustChangePassword {
 
     private static final long serialVersionUID = 8581970794722709800L;
 
-    protected UserSelfRestClient restClient = new UserSelfRestClient();
-
     public MustChangePassword(final PageParameters parameters) {
         super(parameters);
     }
@@ -39,7 +37,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
     @Override
     protected void doSubmit(final AjaxRequestTarget target) {
         try {
-            restClient.changePassword(passwordField.getModelObject());
+            UserSelfRestClient.changePassword(passwordField.getModelObject());
 
             SyncopeConsoleSession.get().invalidate();
 

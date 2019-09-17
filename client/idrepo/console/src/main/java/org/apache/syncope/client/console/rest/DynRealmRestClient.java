@@ -29,19 +29,19 @@ public class DynRealmRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
-    public List<DynRealmTO> list() {
+    public static List<DynRealmTO> list() {
         return getService(DynRealmService.class).list();
     }
 
-    public void create(final DynRealmTO dynRealmTO) {
+    public static void create(final DynRealmTO dynRealmTO) {
         getService(DynRealmService.class).create(dynRealmTO);
     }
 
-    public void update(final DynRealmTO dynRealmTO) {
+    public static void update(final DynRealmTO dynRealmTO) {
         getService(DynRealmService.class).update(dynRealmTO);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(DynRealmService.class).delete(key);
     }
 }

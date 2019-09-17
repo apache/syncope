@@ -224,7 +224,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             spEntityDescriptor.getRoleDescriptors().add(spSSODescriptor);
             saml2rw.sign(spEntityDescriptor);
 
-            saml2rw.write(new OutputStreamWriter(os), spEntityDescriptor, true);
+            SAML2ReaderWriter.write(new OutputStreamWriter(os), spEntityDescriptor, true);
         } catch (Exception e) {
             LOG.error("While getting SP metadata", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -334,7 +334,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                 case REDIRECT:
                     requestTO.setRelayState(URLEncoder.encode(relayState.getLeft(), StandardCharsets.UTF_8));
                     requestTO.setContent(URLEncoder.encode(
-                            saml2rw.encode(authnRequest, true), StandardCharsets.UTF_8));
+                            SAML2ReaderWriter.encode(authnRequest, true), StandardCharsets.UTF_8));
                     requestTO.setSignAlg(URLEncoder.encode(saml2rw.getSigAlgo(), StandardCharsets.UTF_8));
                     requestTO.setSignature(URLEncoder.encode(
                             saml2rw.sign(requestTO.getContent(), requestTO.getRelayState()),
@@ -345,7 +345,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                 default:
                     requestTO.setRelayState(relayState.getLeft());
                     saml2rw.sign(authnRequest);
-                    requestTO.setContent(saml2rw.encode(authnRequest, idp.isUseDeflateEncoding()));
+                    requestTO.setContent(SAML2ReaderWriter.encode(authnRequest, idp.isUseDeflateEncoding()));
             }
         } catch (Exception e) {
             LOG.error("While generating AuthnRequest", e);
@@ -389,7 +389,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         }
         Response samlResponse;
         try {
-            XMLObject responseObject = saml2rw.read(useDeflateEncoding, response.getSamlResponse());
+            XMLObject responseObject = SAML2ReaderWriter.read(useDeflateEncoding, response.getSamlResponse());
             if (!(responseObject instanceof Response)) {
                 throw new IllegalArgumentException("Expected " + Response.class.getName()
                         + ", got " + responseObject.getClass().getName());
@@ -614,7 +614,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             // 4. sign and encode AuthnRequest
             switch (idp.getBindingType()) {
                 case REDIRECT:
-                    requestTO.setContent(saml2rw.encode(logoutRequest, true));
+                    requestTO.setContent(SAML2ReaderWriter.encode(logoutRequest, true));
                     requestTO.setSignAlg(saml2rw.getSigAlgo());
                     requestTO.setSignature(saml2rw.sign(requestTO.getContent(), requestTO.getRelayState()));
                     break;
@@ -622,7 +622,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                 case POST:
                 default:
                     saml2rw.sign(logoutRequest);
-                    requestTO.setContent(saml2rw.encode(logoutRequest, idp.isUseDeflateEncoding()));
+                    requestTO.setContent(SAML2ReaderWriter.encode(logoutRequest, idp.isUseDeflateEncoding()));
             }
         } catch (Exception e) {
             LOG.error("While generating LogoutRequest", e);
@@ -665,7 +665,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         // 3. parse the provided SAML response
         LogoutResponse logoutResponse;
         try {
-            XMLObject responseObject = saml2rw.read(useDeflateEncoding, response.getSamlResponse());
+            XMLObject responseObject = SAML2ReaderWriter.read(useDeflateEncoding, response.getSamlResponse());
             if (!(responseObject instanceof LogoutResponse)) {
                 throw new IllegalArgumentException("Expected " + LogoutResponse.class.getName()
                         + ", got " + responseObject.getClass().getName());

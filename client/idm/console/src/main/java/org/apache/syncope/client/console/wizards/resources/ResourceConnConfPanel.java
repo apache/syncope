@@ -33,8 +33,6 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final ConnectorRestClient restClient = new ConnectorRestClient();
-
     private final boolean createFlag;
 
     public ResourceConnConfPanel(final ResourceTO resourceTO, final boolean createFlag) {
@@ -91,7 +89,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
         List<ConnConfProperty> props = new ArrayList<>();
 
         if (resourceTO.getConnector() != null) {
-            restClient.read(resourceTO.getConnector()).getConf().stream().
+            ConnectorRestClient.read(resourceTO.getConnector()).getConf().stream().
                     filter(ConnConfProperty::isOverridable).
                     forEachOrdered(props::add);
         }

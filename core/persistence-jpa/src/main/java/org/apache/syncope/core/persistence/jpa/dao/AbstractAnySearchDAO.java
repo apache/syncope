@@ -95,7 +95,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
+    protected static SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
         List<SearchCond> effectiveConds = dynRealmKeys.stream().map(dynRealmKey -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(dynRealmKey);

@@ -219,7 +219,7 @@ public class TemplateUtils {
         }
     }
 
-    public void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
+    public static void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
         SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
 
         templates.values().forEach(value -> {

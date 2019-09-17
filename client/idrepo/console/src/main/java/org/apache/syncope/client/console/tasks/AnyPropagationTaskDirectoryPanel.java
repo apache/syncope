@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.tasks;
 
 import java.util.Iterator;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -60,13 +61,13 @@ public abstract class AnyPropagationTaskDirectoryPanel extends PropagationTaskDi
 
         @Override
         public long size() {
-            return restClient.count(anyTypeKind, entityKey, taskType);
+            return TaskRestClient.count(anyTypeKind, entityKey, taskType);
         }
 
         @Override
         public Iterator<PropagationTaskTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.listPropagationTasks(
+            return TaskRestClient.listPropagationTasks(
                     anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

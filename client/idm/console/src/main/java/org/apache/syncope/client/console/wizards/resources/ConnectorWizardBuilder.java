@@ -41,13 +41,11 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
     private static final long serialVersionUID = -2025535531121434050L;
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     private final List<ConnBundleTO> bundles;
 
     public ConnectorWizardBuilder(final ConnInstanceTO defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
-        this.bundles = connectorRestClient.getAllBundles().stream().
+        this.bundles = ConnectorRestClient.getAllBundles().stream().
                 filter(object -> object.getLocation().equals(defaultItem.getLocation())).collect(Collectors.toList());
     }
 
@@ -68,7 +66,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
                 connInstanceTO.setBundleName(bundleTO.getBundleName());
                 connInstanceTO.setVersion(bundleTO.getVersion());
 
-                return connectorRestClient.check(connInstanceTO);
+                return ConnectorRestClient.check(connInstanceTO);
             }
 
             @Override
@@ -103,9 +101,9 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
         ConnInstanceTO res;
         if (mode == AjaxWizard.Mode.CREATE) {
-            res = connectorRestClient.create(connInstanceTO);
+            res = ConnectorRestClient.create(connInstanceTO);
         } else {
-            connectorRestClient.update(connInstanceTO);
+            ConnectorRestClient.update(connInstanceTO);
             res = connInstanceTO;
         }
 

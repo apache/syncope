@@ -231,7 +231,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return resources;
 
                     case RELATIONSHIP:
-                        final List<String> relations = new RelationshipTypeRestClient().list().stream().
+                        final List<String> relations = RelationshipTypeRestClient.list().stream().
                                 map(RelationshipTypeTO::getKey).collect(Collectors.toList());
                         return relations;
 

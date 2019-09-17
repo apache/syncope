@@ -207,7 +207,7 @@ public class ElasticsearchUtils {
         return builder.endObject();
     }
 
-    public String getContextDomainName(final String domain, final AnyTypeKind kind) {
+    public static String getContextDomainName(final String domain, final AnyTypeKind kind) {
         return domain.toLowerCase() + '_' + kind.name().toLowerCase();
     }
 }

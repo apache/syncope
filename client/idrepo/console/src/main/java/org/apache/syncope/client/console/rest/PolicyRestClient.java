@@ -36,7 +36,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final PolicyComparator COMPARATOR = new PolicyComparator();
 
-    public <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
+    public static <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(type, key);
@@ -47,7 +47,7 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
+    public static <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
         try {
             return getService(PolicyService.class).<T>list(type).stream().
                     sorted(COMPARATOR).
@@ -58,15 +58,15 @@ public class PolicyRestClient extends BaseRestClient {
         }
     }
 
-    public <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
+    public static <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
         getService(PolicyService.class).create(type, policy);
     }
 
-    public <T extends PolicyTO> void updatePolicy(final PolicyType type, final T policy) {
+    public static <T extends PolicyTO> void updatePolicy(final PolicyType type, final T policy) {
         getService(PolicyService.class).update(type, policy);
     }
 
-    public void delete(final PolicyType type, final String key) {
+    public static void delete(final PolicyType type, final String key) {
         getService(PolicyService.class).delete(type, key);
     }
 

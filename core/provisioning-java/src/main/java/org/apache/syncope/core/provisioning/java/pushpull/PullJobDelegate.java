@@ -165,17 +165,17 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         }).forEachOrdered(group -> groupDAO.save(group));
     }
 
-    protected RealmPullResultHandler buildRealmHandler() {
+    protected static RealmPullResultHandler buildRealmHandler() {
         return (RealmPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultRealmPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected AnyObjectPullResultHandler buildAnyObjectHandler() {
+    protected static AnyObjectPullResultHandler buildAnyObjectHandler() {
         return (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultAnyObjectPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected UserPullResultHandler buildUserHandler() {
+    protected static UserPullResultHandler buildUserHandler() {
         return (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultUserPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }

@@ -49,12 +49,6 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobActionPanel.class);
 
-    private final NotificationRestClient notificationRestClient = new NotificationRestClient();
-
-    private final ReportRestClient reportRestClient = new ReportRestClient();
-
-    private final TaskRestClient taskRestClient = new TaskRestClient();
-
     public JobActionPanel(
             final String id,
             final JobTO jobTO,
@@ -82,15 +76,15 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     try {
                         switch (jobTO.getType()) {
                             case NOTIFICATION:
-                                notificationRestClient.actionJob(JobAction.STOP);
+                                NotificationRestClient.actionJob(JobAction.STOP);
                                 break;
 
                             case REPORT:
-                                reportRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
+                                ReportRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
                                 break;
 
                             case TASK:
-                                taskRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
+                                TaskRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
                                 break;
 
                             default:
@@ -116,15 +110,15 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     try {
                         switch (jobTO.getType()) {
                             case NOTIFICATION:
-                                notificationRestClient.actionJob(JobAction.START);
+                                NotificationRestClient.actionJob(JobAction.START);
                                 break;
 
                             case REPORT:
-                                reportRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
+                                ReportRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
                                 break;
 
                             case TASK:
-                                taskRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
+                                TaskRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
                                 break;
 
                             default:

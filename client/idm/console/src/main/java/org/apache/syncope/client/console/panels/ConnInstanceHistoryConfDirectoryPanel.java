@@ -128,7 +128,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
             @Override
             public void onClick(final AjaxRequestTarget target, final ConnInstanceHistoryConfTO modelObject) {
                 try {
-                    restClient.restore(modelObject.getKey());
+                    ConnectorHistoryRestClient.restore(modelObject.getKey());
                     ConnInstanceHistoryConfDirectoryPanel.this.getTogglePanel().close(target);
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -148,7 +148,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
             @Override
             public void onClick(final AjaxRequestTarget target, final ConnInstanceHistoryConfTO modelObject) {
                 try {
-                    restClient.delete(modelObject.getKey());
+                    ConnectorHistoryRestClient.delete(modelObject.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     ConnInstanceHistoryConfDirectoryPanel.this.getTogglePanel().close(target);
@@ -212,7 +212,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
 
         @Override
         public Iterator<ConnInstanceHistoryConfTO> iterator(final long first, final long count) {
-            final List<ConnInstanceHistoryConfTO> configurations = restClient.list(entityKey);
+            final List<ConnInstanceHistoryConfTO> configurations = ConnectorHistoryRestClient.list(entityKey);
 
             Collections.sort(configurations, comparator);
             return configurations.iterator();
@@ -220,7 +220,7 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
 
         @Override
         public long size() {
-            return restClient.list(entityKey).size();
+            return ConnectorHistoryRestClient.list(entityKey).size();
         }
 
         @Override

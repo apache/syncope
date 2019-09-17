@@ -211,7 +211,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                SAML2IdPTO object = restClient.read(model.getObject().getKey());
+                SAML2IdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 metadataModal.header(Model.of(object.getName() + " - Metadata"));
                 metadataModal.setContent(new XMLEditorPanel(
                         metadataModal,
@@ -228,7 +228,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                SAML2IdPTO object = restClient.read(model.getObject().getKey());
+                SAML2IdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(object, target));
             }
@@ -239,11 +239,11 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                final SAML2IdPTO object = restClient.read(model.getObject().getKey());
+                final SAML2IdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
                         object.getUserTemplate(),
-                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                         new UserFormLayoutInfo(),
                         pageRef) {
 
@@ -252,7 +252,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                     @Override
                     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
                         object.setUserTemplate(modelObject.getInnerObject());
-                        restClient.update(object);
+                        SAML2IdPsRestClient.update(object);
 
                         return modelObject;
                     }
@@ -272,7 +272,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    SAML2IdPsRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -324,14 +324,14 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<SAML2IdPTO> iterator(final long first, final long count) {
-            List<SAML2IdPTO> list = restClient.list();
+            List<SAML2IdPTO> list = SAML2IdPsRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return SAML2IdPsRestClient.list().size();
         }
 
         @Override

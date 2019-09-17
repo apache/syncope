@@ -441,7 +441,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         return new WorkflowResult<>(user.getKey(), null, performedTasks);
     }
 
-    protected void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
+    protected static void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
         if (flow instanceof Gateway) {
             ((Gateway) flow).getOutgoingFlows().forEach(subflow -> navigateAvailableTasks(subflow, availableTasks));
         } else if (flow instanceof SequenceFlow) {

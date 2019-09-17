@@ -200,10 +200,10 @@ public class StatusPanel extends Panel {
         return initialStatusBeanMap;
     }
 
-    protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs(
-            final String anyKey,
-            final String resource,
-            final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> objects) {
+    protected static Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs(
+        final String anyKey,
+        final String resource,
+        final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> objects) {
 
         for (Triple<ConnObjectTO, ConnObjectWrapper, String> object : objects) {
             if (anyKey.equals(object.getMiddle().getAny().getKey())
@@ -237,7 +237,7 @@ public class StatusPanel extends Panel {
 
         @Override
         protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
-            return StatusPanel.this.getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
+            return StatusPanel.getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
         }
     }
 }

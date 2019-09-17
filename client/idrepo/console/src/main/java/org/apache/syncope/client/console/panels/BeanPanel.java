@@ -186,17 +186,17 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             switch (type) {
                                 case PLAIN:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 case DERIVED:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 case VIRTUAL:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 default:

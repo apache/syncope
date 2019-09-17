@@ -764,7 +764,7 @@ public class ResourceITCase extends AbstractITCase {
                 forEach(itemTO -> assertEquals(MappingPurpose.NONE, itemTO.getPurpose()));
     }
 
-    public void issueSYNCOPE645() {
+    public static void issueSYNCOPE645() {
         ResourceTO resource = new ResourceTO();
         resource.setKey("ws-target-resource-basic-save-invalid");
 

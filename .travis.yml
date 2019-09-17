@@ -49,7 +49,7 @@ jobs:
       name: "Warm Up Dependencies"
       #######################################################
     - stage: build
-      script: mvn install --quiet -T 4 -P all,skipTests,skipLegalFiles -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true -Denforcer.skip=true
+      script: mvn install --quiet -T 4 -P all,skipTests,skipLegalFiles,docker -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true -Denforcer.skip=true
       name: "Build"
       #######################################################
     - stage: validate
@@ -74,7 +74,13 @@ jobs:
       ######################################################
     - stage: fit
       script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
-      name: "Full Integration Tests"
+      name: "Full Integration Tests via JSON Content-Type"
+    - stage: fit
+      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -DjaxrsContentType=application/xml -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
+      name: "Full Integration Tests via XML Content-Type"
+    - stage: fit
+      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -DjaxrsContentType=application/yaml -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
+      name: "Full Integration Tests via YAML Content-Type"
       #####################################################
   after_failure:
     - cat fit/core-reference/target/log/*

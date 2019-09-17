@@ -116,7 +116,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @Autowired
     private ConnectorFactory connFactory;
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+    protected static void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);

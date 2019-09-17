@@ -275,7 +275,7 @@ public class AuthDataAccessor {
         return result == null ? Set.of() : result;
     }
 
-    protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {
+    protected static Set<SyncopeGrantedAuthority> getAdminAuthorities() {
         return EntitlementsHolder.getInstance().getValues().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toSet());

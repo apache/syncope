@@ -43,8 +43,6 @@ import org.apache.wicket.PageReference;
  */
 public final class FormLayoutInfoUtils {
 
-    private static final RoleRestClient ROLE_REST_CLIENT = new RoleRestClient();
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> fetch(
@@ -54,7 +52,7 @@ public final class FormLayoutInfoUtils {
         try {
             JsonNode tree = null;
             for (int i = 0; i < ownedRoles.size() && tree == null; i++) {
-                String consoleLayoutInfo = ROLE_REST_CLIENT.readConsoleLayoutInfo(ownedRoles.get(i));
+                String consoleLayoutInfo = RoleRestClient.readConsoleLayoutInfo(ownedRoles.get(i));
                 if (StringUtils.isNotBlank(consoleLayoutInfo)) {
                     tree = MAPPER.readTree(consoleLayoutInfo);
                 }

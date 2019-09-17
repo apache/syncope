@@ -76,10 +76,10 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                restClient.create(modelObject);
+                                AnyTypeRestClient.create(modelObject);
                                 SyncopeConsoleSession.get().refreshAuth(null);
                             } else {
-                                restClient.update(modelObject);
+                                AnyTypeRestClient.update(modelObject);
                             }
 
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -176,7 +176,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    AnyTypeRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().refreshAuth(null);
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -206,14 +206,14 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
         @Override
         public Iterator<AnyTypeTO> iterator(final long first, final long count) {
-            final List<AnyTypeTO> list = restClient.listAnyTypes();
+            final List<AnyTypeTO> list = AnyTypeRestClient.listAnyTypes();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return AnyTypeRestClient.list().size();
         }
 
         @Override

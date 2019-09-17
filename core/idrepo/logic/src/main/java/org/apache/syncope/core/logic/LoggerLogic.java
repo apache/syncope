@@ -216,7 +216,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             }
             for (AuditAppender auditAppender : loggerLoader.auditAppenders(AuthContextUtils.getDomain())) {
                 if (auditAppender.getEvents().stream().anyMatch(event -> name.equalsIgnoreCase(event.toLoggerName()))) {
-                    loggerLoader.addAppenderToContext(ctx, auditAppender, logConf);
+                    LoggerLoader.addAppenderToContext(ctx, auditAppender, logConf);
                 }
             }
             if (isRootLogConf) {

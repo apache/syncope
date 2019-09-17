@@ -38,19 +38,19 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
     private static final ConsoleLoggerController CONSOLE_LOGGER_CONTROLLER = new ConsoleLoggerController();
 
     public ConsoleLogPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, CONSOLE_LOGGER_CONTROLLER.getLoggers());
+        super(id, pageReference, ConsoleLoggerController.getLoggers());
     }
 
     @Override
     protected void update(final LoggerTO loggerTO) {
-        CONSOLE_LOGGER_CONTROLLER.setLogLevel(loggerTO.getKey(), loggerTO.getLevel());
+        ConsoleLoggerController.setLogLevel(loggerTO.getKey(), loggerTO.getLevel());
     }
 
     private static class ConsoleLoggerController implements Serializable {
 
         private static final long serialVersionUID = -1550459341476431714L;
 
-        public List<LoggerTO> getLoggers() {
+        public static List<LoggerTO> getLoggers() {
             LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
             List<LoggerTO> result = new ArrayList<>();
@@ -69,7 +69,7 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
             return result;
         }
 
-        public void setLogLevel(final String name, final LoggerLevel level) {
+        public static void setLogLevel(final String name, final LoggerLevel level) {
             final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
             final LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
                     ? ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME)

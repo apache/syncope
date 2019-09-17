@@ -85,13 +85,9 @@ public class Relationships extends WizardStep implements ICondition {
 
     private final PageReference pageRef;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
-
-    private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
         super();
@@ -227,7 +223,7 @@ public class Relationships extends WizardStep implements ICondition {
     @Override
     public boolean evaluate() {
         // [SYNCOPE-1171] - skip current step when the are no relationships types in Syncope
-        return !relationshipTypeRestClient.list().isEmpty();
+        return !RelationshipTypeRestClient.list().isEmpty();
     }
 
     public class Specification extends Panel {
@@ -244,7 +240,7 @@ public class Relationships extends WizardStep implements ICondition {
             super("specification");
             rel = new RelationshipTO();
 
-            final List<String> availableRels = relationshipTypeRestClient.list().stream().
+            final List<String> availableRels = RelationshipTypeRestClient.list().stream().
                     map(EntityTO::getKey).collect(Collectors.toList());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
@@ -252,7 +248,7 @@ public class Relationships extends WizardStep implements ICondition {
             type.setChoices(availableRels);
             add(type.setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes = anyTypeRestClient.listAnyTypes().stream().
+            final List<AnyTypeTO> availableTypes = AnyTypeRestClient.listAnyTypes().stream().
                     filter(anyType -> anyType.getKind() != AnyTypeKind.GROUP
                     && anyType.getKind() != AnyTypeKind.USER).collect(Collectors.toList());
 
@@ -346,7 +342,7 @@ public class Relationships extends WizardStep implements ICondition {
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 
                         anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
-                                anyTypeClassRestClient.list(anyType.getClasses()),
+                                AnyTypeClassRestClient.list(anyType.getClasses()),
                                 anyType.getKey(),
                                 pageRef).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).

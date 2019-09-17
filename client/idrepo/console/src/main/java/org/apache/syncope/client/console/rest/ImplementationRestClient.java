@@ -26,23 +26,23 @@ public class ImplementationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4111950555473526287L;
 
-    public List<ImplementationTO> list(final String type) {
+    public static List<ImplementationTO> list(final String type) {
         return getService(ImplementationService.class).list(type);
     }
 
-    public ImplementationTO read(final String type, final String key) {
+    public static ImplementationTO read(final String type, final String key) {
         return getService(ImplementationService.class).read(type, key);
     }
 
-    public void create(final ImplementationTO implementation) {
+    public static void create(final ImplementationTO implementation) {
         getService(ImplementationService.class).create(implementation);
     }
 
-    public void update(final ImplementationTO implementation) {
+    public static void update(final ImplementationTO implementation) {
         getService(ImplementationService.class).update(implementation);
     }
 
-    public void delete(final String type, final String key) {
+    public static void delete(final String type, final String key) {
         getService(ImplementationService.class).delete(type, key);
     }
 }

@@ -41,7 +41,7 @@ public class AzurePropagationActions implements PropagationActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(AzurePropagationActions.class);
 
-    protected String getEmailAttrName() {
+    protected static String getEmailAttrName() {
         return "mailNickname";
     }
 
@@ -66,7 +66,7 @@ public class AzurePropagationActions implements PropagationActions {
         }
     }
 
-    private void setName(final PropagationTask task) {
+    private static void setName(final PropagationTask task) {
         Set<Attribute> attrs = new HashSet<>(task.getAttributes());
 
         if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {

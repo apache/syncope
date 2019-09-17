@@ -43,8 +43,6 @@ public class ImportMetadata extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = 6959177759869415782L;
 
-    private final SAML2IdPsRestClient restClient = new SAML2IdPsRestClient();
-
     private final Form<?> form;
 
     public ImportMetadata(final String id, final WebMarkupContainer container, final PageReference pageRef) {
@@ -84,7 +82,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target) {
                 if (ArrayUtils.isNotEmpty(metadata.getObject())) {
                     try {
-                        restClient.importIdPs(new ByteArrayInputStream(metadata.getObject()));
+                        SAML2IdPsRestClient.importIdPs(new ByteArrayInputStream(metadata.getObject()));
                         metadata.setObject(null);
 
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

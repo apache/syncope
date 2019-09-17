@@ -28,6 +28,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class SyncopeJexlFunctions {
 
+    protected SyncopeJexlFunctions() {
+    }
+
     /**
      * Converts realm's full path into the equivalent DN.
      *
@@ -37,7 +40,7 @@ public class SyncopeJexlFunctions {
      * @param attr attribute name for DN
      * @return DN equivalent of the provided full path
      */
-    public String fullPath2Dn(final String fullPath, final String attr) {
+    public static String fullPath2Dn(final String fullPath, final String attr) {
         return fullPath2Dn(fullPath, attr, StringUtils.EMPTY);
     }
 
@@ -52,7 +55,7 @@ public class SyncopeJexlFunctions {
      * @param prefix result's prefix
      * @return DN equivalent of the provided full path
      */
-    public String fullPath2Dn(final String fullPath, final String attr, final String prefix) {
+    public static String fullPath2Dn(final String fullPath, final String attr, final String prefix) {
         String[] fullPathSplitted = fullPath.split("/");
         if (fullPathSplitted == null || fullPathSplitted.length <= 1) {
             return StringUtils.EMPTY;

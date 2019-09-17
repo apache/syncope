@@ -175,7 +175,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCProviderTO ignore) {
-                OIDCProviderTO object = restClient.read(model.getObject().getKey());
+                OIDCProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
                 send(OIDCProvidersDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(object, target));
                 modal.header(Model.of(StringUtils.capitalize(("Edit " + object.getName()))));
@@ -188,11 +188,11 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCProviderTO ignore) {
-                final OIDCProviderTO object = restClient.read(model.getObject().getKey());
+                final OIDCProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
                         object.getUserTemplate(),
-                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                         new UserFormLayoutInfo(),
                         pageRef) {
 
@@ -201,7 +201,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                     @Override
                     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
                         object.setUserTemplate(modelObject.getInnerObject());
-                        restClient.update(object);
+                        OIDCProviderRestClient.update(object);
 
                         return modelObject;
                     }
@@ -222,7 +222,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCProviderTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    OIDCProviderRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -273,14 +273,14 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<OIDCProviderTO> iterator(final long first, final long count) {
-            List<OIDCProviderTO> list = restClient.list();
+            List<OIDCProviderTO> list = OIDCProviderRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return OIDCProviderRestClient.list().size();
         }
 
         @Override

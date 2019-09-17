@@ -61,8 +61,6 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
     private final PolicyType type;
 
-    private final PolicyRestClient restClient = new PolicyRestClient();
-
     public PolicyModalPanelBuilder(
             final PolicyType type, final T policyTO, final BaseModal<T> modal, final PageReference pageRef) {
 
@@ -158,9 +156,9 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         public void onSubmit(final AjaxRequestTarget target) {
             try {
                 if (policyTO.getKey() == null) {
-                    restClient.createPolicy(type, policyTO);
+                    PolicyRestClient.createPolicy(type, policyTO);
                 } else {
-                    restClient.updatePolicy(type, policyTO);
+                    PolicyRestClient.updatePolicy(type, policyTO);
                 }
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);

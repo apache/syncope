@@ -43,8 +43,6 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
     private final ChartJSPanel chart;
 
-    private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
-
     public CamelMetricsWidget(final String id, final PageReference pageRef) {
         super(id, pageRef);
 
@@ -52,7 +50,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
         container.setOutputMarkupId(true);
         add(container);
 
-        CamelMetrics metrics = restClient.metrics();
+        CamelMetrics metrics = CamelRoutesRestClient.metrics();
         meanRates = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
             meanRates.add(metrics.getResponseMeanRates().get(i));
@@ -67,7 +65,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                CamelMetrics metrics = restClient.metrics();
+                CamelMetrics metrics = CamelRoutesRestClient.metrics();
                 List<CamelMetrics.MeanRate> updatedMeanRates = new ArrayList<>(5);
                 for (int i = 0; i < 5; i++) {
                     updatedMeanRates.add(metrics.getResponseMeanRates().get(i));

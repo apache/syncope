@@ -37,7 +37,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return SyncopeConsoleSession.get().getService(mediaType, BpmnProcessService.class);
     }
 
-    public List<BpmnProcess> getDefinitions() {
+    public static List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
     }
 
@@ -47,7 +47,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return (InputStream) response.getEntity();
     }
 
-    public byte[] getDiagram(final String key) {
+    public static byte[] getDiagram(final String key) {
         BpmnProcessService service = getService(BpmnProcessService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
         Response response = service.exportDiagram(key);
@@ -66,7 +66,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         getService(mediaType).set(key, definition);
     }
 
-    public void deleteDefinition(final String key) {
+    public static void deleteDefinition(final String key) {
         getService(BpmnProcessService.class).delete(key);
     }
 }

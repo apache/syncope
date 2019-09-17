@@ -62,7 +62,7 @@ public class PreferenceManager implements Serializable {
         COOKIE_UTILS = new CookieUtils(cookieDefaults);
     }
 
-    public List<Integer> getPaginatorChoices() {
+    public static List<Integer> getPaginatorChoices() {
         return PAGINATOR_CHOICES;
     }
 
@@ -101,7 +101,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public Integer getPaginatorRows(final Request request, final String key) {
+    public static Integer getPaginatorRows(final Request request, final String key) {
         Integer result = getPaginatorChoices().get(0);
 
         String value = get(request, key);
@@ -112,7 +112,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public List<String> getList(final Request request, final String key) {
+    public static List<String> getList(final Request request, final String key) {
         final List<String> result = new ArrayList<>();
 
         final String compound = get(request, key);

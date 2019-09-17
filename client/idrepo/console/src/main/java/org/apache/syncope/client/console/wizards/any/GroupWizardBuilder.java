@@ -98,7 +98,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             GroupCR req = new GroupCR();
             EntityTOUtils.toAnyCR(inner, req);
 
-            result = groupRestClient.create(req);
+            result = GroupRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             GroupUR groupUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

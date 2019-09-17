@@ -68,8 +68,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
      * @return new {@link PropagationTaskCallable} instance for usage with
      * {@link java.util.concurrent.CompletionService}
      */
-    protected PropagationTaskCallable newPropagationTaskCallable(
-            final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
+    protected static PropagationTaskCallable newPropagationTaskCallable(
+        final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
 
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultPropagationTaskCallable.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);

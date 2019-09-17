@@ -212,7 +212,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return List.of();
     }
 
-    protected int setParameter(final List<Object> parameters, final Object parameter) {
+    protected static int setParameter(final List<Object> parameters, final Object parameter) {
         parameters.add(parameter);
         return parameters.size();
     }
@@ -321,7 +321,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return orderBy;
     }
 
-    protected String key(final AttrSchemaType schemaType) {
+    protected static String key(final AttrSchemaType schemaType) {
         String key;
         switch (schemaType) {
             case Boolean:
@@ -531,11 +531,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return Pair.of(query, involvedPlainAttrs);
     }
 
-    protected String getQuery(
-            final AnyTypeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    protected static String getQuery(
+        final AnyTypeCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE type_id");
@@ -551,11 +551,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected String getQuery(
-            final RelationshipTypeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    protected static String getQuery(
+        final RelationshipTypeCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -648,11 +648,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected String getQuery(
-            final RoleCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    protected static String getQuery(
+        final RoleCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
@@ -675,18 +675,18 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dynrolemembership().name).append(" WHERE ").
+                append(SearchSupport.dynrolemembership().name).append(" WHERE ").
                 append("role_id=?").append(setParameter(parameters, cond.getRole())).
                 append("))");
 
         return query.toString();
     }
 
-    protected String getQuery(
-            final PrivilegeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    protected static String getQuery(
+        final PrivilegeCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
@@ -716,11 +716,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected String getQuery(
-            final DynRealmCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    protected static String getQuery(
+        final DynRealmCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
@@ -732,18 +732,18 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dynrealmmembership().name).append(" WHERE ").
+                append(SearchSupport.dynrealmmembership().name).append(" WHERE ").
                 append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
                 append("))");
 
         return query.toString();
     }
 
-    protected String getQuery(
-            final ResourceCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    protected static String getQuery(
+        final ResourceCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -841,14 +841,14 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    private void fillAttrQuery(
-            final StringBuilder query,
-            final PlainAttrValue attrValue,
-            final PlainSchema schema,
-            final AttributeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+    private static void fillAttrQuery(
+        final StringBuilder query,
+        final PlainAttrValue attrValue,
+        final PlainSchema schema,
+        final AttributeCond cond,
+        final boolean not,
+        final List<Object> parameters,
+        final SearchSupport svs) {
 
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
         if (not && schema.isMultivalue()

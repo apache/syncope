@@ -143,7 +143,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             idpTO.setUseDeflateEncoding(false);
 
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                saml2rw.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
+                SAML2ReaderWriter.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
                 idpTO.setMetadata(Base64.getEncoder().encodeToString(baos.toByteArray()));
             }
 

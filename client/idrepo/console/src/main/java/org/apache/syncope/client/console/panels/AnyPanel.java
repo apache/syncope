@@ -250,7 +250,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 final UserTO userTO = new UserTO();
                 userTO.setRealm(realmTO.getFullPath());
                 panel = new UserDirectoryPanel.Builder(
-                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                        AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                         setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
@@ -269,7 +269,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 final GroupTO groupTO = new GroupTO();
                 groupTO.setRealm(realmTO.getFullPath());
                 panel = new GroupDirectoryPanel.Builder(
-                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                        AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                         setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
@@ -291,7 +291,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 anyObjectTO.setRealm(realmTO.getFullPath());
                 anyObjectTO.setType(anyTypeTO.getKey());
                 panel = new AnyObjectDirectoryPanel.Builder(
-                        anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                        AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
                         anyTypeTO.getKey(),
                         pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                         setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(

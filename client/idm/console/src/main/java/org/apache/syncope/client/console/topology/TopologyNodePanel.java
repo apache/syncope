@@ -121,7 +121,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             final AjaxRequestTarget target = updateEvent.getTarget();
 
             if (node.getKind() == Kind.CONNECTOR && key.equalsIgnoreCase(node.getKey())) {
-                ConnInstanceTO conn = new ConnectorRestClient().read(key);
+                ConnInstanceTO conn = ConnectorRestClient.read(key);
 
                 String displayName =
                         // [SYNCOPE-1233]

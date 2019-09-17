@@ -81,9 +81,9 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                restClient.create(modelObject);
+                                RelationshipTypeRestClient.create(modelObject);
                             } else {
-                                restClient.update(modelObject);
+                                RelationshipTypeRestClient.update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             RelationshipTypesPanel.this.updateResultTable(target);
@@ -180,7 +180,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    RelationshipTypeRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -208,14 +208,14 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
 
         @Override
         public Iterator<RelationshipTypeTO> iterator(final long first, final long count) {
-            final List<RelationshipTypeTO> list = restClient.list();
+            final List<RelationshipTypeTO> list = RelationshipTypeRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return RelationshipTypeRestClient.list().size();
         }
 
         @Override

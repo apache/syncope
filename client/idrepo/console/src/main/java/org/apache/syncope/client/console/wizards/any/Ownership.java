@@ -75,8 +75,6 @@ public class Ownership extends WizardStep implements ICondition {
 
     private final WebMarkupContainer ownerContainer;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final GroupSearchPanel groupSearchPanel;
@@ -174,10 +172,10 @@ public class Ownership extends WizardStep implements ICondition {
                 build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
-        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.GROUP.name());
+        AnyTypeTO anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.GROUP.name());
 
         groupDirectoryPanel = GroupSelectionDirectoryPanel.class.cast(new GroupSelectionDirectoryPanel.Builder(
-                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 
@@ -189,10 +187,10 @@ public class Ownership extends WizardStep implements ICondition {
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
-        anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
+        anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.USER.name());
 
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
 

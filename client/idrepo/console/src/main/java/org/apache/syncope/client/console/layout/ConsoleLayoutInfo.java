@@ -42,6 +42,6 @@ public class ConsoleLayoutInfo implements Serializable {
     }
 
     public void setContent(final String content) {
-        this.content = FormLayoutInfoUtils.defaultConsoleLayoutInfoIfEmpty(content, new AnyTypeRestClient().list());
+        this.content = FormLayoutInfoUtils.defaultConsoleLayoutInfoIfEmpty(content, AnyTypeRestClient.list());
     }
 }

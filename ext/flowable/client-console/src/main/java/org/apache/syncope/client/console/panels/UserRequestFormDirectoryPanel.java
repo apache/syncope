@@ -247,7 +247,7 @@ public class UserRequestFormDirectoryPanel
                         model.getObject(),
                         previousUserTO,
                         newUserTO,
-                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                         FormLayoutInfoUtils.fetch(List.of(AnyTypeKind.USER.name())).getLeft(),
                         pageRef
                 ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
@@ -280,8 +280,6 @@ public class UserRequestFormDirectoryPanel
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private final UserRequestRestClient restClient = new UserRequestRestClient();
-
         public UserRequestFormProvider(final int paginatorRows) {
             super(paginatorRows);
 
@@ -291,12 +289,12 @@ public class UserRequestFormDirectoryPanel
         @Override
         public Iterator<UserRequestForm> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return UserRequestRestClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.countForms();
+            return UserRequestRestClient.countForms();
         }
 
         @Override
@@ -320,7 +318,7 @@ public class UserRequestFormDirectoryPanel
 
     private void claimForm(final String taskId) {
         try {
-            restClient.claimForm(taskId);
+            UserRequestRestClient.claimForm(taskId);
         } catch (SyncopeClientException scee) {
             SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
         }
@@ -328,7 +326,7 @@ public class UserRequestFormDirectoryPanel
 
     private void unclaimForm(final String taskId) {
         try {
-            restClient.unclaimForm(taskId);
+            UserRequestRestClient.unclaimForm(taskId);
         } catch (SyncopeClientException scee) {
             SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
         }
@@ -373,7 +371,8 @@ public class UserRequestFormDirectoryPanel
                 result.setEntity(inner);
             } else {
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), userUR);
-                restClient.getForm(result.getEntity().getKey()).ifPresent(form -> claimForm(form.getTaskId()));
+                UserRequestRestClient.getForm(result.getEntity().getKey())
+                    .ifPresent(form -> claimForm(form.getTaskId()));
             }
 
             return result;

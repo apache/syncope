@@ -37,13 +37,11 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private final AnyTypeClassTO anyTypeClassTO;
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
+    private final List<String> availablePlainSchemas = SchemaRestClient.getPlainSchemaNames();
 
-    private final List<String> availablePlainSchemas = schemaRestClient.getPlainSchemaNames();
+    private final List<String> availableDerSchemas = SchemaRestClient.getDerSchemaNames();
 
-    private final List<String> availableDerSchemas = schemaRestClient.getDerSchemaNames();
-
-    private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
+    private final List<String> availableVirSchemas = SchemaRestClient.getVirSchemaNames();
 
     private static final List<String> LAYOUT_PARAMETERS =
             List.of("admin.user.layout", "self.user.layout",
@@ -102,7 +100,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
     }
 
     private void buildAvailableSchemas(final String key) {
-        new AnyTypeClassRestClient().list().stream().
+        AnyTypeClassRestClient.list().stream().
                 filter(item -> key == null || !item.getKey().equals(key)).
                 forEach(item -> {
                     availablePlainSchemas.removeAll(item.getPlainSchemas());

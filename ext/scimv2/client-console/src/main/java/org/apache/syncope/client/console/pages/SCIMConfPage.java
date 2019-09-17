@@ -44,8 +44,6 @@ public class SCIMConfPage extends BaseExtPage {
 
     private static final long serialVersionUID = -8156063343062111770L;
 
-    private final SCIMConfRestClient restClient = new SCIMConfRestClient();
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final WebMarkupContainer content;
@@ -61,7 +59,7 @@ public class SCIMConfPage extends BaseExtPage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        updateSCIMGeneralConfContent(restClient.get());
+        updateSCIMGeneralConfContent(SCIMConfRestClient.get());
     }
 
     private WebMarkupContainer updateSCIMGeneralConfContent(final SCIMConf scimConf) {
@@ -78,7 +76,7 @@ public class SCIMConfPage extends BaseExtPage {
                     if (modal.getContent() instanceof ResultPage) {
                         Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
                         try {
-                            restClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
+                            SCIMConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
 
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);

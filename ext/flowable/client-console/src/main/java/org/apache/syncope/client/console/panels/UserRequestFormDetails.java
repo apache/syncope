@@ -54,7 +54,7 @@ public class UserRequestFormDetails extends MultilevelPanel.SecondLevel {
         add(new UserWizardBuilder(
                 previousUserTO,
                 newUserTO,
-                new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                 new UserFormLayoutInfo(),
                 pageRef).
                 build(AjaxWizard.Mode.READONLY));

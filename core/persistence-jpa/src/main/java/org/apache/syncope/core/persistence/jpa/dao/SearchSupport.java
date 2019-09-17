@@ -142,11 +142,11 @@ public class SearchSupport {
         return new SearchView("svdp", field().name + "_dynpriv");
     }
 
-    public SearchView dynrolemembership() {
+    public static SearchView dynrolemembership() {
         return new SearchView("svdr", JPARoleDAO.DYNMEMB_TABLE);
     }
 
-    public SearchView dynrealmmembership() {
+    public static SearchView dynrealmmembership() {
         return new SearchView("svdrealm", JPADynRealmDAO.DYNMEMB_TABLE);
     }
 

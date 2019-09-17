@@ -55,7 +55,7 @@ public class ConnectorDetailsPanel extends WizardStep {
 
             @Override
             protected List<String> load() {
-                return new RealmRestClient().list().stream().
+                return RealmRestClient.list().stream().
                         filter(realm -> authRealms.stream().
                         anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(RealmTO::getFullPath).

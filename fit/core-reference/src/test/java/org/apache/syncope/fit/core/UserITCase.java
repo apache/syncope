@@ -870,7 +870,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void async() {
         SyncopeClient asyncClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        UserService asyncService = asyncClient.nullPriorityAsync(asyncClient.getService(UserService.class), true);
+        UserService asyncService = SyncopeClient.nullPriorityAsync(asyncClient.getService(UserService.class), true);
 
         UserCR userCR = getUniqueSample("async@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_TESTDB);

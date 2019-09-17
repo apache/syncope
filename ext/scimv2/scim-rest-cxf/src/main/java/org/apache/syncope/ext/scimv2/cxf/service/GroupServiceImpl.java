@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -51,7 +52,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
     @Override
     public Response create(final SCIMGroup group) {
         // first create group, no members assigned
-        ProvisioningResult<GroupTO> result = groupLogic().create(binder().toGroupCR(group), false);
+        ProvisioningResult<GroupTO> result = groupLogic().create(SCIMDataBinder.toGroupCR(group), false);
 
         // then assign members
         group.getMembers().forEach(member -> {
@@ -125,7 +126,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
         // update group, don't change members
         ProvisioningResult<GroupTO> result = groupLogic().update(
-                AnyOperations.diff(binder().toGroupTO(group), groupLogic().read(id), false), false);
+                AnyOperations.diff(SCIMDataBinder.toGroupTO(group), groupLogic().read(id), false), false);
 
         // assign new members
         Set<String> afterMembers = new HashSet<>();

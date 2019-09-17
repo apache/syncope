@@ -43,8 +43,6 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
 
     private static final long serialVersionUID = 2060352959114706419L;
 
-    private final GatewayRouteRestClient restClient = new GatewayRouteRestClient();
-
     public GatewayRouteWizardBuilder(final GatewayRouteTO route, final PageReference pageRef) {
         super(route, pageRef);
     }
@@ -52,9 +50,9 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
     @Override
     protected Serializable onApplyInternal(final GatewayRouteTO modelObject) {
         if (modelObject.getKey() == null) {
-            restClient.create(modelObject);
+            GatewayRouteRestClient.create(modelObject);
         } else {
-            restClient.update(modelObject);
+            GatewayRouteRestClient.update(modelObject);
         }
         return modelObject;
     }

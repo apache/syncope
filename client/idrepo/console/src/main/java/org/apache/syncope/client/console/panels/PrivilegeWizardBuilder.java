@@ -36,8 +36,6 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
 
     private static final long serialVersionUID = -1817419622749405208L;
 
-    private final ApplicationRestClient restClient = new ApplicationRestClient();
-
     private final ApplicationTO application;
 
     public PrivilegeWizardBuilder(
@@ -59,7 +57,7 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
         application.getPrivileges().removeIf(privilege -> privilege.getKey().equals(modelObject.getKey()));
         application.getPrivileges().add(modelObject);
 
-        restClient.update(application);
+        ApplicationRestClient.update(application);
 
         return modelObject;
     }

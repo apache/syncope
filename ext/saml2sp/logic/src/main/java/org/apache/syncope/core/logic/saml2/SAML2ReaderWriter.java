@@ -134,7 +134,7 @@ public class SAML2ReaderWriter {
         return sigAlgo;
     }
 
-    public void write(final Writer writer, final XMLObject object, final boolean signObject)
+    public static void write(final Writer writer, final XMLObject object, final boolean signObject)
             throws TransformerConfigurationException, WSSecurityException, TransformerException {
 
         Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
@@ -143,7 +143,7 @@ public class SAML2ReaderWriter {
         transformer.transform(source, streamResult);
     }
 
-    public XMLObject read(final boolean useDeflateEncoding, final String response)
+    public static XMLObject read(final boolean useDeflateEncoding, final String response)
             throws DataFormatException, UnsupportedEncodingException, XMLStreamException, WSSecurityException {
 
         InputStream tokenStream;
@@ -202,7 +202,7 @@ public class SAML2ReaderWriter {
         return Base64.getEncoder().encodeToString(signature.sign());
     }
 
-    public String encode(final RequestAbstractType request, final boolean useDeflateEncoding)
+    public static String encode(final RequestAbstractType request, final boolean useDeflateEncoding)
             throws WSSecurityException, TransformerException, IOException {
 
         StringWriter writer = new StringWriter();

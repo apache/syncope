@@ -42,7 +42,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         return GroupService.class;
     }
 
-    public ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
+    public static ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
         Response response = getService(GroupService.class).create(groupCR);
         return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
         });
@@ -59,11 +59,11 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         return result;
     }
 
-    public List<GroupTO> searchAssignableGroups(
-            final String realm,
-            final String term,
-            final int page,
-            final int size) {
+    public static List<GroupTO> searchAssignableGroups(
+        final String realm,
+        final String term,
+        final int page,
+        final int size) {
 
         return getService(SyncopeService.class).searchAssignableGroups(realm, term, page, size).getResult();
     }

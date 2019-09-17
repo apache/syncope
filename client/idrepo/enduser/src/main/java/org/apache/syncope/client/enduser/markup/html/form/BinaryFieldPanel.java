@@ -278,7 +278,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         if (StringUtils.isNotBlank(modelObj)) {
             final Component panelPreview;
             if (previewer == null) {
-                panelPreview = previewUtils.getDefaultPreviewer(mimeType);
+                panelPreview = PreviewUtils.getDefaultPreviewer(mimeType);
             } else {
                 panelPreview = previewer.preview(modelObj);
             }

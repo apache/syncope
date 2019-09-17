@@ -349,7 +349,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 setUseCompression(useGZIPCompression);
     }
 
-    protected Class<? extends WebPage> getSignInPageClass() {
+    protected static Class<? extends WebPage> getSignInPageClass() {
         return Login.class;
     }
 

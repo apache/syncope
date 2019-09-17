@@ -71,6 +71,6 @@ public class AnyTypeDetailsPanel extends Panel {
     }
 
     private static List<String> getAvailableAnyTypeClasses() {
-        return new AnyTypeClassRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList());
+        return AnyTypeClassRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
     }
 }

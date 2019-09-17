@@ -89,7 +89,7 @@ public class SyncopeClientFactoryBean {
 
     private JAXRSClientFactoryBean restClientFactoryBean;
 
-    protected JacksonJaxbJsonProvider defaultJsonProvider() {
+    protected static JacksonJaxbJsonProvider defaultJsonProvider() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
         objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -97,7 +97,7 @@ public class SyncopeClientFactoryBean {
     }
 
     @SuppressWarnings({ "rawtypes" })
-    protected JAXBElementProvider<?> defaultJAXBProvider() {
+    protected static JAXBElementProvider<?> defaultJAXBProvider() {
         JAXBElementProvider<?> defaultJAXBProvider = new JAXBElementProvider();
 
         DocumentDepthProperties depthProperties = new DocumentDepthProperties();
@@ -115,7 +115,7 @@ public class SyncopeClientFactoryBean {
         return defaultJAXBProvider;
     }
 
-    protected RestClientExceptionMapper defaultExceptionMapper() {
+    protected static RestClientExceptionMapper defaultExceptionMapper() {
         return new RestClientExceptionMapper();
     }
 
@@ -150,7 +150,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JacksonJaxbJsonProvider getJsonProvider() {
-        return Optional.ofNullable(jsonProvider).orElseGet(this::defaultJsonProvider);
+        return Optional.ofNullable(jsonProvider).orElseGet(SyncopeClientFactoryBean::defaultJsonProvider);
     }
 
     public void setJsonProvider(final JacksonJaxbJsonProvider jsonProvider) {
@@ -169,7 +169,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public RestClientExceptionMapper getExceptionMapper() {
-        return Optional.ofNullable(exceptionMapper).orElseGet(this::defaultExceptionMapper);
+        return Optional.ofNullable(exceptionMapper).orElseGet(SyncopeClientFactoryBean::defaultExceptionMapper);
     }
 
     public SyncopeClientFactoryBean setExceptionMapper(final RestClientExceptionMapper exceptionMapper) {

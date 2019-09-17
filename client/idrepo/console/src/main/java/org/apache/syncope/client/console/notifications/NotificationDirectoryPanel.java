@@ -111,7 +111,8 @@ public class NotificationDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 send(NotificationDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
+                                new NotificationWrapper(
+                                    NotificationRestClient.read(model.getObject().getKey())), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 
@@ -136,7 +137,7 @@ public class NotificationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    NotificationRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -181,14 +182,14 @@ public class NotificationDirectoryPanel
 
         @Override
         public Iterator<NotificationTO> iterator(final long first, final long count) {
-            List<NotificationTO> list = restClient.list();
+            List<NotificationTO> list = NotificationRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return NotificationRestClient.list().size();
         }
 
         @Override

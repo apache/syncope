@@ -41,7 +41,7 @@ public class SCIMConfTabPanel extends Panel implements ModalPanel {
     }
 
     private static List<String> getPlainSchemas() {
-        return new SchemaRestClient().getSchemas(SchemaType.PLAIN, AnyTypeKind.USER).stream().
+        return SchemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.USER).stream().
                 map(SchemaTO::getKey).
                 filter(name -> !"password".equals(name)).
                 sorted().collect(Collectors.toList());

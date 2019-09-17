@@ -64,10 +64,6 @@ public class Flowable extends BaseExtPage {
 
     private final Model<String> bpmnProcessModel = new Model<>();
 
-    private final BpmnProcessRestClient restClient = new BpmnProcessRestClient();
-
-    private final UserRequestRestClient userRequestRestClient = new UserRequestRestClient();
-
     private final WebMarkupContainer container;
 
     private final DataView<UserRequest> urDataView;
@@ -115,7 +111,7 @@ public class Flowable extends BaseExtPage {
             public void onClick(final AjaxRequestTarget target) {
                 if (StringUtils.isNotBlank(bpmnProcessModel.getObject())) {
                     try {
-                        userRequestRestClient.start(bpmnProcessModel.getObject(), null);
+                        UserRequestRestClient.start(bpmnProcessModel.getObject(), null);
                     } catch (Exception e) {
                         LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
                         SyncopeEnduserSession.get()
@@ -147,7 +143,7 @@ public class Flowable extends BaseExtPage {
                         target.add(container);
                     }
                 });
-        bpmnProcesses.setChoices(restClient.getDefinitions().stream()
+        bpmnProcesses.setChoices(BpmnProcessRestClient.getDefinitions().stream()
                 .filter(definition -> !definition.isUserWorkflow())
                 .map(BpmnProcess::getKey).collect(Collectors.toList()));
         container.add(bpmnProcesses);
@@ -169,7 +165,7 @@ public class Flowable extends BaseExtPage {
             super(id);
 
             final UserRequestForm formTO = userRequest.getHasForm()
-                    ? userRequestRestClient.getForm(SyncopeEnduserSession.get().getSelfTO().getUsername(), userRequest.
+                    ? UserRequestRestClient.getForm(SyncopeEnduserSession.get().getSelfTO().getUsername(), userRequest.
                             getTaskId()).orElse(null)
                     : null;
 
@@ -199,8 +195,8 @@ public class Flowable extends BaseExtPage {
                                         @Override
                                         protected void onSubmit(final AjaxRequestTarget target) {
                                             try {
-                                                userRequestRestClient.claimForm(formTO.getTaskId());
-                                                userRequestRestClient.submitForm(formTO);
+                                                UserRequestRestClient.claimForm(formTO.getTaskId());
+                                                UserRequestRestClient.submitForm(formTO);
                                                 target.add(container);
                                             } catch (SyncopeClientException sce) {
                                                 LOG.error("Unable to submit user request form for BPMN process [{}]",
@@ -220,7 +216,7 @@ public class Flowable extends BaseExtPage {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
-                    userRequestRestClient.cancelRequest(userRequest.getExecutionId(), null);
+                    UserRequestRestClient.cancelRequest(userRequest.getExecutionId(), null);
                     target.add(container);
                 }
 
@@ -244,7 +240,7 @@ public class Flowable extends BaseExtPage {
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            return userRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
+            return UserRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
                     paginatorRows,
                     SyncopeEnduserSession.get().getSelfTO().getUsername(),
                     new SortParam<>(sortParam, true)).iterator();
@@ -252,7 +248,7 @@ public class Flowable extends BaseExtPage {
 
         @Override
         public long size() {
-            return userRequestRestClient.countUserRequests();
+            return UserRequestRestClient.countUserRequests();
         }
 
         @Override

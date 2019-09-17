@@ -80,7 +80,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
         UserCR userCR = UserCR.class.cast(anyCR);
 
-        Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
+        Boolean enabled = PullUtils.readEnabled(delta.getObject(), profile.getTask());
         Map.Entry<String, List<PropagationStatus>> created =
                 userProvisioningManager.create(userCR, true, enabled,
                         Set.of(profile.getTask().getResource().getKey()), true);
@@ -96,7 +96,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final ProvisioningReport result) {
 
         UserUR userUR = UserUR.class.cast(anyUR);
-        Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
+        Boolean enabled = PullUtils.readEnabled(delta.getObject(), profile.getTask());
 
         Pair<UserUR, List<PropagationStatus>> updated = userProvisioningManager.update(
                 userUR,

@@ -160,7 +160,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
         private void createResourceStream() {
             if (stream == null) {
-                stream = new HttpResourceStream(new ReportRestClient().exportExecutionResult(execution, exportFormat));
+                stream = new HttpResourceStream(ReportRestClient.exportExecutionResult(execution, exportFormat));
             }
         }
 

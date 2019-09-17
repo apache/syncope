@@ -32,7 +32,7 @@ public class PreviewUtils {
     @Autowired
     private ClassPathScanImplementationLookup lookup;
 
-    public AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
+    public static AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
         return new DefaultPreviewer("previewer", mimeType);
     }
 

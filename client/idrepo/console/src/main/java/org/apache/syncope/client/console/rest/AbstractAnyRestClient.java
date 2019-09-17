@@ -148,7 +148,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
         return result;
     }
 
-    public Map<String, String> batch(final BatchRequest batchRequest) {
+    public static Map<String, String> batch(final BatchRequest batchRequest) {
         List<BatchRequestItem> batchRequestItems = new ArrayList<>(batchRequest.getItems());
 
         Map<String, String> result = new LinkedHashMap<>();

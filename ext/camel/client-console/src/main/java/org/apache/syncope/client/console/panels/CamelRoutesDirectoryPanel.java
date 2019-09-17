@@ -114,7 +114,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                final CamelRouteTO route = restClient.read(anyTypeKind, model.getObject().getKey());
+                final CamelRouteTO route = CamelRoutesRestClient.read(anyTypeKind, model.getObject().getKey());
 
                 utilityModal.header(Model.of(route.getKey()));
                 utilityModal.setContent(new XMLEditorPanel(
@@ -125,7 +125,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                     @Override
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            restClient.update(anyTypeKind, route);
+                            CamelRoutesRestClient.update(anyTypeKind, route);
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
@@ -160,14 +160,14 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<CamelRouteTO> iterator(final long first, final long count) {
-            List<CamelRouteTO> list = restClient.list(anyTypeKind);
+            List<CamelRouteTO> list = CamelRoutesRestClient.list(anyTypeKind);
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list(anyTypeKind).size();
+            return CamelRoutesRestClient.list(anyTypeKind).size();
         }
 
         @Override

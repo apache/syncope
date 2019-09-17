@@ -64,7 +64,7 @@ public class Details<T extends AnyTO> extends WizardStep {
         } else {
             final List<RealmTO> realms = pageRef.getPage() instanceof Realms
                     ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
-                    : new RealmRestClient().list();
+                    : RealmRestClient.list();
 
             realm = new AjaxDropDownChoicePanel<>(
                     "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);

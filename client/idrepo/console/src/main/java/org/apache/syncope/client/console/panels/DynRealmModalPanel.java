@@ -50,10 +50,6 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
     private static final long serialVersionUID = -3773196441177699452L;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    private final DynRealmRestClient restClient = new DynRealmRestClient();
-
     private final DynRealmWrapper dynRealmWrapper;
 
     private final boolean create;
@@ -81,7 +77,7 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return anyTypeRestClient.listAnyTypes();
+                return AnyTypeRestClient.listAnyTypes();
             }
         };
 
@@ -134,9 +130,9 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         try {
             dynRealmWrapper.fillDynamicConditions();
             if (create) {
-                restClient.create(dynRealmWrapper.getInnerObject());
+                DynRealmRestClient.create(dynRealmWrapper.getInnerObject());
             } else {
-                restClient.update(dynRealmWrapper.getInnerObject());
+                DynRealmRestClient.update(dynRealmWrapper.getInnerObject());
             }
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

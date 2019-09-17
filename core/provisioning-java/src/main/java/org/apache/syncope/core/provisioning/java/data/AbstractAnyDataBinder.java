@@ -545,15 +545,15 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected void fillTO(
-            final AnyTO anyTO,
-            final String realmFullPath,
-            final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources,
-            final boolean details) {
+    protected static void fillTO(
+        final AnyTO anyTO,
+        final String realmFullPath,
+        final Collection<? extends AnyTypeClass> auxClasses,
+        final Collection<? extends PlainAttr<?>> plainAttrs,
+        final Map<DerSchema, String> derAttrs,
+        final Map<VirSchema, List<String>> virAttrs,
+        final Collection<? extends ExternalResource> resources,
+        final boolean details) {
 
         anyTO.setRealm(realmFullPath);
 
@@ -572,17 +572,17 @@ abstract class AbstractAnyDataBinder {
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
     }
 
-    protected RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
+    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
         return new RelationshipTO.Builder().
                 type(relationshipType).otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
                 build();
     }
 
-    protected MembershipTO getMembershipTO(
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Membership<? extends Any<?>> membership) {
+    protected static MembershipTO getMembershipTO(
+        final Collection<? extends PlainAttr<?>> plainAttrs,
+        final Map<DerSchema, String> derAttrs,
+        final Map<VirSchema, List<String>> virAttrs,
+        final Membership<? extends Any<?>> membership) {
 
         MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
                 .groupName(membership.getRightEnd().getName())

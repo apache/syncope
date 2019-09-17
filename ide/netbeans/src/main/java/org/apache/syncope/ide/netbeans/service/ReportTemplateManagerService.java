@@ -61,7 +61,7 @@ public class ReportTemplateManagerService {
         service.setFormat(key, format, templateIn);
     }
 
-    public boolean removeFormat(final String key, final ReportTemplateFormat format) {
+    public static boolean removeFormat(final String key, final ReportTemplateFormat format) {
         return false;
     }
 

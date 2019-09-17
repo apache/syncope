@@ -77,7 +77,7 @@ public class Roles extends WizardStep implements ICondition {
 
         allRoles = SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)
-                ? new RoleRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList())
+                ? RoleRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList())
                 : List.of();
         Collections.sort(allRoles);
 

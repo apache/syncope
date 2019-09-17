@@ -39,8 +39,6 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -4886361549305302161L;
 
-    private final BpmnProcessRestClient restClient = new BpmnProcessRestClient();
-
     private final Form<?> form;
 
     public NewBpmnProcess(final String id, final WebMarkupContainer container, final PageReference pageRef) {
@@ -60,7 +58,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    restClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
+                    BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
                             IOUtils.toString(
                                     getClass().getResourceAsStream("empty.bpmn20.xml"),
                                     Charsets.UTF_8.name()).replaceAll("%KEY%", key.getModelObject()));

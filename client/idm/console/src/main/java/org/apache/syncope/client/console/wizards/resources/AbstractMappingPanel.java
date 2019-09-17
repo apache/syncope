@@ -27,7 +27,6 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -54,11 +53,6 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class AbstractMappingPanel extends Panel {
 
     private static final long serialVersionUID = -8295587900937040104L;
-
-    /**
-     * Any type rest client.
-     */
-    protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     /**
      * Any type class rest client.

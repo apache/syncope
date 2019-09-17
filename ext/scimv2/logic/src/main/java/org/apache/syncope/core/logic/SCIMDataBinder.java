@@ -657,7 +657,7 @@ public class SCIMDataBinder {
         return group;
     }
 
-    public GroupTO toGroupTO(final SCIMGroup group) {
+    public static GroupTO toGroupTO(final SCIMGroup group) {
         if (!GROUP_SCHEMAS.equals(group.getSchemas())) {
             throw new BadRequestException(ErrorType.invalidValue);
         }
@@ -669,7 +669,7 @@ public class SCIMDataBinder {
         return groupTO;
     }
 
-    public GroupCR toGroupCR(final SCIMGroup group) {
+    public static GroupCR toGroupCR(final SCIMGroup group) {
         if (!GROUP_SCHEMAS.equals(group.getSchemas())) {
             throw new BadRequestException(ErrorType.invalidValue);
         }

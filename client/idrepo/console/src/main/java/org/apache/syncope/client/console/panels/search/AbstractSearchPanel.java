@@ -52,10 +52,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
 
-    protected AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    protected SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     protected IModel<List<String>> dnames;
 
     protected IModel<Map<String, PlainSchemaTO>> anames;
@@ -183,8 +179,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return schemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
+                return SchemaRestClient.<PlainSchemaTO>getSchemas(
+                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
                         stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };

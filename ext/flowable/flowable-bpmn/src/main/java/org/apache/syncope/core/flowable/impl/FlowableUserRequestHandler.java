@@ -261,7 +261,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
     }
 
-    protected UserRequestFormPropertyType fromFlowableFormType(final FormType flowableFormType) {
+    protected static UserRequestFormPropertyType fromFlowableFormType(final FormType flowableFormType) {
         UserRequestFormPropertyType result = UserRequestFormPropertyType.String;
 
         if (null != flowableFormType.getName()) {
