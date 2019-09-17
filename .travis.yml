@@ -73,7 +73,7 @@ jobs:
       name: "Unit Tests"
       ######################################################
     - stage: fit
-      script: travis_wait 45 mvn -f fit/core-reference/pom.xml verify -P skipLegalFiles,skipSass -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
+      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
       name: "Full Integration Tests"
       #####################################################
   after_failure:
