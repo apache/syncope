@@ -20,13 +20,10 @@ under the License.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd                           
                            http://www.springframework.org/schema/tx
-                           http://www.springframework.org/schema/tx/spring-tx.xsd
-                           http://www.springframework.org/schema/util
-                           http://www.springframework.org/schema/util/spring-util.xsd">
+                           http://www.springframework.org/schema/tx/spring-tx.xsd">
   
   <bean id="MasterContentXML" class="org.apache.syncope.core.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${content.directory}/domains/MasterContent.xml"/>
@@ -54,9 +51,7 @@ under the License.
     <property name="username" value="${Master.username}"/>
     <property name="password" value="${Master.password}"/>
     <!-- connection pool configuration - transaction isolation, default READ_COMMITTED (see SYNCOPE-202) -->
-    <property name="transactionIsolation">
-      <util:constant static-field="${Master.pool.transactionIsolation:TRANSACTION_READ_COMMITTED}"/>
-    </property>
+    <property name="transactionIsolation" value="${Master.pool.transactionIsolation:TRANSACTION_READ_COMMITTED}"/>
     <!-- connection pool configuration - default values taken from HikariConfig default values -->
     <property name="maximumPoolSize" value="${Master.pool.maxActive:8}"/>
     <property name="minimumIdle" value="${Master.pool.minIdle:0}"/>
