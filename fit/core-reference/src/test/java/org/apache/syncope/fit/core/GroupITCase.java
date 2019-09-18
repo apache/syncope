@@ -1033,7 +1033,7 @@ public class GroupITCase extends AbstractITCase {
                 ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
                 NamingEnumeration<SearchResult> result =
-                        ctx.search("ou=groups,o=isp", "(description=" + groupTO.getKey() + ")", ctls);
+                        ctx.search("ou=groups,o=isp", "(description=" + groupTO.getKey() + ')', ctls);
                 while (result.hasMore()) {
                     result.next();
                     entries++;

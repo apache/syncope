@@ -62,10 +62,6 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
     private static final long serialVersionUID = 5952696913893950460L;
 
-    private final SAML2IdPsRestClient restClient = new SAML2IdPsRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final SAML2IdPsDirectoryPanel directoryPanel;
 
     private final IModel<List<String>> idpActions = new LoadableDetachableModel<List<String>>() {
@@ -74,7 +70,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(SAML2SPImplementationType.IDP_ACTIONS).stream().
+            return ImplementationRestClient.list(SAML2SPImplementationType.IDP_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -85,7 +81,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(SAML2SPImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).stream().
+            return ImplementationRestClient.list(SAML2SPImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -226,7 +222,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                     new StringResourceModel("connObjectKeyValidation", directoryPanel).getString());
         }
 
-        restClient.update(modelObject);
+        SAML2IdPsRestClient.update(modelObject);
         return modelObject;
     }
 

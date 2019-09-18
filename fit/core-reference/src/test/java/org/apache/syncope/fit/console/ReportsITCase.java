@@ -39,7 +39,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().assertRenderedPage(Reports.class);
     }
 
-    private void createReport(final String name) {
+    private static void createReport(final String name) {
         UTILITY_UI.getTester().clickLink(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:container:content:add");
 
@@ -66,7 +66,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().clickLink("body:reportsLI:reports");
     }
 
-    private void delete(final String name) {
+    private static void delete(final String name) {
         UTILITY_UI.getTester().clickLink("body:reportsLI:reports");
 
         Component result = UTILITY_UI.findComponentByProp(

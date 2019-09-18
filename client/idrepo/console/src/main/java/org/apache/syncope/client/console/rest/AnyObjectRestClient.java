@@ -42,7 +42,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
         return AnyObjectService.class;
     }
 
-    public ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq) {
+    public static ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq) {
         Response response = getService(AnyObjectService.class).create(createReq);
         return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
         });

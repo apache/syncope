@@ -433,7 +433,7 @@ public class PullUtils {
         return result;
     }
 
-    public Boolean readEnabled(final ConnectorObject connectorObject, final ProvisioningTask task) {
+    public static Boolean readEnabled(final ConnectorObject connectorObject, final ProvisioningTask task) {
         Boolean enabled = null;
         if (task.isSyncStatus()) {
             Attribute status = AttributeUtil.find(OperationalAttributes.ENABLE_NAME, connectorObject.getAttributes());

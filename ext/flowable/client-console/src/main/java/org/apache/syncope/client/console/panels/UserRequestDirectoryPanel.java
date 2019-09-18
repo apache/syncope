@@ -92,7 +92,7 @@ public class UserRequestDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequest ignore) {
                 try {
-                    restClient.cancelRequest(model.getObject().getExecutionId(), null);
+                    UserRequestRestClient.cancelRequest(model.getObject().getExecutionId(), null);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     UserRequestDirectoryPanel.this.getTogglePanel().close(target);
@@ -127,8 +127,6 @@ public class UserRequestDirectoryPanel
 
         private static final long serialVersionUID = -1392420250782313734L;
 
-        private final UserRequestRestClient restClient = new UserRequestRestClient();
-
         public UserRequestProvider(final int paginatorRows) {
             super(paginatorRows);
 
@@ -138,12 +136,13 @@ public class UserRequestDirectoryPanel
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getUserRequests((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return UserRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
+                paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.countUserRequests();
+            return UserRequestRestClient.countUserRequests();
         }
 
         @Override

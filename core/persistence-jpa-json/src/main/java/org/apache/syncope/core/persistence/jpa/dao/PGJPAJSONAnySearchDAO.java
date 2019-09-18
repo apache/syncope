@@ -67,7 +67,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                                 append("'{\"schema\": \"").
                                 append(field).
                                 append("\"}'::jsonb as attrs, '{}'::jsonb as attrValues").
-                                append(" FROM ").append(svs.table().name).append(" ").append(svs.table().alias).
+                                append(" FROM ").append(svs.table().name).append(' ').append(svs.table().alias).
                                 append(", ").append(svs.field().name).
                                 append(" WHERE ").
                                 append("any_id NOT IN ").
@@ -102,8 +102,8 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         obs.views.add(svs.field());
 
         item.select = svs.field().alias + ".attrValues ->> '" + key(schema.getType()) + "' AS " + fieldName;
-        item.where = "attrs ->> 'schema' = '" + fieldName + "'";
-        item.orderBy = fieldName + " " + clause.getDirection().name();
+        item.where = "attrs ->> 'schema' = '" + fieldName + '\'';
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
     private void fillAttrQuery(
@@ -124,7 +124,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
             query.append(svs.field().name).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else {
             if (!not && cond.getType() == AttributeCond.Type.EQ) {
                 PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -148,7 +148,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         append(lower ? "LOWER(" : "").
                         append(schema.isUniqueConstraint()
                                 ? "attrs -> 'uniqueValue'" : "attrValues").
-                        append(" ->> '").append(key).append("'").
+                        append(" ->> '").append(key).append('\'').
                         append(lower ? ")" : "");
 
                 appendOp(query, cond.getType(), not);
@@ -162,7 +162,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                     }
                 }
                 query.append(lower ? "LOWER(" : "").
-                        append("?").append(setParameter(parameters, value)).
+                        append('?').append(setParameter(parameters, value)).
                         append(lower ? ")" : "");
             }
         }

@@ -46,8 +46,6 @@ public class LogViewer extends WebPage {
 
     private static final long serialVersionUID = -7578329899052708105L;
 
-    private final LoggerRestClient restClient = new LoggerRestClient();
-
     public LogViewer() {
         final WebMarkupContainer viewer = new WebMarkupContainer("viewer");
         viewer.setOutputMarkupId(true);
@@ -56,7 +54,7 @@ public class LogViewer extends WebPage {
         final AjaxDropDownChoicePanel<String> appenders = new AjaxDropDownChoicePanel<>(
                 "appenders", "Appender", new Model<>(), false);
         MetaDataRoleAuthorizationStrategy.authorize(appenders, ENABLE, IdRepoEntitlement.LOG_READ);
-        appenders.setChoices(restClient.listMemoryAppenders());
+        appenders.setChoices(LoggerRestClient.listMemoryAppenders());
         viewer.add(appenders);
 
         final WebMarkupContainer stContainer = new WebMarkupContainer("stContainer");
@@ -90,7 +88,8 @@ public class LogViewer extends WebPage {
 
                 List<LogStatement> recentLogStatements = appenders.getModelObject() == null
                         ? new ArrayList<>()
-                        : restClient.getLastLogStatements(appenders.getModelObject(), lastTimeInMillis.getObject());
+                        : LoggerRestClient.getLastLogStatements(appenders.getModelObject(),
+                    lastTimeInMillis.getObject());
                 if (!recentLogStatements.isEmpty()) {
                     lastTimeInMillis.setObject(recentLogStatements.get(recentLogStatements.size() - 1).getTimeMillis());
 
@@ -126,7 +125,7 @@ public class LogViewer extends WebPage {
             protected void onUpdate(final AjaxRequestTarget target) {
                 List<LogStatement> lastStatements = appenders.getModelObject() == null
                         ? new ArrayList<>()
-                        : restClient.getLastLogStatements(appenders.getModelObject(), 0);
+                        : LoggerRestClient.getLastLogStatements(appenders.getModelObject(), 0);
                 statementViewModel.setObject(lastStatements);
                 target.add(stContainer);
 

@@ -35,8 +35,6 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
 
     private static final long serialVersionUID = -8847854414429745216L;
 
-    private final UserRequestRestClient restClient = new UserRequestRestClient();
-
     private final BaseModal<?> modal;
 
     private final UserRequestForm formTO;
@@ -64,7 +62,7 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        this.restClient.submitForm(formTO);
+        UserRequestRestClient.submitForm(formTO);
         this.modal.show(false);
         this.modal.close(target);
         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

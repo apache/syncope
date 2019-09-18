@@ -233,7 +233,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(g -> g.getKey() + " " + g.getName()).collect(Collectors.toList()));
+                    map(g -> g.getKey() + ' ' + g.getName()).collect(Collectors.toList()));
             throw sce;
         }
 

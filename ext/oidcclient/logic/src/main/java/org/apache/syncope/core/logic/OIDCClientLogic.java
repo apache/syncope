@@ -104,7 +104,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         if (op == null) {
             throw new NotFoundException(StringUtils.isBlank(opName)
                     ? "Any OIDC Provider"
-                    : "OIDC Provider '" + opName + "'");
+                    : "OIDC Provider '" + opName + '\'');
         }
         return op;
     }
@@ -130,11 +130,11 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         OIDCProvider op = getOIDCProvider(opName);
 
         // 1. get OpenID Connect tokens
-        String body = OAuthConstants.AUTHORIZATION_CODE_VALUE + "=" + authorizationCode
-                + "&" + OAuthConstants.CLIENT_ID + "=" + op.getClientID()
-                + "&" + OAuthConstants.CLIENT_SECRET + "=" + op.getClientSecret()
-                + "&" + OAuthConstants.REDIRECT_URI + "=" + redirectURI
-                + "&" + OAuthConstants.GRANT_TYPE + "=" + OAuthConstants.AUTHORIZATION_CODE_GRANT;
+        String body = OAuthConstants.AUTHORIZATION_CODE_VALUE + '=' + authorizationCode
+                + '&' + OAuthConstants.CLIENT_ID + '=' + op.getClientID()
+                + '&' + OAuthConstants.CLIENT_SECRET + '=' + op.getClientSecret()
+                + '&' + OAuthConstants.REDIRECT_URI + '=' + redirectURI
+                + '&' + OAuthConstants.GRANT_TYPE + '=' + OAuthConstants.AUTHORIZATION_CODE_GRANT;
         TokenEndpointResponse tokenEndpointResponse;
         try {
             tokenEndpointResponse = getOIDCTokens(op.getTokenEndpoint(), body);
@@ -370,7 +370,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return responseTO;
     }
 
-    private TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
+    private static TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
         Response response = WebClient.create(url, List.of(new JacksonJsonProvider())).
                 type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).
                 post(body);
@@ -387,7 +387,8 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return response.readEntity(TokenEndpointResponse.class);
     }
 
-    private IdToken getValidatedIdToken(final OIDCProvider op, final Consumer consumer, final String jwtIdToken) {
+    private static IdToken getValidatedIdToken(final OIDCProvider op, final Consumer consumer,
+                                               final String jwtIdToken) {
         IdTokenReader idTokenReader = new IdTokenReader();
         idTokenReader.setClockOffset(10);
         idTokenReader.setIssuerId(op.getIssuer());
@@ -405,11 +406,11 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return idToken;
     }
 
-    private UserInfo getUserInfo(
-            final String endpoint,
-            final String accessToken,
-            final IdToken idToken,
-            final Consumer consumer) {
+    private static UserInfo getUserInfo(
+        final String endpoint,
+        final String accessToken,
+        final IdToken idToken,
+        final Consumer consumer) {
 
         WebClient userInfoServiceClient = WebClient.create(endpoint, List.of(new JsonMapObjectProvider())).
                 accept(MediaType.APPLICATION_JSON);

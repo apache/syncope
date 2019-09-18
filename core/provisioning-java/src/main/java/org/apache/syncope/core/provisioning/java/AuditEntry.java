@@ -66,7 +66,7 @@ public class AuditEntry implements Serializable {
         }
     }
 
-    private Object maskSensitive(final Object object) {
+    private static Object maskSensitive(final Object object) {
         Object masked;
 
         if (object instanceof UserTO) {

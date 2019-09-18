@@ -47,10 +47,6 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final ImplementationRestClient implementationClient = new ImplementationRestClient();
-
-    private final ReportRestClient restClient = new ReportRestClient();
-
     private final String report;
 
     public ReportletWizardBuilder(
@@ -64,22 +60,22 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
     @Override
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
-            ImplementationTO reportlet = implementationClient.read(
+            ImplementationTO reportlet = ImplementationRestClient.read(
                     IdRepoImplementationType.REPORTLET, modelObject.getImplementationKey());
             try {
                 reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
-                implementationClient.update(reportlet);
+                ImplementationRestClient.update(reportlet);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
-        ReportTO reportTO = restClient.read(report);
+        ReportTO reportTO = ReportRestClient.read(report);
         if (modelObject.isNew()) {
             reportTO.getReportlets().add(modelObject.getImplementationKey());
         }
 
-        restClient.update(reportTO);
+        ReportRestClient.update(reportTO);
         return modelObject;
     }
 
@@ -99,7 +95,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
             final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
                     "reportlet", getString("reportlet"), new PropertyModel<>(reportlet, "implementationKey"));
 
-            conf.setChoices(implementationClient.list(IdRepoImplementationType.REPORTLET).stream().
+            conf.setChoices(ImplementationRestClient.list(IdRepoImplementationType.REPORTLET).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList()));
             conf.addRequiredLabel();
             conf.setNullValid(false);
@@ -110,7 +106,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
 
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
-                    ImplementationTO impl = implementationClient.read(
+                    ImplementationTO impl = ImplementationRestClient.read(
                             IdRepoImplementationType.REPORTLET, conf.getModelObject());
                     reportlet.setImplementationEngine(impl.getEngine());
                     if (impl.getEngine() == ImplementationEngine.JAVA) {

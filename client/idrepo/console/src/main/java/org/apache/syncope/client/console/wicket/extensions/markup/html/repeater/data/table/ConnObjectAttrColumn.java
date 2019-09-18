@@ -39,7 +39,7 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
     public ConnObjectAttrColumn(final String name, final SchemaType schemaType) {
         // set sortProperty to schematype#name (e.g. derivedSchema#cn, 
         // for use with SortableUserProviderComparator.AttrModel#getObject)
-        super(new ResourceModel(name, name), schemaType.name() + "#" + name);
+        super(new ResourceModel(name, name), schemaType.name() + '#' + name);
         this.name = name;
     }
 

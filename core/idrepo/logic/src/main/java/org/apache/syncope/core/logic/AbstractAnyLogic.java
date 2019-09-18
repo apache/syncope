@@ -72,7 +72,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     @Autowired
     private TemplateUtils templateUtils;
 
-    private List<LogicActions> getActions(final Realm realm) {
+    private static List<LogicActions> getActions(final Realm realm) {
         List<LogicActions> actions = new ArrayList<>();
 
         realm.getActions().forEach(impl -> {

@@ -39,7 +39,7 @@ public class PasswordGeneratorTest {
 
     private final DefaultPasswordGenerator passwordGenerator = new DefaultPasswordGenerator();
 
-    private DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
+    private static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
         DefaultPasswordRuleConf baseDefaultPasswordRuleConf = new DefaultPasswordRuleConf();
         baseDefaultPasswordRuleConf.setAlphanumericRequired(false);
         baseDefaultPasswordRuleConf.setDigitRequired(false);

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -154,7 +153,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return Optional.ofNullable(builder).map(ResponseBuilder::build).orElse(null);
     }
 
-    private ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
+    private static ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder builder = Response.status(ex.getType().getResponseStatus());
         builder.header(RESTHeaders.ERROR_CODE, ex.getType().name());
 
@@ -170,15 +169,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return builder.entity(error);
     }
 
-    private ResponseBuilder getSyncopeClientCompositeExceptionResponse(final SyncopeClientCompositeException ex) {
+    private static ResponseBuilder getSyncopeClientCompositeExceptionResponse(
+        final SyncopeClientCompositeException ex) {
         if (ex.getExceptions().size() == 1) {
             return getSyncopeClientExceptionResponse(ex.getExceptions().iterator().next());
         }
 
         ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
 
-        List<ErrorTO> errors = new ArrayList<>();
-        ex.getExceptions().stream().map(sce -> {
+        List<ErrorTO> errors = ex.getExceptions().stream().map(sce -> {
             builder.header(RESTHeaders.ERROR_CODE, sce.getType().name());
 
             ErrorTO error = new ErrorTO();
@@ -196,7 +195,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return builder.entity(errors);
     }
 
-    private ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
+    private static ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
         InvalidEntityException iee = null;
 
         if (ex instanceof InvalidEntityException) {
@@ -244,7 +243,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private ResponseBuilder processBadRequestExceptions(final Exception ex) {
+    private static ResponseBuilder processBadRequestExceptions(final Exception ex) {
         // This exception might be raised by Flowable (if enabled)
         Class<?> ibatisPersistenceException = null;
         try {
@@ -272,7 +271,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
+    private static ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus()).
                 header(RESTHeaders.ERROR_CODE, hType.name()).
                 header(RESTHeaders.ERROR_INFO, hType.getInfoHeaderValue(msg));
@@ -292,7 +291,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
      * @param response model to construct {@link ResponseBuilder} from
      * @return new {@link ResponseBuilder} instance initialized from given response
      */
-    private ResponseBuilder builder(final Response response) {
+    private static ResponseBuilder builder(final Response response) {
         ResponseBuilder builder = JAXRSUtils.toResponseBuilder(response.getStatus());
         builder.entity(response.getEntity());
         response.getMetadata().forEach((key, value) -> {

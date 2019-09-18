@@ -29,7 +29,7 @@ public class RealmRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
-    public List<RealmTO> list() {
+    public static List<RealmTO> list() {
         return getService(RealmService.class).list();
     }
 

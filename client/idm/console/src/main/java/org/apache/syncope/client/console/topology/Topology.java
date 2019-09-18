@@ -72,10 +72,6 @@ public class Topology extends BasePage {
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     private final int origX = 3100;
 
     private final int origY = 2800;
@@ -94,7 +90,7 @@ public class Topology extends BasePage {
 
         @Override
         protected List<ResourceTO> load() {
-            return resourceRestClient.list();
+            return ResourceRestClient.list();
         }
     };
 
@@ -107,7 +103,7 @@ public class Topology extends BasePage {
         protected Map<String, List<ConnInstanceTO>> load() {
             final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
 
-            connectorRestClient.getAllConnectors().forEach(conn -> {
+            ConnectorRestClient.getAllConnectors().forEach(conn -> {
                 final List<ConnInstanceTO> conns;
                 if (res.containsKey(conn.getLocation())) {
                     conns = res.get(conn.getLocation());
@@ -526,7 +522,7 @@ public class Topology extends BasePage {
         newlyCreatedContainer.add(newlyCreated);
     }
 
-    private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
+    private static List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
         targets.forEach((key, value) -> value.forEach((label, node) -> list.add(

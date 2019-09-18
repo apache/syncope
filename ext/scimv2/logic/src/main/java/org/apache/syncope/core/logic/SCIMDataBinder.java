@@ -81,10 +81,10 @@ public class SCIMDataBinder {
     @Autowired
     private AuthDataAccessor authDataAccessor;
 
-    private <E extends Enum<?>> void fill(
-            final Map<String, Attr> attrs,
-            final List<SCIMComplexConf<E>> confs,
-            final List<SCIMComplexValue> values) {
+    private static <E extends Enum<?>> void fill(
+        final Map<String, Attr> attrs,
+        final List<SCIMComplexConf<E>> confs,
+        final List<SCIMComplexValue> values) {
 
         confs.forEach(conf -> {
             SCIMComplexValue value = new SCIMComplexValue();
@@ -108,20 +108,20 @@ public class SCIMDataBinder {
         });
     }
 
-    private boolean output(
-            final List<String> attributes,
-            final List<String> excludedAttributes,
-            final String schema) {
+    private static boolean output(
+        final List<String> attributes,
+        final List<String> excludedAttributes,
+        final String schema) {
 
         return (attributes.isEmpty() || attributes.contains(schema))
                 && (excludedAttributes.isEmpty() || !excludedAttributes.contains(schema));
     }
 
-    private <T> T output(
-            final List<String> attributes,
-            final List<String> excludedAttributes,
-            final String schema,
-            final T value) {
+    private static <T> T output(
+        final List<String> attributes,
+        final List<String> excludedAttributes,
+        final String schema,
+        final T value) {
 
         return output(attributes, excludedAttributes, schema)
                 ? value
@@ -411,10 +411,10 @@ public class SCIMDataBinder {
         return user;
     }
 
-    private <E extends Enum<?>> void fill(
-            final Set<Attr> attrs,
-            final List<SCIMComplexConf<E>> confs,
-            final List<SCIMComplexValue> values) {
+    private static <E extends Enum<?>> void fill(
+        final Set<Attr> attrs,
+        final List<SCIMComplexConf<E>> confs,
+        final List<SCIMComplexValue> values) {
 
         values.forEach(value -> {
             if (value.getType() != null) {
@@ -601,7 +601,7 @@ public class SCIMDataBinder {
         return userCR;
     }
 
-    private void setAttribute(final UserTO userTO, final String schema, final String value) {
+    private static void setAttribute(final UserTO userTO, final String schema, final String value) {
         switch (schema) {
             case "username":
                 userTO.setUsername(value);
@@ -657,7 +657,7 @@ public class SCIMDataBinder {
         return group;
     }
 
-    public GroupTO toGroupTO(final SCIMGroup group) {
+    public static GroupTO toGroupTO(final SCIMGroup group) {
         if (!GROUP_SCHEMAS.equals(group.getSchemas())) {
             throw new BadRequestException(ErrorType.invalidValue);
         }
@@ -669,7 +669,7 @@ public class SCIMDataBinder {
         return groupTO;
     }
 
-    public GroupCR toGroupCR(final SCIMGroup group) {
+    public static GroupCR toGroupCR(final SCIMGroup group) {
         if (!GROUP_SCHEMAS.equals(group.getSchemas())) {
             throw new BadRequestException(ErrorType.invalidValue);
         }

@@ -116,7 +116,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             pullTask.setDestinationRealm(realm);
             pullTask.setRemediation(pullTaskTO.isRemediation());
             // validate JEXL expressions from templates and proceed if fine
-            templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+            TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
             pullTaskTO.getTemplates().forEach((type, template) -> {
                 AnyType anyType = anyTypeDAO.find(type);
                 if (anyType == null) {

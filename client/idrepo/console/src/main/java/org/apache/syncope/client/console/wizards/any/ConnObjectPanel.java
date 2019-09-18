@@ -141,7 +141,7 @@ public class ConnObjectPanel extends Panel {
      * @param attrTO remote attribute.
      * @return fragment.
      */
-    private Panel getValuePanel(final String id, final String schemaName, final Attr attrTO) {
+    private static Panel getValuePanel(final String id, final String schemaName, final Attr attrTO) {
         Panel field;
         if (attrTO == null) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<>());

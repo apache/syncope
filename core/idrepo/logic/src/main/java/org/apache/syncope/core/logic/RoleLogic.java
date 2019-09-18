@@ -48,7 +48,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     public RoleTO read(final String key) {
         Role role = roleDAO.find(key);
         if (role == null) {
-            LOG.error("Could not find role '" + key + "'");
+            LOG.error("Could not find role '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -71,7 +71,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     public RoleTO update(final RoleTO roleTO) {
         Role role = roleDAO.find(roleTO.getKey());
         if (role == null) {
-            LOG.error("Could not find role '" + roleTO.getKey() + "'");
+            LOG.error("Could not find role '" + roleTO.getKey() + '\'');
             throw new NotFoundException(roleTO.getKey());
         }
 
@@ -82,7 +82,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     public RoleTO delete(final String key) {
         Role role = roleDAO.find(key);
         if (role == null) {
-            LOG.error("Could not find role '" + key + "'");
+            LOG.error("Could not find role '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -96,14 +96,14 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     public String getConsoleLayoutInfo(final String key) {
         Role role = roleDAO.find(key);
         if (role == null) {
-            LOG.error("Could not find role '" + key + "'");
+            LOG.error("Could not find role '" + key + '\'');
 
             throw new NotFoundException(key);
         }
 
         String consoleLayout = role.getConsoleLayoutInfo();
         if (StringUtils.isBlank(consoleLayout)) {
-            LOG.error("Could not find console layout for Role '" + key + "'");
+            LOG.error("Could not find console layout for Role '" + key + '\'');
 
             throw new NotFoundException("Console layout for role " + key);
         }
@@ -115,7 +115,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     public void setConsoleLayoutInfo(final String key, final String consoleLayout) {
         Role role = roleDAO.find(key);
         if (role == null) {
-            LOG.error("Could not find role '" + key + "'");
+            LOG.error("Could not find role '" + key + '\'');
 
             throw new NotFoundException(key);
         }

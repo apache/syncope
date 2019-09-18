@@ -57,8 +57,6 @@ public class RealmChoicePanel extends Panel {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final RealmRestClient realmRestClient = new RealmRestClient();
-
     private final PageReference pageRef;
 
     private final LoadableDetachableModel<List<Pair<String, RealmTO>>> realmTree;
@@ -121,7 +119,7 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<DynRealmTO> load() {
-                List<DynRealmTO> dynRealms = realmRestClient.listDynReams();
+                List<DynRealmTO> dynRealms = RealmRestClient.listDynReams();
                 dynRealms.sort((left, right) -> {
                     if (left == null) {
                         return -1;
@@ -305,7 +303,7 @@ public class RealmChoicePanel extends Panel {
     }
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
-        return reloadRealmParentMap(realmRestClient.list().stream().
+        return reloadRealmParentMap(RealmRestClient.list().stream().
                 sorted(Comparator.comparing(RealmTO::getName)).
                 collect(Collectors.toList()));
     }

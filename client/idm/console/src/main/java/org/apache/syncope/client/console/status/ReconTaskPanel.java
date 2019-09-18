@@ -56,17 +56,13 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReconTaskPanel.class);
 
-    private final ReconciliationRestClient restClient = new ReconciliationRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final IModel<List<String>> pullActions = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+            return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -77,7 +73,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
+            return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -141,9 +137,11 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     if (taskTO instanceof PushTaskTO) {
-                        restClient.push(anyTypeKind, anyKey, resource, (PushTaskTO) form.getModelObject());
+                        ReconciliationRestClient.push(anyTypeKind, anyKey, resource,
+                            (PushTaskTO) form.getModelObject());
                     } else {
-                        restClient.pull(anyTypeKind, anyKey, resource, (PullTaskTO) form.getModelObject());
+                        ReconciliationRestClient.pull(anyTypeKind, anyKey, resource,
+                            (PullTaskTO) form.getModelObject());
                     }
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

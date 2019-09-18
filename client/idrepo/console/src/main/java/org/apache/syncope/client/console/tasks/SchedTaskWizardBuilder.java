@@ -55,8 +55,6 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final TaskRestClient restClient = new TaskRestClient();
-
     private final TaskType type;
 
     private PushTaskWrapper wrapper;
@@ -69,7 +67,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         @Override
         protected List<String> load() {
-            List<String> result = new RealmRestClient().list().stream().
+            List<String> result = RealmRestClient.list().stream().
                     map(RealmTO::getFullPath).collect(Collectors.toList());
             Collections.sort(result);
 
@@ -90,9 +88,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
-            restClient.create(type, modelObject);
+            TaskRestClient.create(type, modelObject);
         } else {
-            restClient.update(type, modelObject);
+            TaskRestClient.update(type, modelObject);
         }
         return modelObject;
     }

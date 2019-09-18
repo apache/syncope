@@ -56,8 +56,6 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected final Comparator<Attr> attrComparator = new AttrComparator();
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
@@ -93,7 +91,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     private List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
-        classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
+        classes.addAll(AnyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
                 map(EntityTO::getKey).collect(Collectors.toList()));
         setSchemas(classes);
         setAttrs();
@@ -109,7 +107,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
             for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
                     "memberships", anyTO).get(anyTO)) {
                 setSchemas(membership.getGroupKey(),
-                        anyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())).
+                        AnyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())).
                                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
                 setAttrs(membership);
 
@@ -155,7 +153,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         if (anyTypeClasses.isEmpty()) {
             allSchemas = List.of();
         } else {
-            allSchemas = schemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
+            allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
         }
 
         scs.clear();

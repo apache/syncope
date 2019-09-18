@@ -146,7 +146,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.getPolicy(type, model.getObject().getKey()), target));
+                                PolicyRestClient.getPolicy(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
@@ -173,7 +173,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 final T policyTO = model.getObject();
                 try {
-                    restClient.delete(type, policyTO.getKey());
+                    PolicyRestClient.delete(type, policyTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -224,14 +224,14 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            List<T> list = restClient.getPolicies(type);
+            List<T> list = PolicyRestClient.getPolicies(type);
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getPolicies(type).size();
+            return PolicyRestClient.getPolicies(type).size();
         }
 
         @Override

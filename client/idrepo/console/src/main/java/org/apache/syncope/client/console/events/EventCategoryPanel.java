@@ -258,7 +258,7 @@ public abstract class EventCategoryPanel extends Panel {
         });
     }
 
-    private List<String> filter(final List<EventCategory> eventCategoryTOs, final EventCategoryType type) {
+    private static List<String> filter(final List<EventCategory> eventCategoryTOs, final EventCategoryType type) {
         Set<String> res = new HashSet<>();
 
         eventCategoryTOs.stream().filter(eventCategory
@@ -270,8 +270,8 @@ public abstract class EventCategoryPanel extends Panel {
         return filtered;
     }
 
-    private List<String> filter(
-            final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
+    private static List<String> filter(
+        final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
 
         Set<String> res = new HashSet<>();
 

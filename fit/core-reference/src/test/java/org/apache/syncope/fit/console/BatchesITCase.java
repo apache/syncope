@@ -121,7 +121,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
         userStatusBatch(0, Constants.SYNCOPE);
     }
 
-    private void userStatusBatch(final int index, final String resource) {
+    private static void userStatusBatch(final int index, final String resource) {
         // suspend 
         UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
         UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");

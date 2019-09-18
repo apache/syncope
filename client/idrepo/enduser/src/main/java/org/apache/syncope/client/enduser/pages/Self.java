@@ -112,7 +112,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         return wizardBuilder.build(WIZARD_ID, mode);
     }
 
-    private UserTO buildNewUserTO(final PageParameters parameters) {
+    private static UserTO buildNewUserTO(final PageParameters parameters) {
         final UserTO userTO = new UserTO();
 
         if (parameters != null) {

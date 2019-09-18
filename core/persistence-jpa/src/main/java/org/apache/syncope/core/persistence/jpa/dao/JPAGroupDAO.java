@@ -232,7 +232,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
     }
 
-    private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
+    private static SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
         AssignableCond cond = new AssignableCond();
         cond.setRealmFullPath(groupRealm.getFullPath());
         cond.setFromGroup(true);

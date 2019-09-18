@@ -42,7 +42,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
-    private void createSecurityQuestion(final String name) {
+    private static void createSecurityQuestion(final String name) {
         UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
 
         UTILITY_UI.getTester().assertComponent(

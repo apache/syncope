@@ -64,7 +64,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
         return 300;
     }
 
-    private ColumnConfig[] buildColumnConfigs(final LoggerContext ctx) {
+    private static ColumnConfig[] buildColumnConfigs(final LoggerContext ctx) {
         ColumnConfig[] columnConfigs = {
             ColumnConfig.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),
@@ -154,10 +154,10 @@ public class LoggerLoader implements SyncopeCoreLoader {
         }).collect(Collectors.toList());
     }
 
-    public void addAppenderToContext(
-            final LoggerContext ctx,
-            final AuditAppender auditAppender,
-            final LoggerConfig eventLogConf) {
+    public static void addAppenderToContext(
+        final LoggerContext ctx,
+        final AuditAppender auditAppender,
+        final LoggerConfig eventLogConf) {
 
         Appender targetAppender = ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName());
         if (targetAppender == null) {

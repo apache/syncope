@@ -44,15 +44,13 @@ public class ResourceDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final IModel<List<String>> propagationActions = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
+            return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

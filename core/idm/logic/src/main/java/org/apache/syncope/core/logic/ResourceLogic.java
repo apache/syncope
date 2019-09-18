@@ -116,7 +116,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @Autowired
     private ConnectorFactory connFactory;
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+    protected static void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
@@ -154,7 +154,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public ResourceTO update(final ResourceTO resourceTO) {
         ExternalResource resource = resourceDAO.authFind(resourceTO.getKey());
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceTO.getKey() + "'");
+            throw new NotFoundException("Resource '" + resourceTO.getKey() + '\'');
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -169,7 +169,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public void setLatestSyncToken(final String key, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + key + "'");
+            throw new NotFoundException("Resource '" + key + '\'');
         }
 
         Connector connector;
@@ -183,18 +183,18 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
             if (resource.getOrgUnit() == null) {
-                throw new NotFoundException("Realm provision not enabled for Resource '" + key + "'");
+                throw new NotFoundException("Realm provision not enabled for Resource '" + key + '\'');
             }
 
             resource.getOrgUnit().setSyncToken(connector.getLatestSyncToken(resource.getOrgUnit().getObjectClass()));
         } else {
             AnyType anyType = anyTypeDAO.find(anyTypeKey);
             if (anyType == null) {
-                throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+                throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
             }
             Optional<? extends Provision> provision = resource.getProvision(anyType);
             if (provision.isEmpty()) {
-                throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+                throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\'');
             }
 
             provision.get().setSyncToken(connector.getLatestSyncToken(provision.get().getObjectClass()));
@@ -212,22 +212,22 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public void removeSyncToken(final String key, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + key + "'");
+            throw new NotFoundException("Resource '" + key + '\'');
         }
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
             if (resource.getOrgUnit() == null) {
-                throw new NotFoundException("Realm provision not enabled for Resource '" + key + "'");
+                throw new NotFoundException("Realm provision not enabled for Resource '" + key + '\'');
             }
 
             resource.getOrgUnit().setSyncToken(null);
         } else {
             AnyType anyType = anyTypeDAO.find(anyTypeKey);
             if (anyType == null) {
-                throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+                throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
             }
             Optional<? extends Provision> provision = resource.getProvision(anyType);
             if (provision.isEmpty()) {
-                throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+                throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\'');
             }
 
             provision.get().setSyncToken(null);
@@ -245,7 +245,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public ResourceTO delete(final String key) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + key + "'");
+            throw new NotFoundException("Resource '" + key + '\'');
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -265,7 +265,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public ResourceTO read(final String key) {
         ExternalResource resource = resourceDAO.authFind(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + key + "'");
+            throw new NotFoundException("Resource '" + key + '\'');
         }
 
         return binder.getResourceTO(resource);
@@ -282,15 +282,15 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         ExternalResource resource = resourceDAO.authFind(resourceKey);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceKey + "'");
+            throw new NotFoundException("Resource '" + resourceKey + '\'');
         }
         AnyType anyType = anyTypeDAO.find(anyTypeKey);
         if (anyType == null) {
-            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+            throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
         }
         Optional<? extends Provision> provision = resource.getProvision(anyType);
         if (provision.isEmpty()) {
-            throw new NotFoundException("Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + "'");
+            throw new NotFoundException("Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + '\'');
         }
 
         return ImmutableTriple.of(resource, anyType, provision.get());
@@ -314,10 +314,10 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         // 2. build connObjectKeyItem
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'"));
+                "ConnObjectKey mapping for " + init.getMiddle() + ' ' + anyKey + " on resource '" + key + '\''));
         String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey value for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'"));
+                "ConnObjectKey value for " + init.getMiddle() + ' ' + anyKey + " on resource '" + key + '\''));
 
         // 3. determine attributes to query
         Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
@@ -362,10 +362,10 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
             resource = resourceDAO.authFind(key);
             if (resource == null) {
-                throw new NotFoundException("Resource '" + key + "'");
+                throw new NotFoundException("Resource '" + key + '\'');
             }
             if (resource.getOrgUnit() == null) {
-                throw new NotFoundException("Realm provisioning for resource '" + key + "'");
+                throw new NotFoundException("Realm provisioning for resource '" + key + '\'');
             }
 
             objectClass = resource.getOrgUnit().getObjectClass();
@@ -413,7 +413,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public void check(final ResourceTO resourceTO) {
         ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + resourceTO.getConnector() + "'");
+            throw new NotFoundException("Connector '" + resourceTO.getConnector() + '\'');
         }
 
         connFactory.createConnector(

@@ -36,7 +36,7 @@ public class EnduserAuxClasses extends AbstractAuxClasses {
 
     @Override
     protected final List<AnyTypeClassTO> listAnyTypecClasses() {
-        return new SyncopeRestClient().listAnyTypeClasses().stream().map(name -> {
+        return SyncopeRestClient.listAnyTypeClasses().stream().map(name -> {
             AnyTypeClassTO anyTypeClassTO = new AnyTypeClassTO();
             anyTypeClassTO.setKey(name);
             return anyTypeClassTO;

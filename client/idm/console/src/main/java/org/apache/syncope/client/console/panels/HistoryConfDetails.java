@@ -225,12 +225,12 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
         T conf = null;
 
         if (selectedHistoryConfTO instanceof ConnInstanceHistoryConfTO) {
-            ConnInstanceTO current = new ConnectorRestClient().read(
+            ConnInstanceTO current = ConnectorRestClient.read(
                     ConnInstanceHistoryConfTO.class.cast(selectedHistoryConfTO).getConnInstanceTO().getKey());
             conf = (T) new ConnInstanceHistoryConfTO();
             ((ConnInstanceHistoryConfTO) conf).setConnInstanceTO(current);
         } else if (selectedHistoryConfTO instanceof ResourceHistoryConfTO) {
-            ResourceTO current = new ResourceRestClient().read(
+            ResourceTO current = ResourceRestClient.read(
                     ResourceHistoryConfTO.class.cast(selectedHistoryConfTO).getResourceTO().getKey());
             conf = (T) new ResourceHistoryConfTO();
             ((ResourceHistoryConfTO) conf).setResourceTO(current);

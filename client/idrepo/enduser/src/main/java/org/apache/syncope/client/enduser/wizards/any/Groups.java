@@ -104,7 +104,7 @@ public class Groups extends AbstractGroups {
                 public List<MembershipTO> execute(final String filter) {
                     return (StringUtils.isEmpty(filter) || "*".equals(filter)
                             ? groupsModel.getObject()
-                            : groupRestClient.searchAssignableGroups(
+                            : GroupRestClient.searchAssignableGroups(
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             isAssignable().and().is("name").equalTo(filter).query(),
@@ -138,7 +138,7 @@ public class Groups extends AbstractGroups {
          */
         @Override
         protected void reloadObject() {
-            groups = groupRestClient.searchAssignableGroups(
+            groups = GroupRestClient.searchAssignableGroups(
                     realm,
                     null,
                     1,

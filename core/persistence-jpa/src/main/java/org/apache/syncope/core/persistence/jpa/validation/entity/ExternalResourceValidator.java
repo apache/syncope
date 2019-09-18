@@ -33,7 +33,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
-    private boolean isValid(final List<? extends Item> items, final ConstraintValidatorContext context) {
+    private static boolean isValid(final List<? extends Item> items, final ConstraintValidatorContext context) {
         long connObjectKeys = items.stream().filter(Item::isConnObjectKey).count();
         if (connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
@@ -45,7 +45,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         return true;
     }
 
-    private boolean isValid(final OrgUnit orgUnit, final ConstraintValidatorContext context) {
+    private static boolean isValid(final OrgUnit orgUnit, final ConstraintValidatorContext context) {
         if (orgUnit == null) {
             return true;
         }
@@ -53,7 +53,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         return isValid(orgUnit.getItems(), context);
     }
 
-    private boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
+    private static boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
         if (mapping == null) {
             return true;
         }

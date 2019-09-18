@@ -160,7 +160,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         A any = find(key);
         if (any == null) {
             throw new NotFoundException(StringUtils.substringBefore(
-                    StringUtils.substringAfter(getClass().getSimpleName(), "JPA"), "DAO") + " " + key);
+                    StringUtils.substringAfter(getClass().getSimpleName(), "JPA"), "DAO") + ' ' + key);
         }
 
         securityChecks(any);
@@ -181,7 +181,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 + " AND "
                 + (ignoreCaseMatch ? "LOWER(" : "") + "e.stringValue" + (ignoreCaseMatch ? ")" : "")
                 + " = "
-                + (ignoreCaseMatch ? "LOWER(" : "") + ":stringValue" + (ignoreCaseMatch ? ")" : "") + ")"
+                + (ignoreCaseMatch ? "LOWER(" : "") + ":stringValue" + (ignoreCaseMatch ? ")" : "") + ')'
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
                 + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
@@ -255,7 +255,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
      * @param literals literals/tokens
      * @return split value
      */
-    private List<String> split(final String attrValue, final List<String> literals) {
+    private static List<String> split(final String attrValue, final List<String> literals) {
         final List<String> attrValues = new ArrayList<>();
 
         if (literals.isEmpty()) {
@@ -338,10 +338,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                     // clear builder
                     bld.delete(0, bld.length());
 
-                    bld.append("(");
+                    bld.append('(');
 
                     // set schema key
-                    bld.append("s.id = '").append(identifiers.get(i)).append("'");
+                    bld.append("s.id = '").append(identifiers.get(i)).append('\'');
 
                     bld.append(" AND ");
 
@@ -354,7 +354,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                     // use a value clause different for eanch different schema type
                     switch (schema.getType()) {
                         case Boolean:
-                            bld.append("v.booleanValue = '").append(attrValues.get(i)).append("'");
+                            bld.append("v.booleanValue = '").append(attrValues.get(i)).append('\'');
                             break;
                         case Long:
                             bld.append("v.longValue = ").append(attrValues.get(i));
@@ -363,15 +363,15 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                             bld.append("v.doubleValue = ").append(attrValues.get(i));
                             break;
                         case Date:
-                            bld.append("v.dateValue = '").append(attrValues.get(i)).append("'");
+                            bld.append("v.dateValue = '").append(attrValues.get(i)).append('\'');
                             break;
                         default:
                             if (ignoreCaseMatch) {
                                 bld.append("LOWER(v.stringValue) = '").
-                                        append(attrValues.get(i).toLowerCase()).append("'");
+                                        append(attrValues.get(i).toLowerCase()).append('\'');
                             } else {
                                 bld.append("v.stringValue = '").
-                                        append(attrValues.get(i)).append("'");
+                                        append(attrValues.get(i)).append('\'');
                             }
                     }
 

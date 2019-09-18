@@ -39,15 +39,13 @@ public class ResourceSecurityPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final PolicyRestClient policyRestClient = new PolicyRestClient();
-
     private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.PASSWORD).stream().
+            return PolicyRestClient.getPolicies(PolicyType.PASSWORD).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -58,7 +56,7 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
+            return PolicyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -69,7 +67,7 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.PULL).stream().
+            return PolicyRestClient.getPolicies(PolicyType.PULL).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -80,7 +78,7 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.PUSH).stream().
+            return PolicyRestClient.getPolicies(PolicyType.PUSH).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };

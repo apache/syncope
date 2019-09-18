@@ -52,7 +52,7 @@ public class BooleanValueHandler extends AbstractValueHandler {
         return map(vm, colName, io, adapt);
     }
 
-    public Column[] map(final ValueMapping vm, final DBIdentifier name, final ColumnIO io, final boolean adapt) {
+    public static Column[] map(final ValueMapping vm, final DBIdentifier name, final ColumnIO io, final boolean adapt) {
         Column col = new Column();
         col.setIdentifier(name);
         col.setJavaType(JavaTypes.INT);

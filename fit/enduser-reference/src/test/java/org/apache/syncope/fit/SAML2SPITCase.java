@@ -113,7 +113,7 @@ public class SAML2SPITCase extends AbstractITCase {
         saml2IdPService.update(keycloak);
     }
 
-    private List<Node> find(final NodeList children, final String match) {
+    private static List<Node> find(final NodeList children, final String match) {
         List<Node> nodes = new ArrayList<>();
         for (int i = 0; i < children.getLength(); i++) {
             if (match.equals(children.item(i).getNodeName())) {
@@ -123,7 +123,7 @@ public class SAML2SPITCase extends AbstractITCase {
         return nodes;
     }
 
-    private void sso(final String baseURL) throws IOException, XMLStreamException {
+    private static void sso(final String baseURL) throws IOException, XMLStreamException {
         CloseableHttpClient httpclient = HttpClients.custom().setMaxConnPerRoute(100).build();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());

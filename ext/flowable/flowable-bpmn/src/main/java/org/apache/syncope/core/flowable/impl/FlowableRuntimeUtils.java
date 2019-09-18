@@ -98,7 +98,7 @@ public final class FlowableRuntimeUtils {
     }
 
     public static String getProcBusinessKey(final String procDefId, final String userKey) {
-        return procDefId + ":" + userKey;
+        return procDefId + ':' + userKey;
     }
 
     public static Pair<String, String> splitProcBusinessKey(final String procBusinessKey) {

@@ -141,11 +141,11 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void setNewFieldModel(final FieldPanel field, final List<Object> values) {
+    private static void setNewFieldModel(final FieldPanel field, final List<Object> values) {
         field.setNewModel(values);
     }
 
-    private FormComponent<?> addCheckboxToggle(final ConnConfProperty property) {
+    private static FormComponent<?> addCheckboxToggle(final ConnConfProperty property) {
         final BootstrapToggleConfig config = new BootstrapToggleConfig().
                 withOnStyle(BootstrapToggleConfig.Style.success).
                 withOffStyle(BootstrapToggleConfig.Style.danger).

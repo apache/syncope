@@ -42,7 +42,7 @@ public class GoogleAppsPropagationActions implements PropagationActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(GoogleAppsPropagationActions.class);
 
-    protected String getEmailAttrName() {
+    protected static String getEmailAttrName() {
         return "emails";
     }
 

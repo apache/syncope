@@ -34,41 +34,41 @@ public class RemediationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7033745375669316378L;
 
-    public int countRemediations() {
+    public static int countRemediations() {
         return getService(RemediationService.class).
                 list(new RemediationQuery.Builder().page(1).size(1).build()).
                 getTotalCount();
     }
 
-    public List<RemediationTO> getRemediations(final int page, final int size, final SortParam<String> sort) {
+    public static List<RemediationTO> getRemediations(final int page, final int size, final SortParam<String> sort) {
         return getService(RemediationService.class).
                 list(new RemediationQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
-    public RemediationTO getRemediation(final String key) {
+    public static RemediationTO getRemediation(final String key) {
         return getService(RemediationService.class).read(key);
     }
 
-    public <C extends AnyCR, A extends AnyTO> ProvisioningResult<A> remedy(final String key, final C anyCR) {
+    public static <C extends AnyCR, A extends AnyTO> ProvisioningResult<A> remedy(final String key, final C anyCR) {
         Response response = getService(RemediationService.class).remedy(key, anyCR);
         return response.readEntity(new GenericType<ProvisioningResult<A>>() {
         });
     }
 
-    public <T extends AnyTO> ProvisioningResult<T> remedy(final String key, final AnyUR anyUR) {
+    public static <T extends AnyTO> ProvisioningResult<T> remedy(final String key, final AnyUR anyUR) {
         Response response = getService(RemediationService.class).remedy(key, anyUR);
         return response.readEntity(new GenericType<ProvisioningResult<T>>() {
         });
     }
 
-    public ProvisioningResult<? extends AnyTO> remedy(final String key, final String anyKey) {
+    public static ProvisioningResult<? extends AnyTO> remedy(final String key, final String anyKey) {
         Response response = getService(RemediationService.class).remedy(key, anyKey);
         return response.readEntity(new GenericType<ProvisioningResult<? extends AnyTO>>() {
         });
     }
 
-    public void delete(final String remediation) {
+    public static void delete(final String remediation) {
         getService(RemediationService.class).delete(remediation);
     }
 }

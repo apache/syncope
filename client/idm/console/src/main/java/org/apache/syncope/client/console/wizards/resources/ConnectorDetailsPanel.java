@@ -55,7 +55,7 @@ public class ConnectorDetailsPanel extends WizardStep {
 
             @Override
             protected List<String> load() {
-                return new RealmRestClient().list().stream().
+                return RealmRestClient.list().stream().
                         filter(realm -> authRealms.stream().
                         anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(RealmTO::getFullPath).
@@ -160,7 +160,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis")));
     }
 
-    private List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
+    private static List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
         return bundles.stream().filter(object
                 -> object.getLocation().equals(connInstanceTO.getLocation())
                 && object.getBundleName().equals(connInstanceTO.getBundleName())).

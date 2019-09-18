@@ -115,7 +115,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final PrivilegeTO ignore) {
                 try {
                     application.getPrivileges().remove(model.getObject());
-                    restClient.update(application);
+                    ApplicationRestClient.update(application);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {

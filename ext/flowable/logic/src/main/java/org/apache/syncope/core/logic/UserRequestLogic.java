@@ -112,7 +112,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         return doStart(bpmnProcess, userDAO.authFind(userKey));
     }
 
-    protected void securityChecks(final String username, final String entitlement, final String errorMessage) {
+    protected static void securityChecks(final String username, final String entitlement, final String errorMessage) {
         if (!AuthContextUtils.getUsername().equals(username)
                 && !AuthContextUtils.getAuthorities().stream().
                         anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {

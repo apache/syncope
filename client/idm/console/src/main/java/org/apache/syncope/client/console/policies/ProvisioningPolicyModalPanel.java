@@ -69,12 +69,6 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final PolicyRestClient restClient = new PolicyRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     private final IModel<Map<String, ImplementationTO>> implementations;
 
     private final IModel<List<CorrelationRule>> model;
@@ -94,7 +88,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
             @Override
             protected Map<String, ImplementationTO> load() {
-                return implRestClient.list(policyTO instanceof PullPolicyTO
+                return ImplementationRestClient.list(policyTO instanceof PullPolicyTO
                         ? IdMImplementationType.PULL_CORRELATION_RULE
                         : IdMImplementationType.PUSH_CORRELATION_RULE).stream().
                         collect(Collectors.toMap(EntityTO::getKey, Function.identity()));
@@ -158,13 +152,14 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
                 if (rule.getImpl().getEngine() == ImplementationEngine.JAVA && rule.getDefaultRuleConf() != null) {
                     try {
-                        implRestClient.update(rule.getImpl());
+                        ImplementationRestClient.update(rule.getImpl());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
             });
-            restClient.updatePolicy(getItem() instanceof PullPolicyTO ? PolicyType.PULL : PolicyType.PUSH, getItem());
+            PolicyRestClient.updatePolicy(getItem() instanceof PullPolicyTO
+                ? PolicyType.PULL : PolicyType.PUSH, getItem());
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
@@ -186,7 +181,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             AjaxDropDownChoicePanel<String> anyType = new AjaxDropDownChoicePanel<>(
                     "anyType", "anyType", new PropertyModel<String>(correlationRule.getObject(), "anyType")).
                     setNullValid(true).
-                    setChoices(new AnyTypeRestClient().list());
+                    setChoices(AnyTypeRestClient.list());
             anyType.setNullValid(false);
             anyType.setRequired(true);
             anyType.setOutputMarkupId(true);
@@ -322,7 +317,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
         private List<String> getSchemas(final CorrelationRule rule) {
             List<String> choices = StringUtils.isEmpty(rule.getAnyType())
                     ? new ArrayList<>()
-                    : schemaRestClient.getSchemas(SchemaType.PLAIN,
+                    : SchemaRestClient.getSchemas(SchemaType.PLAIN,
                             rule.getAnyType().equals(AnyTypeKind.USER.name())
                             ? AnyTypeKind.USER
                             : rule.getAnyType().equals(AnyTypeKind.GROUP.name())

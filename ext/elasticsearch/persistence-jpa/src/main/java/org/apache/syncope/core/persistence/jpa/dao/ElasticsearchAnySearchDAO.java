@@ -137,7 +137,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 size(size);
         sortBuilders.forEach(sourceBuilder::sort);
 
-        return new SearchRequest(elasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+        return new SearchRequest(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QUERY_THEN_FETCH).
                 source(sourceBuilder);
     }
@@ -272,17 +272,17 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return builder;
     }
 
-    private QueryBuilder checkNot(final QueryBuilder builder, final boolean not) {
+    private static QueryBuilder checkNot(final QueryBuilder builder, final boolean not) {
         return not
                 ? QueryBuilders.boolQuery().mustNot(builder)
                 : builder;
     }
 
-    private QueryBuilder getQueryBuilder(final AnyTypeCond cond) {
+    private static QueryBuilder getQueryBuilder(final AnyTypeCond cond) {
         return QueryBuilders.termQuery("anyType", cond.getAnyTypeKey());
     }
 
-    private QueryBuilder getQueryBuilder(final RelationshipTypeCond cond) {
+    private static QueryBuilder getQueryBuilder(final RelationshipTypeCond cond) {
         return QueryBuilders.termQuery("relationshipTypes", cond.getRelationshipTypeKey());
     }
 
@@ -330,15 +330,15 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return builder;
     }
 
-    private QueryBuilder getQueryBuilder(final RoleCond cond) {
+    private static QueryBuilder getQueryBuilder(final RoleCond cond) {
         return QueryBuilders.termQuery("roles", cond.getRole());
     }
 
-    private QueryBuilder getQueryBuilder(final PrivilegeCond cond) {
+    private static QueryBuilder getQueryBuilder(final PrivilegeCond cond) {
         return QueryBuilders.termQuery("privileges", cond.getPrivilege());
     }
 
-    private QueryBuilder getQueryBuilder(final DynRealmCond cond) {
+    private static QueryBuilder getQueryBuilder(final DynRealmCond cond) {
         return QueryBuilders.termQuery("dynRealms", cond.getDynRealm());
     }
 
@@ -353,14 +353,14 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return QueryBuilders.termQuery("members", memberKey);
     }
 
-    private QueryBuilder getQueryBuilder(final ResourceCond cond) {
+    private static QueryBuilder getQueryBuilder(final ResourceCond cond) {
         return QueryBuilders.termQuery("resources", cond.getResourceKey());
     }
 
-    private QueryBuilder fillAttrQuery(
-            final PlainSchema schema,
-            final PlainAttrValue attrValue,
-            final AttributeCond cond) {
+    private static QueryBuilder fillAttrQuery(
+        final PlainSchema schema,
+        final PlainAttrValue attrValue,
+        final AttributeCond cond) {
 
         Object value = schema.getType() == AttrSchemaType.Date && attrValue.getDateValue() != null
                 ? attrValue.getDateValue().getTime()

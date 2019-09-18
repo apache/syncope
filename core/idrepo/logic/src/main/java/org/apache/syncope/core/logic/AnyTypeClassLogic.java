@@ -51,7 +51,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     public AnyTypeClassTO read(final String key) {
         AnyTypeClass anyType = anyTypeClassDAO.find(key);
         if (anyType == null) {
-            LOG.error("Could not find anyType '" + key + "'");
+            LOG.error("Could not find anyType '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -82,7 +82,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     public AnyTypeClassTO update(final AnyTypeClassTO anyTypeClassTO) {
         AnyTypeClass anyType = anyTypeClassDAO.find(anyTypeClassTO.getKey());
         if (anyType == null) {
-            LOG.error("Could not find anyTypeClass '" + anyTypeClassTO.getKey() + "'");
+            LOG.error("Could not find anyTypeClass '" + anyTypeClassTO.getKey() + '\'');
             throw new NotFoundException(anyTypeClassTO.getKey());
         }
 
@@ -96,7 +96,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     public AnyTypeClassTO delete(final String key) {
         AnyTypeClass anyTypeClass = anyTypeClassDAO.find(key);
         if (anyTypeClass == null) {
-            LOG.error("Could not find anyTypeClass '" + key + "'");
+            LOG.error("Could not find anyTypeClass '" + key + '\'');
 
             throw new NotFoundException(key);
         }

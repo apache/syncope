@@ -29,10 +29,8 @@ public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private final LoggerRestClient restClient = new LoggerRestClient();
-
     public CoreLogPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, new LoggerRestClient().listLogs());
+        super(id, pageReference, LoggerRestClient.listLogs());
 
         BookmarkablePageLink<Void> viewer = new BookmarkablePageLink<>("viewer", LogViewer.class);
         viewer.setPopupSettings(new PopupSettings().setHeight(600).setWidth(800));
@@ -41,6 +39,6 @@ public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     @Override
     protected void update(final LoggerTO loggerTO) {
-        restClient.setLogLevel(loggerTO);
+        LoggerRestClient.setLogLevel(loggerTO);
     }
 }

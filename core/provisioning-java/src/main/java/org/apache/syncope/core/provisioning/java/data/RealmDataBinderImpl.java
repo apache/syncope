@@ -72,7 +72,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
     private void setTemplates(final RealmTO realmTO, final Realm realm) {
         // validate JEXL expressions from templates and proceed if fine
-        templateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
+        TemplateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
         realmTO.getTemplates().forEach((key, template) -> {
             AnyType type = anyTypeDAO.find(key);
             if (type == null) {

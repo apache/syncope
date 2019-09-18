@@ -82,7 +82,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
-                                elasticsearchUtils.getContextDomainName(
+                                ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                                 id(user).
                                 source(elasticsearchUtils.builder(userDAO.find(user)));
@@ -95,7 +95,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
-                                elasticsearchUtils.getContextDomainName(
+                                ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
                                 id(group).
                                 source(elasticsearchUtils.builder(groupDAO.find(group)));
@@ -108,7 +108,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
-                                elasticsearchUtils.getContextDomainName(
+                                ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
                                 id(anyObject).
                                 source(elasticsearchUtils.builder(anyObjectDAO.find(anyObject)));

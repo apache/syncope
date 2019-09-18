@@ -83,7 +83,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     public RemediationTO read(final String key) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + "'");
+            LOG.error("Could not find remediation '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -95,7 +95,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     public void delete(final String key) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + "'");
+            LOG.error("Could not find remediation '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -107,7 +107,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     public ProvisioningResult<?> remedy(final String key, final AnyCR anyCR, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + "'");
+            LOG.error("Could not find remediation '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -136,7 +136,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     public ProvisioningResult<?> remedy(final String key, final AnyUR anyUR, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + "'");
+            LOG.error("Could not find remediation '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -165,7 +165,7 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     public ProvisioningResult<?> remedy(final String key, final String anyKey, final boolean nullPriorityAsync) {
         Remediation remediation = remediationDAO.find(key);
         if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + "'");
+            LOG.error("Could not find remediation '" + key + '\'');
 
             throw new NotFoundException(key);
         }

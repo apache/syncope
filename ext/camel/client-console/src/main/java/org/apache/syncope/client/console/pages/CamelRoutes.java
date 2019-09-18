@@ -42,8 +42,6 @@ public class CamelRoutes extends BaseExtPage {
 
     public static final String PREF_CAMEL_ROUTES_PAGINATOR_ROWS = "camel.routes.paginator.rows";
 
-    private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
-
     public CamelRoutes(final PageParameters parameters) {
         super(parameters);
 
@@ -69,7 +67,7 @@ public class CamelRoutes extends BaseExtPage {
             public Panel getPanel(final String panelId) {
                 CamelRoutesDirectoryPanel panel =
                         new CamelRoutesDirectoryPanel(panelId, getPageReference(), AnyTypeKind.USER);
-                panel.setEnabled(restClient.isCamelEnabledFor(AnyTypeKind.USER));
+                panel.setEnabled(CamelRoutesRestClient.isCamelEnabledFor(AnyTypeKind.USER));
                 return panel;
             }
         });
@@ -82,7 +80,7 @@ public class CamelRoutes extends BaseExtPage {
             public Panel getPanel(final String panelId) {
                 CamelRoutesDirectoryPanel panel =
                         new CamelRoutesDirectoryPanel(panelId, getPageReference(), AnyTypeKind.GROUP);
-                panel.setEnabled(restClient.isCamelEnabledFor(AnyTypeKind.GROUP));
+                panel.setEnabled(CamelRoutesRestClient.isCamelEnabledFor(AnyTypeKind.GROUP));
                 return panel;
             }
         });
@@ -95,7 +93,7 @@ public class CamelRoutes extends BaseExtPage {
             public Panel getPanel(final String panelId) {
                 CamelRoutesDirectoryPanel panel =
                         new CamelRoutesDirectoryPanel(panelId, getPageReference(), AnyTypeKind.ANY_OBJECT);
-                panel.setEnabled(restClient.isCamelEnabledFor(AnyTypeKind.ANY_OBJECT));
+                panel.setEnabled(CamelRoutesRestClient.isCamelEnabledFor(AnyTypeKind.ANY_OBJECT));
                 return panel;
             }
         });

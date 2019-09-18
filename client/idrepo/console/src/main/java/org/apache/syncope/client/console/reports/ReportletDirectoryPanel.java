@@ -156,9 +156,9 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                 final ReportletConf reportlet = model.getObject().getConf();
                 try {
-                    final ReportTO actual = restClient.read(report);
+                    final ReportTO actual = ReportRestClient.read(report);
                     actual.getReportlets().remove(model.getObject().getImplementationKey());
-                    restClient.update(actual);
+                    ReportRestClient.update(actual);
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
@@ -211,8 +211,6 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final ImplementationRestClient implementationClient = new ImplementationRestClient();
-
         private final SortableDataProviderComparator<ReportletWrapper> comparator;
 
         public ReportDataProvider(final int paginatorRows) {
@@ -225,7 +223,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private List<ReportletWrapper> getReportletWrappers(final ReportTO reportTO) {
             return reportTO.getReportlets().stream().map(reportlet -> {
-                ImplementationTO impl = implementationClient.read(IdRepoImplementationType.REPORTLET, reportlet);
+                ImplementationTO impl = ImplementationRestClient.read(IdRepoImplementationType.REPORTLET, reportlet);
 
                 ReportletWrapper wrapper = new ReportletWrapper(false).
                         setImplementationKey(impl.getKey()).
@@ -245,7 +243,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
-            final ReportTO actual = restClient.read(report);
+            final ReportTO actual = ReportRestClient.read(report);
 
             List<ReportletWrapper> reportlets = getReportletWrappers(actual);
 
@@ -255,7 +253,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         @Override
         public long size() {
-            final ReportTO actual = restClient.read(report);
+            final ReportTO actual = ReportRestClient.read(report);
             return getReportletWrappers(actual).size();
         }
 

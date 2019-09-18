@@ -41,7 +41,7 @@ public class LoadWidget extends BaseWidget {
         add(chart);
     }
 
-    private Line build(final SystemInfo systeminfo) {
+    private static Line build(final SystemInfo systeminfo) {
         List<Double> cpuValues = new ArrayList<>();
         List<Long> memValues = new ArrayList<>();
 

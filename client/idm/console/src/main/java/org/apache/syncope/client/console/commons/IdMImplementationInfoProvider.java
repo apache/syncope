@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -136,7 +137,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdMImplementationType.RECON_FILTER_BUILDER).stream().
+                return ImplementationRestClient.list(IdMImplementationType.RECON_FILTER_BUILDER).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -150,7 +151,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+                return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -164,7 +165,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
+                return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };

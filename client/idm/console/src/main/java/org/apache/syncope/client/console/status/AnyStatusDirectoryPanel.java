@@ -110,7 +110,7 @@ public class AnyStatusDirectoryPanel
             anyTypeKind = AnyTypeKind.ANY_OBJECT;
         }
 
-        resources = new ResourceRestClient().list().stream().
+        resources = ResourceRestClient.list().stream().
                 filter(resource -> resource.getProvision(anyTO.getType()).isPresent()).
                 map(EntityTO::getKey).collect(Collectors.toList());
 

@@ -88,7 +88,7 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
 
     @Override
     public SystemInfo system() {
-        return logic.system();
+        return SyncopeLogic.system();
     }
 
     @Override

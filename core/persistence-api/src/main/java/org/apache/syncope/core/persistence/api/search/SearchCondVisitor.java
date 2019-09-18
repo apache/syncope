@@ -66,7 +66,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         this.realm = realm;
     }
 
-    private AttributeCond createAttributeCond(final String schema) {
+    private static AttributeCond createAttributeCond(final String schema) {
         AttributeCond attributeCond = SearchableFields.contains(schema)
                 ? new AnyCond()
                 : new AttributeCond();

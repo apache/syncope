@@ -59,7 +59,7 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
         return result;
     }
 
-    private StringBuilder buildFindAllQuery() {
+    private static StringBuilder buildFindAllQuery() {
         return new StringBuilder("SELECT e FROM ").
                 append(JPAAccessToken.class.getSimpleName()).
                 append(" e WHERE 1=1");
@@ -75,7 +75,7 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
         return ((Number) query.getSingleResult()).intValue();
     }
 
-    private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    private static String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         for (OrderByClause clause : orderByClauses) {

@@ -95,17 +95,17 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         Any<?> any = anyUtils.dao().authFind(anyKey);
         if (any == null) {
-            throw new NotFoundException(anyTypeKind + " '" + anyKey + "'");
+            throw new NotFoundException(anyTypeKind + " '" + anyKey + '\'');
         }
 
         ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceKey + "'");
+            throw new NotFoundException("Resource '" + resourceKey + '\'');
         }
         Provision provision = resource.getProvision(any.getType()).orElseThrow(()
-                -> new NotFoundException("Provision for " + any.getType() + " on Resource '" + resourceKey + "'"));
+                -> new NotFoundException("Provision for " + any.getType() + " on Resource '" + resourceKey + '\''));
         if (provision.getMapping() == null) {
-            throw new NotFoundException("Mapping for " + any.getType() + " on Resource '" + resourceKey + "'");
+            throw new NotFoundException("Mapping for " + any.getType() + " on Resource '" + resourceKey + '\'');
         }
 
         return (Pair<Any<?>, Provision>) Pair.of(any, provision);
@@ -132,7 +132,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         // 1. build connObjectKeyItem
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).orElseThrow(()
                 -> new NotFoundException("ConnObjectKey for " + any.getType()
-                        + " on resource '" + provision.getResource().getKey() + "'"));
+                        + " on resource '" + provision.getResource().getKey() + '\''));
         String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision).orElse(null);
         if (connObjectKeyValue == null) {
             return null;

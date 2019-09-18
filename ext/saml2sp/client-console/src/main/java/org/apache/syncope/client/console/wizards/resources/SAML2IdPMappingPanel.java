@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -71,8 +73,8 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
 
         List<String> choices = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
 
-        for (AnyTypeClassTO anyTypeClassTO : anyTypeClassRestClient.list(
-                anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses())) {
+        for (AnyTypeClassTO anyTypeClassTO : AnyTypeClassRestClient.list(
+                AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses())) {
 
             choices.addAll(anyTypeClassTO.getPlainSchemas());
             choices.addAll(anyTypeClassTO.getDerSchemas());

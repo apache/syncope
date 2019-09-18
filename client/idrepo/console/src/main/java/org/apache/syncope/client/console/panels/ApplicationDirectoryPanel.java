@@ -144,8 +144,8 @@ public class ApplicationDirectoryPanel extends
                     final String componentId,
                     final IModel<ApplicationTO> rowModel) {
 
-                item.add(new Label(componentId, "[" + rowModel.getObject().getPrivileges().stream().
-                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + "]"));
+                item.add(new Label(componentId, '[' + rowModel.getObject().getPrivileges().stream().
+                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + ']'));
             }
         });
 
@@ -195,7 +195,7 @@ public class ApplicationDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final ApplicationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    ApplicationRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -236,8 +236,6 @@ public class ApplicationDirectoryPanel extends
 
         private final SortableDataProviderComparator<ApplicationTO> comparator;
 
-        private final ApplicationRestClient restClient = new ApplicationRestClient();
-
         public ApplicationDataProvider(final int paginatorRows) {
             super(paginatorRows);
             this.comparator = new SortableDataProviderComparator<>(this);
@@ -245,14 +243,14 @@ public class ApplicationDirectoryPanel extends
 
         @Override
         public Iterator<ApplicationTO> iterator(final long first, final long count) {
-            List<ApplicationTO> result = restClient.list();
+            List<ApplicationTO> result = ApplicationRestClient.list();
             Collections.sort(result, comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return ApplicationRestClient.list().size();
         }
 
         @Override

@@ -129,7 +129,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ResourceHistoryConfTO modelObject) {
                 try {
-                    restClient.restore(modelObject.getKey());
+                    ResourceHistoryRestClient.restore(modelObject.getKey());
                     ResourceHistoryConfDirectoryPanel.this.getTogglePanel().close(target);
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -149,7 +149,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ResourceHistoryConfTO modelObject) {
                 try {
-                    restClient.delete(modelObject.getKey());
+                    ResourceHistoryRestClient.delete(modelObject.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     ResourceHistoryConfDirectoryPanel.this.getTogglePanel().close(target);
@@ -213,7 +213,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<ResourceHistoryConfTO> iterator(final long first, final long count) {
-            final List<ResourceHistoryConfTO> configurations = restClient.list(entityKey);
+            final List<ResourceHistoryConfTO> configurations = ResourceHistoryRestClient.list(entityKey);
 
             Collections.sort(configurations, comparator);
             return configurations.iterator();
@@ -221,7 +221,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
 
         @Override
         public long size() {
-            return restClient.list(entityKey).size();
+            return ResourceHistoryRestClient.list(entityKey).size();
         }
 
         @Override

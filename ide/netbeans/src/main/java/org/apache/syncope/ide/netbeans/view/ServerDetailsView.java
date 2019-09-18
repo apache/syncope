@@ -238,11 +238,11 @@ public class ServerDetailsView extends JDialog {
     private JTextField userNameTxt;
     // End of variables declaration//GEN-END:variables
 
-    private List<String> validate(
-            final JTextField schemeTxt,
-            final JTextField hostTxt,
-            final JTextField portTxt,
-            final JTextField userNameTxt) {
+    private static List<String> validate(
+        final JTextField schemeTxt,
+        final JTextField hostTxt,
+        final JTextField portTxt,
+        final JTextField userNameTxt) {
 
         List<String> res = new ArrayList<>();
 

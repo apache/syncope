@@ -82,7 +82,7 @@ public class GatewayRouteDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    restClient.push();
+                    GatewayRouteRestClient.push();
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -124,7 +124,7 @@ public class GatewayRouteDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final GatewayRouteTO ignore) {
                 send(GatewayRouteDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.read(model.getObject().getKey()), target));
+                                GatewayRouteRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.GATEWAY_ROUTE_UPDATE);
 
@@ -149,7 +149,7 @@ public class GatewayRouteDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final GatewayRouteTO ignore) {
                 GatewayRouteTO route = model.getObject();
                 try {
-                    restClient.delete(route.getKey());
+                    GatewayRouteRestClient.delete(route.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -193,14 +193,14 @@ public class GatewayRouteDirectoryPanel
 
         @Override
         public Iterator<? extends GatewayRouteTO> iterator(final long first, final long count) {
-            List<GatewayRouteTO> list = restClient.list();
+            List<GatewayRouteTO> list = GatewayRouteRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return GatewayRouteRestClient.list().size();
         }
 
         @Override

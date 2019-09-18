@@ -44,8 +44,8 @@ public class ZookeeperConfParamOps implements ConfParamOps {
     @Autowired
     private CuratorFramework client;
 
-    private String buildConfPath(final String... parts) {
-        return CONF_PATH + "/" + String.join("/", parts);
+    private static String buildConfPath(final String... parts) {
+        return CONF_PATH + '/' + String.join("/", parts);
     }
 
     @Override

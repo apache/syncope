@@ -213,9 +213,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         private boolean filtered;
 
-        private final AjaxPaletteConf conf = new AjaxPaletteConf();
-
-        private String filter = conf.getDefaultFilter();
+        private String filter = AjaxPaletteConf.getDefaultFilter();
 
         private String name;
 

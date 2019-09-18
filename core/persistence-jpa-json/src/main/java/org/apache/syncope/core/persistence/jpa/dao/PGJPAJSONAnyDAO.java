@@ -55,10 +55,10 @@ public class PGJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                     + (schemaInfo.getRight() ? "LOWER(" : "")
                     + (schema.isUniqueConstraint() ? "attrs -> 'uniqueValue'" : "attrValues")
                     + " ->> '" + schemaInfo.getLeft()
-                    + "'" + (schemaInfo.getRight() ? ")" : "")
+                    + '\'' + (schemaInfo.getRight() ? ")" : "")
                     + " = "
                     + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + "?"
+                    + '?'
                     + (schemaInfo.getRight() ? ")" : "");
         } else {
             PlainAttr<?> container = anyUtils.newPlainAttr();

@@ -96,10 +96,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected Serializable onApplyInternal(
                     final GroupTO groupTO, final String type, final AjaxRequestTarget target) {
 
-                AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
-                AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
-
-                AnyTypeTO anyTypeTO = typeRestClient.read(type);
+                AnyTypeTO anyTypeTO = AnyTypeRestClient.read(type);
 
                 ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
 
@@ -116,7 +113,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
 
                             panel = new UserDirectoryPanel.Builder(
-                                    classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                     setRealm(SyncopeConstants.ROOT_REALM).
                                     setFiltered(true).
                                     setFiql(query).
@@ -124,7 +121,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
                                             new UserTO(),
                                             anyTypeTO.getClasses(),
-                                            FormLayoutInfoUtils.fetch(typeRestClient.list()).getLeft(),
+                                            FormLayoutInfoUtils.fetch(AnyTypeRestClient.list()).getLeft(),
                                             pageRef), false).
                                     setWizardInModal(false).build(id);
 
@@ -136,7 +133,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
 
                             panel = new AnyObjectDirectoryPanel.Builder(
-                                    classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                     setRealm(SyncopeConstants.ROOT_REALM).
                                     setFiltered(true).
                                     setFiql(query).
@@ -144,7 +141,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
                                             new AnyObjectTO(),
                                             anyTypeTO.getClasses(),
-                                            FormLayoutInfoUtils.fetch(typeRestClient.list()).getRight().get(type),
+                                            FormLayoutInfoUtils.fetch(AnyTypeRestClient.list()).getRight().get(type),
                                             pageRef), false).
                                     setWizardInModal(false).build(id);
 
@@ -276,7 +273,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    restClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
+                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -297,7 +294,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    restClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
+                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {

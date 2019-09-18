@@ -33,7 +33,7 @@ public class StaticReportlet extends AbstractReportlet {
 
     private StaticReportletConf conf;
 
-    private void doExtractConf(final ContentHandler handler) throws SAXException {
+    private static void doExtractConf(final ContentHandler handler) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         handler.startElement("", "", "configurations", null);
         handler.startElement("", "", "staticAttributes", atts);

@@ -132,7 +132,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         return Optional.ofNullable(builder).map(ResponseBuilder::build).orElse(null);
     }
 
-    private ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
+    private static ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
         InvalidEntityException iee = null;
 
         if (ex instanceof InvalidEntityException) {
@@ -173,7 +173,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private ResponseBuilder processBadRequestExceptions(final Exception ex) {
+    private static ResponseBuilder processBadRequestExceptions(final Exception ex) {
         if (ex instanceof WorkflowException) {
             return builder(ClientExceptionType.Workflow, ExceptionUtils.getRootCauseMessage(ex));
         } else if (PERSISTENCE_EXCLASS.isAssignableFrom(ex.getClass())) {
@@ -195,7 +195,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
+    private static ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus());
 
         ErrorType scimType = null;

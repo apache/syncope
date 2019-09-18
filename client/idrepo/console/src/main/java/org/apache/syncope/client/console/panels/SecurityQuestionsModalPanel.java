@@ -34,8 +34,6 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
 
     private final SecurityQuestionTO securityQuestionTO;
 
-    private final SecurityQuestionRestClient restClient = new SecurityQuestionRestClient();
-
     public SecurityQuestionsModalPanel(
             final BaseModal<SecurityQuestionTO> modal,
             final SecurityQuestionTO securityQuestionTO,
@@ -55,9 +53,9 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (securityQuestionTO.getKey() == null) {
-                restClient.create(securityQuestionTO);
+                SecurityQuestionRestClient.create(securityQuestionTO);
             } else {
-                restClient.update(securityQuestionTO);
+                SecurityQuestionRestClient.update(securityQuestionTO);
             }
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

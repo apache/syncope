@@ -70,7 +70,7 @@ public class AnyTypeDetailsPanel extends Panel {
                 new ListModel<>(getAvailableAnyTypeClasses())).hideLabel().setOutputMarkupId(true));
     }
 
-    private List<String> getAvailableAnyTypeClasses() {
-        return new AnyTypeClassRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList());
+    private static List<String> getAvailableAnyTypeClasses() {
+        return AnyTypeClassRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
     }
 }

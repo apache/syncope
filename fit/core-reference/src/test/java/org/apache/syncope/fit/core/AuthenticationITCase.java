@@ -79,7 +79,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class AuthenticationITCase extends AbstractITCase {
 
-    private int getFailedLogins(final UserService userService, final String userKey) {
+    private static int getFailedLogins(final UserService userService, final String userKey) {
         UserTO readUserTO = userService.read(userKey);
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());

@@ -462,13 +462,13 @@ public class SAML2ITCase extends AbstractITCase {
         }
     }
 
-    private org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
+    private static org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
         return createResponse(inResponseTo, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
     }
 
-    private org.opensaml.saml.saml2.core.Response createResponse(
-            final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
-            final String issuer) throws Exception {
+    private static org.opensaml.saml.saml2.core.Response createResponse(
+        final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
+        final String issuer) throws Exception {
 
         Status status = SAML2PResponseComponentBuilder.createStatus(
                 SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null);

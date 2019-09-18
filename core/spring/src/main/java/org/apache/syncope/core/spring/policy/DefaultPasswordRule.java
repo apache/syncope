@@ -178,47 +178,47 @@ public class DefaultPasswordRule implements PasswordRule {
         }
     }
 
-    private boolean checkDigit(final String str) {
+    private static boolean checkDigit(final String str) {
         return PolicyPattern.DIGIT.matcher(str).matches();
     }
 
-    private boolean checkLowercase(final String str) {
+    private static boolean checkLowercase(final String str) {
         return PolicyPattern.ALPHA_LOWERCASE.matcher(str).matches();
     }
 
-    private boolean checkUppercase(final String str) {
+    private static boolean checkUppercase(final String str) {
         return PolicyPattern.ALPHA_UPPERCASE.matcher(str).matches();
     }
 
-    private boolean checkFirstDigit(final String str) {
+    private static boolean checkFirstDigit(final String str) {
         return PolicyPattern.FIRST_DIGIT.matcher(str).matches();
     }
 
-    private boolean checkLastDigit(final String str) {
+    private static boolean checkLastDigit(final String str) {
         return PolicyPattern.LAST_DIGIT.matcher(str).matches();
     }
 
-    private boolean checkAlphanumeric(final String str) {
+    private static boolean checkAlphanumeric(final String str) {
         return PolicyPattern.ALPHANUMERIC.matcher(str).matches();
     }
 
-    private boolean checkFirstAlphanumeric(final String str) {
+    private static boolean checkFirstAlphanumeric(final String str) {
         return PolicyPattern.FIRST_ALPHANUMERIC.matcher(str).matches();
     }
 
-    private boolean checkLastAlphanumeric(final String str) {
+    private static boolean checkLastAlphanumeric(final String str) {
         return PolicyPattern.LAST_ALPHANUMERIC.matcher(str).matches();
     }
 
-    private boolean checkNonAlphanumeric(final String str) {
+    private static boolean checkNonAlphanumeric(final String str) {
         return PolicyPattern.NON_ALPHANUMERIC.matcher(str).matches();
     }
 
-    private boolean checkFirstNonAlphanumeric(final String str) {
+    private static boolean checkFirstNonAlphanumeric(final String str) {
         return PolicyPattern.FIRST_NON_ALPHANUMERIC.matcher(str).matches();
     }
 
-    private boolean checkLastNonAlphanumeric(final String str) {
+    private static boolean checkLastNonAlphanumeric(final String str) {
         return PolicyPattern.LAST_NON_ALPHANUMERIC.matcher(str).matches();
     }
 }

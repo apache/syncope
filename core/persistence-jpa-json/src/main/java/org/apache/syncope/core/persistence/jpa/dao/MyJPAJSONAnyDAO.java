@@ -45,7 +45,7 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                 : StringUtils.containsIgnoreCase(table, AnyTypeKind.GROUP.name())
                 ? "group_search"
                 : "anyObject_search";
-        return "SELECT DISTINCT id FROM " + view + " ";
+        return "SELECT DISTINCT id FROM " + view + ' ';
     }
 
     @Override
@@ -61,12 +61,12 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                     + "AND "
                     + (schemaInfo.getRight() ? "LOWER(" : "")
                     + (schema.isUniqueConstraint()
-                    ? "attrUniqueValue ->> '$." + schemaInfo.getLeft() + "'"
+                    ? "attrUniqueValue ->> '$." + schemaInfo.getLeft() + '\''
                     : schemaInfo.getLeft())
                     + (schemaInfo.getRight() ? ")" : "")
                     + " = "
                     + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + "?"
+                    + '?'
                     + (schemaInfo.getRight() ? ")" : "");
         } else {
             PlainAttr<?> container = anyUtils.newPlainAttr();

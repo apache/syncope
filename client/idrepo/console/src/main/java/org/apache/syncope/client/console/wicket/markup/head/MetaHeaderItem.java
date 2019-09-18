@@ -39,7 +39,7 @@ public class MetaHeaderItem extends HeaderItem implements Serializable {
 
     @Override
     public Iterable<?> getRenderTokens() {
-        return List.of("meta-" + key + "-" + value);
+        return List.of("meta-" + key + '-' + value);
     }
 
     @Override

@@ -176,15 +176,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 try {
                     switch (schemaType) {
                         case DERIVED:
-                            restClient.deleteDerSchema(model.getObject().getKey());
+                            SchemaRestClient.deleteDerSchema(model.getObject().getKey());
                             break;
 
                         case VIRTUAL:
-                            restClient.deleteVirSchema(model.getObject().getKey());
+                            SchemaRestClient.deleteVirSchema(model.getObject().getKey());
                             break;
 
                         default:
-                            restClient.deletePlainSchema(model.getObject().getKey());
+                            SchemaRestClient.deletePlainSchema(model.getObject().getKey());
                             break;
                     }
 
@@ -220,7 +220,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
-            List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
+            List<SchemaTO> schemas = SchemaRestClient.getSchemas(this.schemaType, keyword);
             Collections.sort(schemas, comparator);
 
             return schemas.subList((int) first, (int) first + (int) count).iterator();
@@ -228,7 +228,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public long size() {
-            return restClient.getSchemas(this.schemaType, keyword).size();
+            return SchemaRestClient.getSchemas(this.schemaType, keyword).size();
         }
 
         @Override
@@ -245,10 +245,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
             keyword = payload.getKeyword();
             if (!keyword.startsWith("*")) {
-                keyword = "*" + keyword;
+                keyword = '*' + keyword;
             }
             if (!keyword.endsWith("*")) {
-                keyword = keyword + "*";
+                keyword = keyword + '*';
             }
 
             updateResultTable(target);

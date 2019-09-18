@@ -130,7 +130,7 @@ public class PlainSchemaTest extends AbstractTest {
         }
 
         schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
-        schema.setEnumerationKeys("1" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "2");
+        schema.setEnumerationKeys('1' + SyncopeConstants.ENUM_VALUES_SEPARATOR + '2');
 
         plainSchemaDAO.save(schema);
 

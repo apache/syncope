@@ -51,7 +51,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
     public List<ConnInstanceHistoryConfTO> list(final String key) {
         ConnInstance connInstance = connInstanceDAO.find(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + "'");
+            throw new NotFoundException("Connector '" + key + '\'');
         }
 
         return connInstanceHistoryConfDAO.findByEntity(connInstance).stream().
@@ -62,7 +62,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
     public void restore(final String key) {
         ConnInstanceHistoryConf connInstanceHistoryConf = connInstanceHistoryConfDAO.find(key);
         if (connInstanceHistoryConf == null) {
-            throw new NotFoundException("Connector History Conf '" + key + "'");
+            throw new NotFoundException("Connector History Conf '" + key + '\'');
         }
 
         binder.update(connInstanceHistoryConf.getConf());
@@ -72,7 +72,7 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
     public void delete(final String key) {
         ConnInstanceHistoryConf connInstanceHistoryConf = connInstanceHistoryConfDAO.find(key);
         if (connInstanceHistoryConf == null) {
-            throw new NotFoundException("Connector History Conf '" + key + "'");
+            throw new NotFoundException("Connector History Conf '" + key + '\'');
         }
 
         connInstanceHistoryConfDAO.delete(key);

@@ -78,7 +78,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                 break;
             case CONNECTOR:
                 title = (StringUtils.isBlank(node.getConnectionDisplayName())
-                        ? "" : node.getConnectionDisplayName() + ":") + node.getDisplayName();
+                        ? "" : node.getConnectionDisplayName() + ':') + node.getDisplayName();
                 add(new AttributeAppender("class", "topology_conn", " "));
                 break;
             default:
@@ -121,7 +121,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             final AjaxRequestTarget target = updateEvent.getTarget();
 
             if (node.getKind() == Kind.CONNECTOR && key.equalsIgnoreCase(node.getKey())) {
-                ConnInstanceTO conn = new ConnectorRestClient().read(key);
+                ConnInstanceTO conn = ConnectorRestClient.read(key);
 
                 String displayName =
                         // [SYNCOPE-1233]

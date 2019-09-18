@@ -94,7 +94,7 @@ public class DefaultRealmPushResultHandler
         }
     }
 
-    private void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
+    private static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
         if (!reporter.getStatuses().isEmpty()) {
             result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
             result.setMessage(reporter.getStatuses().get(0).getFailureReason());
@@ -441,7 +441,7 @@ public class DefaultRealmPushResultHandler
         }
     }
 
-    private ResourceOperation toResourceOperation(final UnmatchingRule rule) {
+    private static ResourceOperation toResourceOperation(final UnmatchingRule rule) {
         switch (rule) {
             case ASSIGN:
             case PROVISION:
@@ -451,7 +451,7 @@ public class DefaultRealmPushResultHandler
         }
     }
 
-    private ResourceOperation toResourceOperation(final MatchingRule rule) {
+    private static ResourceOperation toResourceOperation(final MatchingRule rule) {
         switch (rule) {
             case UPDATE:
                 return ResourceOperation.UPDATE;
@@ -463,7 +463,7 @@ public class DefaultRealmPushResultHandler
         }
     }
 
-    private ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
+    private static ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
         switch (status) {
             case FAILURE:
                 return ProvisioningReport.Status.FAILURE;

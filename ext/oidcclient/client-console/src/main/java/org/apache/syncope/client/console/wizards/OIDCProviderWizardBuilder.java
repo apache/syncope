@@ -59,10 +59,6 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
 
     private static final long serialVersionUID = -3310772400714122768L;
 
-    private final OIDCProviderRestClient restClient = new OIDCProviderRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final OIDCProvidersDirectoryPanel directoryPanel;
 
     private final IModel<List<String>> opActions = new LoadableDetachableModel<List<String>>() {
@@ -71,7 +67,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
+            return ImplementationRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -86,13 +82,13 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
     protected Serializable onApplyInternal(final OIDCProviderTO modelObject) {
         if (modelObject.getKey() == null) {
             if (modelObject.getHasDiscovery()) {
-                restClient.createFromDiscovery(modelObject);
+                OIDCProviderRestClient.createFromDiscovery(modelObject);
             } else {
-                restClient.create(modelObject);
+                OIDCProviderRestClient.create(modelObject);
             }
 
         } else {
-            restClient.update(modelObject);
+            OIDCProviderRestClient.update(modelObject);
         }
         return modelObject;
     }
@@ -314,7 +310,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
         }
     }
 
-    private void showHide(final AjaxCheckBoxPanel hasDiscovery, final WebMarkupContainer visibleParams) {
+    private static void showHide(final AjaxCheckBoxPanel hasDiscovery, final WebMarkupContainer visibleParams) {
         if (hasDiscovery.getField().getValue().equals("false")) {
             visibleParams.setVisible(true);
         } else {

@@ -182,7 +182,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
      *
      * @return always returns {@code false}
      */
-    public boolean isFull() {
+    public static boolean isFull() {
         return false;
     }
 

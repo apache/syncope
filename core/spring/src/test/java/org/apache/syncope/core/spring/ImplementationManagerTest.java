@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @SpringJUnitConfig(locations = { "classpath:springTest.xml" })
 public class ImplementationManagerTest {
 
-    private DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
+    private static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
         DefaultPasswordRuleConf baseDefaultPasswordRuleConf = new DefaultPasswordRuleConf();
         baseDefaultPasswordRuleConf.setAlphanumericRequired(false);
         baseDefaultPasswordRuleConf.setDigitRequired(false);

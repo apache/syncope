@@ -145,7 +145,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         field = new TextField<>("textField", model);
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
-        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
+        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : '(' + mimeType + ')'));
 
         fileDownload = new AjaxDownload(name, fileKey, mimeType, true) {
 
@@ -278,7 +278,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         if (StringUtils.isNotBlank(modelObj)) {
             final Component panelPreview;
             if (previewer == null) {
-                panelPreview = previewUtils.getDefaultPreviewer(mimeType);
+                panelPreview = PreviewUtils.getDefaultPreviewer(mimeType);
             } else {
                 panelPreview = previewer.preview(modelObj);
             }

@@ -386,8 +386,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         return getGroupTO(groupDAO.authFind(key), true);
     }
 
-    private void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
+    private static void populateTransitiveResources(
+        final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
 
         PropagationByResource propByRes = new PropagationByResource();
         group.getResources().forEach(resource -> {

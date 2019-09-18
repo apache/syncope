@@ -105,7 +105,7 @@ public class UserDetails extends WizardStep {
                 "destinationRealm", "destinationRealm", new PropertyModel<>(userTO, "realm"), false);
 
         ((AjaxDropDownChoicePanel<String>) realm).setChoices(
-                new RealmRestClient().list().stream().map(RealmTO::getFullPath).collect(Collectors.toList()));
+                RealmRestClient.list().stream().map(RealmTO::getFullPath).collect(Collectors.toList()));
         add(realm);
 
         // ------------------------
@@ -163,7 +163,7 @@ public class UserDetails extends WizardStep {
                 userTO, "securityQuestion"));
         ((AjaxDropDownChoicePanel) securityQuestion).setNullValid(true);
 
-        final List<SecurityQuestionTO> securityQuestions = new SecurityQuestionRestClient().list();
+        final List<SecurityQuestionTO> securityQuestions = SecurityQuestionRestClient.list();
         ((AjaxDropDownChoicePanel<String>) securityQuestion).setChoices(securityQuestions.stream().map(
                 SecurityQuestionTO::getKey).collect(Collectors.toList()));
         ((AjaxDropDownChoicePanel<String>) securityQuestion).setChoiceRenderer(

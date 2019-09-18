@@ -95,7 +95,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @param partition The partition on which we want to add index
      * @param attrs The list of attributes to index
      */
-    private void addIndex(final Partition partition, final String... attrs) {
+    private static void addIndex(final Partition partition, final String... attrs) {
         // Index some attributes on the apache partition
         Set<Index<?, String>> indexedAttributes = new HashSet<>();
 

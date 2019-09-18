@@ -19,6 +19,9 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+
+import org.apache.syncope.client.console.rest.ConnectorHistoryRestClient;
+import org.apache.syncope.client.console.rest.ResourceHistoryRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -55,7 +58,8 @@ public class HistoryConfList<T extends Serializable> extends Panel implements Mo
                     final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("history.diff.view", this).getObject(),
-                        new HistoryConfDetails<>(modal, historyTO, pageReference, restClient.list(entityKey)), target);
+                        new HistoryConfDetails<>(modal, historyTO, pageReference,
+                            ConnectorHistoryRestClient.list(entityKey)), target);
             }
         } : new ResourceHistoryConfDirectoryPanel(baseModal, mlp, entityKey, pageReference) {
 
@@ -66,7 +70,8 @@ public class HistoryConfList<T extends Serializable> extends Panel implements Mo
                     final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("history.diff.view", this).getObject(),
-                        new HistoryConfDetails<>(modal, historyTO, pageReference, restClient.list(entityKey)), target);
+                        new HistoryConfDetails<>(modal, historyTO, pageReference,
+                            ResourceHistoryRestClient.list(entityKey)), target);
             }
         });
 

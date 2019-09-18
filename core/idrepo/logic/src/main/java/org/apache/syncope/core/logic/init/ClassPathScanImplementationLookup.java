@@ -100,7 +100,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
      *
      * @return basePackage for classpath scanning
      */
-    protected String getBasePackage() {
+    protected static String getBasePackage() {
         return DEFAULT_BASE_PACKAGE;
     }
 

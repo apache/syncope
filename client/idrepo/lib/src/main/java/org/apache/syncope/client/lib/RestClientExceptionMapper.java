@@ -79,7 +79,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
         return ex;
     }
 
-    private SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
+    private static SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
         SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
 
         // Attempts to read ErrorTO or List<ErrorTO> as entity...

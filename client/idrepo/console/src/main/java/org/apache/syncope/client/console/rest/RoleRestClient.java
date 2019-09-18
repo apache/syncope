@@ -35,27 +35,27 @@ public class RoleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(RoleService.class).delete(key);
     }
 
-    public RoleTO read(final String key) {
+    public static RoleTO read(final String key) {
         return getService(RoleService.class).read(key);
     }
 
-    public void update(final RoleTO roleTO) {
+    public static void update(final RoleTO roleTO) {
         getService(RoleService.class).update(roleTO);
     }
 
-    public void create(final RoleTO roleTO) {
+    public static void create(final RoleTO roleTO) {
         getService(RoleService.class).create(roleTO);
     }
 
-    public List<RoleTO> list() {
+    public static List<RoleTO> list() {
         return getService(RoleService.class).list();
     }
 
-    public String readConsoleLayoutInfo(final String roleKey) {
+    public static String readConsoleLayoutInfo(final String roleKey) {
         try {
             return IOUtils.toString(InputStream.class.cast(
                     getService(RoleService.class).getConsoleLayoutInfo(roleKey).getEntity()),
@@ -66,16 +66,16 @@ public class RoleRestClient extends BaseRestClient {
         }
     }
 
-    public void setConsoleLayoutInfo(final String roleKey, final String content) {
+    public static void setConsoleLayoutInfo(final String roleKey, final String content) {
         getService(RoleService.class).setConsoleLayoutInfo(
                 roleKey, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
-    public void removeConsoleLayoutInfo(final String roleKey) {
+    public static void removeConsoleLayoutInfo(final String roleKey) {
         getService(RoleService.class).removeConsoleLayoutInfo(roleKey);
     }
 
-    public List<String> getAllAvailableEntitlements() {
+    public static List<String> getAllAvailableEntitlements() {
         List<String> entitlements = new ArrayList<>(getSyncopeService().platform().getEntitlements());
         Collections.sort(entitlements);
         return entitlements;

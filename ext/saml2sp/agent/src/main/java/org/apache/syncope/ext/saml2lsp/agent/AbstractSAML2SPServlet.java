@@ -118,9 +118,9 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
                         + "<html xmlns=\"http://www.w3.org/1999/xhtml\">"
                         + " <body onLoad=\"document.forms[0].submit();\">"
                         + "  <form action=\"" + requestTO.getIdpServiceAddress() + "\" method=\"POST\">"
-                        + "   <input type=\"hidden\" name=\"" + SSOConstants.SAML_REQUEST + "\""
+                        + "   <input type=\"hidden\" name=\"" + SSOConstants.SAML_REQUEST + '"'
                         + "          value=\"" + requestTO.getContent() + "\"/>"
-                        + "   <input type=\"hidden\" name=\"" + SSOConstants.RELAY_STATE + "\""
+                        + "   <input type=\"hidden\" name=\"" + SSOConstants.RELAY_STATE + '"'
                         + "          value=\"" + requestTO.getRelayState() + "\"/>"
                         + "   <input type=\"submit\" style=\"visibility: hidden;\"/>"
                         + "  </form>"

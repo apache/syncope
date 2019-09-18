@@ -86,7 +86,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         while (selection.hasNext()) {
             modelStringBuffer.append(renderer.getIdValue(selection.next(), i++));
             if (selection.hasNext()) {
-                modelStringBuffer.append(",");
+                modelStringBuffer.append(',');
             }
         }
 

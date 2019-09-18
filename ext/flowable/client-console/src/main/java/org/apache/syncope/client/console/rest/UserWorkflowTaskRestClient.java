@@ -26,7 +26,7 @@ public class UserWorkflowTaskRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5765024947677482995L;
 
-    public UserTO executeNextTask(final UserTO userTO) {
+    public static UserTO executeNextTask(final UserTO userTO) {
         WorkflowTaskExecInput input = new WorkflowTaskExecInput();
         input.setUserKey(userTO.getKey());
         return getService(UserWorkflowTaskService.class).executeNextTask(input);

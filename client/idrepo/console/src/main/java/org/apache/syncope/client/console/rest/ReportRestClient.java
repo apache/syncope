@@ -50,31 +50,31 @@ public class ReportRestClient extends BaseRestClient
 
     private static final long serialVersionUID = 1644689667998953604L;
 
-    public ReportTO read(final String reportKey) {
+    public static ReportTO read(final String reportKey) {
         return getService(ReportService.class).read(reportKey);
     }
 
-    public List<ReportTO> list() {
+    public static List<ReportTO> list() {
         return getService(ReportService.class).list();
     }
 
-    public JobTO getJob(final String key) {
+    public static JobTO getJob(final String key) {
         return getService(ReportService.class).getJob(key);
     }
 
-    public List<JobTO> listJobs() {
+    public static List<JobTO> listJobs() {
         return getService(ReportService.class).listJobs();
     }
 
-    public void actionJob(final String refKey, final JobAction jobAction) {
+    public static void actionJob(final String refKey, final JobAction jobAction) {
         getService(ReportService.class).actionJob(refKey, jobAction);
     }
 
-    public void create(final ReportTO reportTO) {
+    public static void create(final ReportTO reportTO) {
         getService(ReportService.class).create(reportTO);
     }
 
-    public void update(final ReportTO reportTO) {
+    public static void update(final ReportTO reportTO) {
         getService(ReportService.class).update(reportTO);
     }
 
@@ -83,7 +83,7 @@ public class ReportRestClient extends BaseRestClient
      *
      * @param reportKey report to delete
      */
-    public void delete(final String reportKey) {
+    public static void delete(final String reportKey) {
         getService(ReportService.class).delete(reportKey);
     }
 
@@ -102,7 +102,7 @@ public class ReportRestClient extends BaseRestClient
         return getService(ReportService.class).listRecentExecutions(max);
     }
 
-    public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
+    public static Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
         return getService(ReportService.class).exportExecutionResult(executionKey, fmt);
     }
 

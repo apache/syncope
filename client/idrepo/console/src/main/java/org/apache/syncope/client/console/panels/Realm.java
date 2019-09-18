@@ -79,7 +79,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
         super(id, true);
         this.realmTO = realmTO;
-        this.anyTypes = new AnyTypeRestClient().listAnyTypes();
+        this.anyTypes = AnyTypeRestClient.listAnyTypes();
 
         setPageRef(pageRef);
 

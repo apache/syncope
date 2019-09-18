@@ -49,9 +49,9 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
     protected Serializable onApplyInternal(final ReportTO modelObject) {
         modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
-            restClient.create(modelObject);
+            ReportRestClient.create(modelObject);
         } else {
-            restClient.update(modelObject);
+            ReportRestClient.update(modelObject);
         }
         return modelObject;
     }

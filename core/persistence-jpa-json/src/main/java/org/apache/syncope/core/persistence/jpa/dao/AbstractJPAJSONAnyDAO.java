@@ -165,7 +165,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
      * @param literals literals/tokens
      * @return split value
      */
-    private List<String> split(final String attrValue, final List<String> literals) {
+    private static List<String> split(final String attrValue, final List<String> literals) {
         final List<String> attrValues = new ArrayList<>();
 
         if (literals.isEmpty()) {

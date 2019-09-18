@@ -141,7 +141,7 @@ public class DynRealmDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final DynRealmTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    DynRealmRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -182,8 +182,6 @@ public class DynRealmDirectoryPanel extends
 
         private final SortableDataProviderComparator<DynRealmTO> comparator;
 
-        private final DynRealmRestClient restClient = new DynRealmRestClient();
-
         public DynRealmDataProvider(final int paginatorRows) {
             super(paginatorRows);
             this.comparator = new SortableDataProviderComparator<>(this);
@@ -191,14 +189,14 @@ public class DynRealmDirectoryPanel extends
 
         @Override
         public Iterator<DynRealmTO> iterator(final long first, final long count) {
-            List<DynRealmTO> result = restClient.list();
+            List<DynRealmTO> result = DynRealmRestClient.list();
             Collections.sort(result, comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return DynRealmRestClient.list().size();
         }
 
         @Override

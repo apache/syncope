@@ -120,7 +120,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
 
                 targetObject.getTemplates().put(type, anyTO);
-                new TaskRestClient().update(taskType, SchedTaskTO.class.cast(targetObject));
+                TaskRestClient.update(taskType, SchedTaskTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -208,7 +208,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.readTask(taskType, model.getObject().getKey()),
+                                TaskRestClient.readTask(taskType, model.getObject().getKey()),
                                 target).setResourceModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
@@ -255,7 +255,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 try {
-                    restClient.delete(taskType, taskTO.getKey());
+                    TaskRestClient.delete(taskType, taskTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
@@ -307,13 +307,13 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         @Override
         public long size() {
-            return restClient.count(taskType);
+            return TaskRestClient.count(taskType);
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list(
+            return TaskRestClient.list(
                     reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

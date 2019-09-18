@@ -215,7 +215,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         checkGroup.add(beans);
     }
 
-    private ListView<String> header(final List<String> labels) {
+    private static ListView<String> header(final List<String> labels) {
         return new ListView<String>("names", labels) {
 
             private static final long serialVersionUID = 1L;

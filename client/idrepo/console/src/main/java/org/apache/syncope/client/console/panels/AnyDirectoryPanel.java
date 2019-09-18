@@ -27,12 +27,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -64,8 +64,6 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, E> {
 
     private static final long serialVersionUID = -1100228004207271270L;
-
-    protected final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     protected final List<String> pSchemaNames;
 
@@ -150,18 +148,18 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         columns.add(new KeyPropertyColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
-        prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
+        PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
                 filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
                 forEachOrdered(name -> addPropertyColumn(
                 name,
                 ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
                 prefcolumns));
 
-        prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
+        PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
                 filter(pSchemaNames::contains).
                 forEachOrdered(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
 
-        prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
+        PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
                 filter(dSchemaNames::contains).
                 forEachOrdered(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED)));
 

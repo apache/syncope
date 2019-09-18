@@ -122,7 +122,7 @@ public class AccessTokenDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AccessTokenTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    AccessTokenRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -172,14 +172,14 @@ public class AccessTokenDirectoryPanel
         @Override
         public Iterator<AccessTokenTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list(
+            return AccessTokenRestClient.list(
                     (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }
 
         @Override
         public long size() {
-            return restClient.count();
+            return AccessTokenRestClient.count();
         }
 
         @Override

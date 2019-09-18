@@ -46,7 +46,7 @@ public class MailTemplateTest extends AbstractTest {
     @Autowired
     private MailTemplateDAO mailTemplateDAO;
 
-    private String evaluate(final String template, final Map<String, Object> jexlVars) {
+    private static String evaluate(final String template, final Map<String, Object> jexlVars) {
         StringWriter writer = new StringWriter();
         JexlUtils.newJxltEngine().
                 createTemplate(template).
@@ -82,7 +82,7 @@ public class MailTemplateTest extends AbstractTest {
                 ctx);
 
         assertNotNull(htmlBody);
-        assertTrue(htmlBody.contains("a password reset was request for " + username + "."));
+        assertTrue(htmlBody.contains("a password reset was request for " + username + '.'));
         assertFalse(htmlBody.contains(
                 "http://localhost:9080/syncope-enduser/confirmpasswordreset?token="
                 + token));

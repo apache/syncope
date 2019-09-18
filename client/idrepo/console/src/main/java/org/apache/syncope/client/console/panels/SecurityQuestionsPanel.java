@@ -158,7 +158,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    SecurityQuestionRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -186,14 +186,14 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list = restClient.list();
+            final List<SecurityQuestionTO> list = SecurityQuestionRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return SecurityQuestionRestClient.list().size();
         }
 
         @Override

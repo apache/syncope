@@ -53,7 +53,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            return new AnyTypeRestClient().list().stream().
+            return AnyTypeRestClient.list().stream().
                     filter(anyType -> !AnyTypeKind.GROUP.name().equals(anyType)).collect(Collectors.toList());
         }
     };

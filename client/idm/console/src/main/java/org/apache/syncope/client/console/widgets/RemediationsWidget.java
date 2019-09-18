@@ -46,8 +46,6 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
 
     private static final long serialVersionUID = 1817429725840355068L;
 
-    private final RemediationRestClient restClient = new RemediationRestClient();
-
     private final List<RemediationTO> lastRemediations = new ArrayList<>();
 
     public RemediationsWidget(final String id, final PageReference pageRef) {
@@ -88,7 +86,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
     protected int getLatestAlertsSize() {
         return SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
                 && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)
-                ? restClient.countRemediations()
+                ? RemediationRestClient.countRemediations()
                 : 0;
     }
 
@@ -104,7 +102,8 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
                 if (SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
                         && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
 
-                    updatedRemediations = restClient.getRemediations(1, MAX_SIZE, new SortParam<>("instant", true));
+                    updatedRemediations = RemediationRestClient.getRemediations(1,
+                        MAX_SIZE, new SortParam<>("instant", true));
                 } else {
                     updatedRemediations = List.of();
                 }

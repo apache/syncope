@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -160,7 +161,7 @@ public abstract class NotificationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 try {
-                    restClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
+                    TaskRestClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
                     updateResultTable(target);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -218,13 +219,13 @@ public abstract class NotificationTaskDirectoryPanel
 
         @Override
         public long size() {
-            return restClient.count(anyTypeKind, entityKey, notification);
+            return TaskRestClient.count(anyTypeKind, entityKey, notification);
         }
 
         @Override
         public Iterator<NotificationTaskTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.listNotificationTasks(
+            return TaskRestClient.listNotificationTasks(
                     notification, anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

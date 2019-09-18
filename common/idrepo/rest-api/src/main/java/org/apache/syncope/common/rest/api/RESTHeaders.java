@@ -84,7 +84,7 @@ public final class RESTHeaders {
      * @return multipart/mixed Content-Type string, with given boundary
      */
     public static String multipartMixedWith(final String boundary) {
-        return MULTIPART_MIXED + ";" + BOUNDARY_PARAMETER + "=" + boundary;
+        return MULTIPART_MIXED + ';' + BOUNDARY_PARAMETER + '=' + boundary;
     }
 
     /**

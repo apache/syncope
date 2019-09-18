@@ -45,8 +45,6 @@ public class DynamicMemberships extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     public DynamicMemberships(final GroupWrapper groupWrapper) {
         super();
 
@@ -56,7 +54,7 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return anyTypeRestClient.listAnyTypes().stream().
+                return AnyTypeRestClient.listAnyTypes().stream().
                         filter(type -> AnyTypeKind.USER != type.getKind() && AnyTypeKind.GROUP != type.getKind()).
                         collect(Collectors.toList());
             }

@@ -67,7 +67,7 @@ public final class ConnectionParams {
         }
 
         public ConnectionParams build() {
-            return new ConnectionParams(scheme + "://" + host + ":" + port + "/syncope/rest", username, password);
+            return new ConnectionParams(scheme + "://" + host + ':' + port + "/syncope/rest", username, password);
         }
     }
 

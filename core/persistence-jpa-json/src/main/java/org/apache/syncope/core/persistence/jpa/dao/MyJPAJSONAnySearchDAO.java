@@ -63,7 +63,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         attrWhere.append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]')");
 
                         nullAttrWhere.append(" UNION SELECT DISTINCT any_id,").append(svs.table().alias).append(".*, ").
-                                append("\"").append(field).append("\"").append(" AS plainShema, ").
+                                append('"').append(field).append('"').append(" AS plainShema, ").
                                 append("null AS binaryValue, ").
                                 append("null AS booleanValue, ").
                                 append("null AS dateValue, ").
@@ -71,7 +71,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                                 append("null AS longValue, ").
                                 append("null AS stringValue, ").
                                 append("null AS attrUniqueValue").
-                                append(" FROM ").append(svs.table().name).append(" ").append(svs.table().alias).
+                                append(" FROM ").append(svs.table().name).append(' ').append(svs.table().alias).
                                 append(", ").append(svs.field().name).
                                 append(" WHERE any_id=").append(svs.table().alias).append(".id").
                                 append(" AND any_id NOT IN ").
@@ -105,11 +105,11 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = svs.field().alias + "."
+        item.select = svs.field().alias + '.'
                 + (schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType()))
                 + " AS " + fieldName;
-        item.where = "plainSchema = '" + fieldName + "'";
-        item.orderBy = fieldName + " " + clause.getDirection().name();
+        item.where = "plainSchema = '" + fieldName + '\'';
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
     private void fillAttrQuery(
@@ -130,7 +130,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
             query.append(svs.field().name).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else {
             if (!not && cond.getType() == AttributeCond.Type.EQ) {
                 PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -153,14 +153,14 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         append(" AND ").
                         append(lower ? "LOWER(" : "").
                         append(schema.isUniqueConstraint()
-                                ? "attrUniqueValue ->> '$." + key + "'"
+                                ? "attrUniqueValue ->> '$." + key + '\''
                                 : key).
                         append(lower ? ")" : "");
 
                 appendOp(query, cond.getType(), not);
 
                 query.append(lower ? "LOWER(" : "").
-                        append("?").append(setParameter(parameters, cond.getExpression())).
+                        append('?').append(setParameter(parameters, cond.getExpression())).
                         append(lower ? ")" : "");
             }
         }

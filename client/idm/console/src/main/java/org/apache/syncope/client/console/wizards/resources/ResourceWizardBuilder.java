@@ -37,10 +37,6 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
     private static final long serialVersionUID = 1734415311027284221L;
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     private boolean createFlag;
 
     public ResourceWizardBuilder(final ResourceTO resourceTO, final PageReference pageRef) {
@@ -63,7 +59,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
             @Override
             protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
-                return resourceRestClient.check(modelObject);
+                return ResourceRestClient.check(modelObject);
             }
 
             @Override
@@ -73,7 +69,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
         });
         wizardModel.add(new ResourceConnCapabilitiesPanel(
-                resourceTO, connectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
+                resourceTO, ConnectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
 
         wizardModel.add(new ResourceSecurityPanel(resourceTO));
         return wizardModel;
@@ -83,9 +79,9 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     protected ResourceTO onApplyInternal(final Serializable modelObject) {
         ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
         if (createFlag) {
-            resourceTO = resourceRestClient.create(resourceTO);
+            resourceTO = ResourceRestClient.create(resourceTO);
         } else {
-            resourceRestClient.update(resourceTO);
+            ResourceRestClient.update(resourceTO);
         }
         return resourceTO;
     }

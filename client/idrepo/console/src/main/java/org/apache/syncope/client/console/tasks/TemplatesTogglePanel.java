@@ -70,7 +70,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            return new AnyTypeRestClient().list();
+            return AnyTypeRestClient.list();
         }
     };
 
@@ -102,7 +102,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                             Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(
                             "Edit template"));
 
-                    final List<String> classes = new AnyTypeRestClient().read(typeModel.getObject()).getClasses();
+                    final List<String> classes = AnyTypeRestClient.read(typeModel.getObject()).getClasses();
 
                     final TemplateWizardBuilder<?> builder;
 

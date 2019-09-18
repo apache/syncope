@@ -168,7 +168,7 @@ public abstract class DirectoryPanel<
         container.setOutputMarkupId(true);
         addInnerObject(container);
 
-        rows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey());
+        rows = PreferenceManager.getPaginatorRows(getRequest(), paginatorRowsKey());
 
         setWindowClosedReloadCallback(modal);
         setWindowClosedReloadCallback(altDefaultModal);
@@ -217,7 +217,7 @@ public abstract class DirectoryPanel<
         container.add(paginatorForm);
 
         DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
-                "rowsChooser", new PropertyModel<>(this, "rows"), prefMan.getPaginatorChoices());
+                "rowsChooser", new PropertyModel<>(this, "rows"), PreferenceManager.getPaginatorChoices());
         rowsChooser.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;

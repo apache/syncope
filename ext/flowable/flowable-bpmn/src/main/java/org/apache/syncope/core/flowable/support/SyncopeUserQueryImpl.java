@@ -43,7 +43,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
 
     private List<User> result;
 
-    private User fromSyncopeUser(final org.apache.syncope.core.persistence.api.entity.user.User syncopeUser) {
+    private static User fromSyncopeUser(final org.apache.syncope.core.persistence.api.entity.user.User syncopeUser) {
         UserEntity user = new UserEntityImpl();
         user.setId(syncopeUser.getUsername());
         return user;

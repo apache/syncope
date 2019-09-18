@@ -59,8 +59,6 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
 
     private static final long serialVersionUID = -3893521796674873644L;
 
-    private final SchemaRestClient restClient = new SchemaRestClient();
-
     private final SchemaType schemaType;
 
     private final ListModel<MutablePair<Locale, String>> translations = new ListModel<>(new ArrayList<>());
@@ -80,9 +78,9 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                 collect(Collectors.toMap(MutablePair::getKey, MutablePair::getValue)));
 
         if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-            restClient.create(schemaType, modelObject);
+            SchemaRestClient.create(schemaType, modelObject);
         } else {
-            restClient.update(schemaType, modelObject);
+            SchemaRestClient.update(schemaType, modelObject);
         }
 
         return null;

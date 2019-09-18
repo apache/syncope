@@ -121,7 +121,7 @@ public class ReconciliationWidget extends BaseWidget {
             protected void onTimer(final AjaxRequestTarget target) {
                 if (isCheckReconciliationJob()) {
                     try {
-                        restClient.listJobs().stream().
+                        ReportRestClient.listJobs().stream().
                                 filter(jobTO -> SyncopeWebApplication.get().
                                 getReconciliationReportKey().equals(jobTO.getRefKey())).
                                 findFirst().ifPresent(reportJobTO -> {
@@ -155,7 +155,7 @@ public class ReconciliationWidget extends BaseWidget {
         ReportTO reconciliationReport = null;
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_READ)) {
             try {
-                reconciliationReport = restClient.read(reconciliationReportKey);
+                reconciliationReport = ReportRestClient.read(reconciliationReportKey);
             } catch (Exception e) {
                 LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
                         reconciliationReportKey, e);
@@ -273,7 +273,7 @@ public class ReconciliationWidget extends BaseWidget {
         if (exec.isEmpty()) {
             LOG.error("Could not find the last execution of reconciliation report");
         } else {
-            Object entity = restClient.exportExecutionResult(
+            Object entity = ReportRestClient.exportExecutionResult(
                     exec.get().getKey(), ReportExecExportFormat.XML).getEntity();
             if (entity instanceof InputStream) {
                 try {
@@ -370,7 +370,7 @@ public class ReconciliationWidget extends BaseWidget {
                             rowModel.getObject().getKey()
                             + (StringUtils.isBlank(rowModel.getObject().getName())
                             ? StringUtils.EMPTY
-                            : " " + rowModel.getObject().getName())));
+                            : ' ' + rowModel.getObject().getName())));
                 }
             });
 
@@ -412,8 +412,8 @@ public class ReconciliationWidget extends BaseWidget {
                                     public void onClick(final AjaxRequestTarget target, final Any ignore) {
                                         modal.header(Model.of(
                                                 rowModel.getObject().getType()
-                                                + " " + rowModel.getObject().getKey()
-                                                + " " + rowModel.getObject().getName()));
+                                                + ' ' + rowModel.getObject().getKey()
+                                                + ' ' + rowModel.getObject().getName()));
                                         modal.setContent(new ReconDetailsModalPanel(
                                                 modal,
                                                 resource,

@@ -60,12 +60,12 @@ public class BinaryValidator extends AbstractValidator {
             if (!valid) {
                 throw new InvalidPlainAttrValueException(
                         "Found MIME type: '" + mimeType + "', expecting: '"
-                        + attrValue.getAttr().getSchema().getMimeType() + "'");
+                        + attrValue.getAttr().getSchema().getMimeType() + '\'');
             }
         }
     }
 
-    private boolean isValidJSON(final String value) {
+    private static boolean isValidJSON(final String value) {
         try {
             MAPPER.readTree(value);
             return true;

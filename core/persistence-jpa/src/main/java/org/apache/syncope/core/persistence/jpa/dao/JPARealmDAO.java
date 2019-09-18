@@ -164,7 +164,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return query.getResultList();
     }
 
-    private void findAncestors(final List<Realm> result, final Realm realm) {
+    private static void findAncestors(final List<Realm> result, final Realm realm) {
         if (realm.getParent() != null && !result.contains(realm.getParent())) {
             result.add(realm.getParent());
             findAncestors(result, realm.getParent());

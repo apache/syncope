@@ -27,23 +27,23 @@ public class RelationshipTypeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -5400007385180229980L;
 
-    public void create(final RelationshipTypeTO relationshipType) {
+    public static void create(final RelationshipTypeTO relationshipType) {
         getService(RelationshipTypeService.class).create(relationshipType);
     }
 
-    public void update(final RelationshipTypeTO relationshipType) {
+    public static void update(final RelationshipTypeTO relationshipType) {
         getService(RelationshipTypeService.class).update(relationshipType);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(RelationshipTypeService.class).delete(key);
     }
 
-    public RelationshipTypeTO read(final String key) {
+    public static RelationshipTypeTO read(final String key) {
         return getService(RelationshipTypeService.class).read(key);
     }
 
-    public List<RelationshipTypeTO> list() {
+    public static List<RelationshipTypeTO> list() {
         List<RelationshipTypeTO> types = List.of();
 
         try {

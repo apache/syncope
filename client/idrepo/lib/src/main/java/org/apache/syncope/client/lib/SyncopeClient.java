@@ -295,7 +295,7 @@ public class SyncopeClient {
      * @param values HTTP header values
      * @return given service instance, with given header set
      */
-    public <T> T header(final T service, final String key, final Object... values) {
+    public static <T> T header(final T service, final String key, final Object... values) {
         WebClient.client(service).header(key, values);
         return service;
     }
@@ -308,7 +308,7 @@ public class SyncopeClient {
      * @param preference preference to be set via {@code Prefer} header
      * @return given service instance, with {@code Prefer} header set
      */
-    public <T> T prefer(final T service, final Preference preference) {
+    public static <T> T prefer(final T service, final Preference preference) {
         return header(service, RESTHeaders.PREFER, preference.toString());
     }
 
@@ -321,7 +321,7 @@ public class SyncopeClient {
      * requested
      * @return service instance of the given reference class, with related header set
      */
-    public <T> T nullPriorityAsync(final T service, final boolean nullPriorityAsync) {
+    public static <T> T nullPriorityAsync(final T service, final boolean nullPriorityAsync) {
         return header(service, RESTHeaders.NULL_PRIORITY_ASYNC, nullPriorityAsync);
     }
 
@@ -334,7 +334,7 @@ public class SyncopeClient {
      * @param ifNot if true then {@code If-None-Match} is set, {@code If-Match} otherwise
      * @return given service instance, with {@code If-Match} or {@code If-None-Match} set
      */
-    private <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
+    private static <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
         WebClient.client(service).match(etag, ifNot);
         return service;
     }
@@ -347,7 +347,7 @@ public class SyncopeClient {
      * @param etag ETag value
      * @return given service instance, with {@code If-Match} set
      */
-    public <T> T ifMatch(final T service, final EntityTag etag) {
+    public static <T> T ifMatch(final T service, final EntityTag etag) {
         return match(service, etag, false);
     }
 
@@ -359,7 +359,7 @@ public class SyncopeClient {
      * @param etag ETag value
      * @return given service instance, with {@code If-None-Match} set
      */
-    public <T> T ifNoneMatch(final T service, final EntityTag etag) {
+    public static <T> T ifNoneMatch(final T service, final EntityTag etag) {
         return match(service, etag, true);
     }
 
@@ -370,7 +370,7 @@ public class SyncopeClient {
      * @param service service class instance
      * @return {@code ETag} header value from latest service run (if available)
      */
-    public <T> EntityTag getLatestEntityTag(final T service) {
+    public static <T> EntityTag getLatestEntityTag(final T service) {
         return WebClient.client(service).getResponse().getEntityTag();
     }
 

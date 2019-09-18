@@ -140,7 +140,7 @@ public abstract class ReportDirectoryPanel
 
                 Component panel;
                 try {
-                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                    JobTO jobTO = ReportRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
@@ -184,7 +184,7 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.read(model.getObject().getKey()), target));
+                                ReportRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
 
@@ -246,7 +246,7 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 final ReportTO reportTO = model.getObject();
                 try {
-                    restClient.delete(reportTO.getKey());
+                    ReportRestClient.delete(reportTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -295,14 +295,14 @@ public abstract class ReportDirectoryPanel
 
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
-            List<ReportTO> list = restClient.list();
+            List<ReportTO> list = ReportRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return ReportRestClient.list().size();
         }
 
         @Override

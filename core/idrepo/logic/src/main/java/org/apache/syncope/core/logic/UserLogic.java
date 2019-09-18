@@ -347,7 +347,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(group -> group.getKey() + " " + group.getName()).collect(Collectors.toList()));
+                    map(group -> group.getKey() + ' ' + group.getName()).collect(Collectors.toList()));
             throw sce;
         }
 

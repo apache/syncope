@@ -103,9 +103,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
                     result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
                 }
-                result.append("\n");
+                result.append('\n');
             }
-            result.append("\n");
+            result.append('\n');
         }
         if (interrupt) {
             LOG.debug("Group assignment interrupted");
@@ -133,9 +133,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
                     result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
                 }
-                result.append("\n");
+                result.append('\n');
             }
-            result.append("\n");
+            result.append('\n');
         }
         if (interrupt) {
             LOG.debug("Group assignment interrupted");

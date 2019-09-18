@@ -70,10 +70,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     private final WebMarkupContainer container;
 
     protected final BaseModal<Serializable> propTaskModal;
@@ -187,7 +183,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    connectorRestClient.reload();
+                    ConnectorRestClient.reload();
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While reloading all connectors", e);
@@ -266,7 +262,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    connectorRestClient.delete(String.class.cast(node.getKey()));
+                    ConnectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
@@ -316,7 +312,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ConnInstanceTO connInstance = connectorRestClient.read(String.class.cast(node.getKey()));
+                ConnInstanceTO connInstance = ConnectorRestClient.read(String.class.cast(node.getKey()));
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(connInstance);
                 modal.setFormModel(model);
@@ -349,7 +345,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 String connKey = String.class.cast(node.getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(connKey);
+                ConnInstanceTO connInstance = ConnectorRestClient.read(connKey);
 
                 target.add(historyModal.setContent(
                         new HistoryConfList<>(historyModal, connKey, pageRef, connInstance)));
@@ -382,7 +378,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    resourceRestClient.delete(node.getKey());
+                    ResourceRestClient.delete(node.getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
@@ -403,8 +399,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO resource = resourceRestClient.read(node.getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+                ResourceTO resource = ResourceRestClient.read(node.getKey());
+                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 modal.setFormModel(model);
@@ -435,7 +431,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey());
+                ResourceTO modelObject = ResourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
                         new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(
@@ -458,8 +454,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO resource = resourceRestClient.read(node.getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+                ResourceTO resource = ResourceRestClient.read(node.getKey());
+                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
                         owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
@@ -494,7 +490,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO resource = resourceRestClient.read(node.getKey());
+                ResourceTO resource = ResourceRestClient.read(node.getKey());
 
                 target.add(propTaskModal.setContent(new ConnObjects(resource, pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
@@ -580,7 +576,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 String resourceKey = String.class.cast(node.getKey());
-                final ResourceTO modelObject = resourceRestClient.read(String.class.cast(node.getKey()));
+                final ResourceTO modelObject = ResourceRestClient.read(String.class.cast(node.getKey()));
 
                 target.add(historyModal.setContent(
                         new HistoryConfList<>(historyModal, resourceKey, pageRef, modelObject)));
@@ -608,7 +604,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    ResourceTO resource = resourceRestClient.read(node.getKey());
+                    ResourceTO resource = ResourceRestClient.read(node.getKey());
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
                     if (resource.getOrgUnit() != null) {
@@ -627,7 +623,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         }
                         provision.getVirSchemas().clear();
                     }
-                    resourceRestClient.create(resource);
+                    ResourceRestClient.create(resource);
 
                     // refresh Topology
                     send(pageRef.getPage(), Broadcast.DEPTH, new AbstractResourceWizardBuilder.CreateEvent(

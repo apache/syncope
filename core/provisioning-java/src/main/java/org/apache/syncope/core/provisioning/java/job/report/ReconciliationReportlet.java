@@ -98,7 +98,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
     private ReconciliationReportletConf conf;
 
-    private String getAnyElementName(final AnyTypeKind anyTypeKind) {
+    private static String getAnyElementName(final AnyTypeKind anyTypeKind) {
         String elementName;
 
         switch (anyTypeKind) {
@@ -250,7 +250,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
         handler.endElement("", "", getAnyElementName(any.getType().getKind()));
     }
 
-    private Set<Object> getValues(final Attribute attr) {
+    private static Set<Object> getValues(final Attribute attr) {
         Set<Object> values;
         if (attr.getValue() == null || attr.getValue().isEmpty()) {
             values = Set.of();
@@ -374,7 +374,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " users in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " users: page " + page + " of " + pages);
@@ -390,7 +390,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " users in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " users: page " + page + " of " + pages);
@@ -404,7 +404,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         AnyTypeKind.USER));
             }
         }
-        handler.endElement("", "", getAnyElementName(AnyTypeKind.USER) + "s");
+        handler.endElement("", "", getAnyElementName(AnyTypeKind.USER) + 's');
 
         atts.clear();
         if (StringUtils.isBlank(this.conf.getGroupMatchingCond())) {
@@ -414,7 +414,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " groups in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " groups: page " + page + " of " + pages);
@@ -430,7 +430,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " groups in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " groups: page " + page + " of " + pages);
@@ -444,7 +444,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         AnyTypeKind.GROUP));
             }
         }
-        handler.endElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s");
+        handler.endElement("", "", getAnyElementName(AnyTypeKind.GROUP) + 's');
 
         for (AnyType anyType : anyTypeDAO.findAll()) {
             if (!anyType.equals(anyTypeDAO.findUser()) && !anyType.equals(anyTypeDAO.findGroup())) {
@@ -464,7 +464,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 atts.clear();
                 atts.addAttribute("", "", "type", ReportXMLConst.XSD_STRING, anyType.getKey());
                 atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-                handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s", atts);
+                handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + 's', atts);
 
                 for (int page = 1; page <= pages; page++) {
                     status.set("Processing " + total + " any objects " + anyType.getKey()
@@ -479,7 +479,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             AnyTypeKind.ANY_OBJECT));
                 }
 
-                handler.endElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s");
+                handler.endElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + 's');
             }
         }
     }

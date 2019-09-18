@@ -48,7 +48,7 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
 
     private static final String REST = "Error while contacting Syncope core";
 
-    private Throwable instanceOf(final Exception e, final Class<? extends Exception> clazz) {
+    private static Throwable instanceOf(final Exception e, final Class<? extends Exception> clazz) {
         return clazz.isAssignableFrom(e.getClass())
                 ? e
                 : e.getCause() != null && clazz.isAssignableFrom(e.getCause().getClass())

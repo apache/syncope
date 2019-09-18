@@ -38,7 +38,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
 
-    public Pair<Boolean, String> check(final ResourceTO resourceTO) {
+    public static Pair<Boolean, String> check(final ResourceTO resourceTO) {
         boolean check = false;
         String errorMessage = null;
         try {
@@ -52,16 +52,16 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(check, errorMessage);
     }
 
-    public ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
+    public static ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
-    public Pair<String, List<ConnObjectTO>> listConnObjects(
-            final String resource,
-            final String anyTypeKey,
-            final int size,
-            final String pagedResultCookie,
-            final SortParam<String> sort) {
+    public static Pair<String, List<ConnObjectTO>> listConnObjects(
+        final String resource,
+        final String anyTypeKey,
+        final int size,
+        final String pagedResultCookie,
+        final SortParam<String> sort) {
 
         ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().
                 pagedResultsCookie(pagedResultCookie).
@@ -83,11 +83,11 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(nextPageResultCookie, result);
     }
 
-    public ResourceTO read(final String name) {
+    public static ResourceTO read(final String name) {
         return getService(ResourceService.class).read(name);
     }
 
-    public List<ResourceTO> list() {
+    public static List<ResourceTO> list() {
         List<ResourceTO> resources = List.of();
         try {
             resources = getService(ResourceService.class).list();
@@ -99,25 +99,25 @@ public class ResourceRestClient extends BaseRestClient {
         return resources;
     }
 
-    public ResourceTO create(final ResourceTO resourceTO) {
+    public static ResourceTO create(final ResourceTO resourceTO) {
         ResourceService service = getService(ResourceService.class);
         Response response = service.create(resourceTO);
         return getObject(service, response.getLocation(), ResourceTO.class);
     }
 
-    public void update(final ResourceTO resourceTO) {
+    public static void update(final ResourceTO resourceTO) {
         getService(ResourceService.class).update(resourceTO);
     }
 
-    public void delete(final String name) {
+    public static void delete(final String name) {
         getService(ResourceService.class).delete(name);
     }
 
-    public void setLatestSyncToken(final String key, final String anyType) {
+    public static void setLatestSyncToken(final String key, final String anyType) {
         getService(ResourceService.class).setLatestSyncToken(key, anyType);
     }
 
-    public void removeSyncToken(final String key, final String anyType) {
+    public static void removeSyncToken(final String key, final String anyType) {
         getService(ResourceService.class).removeSyncToken(key, anyType);
     }
 }

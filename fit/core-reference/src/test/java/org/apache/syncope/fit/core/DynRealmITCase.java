@@ -225,13 +225,13 @@ public class DynRealmITCase extends AbstractITCase {
         }
     }
 
-    private ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
+    private static ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
         String body =
-                "{"
+            '{'
                 + "    \"query\": {"
                 + "        \"match\": {\"_id\": \"" + userKey + "\"}"
                 + "    }"
-                + "}";
+                + '}';
 
         HttpClient httpClient = new HttpClient();
         httpClient.start();

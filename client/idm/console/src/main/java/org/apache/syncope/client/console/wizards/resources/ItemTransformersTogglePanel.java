@@ -42,8 +42,6 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private ItemTO item;
 
     public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
@@ -65,7 +63,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
         Form<?> form = new Form<>("form");
         addInnerObject(form);
 
-        List<String> choices = implRestClient.list(IdMImplementationType.ITEM_TRANSFORMER).stream().
+        List<String> choices = ImplementationRestClient.list(IdMImplementationType.ITEM_TRANSFORMER).stream().
                 map(EntityTO::getKey).sorted().collect(Collectors.toList());
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<String>() {

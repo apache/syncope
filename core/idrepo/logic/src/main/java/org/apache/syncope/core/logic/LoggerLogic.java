@@ -152,7 +152,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
                 collect(Collectors.toList());
     }
 
-    private void throwInvalidLogger(final LoggerType type) {
+    private static void throwInvalidLogger(final LoggerType type) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidLogger);
         sce.getElements().add("Expected " + type.name());
 
@@ -216,7 +216,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             }
             for (AuditAppender auditAppender : loggerLoader.auditAppenders(AuthContextUtils.getDomain())) {
                 if (auditAppender.getEvents().stream().anyMatch(event -> name.equalsIgnoreCase(event.toLoggerName()))) {
-                    loggerLoader.addAppenderToContext(ctx, auditAppender, logConf);
+                    LoggerLoader.addAppenderToContext(ctx, auditAppender, logConf);
                 }
             }
             if (isRootLogConf) {

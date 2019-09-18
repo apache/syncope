@@ -46,6 +46,6 @@ public enum UnmatchingRule {
 
     public static String toEventName(final UnmatchingRule rule) {
         return new StringBuilder(UnmatchingRule.class.getSimpleName()).
-                append("_").append(rule.name()).toString().toLowerCase();
+                append('_').append(rule.name()).toString().toLowerCase();
     }
 }

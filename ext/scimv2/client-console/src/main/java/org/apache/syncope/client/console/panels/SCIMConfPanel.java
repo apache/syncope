@@ -45,8 +45,6 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
     private final SCIMConf scimConfTO;
 
-    private final SCIMConfRestClient scimConfRestClient = new SCIMConfRestClient();
-
     public SCIMConfPanel(
             final String id,
             final SCIMConf scimConfTO,
@@ -69,7 +67,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                scimConfRestClient.set(SCIMConfPanel.this.scimConfTO);
+                SCIMConfRestClient.set(SCIMConfPanel.this.scimConfTO);
             }
         };
         addInnerObject(saveButton);

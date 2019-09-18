@@ -27,27 +27,27 @@ public class OIDCProviderRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4006712447589576324L;
 
-    public List<OIDCProviderTO> list() {
+    public static List<OIDCProviderTO> list() {
         return getService(OIDCProviderService.class).list();
     }
 
-    public void create(final OIDCProviderTO op) {
+    public static void create(final OIDCProviderTO op) {
         SyncopeConsoleSession.get().getService(OIDCProviderService.class).create(op);
     }
 
-    public void createFromDiscovery(final OIDCProviderTO op) {
+    public static void createFromDiscovery(final OIDCProviderTO op) {
         SyncopeConsoleSession.get().getService(OIDCProviderService.class).createFromDiscovery(op);
     }
 
-    public OIDCProviderTO read(final String key) {
+    public static OIDCProviderTO read(final String key) {
         return getService(OIDCProviderService.class).read(key);
     }
 
-    public void update(final OIDCProviderTO op) {
+    public static void update(final OIDCProviderTO op) {
         getService(OIDCProviderService.class).update(op);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(OIDCProviderService.class).delete(key);
     }
 }

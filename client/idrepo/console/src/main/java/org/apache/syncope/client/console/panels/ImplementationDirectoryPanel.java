@@ -159,7 +159,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ImplementationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getType(), model.getObject().getKey());
+                    ImplementationRestClient.delete(model.getObject().getType(), model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -204,14 +204,14 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<ImplementationTO> iterator(final long first, final long count) {
-            List<ImplementationTO> list = restClient.list(type);
+            List<ImplementationTO> list = ImplementationRestClient.list(type);
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list(type).size();
+            return ImplementationRestClient.list(type).size();
         }
 
         @Override

@@ -55,17 +55,13 @@ public class RealmDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
-    private final PolicyRestClient policyRestClient = new PolicyRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
+            return PolicyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -76,7 +72,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.PASSWORD).stream().
+            return PolicyRestClient.getPolicies(PolicyType.PASSWORD).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -87,7 +83,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
+            return ImplementationRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

@@ -88,15 +88,15 @@ public class EnduserITCase extends AbstractEnduserITCase {
         Assertions.assertNotNull(formTester);
         formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
-                "fullname").getPageRelativePath().replace(WIZARD_FORM + ":", StringUtils.EMPTY) + ":textField",
+                "fullname").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 "User fullname");
         formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
-                "surname").getPageRelativePath().replace(WIZARD_FORM + ":", StringUtils.EMPTY) + ":textField",
+                "surname").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 "User surname");
         formTester.setValue(UTILITY_UI.
                 findComponentByMarkupId(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "userId").
-                getPageRelativePath().replace(WIZARD_FORM + ":", StringUtils.EMPTY) + ":textField",
+                getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 "test@email.com");
 
         UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
@@ -273,7 +273,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
                 TextField.class);
         formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
-                "email").getPageRelativePath().replace(WIZARD_FORM + ":", StringUtils.EMPTY) + ":textField",
+                "email").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 newEmail);
 
         UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);

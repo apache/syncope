@@ -46,12 +46,6 @@ public class ProvisionAuxClassesPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisionAuxClassesPanel.class);
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     private final ProvisionTO provision;
 
     public ProvisionAuxClassesPanel(final String id, final ProvisionTO provision) {
@@ -76,12 +70,12 @@ public class ProvisionAuxClassesPanel extends Panel {
             choices = new ArrayList<>();
 
             try {
-                anyType = anyTypeRestClient.read(provision.getAnyType());
+                anyType = AnyTypeRestClient.read(provision.getAnyType());
             } catch (Exception e) {
                 LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
             }
             if (anyType != null) {
-                for (AnyTypeClassTO aux : anyTypeClassRestClient.list()) {
+                for (AnyTypeClassTO aux : AnyTypeClassRestClient.list()) {
                     if (!anyType.getClasses().contains(aux.getKey())) {
                         choices.add(aux.getKey());
                     }
@@ -103,11 +97,11 @@ public class ProvisionAuxClassesPanel extends Panel {
         addOrReplace(uidOnCreate);
     }
 
-    private List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
+    private static List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
         List<String> classes = new ArrayList<>(anyType.getClasses());
         classes.addAll(anyTypeClasses);
 
-        return schemaRestClient.<PlainSchemaTO>getSchemas(
+        return SchemaRestClient.<PlainSchemaTO>getSchemas(
                 SchemaType.PLAIN, null, classes.toArray(new String[] {})).
                 stream().map(EntityTO::getKey).collect(Collectors.toList());
     }

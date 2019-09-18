@@ -31,15 +31,15 @@ public abstract class AbstractValidator<A extends Annotation, T> implements Cons
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
     protected static final Pattern KEY_PATTERN =
-            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            Pattern.compile('^' + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Override
     public void initialize(final A annotation) {
         // no initialization
     }
 
-    protected final String getTemplate(final EntityViolationType type, final String message) {
-        return type.name() + ";" + message;
+    protected static String getTemplate(final EntityViolationType type, final String message) {
+        return type.name() + ';' + message;
     }
 
     protected boolean isHtml(final String text) {

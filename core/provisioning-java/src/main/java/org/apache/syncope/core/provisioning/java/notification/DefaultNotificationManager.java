@@ -242,7 +242,7 @@ public class DefaultNotificationManager implements NotificationManager {
         return task;
     }
 
-    private String evaluate(final String template, final Map<String, Object> jexlVars) {
+    private static String evaluate(final String template, final Map<String, Object> jexlVars) {
         StringWriter writer = new StringWriter();
         JexlUtils.newJxltEngine().
                 createTemplate(template).

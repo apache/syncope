@@ -171,7 +171,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // read customFormAttributes.json
         File enduserDir;
-        try (InputStream is = getClass().getResourceAsStream("/" + CUSTOM_FORM_ATTRIBUTES_FILE)) {
+        try (InputStream is = getClass().getResourceAsStream('/' + CUSTOM_FORM_ATTRIBUTES_FILE)) {
             customFormAttributes = MAPPER.readValue(is,
                     new TypeReference<HashMap<String, CustomAttributesInfo>>() {
             });
@@ -190,7 +190,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             FileAlterationObserver observer = existsEnduserDir
                     ? new FileAlterationObserver(enduserDir,
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE))
-                    : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
+                    : new FileAlterationObserver(getClass().getResource('/' + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE));
 
             FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
@@ -349,7 +349,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 setUseCompression(useGZIPCompression);
     }
 
-    protected Class<? extends WebPage> getSignInPageClass() {
+    protected static Class<? extends WebPage> getSignInPageClass() {
         return Login.class;
     }
 

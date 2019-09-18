@@ -52,8 +52,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final RoleRestClient groupRestClient = new RoleRestClient();
-
     /**
      * Construct.
      *
@@ -83,9 +81,9 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         modelObject.fillDynamicConditions();
         if (getOriginalItem() == null || getOriginalItem().getInnerObject() == null
                 || StringUtils.isBlank(getOriginalItem().getInnerObject().getKey())) {
-            groupRestClient.create(modelObject.getInnerObject());
+            RoleRestClient.create(modelObject.getInnerObject());
         } else {
-            groupRestClient.update(modelObject.getInnerObject());
+            RoleRestClient.update(modelObject.getInnerObject());
         }
         return null;
     }
@@ -149,7 +147,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     modelObject.getEntitlements().clear();
                     modelObject.getEntitlements().addAll(object);
                 }
-            }, new ListModel<>(new RoleRestClient().getAllAvailableEntitlements())).
+            }, new ListModel<>(RoleRestClient.getAllAvailableEntitlements())).
                     hideLabel().setOutputMarkupId(true));
         }
     }
@@ -162,7 +160,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("realms"));
             add(new AjaxPalettePanel.Builder<>().build("realms",
                     new PropertyModel<>(modelObject, "realms"),
-                    new ListModel<>(new RealmRestClient().list().stream().
+                    new ListModel<>(RealmRestClient.list().stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }
@@ -176,7 +174,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("dynRealms"));
             add(new AjaxPalettePanel.Builder<>().build("dynRealms",
                     new PropertyModel<>(modelObject, "dynRealms"),
-                    new ListModel<>(new DynRealmRestClient().list().stream().
+                    new ListModel<>(DynRealmRestClient.list().stream().
                             map(EntityTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }
@@ -190,7 +188,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("privileges"));
             add(new AjaxPalettePanel.Builder<>().build("privileges",
                     new PropertyModel<>(modelObject, "privileges"),
-                    new ListModel<>(new ApplicationRestClient().list().stream().
+                    new ListModel<>(ApplicationRestClient.list().stream().
                             flatMap(application -> application.getPrivileges().stream()).
                             map(EntityTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));

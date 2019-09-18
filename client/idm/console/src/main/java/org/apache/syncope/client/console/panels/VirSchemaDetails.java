@@ -45,10 +45,6 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5979623248182851337L;
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
     private final Map<String, String> anyTypes = new HashMap<>();
 
     private final AjaxDropDownChoicePanel<String> anyType;
@@ -65,7 +61,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
                 setNullValid(false);
-        resource.setChoices(resourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        resource.setChoices(ResourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList()));
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
         if (resource.getModelObject() != null) {
@@ -132,7 +128,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
     private String getAdminRealm(final String connectorKey) {
         String adminRealm = null;
         try {
-            adminRealm = connectorRestClient.read(connectorKey).getAdminRealm();
+            adminRealm = ConnectorRestClient.read(connectorKey).getAdminRealm();
         } catch (Exception e) {
             LOG.error("Could not read Admin Realm for External Resource {}", selectedResource.getKey());
         }
@@ -143,7 +139,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
     private void populateAnyTypes(final String resourceKey) {
         anyTypes.clear();
         if (resourceKey != null) {
-            ResourceTO resource = resourceRestClient.read(resourceKey);
+            ResourceTO resource = ResourceRestClient.read(resourceKey);
             String adminRealm = getAdminRealm(resource.getConnector());
 
             if (SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_READ, adminRealm)) {
@@ -160,7 +156,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         connInstanceTO.getConf().addAll(selectedResource.getConfOverride());
 
         Optional<ConnIdObjectClassTO> connIdObjectClass =
-                connectorRestClient.buildObjectClassInfo(connInstanceTO, false).stream().
+                ConnectorRestClient.buildObjectClassInfo(connInstanceTO, false).stream().
                         filter(object -> object.getType().equals(anyTypes.get(anyType.getModelObject()))).
                         findAny();
 

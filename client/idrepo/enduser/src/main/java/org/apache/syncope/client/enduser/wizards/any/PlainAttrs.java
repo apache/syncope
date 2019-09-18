@@ -377,7 +377,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
 
         panel.setReadOnly(readOnly);
-        panel.setMarkupId(StringUtils.isBlank(groupName) ? schemaTO.getKey() : groupName + "." + schemaTO.getKey());
+        panel.setMarkupId(StringUtils.isBlank(groupName) ? schemaTO.getKey() : groupName + '.' + schemaTO.getKey());
         
         return panel;
     }

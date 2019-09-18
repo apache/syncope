@@ -80,7 +80,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
         @Override
         public long size() {
-            return restClient.count(id);
+            return TaskRestClient.count(id);
         }
 
         @Override

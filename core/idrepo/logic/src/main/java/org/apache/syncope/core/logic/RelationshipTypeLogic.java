@@ -48,7 +48,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     public RelationshipTypeTO read(final String key) {
         RelationshipType relationshipType = relationshipTypeDAO.find(key);
         if (relationshipType == null) {
-            LOG.error("Could not find relationshipType '" + key + "'");
+            LOG.error("Could not find relationshipType '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -71,7 +71,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     public RelationshipTypeTO update(final RelationshipTypeTO relationshipTypeTO) {
         RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTypeTO.getKey());
         if (relationshipType == null) {
-            LOG.error("Could not find relationshipType '" + relationshipTypeTO.getKey() + "'");
+            LOG.error("Could not find relationshipType '" + relationshipTypeTO.getKey() + '\'');
             throw new NotFoundException(relationshipTypeTO.getKey());
         }
 
@@ -85,7 +85,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     public RelationshipTypeTO delete(final String key) {
         RelationshipType relationshipType = relationshipTypeDAO.find(key);
         if (relationshipType == null) {
-            LOG.error("Could not find relationshipType '" + key + "'");
+            LOG.error("Could not find relationshipType '" + key + '\'');
 
             throw new NotFoundException(key);
         }

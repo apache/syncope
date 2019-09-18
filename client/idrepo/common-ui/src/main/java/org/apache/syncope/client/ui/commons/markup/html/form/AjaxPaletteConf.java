@@ -23,13 +23,15 @@ import java.io.Serializable;
 /**
  * To be overridden in order to change the default filter option.
  */
-public class AjaxPaletteConf implements Serializable {
+public final class AjaxPaletteConf implements Serializable {
 
     private static final long serialVersionUID = -1;
 
     private static final String DEFAULT_FILTER = "*";
 
-    public String getDefaultFilter() {
+    private AjaxPaletteConf() {
+    }
+    public static String getDefaultFilter() {
         return DEFAULT_FILTER;
     }
 }

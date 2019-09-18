@@ -68,7 +68,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     private void init() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode tree = mapper.readTree(getClass().getResourceAsStream("/" + SCHEMAS_JSON));
+            JsonNode tree = mapper.readTree(getClass().getResourceAsStream('/' + SCHEMAS_JSON));
             if (!tree.isArray()) {
                 throw new IOException("JSON node is not a tree");
             }
@@ -131,7 +131,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
+    public static List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
         synchronized (MONITOR) {
             if (USER == null) {
                 USER = new ResourceType("User", "User", "/Users", "User Account", Resource.User.schema(),
@@ -150,7 +150,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
+    public static ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
         if (Resource.User.name().equals(type)) {
             resourceTypes(uriBuilder);
             return USER;

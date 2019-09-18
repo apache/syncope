@@ -71,7 +71,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
      *
      * @return the name of the attribute used to keep track of group memberships
      */
-    protected String getGroupMembershipAttrName() {
+    protected static String getGroupMembershipAttrName() {
         return "ldapGroups";
     }
 
@@ -136,7 +136,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
         }
     }
 
-    private String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
+    private static String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
         LOG.debug("Evaluating connObjectLink for {}", group);
 
         JexlContext jexlContext = new MapContext();

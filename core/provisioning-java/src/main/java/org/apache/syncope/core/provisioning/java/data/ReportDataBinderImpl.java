@@ -132,7 +132,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     @Override
     public String buildRefDesc(final Report report) {
         return "Report "
-                + report.getKey() + " "
+                + report.getKey() + ' '
                 + report.getName();
     }
 

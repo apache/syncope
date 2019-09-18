@@ -43,7 +43,7 @@ public class UsersByStatusWidget extends BaseWidget {
         add(chart);
     }
 
-    private Doughnut build(final Map<String, Integer> usersByStatus) {
+    private static Doughnut build(final Map<String, Integer> usersByStatus) {
         Doughnut doughnut = new Doughnut();
         doughnut.getOptions().setResponsive(true);
         doughnut.getOptions().setMaintainAspectRatio(true);

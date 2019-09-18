@@ -232,7 +232,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                 target.appendJavaScript(
                         selector + ".toggle(\"slow\");"
                         + selector + ".attr(\"class\", \""
-                        + ToggleMenuCSS.CLASS.value() + " " + ToggleMenuCSS.CLASS_ACTIVE.value() + "\");");
+                        + ToggleMenuCSS.CLASS.value() + ' ' + ToggleMenuCSS.CLASS_ACTIVE.value() + "\");");
                 status = Status.ACTIVE;
             } else if (status == Status.ACTIVE) {
                 // useful when handling action menu after refreshing (ref. SYNCOPE-1134)
@@ -245,7 +245,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             target.appendJavaScript(
                     selector + ".toggle(\"slow\");"
                     + selector + ".attr(\"class\", \""
-                    + ToggleMenuCSS.CLASS.value() + " " + ToggleMenuCSS.CLASS_INACTIVE.value() + "\");");
+                    + ToggleMenuCSS.CLASS.value() + ' ' + ToggleMenuCSS.CLASS_INACTIVE.value() + "\");");
             status = Status.INACTIVE;
         }
     }

@@ -71,7 +71,7 @@ public class UserReportlet extends AbstractReportlet {
 
     private UserReportletConf conf;
 
-    private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
+    private static void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
         if (anyTO.getResources().isEmpty()) {
@@ -92,9 +92,9 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-            final Collection<String> attrs, final Collection<String> derAttrs, final Collection<String> virAttrs)
-            throws SAXException {
+    private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
+                                            final Collection<String> attrs, final Collection<String> derAttrs,
+                                            final Collection<String> virAttrs) throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {

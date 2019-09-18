@@ -36,14 +36,12 @@ public final class ReconStatusUtils implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReconStatusUtils.class);
 
-    private static final ReconciliationRestClient RECONCILIATION_REST_CLIENT = new ReconciliationRestClient();
-
     public static List<Pair<String, ReconStatus>> getReconStatuses(
             final AnyTypeKind anyTypeKind, final String anyKey, final Collection<String> resources) {
 
         return resources.stream().map(resource -> {
             try {
-                return Pair.of(resource, RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource));
+                return Pair.of(resource, ReconciliationRestClient.status(anyTypeKind, anyKey, resource));
             } catch (Exception e) {
                 LOG.warn("Unexpected error for {} {} on {}", anyTypeKind, anyKey, resource, e);
                 return null;

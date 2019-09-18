@@ -28,24 +28,24 @@ public class ReconciliationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
+    public static ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
         return getService(ReconciliationService.class).status(anyTypeKind, anyKey, resourceKey);
     }
 
-    public void push(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PushTaskTO pushTask) {
+    public static void push(
+        final AnyTypeKind anyTypeKind,
+        final String anyKey,
+        final String resourceKey,
+        final PushTaskTO pushTask) {
 
         getService(ReconciliationService.class).push(anyTypeKind, anyKey, resourceKey, pushTask);
     }
 
-    public void pull(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PullTaskTO pullTask) {
+    public static void pull(
+        final AnyTypeKind anyTypeKind,
+        final String anyKey,
+        final String resourceKey,
+        final PullTaskTO pullTask) {
 
         getService(ReconciliationService.class).pull(anyTypeKind, anyKey, resourceKey, pullTask);
     }

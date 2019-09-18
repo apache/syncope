@@ -221,7 +221,7 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKey, attributes);
     }
 
-    private String getIntValue(final Realm realm, final Item orgUnitItem) {
+    private static String getIntValue(final Realm realm, final Item orgUnitItem) {
         String value = null;
         switch (orgUnitItem.getIntAttrName()) {
             case "key":

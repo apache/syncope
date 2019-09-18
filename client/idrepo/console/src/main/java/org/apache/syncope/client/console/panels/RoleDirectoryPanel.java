@@ -137,7 +137,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new RoleWrapper(new RoleRestClient().read(model.getObject().getKey())),
+                                new RoleWrapper(RoleRestClient.read(model.getObject().getKey())),
                                 target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ROLE_READ);
@@ -165,10 +165,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                         SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
                         SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
 
-                AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
-                AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
-
-                AnyTypeTO anyTypeTO = typeRestClient.read(AnyTypeKind.USER.name());
+                AnyTypeTO anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.USER.name());
 
                 ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
 
@@ -177,7 +174,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                     @Override
                     protected Panel getDirectoryPanel(final String id) {
                         Panel panel = new UserDirectoryPanel.Builder(
-                                classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                            AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                 setRealm(SyncopeConstants.ROOT_REALM).
                                 setFiltered(true).
                                 setFiql(query).
@@ -185,7 +182,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                                 addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
                                         new UserTO(),
                                         anyTypeTO.getClasses(),
-                                        FormLayoutInfoUtils.fetch(typeRestClient.list()).getLeft(),
+                                        FormLayoutInfoUtils.fetch(AnyTypeRestClient.list()).getLeft(),
                                         pageRef), false).
                                 setWizardInModal(false).build(id);
 
@@ -212,7 +209,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 ConsoleLayoutInfo info = new ConsoleLayoutInfo(model.getObject().getKey());
-                info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
+                info.setContent(RoleRestClient.readConsoleLayoutInfo(model.getObject().getKey()));
 
                 utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
                 utilityModal.setContent(new JsonEditorPanel(
@@ -223,7 +220,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                     @Override
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            restClient.setConsoleLayoutInfo(info.getKey(), info.getContent());
+                            RoleRestClient.setConsoleLayoutInfo(info.getKey(), info.getContent());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);
                             modal.close(target);
@@ -246,7 +243,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    RoleRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -287,8 +284,6 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
         private final SortableDataProviderComparator<RoleTO> comparator;
 
-        private final RoleRestClient restClient = new RoleRestClient();
-
         public RoleDataProvider(final int paginatorRows) {
             super(paginatorRows);
             this.comparator = new SortableDataProviderComparator<>(this);
@@ -296,14 +291,14 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
         @Override
         public Iterator<RoleTO> iterator(final long first, final long count) {
-            List<RoleTO> result = restClient.list();
+            List<RoleTO> result = RoleRestClient.list();
             Collections.sort(result, comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return RoleRestClient.list().size();
         }
 
         @Override

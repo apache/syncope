@@ -67,7 +67,7 @@ import org.junit.jupiter.api.Test;
 
 public class ResourceITCase extends AbstractITCase {
 
-    private ResourceTO buildResourceTO(final String resourceKey) {
+    private static ResourceTO buildResourceTO(final String resourceKey) {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setKey(resourceKey);
@@ -764,7 +764,7 @@ public class ResourceITCase extends AbstractITCase {
                 forEach(itemTO -> assertEquals(MappingPurpose.NONE, itemTO.getPurpose()));
     }
 
-    public void issueSYNCOPE645() {
+    public static void issueSYNCOPE645() {
         ResourceTO resource = new ResourceTO();
         resource.setKey("ws-target-resource-basic-save-invalid");
 

@@ -27,15 +27,15 @@ public class SyncopeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -9013241672773442286L;
 
-    public NumbersInfo numbers() {
+    public static NumbersInfo numbers() {
         return getService(SyncopeService.class).numbers();
     }
 
-    public SystemInfo system() {
+    public static SystemInfo system() {
         return getService(SyncopeService.class).system();
     }
 
-    public Response exportInternalStorageContent() {
+    public static Response exportInternalStorageContent() {
         return getService(SyncopeService.class).exportInternalStorageContent();
     }
 }

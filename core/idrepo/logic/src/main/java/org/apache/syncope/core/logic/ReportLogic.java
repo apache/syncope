@@ -215,8 +215,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
-    public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
-            final ReportExecExportFormat format) {
+    public static void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
+                                             final ReportExecExportFormat format) {
 
         // streaming SAX handler from a compressed byte array stream
         try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());

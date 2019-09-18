@@ -52,8 +52,6 @@ public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final RealmRestClient realmRestClient = new RealmRestClient();
-
     private final TemplatesTogglePanel templates;
 
     private final RealmChoicePanel realmChoicePanel;
@@ -75,7 +73,7 @@ public class Realms extends BasePage {
             protected Serializable onApplyInternal(
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
                 targetObject.getTemplates().put(type, anyTO);
-                new RealmRestClient().update(RealmTO.class.cast(targetObject));
+                RealmRestClient.update(RealmTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -234,7 +232,7 @@ public class Realms extends BasePage {
                     if (realmTO.getKey() == null) {
                         throw new Exception("Root realm cannot be deleted");
                     }
-                    realmRestClient.delete(realmTO.getFullPath());
+                    RealmRestClient.delete(realmTO.getFullPath());
                     RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                     target.add(realmChoicePanel.reloadRealmTree(target));
 

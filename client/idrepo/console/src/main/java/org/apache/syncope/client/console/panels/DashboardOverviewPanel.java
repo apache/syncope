@@ -53,12 +53,10 @@ public class DashboardOverviewPanel extends Panel {
 
     private final LoadWidget load;
 
-    private final SyncopeRestClient restClient = new SyncopeRestClient();
-
     public DashboardOverviewPanel(final String id) {
         super(id);
 
-        NumbersInfo numbers = restClient.numbers();
+        NumbersInfo numbers = SyncopeRestClient.numbers();
 
         WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -98,7 +96,7 @@ public class DashboardOverviewPanel extends Panel {
                 numbers.getAny2ByRealm());
         container.add(anyByRealm);
 
-        load = new LoadWidget("load", restClient.system());
+        load = new LoadWidget("load", SyncopeRestClient.system());
         container.add(load);
 
         container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
@@ -107,7 +105,7 @@ public class DashboardOverviewPanel extends Panel {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                NumbersInfo numbers = restClient.numbers();
+                NumbersInfo numbers = SyncopeRestClient.numbers();
 
                 if (totalUsers.refresh(numbers.getTotalUsers())) {
                     target.add(totalUsers);
@@ -144,13 +142,13 @@ public class DashboardOverviewPanel extends Panel {
                     target.add(anyByRealm);
                 }
 
-                load.refresh(restClient.system());
+                load.refresh(SyncopeRestClient.system());
                 target.add(load);
             }
         });
     }
 
-    private Triple<Integer, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
+    private static Triple<Integer, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
         int number;
         String label;
         String icon;
@@ -166,7 +164,7 @@ public class DashboardOverviewPanel extends Panel {
         return Triple.of(number, label, icon);
     }
 
-    private Triple<Integer, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
+    private static Triple<Integer, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
         int number;
         String label;
         String icon;

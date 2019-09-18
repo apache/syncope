@@ -168,12 +168,12 @@ abstract class AbstractAnyDataBinder {
         return schema;
     }
 
-    private void fillAttr(
-            final List<String> values,
-            final AnyUtils anyUtils,
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final SyncopeClientException invalidValues) {
+    private static void fillAttr(
+        final List<String> values,
+        final AnyUtils anyUtils,
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final SyncopeClientException invalidValues) {
 
         // if schema is multivalue, all values are considered for addition;
         // otherwise only the fist one - if provided - is considered
@@ -249,11 +249,11 @@ abstract class AbstractAnyDataBinder {
         return reqValMissing;
     }
 
-    private void checkMandatory(
-            final PlainSchema schema,
-            final PlainAttr<?> attr,
-            final Any<?> any,
-            final SyncopeClientException reqValMissing) {
+    private static void checkMandatory(
+        final PlainSchema schema,
+        final PlainAttr<?> attr,
+        final Any<?> any,
+        final SyncopeClientException reqValMissing) {
 
         if (attr == null
                 && !schema.isReadonly()
@@ -265,7 +265,7 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    private SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
+    private static SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
@@ -545,15 +545,15 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected void fillTO(
-            final AnyTO anyTO,
-            final String realmFullPath,
-            final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources,
-            final boolean details) {
+    protected static void fillTO(
+        final AnyTO anyTO,
+        final String realmFullPath,
+        final Collection<? extends AnyTypeClass> auxClasses,
+        final Collection<? extends PlainAttr<?>> plainAttrs,
+        final Map<DerSchema, String> derAttrs,
+        final Map<VirSchema, List<String>> virAttrs,
+        final Collection<? extends ExternalResource> resources,
+        final boolean details) {
 
         anyTO.setRealm(realmFullPath);
 
@@ -572,17 +572,17 @@ abstract class AbstractAnyDataBinder {
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
     }
 
-    protected RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
+    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
         return new RelationshipTO.Builder().
                 type(relationshipType).otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
                 build();
     }
 
-    protected MembershipTO getMembershipTO(
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Membership<? extends Any<?>> membership) {
+    protected static MembershipTO getMembershipTO(
+        final Collection<? extends PlainAttr<?>> plainAttrs,
+        final Map<DerSchema, String> derAttrs,
+        final Map<VirSchema, List<String>> virAttrs,
+        final Membership<? extends Any<?>> membership) {
 
         MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
                 .groupName(membership.getRightEnd().getName())
@@ -613,8 +613,8 @@ abstract class AbstractAnyDataBinder {
                 ifPresent(provision -> {
                     MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
                             orElseThrow(() -> new NotFoundException(
-                            "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
-                            + " on resource '" + resource.getKey() + "'"));
+                            "ConnObjectKey mapping for " + any.getType().getKey() + ' ' + any.getKey()
+                            + " on resource '" + resource.getKey() + '\''));
 
                     mappingManager.getConnObjectKeyValue(any, provision).
                             ifPresent(value -> connObjectKeys.put(resource.getKey(), value));

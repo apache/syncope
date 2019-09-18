@@ -34,8 +34,6 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
 
     private static final long serialVersionUID = 4575264480736377795L;
 
-    private final ApplicationRestClient restClient = new ApplicationRestClient();
-
     private final ApplicationTO application;
 
     private final boolean create;
@@ -73,9 +71,9 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
-                restClient.create(application);
+                ApplicationRestClient.create(application);
             } else {
-                restClient.update(application);
+                ApplicationRestClient.update(application);
             }
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

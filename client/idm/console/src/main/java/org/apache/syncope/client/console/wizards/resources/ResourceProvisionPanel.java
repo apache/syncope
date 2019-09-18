@@ -56,8 +56,6 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
     private final ResourceTO resourceTO;
 
     private final List<ResourceProvision> provisions;
@@ -174,7 +172,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
-                            resourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
+                            ResourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
@@ -192,7 +190,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
-                            resourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
+                            ResourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
@@ -291,7 +289,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         }
                     });
 
-            resourceRestClient.update(resourceTO);
+            ResourceRestClient.update(resourceTO);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
@@ -314,7 +312,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected List<String> load() {
-                List<String> anyTypes = new AnyTypeRestClient().list().stream().
+                List<String> anyTypes = AnyTypeRestClient.list().stream().
                         filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
                         collect(Collectors.toList());
                 if (resourceTO.getOrgUnit() == null) {

@@ -62,17 +62,17 @@ public class PreferenceManager implements Serializable {
         COOKIE_UTILS = new CookieUtils(cookieDefaults);
     }
 
-    public List<Integer> getPaginatorChoices() {
+    public static List<Integer> getPaginatorChoices() {
         return PAGINATOR_CHOICES;
     }
 
-    private Map<String, String> getPrefs(final String value) {
+    private static Map<String, String> getPrefs(final String value) {
         Map<String, String> prefs;
         try {
             if (StringUtils.isNotBlank(value)) {
                 prefs = MAPPER.readValue(value, MAP_TYPE_REF);
             } else {
-                throw new Exception("Invalid cookie value '" + value + "'");
+                throw new Exception("Invalid cookie value '" + value + '\'');
             }
         } catch (Exception e) {
             LOG.debug("No preferences found", e);
@@ -82,14 +82,14 @@ public class PreferenceManager implements Serializable {
         return prefs;
     }
 
-    private String setPrefs(final Map<String, String> prefs) throws IOException {
+    private static String setPrefs(final Map<String, String> prefs) throws IOException {
         StringWriter writer = new StringWriter();
         MAPPER.writeValue(writer, prefs);
 
         return writer.toString();
     }
 
-    public String get(final Request request, final String key) {
+    public static String get(final Request request, final String key) {
         String result = null;
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -101,7 +101,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public Integer getPaginatorRows(final Request request, final String key) {
+    public static Integer getPaginatorRows(final Request request, final String key) {
         Integer result = getPaginatorChoices().get(0);
 
         String value = get(request, key);
@@ -112,7 +112,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public List<String> getList(final Request request, final String key) {
+    public static List<String> getList(final Request request, final String key) {
         final List<String> result = new ArrayList<>();
 
         final String compound = get(request, key);

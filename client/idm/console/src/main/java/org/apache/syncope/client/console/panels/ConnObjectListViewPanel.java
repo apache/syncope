@@ -123,7 +123,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String anyType,
             final String cookie) {
 
-        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().listConnObjects(resource,
+        Pair<String, List<ConnObjectTO>> items = ResourceRestClient.listConnObjects(resource,
                 anyType,
                 SIZE,
                 cookie,

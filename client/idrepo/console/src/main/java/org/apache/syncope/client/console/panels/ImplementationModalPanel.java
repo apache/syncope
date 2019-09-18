@@ -51,8 +51,6 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final ImplementationRestClient restClient = new ImplementationRestClient();
-
     private final ImplementationTO implementation;
 
     private final ViewMode viewMode;
@@ -184,9 +182,9 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
-                restClient.create(implementation);
+                ImplementationRestClient.create(implementation);
             } else {
-                restClient.update(implementation);
+                ImplementationRestClient.update(implementation);
             }
 
             modal.close(target);
