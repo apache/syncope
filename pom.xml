@@ -432,7 +432,7 @@ under the License.
     
     <tika.version>1.21</tika.version>
 
-    <joda.version>2.10.3</joda.version>
+    <joda.version>2.10.4</joda.version>
 
     <h2.version>1.4.199</h2.version>
 
@@ -501,7 +501,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.24</tomcat.version>
+    <tomcat.version>9.0.26</tomcat.version>
 
     <docker.postgresql.version>11.5</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
@@ -1512,7 +1512,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.16</version>
+        <version>2.0.17</version>
       </dependency>
       
       <dependency>
