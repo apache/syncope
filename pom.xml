@@ -498,6 +498,7 @@ under the License.
     <cargo.servlet.port>9080</cargo.servlet.port>
     <cargo.tomcat.ajp.port>9889</cargo.tomcat.ajp.port>
     <cargo.rmi.port>9805</cargo.rmi.port>
+    <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
@@ -511,7 +512,8 @@ under the License.
     <jdbc.mysql.version>8.0.16</jdbc.mysql.version>
     <jdbc.mariadb.version>2.4.1</jdbc.mariadb.version>
     <jdbc.mssql.version>7.2.2.jre</jdbc.mssql.version>
-
+    <jdbc.oracle.version>19.3.0.0</jdbc.oracle.version>
+    
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
     <adminPassword>DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464</adminPassword>

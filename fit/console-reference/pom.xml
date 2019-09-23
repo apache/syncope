@@ -157,7 +157,7 @@ under the License.
             <deployable>
               <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
               <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
-              <pingTimeout>120000</pingTimeout>
+              <pingTimeout>60000</pingTimeout>
               <properties>
                 <context>syncope</context>
               </properties>
