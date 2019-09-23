@@ -108,6 +108,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (EntityFactory) Class.forName(env.getProperty("entity.factory")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "plainSchemaDAO")
     @Bean
     public PlainSchemaDAO plainSchemaDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -116,6 +117,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (PlainSchemaDAO) Class.forName(env.getProperty("plainSchema.dao")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "plainAttrDAO")
     @Bean
     public PlainAttrDAO plainAttrDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -124,6 +126,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (PlainAttrDAO) Class.forName(env.getProperty("plainAttr.dao")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "plainAttrValueDAO")
     @Bean
     public PlainAttrValueDAO plainAttrValueDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -132,6 +135,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (PlainAttrValueDAO) Class.forName(env.getProperty("plainAttrValue.dao")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "anySearchDAO")
     @Bean
     public AnySearchDAO anySearchDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -140,6 +144,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (AnySearchDAO) Class.forName(env.getProperty("any.search.dao")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "userDAO")
     @Bean
     public UserDAO userDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -148,6 +153,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (UserDAO) Class.forName(env.getProperty("user.dao")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "groupDAO")
     @Bean
     public GroupDAO groupDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -156,6 +162,7 @@ public class PersistenceContext implements EnvironmentAware {
         return (GroupDAO) Class.forName(env.getProperty("group.dao")).getConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean(name = "anyObjectDAO")
     @Bean
     public AnyObjectDAO anyObjectDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -169,6 +176,7 @@ public class PersistenceContext implements EnvironmentAware {
         return new LocalValidatorFactoryBean();
     }
 
+    @ConditionalOnMissingBean(name = "viewsXML")
     @Bean
     public ResourceWithFallbackLoader viewsXML() {
         ResourceWithFallbackLoader viewsXML = new ResourceWithFallbackLoader();
@@ -177,6 +185,7 @@ public class PersistenceContext implements EnvironmentAware {
         return viewsXML;
     }
 
+    @ConditionalOnMissingBean(name = "indexesXML")
     @Bean
     public ResourceWithFallbackLoader indexesXML() {
         ResourceWithFallbackLoader indexesXML = new ResourceWithFallbackLoader();

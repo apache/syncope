@@ -34,7 +34,6 @@ import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
@@ -42,15 +41,13 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-@SpringBootApplication
-@ComponentScan("org.apache.syncope.fit.buildtools")
-@EnableAutoConfiguration(exclude = {
-    ErrorMvcAutoConfiguration.class,
-    WebMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class })
+@SpringBootApplication(scanBasePackages = "org.apache.syncope.fit.buildtools",
+    exclude = {
+        ErrorMvcAutoConfiguration.class,
+        WebMvcAutoConfiguration.class,
+        HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {

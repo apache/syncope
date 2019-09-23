@@ -23,14 +23,15 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
@@ -100,6 +101,8 @@ public class MasterDomain implements EnvironmentAware {
         this.env = env;
     }
 
+    @Bean
+    @ConditionalOnMissingBean(name = "localMasterDataSource")
     public DataSource localMasterDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driverClassName);
@@ -112,7 +115,8 @@ public class MasterDomain implements EnvironmentAware {
         return new HikariDataSource(hikariConfig);
     }
 
-    @Bean("MasterDataSource")
+    @Bean
+    @ConditionalOnMissingBean(name = "masterDataSource")
     public JndiObjectFactoryBean masterDataSource() {
         JndiObjectFactoryBean masterDataSource = new JndiObjectFactoryBean();
         masterDataSource.setJndiName("java:comp/env/jdbc/syncopeMasterDataSource");
@@ -121,6 +125,7 @@ public class MasterDomain implements EnvironmentAware {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "masterResourceDatabasePopulator")
     public ResourceDatabasePopulator masterResourceDatabasePopulator() {
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
@@ -131,6 +136,7 @@ public class MasterDomain implements EnvironmentAware {
     }
 
     @Bean
+    @ConditionalOnMissingBean(name = "masterDataSourceInitializer")
     public DataSourceInitializer masterDataSourceInitializer() {
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
         dataSourceInitializer.setDataSource((DataSource) masterDataSource().getObject());
@@ -139,8 +145,9 @@ public class MasterDomain implements EnvironmentAware {
         return dataSourceInitializer;
     }
 
-    @Bean("MasterEntityManagerFactory")
+    @Bean
     @DependsOn("commonEMFConf")
+    @ConditionalOnMissingBean(name = "masterEntityManagerFactory")
     public DomainEntityManagerFactoryBean masterEntityManagerFactory() {
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
@@ -149,26 +156,28 @@ public class MasterDomain implements EnvironmentAware {
         DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
         masterEntityManagerFactory.setMappingResources(orm);
         masterEntityManagerFactory.setPersistenceUnitName("Master");
-        masterEntityManagerFactory.setDataSource((DataSource) masterDataSource().getObject());
+
+        DataSource dataSource = (DataSource) masterDataSource().getObject();
+        masterEntityManagerFactory.setDataSource(Objects.requireNonNull(dataSource));
         masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
         masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
 
         if (env.containsProperty("openjpaMetaDataFactory")) {
             masterEntityManagerFactory.setJpaPropertyMap(Map.of(
                     "openjpa.MetaDataFactory",
-                    env.getProperty("openjpaMetaDataFactory").replace("##orm##", orm)));
+                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).replace("##orm##", orm)));
         }
 
         return masterEntityManagerFactory;
     }
 
-    @Bean("MasterTransactionManager")
-    @Qualifier("Master")
+    @Bean
     public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager(masterEntityManagerFactory().getObject());
+        return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory().getObject()));
     }
 
-    @Bean("MasterProperties")
+    @Bean
+    @ConditionalOnMissingBean(name = "masterProperties")
     public ResourceWithFallbackLoader masterProperties() {
         ResourceWithFallbackLoader masterProperties = new ResourceWithFallbackLoader();
         masterProperties.setPrimary("file:" + contentDirectory + "/domains/Master.properties");
@@ -176,7 +185,8 @@ public class MasterDomain implements EnvironmentAware {
         return masterProperties;
     }
 
-    @Bean("MasterContentXML")
+    @Bean
+    @ConditionalOnMissingBean(name = "masterContentXML")
     public InputStream masterContentXML() throws IOException {
         ResourceWithFallbackLoader masterContentXML =
                 ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
@@ -185,7 +195,8 @@ public class MasterDomain implements EnvironmentAware {
         return masterContentXML.getResource().getInputStream();
     }
 
-    @Bean("MasterKeymasterConfParamsJSON")
+    @Bean
+    @ConditionalOnMissingBean(name = "masterKeymasterConfParamsJSON")
     public InputStream masterKeymasterConfParamsJSON() throws IOException {
         ResourceWithFallbackLoader keymasterConfParamsJSON =
                 ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
@@ -194,7 +205,8 @@ public class MasterDomain implements EnvironmentAware {
         return keymasterConfParamsJSON.getResource().getInputStream();
     }
 
-    @Bean("MasterDatabaseSchema")
+    @Bean
+    @ConditionalOnMissingBean(name = "masterDatabaseSchema")
     public String masterDatabaseSchema() {
         return schema;
     }

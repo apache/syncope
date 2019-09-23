@@ -21,8 +21,8 @@ package org.apache.syncope.core.starter;
 import java.io.IOException;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
@@ -34,9 +34,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication
-@EnableTransactionManagement
-@EnableAutoConfiguration(exclude = {
+@SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class,
     OpenApiAutoConfiguration.class,
@@ -44,12 +42,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     DataSourceTransactionManagerAutoConfiguration.class,
     JdbcTemplateAutoConfiguration.class,
     QuartzAutoConfiguration.class })
+@EnableTransactionManagement
 public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
         SpringApplication.run(SyncopeCoreApplication.class, args);
     }
 
+    @ConditionalOnMissingBean(name = "propertySourcesPlaceholderConfigurer")
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
         PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
