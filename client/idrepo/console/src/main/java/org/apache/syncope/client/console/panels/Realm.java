@@ -288,7 +288,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected abstract void onClickDelete(AjaxRequestTarget target, RealmTO realmTO);
 
-    class RemoteRealmPanel extends RemoteObjectPanel {
+    static class RemoteRealmPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 

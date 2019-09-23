@@ -29,6 +29,8 @@ import org.apache.wicket.model.IModel;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
+import java.util.Objects;
+
 /**
  * Format column's UUID value.
  */
@@ -52,7 +54,7 @@ public class KeyPropertyColumn<T> extends PropertyColumn<T, String> {
         Object obj = bwi.getPropertyValue(getPropertyExpression());
 
         item.add(new Label(componentId, StringUtils.EMPTY));
-        item.add(new AttributeModifier("title", obj.toString()));
+        item.add(new AttributeModifier("title", Objects.requireNonNull(obj).toString()));
         item.add(new AttributeModifier("class", "fa fa-key"));
         item.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
     }

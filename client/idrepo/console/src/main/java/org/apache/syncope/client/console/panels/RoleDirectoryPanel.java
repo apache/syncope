@@ -278,7 +278,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         }
     }
 
-    protected class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
+    protected static class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
 
         private static final long serialVersionUID = 6267494272884913376L;
 
@@ -292,7 +292,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         @Override
         public Iterator<RoleTO> iterator(final long first, final long count) {
             List<RoleTO> result = RoleRestClient.list();
-            Collections.sort(result, comparator);
+            result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 

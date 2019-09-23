@@ -252,7 +252,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         }
     }
 
-    abstract class Checker implements Callable<String> {
+    abstract static class Checker implements Callable<String> {
 
         protected final String key;
 

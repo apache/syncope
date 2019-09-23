@@ -21,6 +21,8 @@ package org.apache.syncope.core.flowable.support;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
@@ -95,7 +97,7 @@ public class DomainProcessEngineFactoryBean
     @Override
     public void load(final String domain, final DataSource datasource) {
         try {
-            getObject().getEngines().put(domain, build(domain, datasource));
+            Objects.requireNonNull(getObject()).getEngines().put(domain, build(domain, datasource));
         } catch (Exception e) {
             LOG.error("Could not setup Flowable for {}", domain, e);
         }

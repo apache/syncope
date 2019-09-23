@@ -216,7 +216,7 @@ public class StatusPanel extends Panel {
         return null;
     }
 
-    class RemoteAnyPanel extends RemoteObjectPanel {
+    static class RemoteAnyPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 

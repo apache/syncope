@@ -170,7 +170,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         }
     }
 
-    public class Configuration extends WizardStep {
+    public static class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 

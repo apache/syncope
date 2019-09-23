@@ -25,6 +25,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtils;
 
+import java.util.Objects;
+
 public class SchemaKeyValidator extends AbstractValidator<SchemaKeyCheck, Object> {
 
     @Override
@@ -38,7 +40,7 @@ public class SchemaKeyValidator extends AbstractValidator<SchemaKeyCheck, Object
             key = ((VirSchema) object).getKey();
         }
 
-        boolean isValid = KEY_PATTERN.matcher(key).matches();
+        boolean isValid = KEY_PATTERN.matcher(Objects.requireNonNull(key)).matches();
         if (!isValid) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(

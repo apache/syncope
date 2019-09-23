@@ -202,7 +202,7 @@ public class ParametersDirectoryPanel
                         return param;
                     }).collect(Collectors.toList());
 
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.iterator();
         }
 

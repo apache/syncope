@@ -23,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -136,7 +137,8 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         if (env.containsProperty("openjpaMetaDataFactory")) {
             emf.addPropertyValue("jpaPropertyMap", Map.of(
                     "openjpa.MetaDataFactory",
-                    env.getProperty("openjpaMetaDataFactory").replace("##orm##", domain.getOrm())));
+                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory"))
+                        .replace("##orm##", domain.getOrm())));
         }
         registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
         ApplicationContextProvider.getBeanFactory().getBean(domain.getKey() + "EntityManagerFactory");

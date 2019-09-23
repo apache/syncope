@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavi
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -121,7 +120,7 @@ public abstract class AbstractMappingPanel extends Panel {
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
-        Collections.sort(model.getObject(), (left, right) -> {
+        model.getObject().sort((left, right) -> {
             int compared;
             if (left == null && right == null) {
                 compared = 0;
@@ -142,17 +141,17 @@ public abstract class AbstractMappingPanel extends Panel {
             } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
                 compared = 1;
             } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                    && (right.getPurpose() == MappingPurpose.PULL
-                    || right.getPurpose() == MappingPurpose.NONE)) {
+                && (right.getPurpose() == MappingPurpose.PULL
+                || right.getPurpose() == MappingPurpose.NONE)) {
                 compared = -1;
             } else if (left.getPurpose() == MappingPurpose.PULL
-                    && right.getPurpose() == MappingPurpose.PROPAGATION) {
+                && right.getPurpose() == MappingPurpose.PROPAGATION) {
                 compared = 1;
             } else if (left.getPurpose() == MappingPurpose.PULL
-                    && right.getPurpose() == MappingPurpose.NONE) {
+                && right.getPurpose() == MappingPurpose.NONE) {
                 compared = -1;
             } else if (left.getPurpose() == MappingPurpose.NONE
-                    && right.getPurpose() != MappingPurpose.NONE) {
+                && right.getPurpose() != MappingPurpose.NONE) {
                 compared = 1;
             } else {
                 compared = left.getIntAttrName().compareTo(right.getIntAttrName());

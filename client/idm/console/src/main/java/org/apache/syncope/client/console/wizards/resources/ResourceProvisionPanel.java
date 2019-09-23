@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -301,8 +300,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void sortProvisions() {
-        Collections.sort(provisions,
-                (o1, o2) -> AnyTypeRestClient.KEY_COMPARATOR.compare(o1.getAnyType(), o2.getAnyType()));
+        provisions.sort((o1, o2) -> AnyTypeRestClient.KEY_COMPARATOR.compare(o1.getAnyType(), o2.getAnyType()));
     }
 
     private LoadableDetachableModel<List<String>> getAnyTypes() {
@@ -319,7 +317,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
                 }
 
-                Collections.sort(anyTypes, AnyTypeRestClient.KEY_COMPARATOR);
+                anyTypes.sort(AnyTypeRestClient.KEY_COMPARATOR);
                 return anyTypes;
             }
         };

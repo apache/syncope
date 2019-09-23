@@ -65,7 +65,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
     protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
 
-    protected abstract class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
+    protected abstract static class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 

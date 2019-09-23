@@ -83,7 +83,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
         return wizardModel;
     }
 
-    public class Storage extends WizardStep {
+    public static class Storage extends WizardStep {
 
         private static final long serialVersionUID = 3671044119870133102L;
 
@@ -155,7 +155,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
         }
     }
 
-    public class AdminCredentials extends WizardStep {
+    public static class AdminCredentials extends WizardStep {
 
         private static final long serialVersionUID = -7472243942630790243L;
 

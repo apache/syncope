@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.reports;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -280,7 +279,7 @@ public abstract class ReportDirectoryPanel
 
     protected abstract void viewReport(ReportTO reportTO, AjaxRequestTarget target);
 
-    protected class ReportDataProvider extends DirectoryDataProvider<ReportTO> {
+    protected static class ReportDataProvider extends DirectoryDataProvider<ReportTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -296,7 +295,7 @@ public abstract class ReportDirectoryPanel
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
             List<ReportTO> list = ReportRestClient.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

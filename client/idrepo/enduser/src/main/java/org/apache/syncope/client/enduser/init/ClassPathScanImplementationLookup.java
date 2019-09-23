@@ -22,6 +22,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -80,7 +82,8 @@ public class ClassPathScanImplementationLookup {
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
-                Class<?> clazz = ClassUtils.resolveClassName(bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                Class<?> clazz = ClassUtils.resolveClassName(Objects.requireNonNull(bd.getBeanClassName()),
+                    ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
                 if (!isAbstractClazz) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {

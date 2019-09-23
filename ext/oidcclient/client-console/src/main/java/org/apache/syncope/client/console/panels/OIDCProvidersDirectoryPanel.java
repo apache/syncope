@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -258,7 +257,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
         }
     }
 
-    protected final class OIDCProvidersProvider extends DirectoryDataProvider<OIDCProviderTO> {
+    protected static final class OIDCProvidersProvider extends DirectoryDataProvider<OIDCProviderTO> {
 
         private static final long serialVersionUID = -2865055116864423761L;
 
@@ -274,7 +273,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<OIDCProviderTO> iterator(final long first, final long count) {
             List<OIDCProviderTO> list = OIDCProviderRestClient.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

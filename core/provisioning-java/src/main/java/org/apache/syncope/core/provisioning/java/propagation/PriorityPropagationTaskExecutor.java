@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.propagation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,7 +104,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             }
         });
 
-        Collections.sort(prioritizedTasks, new PriorityComparator(taskToResource));
+        prioritizedTasks.sort(new PriorityComparator(taskToResource));
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
         Collection<PropagationTaskInfo> concurrentTasks = taskInfos.stream().

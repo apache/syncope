@@ -185,7 +185,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
         }
     }
 
-    public class OPContinue extends WizardStep {
+    public static class OPContinue extends WizardStep {
 
         private static final long serialVersionUID = -7087008312629522790L;
 

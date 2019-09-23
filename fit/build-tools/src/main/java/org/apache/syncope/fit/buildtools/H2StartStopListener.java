@@ -20,6 +20,8 @@ package org.apache.syncope.fit.buildtools;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.Objects;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -51,7 +53,7 @@ public class H2StartStopListener implements ServletContextListener {
         try {
             Server h2TestDb = new Server();
             h2TestDb.runTool("-ifNotExists", "-tcp", "-tcpDaemon", "-web", "-webDaemon",
-                    "-webPort", ctx.getEnvironment().getProperty("testdb.webport"));
+                    "-webPort", Objects.requireNonNull(ctx).getEnvironment().getProperty("testdb.webport"));
 
             context.setAttribute(H2_TESTDB, h2TestDb);
         } catch (SQLException e) {

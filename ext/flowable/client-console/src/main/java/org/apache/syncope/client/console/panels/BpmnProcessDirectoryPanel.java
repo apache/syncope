@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -302,7 +301,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         }
     }
 
-    protected class BpmProcessDataProvider extends DirectoryDataProvider<BpmnProcess> {
+    protected static class BpmProcessDataProvider extends DirectoryDataProvider<BpmnProcess> {
 
         private static final long serialVersionUID = 1764153405387687592L;
 
@@ -317,7 +316,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<BpmnProcess> iterator(final long first, final long count) {
             List<BpmnProcess> result = BpmnProcessRestClient.getDefinitions();
-            Collections.sort(result, comparator);
+            result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
