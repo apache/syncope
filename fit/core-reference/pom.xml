@@ -327,7 +327,7 @@ under the License.
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
               <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
-              <pingTimeout>60000</pingTimeout>
+              <pingTimeout>${cargo.deployable.ping.timeout}</pingTimeout>
               <properties>
                 <context>syncope</context>
               </properties>
@@ -1212,15 +1212,16 @@ under the License.
       <id>oracle-it</id>
       
       <properties>
-        <jdbcdriver.groupId>com.oracle.jdbc</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>ojdbc8</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>com.oracle.ojdbc</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>ojdbc10</jdbcdriver.artifactId>
+        <cargo.deployable.ping.timeout>120000</cargo.deployable.ping.timeout>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>com.oracle.jdbc</groupId>
-          <artifactId>ojdbc8</artifactId>
-          <version>12.2.0.1</version>
+          <groupId>com.oracle.ojdbc</groupId>
+          <artifactId>ojdbc10</artifactId>
+          <version>${jdbc.oracle.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -1235,7 +1236,7 @@ under the License.
             <configuration>
               <images>
                 <image>
-                  <name>oracle-xe-11g</name>
+                  <name>database-enterprise</name>
                   <build>
                     <dockerFileDir>${project.basedir}/src/main/resources/oracle</dockerFileDir>
                   </build>
@@ -1247,8 +1248,8 @@ under the License.
                       <port>1521:1521</port>
                     </ports>
                     <wait>
-                      <log>Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production</log>
-                      <time>30000</time>
+                      <log>Disconnected from Oracle Database</log>
+                      <time>300000</time>
                     </wait>                
                   </run>
                 </image>
