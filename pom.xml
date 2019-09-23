@@ -415,7 +415,7 @@ under the License.
     <camel.version>3.0.0-RC1</camel.version>
 
     <slf4j.version>1.7.28</slf4j.version>
-    <opensaml.version>3.3.1</opensaml.version>
+    <opensaml.version>3.4.4</opensaml.version>
 
     <elasticsearch.version>7.3.2</elasticsearch.version>
 
@@ -1802,6 +1802,16 @@ under the License.
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+    <repository>
+      <id>shibboleth-releases</id>
+      <url>https://build.shibboleth.net/nexus/content/repositories/releases</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -2420,7 +2430,7 @@ under the License.
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
+            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.4.4/apidocs/</link>
             <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.3.2/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.0.9/apidocs/</link>
           </links>
