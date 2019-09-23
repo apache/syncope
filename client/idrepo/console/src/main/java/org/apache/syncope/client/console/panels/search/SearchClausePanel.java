@@ -838,7 +838,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         return panel;
     }
 
-    private class DefaultChoiceRender implements IChoiceRenderer<String> {
+    private static class DefaultChoiceRender implements IChoiceRenderer<String> {
 
         private static final long serialVersionUID = -8034248752951761058L;
 

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.rest;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
@@ -52,7 +51,7 @@ public class AnyTypeRestClient extends BaseRestClient {
 
         try {
             types = getService(AnyTypeService.class).list();
-            Collections.sort(types, new AnyTypeComparator());
+            types.sort(new AnyTypeComparator());
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
@@ -62,7 +61,7 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     public static List<String> list() {
         List<String> types = getSyncopeService().platform().getAnyTypes();
-        Collections.sort(types, new AnyTypeKeyComparator());
+        types.sort(new AnyTypeKeyComparator());
         return types;
     }
 

@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -309,7 +308,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         }
     }
 
-    protected final class SAML2IdPsProvider extends DirectoryDataProvider<SAML2IdPTO> {
+    protected static final class SAML2IdPsProvider extends DirectoryDataProvider<SAML2IdPTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -325,7 +324,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<SAML2IdPTO> iterator(final long first, final long count) {
             List<SAML2IdPTO> list = SAML2IdPsRestClient.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

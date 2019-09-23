@@ -224,7 +224,7 @@ public class Flowable extends BaseExtPage {
         }
     }
 
-    public class URDataProvider implements IDataProvider<UserRequest> {
+    public static class URDataProvider implements IDataProvider<UserRequest> {
 
         private static final long serialVersionUID = 1169386589403139714L;
 

@@ -62,7 +62,7 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
         return modelObject;
     }
 
-    public class Profile extends WizardStep {
+    public static class Profile extends WizardStep {
 
         private static final long serialVersionUID = 11881843064077955L;
 
@@ -84,7 +84,7 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
         }
     }
 
-    public class Spec extends WizardStep {
+    public static class Spec extends WizardStep {
 
         private static final long serialVersionUID = -3237113253888332643L;
 

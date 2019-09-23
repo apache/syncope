@@ -156,7 +156,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     }
 
-    public class Events extends WizardStep {
+    public static class Events extends WizardStep {
 
         private static final long serialVersionUID = -7709805590497687958L;
 
@@ -184,7 +184,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     }
 
-    public class About extends Panel {
+    public static class About extends Panel {
 
         private static final long serialVersionUID = -9149543787708482882L;
 
@@ -323,7 +323,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
     }
 
-    public class Recipients extends WizardStep {
+    public static class Recipients extends WizardStep {
 
         private static final long serialVersionUID = -7709805590497687958L;
 

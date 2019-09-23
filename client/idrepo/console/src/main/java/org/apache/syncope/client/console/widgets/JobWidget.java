@@ -23,7 +23,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -566,7 +565,7 @@ public class JobWidget extends BaseWidget {
 
         @Override
         public Iterator<JobTO> iterator(final long first, final long count) {
-            Collections.sort(available, comparator);
+            available.sort(comparator);
             return available.subList((int) first, (int) first + (int) count).iterator();
         }
 
@@ -664,7 +663,7 @@ public class JobWidget extends BaseWidget {
 
             @Override
             public Iterator<ExecTO> iterator(final long first, final long count) {
-                Collections.sort(recent, comparator);
+                recent.sort(comparator);
                 return recent.subList((int) first, (int) first + (int) count).iterator();
             }
 

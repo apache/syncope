@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +192,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
         return panel;
     }
 
-    protected final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
+    protected static final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -207,7 +206,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
         @Override
         public Iterator<AnyTypeTO> iterator(final long first, final long count) {
             final List<AnyTypeTO> list = AnyTypeRestClient.listAnyTypes();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

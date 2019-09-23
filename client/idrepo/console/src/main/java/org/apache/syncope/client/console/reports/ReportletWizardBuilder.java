@@ -87,7 +87,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
         return wizardModel;
     }
 
-    public class Profile extends WizardStep {
+    public static class Profile extends WizardStep {
 
         private static final long serialVersionUID = -3043839139187792810L;
 
@@ -123,7 +123,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
         }
     }
 
-    public class Configuration extends WizardStep {
+    public static class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 

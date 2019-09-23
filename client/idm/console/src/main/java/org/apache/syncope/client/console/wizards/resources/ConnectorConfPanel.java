@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -46,7 +45,7 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
                 ConnectorConfPanel.this.modelObject.getConf().clear();
 
                 // re-order properties
-                Collections.sort(properties, (o1, o2) -> {
+                properties.sort((o1, o2) -> {
                     if (o1 == null) {
                         return -1;
                     } else {

@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +194,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
         return panel;
     }
 
-    protected final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {
+    protected static final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -209,7 +208,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
         @Override
         public Iterator<RelationshipTypeTO> iterator(final long first, final long count) {
             final List<RelationshipTypeTO> list = RelationshipTypeRestClient.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

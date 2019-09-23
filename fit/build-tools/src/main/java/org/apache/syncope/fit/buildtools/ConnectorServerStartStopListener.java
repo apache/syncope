@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -68,7 +70,8 @@ public class ConnectorServerStartStopListener implements ServletContextListener 
         ConnectorServer server = ConnectorServer.newInstance();
         WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
         try {
-            server.setPort(ctx.getEnvironment().getProperty("testconnectorserver.port", Integer.class));
+            server.setPort(Objects.requireNonNull(ctx).getEnvironment()
+                .getProperty("testconnectorserver.port", Integer.class));
 
             server.setBundleURLs(getBundleURLs(ctx));
 

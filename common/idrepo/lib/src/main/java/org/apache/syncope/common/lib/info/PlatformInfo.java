@@ -39,7 +39,7 @@ public class PlatformInfo implements Serializable {
 
     @XmlRootElement(name = "provisioningInfo")
     @XmlType
-    public class ProvisioningInfo implements Serializable {
+    public static class ProvisioningInfo implements Serializable {
 
         private static final long serialVersionUID = 533340357732839568L;
 
@@ -116,7 +116,7 @@ public class PlatformInfo implements Serializable {
 
     @XmlRootElement(name = "workflowInfo")
     @XmlType
-    public class WorkflowInfo implements Serializable {
+    public static class WorkflowInfo implements Serializable {
 
         private static final long serialVersionUID = 6736937721099195324L;
 
@@ -153,7 +153,7 @@ public class PlatformInfo implements Serializable {
 
     @XmlRootElement(name = "persistenceInfo")
     @XmlType
-    public class PersistenceInfo implements Serializable {
+    public static class PersistenceInfo implements Serializable {
 
         private static final long serialVersionUID = 2902980556801069487L;
 

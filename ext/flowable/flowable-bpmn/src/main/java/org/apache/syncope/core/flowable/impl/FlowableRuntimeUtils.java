@@ -103,7 +103,7 @@ public final class FlowableRuntimeUtils {
 
     public static Pair<String, String> splitProcBusinessKey(final String procBusinessKey) {
         String[] split = procBusinessKey.split(":");
-        if (split == null || split.length != 2) {
+        if (split.length != 2) {
             throw new WorkflowException(new IllegalArgumentException("Unexpected business key: " + procBusinessKey));
         }
 

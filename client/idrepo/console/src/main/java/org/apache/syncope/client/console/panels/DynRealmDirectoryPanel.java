@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -176,7 +175,7 @@ public class DynRealmDirectoryPanel extends
         }
     }
 
-    protected class DynRealmDataProvider extends DirectoryDataProvider<DynRealmTO> {
+    protected static class DynRealmDataProvider extends DirectoryDataProvider<DynRealmTO> {
 
         private static final long serialVersionUID = 3124431855954382273L;
 
@@ -190,7 +189,7 @@ public class DynRealmDirectoryPanel extends
         @Override
         public Iterator<DynRealmTO> iterator(final long first, final long count) {
             List<DynRealmTO> result = DynRealmRestClient.list();
-            Collections.sort(result, comparator);
+            result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 

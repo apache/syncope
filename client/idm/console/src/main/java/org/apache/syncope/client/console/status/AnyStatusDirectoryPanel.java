@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.status;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -326,7 +325,7 @@ public class AnyStatusDirectoryPanel
                 }
                 syncope.setStatus(syncopeStatus);
 
-                Collections.sort(statusBeans, comparator);
+                statusBeans.sort(comparator);
                 statusBeans.add(0, syncope);
             } else {
                 statusBeans.addAll(resources.stream().
@@ -340,7 +339,7 @@ public class AnyStatusDirectoryPanel
                             return statusBean;
                         }).collect(Collectors.toList()));
 
-                Collections.sort(statusBeans, comparator);
+                statusBeans.sort(comparator);
             }
 
             return first == -1 && count == -1

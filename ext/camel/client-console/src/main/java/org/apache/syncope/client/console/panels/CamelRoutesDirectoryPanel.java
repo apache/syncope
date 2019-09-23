@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -144,7 +143,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
         return panel;
     }
 
-    protected final class CamelRoutesProvider extends DirectoryDataProvider<CamelRouteTO> {
+    protected static final class CamelRoutesProvider extends DirectoryDataProvider<CamelRouteTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -161,7 +160,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<CamelRouteTO> iterator(final long first, final long count) {
             List<CamelRouteTO> list = CamelRoutesRestClient.list(anyTypeKind);
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

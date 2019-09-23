@@ -69,7 +69,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
     public SelfConfirmPasswordReset(final PageParameters parameters) {
         super(parameters);
 
-        if (parameters == null || parameters.get("token").isEmpty()) {
+        if (parameters != null || parameters.get("token").isEmpty()) {
             LOG.debug("No token parameter found in the request url");
             parameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
             setResponsePage(getApplication().getHomePage(), parameters);

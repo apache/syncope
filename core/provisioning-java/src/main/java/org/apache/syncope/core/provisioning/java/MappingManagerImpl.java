@@ -666,7 +666,7 @@ public class MappingManagerImpl implements MappingManager {
     public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
         OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
 
-        return Optional.ofNullable(Optional.ofNullable(orgUnitItem)
+        return Optional.ofNullable(Optional.of(orgUnitItem)
             .map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
     }
 

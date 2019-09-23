@@ -666,7 +666,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         }
     }
 
-    public final class UpdateEvent {
+    public static final class UpdateEvent {
 
         private final AjaxRequestTarget target;
 

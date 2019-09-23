@@ -151,7 +151,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     private void setSchemas(final List<String> anyTypeClasses, final Map<String, S> scs) {
         final List<S> allSchemas;
         if (anyTypeClasses.isEmpty()) {
-            allSchemas = List.of();
+            allSchemas = new ArrayList<>();
         } else {
             allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
         }
@@ -236,7 +236,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         }
     }
 
-    public class Schemas extends Panel {
+    public static class Schemas extends Panel {
 
         private static final long serialVersionUID = -2447602429647965090L;
 

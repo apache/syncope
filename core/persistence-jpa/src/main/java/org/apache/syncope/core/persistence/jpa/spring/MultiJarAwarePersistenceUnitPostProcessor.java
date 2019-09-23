@@ -27,6 +27,8 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
+import java.util.Objects;
+
 /**
  * Allows having JPA entities spread in several JAR files; this is needed in order to support the Syncope extensions.
  */
@@ -41,7 +43,7 @@ public class MultiJarAwarePersistenceUnitPostProcessor implements PersistenceUni
 
         scanner.findCandidateComponents(AbstractEntity.class.getPackage().getName()).forEach(bd -> {
             LOG.debug("Adding JPA entity {}", bd.getBeanClassName());
-            pui.addManagedClassName(bd.getBeanClassName());
+            pui.addManagedClassName(Objects.requireNonNull(bd.getBeanClassName()));
         });
     }
 }

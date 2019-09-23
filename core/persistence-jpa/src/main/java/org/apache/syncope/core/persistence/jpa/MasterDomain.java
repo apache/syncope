@@ -23,6 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
@@ -156,7 +157,7 @@ public class MasterDomain implements EnvironmentAware {
         if (env.containsProperty("openjpaMetaDataFactory")) {
             masterEntityManagerFactory.setJpaPropertyMap(Map.of(
                     "openjpa.MetaDataFactory",
-                    env.getProperty("openjpaMetaDataFactory").replace("##orm##", orm)));
+                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).replace("##orm##", orm)));
         }
 
         return masterEntityManagerFactory;
@@ -165,7 +166,7 @@ public class MasterDomain implements EnvironmentAware {
     @Bean("MasterTransactionManager")
     @Qualifier("Master")
     public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager(masterEntityManagerFactory().getObject());
+        return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory().getObject()));
     }
 
     @Bean("MasterProperties")

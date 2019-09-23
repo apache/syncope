@@ -275,7 +275,7 @@ public class SearchCond extends AbstractSearchCond {
         String anyTypeName = null;
 
         if (type == null) {
-            return anyTypeName;
+            return null;
         }
 
         switch (type) {
@@ -363,7 +363,7 @@ public class SearchCond extends AbstractSearchCond {
         boolean isValid = false;
 
         if (type == null) {
-            return isValid;
+            return false;
         }
 
         switch (type) {

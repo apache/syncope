@@ -132,9 +132,8 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
                 return meanRate;
             }).forEachOrdered(meanRate -> metrics.getResponseMeanRates().add(meanRate));
 
-            Collections.sort(metrics.getResponseMeanRates(),
-                    (o1, o2) -> Collections.reverseOrder(Comparator.<Double>naturalOrder()).
-                            compare(o1.getValue(), o2.getValue()));
+            metrics.getResponseMeanRates().sort((o1, o2) -> Collections.reverseOrder(Comparator.<Double>naturalOrder()).
+                compare(o1.getValue(), o2.getValue()));
         }
 
         return metrics;

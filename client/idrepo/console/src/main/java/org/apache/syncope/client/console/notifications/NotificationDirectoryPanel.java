@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -167,7 +166,7 @@ public class NotificationDirectoryPanel
         return List.of();
     }
 
-    protected class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
+    protected static class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -183,7 +182,7 @@ public class NotificationDirectoryPanel
         @Override
         public Iterator<NotificationTO> iterator(final long first, final long count) {
             List<NotificationTO> list = NotificationRestClient.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

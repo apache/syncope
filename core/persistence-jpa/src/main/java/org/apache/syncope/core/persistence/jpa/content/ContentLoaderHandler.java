@@ -22,6 +22,8 @@ import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
 import javax.sql.DataSource;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -65,7 +67,7 @@ public class ContentLoaderHandler extends DefaultHandler {
 
         Object[] parameters = new Object[attrs.getLength()];
         for (int i = 0; i < attrs.getLength(); i++) {
-            Integer colType = colTypes.get(attrs.getQName(i).toUpperCase());
+            Integer colType = Objects.requireNonNull(colTypes).get(attrs.getQName(i).toUpperCase());
             if (colType == null) {
                 LOG.warn("No column type found for {}", attrs.getQName(i).toUpperCase());
                 colType = Types.VARCHAR;

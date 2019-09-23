@@ -65,7 +65,7 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
         return wizardModel;
     }
 
-    public class Profile extends WizardStep {
+    public static class Profile extends WizardStep {
 
         private static final long serialVersionUID = 8610155719550948702L;
 
@@ -107,7 +107,7 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
         }
     }
 
-    public class Predicates extends WizardStep {
+    public static class Predicates extends WizardStep {
 
         private static final long serialVersionUID = 5934389493874714599L;
 
@@ -117,7 +117,7 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
         }
     }
 
-    public class Filters extends WizardStep {
+    public static class Filters extends WizardStep {
 
         private static final long serialVersionUID = -6552124285142294023L;
 

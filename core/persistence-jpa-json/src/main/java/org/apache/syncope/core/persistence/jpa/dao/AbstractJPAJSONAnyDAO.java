@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -220,12 +219,12 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         }
 
         // Sort literals in order to process later literals included into others
-        Collections.sort(literals, (l1, l2) -> {
+        literals.sort((l1, l2) -> {
             if (l1 == null && l2 == null) {
                 return 0;
             } else if (l1 != null && l2 == null) {
                 return -1;
-            } else if (l1 == null && l2 != null) {
+            } else if (l1 == null) {
                 return 1;
             } else if (l1.length() == l2.length()) {
                 return 0;
