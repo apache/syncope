@@ -15,6 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM wnameless/oracle-xe-11g
-
+# FROM wnameless/oracle-xe-11g
+FROM store/oracle/database-enterprise:12.2.0.1-slim
 ADD init.sql /docker-entrypoint-initdb.d/
