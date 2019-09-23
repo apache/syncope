@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -50,9 +49,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @PropertySource("classpath:domains/Master.properties")
 @PropertySource(value = "file:${conf.directory}/domains/Master.properties", ignoreResourceNotFound = true)
 @Configuration
-public class MasterDomain implements EnvironmentAware {
-
-    private Environment env;
+public class MasterDomain {
 
     @Autowired
     private CommonEntityManagerFactoryConf commonEMFConf;
@@ -60,6 +57,9 @@ public class MasterDomain implements EnvironmentAware {
     @Autowired
     private ConfigurableApplicationContext ctx;
 
+    @Autowired
+    private Environment env;
+    
     @Value("${Master.driverClassName}")
     private String driverClassName;
 
@@ -95,11 +95,6 @@ public class MasterDomain implements EnvironmentAware {
 
     @Value("${content.directory}")
     private String contentDirectory;
-
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
-    }
 
     @Bean
     @ConditionalOnMissingBean(name = "localMasterDataSource")
@@ -139,7 +134,7 @@ public class MasterDomain implements EnvironmentAware {
     @ConditionalOnMissingBean(name = "masterDataSourceInitializer")
     public DataSourceInitializer masterDataSourceInitializer() {
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
-        dataSourceInitializer.setDataSource((DataSource) masterDataSource().getObject());
+        dataSourceInitializer.setDataSource((DataSource) Objects.requireNonNull(masterDataSource().getObject()));
         dataSourceInitializer.setEnabled(true);
         dataSourceInitializer.setDatabasePopulator(masterResourceDatabasePopulator());
         return dataSourceInitializer;
@@ -156,9 +151,8 @@ public class MasterDomain implements EnvironmentAware {
         DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
         masterEntityManagerFactory.setMappingResources(orm);
         masterEntityManagerFactory.setPersistenceUnitName("Master");
-
-        DataSource dataSource = (DataSource) masterDataSource().getObject();
-        masterEntityManagerFactory.setDataSource(Objects.requireNonNull(dataSource));
+        
+        masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource().getObject()));
         masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
         masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
 
