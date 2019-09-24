@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
     @Override
     public List<String> getClasses(final ImplementationTO implementation, final ViewMode viewMode) {
-        List<String> classes = List.of();
+        List<String> classes = new ArrayList<>();
         if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdMImplementationType.PULL_CORRELATION_RULE:

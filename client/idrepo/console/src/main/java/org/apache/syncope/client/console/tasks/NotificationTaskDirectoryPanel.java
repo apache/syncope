@@ -195,7 +195,7 @@ public abstract class NotificationTaskDirectoryPanel
         return IdRepoConstants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS;
     }
 
-    protected class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
+    protected static class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 

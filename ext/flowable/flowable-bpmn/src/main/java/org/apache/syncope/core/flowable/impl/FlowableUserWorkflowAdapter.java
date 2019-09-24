@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,7 +102,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         }
 
         engine.getRuntimeService().removeVariable(
-                procInst.getProcessInstanceId(), FlowableRuntimeUtils.WF_EXECUTOR);
+                Objects.requireNonNull(procInst).getProcessInstanceId(), FlowableRuntimeUtils.WF_EXECUTOR);
         engine.getRuntimeService().removeVariable(
                 procInst.getProcessInstanceId(), FlowableRuntimeUtils.USER_CR);
         engine.getRuntimeService().removeVariable(

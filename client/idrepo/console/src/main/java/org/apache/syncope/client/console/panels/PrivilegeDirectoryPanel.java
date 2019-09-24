@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -161,7 +160,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<PrivilegeTO> iterator(final long first, final long count) {
             List<PrivilegeTO> list = application.getPrivileges();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

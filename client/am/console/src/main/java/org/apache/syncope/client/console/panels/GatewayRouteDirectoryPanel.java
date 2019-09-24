@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -179,7 +178,7 @@ public class GatewayRouteDirectoryPanel
         return AMConstants.PREF_GATEWAYROUTE_PAGINATOR_ROWS;
     }
 
-    protected final class GatewayRouteProvider extends DirectoryDataProvider<GatewayRouteTO> {
+    protected static final class GatewayRouteProvider extends DirectoryDataProvider<GatewayRouteTO> {
 
         private static final long serialVersionUID = 5282134321828253058L;
 
@@ -194,7 +193,7 @@ public class GatewayRouteDirectoryPanel
         @Override
         public Iterator<? extends GatewayRouteTO> iterator(final long first, final long count) {
             List<GatewayRouteTO> list = GatewayRouteRestClient.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

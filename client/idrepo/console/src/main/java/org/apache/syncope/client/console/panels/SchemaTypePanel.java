@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -221,7 +220,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
             List<SchemaTO> schemas = SchemaRestClient.getSchemas(this.schemaType, keyword);
-            Collections.sort(schemas, comparator);
+            schemas.sort(comparator);
 
             return schemas.subList((int) first, (int) first + (int) count).iterator();
         }

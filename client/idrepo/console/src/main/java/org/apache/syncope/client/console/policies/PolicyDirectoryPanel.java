@@ -225,7 +225,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             List<T> list = PolicyRestClient.getPolicies(type);
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

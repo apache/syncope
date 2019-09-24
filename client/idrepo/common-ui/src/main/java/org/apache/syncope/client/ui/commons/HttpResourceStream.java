@@ -57,7 +57,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
             String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
             if (StringUtils.isNotBlank(contentDisposition)) {
                 String[] splitted = contentDisposition.split("=");
-                if (splitted != null && splitted.length > 1) {
+                if (splitted.length > 1) {
                     this.filename = splitted[1].trim();
                 }
             }

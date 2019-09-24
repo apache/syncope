@@ -157,7 +157,7 @@ public class AccessTokenDirectoryPanel
         }
     }
 
-    protected class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
+    protected static class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
 
         private static final long serialVersionUID = 6267494272884913376L;
 

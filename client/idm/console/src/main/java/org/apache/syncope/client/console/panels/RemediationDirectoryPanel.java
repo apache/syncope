@@ -208,12 +208,12 @@ public class RemediationDirectoryPanel
                             AjaxWizard.EditItemActionEvent<UserTO> userEvent =
                                     new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
                             userEvent.forceModalPanel(new RemediationUserWizardBuilder(
-                                    model.getObject(),
-                                    previousUserTO,
-                                    newUserTO,
-                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getLeft(),
-                                    pageRef
+                                model.getObject(),
+                                previousUserTO,
+                                newUserTO,
+                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getLeft(),
+                                pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, userEvent);
                             break;
@@ -235,12 +235,12 @@ public class RemediationDirectoryPanel
                             AjaxWizard.EditItemActionEvent<GroupTO> groupEvent =
                                     new AjaxWizard.EditItemActionEvent<>(newGroupTO, target);
                             groupEvent.forceModalPanel(new RemediationGroupWizardBuilder(
-                                    model.getObject(),
-                                    previousGroupTO,
-                                    newGroupTO,
-                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getMiddle(),
-                                    pageRef
+                                model.getObject(),
+                                previousGroupTO,
+                                newGroupTO,
+                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).getMiddle(),
+                                pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, groupEvent);
                             break;
@@ -262,13 +262,13 @@ public class RemediationDirectoryPanel
                             AjaxWizard.EditItemActionEvent<AnyObjectTO> anyObjectEvent =
                                     new AjaxWizard.EditItemActionEvent<>(newAnyObjectTO, target);
                             anyObjectEvent.forceModalPanel(new RemediationAnyObjectWizardBuilder(
-                                    model.getObject(),
-                                    previousAnyObjectTO,
-                                    newAnyObjectTO,
-                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).
-                                            getRight().values().iterator().next(),
-                                    pageRef
+                                model.getObject(),
+                                previousAnyObjectTO,
+                                newAnyObjectTO,
+                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                FormLayoutInfoUtils.fetch(List.of(remediationTO.getAnyType())).
+                                    getRight().values().iterator().next(),
+                                pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, anyObjectEvent);
                     }
@@ -349,7 +349,7 @@ public class RemediationDirectoryPanel
         }
     }
 
-    private class RemediationUserWizardBuilder extends UserWizardBuilder {
+    private static class RemediationUserWizardBuilder extends UserWizardBuilder {
 
         private static final long serialVersionUID = 6840699724316612700L;
 
@@ -404,7 +404,7 @@ public class RemediationDirectoryPanel
         }
     }
 
-    private class RemediationGroupWizardBuilder extends GroupWizardBuilder {
+    private static class RemediationGroupWizardBuilder extends GroupWizardBuilder {
 
         private static final long serialVersionUID = -5233791906979150786L;
 
@@ -452,7 +452,7 @@ public class RemediationDirectoryPanel
         }
     }
 
-    private class RemediationAnyObjectWizardBuilder extends AnyObjectWizardBuilder {
+    private static class RemediationAnyObjectWizardBuilder extends AnyObjectWizardBuilder {
 
         private static final long serialVersionUID = 6993139499479015083L;
 

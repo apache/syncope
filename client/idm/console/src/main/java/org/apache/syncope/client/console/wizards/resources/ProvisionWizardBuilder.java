@@ -133,7 +133,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
     /**
      * AccountLink specification step.
      */
-    private final class ConnObjectLink extends WizardStep {
+    private static final class ConnObjectLink extends WizardStep {
 
         private static final long serialVersionUID = 2359955465172450478L;
 

@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -215,7 +214,7 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
         public Iterator<ResourceHistoryConfTO> iterator(final long first, final long count) {
             final List<ResourceHistoryConfTO> configurations = ResourceHistoryRestClient.list(entityKey);
 
-            Collections.sort(configurations, comparator);
+            configurations.sort(comparator);
             return configurations.iterator();
         }
 

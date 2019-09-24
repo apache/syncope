@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -247,7 +246,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
             List<ReportletWrapper> reportlets = getReportletWrappers(actual);
 
-            Collections.sort(reportlets, comparator);
+            reportlets.sort(comparator);
             return reportlets.subList((int) first, (int) (first + count)).iterator();
         }
 

@@ -382,7 +382,7 @@ public class DefaultNotificationManager implements NotificationManager {
             intAttrName = intAttrNameParser.parse(recipientAttrName, AnyTypeKind.USER);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified as recipient, ignoring", recipientAttrName, e);
-            return email;
+            return null;
         }
 
         if ("username".equals(intAttrName.getField())) {

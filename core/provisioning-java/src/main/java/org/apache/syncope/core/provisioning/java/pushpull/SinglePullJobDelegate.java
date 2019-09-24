@@ -164,7 +164,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             // execute filtered pull
             connector.filteredReconciliation(
                     provision.getObjectClass(),
-                    new AccountReconciliationFilterBuilder(connObjectKey, connObjectValue),
+                new AccountReconciliationFilterBuilder(connObjectKey, connObjectValue),
                     handler,
                     options);
 
@@ -190,7 +190,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
         }
     }
 
-    class AccountReconciliationFilterBuilder implements ReconFilterBuilder {
+    static class AccountReconciliationFilterBuilder implements ReconFilterBuilder {
 
         private final String key;
 

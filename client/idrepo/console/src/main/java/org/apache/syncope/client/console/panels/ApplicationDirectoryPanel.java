@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -230,7 +229,7 @@ public class ApplicationDirectoryPanel extends
         }
     }
 
-    protected class ApplicationDataProvider extends DirectoryDataProvider<ApplicationTO> {
+    protected static class ApplicationDataProvider extends DirectoryDataProvider<ApplicationTO> {
 
         private static final long serialVersionUID = 3124431855954382273L;
 
@@ -244,7 +243,7 @@ public class ApplicationDirectoryPanel extends
         @Override
         public Iterator<ApplicationTO> iterator(final long first, final long count) {
             List<ApplicationTO> result = ApplicationRestClient.list();
-            Collections.sort(result, comparator);
+            result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 

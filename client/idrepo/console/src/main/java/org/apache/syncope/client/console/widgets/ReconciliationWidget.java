@@ -401,7 +401,7 @@ public class ReconciliationWidget extends BaseWidget {
 
                         Component content;
                         if (missing.isEmpty()) {
-                            if (misaligned == null || misaligned.isEmpty()) {
+                            if (misaligned.isEmpty()) {
                                 content = new Label(componentId, StringUtils.EMPTY);
                             } else {
                                 Action<Any> action = new Action<>(new ActionLink<Any>() {
@@ -441,7 +441,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    protected final class AnysReconciliationProvider extends DirectoryDataProvider<Any> {
+    protected static final class AnysReconciliationProvider extends DirectoryDataProvider<Any> {
 
         private static final long serialVersionUID = -1500081449932597854L;
 
@@ -458,7 +458,7 @@ public class ReconciliationWidget extends BaseWidget {
 
         @Override
         public Iterator<Any> iterator(final long first, final long count) {
-            Collections.sort(anys.getAnys(), comparator);
+            anys.getAnys().sort(comparator);
             return anys.getAnys().subList((int) first, (int) first + (int) count).iterator();
         }
 

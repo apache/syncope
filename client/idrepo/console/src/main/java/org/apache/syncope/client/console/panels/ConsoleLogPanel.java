@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
@@ -64,7 +63,7 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
                     result.add(loggerTO);
                 }
             });
-            Collections.sort(result, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
+            result.sort((o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
 
             return result;
         }

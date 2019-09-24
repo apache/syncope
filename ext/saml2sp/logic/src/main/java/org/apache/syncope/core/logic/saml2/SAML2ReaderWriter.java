@@ -105,10 +105,8 @@ public class SAML2ReaderWriter {
         if (loader.getSignatureAlgorithm() != null) {
             SignatureAlgorithm loadedSignatureAlgorithm =
                     SignatureAlgorithm.valueOf(loader.getSignatureAlgorithm());
-            if (loadedSignatureAlgorithm != null) {
-                sigAlgo = loadedSignatureAlgorithm.getAlgorithm();
-                jceSigAlgo = JCEMapper.translateURItoJCEID(sigAlgo);
-            }
+            sigAlgo = loadedSignatureAlgorithm.getAlgorithm();
+            jceSigAlgo = JCEMapper.translateURItoJCEID(sigAlgo);
             if (jceSigAlgo == null) {
                 LOG.warn("Signature algorithm {} is not valid. Using default algorithm instead.",
                         loader.getSignatureAlgorithm());

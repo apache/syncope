@@ -137,7 +137,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
         String[] params = StringUtils.isBlank(location.getQuery()) ? null : location.getQuery().split("&");
         if (params != null && params.length > 0) {
             final String[] trustAllCerts = params[0].split("=");
-            if (trustAllCerts != null && trustAllCerts.length > 1
+            if (trustAllCerts.length > 1
                     && "trustAllCerts".equalsIgnoreCase(trustAllCerts[0])
                     && "true".equalsIgnoreCase(trustAllCerts[1])) {
 

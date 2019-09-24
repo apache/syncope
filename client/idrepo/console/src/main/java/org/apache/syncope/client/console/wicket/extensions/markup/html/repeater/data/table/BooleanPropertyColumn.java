@@ -28,6 +28,8 @@ import org.apache.wicket.model.IModel;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
+import java.util.Objects;
+
 /**
  * Format column's value as boolean.
  */
@@ -47,7 +49,7 @@ public class BooleanPropertyColumn<T> extends PropertyColumn<T, String> {
         Object obj = bwi.getPropertyValue(getPropertyExpression());
 
         item.add(new Label(componentId, StringUtils.EMPTY));
-        if (Boolean.valueOf(obj.toString())) {
+        if (Boolean.parseBoolean(Objects.requireNonNull(obj).toString())) {
             item.add(new AttributeModifier("class", "glyphicon glyphicon-ok"));
             item.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
         }

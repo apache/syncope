@@ -19,7 +19,8 @@
 package org.apache.syncope.client.console.commons;
 
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
-import java.util.Collections;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -93,14 +94,14 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     @Override
     public Iterator<A> iterator(final long first, final long count) {
-        List<A> result = List.of();
+        List<A> result = new ArrayList<>();
 
         try {
-            final int page = ((int) first / paginatorRows);
+            final int page = (int) first / paginatorRows;
 
             if (filtered) {
                 result = fiql == null
-                        ? List.of()
+                        ? new ArrayList<>()
                         : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
             } else {
                 result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
@@ -114,7 +115,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
-        Collections.sort(result, comparator);
+        result.sort(comparator);
         return result.iterator();
     }
 

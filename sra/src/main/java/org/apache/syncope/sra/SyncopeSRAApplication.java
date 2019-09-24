@@ -39,6 +39,8 @@ import org.springframework.security.web.server.util.matcher.PathPatternParserSer
 import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Flux;
 
+import java.util.Objects;
+
 @PropertySource("classpath:sra.properties")
 @PropertySource(value = "file:${conf.directory}/sra.properties", ignoreResourceNotFound = true)
 @EnableWebFluxSecurity
@@ -75,7 +77,7 @@ public class SyncopeSRAApplication implements EnvironmentAware {
     @Bean
     public MapReactiveUserDetailsService userDetailsService() {
         UserDetails user = User.builder().
-                username(env.getProperty("anonymousUser")).
+                username(Objects.requireNonNull(env.getProperty("anonymousUser"))).
                 password("{noop}" + env.getProperty("anonymousKey")).
                 roles(IdRepoEntitlement.ANONYMOUS).
                 build();
