@@ -110,8 +110,8 @@ public class MasterDomain {
         return new HikariDataSource(hikariConfig);
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterDataSource")
+    @Bean(name = "MasterDataSource")
+    @ConditionalOnMissingBean(name = "MasterDataSource")
     public JndiObjectFactoryBean masterDataSource() {
         JndiObjectFactoryBean masterDataSource = new JndiObjectFactoryBean();
         masterDataSource.setJndiName("java:comp/env/jdbc/syncopeMasterDataSource");
@@ -119,8 +119,8 @@ public class MasterDomain {
         return masterDataSource;
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterResourceDatabasePopulator")
+    @Bean(name = "MasterResourceDatabasePopulator")
+    @ConditionalOnMissingBean(name = "MasterResourceDatabasePopulator")
     public ResourceDatabasePopulator masterResourceDatabasePopulator() {
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
@@ -130,8 +130,8 @@ public class MasterDomain {
         return databasePopulator;
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterDataSourceInitializer")
+    @Bean(name = "MasterDataSourceInitializer")
+    @ConditionalOnMissingBean(name = "MasterDataSourceInitializer")
     public DataSourceInitializer masterDataSourceInitializer() {
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
         dataSourceInitializer.setDataSource((DataSource) Objects.requireNonNull(masterDataSource().getObject()));
@@ -140,9 +140,9 @@ public class MasterDomain {
         return dataSourceInitializer;
     }
 
-    @Bean
+    @Bean(name = "MasterEntityManagerFactory")
     @DependsOn("commonEMFConf")
-    @ConditionalOnMissingBean(name = "masterEntityManagerFactory")
+    @ConditionalOnMissingBean(name = "MasterEntityManagerFactory")
     public DomainEntityManagerFactoryBean masterEntityManagerFactory() {
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
@@ -158,20 +158,21 @@ public class MasterDomain {
 
         if (env.containsProperty("openjpaMetaDataFactory")) {
             masterEntityManagerFactory.setJpaPropertyMap(Map.of(
-                    "openjpa.MetaDataFactory",
-                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).replace("##orm##", orm)));
+                "openjpa.MetaDataFactory",
+                Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).replace("##orm##", orm)));
         }
 
         return masterEntityManagerFactory;
     }
 
-    @Bean
+    @Bean(name = {"MasterTransactionManager", "Master"})
+    @ConditionalOnMissingBean(name = "MasterTransactionManager")
     public PlatformTransactionManager transactionManager() {
         return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory().getObject()));
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterProperties")
+    @Bean(name = "MasterProperties")
+    @ConditionalOnMissingBean(name = "MasterProperties")
     public ResourceWithFallbackLoader masterProperties() {
         ResourceWithFallbackLoader masterProperties = new ResourceWithFallbackLoader();
         masterProperties.setPrimary("file:" + contentDirectory + "/domains/Master.properties");
@@ -179,28 +180,28 @@ public class MasterDomain {
         return masterProperties;
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterContentXML")
+    @Bean(name = "MasterContentXML")
+    @ConditionalOnMissingBean(name = "MasterContentXML")
     public InputStream masterContentXML() throws IOException {
         ResourceWithFallbackLoader masterContentXML =
-                ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
+            ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
         masterContentXML.setPrimary("file:" + contentDirectory + "/domains/MasterContent.xml");
         masterContentXML.setFallback("classpath:domains/MasterContent.xml");
         return masterContentXML.getResource().getInputStream();
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterKeymasterConfParamsJSON")
+    @Bean(name = "MasterKeymasterConfParamsJSON")
+    @ConditionalOnMissingBean(name = "MasterKeymasterConfParamsJSON")
     public InputStream masterKeymasterConfParamsJSON() throws IOException {
         ResourceWithFallbackLoader keymasterConfParamsJSON =
-                ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
+            ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
         keymasterConfParamsJSON.setPrimary("file:" + contentDirectory + "/domains/MasterKeymasterConfParams.json");
         keymasterConfParamsJSON.setFallback("classpath:domains/MasterKeymasterConfParams.json");
         return keymasterConfParamsJSON.getResource().getInputStream();
     }
 
-    @Bean
-    @ConditionalOnMissingBean(name = "masterDatabaseSchema")
+    @Bean(name = "MasterDatabaseSchema")
+    @ConditionalOnMissingBean(name = "MasterDatabaseSchema")
     public String masterDatabaseSchema() {
         return schema;
     }

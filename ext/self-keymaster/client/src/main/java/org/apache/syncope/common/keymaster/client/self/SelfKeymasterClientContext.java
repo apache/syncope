@@ -60,7 +60,7 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setInheritHeaders(true);
         restClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
         restClientFactoryBean.setProviders(
-                List.of(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
+            List.of(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
         return restClientFactoryBean;
     }
 
@@ -85,3 +85,4 @@ public class SelfKeymasterClientContext {
         return new SelfKeymasterDomainOps(selfKeymasterRESTClientFactoryBean());
     }
 }
+
