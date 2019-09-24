@@ -47,7 +47,7 @@ jobs:
       script: ./mvnw --quiet --show-version -T 4 enforcer:enforce
       name: "Verify Platform"
     - stage: initialize
-      script: ./mvnw -T 4 clean dependency:go-offline dependency:resolve-plugins --quiet -Denforcer.skip=true
+      script: ./mvnw -T 4 clean dependency:go-offline dependency:resolve-plugins --quiet -Denforcer.skip=true -U
       name: "Warm Up Dependencies"
       #######################################################
     - stage: build
