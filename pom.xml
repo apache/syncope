@@ -1816,6 +1816,16 @@ under the License.
 
   <pluginRepositories>
     <pluginRepository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
       <id>apache.snapshots</id>
       <url>http://repository.apache.org/snapshots</url>
       <releases>
@@ -1826,7 +1836,7 @@ under the License.
       </snapshots>
     </pluginRepository>
     <pluginRepository>
-      <id>sonatype</id>
+      <id>sonatype.snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
         <enabled>false</enabled>
