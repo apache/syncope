@@ -22,8 +22,8 @@ import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAut
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -32,8 +32,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 
-@SpringBootApplication
-@EnableAutoConfiguration(exclude = {
+@SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
@@ -48,6 +47,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return super.configure(builder);
     }
 
+    @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
     public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
         ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
@@ -55,6 +55,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return lookup;
     }
 
+    @ConditionalOnMissingBean(name = "mimeTypesLoader")
     @Bean
     public MIMETypesLoader mimeTypesLoader() {
         MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
