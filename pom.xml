@@ -467,7 +467,7 @@ under the License.
     
     <wicket.version>8.6.1</wicket.version>
     <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.10</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.11</wicket-bootstrap.version>
     <wicket-spring-boot.version>2.1.7</wicket-spring-boot.version>
     
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
@@ -2208,7 +2208,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.7.1</version>
+        <version>1.8.0</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
