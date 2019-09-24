@@ -1818,6 +1818,12 @@ under the License.
     <pluginRepository>
       <id>apache.snapshots</id>
       <url>http://repository.apache.org/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </pluginRepository>
     <pluginRepository>
       <id>sonatype</id>
