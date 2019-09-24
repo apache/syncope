@@ -45,7 +45,7 @@ jobs:
       script: mvn --quiet --show-version -T 4 enforcer:enforce
       name: "Verify Platform"
     - stage: initialize
-      script: mvn -T 4 clean dependency:resolve-plugins --quiet -Denforcer.skip=true
+      script: mvn -U -T 4 clean dependency:resolve-plugins --quiet -Denforcer.skip=true
       name: "Warm Up Dependencies"
       #######################################################
     - stage: build
