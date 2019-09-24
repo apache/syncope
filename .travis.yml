@@ -30,9 +30,9 @@ env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
 install: true
-notifications:
-  email:
-    - dev@syncope.apache.org
+# notifications:
+#   email:
+#     - dev@syncope.apache.org
 stages:
   - initialize
   - build
