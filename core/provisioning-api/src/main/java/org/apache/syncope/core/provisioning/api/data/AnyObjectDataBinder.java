@@ -31,5 +31,5 @@ public interface AnyObjectDataBinder {
 
     void create(AnyObject anyObject, AnyObjectTO anyObjectTO);
 
-    PropagationByResource update(AnyObject toBeUpdated, AnyObjectPatch anyObjectPatch);
+    PropagationByResource<String> update(AnyObject toBeUpdated, AnyObjectPatch anyObjectPatch);
 }

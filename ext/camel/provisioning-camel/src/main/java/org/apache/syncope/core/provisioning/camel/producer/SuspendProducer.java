@@ -25,7 +25,7 @@ import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class SuspendProducer extends AbstractProducer {
@@ -38,8 +38,8 @@ public class SuspendProducer extends AbstractProducer {
     @Override
     public void process(final Exchange exchange) throws Exception {
         if (getAnyTypeKind() == AnyTypeKind.USER) {
-            Pair<WorkflowResult<String>, Boolean> updated =
-                    (Pair<WorkflowResult<String>, Boolean>) exchange.getIn().getBody();
+            Pair<UserWorkflowResult<String>, Boolean> updated =
+                    (Pair<UserWorkflowResult<String>, Boolean>) exchange.getIn().getBody();
 
             // propagate suspension if and only if it is required by policy
             if (updated != null && updated.getValue()) {
@@ -47,9 +47,11 @@ public class SuspendProducer extends AbstractProducer {
                 userPatch.setKey(updated.getKey().getResult());
 
                 List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(
-                        new WorkflowResult<>(
+                        new UserWorkflowResult<>(
                                 Pair.of(userPatch, Boolean.FALSE),
-                                updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
+                                updated.getKey().getPropByRes(),
+                                updated.getKey().getPropByLinkedAccount(),
+                                updated.getKey().getPerformedTasks()));
                 getPropagationTaskExecutor().execute(taskInfos, false);
             }
         }

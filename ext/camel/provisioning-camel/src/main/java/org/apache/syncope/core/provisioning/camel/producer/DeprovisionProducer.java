@@ -60,7 +60,7 @@ public class DeprovisionProducer extends AbstractProducer {
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         if (null != getAnyTypeKind()) {
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             List<PropagationTaskInfo> taskInfos;
             PropagationReporter propagationReporter;
             switch (getAnyTypeKind()) {

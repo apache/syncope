@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -38,6 +37,8 @@ import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -55,18 +56,21 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -91,6 +95,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
+    private ApplicationDAO applicationDAO;
+
+    @Autowired
     private AccessTokenDAO accessTokenDAO;
 
     @Resource(name = "adminUser")
@@ -104,6 +111,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public UserTO returnUserTO(final UserTO userTO) {
         if (!confDAO.find("return.password.value", false)) {
             userTO.setPassword(null);
+            userTO.getLinkedAccounts().forEach(account -> account.setPassword(null));
         }
         return userTO;
     }
@@ -140,6 +148,61 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             scce.addException(invalidCiperAlgorithm);
 
             throw scce;
+        }
+    }
+
+    private void linkedAccount(
+            final User user,
+            final LinkedAccountTO accountTO,
+            final AnyUtils anyUtils,
+            final SyncopeClientException invalidValues) {
+
+        ExternalResource resource = resourceDAO.find(accountTO.getResource());
+        if (resource == null) {
+            LOG.debug("Ignoring invalid resource {}", accountTO.getResource());
+        } else {
+            LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
+            account.setOwner(user);
+            user.add(account);
+
+            account.setConnObjectName(accountTO.getConnObjectName());
+            account.setResource(resource);
+            account.setUsername(accountTO.getUsername());
+            if (StringUtils.isNotBlank(accountTO.getPassword())) {
+                account.setPassword(accountTO.getPassword(), CipherAlgorithm.AES);
+            }
+            account.setSuspended(accountTO.isSuspended());
+
+            accountTO.getPlainAttrs().stream().
+                    filter(attrTO -> !attrTO.getValues().isEmpty()).
+                    forEach(attrTO -> {
+                        PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                        if (schema != null) {
+                            LAPlainAttr attr = account.getPlainAttr(schema.getKey()).orElse(null);
+                            if (attr == null) {
+                                attr = entityFactory.newEntity(LAPlainAttr.class);
+                                attr.setSchema(schema);
+                                attr.setOwner(user);
+                                attr.setAccount(account);
+                            }
+                            fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+
+                            if (attr.getValuesAsStrings().isEmpty()) {
+                                attr.setOwner(null);
+                            } else {
+                                account.add(attr);
+                            }
+                        }
+                    });
+
+            accountTO.getPrivileges().forEach(key -> {
+                Privilege privilege = applicationDAO.findPrivilege(key);
+                if (privilege == null) {
+                    LOG.debug("Invalid privilege {}, ignoring", key);
+                } else {
+                    account.add(privilege);
+                }
+            });
         }
     }
 
@@ -188,65 +251,70 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
         user.setRealm(realm);
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
-        if (user.getRealm() != null) {
-            // relationships
-            userTO.getRelationships().forEach(relationshipTO -> {
-                AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
-                if (otherEnd == null) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
-                } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
-                    RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
-                    if (relationshipType == null) {
-                        LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
-                    } else {
-                        URelationship relationship = entityFactory.newEntity(URelationship.class);
-                        relationship.setType(relationshipType);
-                        relationship.setRightEnd(otherEnd);
-                        relationship.setLeftEnd(user);
-
-                        user.add(relationship);
-                    }
+        // relationships
+        userTO.getRelationships().forEach(relationshipTO -> {
+            AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
+            if (otherEnd == null) {
+                LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+            } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
+                if (relationshipType == null) {
+                    LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
                 } else {
-                    LOG.error("{} cannot be assigned to {}", otherEnd, user);
+                    URelationship relationship = entityFactory.newEntity(URelationship.class);
+                    relationship.setType(relationshipType);
+                    relationship.setRightEnd(otherEnd);
+                    relationship.setLeftEnd(user);
 
-                    SyncopeClientException unassignabled =
-                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                    scce.addException(unassignabled);
+                    user.add(relationship);
                 }
-            });
+            } else {
+                LOG.error("{} cannot be assigned to {}", otherEnd, user);
 
-            // memberships
-            userTO.getMemberships().forEach(membershipTO -> {
-                Group group = membershipTO.getGroupKey() == null
-                        ? groupDAO.findByName(membershipTO.getGroupName())
-                        : groupDAO.find(membershipTO.getGroupKey());
-                if (group == null) {
-                    LOG.debug("Ignoring invalid group "
-                            + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
-                } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
-                    UMembership membership = entityFactory.newEntity(UMembership.class);
-                    membership.setRightEnd(group);
-                    membership.setLeftEnd(user);
+                SyncopeClientException unassignabled =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
+                scce.addException(unassignabled);
+            }
+        });
 
-                    user.add(membership);
+        // memberships
+        userTO.getMemberships().forEach(membershipTO -> {
+            Group group = membershipTO.getGroupKey() == null
+                    ? groupDAO.findByName(membershipTO.getGroupName())
+                    : groupDAO.find(membershipTO.getGroupKey());
+            if (group == null) {
+                LOG.debug("Ignoring invalid group {}",
+                        membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
+            } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                UMembership membership = entityFactory.newEntity(UMembership.class);
+                membership.setRightEnd(group);
+                membership.setLeftEnd(user);
 
-                    // membership attributes
-                    fill(user, membership, membershipTO, anyUtils, scce);
-                } else {
-                    LOG.error("{} cannot be assigned to {}", group, user);
+                user.add(membership);
 
-                    SyncopeClientException unassignable =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignable.getElements().add("Cannot be assigned: " + group);
-                    scce.addException(unassignable);
-                }
-            });
+                // membership attributes
+                fill(user, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
+            } else {
+                LOG.error("{} cannot be assigned to {}", group, user);
+
+                SyncopeClientException unassignable =
+                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                unassignable.getElements().add("Cannot be assigned: " + group);
+                scce.addException(unassignable);
+            }
+        });
+
+        // linked accounts
+        SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+        userTO.getLinkedAccounts().forEach(accountTO
+                -> linkedAccount(user, accountTO, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
+        if (!invalidValues.isEmpty()) {
+            scce.addException(invalidValues);
         }
 
         // attributes and resources
-        fill(user, userTO, anyUtils, scce);
+        fill(user, userTO, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -255,22 +323,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     }
 
     private boolean isPasswordMapped(final ExternalResource resource) {
-        boolean result = false;
-
-        Optional<? extends Provision> provision = resource.getProvision(anyTypeDAO.findUser());
-        if (provision.isPresent() && provision.get().getMapping() != null) {
-            result = provision.get().getMapping().getItems().stream().anyMatch(item -> item.isPassword());
-        }
-
-        return result;
+        return resource.getProvision(anyTypeDAO.findUser()).
+                filter(provision -> provision.getMapping() != null).
+                map(provision -> provision.getMapping().getItems().stream().anyMatch(item -> item.isPassword())).
+                orElse(false);
     }
 
     @Override
-    public PropagationByResource update(final User toBeUpdated, final UserPatch userPatch) {
+    public Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> update(
+            final User toBeUpdated, final UserPatch userPatch) {
+
         // Re-merge any pending change from workflow tasks
         User user = userDAO.save(toBeUpdated);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -362,8 +429,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         propByRes.merge(fill(user, userPatch, anyUtils, scce));
 
         // relationships
-        userPatch.getRelationships().stream().
-                filter(patch -> patch.getRelationshipTO() != null).forEachOrdered((patch) -> {
+        userPatch.getRelationships().stream().filter(patch -> patch.getRelationshipTO() != null).forEach(patch -> {
             RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
             if (relationshipType == null) {
                 LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
@@ -419,9 +485,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
-        userPatch.getMemberships().stream().
-                filter(membPatch -> membPatch.getGroup() != null).forEachOrdered((membPatch) -> {
-            user.getMembership(membPatch.getGroup()).ifPresent(membership -> {
+        userPatch.getMemberships().stream().filter(patch -> patch.getGroup() != null).forEach(patch -> {
+            user.getMembership(patch.getGroup()).ifPresent(membership -> {
                 user.remove(membership);
                 membership.setLeftEnd(null);
                 user.getPlainAttrs(membership).forEach(attr -> {
@@ -432,7 +497,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     plainAttrDAO.delete(attr);
                 });
 
-                if (membPatch.getOperation() == PatchOperation.DELETE) {
+                if (patch.getOperation() == PatchOperation.DELETE) {
                     groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
                             filter(resource -> reasons.containsKey(resource)).
                             forEach(resource -> {
@@ -441,10 +506,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             });
                 }
             });
-            if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                Group group = groupDAO.find(membPatch.getGroup());
+            if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                Group group = groupDAO.find(patch.getGroup());
                 if (group == null) {
-                    LOG.debug("Ignoring invalid group {}", membPatch.getGroup());
+                    LOG.debug("Ignoring invalid group {}", patch.getGroup());
                 } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     UMembership newMembership = entityFactory.newEntity(UMembership.class);
                     newMembership.setRightEnd(group);
@@ -452,7 +517,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                     user.add(newMembership);
 
-                    membPatch.getPlainAttrs().forEach(attrTO -> {
+                    patch.getPlainAttrs().forEach(attrTO -> {
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
                             LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
@@ -469,10 +534,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                 attr.setSchema(schema);
                                 user.add(attr);
 
-                                AttrPatch patch = new AttrPatch.Builder().attrTO(attrTO).build();
                                 processAttrPatch(
-                                        user, patch, schema, attr, anyUtils,
-                                        resources, propByRes, invalidValues);
+                                        user,
+                                        new AttrPatch.Builder().attrTO(attrTO).build(),
+                                        schema,
+                                        attr,
+                                        anyUtils,
+                                        resources,
+                                        propByRes,
+                                        invalidValues);
                             }
                         }
                     });
@@ -490,9 +560,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         }
                         group.getResources().stream().
                                 filter(resource -> isPasswordMapped(resource)).
-                                forEachOrdered(resource -> {
-                                    userPatch.getPassword().getResources().add(resource.getKey());
-                                });
+                                forEach(resource -> userPatch.getPassword().getResources().add(resource.getKey()));
                     }
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, user);
@@ -505,6 +573,42 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         });
 
+        // linked accounts
+        userPatch.getLinkedAccounts().stream().filter(patch -> patch.getLinkedAccountTO() != null).forEach(patch -> {
+            user.getLinkedAccount(
+                    patch.getLinkedAccountTO().getResource(),
+                    patch.getLinkedAccountTO().getConnObjectName()).ifPresent(account -> {
+
+                user.getLinkedAccounts().remove(account);
+                account.setOwner(null);
+                account.getPlainAttrs().forEach(attr -> {
+                    account.remove(attr);
+                    attr.setOwner(null);
+                    attr.setAccount(null);
+                    plainAttrValueDAO.deleteAll(attr, anyUtilsFactory.getLinkedAccountInstance());
+                    plainAttrDAO.delete(attr);
+                });
+
+                if (patch.getOperation() == PatchOperation.DELETE) {
+                    propByLinkedAccount.add(
+                            ResourceOperation.DELETE,
+                            Pair.of(account.getResource().getKey(), account.getConnObjectName()));
+                }
+            });
+            if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                linkedAccount(
+                        user,
+                        patch.getLinkedAccountTO(),
+                        anyUtilsFactory.getLinkedAccountInstance(),
+                        invalidValues);
+            }
+        });
+        user.getLinkedAccounts().forEach(account -> {
+            propByLinkedAccount.add(
+                    ResourceOperation.CREATE,
+                    Pair.of(account.getResource().getKey(), account.getConnObjectName()));
+        });
+        
         // finalize resource management
         reasons.entrySet().stream().
                 filter(entry -> entry.getValue().isEmpty()).
@@ -568,7 +672,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // Re-merge any pending change from above
         userDAO.save(user);
-        return propByRes;
+        return Pair.of(propByRes, propByLinkedAccount);
     }
 
     @Transactional(readOnly = true)
@@ -629,20 +733,39 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // memberships
             userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> {
-                        return getMembershipTO(
-                                user.getPlainAttrs(membership),
-                                derAttrHandler.getValues(user, membership),
-                                virAttrHandler.getValues(user, membership),
-                                membership);
-                    }).collect(Collectors.toList()));
+                    user.getMemberships().stream().map(membership -> getMembershipTO(
+                    user.getPlainAttrs(membership),
+                    derAttrHandler.getValues(user, membership),
+                    virAttrHandler.getValues(user, membership),
+                    membership)).collect(Collectors.toList()));
 
             // dynamic memberships
             userTO.getDynMemberships().addAll(
-                    userDAO.findDynGroups(user.getKey()).stream().map(group -> {
-                        return new MembershipTO.Builder().
-                                group(group.getKey(), group.getName()).
+                    userDAO.findDynGroups(user.getKey()).stream().map(group -> new MembershipTO.Builder().
+                    group(group.getKey(), group.getName()).
+                    build()).collect(Collectors.toList()));
+
+            // linked accounts
+            userTO.getLinkedAccounts().addAll(
+                    user.getLinkedAccounts().stream().map(account -> {
+                        LinkedAccountTO accountTO = new LinkedAccountTO.Builder().
+                                resource(account.getResource().getKey()).
+                                connObjectName(account.getConnObjectName()).
+                                username(account.getUsername()).
+                                password(user.getPassword()).
+                                suspended(BooleanUtils.isTrue(account.isSuspended())).
                                 build();
+
+                        account.getPlainAttrs().forEach(plainAttr -> {
+                            accountTO.getPlainAttrs().add(new AttrTO.Builder().
+                                    schema(plainAttr.getSchema().getKey()).
+                                    values(plainAttr.getValuesAsStrings()).build());
+                        });
+
+                        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
+                                map(Entity::getKey).collect(Collectors.toList()));
+
+                        return accountTO;
                     }).collect(Collectors.toList()));
         }
 
@@ -654,5 +777,4 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public UserTO getUserTO(final String key) {
         return getUserTO(userDAO.authFind(key), true);
     }
-
 }

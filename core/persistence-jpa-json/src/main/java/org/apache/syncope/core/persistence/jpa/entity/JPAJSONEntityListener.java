@@ -20,33 +20,39 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.JSONAny;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 
 public abstract class JPAJSONEntityListener<A extends Any<?>> {
 
     protected abstract List<? extends JSONPlainAttr<A>> getValues(String plainAttrsJSON);
 
     @SuppressWarnings("unchecked")
-    protected void json2list(final JSONAny<A> entity, final boolean clearFirst) {
+    protected void json2list(final JSONAttributable<A> entity, final boolean clearFirst) {
         if (clearFirst) {
             entity.getPlainAttrList().clear();
         }
         if (entity.getPlainAttrsJSON() != null) {
-            getValues(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).
-                    map(attr -> {
-                        attr.setOwner((A) entity);
-                        attr.getValues().forEach(value -> value.setAttr(attr));
-                        if (attr.getUniqueValue() != null) {
-                            attr.getUniqueValue().setAttr(attr);
-                        }
-                        return attr;
-                    }).forEach(attr -> entity.add(attr));
+            getValues(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).map(attr -> {
+                if (entity instanceof Any) {
+                    attr.setOwner((A) entity);
+                } else if (entity instanceof LinkedAccount) {
+                    attr.setOwner((A) ((LinkedAccount) entity).getOwner());
+                    ((LAPlainAttr) attr).setAccount((LinkedAccount) entity);
+                }
+                attr.getValues().forEach(value -> value.setAttr(attr));
+                if (attr.getUniqueValue() != null) {
+                    attr.getUniqueValue().setAttr(attr);
+                }
+                return attr;
+            }).forEach(attr -> entity.add(attr));
         }
     }
 
-    protected void list2json(final JSONAny<A> entity) {
+    protected void list2json(final JSONAttributable<A> entity) {
         entity.setPlainAttrsJSON(entity.getPlainAttrList().isEmpty()
                 ? "[{}]"
                 : POJOHelper.serialize(entity.getPlainAttrList()));

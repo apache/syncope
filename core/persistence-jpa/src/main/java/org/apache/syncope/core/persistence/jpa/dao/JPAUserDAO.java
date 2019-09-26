@@ -34,7 +34,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -46,7 +45,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -55,15 +53,18 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
@@ -293,7 +294,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 }
 
                 for (Implementation impl : policy.getRules()) {
-                    ImplementationManager.buildPasswordRule(impl).ifPresent(rule -> rule.enforce(user));
+                    ImplementationManager.buildPasswordRule(impl).ifPresent(rule -> {
+                        rule.enforce(user);
+
+                        user.getLinkedAccounts().stream().
+                                filter(account -> account.getPassword() != null).
+                                forEach(account -> rule.enforce(account));
+                    });
                 }
 
                 boolean matching = false;
@@ -353,15 +360,25 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
 
             if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
-                throw new AccountPolicyException("Character(s) not allowed");
+                throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
             }
+            user.getLinkedAccounts().stream().
+                    filter(account -> account.getUsername() != null).
+                    forEach(account -> {
+                        if (!USERNAME_PATTERN.matcher(account.getUsername()).matches()) {
+                            throw new AccountPolicyException("Character(s) not allowed: " + account.getUsername());
+                        }
+                    });
 
             for (AccountPolicy policy : getAccountPolicies(user)) {
                 for (Implementation impl : policy.getRules()) {
-                    Optional<AccountRule> rule = ImplementationManager.buildAccountRule(impl);
-                    if (rule.isPresent()) {
-                        rule.get().enforce(user);
-                    }
+                    ImplementationManager.buildAccountRule(impl).ifPresent(rule -> {
+                        rule.enforce(user);
+
+                        user.getLinkedAccounts().stream().
+                                filter(account -> account.getUsername() != null).
+                                forEach(account -> rule.enforce(account));
+                    });
                 }
 
                 suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
@@ -375,7 +392,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             throw new InvalidEntityException(User.class, EntityViolationType.InvalidUsername, e.getMessage());
         }
 
-        return ImmutablePair.of(suspend, propagateSuspension);
+        return Pair.of(suspend, propagateSuspension);
     }
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
@@ -524,5 +541,47 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findAllResources(authFind(key)).stream().map(Entity::getKey).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<LinkedAccount> findLinkedAccounts(final String userKey) {
+        TypedQuery<LinkedAccount> query = entityManager().createQuery(
+                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
+                + "WHERE e.owner.id=:userKey", LinkedAccount.class);
+        query.setParameter("userKey", userKey);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<LinkedAccount> findLinkedAccountsByPrivilege(final Privilege privilege) {
+        TypedQuery<LinkedAccount> query = entityManager().createQuery(
+                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
+                + "WHERE :privilege MEMBER OF e.privileges", LinkedAccount.class);
+        query.setParameter("privilege", privilege);
+        return query.getResultList();
+    }
+
+    @Override
+    public Optional<LinkedAccount> findLinkedAccountByConnObjectName(final String connObjectName) {
+        TypedQuery<LinkedAccount> query = entityManager().createQuery(
+                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
+                + "WHERE e.connObjectName=:connObjectName", LinkedAccount.class);
+        query.setParameter("connObjectName", connObjectName);
+
+        List<LinkedAccount> result = query.getResultList();
+        return result.isEmpty()
+                ? Optional.empty()
+                : Optional.of(result.get(0));
+    }
+
+    @Override
+    public List<LinkedAccount> findLinkedAccountsByResource(final ExternalResource resource) {
+        TypedQuery<LinkedAccount> query = entityManager().createQuery(
+                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
+                + "WHERE e.resource=:resource", LinkedAccount.class);
+        query.setParameter("resource", resource);
+
+        return query.getResultList();
     }
 }

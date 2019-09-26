@@ -28,17 +28,25 @@ public class WorkflowResult<T> {
 
     private T result;
 
-    private PropagationByResource propByRes;
+    private PropagationByResource<String> propByRes;
 
     private final Set<String> performedTasks = new HashSet<>();
 
-    public WorkflowResult(final T result, final PropagationByResource propByRes, final String performedTask) {
+    public WorkflowResult(
+            final T result,
+            final PropagationByResource<String> propByRes,
+            final String performedTask) {
+
         this.result = result;
         this.propByRes = propByRes;
         this.performedTasks.add(performedTask);
     }
 
-    public WorkflowResult(final T result, final PropagationByResource propByRes, final Set<String> performedTasks) {
+    public WorkflowResult(
+            final T result,
+            final PropagationByResource<String> propByRes,
+            final Set<String> performedTasks) {
+
         this.result = result;
         this.propByRes = propByRes;
         this.performedTasks.addAll(performedTasks);
@@ -56,12 +64,8 @@ public class WorkflowResult<T> {
         return performedTasks;
     }
 
-    public PropagationByResource getPropByRes() {
+    public PropagationByResource<String> getPropByRes() {
         return propByRes;
-    }
-
-    public void setPropByRes(final PropagationByResource propByRes) {
-        this.propByRes = propByRes;
     }
 
     @Override

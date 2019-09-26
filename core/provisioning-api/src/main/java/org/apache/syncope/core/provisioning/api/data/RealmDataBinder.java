@@ -26,8 +26,7 @@ public interface RealmDataBinder {
 
     Realm create(Realm parent, RealmTO realmTO);
 
-    PropagationByResource update(Realm realm, RealmTO realmTO);
+    PropagationByResource<String> update(Realm realm, RealmTO realmTO);
 
     RealmTO getRealmTO(Realm realm, boolean admin);
-
 }

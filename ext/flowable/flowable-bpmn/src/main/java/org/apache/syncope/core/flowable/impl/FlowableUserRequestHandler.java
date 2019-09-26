@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -629,7 +629,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
-    public WorkflowResult<UserPatch> submitForm(final UserRequestForm form) {
+    @SuppressWarnings("unchecked")
+    public UserWorkflowResult<UserPatch> submitForm(final UserRequestForm form) {
         Pair<Task, TaskFormData> parsed = parseTask(form.getTaskId());
 
         String authUser = AuthContextUtils.getUsername();
@@ -638,74 +639,79 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     + parsed.getLeft().getAssignee() + " but submitted by " + authUser));
         }
 
-        String procInstId = parsed.getLeft().getProcessInstanceId();
+        String procInstID = parsed.getLeft().getProcessInstanceId();
 
-        User user = userDAO.find(getUserKey(procInstId));
+        User user = userDAO.find(getUserKey(procInstID));
         if (user == null) {
-            throw new NotFoundException("User with key " + getUserKey(procInstId));
+            throw new NotFoundException("User with key " + getUserKey(procInstID));
         }
 
-        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstId, user);
+        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID, user);
 
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.TASK, "submit");
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.FORM_SUBMITTER, authUser);
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.USER, lazyLoad(user));
+        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.TASK, "submit");
+        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.FORM_SUBMITTER, authUser);
+        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.USER, lazyLoad(user));
         try {
             engine.getFormService().submitTaskFormData(form.getTaskId(), getPropertiesForSubmit(form));
         } catch (FlowableException e) {
             FlowableRuntimeUtils.throwException(e, "While submitting form for task " + form.getTaskId());
         }
-        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstId, user);
+        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID, user);
         postTasks.removeAll(preTasks);
         postTasks.add(form.getTaskId());
-        if (procInstId.equals(FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey()))) {
-            FlowableRuntimeUtils.updateStatus(engine, procInstId, user);
+        if (procInstID.equals(FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey()))) {
+            FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         }
 
         user = userDAO.save(user);
 
         UserPatch userPatch = null;
         String clearPassword = null;
-        PropagationByResource propByRes = null;
+        PropagationByResource<String> propByRes = null;
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = null;
 
         ProcessInstance afterSubmitPI = engine.getRuntimeService().
-                createProcessInstanceQuery().processInstanceId(procInstId).singleResult();
+                createProcessInstanceQuery().processInstanceId(procInstID).singleResult();
         if (afterSubmitPI != null) {
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.TASK);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.FORM_SUBMITTER);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER_TO);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.FORM_SUBMITTER);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_TO);
 
             // see if there is any propagation to be done
             propByRes = engine.getRuntimeService().
-                    getVariable(procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+                    getVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+            propByLinkedAccount = engine.getRuntimeService().getVariable(
+                    procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
             // fetch - if available - the encrypted password
             String encryptedPwd = engine.getRuntimeService().
-                    getVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD);
+                    getVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD);
             if (StringUtils.isNotBlank(encryptedPwd)) {
                 clearPassword = FlowableRuntimeUtils.decrypt(encryptedPwd);
             }
 
             Boolean enabled = engine.getRuntimeService().
-                    getVariable(procInstId, FlowableRuntimeUtils.ENABLED, Boolean.class);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.ENABLED);
+                    getVariable(procInstID, FlowableRuntimeUtils.ENABLED, Boolean.class);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.ENABLED);
 
             // supports approval chains
             FlowableRuntimeUtils.saveForFormSubmit(
                     engine,
-                    procInstId,
+                    procInstID,
                     user,
                     dataBinder.getUserTO(user, true),
                     clearPassword,
                     enabled,
-                    propByRes);
+                    propByRes,
+                    propByLinkedAccount);
 
             userPatch = engine.getRuntimeService().
-                    getVariable(procInstId, FlowableRuntimeUtils.USER_PATCH, UserPatch.class);
-            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER_PATCH);
+                    getVariable(procInstID, FlowableRuntimeUtils.USER_PATCH, UserPatch.class);
+            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_PATCH);
         }
         if (userPatch == null) {
             userPatch = new UserPatch();
@@ -715,8 +721,13 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             if (propByRes != null) {
                 userPatch.getPassword().getResources().addAll(propByRes.get(ResourceOperation.CREATE));
             }
+            if (propByLinkedAccount != null) {
+                for (Pair<String, String> account : propByLinkedAccount.get(ResourceOperation.CREATE)) {
+                    userPatch.getPassword().getResources().add(account.getLeft());
+                }
+            }
         }
 
-        return new WorkflowResult<>(userPatch, propByRes, postTasks);
+        return new UserWorkflowResult<>(userPatch, propByRes, propByLinkedAccount, postTasks);
     }
 }

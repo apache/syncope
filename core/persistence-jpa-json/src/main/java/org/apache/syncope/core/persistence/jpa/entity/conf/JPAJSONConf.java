@@ -28,14 +28,14 @@ import javax.persistence.Transient;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.JSONAny;
-import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAnyCheck;
+import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
+import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
 
 @Entity
 @Table(name = JPAConf.TABLE)
 @EntityListeners({ JPAJSONConfListener.class })
-@JPAJSONAnyCheck
-public class JPAJSONConf extends JPAConf implements JSONAny<Conf>, Conf {
+@JPAJSONAttributableCheck
+public class JPAJSONConf extends JPAConf implements JSONAttributable<Conf>, Conf {
 
     private static final long serialVersionUID = -8543654943709531885L;
 

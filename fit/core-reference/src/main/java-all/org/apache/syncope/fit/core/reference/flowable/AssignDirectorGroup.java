@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
@@ -53,11 +54,13 @@ public class AssignDirectorGroup extends FlowableServiceTask {
             userPatch.getMemberships().add(new MembershipPatch.Builder().
                     group("ebf97068-aa4b-4a85-9f01-680e8c4cf227").build());
 
-            PropagationByResource propByRes = dataBinder.update(user, userPatch);
+            Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
+                    dataBinder.update(user, userPatch);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
         } else {
             LOG.info("Second level was not approved, not assigning the director group to " + user.getUsername());
         }

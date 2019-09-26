@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
@@ -49,14 +50,15 @@ public class CreateProducer extends AbstractProducer {
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
             if (actual instanceof UserTO) {
-                WorkflowResult<Pair<String, Boolean>> created =
-                        (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
+                UserWorkflowResult<Pair<String, Boolean>> created =
+                        (UserWorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
 
                 List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserCreateTasks(
                         created.getResult().getKey(),
                         ((UserTO) actual).getPassword(),
                         created.getResult().getValue(),
                         created.getPropByRes(),
+                        created.getPropByLinkedAccount(),
                         ((UserTO) actual).getVirAttrs(),
                         excludedResources);
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);

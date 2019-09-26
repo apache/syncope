@@ -32,6 +32,10 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -48,6 +52,10 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGroup;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLAPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttrUniqueValue;
@@ -71,6 +79,9 @@ public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements I
         if (reference.equals(User.class)) {
             result = (E) new JPAJSONUser();
             ((JPAJSONUser) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
+        } else if (reference.equals(LinkedAccount.class)) {
+            result = (E) new JPAJSONLinkedAccount();
+            ((JPAJSONLinkedAccount) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
         } else if (reference.equals(Group.class)) {
             result = (E) new JPAJSONGroup();
             ((JPAJSONGroup) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
@@ -104,6 +115,12 @@ public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements I
             result = (E) new JPAJSONUPlainAttrValue();
         } else if (reference.equals(UPlainAttrUniqueValue.class)) {
             result = (E) new JPAJSONUPlainAttrUniqueValue();
+        } else if (reference.equals(LAPlainAttr.class)) {
+            result = (E) new JPAJSONLAPlainAttr();
+        } else if (reference.equals(LAPlainAttrValue.class)) {
+            result = (E) new JPAJSONLAPlainAttrValue();
+        } else if (reference.equals(LAPlainAttrUniqueValue.class)) {
+            result = (E) new JPAJSONLAPlainAttrUniqueValue();
         } else {
             result = super.newEntity(reference);
         }

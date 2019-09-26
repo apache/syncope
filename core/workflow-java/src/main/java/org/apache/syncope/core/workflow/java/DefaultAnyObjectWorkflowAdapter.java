@@ -36,7 +36,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
         dataBinder.create(anyObject, anyObjectTO);
         anyObject = anyObjectDAO.save(anyObject);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
 
         return new WorkflowResult<>(anyObject.getKey(), propByRes, "create");
@@ -44,7 +44,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
 
     @Override
     protected WorkflowResult<AnyObjectPatch> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
-        PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
+        PropagationByResource<String> propByRes = dataBinder.update(anyObject, anyObjectPatch);
         return new WorkflowResult<>(anyObjectPatch, propByRes, "update");
     }
 

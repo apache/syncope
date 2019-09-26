@@ -141,8 +141,16 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public class JPAEntityFactory implements EntityFactory {
@@ -202,6 +210,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAMembership();
         } else if (reference.equals(UMembership.class)) {
             result = (E) new JPAUMembership();
+        } else if (reference.equals(LinkedAccount.class)) {
+            result = (E) new JPALinkedAccount();
         } else if (reference.equals(Conf.class)) {
             result = (E) new JPAConf();
         } else if (reference.equals(AnyAbout.class)) {
@@ -238,6 +248,12 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAUPlainAttrValue();
         } else if (reference.equals(UPlainAttrUniqueValue.class)) {
             result = (E) new JPAUPlainAttrUniqueValue();
+        } else if (reference.equals(LAPlainAttr.class)) {
+            result = (E) new JPALAPlainAttr();
+        } else if (reference.equals(LAPlainAttrValue.class)) {
+            result = (E) new JPALAPlainAttrValue();
+        } else if (reference.equals(LAPlainAttrUniqueValue.class)) {
+            result = (E) new JPALAPlainAttrUniqueValue();
         } else if (reference.equals(DerSchema.class)) {
             result = (E) new JPADerSchema();
         } else if (reference.equals(VirSchema.class)) {

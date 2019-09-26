@@ -119,7 +119,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         Realm realm = realmDAO.save(binder.create(parent, realmTO));
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false);
@@ -140,7 +140,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw new NotFoundException(realmTO.getFullPath());
         }
 
-        PropagationByResource propByRes = binder.update(realm, realmTO);
+        PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
@@ -182,7 +182,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw containedAnys;
         }
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false);

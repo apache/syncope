@@ -472,7 +472,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        PropagationByResource propByRes = new PropagationByResource();
+                        PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
                         taskExecutor.execute(propagationManager.getDeleteTasks(
                                 provision.getAnyType().getKind(),

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -114,7 +113,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
-        return ImmutablePair.of(any, actions);
+        return Pair.of(any, actions);
     }
 
     protected Pair<P, List<LogicActions>> beforeUpdate(final P input, final String realmPath) {
@@ -134,7 +133,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         LOG.debug("Input: {}\nOutput: {}\n", input, mod);
 
-        return ImmutablePair.of(mod, actions);
+        return Pair.of(mod, actions);
     }
 
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
@@ -154,7 +153,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
-        return ImmutablePair.of(any, actions);
+        return Pair.of(any, actions);
     }
 
     protected ProvisioningResult<TO> afterCreate(

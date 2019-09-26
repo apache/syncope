@@ -235,7 +235,7 @@ public class DefaultRealmPullResultHandler
         try {
             Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm(), realmTO));
 
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
             if (unmatchingRule == UnmatchingRule.ASSIGN) {
                 List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
@@ -320,7 +320,7 @@ public class DefaultRealmPullResultHandler
                             }
                         }
 
-                        PropagationByResource propByRes = binder.update(realm, before);
+                        PropagationByResource<String> propByRes = binder.update(realm, before);
                         realm = realmDAO.save(realm);
                         RealmTO updated = binder.getRealmTO(realm, true);
 
@@ -412,7 +412,7 @@ public class DefaultRealmPullResultHandler
                             }
                         }
 
-                        PropagationByResource propByRes = new PropagationByResource();
+                        PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
                         taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null), false);
 
@@ -606,7 +606,7 @@ public class DefaultRealmPullResultHandler
                             throw containedAnys;
                         }
 
-                        PropagationByResource propByRes = new PropagationByResource();
+                        PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
                         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
                         taskExecutor.execute(taskInfos, false);

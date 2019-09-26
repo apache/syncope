@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -237,7 +236,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return ImmutablePair.of(user, authenticated);
+        return Pair.of(user, authenticated);
     }
 
     protected boolean authenticate(final User user, final String password) {

@@ -20,8 +20,8 @@ package org.apache.syncope.core.workflow.api;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 
 /**
  * Interface for calling underlying workflow implementations.
@@ -35,7 +35,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Pair<String, Boolean>> create(UserTO userTO, boolean storePassword);
+    UserWorkflowResult<Pair<String, Boolean>> create(UserTO userTO, boolean storePassword);
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -46,7 +46,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Pair<String, Boolean>> create(
+    UserWorkflowResult<Pair<String, Boolean>> create(
             UserTO userTO, boolean disablePwdPolicyCheck, Boolean enabled, boolean storePassword);
 
     /**
@@ -56,7 +56,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param token to be verified for activation
      * @return user just updated
      */
-    WorkflowResult<String> activate(String userKey, String token);
+    UserWorkflowResult<String> activate(String userKey, String token);
 
     /**
      * Update an user.
@@ -64,7 +64,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userPatch modification set to be performed
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Pair<UserPatch, Boolean>> update(UserPatch userPatch);
+    UserWorkflowResult<Pair<UserPatch, Boolean>> update(UserPatch userPatch);
 
     /**
      * Suspend an user.
@@ -72,7 +72,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param key to be suspended
      * @return user just suspended
      */
-    WorkflowResult<String> suspend(String key);
+    UserWorkflowResult<String> suspend(String key);
 
     /**
      * Suspend an user (used by internal authentication process)
@@ -80,7 +80,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param key to be suspended
      * @return user just suspended and information whether to propagate suspension
      */
-    Pair<WorkflowResult<String>, Boolean> internalSuspend(String key);
+    Pair<UserWorkflowResult<String>, Boolean> internalSuspend(String key);
 
     /**
      * Reactivate an user.
@@ -88,7 +88,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userKey user to be reactivated
      * @return user just reactivated
      */
-    WorkflowResult<String> reactivate(String userKey);
+    UserWorkflowResult<String> reactivate(String userKey);
 
     /**
      * Request password reset for an user.
@@ -105,7 +105,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param password new password value
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(String userKey, String token, String password);
+    UserWorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(String userKey, String token, String password);
 
     /**
      * Delete an user.

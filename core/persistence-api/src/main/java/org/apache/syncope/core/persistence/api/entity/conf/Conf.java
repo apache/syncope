@@ -18,16 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.conf;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 public interface Conf extends Any<CPlainAttr>, ProvidedKeyEntity {
-
-    @Override
-    boolean add(CPlainAttr attr);
-
-    @Override
-    List<? extends CPlainAttr> getPlainAttrs();
-
 }

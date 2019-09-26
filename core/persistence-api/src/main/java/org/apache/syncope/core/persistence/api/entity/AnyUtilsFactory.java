@@ -25,4 +25,6 @@ public interface AnyUtilsFactory {
     AnyUtils getInstance(AnyTypeKind anyTypeKind);
 
     AnyUtils getInstance(Any<?> any);
+
+    AnyUtils getLinkedAccountInstance();
 }

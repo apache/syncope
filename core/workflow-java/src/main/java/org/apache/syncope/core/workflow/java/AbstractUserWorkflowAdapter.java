@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
@@ -54,15 +53,15 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
+    public UserWorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, null, storePassword);
     }
 
-    protected abstract WorkflowResult<Pair<String, Boolean>> doCreate(
+    protected abstract UserWorkflowResult<Pair<String, Boolean>> doCreate(
             UserTO userTO, boolean disablePwdPolicyCheck, Boolean enabled, boolean storePassword);
 
     @Override
-    public WorkflowResult<Pair<String, Boolean>> create(
+    public UserWorkflowResult<Pair<String, Boolean>> create(
             final UserTO userTO,
             final boolean disablePwdPolicyCheck,
             final Boolean enabled,
@@ -71,18 +70,18 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doCreate(userTO, disablePwdPolicyCheck, enabled, storePassword);
     }
 
-    protected abstract WorkflowResult<String> doActivate(User user, String token);
+    protected abstract UserWorkflowResult<String> doActivate(User user, String token);
 
     @Override
-    public WorkflowResult<String> activate(final String key, final String token) {
+    public UserWorkflowResult<String> activate(final String key, final String token) {
         return doActivate(userDAO.authFind(key), token);
     }
 
-    protected abstract WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(User user, UserPatch userPatch);
+    protected abstract UserWorkflowResult<Pair<UserPatch, Boolean>> doUpdate(User user, UserPatch userPatch);
 
     @Override
-    public WorkflowResult<Pair<UserPatch, Boolean>> update(final UserPatch userPatch) {
-        WorkflowResult<Pair<UserPatch, Boolean>> result = doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
+    public UserWorkflowResult<Pair<UserPatch, Boolean>> update(final UserPatch userPatch) {
+        UserWorkflowResult<Pair<UserPatch, Boolean>> result = doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
 
         // re-read to ensure that requester's administration rights are still valid
         userDAO.authFind(userPatch.getKey());
@@ -90,10 +89,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return result;
     }
 
-    protected abstract WorkflowResult<String> doSuspend(User user);
+    protected abstract UserWorkflowResult<String> doSuspend(User user);
 
     @Override
-    public WorkflowResult<String> suspend(final String key) {
+    public UserWorkflowResult<String> suspend(final String key) {
         User user = userDAO.authFind(key);
 
         // set suspended flag
@@ -103,10 +102,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public Pair<WorkflowResult<String>, Boolean> internalSuspend(final String key) {
+    public Pair<UserWorkflowResult<String>, Boolean> internalSuspend(final String key) {
         User user = userDAO.authFind(key);
 
-        Pair<WorkflowResult<String>, Boolean> result = null;
+        Pair<UserWorkflowResult<String>, Boolean> result = null;
 
         Pair<Boolean, Boolean> enforce = userDAO.enforcePolicies(user);
         if (enforce.getKey()) {
@@ -118,16 +117,16 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
             // set suspended flag
             user.setSuspended(Boolean.TRUE);
 
-            result = ImmutablePair.of(doSuspend(user), enforce.getValue());
+            result = Pair.of(doSuspend(user), enforce.getValue());
         }
 
         return result;
     }
 
-    protected abstract WorkflowResult<String> doReactivate(User user);
+    protected abstract UserWorkflowResult<String> doReactivate(User user);
 
     @Override
-    public WorkflowResult<String> reactivate(final String key) {
+    public UserWorkflowResult<String> reactivate(final String key) {
         User user = userDAO.authFind(key);
 
         // reset failed logins
@@ -146,11 +145,11 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         doRequestPasswordReset(userDAO.authFind(key));
     }
 
-    protected abstract WorkflowResult<Pair<UserPatch, Boolean>> doConfirmPasswordReset(
+    protected abstract UserWorkflowResult<Pair<UserPatch, Boolean>> doConfirmPasswordReset(
             User user, String token, String password);
 
     @Override
-    public WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(
+    public UserWorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(
             final String key, final String token, final String password) {
 
         return doConfirmPasswordReset(userDAO.authFind(key), token, password);

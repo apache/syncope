@@ -18,17 +18,30 @@
  */
 package org.apache.syncope.core.spring.policy;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @PasswordRuleConfClass(DefaultPasswordRuleConf.class)
 public class DefaultPasswordRule implements PasswordRule {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultPasswordRule.class);
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     private DefaultPasswordRuleConf conf;
 
@@ -47,178 +60,174 @@ public class DefaultPasswordRule implements PasswordRule {
         }
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public void enforce(final User user) {
-        this.conf.getSchemasNotPermitted().stream().
-                map(schema -> user.getPlainAttr(schema)).
-                filter(Optional::isPresent).
-                map(attr -> attr.get().getValuesAsStrings()).
-                filter(values -> (values != null && !values.isEmpty())).
-                forEachOrdered(values -> this.conf.getWordsNotPermitted().add(values.get(0)));
+    protected void enforce(final String clear, final String username, final Set<String> wordsNotPermitted) {
+        // check length
+        if (conf.getMinLength() > 0 && conf.getMinLength() > clear.length()) {
+            throw new PasswordPolicyException("Password too short");
+        }
 
-        String clearPassword = user.getClearPassword();
-        String password = user.getPassword();
+        if (conf.getMaxLength() > 0 && conf.getMaxLength() < clear.length()) {
+            throw new PasswordPolicyException("Password too long");
+        }
 
-        if (password != null && clearPassword != null) {
-            // check length
-            if (this.conf.getMinLength() > 0 && this.conf.getMinLength() > clearPassword.length()) {
-                throw new PasswordPolicyException("Password too short");
-            }
+        // check words not permitted
+        if (!conf.isUsernameAllowed() && username != null && username.equals(clear)) {
+            throw new PasswordPolicyException("Password mustn't be equal to username");
+        }
 
-            if (this.conf.getMaxLength() > 0 && this.conf.getMaxLength() < clearPassword.length()) {
-                throw new PasswordPolicyException("Password too long");
-            }
+        wordsNotPermitted.stream().
+                filter(word -> StringUtils.containsIgnoreCase(clear, word)).
+                forEach(item -> {
+                    throw new PasswordPolicyException("Used word(s) not permitted");
+                });
 
-            // check words not permitted
-            this.conf.getWordsNotPermitted().stream().
-                    filter(word -> StringUtils.containsIgnoreCase(clearPassword, word)).
-                    forEachOrdered(item -> {
-                        throw new PasswordPolicyException("Used word(s) not permitted");
-                    });
+        // check digits occurrence
+        if (conf.isDigitRequired() && !PolicyPattern.DIGIT.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must contain digit(s)");
+        }
 
-            // check digits occurrence
-            if (this.conf.isDigitRequired() && !checkDigit(clearPassword)) {
-                throw new PasswordPolicyException("Password must contain digit(s)");
-            }
+        // check lowercase alphabetic characters occurrence
+        if (conf.isLowercaseRequired() && !PolicyPattern.ALPHA_LOWERCASE.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must contain lowercase alphabetic character(s)");
+        }
 
-            // check lowercase alphabetic characters occurrence
-            if (this.conf.isLowercaseRequired() && !checkLowercase(clearPassword)) {
-                throw new PasswordPolicyException("Password must contain lowercase alphabetic character(s)");
-            }
+        // check uppercase alphabetic characters occurrence
+        if (conf.isUppercaseRequired() && !PolicyPattern.ALPHA_UPPERCASE.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must contain uppercase alphabetic character(s)");
+        }
 
-            // check uppercase alphabetic characters occurrence
-            if (this.conf.isUppercaseRequired() && !checkUppercase(clearPassword)) {
-                throw new PasswordPolicyException("Password must contain uppercase alphabetic character(s)");
-            }
+        // check prefix
+        conf.getPrefixesNotPermitted().stream().
+                filter(prefix -> clear.startsWith(prefix)).
+                forEach(item -> {
+                    throw new PasswordPolicyException("Prefix not permitted");
+                });
 
-            // check prefix
-            this.conf.getPrefixesNotPermitted().stream().
-                    filter(prefix -> clearPassword.startsWith(prefix)).
-                    forEachOrdered(item -> {
-                        throw new PasswordPolicyException("Prefix not permitted");
-                    });
+        // check suffix
+        conf.getSuffixesNotPermitted().stream().
+                filter(suffix -> clear.endsWith(suffix)).
+                forEach(item -> {
+                    throw new PasswordPolicyException("Suffix not permitted");
+                });
 
-            // check suffix
-            this.conf.getSuffixesNotPermitted().stream().
-                    filter(suffix -> clearPassword.endsWith(suffix)).
-                    forEachOrdered(item -> {
-                        throw new PasswordPolicyException("Suffix not permitted");
-                    });
+        // check digit first occurrence
+        if (conf.isMustStartWithDigit() && !PolicyPattern.FIRST_DIGIT.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must start with a digit");
+        }
 
-            // check digit first occurrence
-            if (this.conf.isMustStartWithDigit() && !checkFirstDigit(clearPassword)) {
-                throw new PasswordPolicyException("Password must start with a digit");
-            }
+        if (conf.isMustntStartWithDigit() && PolicyPattern.FIRST_DIGIT.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password mustn't start with a digit");
+        }
 
-            if (this.conf.isMustntStartWithDigit() && checkFirstDigit(clearPassword)) {
-                throw new PasswordPolicyException("Password mustn't start with a digit");
-            }
+        // check digit last occurrence
+        if (conf.isMustEndWithDigit() && !PolicyPattern.LAST_DIGIT.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must end with a digit");
+        }
 
-            // check digit last occurrence
-            if (this.conf.isMustEndWithDigit() && !checkLastDigit(clearPassword)) {
-                throw new PasswordPolicyException("Password must end with a digit");
-            }
+        if (conf.isMustntEndWithDigit() && PolicyPattern.LAST_DIGIT.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password mustn't end with a digit");
+        }
 
-            if (this.conf.isMustntEndWithDigit() && checkLastDigit(clearPassword)) {
-                throw new PasswordPolicyException("Password mustn't end with a digit");
-            }
+        // check alphanumeric characters occurence
+        if (conf.isAlphanumericRequired() && !PolicyPattern.ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must contain alphanumeric character(s)");
+        }
 
-            // check alphanumeric characters occurence
-            if (this.conf.isAlphanumericRequired() && !checkAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password must contain alphanumeric character(s)");
-            }
+        // check non alphanumeric characters occurence
+        if (conf.isNonAlphanumericRequired() && !PolicyPattern.NON_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must contain non-alphanumeric character(s)");
+        }
 
-            // check non alphanumeric characters occurence
-            if (this.conf.isNonAlphanumericRequired() && !checkNonAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password must contain non-alphanumeric character(s)");
-            }
+        // check alphanumeric character first occurrence
+        if (conf.isMustStartWithAlpha() && !PolicyPattern.FIRST_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must start with an alphanumeric character");
+        }
 
-            // check alphanumeric character first occurrence
-            if (this.conf.isMustStartWithAlpha() && !checkFirstAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password must start with an alphanumeric character");
-            }
+        if (conf.isMustntStartWithAlpha() && PolicyPattern.FIRST_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password mustn't start with an alphanumeric character");
+        }
 
-            if (this.conf.isMustntStartWithAlpha() && checkFirstAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password mustn't start with an alphanumeric character");
-            }
+        // check alphanumeric character last occurrence
+        if (conf.isMustEndWithAlpha() && !PolicyPattern.LAST_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must end with an alphanumeric character");
+        }
 
-            // check alphanumeric character last occurrence
-            if (this.conf.isMustEndWithAlpha() && !checkLastAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password must end with an alphanumeric character");
-            }
+        if (conf.isMustntEndWithAlpha() && PolicyPattern.LAST_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password mustn't end with an alphanumeric character");
+        }
 
-            if (this.conf.isMustntEndWithAlpha() && checkLastAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password mustn't end with an alphanumeric character");
-            }
+        // check non alphanumeric character first occurrence
+        if (conf.isMustStartWithNonAlpha() && !PolicyPattern.FIRST_NON_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must start with a non-alphanumeric character");
+        }
 
-            // check non alphanumeric character first occurrence
-            if (this.conf.isMustStartWithNonAlpha() && !checkFirstNonAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password must start with a non-alphanumeric character");
-            }
+        if (conf.isMustntStartWithNonAlpha() && PolicyPattern.FIRST_NON_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password mustn't start with a non-alphanumeric character");
+        }
 
-            if (this.conf.isMustntStartWithNonAlpha() && checkFirstNonAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password mustn't start with a non-alphanumeric character");
-            }
+        // check non alphanumeric character last occurrence
+        if (conf.isMustEndWithNonAlpha() && !PolicyPattern.LAST_NON_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password must end with a non-alphanumeric character");
+        }
 
-            // check non alphanumeric character last occurrence
-            if (this.conf.isMustEndWithNonAlpha() && !checkLastNonAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password must end with a non-alphanumeric character");
-            }
-
-            if (this.conf.isMustntEndWithNonAlpha() && checkLastNonAlphanumeric(clearPassword)) {
-                throw new PasswordPolicyException("Password mustn't end with a non-alphanumeric character");
-            }
-
-            if (!this.conf.isUsernameAllowed()
-                    && user.getUsername() != null && user.getUsername().equals(clearPassword)) {
-
-                throw new PasswordPolicyException("Password mustn't be equal to username");
-            }
+        if (conf.isMustntEndWithNonAlpha() && PolicyPattern.LAST_NON_ALPHANUMERIC.matcher(clear).matches()) {
+            throw new PasswordPolicyException("Password mustn't end with a non-alphanumeric character");
         }
     }
 
-    private boolean checkDigit(final String str) {
-        return PolicyPattern.DIGIT.matcher(str).matches();
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final User user) {
+        if (user.getPassword() != null && user.getClearPassword() != null) {
+            Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
+            wordsNotPermitted.addAll(
+                    conf.getSchemasNotPermitted().stream().
+                            map(schema -> user.getPlainAttr(schema)).
+                            filter(Optional::isPresent).
+                            map(attr -> attr.get().getValuesAsStrings()).
+                            filter(values -> !CollectionUtils.isEmpty(values)).
+                            flatMap(Collection::stream).
+                            collect(Collectors.toSet()));
+
+            enforce(user.getClearPassword(), user.getUsername(), wordsNotPermitted);
+        }
     }
 
-    private boolean checkLowercase(final String str) {
-        return PolicyPattern.ALPHA_LOWERCASE.matcher(str).matches();
-    }
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final LinkedAccount account) {
+        conf.getWordsNotPermitted().addAll(
+                conf.getSchemasNotPermitted().stream().
+                        map(schema -> account.getPlainAttr(schema)).
+                        filter(Optional::isPresent).
+                        map(attr -> attr.get().getValuesAsStrings()).
+                        filter(values -> !CollectionUtils.isEmpty(values)).
+                        flatMap(Collection::stream).
+                        collect(Collectors.toList()));
 
-    private boolean checkUppercase(final String str) {
-        return PolicyPattern.ALPHA_UPPERCASE.matcher(str).matches();
-    }
+        if (account.getPassword() != null) {
+            String clear = null;
+            if (account.canDecodePassword()) {
+                try {
+                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                } catch (Exception e) {
+                    LOG.error("Could not decode password for {}", account, e);
+                }
+            }
 
-    private boolean checkFirstDigit(final String str) {
-        return PolicyPattern.FIRST_DIGIT.matcher(str).matches();
-    }
+            if (clear != null) {
+                Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
+                wordsNotPermitted.addAll(
+                        conf.getSchemasNotPermitted().stream().
+                                map(schema -> account.getPlainAttr(schema)).
+                                filter(Optional::isPresent).
+                                map(attr -> attr.get().getValuesAsStrings()).
+                                filter(values -> !CollectionUtils.isEmpty(values)).
+                                flatMap(Collection::stream).
+                                collect(Collectors.toSet()));
 
-    private boolean checkLastDigit(final String str) {
-        return PolicyPattern.LAST_DIGIT.matcher(str).matches();
-    }
-
-    private boolean checkAlphanumeric(final String str) {
-        return PolicyPattern.ALPHANUMERIC.matcher(str).matches();
-    }
-
-    private boolean checkFirstAlphanumeric(final String str) {
-        return PolicyPattern.FIRST_ALPHANUMERIC.matcher(str).matches();
-    }
-
-    private boolean checkLastAlphanumeric(final String str) {
-        return PolicyPattern.LAST_ALPHANUMERIC.matcher(str).matches();
-    }
-
-    private boolean checkNonAlphanumeric(final String str) {
-        return PolicyPattern.NON_ALPHANUMERIC.matcher(str).matches();
-    }
-
-    private boolean checkFirstNonAlphanumeric(final String str) {
-        return PolicyPattern.FIRST_NON_ALPHANUMERIC.matcher(str).matches();
-    }
-
-    private boolean checkLastNonAlphanumeric(final String str) {
-        return PolicyPattern.LAST_NON_ALPHANUMERIC.matcher(str).matches();
+                enforce(clear, account.getUsername(), wordsNotPermitted);
+            }
+        }
     }
 }

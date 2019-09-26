@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -31,7 +30,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
@@ -54,8 +53,9 @@ public class ProvisionProducer extends AbstractProducer {
 
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(key);
-            userPatch.getResources().addAll(resources.stream().map(resource
-                    -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+            userPatch.getResources().addAll(resources.stream().
+                    map(resource -> new StringPatchItem.Builder().
+                    operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                     collect(Collectors.toList()));
 
             if (changePwd) {
@@ -63,18 +63,18 @@ public class ProvisionProducer extends AbstractProducer {
                         new PasswordPatch.Builder().onSyncope(true).value(password).resources(resources).build());
             }
 
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-            WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<>(
-                    ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");
+            UserWorkflowResult<Pair<UserPatch, Boolean>> wfResult = new UserWorkflowResult<>(
+                    Pair.of(userPatch, (Boolean) null), propByRes, null, "update");
 
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
             exchange.getOut().setBody(reporter.getStatuses());
         } else {
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
             AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -43,5 +44,6 @@ public interface UserDataBinder {
      * @return updated user + propagation by resource
      * @see PropagationByResource
      */
-    PropagationByResource update(User toBeUpdated, UserPatch userPatch);
+    Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> update(
+            User toBeUpdated, UserPatch userPatch);
 }

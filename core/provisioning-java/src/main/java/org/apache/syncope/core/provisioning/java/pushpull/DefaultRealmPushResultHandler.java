@@ -103,7 +103,7 @@ public class DefaultRealmPushResultHandler
 
     private Realm update(final RealmTO realmTO, final ConnectorObject beforeObj, final ProvisioningReport result) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
-        PropagationByResource propByRes = binder.update(realm, realmTO);
+        PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
@@ -121,7 +121,7 @@ public class DefaultRealmPushResultHandler
         List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, noPropResources);
@@ -137,7 +137,7 @@ public class DefaultRealmPushResultHandler
         List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         PropagationReporter reporter = taskExecutor.execute(

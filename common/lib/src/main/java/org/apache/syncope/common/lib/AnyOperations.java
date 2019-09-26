@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.AbstractReplacePatchItem;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.patch.LinkedAccountPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -43,6 +44,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -350,6 +352,29 @@ public final class AnyOperations {
                     });
         }
 
+        // 7. linked accounts
+        Map<Pair<String, String>, LinkedAccountTO> updatedAccounts =
+                EntityTOUtils.buildLinkedAccountMap(updated.getLinkedAccounts());
+        Map<Pair<String, String>, LinkedAccountTO> originalAccounts =
+                EntityTOUtils.buildLinkedAccountMap(original.getLinkedAccounts());
+
+        updatedAccounts.entrySet().stream().
+                filter(entry -> (!originalAccounts.containsKey(entry.getKey()))).
+                forEachOrdered(entry -> {
+                    result.getLinkedAccounts().add(new LinkedAccountPatch.Builder().
+                            operation(PatchOperation.ADD_REPLACE).
+                            linkedAccountTO(entry.getValue()).build());
+                });
+
+        if (!incremental) {
+            originalAccounts.keySet().stream().filter(account -> !updatedAccounts.containsKey(account)).
+                    forEach(key -> {
+                        result.getLinkedAccounts().add(new LinkedAccountPatch.Builder().
+                                operation(PatchOperation.DELETE).
+                                linkedAccountTO(originalAccounts.get(key)).build());
+                    });
+        }
+
         return result;
     }
 
@@ -406,7 +431,7 @@ public final class AnyOperations {
             if (patch.getAttrTO() == null) {
                 LOG.warn("Invalid {} specified: {}", AttrPatch.class.getName(), patch);
             } else {
-                AttrTO removed = rwattrs.remove(patch.getAttrTO().getSchema());
+                rwattrs.remove(patch.getAttrTO().getSchema());
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE && !patch.getAttrTO().getValues().isEmpty()) {
                     rwattrs.put(patch.getAttrTO().getSchema(), patch.getAttrTO());
                 }
@@ -420,8 +445,8 @@ public final class AnyOperations {
         // check same key
         if (to.getKey() == null || !to.getKey().equals(patch.getKey())) {
             throw new IllegalArgumentException(
-                    to.getClass().getSimpleName() + " and " + patch.getClass().getSimpleName()
-                    + " keys must be the same");
+                    to.getClass().getSimpleName() + " and "
+                    + patch.getClass().getSimpleName() + " keys must be the same");
         }
 
         // 0. realm
@@ -521,29 +546,28 @@ public final class AnyOperations {
                 });
 
         // 2. memberships
-        anyObjectPatch.getMemberships().
-                forEach(membPatch -> {
-                    if (membPatch.getGroup() == null) {
-                        LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
-                    } else {
-                        result.getMemberships().stream().
-                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
-                                findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
+        anyObjectPatch.getMemberships().forEach(membPatch -> {
+            if (membPatch.getGroup() == null) {
+                LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
+            } else {
+                result.getMemberships().stream().
+                        filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
+                        findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
 
-                        if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            MembershipTO newMembershipTO =
-                                    new MembershipTO.Builder().group(membPatch.getGroup()).build();
+                if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    MembershipTO newMembershipTO =
+                            new MembershipTO.Builder().group(membPatch.getGroup()).build();
 
-                            // 3. plain attributes
-                            newMembershipTO.getPlainAttrs().addAll(membPatch.getPlainAttrs());
+                    // 3. plain attributes
+                    newMembershipTO.getPlainAttrs().addAll(membPatch.getPlainAttrs());
 
-                            // 4. virtual attributes
-                            newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
+                    // 4. virtual attributes
+                    newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
 
-                            result.getMemberships().add(newMembershipTO);
-                        }
-                    }
-                });
+                    result.getMemberships().add(newMembershipTO);
+                }
+            }
+        });
 
         return result;
     }
@@ -563,42 +587,40 @@ public final class AnyOperations {
         }
 
         // 3. relationships
-        userPatch.getRelationships().
-                forEach(relPatch -> {
-                    if (relPatch.getRelationshipTO() == null) {
-                        LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
-                    } else {
-                        result.getRelationships().remove(relPatch.getRelationshipTO());
-                        if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            result.getRelationships().add(relPatch.getRelationshipTO());
-                        }
-                    }
-                });
+        userPatch.getRelationships().forEach(relPatch -> {
+            if (relPatch.getRelationshipTO() == null) {
+                LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
+            } else {
+                result.getRelationships().remove(relPatch.getRelationshipTO());
+                if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getRelationships().add(relPatch.getRelationshipTO());
+                }
+            }
+        });
 
         // 4. memberships
-        userPatch.getMemberships().
-                forEach(membPatch -> {
-                    if (membPatch.getGroup() == null) {
-                        LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
-                    } else {
-                        result.getMemberships().stream().
-                                filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
-                                findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
+        userPatch.getMemberships().forEach(membPatch -> {
+            if (membPatch.getGroup() == null) {
+                LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
+            } else {
+                result.getMemberships().stream().
+                        filter(membership -> membPatch.getGroup().equals(membership.getGroupKey())).
+                        findFirst().ifPresent(memb -> result.getMemberships().remove(memb));
 
-                        if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            MembershipTO newMembershipTO =
-                                    new MembershipTO.Builder().group(membPatch.getGroup()).build();
+                if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    MembershipTO newMembershipTO =
+                            new MembershipTO.Builder().group(membPatch.getGroup()).build();
 
-                            // 3. plain attributes
-                            newMembershipTO.getPlainAttrs().addAll(membPatch.getPlainAttrs());
+                    // 3. plain attributes
+                    newMembershipTO.getPlainAttrs().addAll(membPatch.getPlainAttrs());
 
-                            // 4. virtual attributes
-                            newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
+                    // 4. virtual attributes
+                    newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
 
-                            result.getMemberships().add(newMembershipTO);
-                        }
-                    }
-                });
+                    result.getMemberships().add(newMembershipTO);
+                }
+            }
+        });
 
         // 5. roles
         for (StringPatchItem rolePatch : userPatch.getRoles()) {
@@ -612,6 +634,18 @@ public final class AnyOperations {
                     result.getRoles().remove(rolePatch.getValue());
             }
         }
+
+        // 6. linked accounts
+        userPatch.getLinkedAccounts().forEach(accountPatch -> {
+            if (accountPatch.getLinkedAccountTO() == null) {
+                LOG.warn("Invalid {} specified: {}", LinkedAccountPatch.class.getName(), accountPatch);
+            } else {
+                result.getLinkedAccounts().remove(accountPatch.getLinkedAccountTO());
+                if (accountPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getLinkedAccounts().add(accountPatch.getLinkedAccountTO());
+                }
+            }
+        });
 
         return result;
     }

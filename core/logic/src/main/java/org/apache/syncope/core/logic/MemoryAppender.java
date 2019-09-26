@@ -23,6 +23,7 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
@@ -45,7 +46,7 @@ public class MemoryAppender extends AbstractAppender {
             final Filter filter,
             final boolean ignoreExceptions) {
 
-        super(name, filter, null, ignoreExceptions);
+        super(name, filter, null, ignoreExceptions, Property.EMPTY_ARRAY);
         this.statements = new CircularFifoQueue<>(size);
     }
 

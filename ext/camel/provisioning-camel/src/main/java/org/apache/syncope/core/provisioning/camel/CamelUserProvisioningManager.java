@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,9 +109,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Pair<UserPatch, List<PropagationStatus>> update(
-            final UserPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final UserPatch userPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        return update(anyPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
+        return update(userPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
     }
 
     @Override
@@ -173,8 +173,11 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusPatch.isOnSyncope()) {
             sendMessage("direct:activateUser", statusPatch.getKey(), props);
         } else {
-            WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
+            UserWorkflowResult<String> updated = new UserWorkflowResult<>(
+                    statusPatch.getKey(),
+                    null,
+                    null,
+                    statusPatch.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -202,8 +205,11 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusPatch.isOnSyncope()) {
             sendMessage("direct:reactivateUser", statusPatch.getKey(), props);
         } else {
-            WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
+            UserWorkflowResult<String> updated = new UserWorkflowResult<>(
+                    statusPatch.getKey(),
+                    null,
+                    null,
+                    statusPatch.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -231,8 +237,11 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusPatch.isOnSyncope()) {
             sendMessage("direct:suspendUser", statusPatch.getKey(), props);
         } else {
-            WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusPatch.getKey(), null, statusPatch.getType().name().toLowerCase());
+            UserWorkflowResult<String> updated = new UserWorkflowResult<>(
+                    statusPatch.getKey(),
+                    null,
+                    null,
+                    statusPatch.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -342,8 +351,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
 
-            WorkflowResult<Pair<UserPatch, Boolean>> updated = new WorkflowResult<>(
-                    Pair.of(userPatch, false), new PropagationByResource(),
+            UserWorkflowResult<Pair<UserPatch, Boolean>> updated = new UserWorkflowResult<>(
+                    Pair.of(userPatch, false),
+                    new PropagationByResource<>(),
+                    new PropagationByResource<>(),
                     new HashSet<>());
             sendMessage("direct:userInPull", updated, props);
             exchange = pollingConsumer.receive();
@@ -395,5 +406,4 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
     }
-
 }

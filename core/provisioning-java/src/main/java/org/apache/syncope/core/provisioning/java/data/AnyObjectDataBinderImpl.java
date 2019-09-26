@@ -239,11 +239,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     }
 
     @Override
-    public PropagationByResource update(final AnyObject toBeUpdated, final AnyObjectPatch anyObjectPatch) {
+    public PropagationByResource<String> update(final AnyObject toBeUpdated, final AnyObjectPatch anyObjectPatch) {
         // Re-merge any pending change from workflow tasks
         AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 

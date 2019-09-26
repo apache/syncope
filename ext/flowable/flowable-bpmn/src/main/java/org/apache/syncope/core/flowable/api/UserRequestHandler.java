@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -92,7 +92,7 @@ public interface UserRequestHandler {
      * @return the form for the given task id
      */
     UserRequestForm getForm(String userKey, String taskId);
-    
+
     /**
      * Get the forms matching the provided parameters.
      *
@@ -112,7 +112,7 @@ public interface UserRequestHandler {
      * @return updated form
      */
     UserRequestForm claimForm(String taskId);
-    
+
     /**
      * Unclaim a form for a given object.
      *
@@ -127,5 +127,5 @@ public interface UserRequestHandler {
      * @param form to be submitted
      * @return user updated by this form submit
      */
-    WorkflowResult<UserPatch> submitForm(UserRequestForm form);
+    UserWorkflowResult<UserPatch> submitForm(UserRequestForm form);
 }

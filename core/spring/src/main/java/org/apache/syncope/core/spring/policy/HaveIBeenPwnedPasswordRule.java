@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.slf4j.Logger;
@@ -68,36 +69,56 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
         }
     }
 
+    protected void enforce(final String clear) {
+        try {
+            String sha1 = ENCRYPTOR.encode(clear, CipherAlgorithm.SHA1);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");
+            ResponseEntity<String> response = new RestTemplate().exchange(
+                    URI.create("https://api.pwnedpasswords.com/range/" + sha1.substring(0, 5)),
+                    HttpMethod.GET,
+                    new HttpEntity<>(null, headers),
+                    String.class);
+            if (StringUtils.isNotBlank(response.getBody())) {
+                if (Stream.of(response.getBody().split("\\n")).anyMatch(line
+                        -> sha1.equals(sha1.substring(0, 5) + StringUtils.substringBefore(line, ":")))) {
+
+                    throw new PasswordPolicyException("Password pwned");
+                }
+            }
+        } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException
+                | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
+
+            LOG.error("Could not encode the password value as SHA1", e);
+        } catch (HttpStatusCodeException e) {
+            LOG.error("Error while contacting the PwnedPasswords service", e);
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user) {
-        String clearPassword = user.getClearPassword();
-        String password = user.getPassword();
+        if (user.getPassword() != null && user.getClearPassword() != null) {
+            enforce(user.getClearPassword());
+        }
+    }
 
-        if (password != null && clearPassword != null) {
-            try {
-                String sha1 = ENCRYPTOR.encode(clearPassword, CipherAlgorithm.SHA1);
-
-                HttpHeaders headers = new HttpHeaders();
-                headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");
-                ResponseEntity<String> response = new RestTemplate().exchange(
-                        URI.create("https://api.pwnedpasswords.com/range/" + sha1.substring(0, 5)),
-                        HttpMethod.GET,
-                        new HttpEntity<>(null, headers),
-                        String.class);
-                if (StringUtils.isNotBlank(response.getBody())) {
-                    if (Stream.of(response.getBody().split("\\n")).anyMatch(line
-                            -> sha1.equals(sha1.substring(0, 5) + StringUtils.substringBefore(line, ":")))) {
-
-                        throw new PasswordPolicyException("Password pwned");
-                    }
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final LinkedAccount account) {
+        if (account.getPassword() != null) {
+            String clear = null;
+            if (account.canDecodePassword()) {
+                try {
+                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                } catch (Exception e) {
+                    LOG.error("Could not decode password for {}", account, e);
                 }
-            } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException
-                    | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
+            }
 
-                LOG.error("Could not encode the password value as SHA1", e);
-            } catch (HttpStatusCodeException e) {
-                LOG.error("Error while contacting the PwnedPasswords service", e);
+            if (clear != null) {
+                enforce(clear);
             }
         }
     }

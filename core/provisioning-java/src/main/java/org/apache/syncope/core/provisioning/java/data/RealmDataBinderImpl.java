@@ -148,7 +148,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     }
 
     @Override
-    public PropagationByResource update(final Realm realm, final RealmTO realmTO) {
+    public PropagationByResource<String> update(final Realm realm, final RealmTO realmTO) {
         realm.setName(realmTO.getName());
         realm.setParent(realmTO.getParent() == null ? null : realmDAO.find(realmTO.getParent()));
 
@@ -194,7 +194,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         setTemplates(realmTO, realm);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         realmTO.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {

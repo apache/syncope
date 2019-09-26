@@ -20,7 +20,9 @@ package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -51,6 +53,8 @@ public class UserPatch extends AnyPatch {
     private final Set<MembershipPatch> memberships = new HashSet<>();
 
     private final Set<StringPatchItem> roles = new HashSet<>();
+
+    private final List<LinkedAccountPatch> linkedAccounts = new ArrayList<>();
 
     @JsonProperty("@class")
     @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.patch.UserPatch")
@@ -120,11 +124,19 @@ public class UserPatch extends AnyPatch {
         return roles;
     }
 
+    @XmlElementWrapper(name = "linkedAccounts")
+    @XmlElement(name = "linkedAccount")
+    @JsonProperty("linkedAccounts")
+    public List<LinkedAccountPatch> getLinkedAccounts() {
+        return linkedAccounts;
+    }
+
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
                 && username == null && password == null && securityQuestion == null && securityAnswer == null
-                && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty();
+                && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty()
+                && linkedAccounts.isEmpty();
     }
 
     @Override
@@ -139,6 +151,7 @@ public class UserPatch extends AnyPatch {
                 append(relationships).
                 append(memberships).
                 append(roles).
+                append(linkedAccounts).
                 build();
     }
 
@@ -163,6 +176,7 @@ public class UserPatch extends AnyPatch {
                 append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 append(roles, other.roles).
+                append(linkedAccounts, other.linkedAccounts).
                 build();
     }
 }

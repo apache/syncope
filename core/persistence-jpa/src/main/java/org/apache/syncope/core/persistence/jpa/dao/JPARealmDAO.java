@@ -192,9 +192,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         result.add(realm);
         List<Realm> children = findChildren(realm);
         if (children != null) {
-            for (Realm child : children) {
-                findDescendants(result, child);
-            }
+            children.forEach(child -> findDescendants(result, child));
         }
     }
 
