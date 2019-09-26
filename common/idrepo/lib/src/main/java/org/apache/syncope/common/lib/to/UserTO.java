@@ -76,6 +76,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final Set<String> privileges = new HashSet<>();
 
+    private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
+
     @JsonProperty("@class")
     @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
     @Override
@@ -263,6 +265,13 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return privileges;
     }
 
+    @XmlElementWrapper(name = "linkedAccounts")
+    @XmlElement(name = "linkedAccount")
+    @JsonProperty("linkedAccounts")
+    public List<LinkedAccountTO> getLinkedAccounts() {
+        return linkedAccounts;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -283,6 +292,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(relationships).
                 append(memberships).
                 append(dynMemberships).
+                append(linkedAccounts).
                 build();
     }
 
@@ -316,6 +326,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 append(dynMemberships, other.dynMemberships).
+                append(linkedAccounts, other.linkedAccounts).
                 build();
     }
 }

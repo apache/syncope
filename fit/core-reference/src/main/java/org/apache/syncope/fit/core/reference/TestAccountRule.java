@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core.reference;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,8 +44,16 @@ public class TestAccountRule implements AccountRule {
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user) {
-        if (!user.getUsername().contains(this.conf.getMustContainSubstring())) {
-            throw new AccountPolicyException("Username not containing " + this.conf.getMustContainSubstring());
+        if (!user.getUsername().contains(conf.getMustContainSubstring())) {
+            throw new AccountPolicyException("Username not containing " + conf.getMustContainSubstring());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final LinkedAccount accout) {
+        if (accout.getUsername() != null && !accout.getUsername().contains(conf.getMustContainSubstring())) {
+            throw new AccountPolicyException("Username not containing " + conf.getMustContainSubstring());
         }
     }
 }

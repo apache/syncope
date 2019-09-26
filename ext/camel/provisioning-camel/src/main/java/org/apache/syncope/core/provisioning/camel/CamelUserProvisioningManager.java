@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,8 +161,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusR.isOnSyncope()) {
             sendMessage("direct:activateUser", statusR.getKey(), props);
         } else {
-            WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusR.getKey(), null, statusR.getType().name().toLowerCase());
+            UserWorkflowResult<String> updated =
+                    new UserWorkflowResult<>(statusR.getKey(), null, null, statusR.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -188,8 +188,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusR.isOnSyncope()) {
             sendMessage("direct:reactivateUser", statusR.getKey(), props);
         } else {
-            WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusR.getKey(), null, statusR.getType().name().toLowerCase());
+            UserWorkflowResult<String> updated =
+                    new UserWorkflowResult<>(statusR.getKey(), null, null, statusR.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -215,8 +215,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         if (statusR.isOnSyncope()) {
             sendMessage("direct:suspendUser", statusR.getKey(), props);
         } else {
-            WorkflowResult<String> updated =
-                    new WorkflowResult<>(statusR.getKey(), null, statusR.getType().name().toLowerCase());
+            UserWorkflowResult<String> updated =
+                    new UserWorkflowResult<>(statusR.getKey(), null, null, statusR.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -326,8 +326,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
 
-            WorkflowResult<Pair<UserUR, Boolean>> updated = new WorkflowResult<>(
-                    Pair.of(userUR, false), new PropagationByResource(),
+            UserWorkflowResult<Pair<UserUR, Boolean>> updated = new UserWorkflowResult<>(
+                    Pair.of(userUR, false),
+                    new PropagationByResource<>(),
+                    new PropagationByResource<>(),
                     new HashSet<>());
             sendMessage("direct:userInPull", updated, props);
             exchange = pollingConsumer.receive();

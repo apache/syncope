@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 
 public interface PropagationManager {
 
@@ -45,7 +45,7 @@ public interface PropagationManager {
             AnyTypeKind kind,
             String key,
             Boolean enable,
-            PropagationByResource propByRes,
+            PropagationByResource<String> propByRes,
             Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
@@ -56,6 +56,7 @@ public interface PropagationManager {
      * @param password to be set
      * @param enable whether user must be enabled or not
      * @param propByRes operation to be performed per resource
+     * @param propByLinkedAccount operation to be performed for linked accounts
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceKeys external resources not to be considered for propagation
      * @return list of propagation tasks
@@ -64,7 +65,8 @@ public interface PropagationManager {
             String key,
             String password,
             Boolean enable,
-            PropagationByResource propByRes,
+            PropagationByResource<String> propByRes,
+            PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
@@ -85,7 +87,7 @@ public interface PropagationManager {
             String key,
             boolean changePwd,
             Boolean enable,
-            PropagationByResource propByRes,
+            PropagationByResource<String> propByRes,
             Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
@@ -98,7 +100,7 @@ public interface PropagationManager {
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUserUpdateTasks(
-            WorkflowResult<Pair<UserUR, Boolean>> wfResult,
+            UserWorkflowResult<Pair<UserUR, Boolean>> wfResult,
             boolean changePwd,
             Collection<String> noPropResourceKeys);
 
@@ -109,7 +111,7 @@ public interface PropagationManager {
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @return list of propagation tasks
      */
-    List<PropagationTaskInfo> getUserUpdateTasks(WorkflowResult<Pair<UserUR, Boolean>> wfResult);
+    List<PropagationTaskInfo> getUserUpdateTasks(UserWorkflowResult<Pair<UserUR, Boolean>> wfResult);
 
     /**
      * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceKeys}.
@@ -123,7 +125,22 @@ public interface PropagationManager {
     List<PropagationTaskInfo> getDeleteTasks(
             AnyTypeKind kind,
             String key,
-            PropagationByResource propByRes,
+            PropagationByResource<String> propByRes,
+            Collection<String> noPropResourceKeys);
+
+    /**
+     * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceKeys}.
+     *
+     * @param key any object key
+     * @param propByRes operation to be performed per resource
+     * @param propByLinkedAccount operation to be performed for linked accounts
+     * @param noPropResourceKeys external resource keys not to be considered for propagation
+     * @return list of propagation tasks
+     */
+    List<PropagationTaskInfo> getUserDeleteTasks(
+            String key,
+            PropagationByResource<String> propByRes,
+            PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<String> noPropResourceKeys);
 
     /**
@@ -136,6 +153,6 @@ public interface PropagationManager {
      */
     List<PropagationTaskInfo> createTasks(
             Realm realm,
-            PropagationByResource propByRes,
+            PropagationByResource<String> propByRes,
             Collection<String> noPropResourceKeys);
 }

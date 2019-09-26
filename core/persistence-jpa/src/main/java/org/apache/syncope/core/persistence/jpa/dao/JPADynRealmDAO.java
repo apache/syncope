@@ -79,6 +79,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
         return entityManager().merge(dynRealm);
     }
 
+    @SuppressWarnings("unchecked")
     private List<String> clearDynMembers(final DynRealm dynRealm) {
         Query find = entityManager().createNativeQuery(
                 "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=?");

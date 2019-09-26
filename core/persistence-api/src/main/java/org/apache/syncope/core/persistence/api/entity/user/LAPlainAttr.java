@@ -16,17 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public interface JSONAny<A extends Any<?>> {
+public interface LAPlainAttr extends PlainAttr<User> {
 
-    String getPlainAttrsJSON();
+    LinkedAccount getAccount();
 
-    void setPlainAttrsJSON(String plainAttrs);
-
-    boolean add(JSONPlainAttr<A> attr);
-
-    List<? extends JSONPlainAttr<A>> getPlainAttrList();
+    void setAccount(LinkedAccount account);
 }

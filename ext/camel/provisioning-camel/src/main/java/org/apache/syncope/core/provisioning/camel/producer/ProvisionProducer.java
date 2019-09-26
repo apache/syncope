@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -31,7 +30,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
@@ -63,18 +62,18 @@ public class ProvisionProducer extends AbstractProducer {
                         new PasswordPatch.Builder().onSyncope(true).value(password).resources(resources).build());
             }
 
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-            WorkflowResult<Pair<UserUR, Boolean>> wfResult = new WorkflowResult<>(
-                    ImmutablePair.of(userUR, (Boolean) null), propByRes, "update");
+            UserWorkflowResult<Pair<UserUR, Boolean>> wfResult = new UserWorkflowResult<>(
+                    Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
             exchange.getMessage().setBody(reporter.getStatuses());
         } else {
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
             AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;

@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 
@@ -127,6 +128,21 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
             getInstance().getRoles().addAll(roles);
             return this;
         }
+
+        public Builder linkedAccount(final LinkedAccountTO linkedAccount) {
+            getInstance().getLinkedAccounts().add(linkedAccount);
+            return this;
+        }
+
+        public Builder linkedAccounts(final LinkedAccountTO... linkedAccounts) {
+            getInstance().getLinkedAccounts().addAll(List.of(linkedAccounts));
+            return this;
+        }
+
+        public Builder linkedAccounts(final Collection<LinkedAccountTO> linkedAccounts) {
+            getInstance().getLinkedAccounts().addAll(linkedAccounts);
+            return this;
+        }
     }
 
     private String username;
@@ -146,6 +162,8 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private final Set<String> roles = new HashSet<>();
+
+    private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
     @JsonProperty("@class")
     @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.UserCR")
@@ -246,6 +264,13 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         return roles;
     }
 
+    @XmlElementWrapper(name = "linkedAccounts")
+    @XmlElement(name = "linkedAccount")
+    @JsonProperty("linkedAccounts")
+    public List<LinkedAccountTO> getLinkedAccounts() {
+        return linkedAccounts;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -257,6 +282,7 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
                 append(mustChangePassword).
                 append(relationships).
                 append(memberships).
+                append(linkedAccounts).
                 build();
     }
 
@@ -281,6 +307,7 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
                 append(mustChangePassword, other.mustChangePassword).
                 append(relationships, other.relationships).
                 append(memberships, other.memberships).
+                append(linkedAccounts, other.linkedAccounts).
                 build();
     }
 }

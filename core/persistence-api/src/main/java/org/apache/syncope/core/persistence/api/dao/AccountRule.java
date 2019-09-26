@@ -19,16 +19,18 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 /**
  * Interface for enforcing a given account rule to user.
  */
-@FunctionalInterface
 public interface AccountRule {
 
     default void setConf(AccountRuleConf conf) {
     }
 
     void enforce(User user);
+
+    void enforce(LinkedAccount accout);
 }

@@ -31,6 +31,8 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 public interface MappingManager {
@@ -61,10 +63,18 @@ public interface MappingManager {
      * @param intAttrName int attr name
      * @param schemaType schema type
      * @param any any object
+     * @param accountGetter function to get actual account instance
+     * @param plainAttrGetter function to get PlainAttr instances
      * @return attribute values and their type
      */
     Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
-            Provision provision, Item mapItem, IntAttrName intAttrName, AttrSchemaType schemaType, Any<?> any);
+            Provision provision,
+            Item mapItem,
+            IntAttrName intAttrName,
+            AttrSchemaType schemaType,
+            Any<?> any,
+            AccountGetter accountGetter,
+            PlainAttrGetter plainAttrGetter);
 
     /**
      * Prepare attribute for sending to a connector instance.
@@ -73,9 +83,16 @@ public interface MappingManager {
      * @param item mapping item
      * @param any given any object
      * @param password clear-text password
+     * @param accountGetter function to get actual account instance
+     * @param plainAttrGetter function to get PlainAttr instances
      * @return connObjectLink (if it is the case) + prepared attribute
      */
-    Pair<String, Attribute> prepareAttr(Provision provision, Item item, Any<?> any, String password);
+    Pair<String, Attribute> prepareAttr(
+            Provision provision,
+            Item item, Any<?> any,
+            String password,
+            AccountGetter accountGetter,
+            PlainAttrGetter plainAttrGetter);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -89,6 +106,19 @@ public interface MappingManager {
      */
     Pair<String, Set<Attribute>> prepareAttrs(
             Any<?> any, String password, boolean changePwd, Boolean enable, Provision provision);
+
+    /**
+     * Prepare attributes for sending to a connector instance.
+     *
+     * @param user given user
+     * @param account linked account
+     * @param password clear-text password
+     * @param changePwd whether password should be included for propagation attributes or not
+     * @param provision provision information
+     * @return prepared attributes
+     */
+    Set<Attribute> prepareAttrs(
+            User user, LinkedAccount account, String password, boolean changePwd, Provision provision);
 
     /**
      * Prepare attributes for sending to a connector instance.

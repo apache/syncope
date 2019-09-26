@@ -21,7 +21,7 @@ package org.apache.syncope.core.flowable.api;
 import java.util.List;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 
 public interface WorkflowTaskManager {
 
@@ -66,5 +66,5 @@ public interface WorkflowTaskManager {
      * @param workflowTaskExecInput input for task execution
      * @return user after task execution
      */
-    WorkflowResult<String> executeNextTask(WorkflowTaskExecInput workflowTaskExecInput);
+    UserWorkflowResult<String> executeNextTask(WorkflowTaskExecInput workflowTaskExecInput);
 }

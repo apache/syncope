@@ -24,11 +24,11 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -39,11 +39,12 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
@@ -139,11 +140,18 @@ public class PropagationManagerImpl implements PropagationManager {
             final AnyTypeKind kind,
             final String key,
             final Boolean enable,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        return getCreateTasks(dao(kind).authFind(key), null, enable, propByRes, vAttrs, noPropResourceKeys);
+        return getCreateTasks(
+                dao(kind).authFind(key),
+                null,
+                enable,
+                propByRes,
+                null,
+                vAttrs,
+                noPropResourceKeys);
     }
 
     @Override
@@ -151,22 +159,33 @@ public class PropagationManagerImpl implements PropagationManager {
             final String key,
             final String password,
             final Boolean enable,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        return getCreateTasks(userDAO.authFind(key), password, enable, propByRes, vAttrs, noPropResourceKeys);
+        return getCreateTasks(
+                userDAO.authFind(key),
+                password,
+                enable,
+                propByRes,
+                propByLinkedAccount,
+                vAttrs,
+                noPropResourceKeys);
     }
 
     protected List<PropagationTaskInfo> getCreateTasks(
             final Any<?> any,
             final String password,
             final Boolean enable,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        if (propByRes == null || propByRes.isEmpty()) {
+        if ((propByRes == null || propByRes.isEmpty())
+                && (propByLinkedAccount == null || propByLinkedAccount.isEmpty())) {
+
             return List.of();
         }
 
@@ -174,7 +193,7 @@ public class PropagationManagerImpl implements PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceKeys);
         }
 
-        return createTasks(any, password, true, enable, false, propByRes, vAttrs);
+        return createTasks(any, password, true, enable, false, propByRes, propByLinkedAccount, vAttrs);
     }
 
     @Override
@@ -183,16 +202,24 @@ public class PropagationManagerImpl implements PropagationManager {
             final String key,
             final boolean changePwd,
             final Boolean enable,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        return getUpdateTasks(dao(kind).authFind(key), null, changePwd, enable, propByRes, vAttrs, noPropResourceKeys);
+        return getUpdateTasks(
+                dao(kind).authFind(key),
+                null,
+                changePwd,
+                enable,
+                propByRes,
+                null,
+                vAttrs,
+                noPropResourceKeys);
     }
 
     @Override
     public List<PropagationTaskInfo> getUserUpdateTasks(
-            final WorkflowResult<Pair<UserUR, Boolean>> wfResult,
+            final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult,
             final boolean changePwd,
             final Collection<String> noPropResourceKeys) {
 
@@ -204,12 +231,13 @@ public class PropagationManagerImpl implements PropagationManager {
                 changePwd,
                 wfResult.getResult().getValue(),
                 wfResult.getPropByRes(),
+                wfResult.getPropByLinkedAccount(),
                 wfResult.getResult().getKey().getVirAttrs(),
                 noPropResourceKeys);
     }
 
     @Override
-    public List<PropagationTaskInfo> getUserUpdateTasks(final WorkflowResult<Pair<UserUR, Boolean>> wfResult) {
+    public List<PropagationTaskInfo> getUserUpdateTasks(final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult) {
         UserUR userUR = wfResult.getResult().getLeft();
 
         // Propagate password update only to requested resources
@@ -221,9 +249,12 @@ public class PropagationManagerImpl implements PropagationManager {
             tasks = new ArrayList<>();
 
             // b. generate the propagation task list in two phases: first the ones containing password,
-            // the the rest (with no password)
-            WorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new WorkflowResult<>(
-                    wfResult.getResult(), new PropagationByResource(), wfResult.getPerformedTasks());
+            // then the rest (with no password)
+            UserWorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new UserWorkflowResult<>(
+                    wfResult.getResult(),
+                    new PropagationByResource<>(),
+                    wfResult.getPropByLinkedAccount(),
+                    wfResult.getPerformedTasks());
 
             Set<String> pwdResourceNames = new HashSet<>(userUR.getPassword().getResources());
             Collection<String> allResourceNames = userDAO.findAllResourceKeys(userUR.getKey());
@@ -239,8 +270,11 @@ public class PropagationManagerImpl implements PropagationManager {
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
             }
 
-            WorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new WorkflowResult<>(
-                    wfResult.getResult(), new PropagationByResource(), wfResult.getPerformedTasks());
+            UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
+                    wfResult.getResult(),
+                    new PropagationByResource<>(),
+                    new PropagationByResource<>(),
+                    wfResult.getPerformedTasks());
 
             noPwdWFResult.getPropByRes().merge(wfResult.getPropByRes());
             noPwdWFResult.getPropByRes().removeAll(pwdResourceNames);
@@ -260,7 +294,8 @@ public class PropagationManagerImpl implements PropagationManager {
             final String password,
             final boolean changePwd,
             final Boolean enable,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
@@ -275,6 +310,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 enable,
                 false,
                 Optional.ofNullable(propByRes).orElseGet(PropagationByResource::new),
+                null,
                 vAttrs);
     }
 
@@ -282,15 +318,39 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTaskInfo> getDeleteTasks(
             final AnyTypeKind kind,
             final String key,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
             final Collection<String> noPropResourceKeys) {
 
-        Any<?> any = dao(kind).authFind(key);
+        return getDeleteTasks(dao(kind).authFind(key), propByRes, null, noPropResourceKeys);
+    }
 
-        PropagationByResource localPropByRes = new PropagationByResource();
+    @Override
+    public List<PropagationTaskInfo> getUserDeleteTasks(
+            final String key,
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
+            final Collection<String> noPropResourceKeys) {
+
+        if (noPropResourceKeys != null) {
+            propByLinkedAccount.get(ResourceOperation.DELETE).
+                    removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+        }
+
+        return getDeleteTasks(userDAO.authFind(key), propByRes, propByLinkedAccount, noPropResourceKeys);
+    }
+
+    protected List<PropagationTaskInfo> getDeleteTasks(
+            final Any<?> any,
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
+            final Collection<String> noPropResourceKeys) {
+
+        PropagationByResource<String> localPropByRes = new PropagationByResource<>();
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.DELETE, dao(kind).findAllResourceKeys(key));
+            localPropByRes.addAll(
+                    ResourceOperation.DELETE,
+                    dao(any.getType().getKind()).findAllResourceKeys(any.getKey()));
         } else {
             localPropByRes.merge(propByRes);
         }
@@ -299,15 +359,55 @@ public class PropagationManagerImpl implements PropagationManager {
             localPropByRes.removeAll(noPropResourceKeys);
         }
 
-        return getDeleteTasks(any, localPropByRes, noPropResourceKeys);
+        return createTasks(any, null, false, false, true, localPropByRes, propByLinkedAccount, null);
     }
 
-    protected List<PropagationTaskInfo> getDeleteTasks(
+    protected PropagationTaskInfo newTask(
             final Any<?> any,
-            final PropagationByResource propByRes,
-            final Collection<String> noPropResourceKeys) {
+            final String resource,
+            final ResourceOperation operation,
+            final Provision provision,
+            final boolean deleteOnResource,
+            final List<? extends Item> mappingItems,
+            final Pair<String, Set<Attribute>> preparedAttrs) {
 
-        return createTasks(any, null, false, false, true, propByRes, null);
+        PropagationTaskInfo task = new PropagationTaskInfo();
+        task.setResource(resource);
+        task.setObjectClassName(provision.getObjectClass().getObjectClassValue());
+        task.setAnyTypeKind(any.getType().getKind());
+        task.setAnyType(any.getType().getKey());
+        if (!deleteOnResource) {
+            task.setEntityKey(any.getKey());
+        }
+        task.setOperation(operation);
+        task.setConnObjectKey(preparedAttrs.getKey());
+
+        // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
+        // if so, add special attributes that will be evaluated by PropagationTaskExecutor
+        List<String> mandatoryMissing = new ArrayList<>();
+        List<String> mandatoryNullOrEmpty = new ArrayList<>();
+        mappingItems.stream().filter(item -> (!item.isConnObjectKey()
+                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any))).
+                forEach(item -> {
+                    Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
+                    if (attr == null) {
+                        mandatoryMissing.add(item.getExtAttrName());
+                    } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
+                        mandatoryNullOrEmpty.add(item.getExtAttrName());
+                    }
+                });
+        if (!mandatoryMissing.isEmpty()) {
+            preparedAttrs.getValue().add(AttributeBuilder.build(
+                    PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
+        }
+        if (!mandatoryNullOrEmpty.isEmpty()) {
+            preparedAttrs.getValue().add(AttributeBuilder.build(
+                    PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
+        }
+
+        task.setAttributes(POJOHelper.serialize(preparedAttrs.getValue()));
+
+        return task;
     }
 
     /**
@@ -319,13 +419,18 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param enable whether user must be enabled or not
      * @param deleteOnResource whether any must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
+     * @param propByLinkedAccount operation to be performed on linked accounts
      * @param vAttrs virtual attributes to be set
      * @return list of propagation tasks created
      */
-    protected List<PropagationTaskInfo> createTasks(final Any<?> any,
-            final String password, final boolean changePwd,
-            final Boolean enable, final boolean deleteOnResource,
-            final PropagationByResource propByRes,
+    protected List<PropagationTaskInfo> createTasks(
+            final Any<?> any,
+            final String password,
+            final boolean changePwd,
+            final Boolean enable,
+            final boolean deleteOnResource,
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs) {
 
         LOG.debug("Provisioning {}:\n{}", any, propByRes);
@@ -390,55 +495,59 @@ public class PropagationManagerImpl implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                         any.getType(), resource);
             } else {
-                PropagationTaskInfo task = new PropagationTaskInfo();
-                task.setResource(resource.getKey());
-                task.setObjectClassName(provision.getObjectClass().getObjectClassValue());
-                task.setAnyTypeKind(any.getType().getKind());
-                task.setAnyType(any.getType().getKey());
-                if (!deleteOnResource) {
-                    task.setEntityKey(any.getKey());
-                }
-                task.setOperation(operation);
-                task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
-
                 Pair<String, Set<Attribute>> preparedAttrs =
                         mappingManager.prepareAttrs(any, password, changePwd, enable, provision);
-                task.setConnObjectKey(preparedAttrs.getKey());
-
-                // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
-                // if so, add special attributes that will be evaluated by PropagationTaskExecutor
-                List<String> mandatoryMissing = new ArrayList<>();
-                List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                mappingItems.stream().filter(item -> (!item.isConnObjectKey()
-                        && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any))).
-                        forEachOrdered(item -> {
-                            Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
-                            if (attr == null) {
-                                mandatoryMissing.add(item.getExtAttrName());
-                            } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
-                                mandatoryNullOrEmpty.add(item.getExtAttrName());
-                            }
-                        });
-                if (!mandatoryMissing.isEmpty()) {
-                    preparedAttrs.getValue().add(AttributeBuilder.build(
-                            PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
-                }
-                if (!mandatoryNullOrEmpty.isEmpty()) {
-                    preparedAttrs.getValue().add(AttributeBuilder.build(
-                            PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
+                if (vAttrMap.containsKey(resourceKey)) {
+                    preparedAttrs.getValue().addAll(vAttrMap.get(resourceKey));
                 }
 
-                if (vAttrMap.containsKey(resource.getKey())) {
-                    preparedAttrs.getValue().addAll(vAttrMap.get(resource.getKey()));
-                }
-
-                task.setAttributes(POJOHelper.serialize(preparedAttrs.getValue()));
-
+                PropagationTaskInfo task = newTask(
+                        any,
+                        resourceKey,
+                        operation,
+                        provision,
+                        deleteOnResource,
+                        mappingItems,
+                        preparedAttrs);
+                task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resourceKey));
                 tasks.add(task);
-
                 LOG.debug("PropagationTask created: {}", task);
             }
         });
+
+        if (any instanceof User && propByLinkedAccount != null) {
+            User user = (User) any;
+            propByLinkedAccount.asMap().forEach((accountInfo, operation) -> {
+                user.getLinkedAccount(accountInfo.getLeft(), accountInfo.getRight()).ifPresent(account -> {
+                    Provision provision = account.getResource().getProvision(AnyTypeKind.USER.name()).orElse(null);
+                    List<? extends Item> mappingItems = provision == null
+                            ? List.of()
+                            : MappingUtils.getPropagationItems(provision.getMapping().getItems());
+
+                    if (provision == null) {
+                        LOG.error("No provision specified on resource {} for type {}, ignoring...",
+                                account.getResource(), AnyTypeKind.USER.name());
+                    } else if (mappingItems.isEmpty()) {
+                        LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
+                                AnyTypeKind.USER.name(), account.getResource());
+                    } else {
+                        PropagationTaskInfo accountTask = newTask(
+                                user,
+                                account.getResource().getKey(),
+                                operation,
+                                provision,
+                                deleteOnResource,
+                                mappingItems,
+                                Pair.of(account.getConnObjectName(),
+                                        mappingManager.prepareAttrs(user, account, password, changePwd, provision)));
+                        tasks.add(accountTask);
+
+                        LOG.debug("PropagationTask created for Linked Account {}: {}",
+                                account.getConnObjectName(), accountTask);
+                    }
+                });
+            });
+        }
 
         return tasks;
     }
@@ -446,7 +555,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> createTasks(
             final Realm realm,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
             final Collection<String> noPropResourceKeys) {
 
         if (noPropResourceKeys != null) {

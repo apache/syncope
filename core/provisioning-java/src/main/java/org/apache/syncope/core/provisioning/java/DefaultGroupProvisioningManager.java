@@ -185,7 +185,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public List<PropagationStatus> provision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
@@ -205,7 +205,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public List<PropagationStatus> deprovision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(

@@ -21,12 +21,20 @@ package org.apache.syncope.fit.core.reference;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 @PasswordRuleConfClass(TestPasswordRuleConf.class)
 public class TestPasswordRule implements PasswordRule {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(TestPasswordRule.class);
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     private TestPasswordRuleConf conf;
 
@@ -48,8 +56,27 @@ public class TestPasswordRule implements PasswordRule {
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user) {
-        if (user.getClearPassword() != null && !user.getClearPassword().endsWith(this.conf.getMustEndWith())) {
-            throw new PasswordPolicyException("Password not ending with " + this.conf.getMustEndWith());
+        if (user.getClearPassword() != null && !user.getClearPassword().endsWith(conf.getMustEndWith())) {
+            throw new PasswordPolicyException("Password not ending with " + conf.getMustEndWith());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final LinkedAccount account) {
+        if (account.getPassword() != null) {
+            String clear = null;
+            if (account.canDecodePassword()) {
+                try {
+                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                } catch (Exception e) {
+                    LOG.error("Could not decode password for {}", account, e);
+                }
+            }
+
+            if (clear != null && !clear.endsWith(conf.getMustEndWith())) {
+                throw new PasswordPolicyException("Password not ending with " + conf.getMustEndWith());
+            }
         }
     }
 }

@@ -115,6 +115,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return key;
     }
 
+    @SuppressWarnings("unchecked")
     protected List<String> findAllKeys(final String table, final int page, final int itemsPerPage) {
         Query query = entityManager().createNativeQuery(
                 "SELECT id FROM " + table + " ORDER BY id", String.class);

@@ -35,6 +35,8 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
     private final Map<AnyTypeKind, AnyUtils> instances = new HashMap<>(3);
 
+    private AnyUtils linkedAccountInstance;
+
     @Override
     public AnyUtils getInstance(final AnyTypeKind anyTypeKind) {
         AnyUtils instance;
@@ -66,5 +68,16 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
         }
 
         return getInstance(type);
+    }
+
+    @Override
+    public AnyUtils getLinkedAccountInstance() {
+        synchronized (this) {
+            if (linkedAccountInstance == null) {
+                linkedAccountInstance = new JPAAnyUtils(AnyTypeKind.USER, true);
+                ApplicationContextProvider.getBeanFactory().autowireBean(linkedAccountInstance);
+            }
+        }
+        return linkedAccountInstance;
     }
 }

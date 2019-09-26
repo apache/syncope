@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfParamOps confParamOps;
 
     @Override
-    protected WorkflowResult<Pair<String, Boolean>> doCreate(
+    protected UserWorkflowResult<Pair<String, Boolean>> doCreate(
             final UserCR userCR,
             final boolean disablePwdPolicyCheck,
             final Boolean enabled) {
@@ -69,14 +69,23 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus(status);
         user = userDAO.save(user);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(user.getKey()));
 
-        return new WorkflowResult<>(Pair.of(user.getKey(), propagateEnable), propByRes, "create");
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+        user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
+                ResourceOperation.CREATE,
+                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
+
+        return new UserWorkflowResult<>(
+                Pair.of(user.getKey(), propagateEnable),
+                propByRes,
+                propByLinkedAccount,
+                "create");
     }
 
     @Override
-    protected WorkflowResult<String> doActivate(final User user, final String token) {
+    protected UserWorkflowResult<String> doActivate(final User user, final String token) {
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
@@ -85,29 +94,34 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("active");
         User updated = userDAO.save(user);
 
-        return new WorkflowResult<>(updated.getKey(), null, "activate");
+        return new UserWorkflowResult<>(updated.getKey(), null, null, "activate");
     }
 
     @Override
-    protected WorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
-        PropagationByResource propByRes = dataBinder.update(user, userUR);
-        return new WorkflowResult<>(Pair.of(userUR, !user.isSuspended()), propByRes, "update");
+    protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
+        Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
+                dataBinder.update(user, userUR);
+        return new UserWorkflowResult<>(
+                Pair.of(userUR, !user.isSuspended()),
+                propInfo.getLeft(),
+                propInfo.getRight(),
+                "update");
     }
 
     @Override
-    protected WorkflowResult<String> doSuspend(final User user) {
+    protected UserWorkflowResult<String> doSuspend(final User user) {
         user.setStatus("suspended");
         User updated = userDAO.save(user);
 
-        return new WorkflowResult<>(updated.getKey(), null, "suspend");
+        return new UserWorkflowResult<>(updated.getKey(), null, null, "suspend");
     }
 
     @Override
-    protected WorkflowResult<String> doReactivate(final User user) {
+    protected UserWorkflowResult<String> doReactivate(final User user) {
         user.setStatus("active");
         User updated = userDAO.save(user);
 
-        return new WorkflowResult<>(updated.getKey(), null, "reactivate");
+        return new UserWorkflowResult<>(updated.getKey(), null, null, "reactivate");
     }
 
     @Override
@@ -119,7 +133,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
+    protected UserWorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
             final User user, final String token, final String password) {
 
         if (!user.checkToken(token)) {

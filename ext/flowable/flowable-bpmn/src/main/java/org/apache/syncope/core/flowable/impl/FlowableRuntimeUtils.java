@@ -70,6 +70,8 @@ public final class FlowableRuntimeUtils {
 
     public static final String PROP_BY_RESOURCE = "propByResource";
 
+    public static final String PROP_BY_LINKEDACCOUNT = "propByLinkedAccount";
+
     public static final String PROPAGATE_ENABLE = "propagateEnable";
 
     public static final String ENCRYPTED_PWD = "encryptedPwd";
@@ -162,6 +164,7 @@ public final class FlowableRuntimeUtils {
      * @param password password
      * @param enabled is user to be enabled or not?
      * @param propByRes current propagation actions against resources
+     * @param propByLinkedAccount current propagation actions for linked accounts
      */
     public static void saveForFormSubmit(
             final DomainProcessEngine engine,
@@ -170,7 +173,8 @@ public final class FlowableRuntimeUtils {
             final UserTO userTO,
             final String password,
             final Boolean enabled,
-            final PropagationByResource propByRes) {
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount) {
 
         String formTaskId = getFormTask(engine, procInstId);
         if (formTaskId == null) {
@@ -191,11 +195,19 @@ public final class FlowableRuntimeUtils {
                     setVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, encrypt(password));
         }
 
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.ENABLED, enabled);
+        engine.getRuntimeService().setVariable(
+                procInstId, FlowableRuntimeUtils.ENABLED, enabled);
 
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+        engine.getRuntimeService().setVariable(
+                procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
         if (propByRes != null) {
             propByRes.clear();
+        }
+
+        engine.getRuntimeService().setVariable(
+                procInstId, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propByLinkedAccount);
+        if (propByLinkedAccount != null) {
+            propByLinkedAccount.clear();
         }
     }
 

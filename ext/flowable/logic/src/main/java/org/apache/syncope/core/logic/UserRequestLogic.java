@@ -37,10 +37,10 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -167,7 +167,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             final int size,
             final List<OrderByClause> orderByClauses) {
         evaluateKey(userKey);
-        
+
         return userRequestHandler.getForms(userKey, page, size, orderByClauses);
     }
 
@@ -183,15 +183,16 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     "Submitting forms for user" + form.getUsername() + " not allowed");
         }
 
-        WorkflowResult<UserUR> wfResult = userRequestHandler.submitForm(form);
+        UserWorkflowResult<UserUR> wfResult = userRequestHandler.submitForm(form);
 
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)
         if (wfResult.getPropByRes() != null && !wfResult.getPropByRes().isEmpty()) {
             List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
-                    new WorkflowResult<>(
+                    new UserWorkflowResult<>(
                             Pair.of(wfResult.getResult(), Boolean.TRUE),
                             wfResult.getPropByRes(),
+                            wfResult.getPropByLinkedAccount(),
                             wfResult.getPerformedTasks()));
 
             taskExecutor.execute(taskInfos, false);

@@ -18,15 +18,21 @@
  */
 package org.apache.syncope.core.spring.policy;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @AccountRuleConfClass(DefaultAccountRuleConf.class)
 public class DefaultAccountRule implements AccountRule {
@@ -45,64 +51,86 @@ public class DefaultAccountRule implements AccountRule {
         }
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public void enforce(final User user) {
-        this.conf.getSchemasNotPermitted().stream().
-                map(user::getPlainAttr).
-                filter(Optional::isPresent).
-                map(attr -> attr.get().getValuesAsStrings()).
-                filter(values -> (values != null && !values.isEmpty())).
-                forEachOrdered(values -> this.conf.getWordsNotPermitted().add(values.get(0)));
-
-        if (user.getUsername() == null) {
-            throw new AccountPolicyException("Invalid account");
-        }
-
+    protected void enforce(final String username, final Set<String> wordsNotPermitted) {
         // check min length
-        if (this.conf.getMinLength() > 0 && this.conf.getMinLength() > user.getUsername().length()) {
+        if (conf.getMinLength() > 0 && conf.getMinLength() > username.length()) {
             throw new AccountPolicyException("Username too short");
         }
 
         // check max length
-        if (this.conf.getMaxLength() > 0 && this.conf.getMaxLength() < user.getUsername().length()) {
+        if (conf.getMaxLength() > 0 && conf.getMaxLength() < username.length()) {
             throw new AccountPolicyException("Username too long");
         }
 
         // check words not permitted
-        this.conf.getWordsNotPermitted().stream().
-                filter(word -> StringUtils.containsIgnoreCase(user.getUsername(), word)).
-                forEachOrdered(item -> {
+        wordsNotPermitted.stream().
+                filter(word -> StringUtils.containsIgnoreCase(username, word)).
+                forEach(item -> {
                     throw new AccountPolicyException("Used word(s) not permitted");
                 });
 
         // check case
-        if (this.conf.isAllUpperCase() && !user.getUsername().equals(user.getUsername().toUpperCase())) {
+        if (conf.isAllUpperCase() && !username.equals(username.toUpperCase())) {
             throw new AccountPolicyException("No lowercase characters permitted");
         }
-        if (this.conf.isAllLowerCase() && !user.getUsername().equals(user.getUsername().toLowerCase())) {
+        if (conf.isAllLowerCase() && !username.equals(username.toLowerCase())) {
             throw new AccountPolicyException("No uppercase characters permitted");
         }
 
         // check pattern
-        Pattern pattern = (this.conf.getPattern() == null) ? DEFAULT_PATTERN : Pattern.compile(this.conf.getPattern());
-        if (!pattern.matcher(user.getUsername()).matches()) {
+        Pattern pattern = (conf.getPattern() == null) ? DEFAULT_PATTERN : Pattern.compile(conf.getPattern());
+        if (!pattern.matcher(username).matches()) {
             throw new AccountPolicyException("Username does not match pattern");
         }
 
         // check prefix
-        this.conf.getPrefixesNotPermitted().stream().
-                filter(prefix -> user.getUsername().startsWith(prefix)).
-                forEachOrdered(item -> {
+        conf.getPrefixesNotPermitted().stream().
+                filter(prefix -> username.startsWith(prefix)).
+                forEach(item -> {
                     throw new AccountPolicyException("Prefix not permitted");
                 });
 
         // check suffix
-        this.conf.getSuffixesNotPermitted().stream().
-                filter(suffix -> user.getUsername().endsWith(suffix)).
-                forEachOrdered(item -> {
+        conf.getSuffixesNotPermitted().stream().
+                filter(suffix -> username.endsWith(suffix)).
+                forEach(item -> {
                     throw new AccountPolicyException("Suffix not permitted");
                 });
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final User user) {
+        Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
+        wordsNotPermitted.addAll(
+                conf.getSchemasNotPermitted().stream().
+                        map(schema -> user.getPlainAttr(schema)).
+                        filter(Optional::isPresent).
+                        map(attr -> attr.get().getValuesAsStrings()).
+                        filter(values -> !CollectionUtils.isEmpty(values)).
+                        flatMap(Collection::stream).
+                        collect(Collectors.toSet()));
+
+        enforce(user.getUsername(), wordsNotPermitted);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final LinkedAccount account) {
+        if (StringUtils.isBlank(account.getUsername())) {
+            return;
+        }
+
+        Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
+        wordsNotPermitted.addAll(
+                conf.getSchemasNotPermitted().stream().
+                        map(schema -> account.getPlainAttr(schema)).
+                        filter(Optional::isPresent).
+                        map(attr -> attr.get().getValuesAsStrings()).
+                        filter(values -> !CollectionUtils.isEmpty(values)).
+                        flatMap(Collection::stream).
+                        collect(Collectors.toSet()));
+
+        enforce(account.getUsername(), wordsNotPermitted);
+    }
 }

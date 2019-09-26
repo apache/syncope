@@ -29,25 +29,27 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 
 /**
  * Encapsulates operations to be performed on various resources.
+ *
+ * @param <T> key for propagation: could be simple resource or pair (resource, connObjectName) for linked accounts
  */
-public class PropagationByResource implements Serializable {
+public class PropagationByResource<T extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = -5699740428104336636L;
 
     /**
      * Resources for creation.
      */
-    private final Set<String> toBeCreated;
+    private final Set<T> toBeCreated;
 
     /**
      * Resources for update.
      */
-    private final Set<String> toBeUpdated;
+    private final Set<T> toBeUpdated;
 
     /**
      * Resources for deletion.
      */
-    private final Set<String> toBeDeleted;
+    private final Set<T> toBeDeleted;
 
     /**
      * Mapping target resource names to old ConnObjectKeys (when applicable).
@@ -80,11 +82,11 @@ public class PropagationByResource implements Serializable {
      * Add an element.
      *
      * @param type resource operation type
-     * @param resourceKey target resource
+     * @param key target resource
      * @return whether the operation was successful or not
      */
-    public final boolean add(final ResourceOperation type, final String resourceKey) {
-        Set<String> set;
+    public final boolean add(final ResourceOperation type, final T key) {
+        Set<T> set;
         switch (type) {
             case CREATE:
                 set = toBeCreated;
@@ -100,18 +102,18 @@ public class PropagationByResource implements Serializable {
                 break;
         }
 
-        return set.add(resourceKey);
+        return set.add(key);
     }
 
     /**
      * Add some elements.
      *
      * @param type resource operation type
-     * @param resourceKeys target resources
+     * @param keys target resources
      * @return whether the operation was successful or not
      */
-    public boolean addAll(final ResourceOperation type, final Collection<String> resourceKeys) {
-        Set<String> set;
+    public boolean addAll(final ResourceOperation type, final Collection<T> keys) {
+        Set<T> set;
         switch (type) {
             case CREATE:
                 set = toBeCreated;
@@ -127,30 +129,30 @@ public class PropagationByResource implements Serializable {
                 break;
         }
 
-        return set.addAll(resourceKeys);
+        return set.addAll(keys);
     }
 
     /**
      * Remove an element.
      *
      * @param type resource operation type
-     * @param resourceKey target resource
+     * @param key target resource
      * @return whether the operation was successful or not
      */
-    public final boolean remove(final ResourceOperation type, final String resourceKey) {
+    public final boolean remove(final ResourceOperation type, final T key) {
         boolean result = false;
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.remove(resourceKey);
+                result = toBeCreated.remove(key);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.remove(resourceKey);
+                result = toBeUpdated.remove(key);
                 break;
 
             case DELETE:
-                result = toBeDeleted.remove(resourceKey);
+                result = toBeDeleted.remove(key);
                 break;
 
             default:
@@ -163,11 +165,11 @@ public class PropagationByResource implements Serializable {
      * Remove some elements.
      *
      * @param type resource operation type
-     * @param resourceKeys target resources
+     * @param keys target resources
      * @return whether the operation was successful or not
      */
-    public boolean removeAll(final ResourceOperation type, final Set<String> resourceKeys) {
-        Set<String> set;
+    public boolean removeAll(final ResourceOperation type, final Set<T> keys) {
+        Set<T> set;
         switch (type) {
             case CREATE:
                 set = toBeCreated;
@@ -183,7 +185,7 @@ public class PropagationByResource implements Serializable {
                 break;
         }
 
-        return set.removeAll(resourceKeys);
+        return set.removeAll(keys);
     }
 
     /**
@@ -214,20 +216,20 @@ public class PropagationByResource implements Serializable {
                 | toBeDeleted.retainAll(resourceKeys);
     }
 
-    public boolean contains(final ResourceOperation type, final String resourceKey) {
+    public boolean contains(final ResourceOperation type, final T key) {
         boolean result = false;
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.contains(resourceKey);
+                result = toBeCreated.contains(key);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.contains(resourceKey);
+                result = toBeUpdated.contains(key);
                 break;
 
             case DELETE:
-                result = toBeDeleted.contains(resourceKey);
+                result = toBeDeleted.contains(key);
                 break;
 
             default:
@@ -236,10 +238,10 @@ public class PropagationByResource implements Serializable {
         return result;
     }
 
-    public boolean contains(final String resourceKey) {
-        return toBeCreated.contains(resourceKey)
-                || toBeUpdated.contains(resourceKey)
-                || toBeDeleted.contains(resourceKey);
+    public boolean contains(final T key) {
+        return toBeCreated.contains(key)
+                || toBeUpdated.contains(key)
+                || toBeDeleted.contains(key);
     }
 
     /**
@@ -248,8 +250,8 @@ public class PropagationByResource implements Serializable {
      * @param type resource operation type
      * @return resource matching the given type
      */
-    public final Set<String> get(final ResourceOperation type) {
-        Set<String> result = Set.of();
+    public final Set<T> get(final ResourceOperation type) {
+        Set<T> result = Set.of();
 
         switch (type) {
             case CREATE:
@@ -270,8 +272,8 @@ public class PropagationByResource implements Serializable {
         return result;
     }
 
-    public Map<String, ResourceOperation> asMap() {
-        Map<String, ResourceOperation> result = new HashMap<>();
+    public Map<T, ResourceOperation> asMap() {
+        Map<T, ResourceOperation> result = new HashMap<>();
         Stream.of(ResourceOperation.values()).
                 forEach(operation -> get(operation).forEach(resource -> result.put(resource, operation)));
 
@@ -282,24 +284,24 @@ public class PropagationByResource implements Serializable {
      * Set resources for a given resource operation type.
      *
      * @param type resource operation type
-     * @param resourceKeys to be set
+     * @param keys to be set
      */
-    public final void set(final ResourceOperation type, final Collection<String> resourceKeys) {
+    public final void set(final ResourceOperation type, final Collection<T> keys) {
 
         switch (type) {
             case CREATE:
                 toBeCreated.clear();
-                toBeCreated.addAll(resourceKeys);
+                toBeCreated.addAll(keys);
                 break;
 
             case UPDATE:
                 toBeUpdated.clear();
-                toBeUpdated.addAll(resourceKeys);
+                toBeUpdated.addAll(keys);
                 break;
 
             case DELETE:
                 toBeDeleted.clear();
-                toBeDeleted.addAll(resourceKeys);
+                toBeDeleted.addAll(keys);
                 break;
 
             default:
@@ -311,7 +313,7 @@ public class PropagationByResource implements Serializable {
      *
      * @param propByRes to be merged
      */
-    public final void merge(final PropagationByResource propByRes) {
+    public final void merge(final PropagationByResource<T> propByRes) {
         if (propByRes != null) {
             toBeCreated.addAll(propByRes.get(ResourceOperation.CREATE));
             toBeUpdated.addAll(propByRes.get(ResourceOperation.UPDATE));

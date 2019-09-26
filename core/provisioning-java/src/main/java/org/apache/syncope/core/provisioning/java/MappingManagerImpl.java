@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Application;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -73,10 +74,15 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.Account;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -143,6 +149,39 @@ public class MappingManagerImpl implements MappingManager {
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
+    protected String processPreparedAttr(final Pair<String, Attribute> preparedAttr, final Set<Attribute> attributes) {
+        String connObjectKey = null;
+
+        if (preparedAttr != null) {
+            if (preparedAttr.getLeft() != null) {
+                connObjectKey = preparedAttr.getLeft();
+            }
+
+            if (preparedAttr.getRight() != null) {
+                Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getRight().getName(), attributes);
+
+                if (alreadyAdded == null) {
+                    attributes.add(preparedAttr.getRight());
+                } else {
+                    attributes.remove(alreadyAdded);
+
+                    Set<Object> values = new HashSet<>();
+                    if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
+                        values.addAll(alreadyAdded.getValue());
+                    }
+
+                    if (preparedAttr.getRight().getValue() != null) {
+                        values.addAll(preparedAttr.getRight().getValue());
+                    }
+
+                    attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
+                }
+            }
+        }
+
+        return connObjectKey;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Pair<String, Set<Attribute>> prepareAttrs(
@@ -162,32 +201,17 @@ public class MappingManagerImpl implements MappingManager {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
 
             try {
-                Pair<String, Attribute> preparedAttr = prepareAttr(provision, mapItem, any, password);
-                if (preparedAttr != null) {
-                    if (preparedAttr.getLeft() != null) {
-                        connObjectKey = preparedAttr.getLeft();
-                    }
-
-                    if (preparedAttr.getRight() != null) {
-                        Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getRight().getName(), attributes);
-
-                        if (alreadyAdded == null) {
-                            attributes.add(preparedAttr.getRight());
-                        } else {
-                            attributes.remove(alreadyAdded);
-
-                            Set<Object> values = new HashSet<>();
-                            if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
-                                values.addAll(alreadyAdded.getValue());
-                            }
-
-                            if (preparedAttr.getRight().getValue() != null) {
-                                values.addAll(preparedAttr.getRight().getValue());
-                            }
-
-                            attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
-                        }
-                    }
+                String processedConnObjectKey = processPreparedAttr(
+                        prepareAttr(
+                                provision,
+                                mapItem,
+                                any,
+                                password,
+                                AccountGetter.DEFAULT,
+                                PlainAttrGetter.DEFAULT),
+                        attributes);
+                if (processedConnObjectKey != null) {
+                    connObjectKey = processedConnObjectKey;
                 }
             } catch (Exception e) {
                 LOG.error("Expression '{}' processing failed", mapItem.getIntAttrName(), e);
@@ -221,7 +245,81 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKey, attributes);
     }
 
-    private static String getIntValue(final Realm realm, final Item orgUnitItem) {
+    @Transactional(readOnly = true)
+    @Override
+    public Set<Attribute> prepareAttrs(
+            final User user,
+            final LinkedAccount account,
+            final String password,
+            final boolean changePwd,
+            final Provision provision) {
+
+        LOG.debug("Preparing resource attributes for linked account {} of user {} with provision {} "
+                + "for user attributes {} with override {}",
+                account, user, provision, user.getPlainAttrs(), account.getPlainAttrs());
+
+        Set<Attribute> attributes = new HashSet<>();
+
+        for (Item mapItem : MappingUtils.getPropagationItems(provision.getMapping().getItems())) {
+            LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
+
+            try {
+                processPreparedAttr(
+                        prepareAttr(
+                                provision,
+                                mapItem,
+                                user,
+                                password,
+                                acct -> account.getUsername() == null
+                                ? AccountGetter.DEFAULT.apply(acct)
+                                : account,
+                                (attributable, schema) -> {
+                                    PlainAttr<?> result = null;
+                                    if (attributable instanceof User) {
+                                        Optional<? extends LAPlainAttr> accountAttr = account.getPlainAttr(schema);
+                                        if (accountAttr.isPresent()) {
+                                            result = accountAttr.get();
+                                        }
+                                    }
+                                    if (result == null) {
+                                        result = PlainAttrGetter.DEFAULT.apply(attributable, schema);
+                                    }
+                                    return result;
+                                }),
+                        attributes);
+            } catch (Exception e) {
+                LOG.error("Expression '{}' processing failed", mapItem.getIntAttrName(), e);
+            }
+        }
+
+        String connObjectKey = account.getConnObjectName();
+        MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
+            Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
+            if (connObjectKeyExtAttr != null) {
+                attributes.remove(connObjectKeyExtAttr);
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
+            }
+            Name name = MappingUtils.evaluateNAME(user, provision, connObjectKey);
+            attributes.add(name);
+            if (!connObjectKey.equals(name.getNameValue()) && connObjectKeyExtAttr == null) {
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
+            }
+        });
+
+        if (account.isSuspended() != null) {
+            attributes.add(AttributeBuilder.buildEnabled(!BooleanUtils.negate(account.isSuspended())));
+        }
+        if (!changePwd) {
+            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
+            if (pwdAttr != null) {
+                attributes.remove(pwdAttr);
+            }
+        }
+
+        return attributes;
+    }
+
+    private String getIntValue(final Realm realm, final Item orgUnitItem) {
         String value = null;
         switch (orgUnitItem.getIntAttrName()) {
             case "key":
@@ -291,12 +389,35 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKey, attributes);
     }
 
+    protected String getPasswordAttrValue(final Provision provision, final Account account, final String defaultValue) {
+        String passwordAttrValue = defaultValue;
+        if (StringUtils.isBlank(passwordAttrValue)) {
+            if (account.canDecodePassword()) {
+                try {
+                    passwordAttrValue = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                } catch (Exception e) {
+                    LOG.error("Could not decode password for {}", account, e);
+                }
+            } else if (provision.getResource().isRandomPwdIfNotProvided()) {
+                try {
+                    passwordAttrValue = passwordGenerator.generate(provision.getResource());
+                } catch (InvalidPasswordRuleConf e) {
+                    LOG.error("Could not generate policy-compliant random password for {}", account, e);
+                }
+            }
+        }
+
+        return passwordAttrValue;
+    }
+
     @Override
     public Pair<String, Attribute> prepareAttr(
             final Provision provision,
             final Item item,
             final Any<?> any,
-            final String password) {
+            final String password,
+            final AccountGetter accountGetter,
+            final PlainAttrGetter plainAttrGetter) {
 
         IntAttrName intAttrName;
         try {
@@ -314,7 +435,7 @@ public class MappingManagerImpl implements MappingManager {
                 : false;
 
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues =
-                getIntValues(provision, item, intAttrName, schemaType, any);
+                getIntValues(provision, item, intAttrName, schemaType, any, accountGetter, plainAttrGetter);
         schemaType = intValues.getLeft();
         List<PlainAttrValue> values = intValues.getRight();
 
@@ -352,24 +473,7 @@ public class MappingManagerImpl implements MappingManager {
             if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
             } else if (item.isPassword() && any instanceof User) {
-                String passwordAttrValue = password;
-                if (StringUtils.isBlank(passwordAttrValue)) {
-                    User user = (User) any;
-                    if (user.canDecodePassword()) {
-                        try {
-                            passwordAttrValue = ENCRYPTOR.decode(user.getPassword(), user.getCipherAlgorithm());
-                        } catch (Exception e) {
-                            LOG.error("Could not decode password for {}", user, e);
-                        }
-                    } else if (provision.getResource().isRandomPwdIfNotProvided()) {
-                        try {
-                            passwordAttrValue = passwordGenerator.generate(provision.getResource());
-                        } catch (InvalidPasswordRuleConf e) {
-                            LOG.error("Could not generate policy-compliant random password for {}", user, e);
-                        }
-                    }
-                }
-
+                String passwordAttrValue = getPasswordAttrValue(provision, accountGetter.apply((User) any), password);
                 if (passwordAttrValue == null) {
                     result = null;
                 } else {
@@ -386,13 +490,16 @@ public class MappingManagerImpl implements MappingManager {
     }
 
     @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
             final Provision provision,
             final Item mapItem,
             final IntAttrName intAttrName,
             final AttrSchemaType schemaType,
-            final Any<?> any) {
+            final Any<?> any,
+            final AccountGetter accountGetter,
+            final PlainAttrGetter plainAttrGetter) {
 
         LOG.debug("Get internal values for {} as '{}' on {}", any, mapItem.getIntAttrName(), provision.getResource());
 
@@ -461,19 +568,26 @@ public class MappingManagerImpl implements MappingManager {
         List<PlainAttrValue> values = new ArrayList<>();
         boolean transform = true;
 
-        for (Any<?> reference : references) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
+        for (Any<?> ref : references) {
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(ref);
             if (intAttrName.getField() != null) {
                 PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
 
                 switch (intAttrName.getField()) {
                     case "key":
-                        attrValue.setStringValue(reference.getKey());
+                        attrValue.setStringValue(ref.getKey());
                         values.add(attrValue);
                         break;
 
+                    case "username":
+                        if (ref instanceof Account) {
+                            attrValue.setStringValue(accountGetter.apply((Account) ref).getUsername());
+                            values.add(attrValue);
+                        }
+                        break;
+
                     case "realm":
-                        attrValue.setStringValue(reference.getRealm().getFullPath());
+                        attrValue.setStringValue(ref.getRealm().getFullPath());
                         values.add(attrValue);
                         break;
 
@@ -490,8 +604,8 @@ public class MappingManagerImpl implements MappingManager {
                                 ? provision.getMapping()
                                 : null;
 
-                        if (reference instanceof Group) {
-                            Group group = (Group) reference;
+                        if (ref instanceof Group) {
+                            Group group = (Group) ref;
                             String groupOwnerValue = null;
                             if (group.getUserOwner() != null && uMapping != null) {
                                 groupOwnerValue = getGroupOwnerValue(provision, group.getUserOwner());
@@ -508,22 +622,22 @@ public class MappingManagerImpl implements MappingManager {
                         break;
 
                     case "suspended":
-                        if (reference instanceof User) {
-                            attrValue.setBooleanValue(((User) reference).isSuspended());
+                        if (ref instanceof User) {
+                            attrValue.setBooleanValue(((User) ref).isSuspended());
                             values.add(attrValue);
                         }
                         break;
 
                     case "mustChangePassword":
-                        if (reference instanceof User) {
-                            attrValue.setBooleanValue(((User) reference).isMustChangePassword());
+                        if (ref instanceof User) {
+                            attrValue.setBooleanValue(((User) ref).isMustChangePassword());
                             values.add(attrValue);
                         }
                         break;
 
                     default:
                         try {
-                            Object fieldValue = FieldUtils.readField(reference, intAttrName.getField(), true);
+                            Object fieldValue = FieldUtils.readField(ref, intAttrName.getField(), true);
                             if (fieldValue instanceof Date) {
                                 // needed because ConnId does not natively supports the Date type
                                 attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
@@ -539,7 +653,7 @@ public class MappingManagerImpl implements MappingManager {
                             }
                             values.add(attrValue);
                         } catch (Exception e) {
-                            LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), reference, e);
+                            LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), ref, e);
                         }
                 }
             } else if (intAttrName.getSchemaType() != null) {
@@ -547,14 +661,18 @@ public class MappingManagerImpl implements MappingManager {
                     case PLAIN:
                         PlainAttr<?> attr;
                         if (membership == null) {
-                            attr = reference.getPlainAttr(intAttrName.getSchema().getKey()).orElse(null);
+                            if (ref instanceof Attributable) {
+                                attr = plainAttrGetter.apply((Attributable) ref, intAttrName.getSchema().getKey());
+                            } else {
+                                attr = ref.getPlainAttr(intAttrName.getSchema().getKey()).orElse(null);
+                            }
                         } else {
-                            attr = ((GroupableRelatable<?, ?, ?, ?, ?>) reference).getPlainAttr(
+                            attr = ((GroupableRelatable<?, ?, ?, ?, ?>) ref).getPlainAttr(
                                     intAttrName.getSchema().getKey(), membership).orElse(null);
                         }
                         if (attr == null) {
                             LOG.warn("Invalid PlainSchema {} or PlainAttr not found for {}",
-                                    intAttrName.getSchema().getKey(), reference);
+                                    intAttrName.getSchema().getKey(), ref);
                         } else {
                             if (attr.getUniqueValue() != null) {
                                 values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
@@ -567,8 +685,8 @@ public class MappingManagerImpl implements MappingManager {
                     case DERIVED:
                         DerSchema derSchema = (DerSchema) intAttrName.getSchema();
                         String derValue = membership == null
-                                ? derAttrHandler.getValue(reference, derSchema)
-                                : derAttrHandler.getValue(reference, membership, derSchema);
+                                ? derAttrHandler.getValue(ref, derSchema)
+                                : derAttrHandler.getValue(ref, membership, derSchema);
                         if (derValue != null) {
                             PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                             attrValue.setStringValue(derValue);
@@ -581,13 +699,13 @@ public class MappingManagerImpl implements MappingManager {
                         transform = false;
 
                         VirSchema virSchema = (VirSchema) intAttrName.getSchema();
-                        LOG.debug("Expire entry cache {}-{}", reference, intAttrName.getSchema().getKey());
+                        LOG.debug("Expire entry cache {}-{}", ref, intAttrName.getSchema().getKey());
                         virAttrCache.expire(
-                                reference.getType().getKey(), reference.getKey(), intAttrName.getSchema().getKey());
+                                ref.getType().getKey(), ref.getKey(), intAttrName.getSchema().getKey());
 
                         List<String> virValues = membership == null
-                                ? virAttrHandler.getValues(reference, virSchema)
-                                : virAttrHandler.getValues(reference, membership, virSchema);
+                                ? virAttrHandler.getValues(ref, virSchema)
+                                : virAttrHandler.getValues(ref, membership, virSchema);
                         virValues.forEach(virValue -> {
                             PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                             attrValue.setStringValue(virValue);
@@ -597,12 +715,12 @@ public class MappingManagerImpl implements MappingManager {
 
                     default:
                 }
-            } else if (intAttrName.getPrivilegesOfApplication() != null && reference instanceof User) {
+            } else if (intAttrName.getPrivilegesOfApplication() != null && ref instanceof User) {
                 Application application = applicationDAO.find(intAttrName.getPrivilegesOfApplication());
                 if (application == null) {
                     LOG.warn("Invalid application: {}", intAttrName.getPrivilegesOfApplication());
                 } else {
-                    userDAO.findAllRoles((User) reference).stream().
+                    userDAO.findAllRoles((User) ref).stream().
                             flatMap(role -> role.getPrivileges(application).stream()).
                             forEach(privilege -> {
                                 PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
@@ -633,11 +751,17 @@ public class MappingManagerImpl implements MappingManager {
 
         Pair<String, Attribute> preparedAttr = null;
         if (connObjectKeyItem.isPresent()) {
-            preparedAttr = prepareAttr(provision, connObjectKeyItem.get(), any, null);
+            preparedAttr = prepareAttr(
+                    provision,
+                    connObjectKeyItem.get(),
+                    any,
+                    null,
+                    AccountGetter.DEFAULT,
+                    PlainAttrGetter.DEFAULT);
         }
 
         return Optional.ofNullable(preparedAttr)
-            .map(attr -> MappingUtils.evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
+                .map(attr -> MappingUtils.evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -646,12 +770,13 @@ public class MappingManagerImpl implements MappingManager {
         MappingItem mapItem = provision.getMapping().getConnObjectKeyItem().get();
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues;
         try {
-            intValues = getIntValues(
-                    provision,
+            intValues = getIntValues(provision,
                     mapItem,
                     intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind()),
                     AttrSchemaType.String,
-                    any);
+                    any,
+                    AccountGetter.DEFAULT,
+                    PlainAttrGetter.DEFAULT);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", mapItem.getIntAttrName(), e);
             intValues = Pair.of(AttrSchemaType.String, List.of());
@@ -667,7 +792,7 @@ public class MappingManagerImpl implements MappingManager {
         OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
 
         return Optional.ofNullable(Optional.of(orgUnitItem)
-            .map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
+                .map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
     }
 
     @Transactional(readOnly = true)

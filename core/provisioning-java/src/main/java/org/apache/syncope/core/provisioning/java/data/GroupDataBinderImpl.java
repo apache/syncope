@@ -186,11 +186,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     @Override
-    public PropagationByResource update(final Group toBeUpdated, final GroupUR groupUR) {
+    public PropagationByResource<String> update(final Group toBeUpdated, final GroupUR groupUR) {
         // Re-merge any pending change from workflow tasks
         Group group = groupDAO.save(toBeUpdated);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -387,9 +387,9 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     private static void populateTransitiveResources(
-        final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
+            final Group group, final Any<?> any, final Map<String, PropagationByResource<String>> result) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         group.getResources().forEach(resource -> {
             if (!any.getResources().contains(resource)) {
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
@@ -403,10 +403,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
     @Transactional(readOnly = true)
     @Override
-    public Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(final String groupKey) {
+    public Map<String, PropagationByResource<String>> findAnyObjectsWithTransitiveResources(final String groupKey) {
         Group group = groupDAO.authFind(groupKey);
 
-        Map<String, PropagationByResource> result = new HashMap<>();
+        Map<String, PropagationByResource<String>> result = new HashMap<>();
 
         groupDAO.findAMemberships(group).
                 forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
@@ -416,10 +416,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
     @Transactional(readOnly = true)
     @Override
-    public Map<String, PropagationByResource> findUsersWithTransitiveResources(final String groupKey) {
+    public Map<String, PropagationByResource<String>> findUsersWithTransitiveResources(final String groupKey) {
         Group group = groupDAO.authFind(groupKey);
 
-        Map<String, PropagationByResource> result = new HashMap<>();
+        Map<String, PropagationByResource<String>> result = new HashMap<>();
 
         groupDAO.findUMemberships(group).
                 forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));

@@ -20,9 +20,8 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
-import java.util.Optional;
 
-public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
+public interface Any<P extends PlainAttr<?>> extends Attributable<P>, AnnotatedEntity {
 
     AnyType getType();
 
@@ -35,14 +34,6 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
     String getStatus();
 
     void setStatus(String status);
-
-    boolean add(P attr);
-
-    boolean remove(P attr);
-
-    Optional<? extends P> getPlainAttr(String plainSchema);
-
-    List<? extends P> getPlainAttrs();
 
     boolean add(ExternalResource resource);
 

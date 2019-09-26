@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -127,5 +127,5 @@ public interface UserRequestHandler {
      * @param form to be submitted
      * @return user updated by this form submit
      */
-    WorkflowResult<UserUR> submitForm(UserRequestForm form);
+    UserWorkflowResult<UserUR> submitForm(UserRequestForm form);
 }

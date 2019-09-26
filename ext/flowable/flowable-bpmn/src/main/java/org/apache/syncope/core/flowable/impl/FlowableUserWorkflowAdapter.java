@@ -37,7 +37,7 @@ import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
@@ -82,7 +82,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected WorkflowResult<Pair<String, Boolean>> doCreate(
+    protected UserWorkflowResult<Pair<String, Boolean>> doCreate(
             final UserCR userCR,
             final boolean disablePwdPolicyCheck,
             final Boolean enabled) {
@@ -140,8 +140,13 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             propagateEnable = enabled;
         }
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(created.getKey()));
+
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+        user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
+                ResourceOperation.CREATE,
+                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
 
         FlowableRuntimeUtils.saveForFormSubmit(
                 engine,
@@ -150,11 +155,16 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 dataBinder.getUserTO(created, true),
                 userCR.getPassword(),
                 enabled,
-                propByRes);
+                propByRes,
+                propByLinkedAccount);
 
         Set<String> tasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInst.getProcessInstanceId(), user);
 
-        return new WorkflowResult<>(Pair.of(created.getKey(), propagateEnable), propByRes, tasks);
+        return new UserWorkflowResult<>(
+                Pair.of(created.getKey(), propagateEnable),
+                propByRes,
+                propByLinkedAccount,
+                tasks);
     }
 
     protected Set<String> doExecuteNextTask(
@@ -196,7 +206,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected WorkflowResult<String> doActivate(final User user, final String token) {
+    protected UserWorkflowResult<String> doActivate(final User user, final String token) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Map<String, Object> variables = new HashMap<>(2);
@@ -212,18 +222,21 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
 
-        return new WorkflowResult<>(updated.getKey(), null, tasks);
+        return new UserWorkflowResult<>(updated.getKey(), null, null, tasks);
     }
 
     @Override
-    protected WorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
+    protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         // save some existing variable values for later processing, after actual update is made 
         UserUR beforeUpdate = engine.getRuntimeService().
                 getVariable(procInstID, FlowableRuntimeUtils.USER_UR, UserUR.class);
-        PropagationByResource propByResBeforeUpdate = engine.getRuntimeService().getVariable(
+        PropagationByResource<String> propByResBeforeUpdate = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+        @SuppressWarnings("unchecked")
+        PropagationByResource<Pair<String, String>> propByLinkedAccountBeforeUpdate = engine.getRuntimeService().
+                getVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
 
         // whether the initial status is a form task
         boolean inFormTask = FlowableRuntimeUtils.getFormTask(engine, procInstID) != null;
@@ -256,9 +269,15 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_UR);
         }
 
-        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+        @SuppressWarnings("unchecked")
+        PropagationByResource<String> propByRes = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+
+        @SuppressWarnings("unchecked")
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
         FlowableRuntimeUtils.saveForFormSubmit(
                 engine,
@@ -267,17 +286,18 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 dataBinder.getUserTO(updated, true),
                 userUR.getPassword() == null ? null : userUR.getPassword().getValue(),
                 null,
-                Optional.ofNullable(propByResBeforeUpdate).orElse(propByRes));
+                Optional.ofNullable(propByResBeforeUpdate).orElse(propByRes),
+                Optional.ofNullable(propByLinkedAccountBeforeUpdate).orElse(propByLinkedAccount));
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE);
 
-        return new WorkflowResult<>(Pair.of(userUR, propagateEnable), propByRes, tasks);
+        return new UserWorkflowResult<>(Pair.of(userUR, propagateEnable), propByRes, propByLinkedAccount, tasks);
     }
 
     @Override
-    protected WorkflowResult<String> doSuspend(final User user) {
+    protected UserWorkflowResult<String> doSuspend(final User user) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Set<String> performedTasks =
@@ -289,11 +309,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
 
-        return new WorkflowResult<>(updated.getKey(), null, performedTasks);
+        return new UserWorkflowResult<>(updated.getKey(), null, null, performedTasks);
     }
 
     @Override
-    protected WorkflowResult<String> doReactivate(final User user) {
+    protected UserWorkflowResult<String> doReactivate(final User user) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Set<String> performedTasks =
@@ -306,7 +326,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
 
-        return new WorkflowResult<>(updated.getKey(), null, performedTasks);
+        return new UserWorkflowResult<>(updated.getKey(), null, null, performedTasks);
     }
 
     @Override
@@ -327,7 +347,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected WorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
+    protected UserWorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
             final User user, final String token, final String password) {
 
         Map<String, Object> variables = new HashMap<>(5);
@@ -347,17 +367,22 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
 
-        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+        @SuppressWarnings("unchecked")
+        PropagationByResource<String> propByRes = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
-        UserUR updatedPatch = engine.getRuntimeService().getVariable(procInstID, FlowableRuntimeUtils.USER_UR,
-                UserUR.class);
+        @SuppressWarnings("unchecked")
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
+        UserUR updatedReq = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.USER_UR, UserUR.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_UR);
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE);
 
-        return new WorkflowResult<>(Pair.of(updatedPatch, propagateEnable), propByRes, tasks);
+        return new UserWorkflowResult<>(Pair.of(updatedReq, propagateEnable), propByRes, propByLinkedAccount, tasks);
     }
 
     @Override
@@ -366,8 +391,13 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
         doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "delete"));
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(user.getKey()));
+
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+        user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
+                ResourceOperation.DELETE,
+                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
 
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {
@@ -387,7 +417,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                     dataBinder.getUserTO(user, true),
                     null,
                     null,
-                    propByRes);
+                    propByRes,
+                    propByLinkedAccount);
 
             FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
             userDAO.save(user);
@@ -399,7 +430,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    public WorkflowResult<String> executeNextTask(final WorkflowTaskExecInput workflowTaskExecInput) {
+    public UserWorkflowResult<String> executeNextTask(final WorkflowTaskExecInput workflowTaskExecInput) {
         User user = userDAO.authFind(workflowTaskExecInput.getUserKey());
 
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
@@ -426,8 +457,12 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 engine.getHistoryService().deleteHistoricProcessInstance(procInstID);
             }
         } else {
-            PropagationByResource propByRes = engine.getRuntimeService().
+            @SuppressWarnings("unchecked")
+            PropagationByResource<String> propByRes = engine.getRuntimeService().
                     getVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+            @SuppressWarnings("unchecked")
+            PropagationByResource<Pair<String, String>> propByLinkedAccount = engine.getRuntimeService().getVariable(
+                    procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
 
             FlowableRuntimeUtils.saveForFormSubmit(
                     engine,
@@ -436,10 +471,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                     dataBinder.getUserTO(user, true),
                     null,
                     null,
-                    propByRes);
+                    propByRes,
+                    propByLinkedAccount);
         }
 
-        return new WorkflowResult<>(user.getKey(), null, performedTasks);
+        return new UserWorkflowResult<>(user.getKey(), null, null, performedTasks);
     }
 
     protected static void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {

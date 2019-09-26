@@ -49,7 +49,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getUserCreateTasks(
@@ -57,6 +57,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 enabled,
                 propByRes,
+                new PropagationByResource<>(),
                 before.getVirAttrs(),
                 noPropResources),
                 false);

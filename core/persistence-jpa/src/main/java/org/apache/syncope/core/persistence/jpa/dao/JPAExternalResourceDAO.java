@@ -242,6 +242,10 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 forEach(realm -> realm.getResources().remove(resource));
         anyObjectDAO.findByResource(resource).
                 forEach(anyObject -> anyObject.getResources().remove(resource));
+        userDAO.findLinkedAccountsByResource(resource).forEach(account -> {
+            account.getOwner().getLinkedAccounts().remove(account);
+            account.setOwner(null);
+        });
         userDAO.findByResource(resource).
                 forEach(user -> user.getResources().remove(resource));
         groupDAO.findByResource(resource).

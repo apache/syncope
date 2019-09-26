@@ -40,15 +40,6 @@ public interface Group extends Any<GPlainAttr> {
 
     void setUserOwner(User userOwner);
 
-    @Override
-    boolean add(GPlainAttr attr);
-
-    @Override
-    Optional<? extends GPlainAttr> getPlainAttr(String plainSchema);
-
-    @Override
-    List<? extends GPlainAttr> getPlainAttrs();
-
     UDynGroupMembership getUDynMembership();
 
     void setUDynMembership(UDynGroupMembership uDynMembership);

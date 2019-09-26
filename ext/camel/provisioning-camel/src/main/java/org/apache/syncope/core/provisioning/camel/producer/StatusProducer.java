@@ -89,7 +89,7 @@ public class StatusProducer extends AbstractProducer {
             StatusR statusR = exchange.getProperty("statusR", StatusR.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, statusR.getResources());
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(AnyTypeKind.USER,
                     statusR.getKey(),

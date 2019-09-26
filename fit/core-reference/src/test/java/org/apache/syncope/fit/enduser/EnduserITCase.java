@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.fit.enduser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.SelfPasswordReset;
@@ -38,7 +42,6 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class EnduserITCase extends AbstractEnduserITCase {
@@ -56,7 +59,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
 
         UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
         FormTester formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         formTester.setValue("view:username:textField", username);
         UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
@@ -85,7 +88,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
                 TextField.class);
 
         formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
                 "fullname").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
@@ -122,11 +125,11 @@ public class EnduserITCase extends AbstractEnduserITCase {
         UTILITY_UI.getTester().assertRenderedPage(Login.class);
         UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
 
-        Assertions.assertFalse(userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        assertFalse(userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(username).query()).
                 build()).getResult().isEmpty());
 
-        Assertions.assertNotNull(userService.read(username));
+        assertNotNull(userService.read(username));
 
         UTILITY_UI.getTester().cleanupFeedbackMessages();
 
@@ -161,7 +164,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
         UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:securityQuestion", TextField.class);
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(pwdResetForm);
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         // 1. set username to selfpwdreset
         formTester.setValue(UTILITY_UI.findComponentById(pwdResetForm + ":selfPwdResetPanel", "username"),
                 "selfpwdreset");
@@ -171,13 +174,13 @@ public class EnduserITCase extends AbstractEnduserITCase {
                 getContent());
         // 3. submit form and receive an error
         formTester = UTILITY_UI.getTester().newFormTester(pwdResetForm);
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         UTILITY_UI.getTester().executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:submit", Constants.ON_CLICK);
         UTILITY_UI.getTester().assertErrorMessages("InvalidSecurityAnswer []");
         UTILITY_UI.getTester().cleanupFeedbackMessages();
         // 3.1 set the correct answer
         formTester = UTILITY_UI.getTester().newFormTester(pwdResetForm);
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", TextField.class);
         formTester.setValue("selfPwdResetPanel:securityAnswer", "ananswer");
         UTILITY_UI.getTester().executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", Constants.ON_CHANGE);
@@ -216,7 +219,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(changePwdForm);
 
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         // 1. set new password
         formTester.setValue(UTILITY_UI.findComponentById(changePwdForm + ":password", "passwordField"), "password124");
         // 2. confirm password
@@ -266,7 +269,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
                 TextField.class);
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
-        Assertions.assertNotNull(formTester);
+        assertNotNull(formTester);
         UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "email").getPageRelativePath()
                 + ":textField",
@@ -298,8 +301,8 @@ public class EnduserITCase extends AbstractEnduserITCase {
         UTILITY_UI.getTester().assertRenderedPage(Login.class);
         UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
 
-        Assertions.assertEquals("active", userService.read(username).getStatus());
-        Assertions.assertEquals(newEmail, userService.read(username).getPlainAttr("email").get().getValues().get(0));
+        assertEquals("active", userService.read(username).getStatus());
+        assertEquals(newEmail, userService.read(username).getPlainAttr("email").get().getValues().get(0));
 
         UTILITY_UI.getTester().cleanupFeedbackMessages();
     }

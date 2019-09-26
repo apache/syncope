@@ -21,12 +21,12 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.JSONAny;
+import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 
-public class JPAJSONAnyValidator extends AbstractValidator<JPAJSONAnyCheck, JSONAny<?>> {
+public class JPAJSONAttributableValidator extends AbstractValidator<JPAJSONAttributableCheck, JSONAttributable<?>> {
 
     @Override
-    public boolean isValid(final JSONAny<?> entity, final ConstraintValidatorContext context) {
+    public boolean isValid(final JSONAttributable<?> entity, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         PlainAttrValidator attrValidator = new PlainAttrValidator();

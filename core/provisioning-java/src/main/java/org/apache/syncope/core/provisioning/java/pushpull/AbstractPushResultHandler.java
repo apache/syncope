@@ -107,7 +107,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.UPDATE, profile.getTask().getResource().getKey());
         propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
 
@@ -133,7 +133,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
         propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
 
@@ -156,7 +156,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getCreateTasks(
