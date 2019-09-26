@@ -486,18 +486,19 @@ public class Topology extends BasePage {
 
                 target.appendJavaScript("checkConnection()");
 
-                if (getUpdateInterval().seconds() < 5.0) {
-                    setUpdateInterval(Duration.seconds(5));
-                } else if (getUpdateInterval().seconds() < 10.0) {
-                    setUpdateInterval(Duration.seconds(10));
-                } else if (getUpdateInterval().seconds() < 15.0) {
-                    setUpdateInterval(Duration.seconds(15));
-                } else if (getUpdateInterval().seconds() < 20.0) {
-                    setUpdateInterval(Duration.seconds(20));
-                } else if (getUpdateInterval().seconds() < 30.0) {
-                    setUpdateInterval(Duration.seconds(30));
-                } else if (getUpdateInterval().seconds() < 60.0) {
-                    setUpdateInterval(Duration.seconds(60));
+                long seconds = getUpdateInterval().getSeconds();
+                if (seconds < 5.0) {
+                    setUpdateInterval(java.time.Duration.ofSeconds(5));
+                } else if (seconds < 10.0) {
+                    setUpdateInterval(java.time.Duration.ofSeconds(10));
+                } else if (seconds < 15.0) {
+                    setUpdateInterval(java.time.Duration.ofSeconds(15));
+                } else if (seconds < 20.0) {
+                    setUpdateInterval(java.time.Duration.ofSeconds(20));
+                } else if (seconds < 30.0) {
+                    setUpdateInterval(java.time.Duration.ofSeconds(30));
+                } else if (seconds < 60.0) {
+                    setUpdateInterval(java.time.Duration.ofSeconds(60));
                 }
             }
         });

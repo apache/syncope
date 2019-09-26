@@ -22,9 +22,10 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
 
 public abstract class AbstractAjaxDownloadBehavior extends AbstractAjaxBehavior {
 
@@ -47,9 +48,9 @@ public abstract class AbstractAjaxDownloadBehavior extends AbstractAjaxBehavior 
         try {
             getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(
                     new ResourceStreamRequestHandler(
-                            getResourceStream(), getFileName()).setCacheDuration(Duration.NONE));
+                            getResourceStream(), getFileName()).setCacheDuration(Duration.ZERO));
         } catch (Exception e) {
-            // cannot be notifies beacause the use of scheduleRequestHandlerAfterCurrent
+            // cannot be notifies because the use of scheduleRequestHandlerAfterCurrent
             LOG.error("Error downloading file", e);
         }
     }

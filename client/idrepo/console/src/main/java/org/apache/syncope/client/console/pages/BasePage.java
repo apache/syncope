@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.time.Duration;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
@@ -66,7 +67,6 @@ import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +129,7 @@ public class BasePage extends BaseWebPage {
                             ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
                             : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
-                    rsrh.setCacheDuration(Duration.NONE);
+                    rsrh.setCacheDuration(Duration.ZERO);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {

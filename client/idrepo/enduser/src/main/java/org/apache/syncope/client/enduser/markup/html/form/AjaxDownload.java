@@ -26,7 +26,8 @@ import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
+
+import java.time.Duration;
 
 public abstract class AjaxDownload extends AbstractAjaxBehavior {
 
@@ -73,13 +74,13 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
         String ext = "";
         if (StringUtils.isNotBlank(mimeType)) {
             String extByMimeType = mimeTypesLoader.getFileExt(mimeType);
-            ext = StringUtils.isBlank(extByMimeType) ? ".bin" : ('.' + extByMimeType);
+            ext = StringUtils.isBlank(extByMimeType) ? ".bin" : '.' + extByMimeType;
         }
         String fileName = key + (stream.getFilename() == null ? name : stream.getFilename()) + ext;
 
         handler.setFileName(fileName);
         handler.setContentDisposition(ContentDisposition.ATTACHMENT);
-        handler.setCacheDuration(Duration.NONE);
+        handler.setCacheDuration(Duration.ZERO);
         getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
     }
 
