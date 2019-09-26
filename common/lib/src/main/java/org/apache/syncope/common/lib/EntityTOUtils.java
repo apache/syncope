@@ -33,26 +33,28 @@ public final class EntityTOUtils {
 
     public static Map<String, AttrTO> buildAttrMap(final Collection<AttrTO> attrs) {
         return Collections.unmodifiableMap(attrs.stream().collect(Collectors.toMap(
-                AttrTO::getSchema, Function.identity())));
+                AttrTO::getSchema, Function.identity(), (exist, repl) -> repl)));
     }
 
     public static Map<Pair<String, String>, RelationshipTO> buildRelationshipMap(
             final Collection<RelationshipTO> relationships) {
 
         return Collections.unmodifiableMap(relationships.stream().collect(Collectors.toMap(
-                rel -> Pair.of(rel.getType(), rel.getOtherEndKey()), Function.identity())));
+                rel -> Pair.of(rel.getType(), rel.getOtherEndKey()), Function.identity(), (exist, repl) -> repl)));
     }
 
     public static Map<String, MembershipTO> buildMembershipMap(final Collection<MembershipTO> memberships) {
         return Collections.unmodifiableMap(memberships.stream().collect(Collectors.toMap(
-                MembershipTO::getGroupKey, Function.identity())));
+                MembershipTO::getGroupKey, Function.identity(), (exist, repl) -> repl)));
     }
 
     public static Map<Pair<String, String>, LinkedAccountTO> buildLinkedAccountMap(
             final Collection<LinkedAccountTO> accounts) {
 
         return Collections.unmodifiableMap(accounts.stream().collect(Collectors.toMap(
-                account -> Pair.of(account.getResource(), account.getConnObjectName()), Function.identity())));
+                account -> Pair.of(account.getResource(), account.getConnObjectName()),
+                Function.identity(),
+                (exist, repl) -> repl)));
     }
 
     /**
