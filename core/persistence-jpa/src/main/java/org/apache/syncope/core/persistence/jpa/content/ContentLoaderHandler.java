@@ -26,9 +26,12 @@ import java.util.Objects;
 
 import javax.sql.DataSource;
 import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.xml.sax.Attributes;
@@ -48,21 +51,31 @@ public class ContentLoaderHandler extends DefaultHandler {
 
     private final boolean continueOnError;
 
-    public ContentLoaderHandler(final DataSource dataSource, final String rootElement, final boolean continueOnError) {
+    private final StringSubstitutor envParamSubstitutor;
+
+    public ContentLoaderHandler(
+            final DataSource dataSource,
+            final String rootElement,
+            final boolean continueOnError,
+            final Environment env) {
+
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.rootElement = rootElement;
         this.continueOnError = continueOnError;
+        this.envParamSubstitutor = new StringSubstitutor(key -> {
+            String value = env.getProperty(key);
+            return StringUtils.isBlank(value) ? null : value;
+        });
     }
 
     private Object[] getParameters(final String tableName, final Attributes attrs) {
         Map<String, Integer> colTypes = jdbcTemplate.query(
                 "SELECT * FROM " + tableName + " WHERE 0=1", rs -> {
-                    Map<String, Integer> colTypes1 = new HashMap<>();
+                    Map<String, Integer> types = new HashMap<>();
                     for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                        colTypes1.put(
-                                rs.getMetaData().getColumnName(i).toUpperCase(), rs.getMetaData().getColumnType(i));
+                        types.put(rs.getMetaData().getColumnName(i).toUpperCase(), rs.getMetaData().getColumnType(i));
                     }
-                    return colTypes1;
+                    return types;
                 });
 
         Object[] parameters = new Object[attrs.getLength()];
@@ -73,15 +86,21 @@ public class ContentLoaderHandler extends DefaultHandler {
                 colType = Types.VARCHAR;
             }
 
+            String value = envParamSubstitutor.replace(attrs.getValue(i));
+            if (value == null) {
+                LOG.warn("Variable ${} could not be resolved", attrs.getValue(i));
+                value = attrs.getValue(i);
+            }
+
             switch (colType) {
                 case Types.INTEGER:
                 case Types.TINYINT:
                 case Types.SMALLINT:
                     try {
-                        parameters[i] = Integer.valueOf(attrs.getValue(i));
+                        parameters[i] = Integer.valueOf(value);
                     } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Integer '{}'", attrs.getValue(i));
-                        parameters[i] = attrs.getValue(i);
+                        LOG.error("Unparsable Integer '{}'", value);
+                        parameters[i] = value;
                     }
                     break;
 
@@ -89,29 +108,29 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.DECIMAL:
                 case Types.BIGINT:
                     try {
-                        parameters[i] = Long.valueOf(attrs.getValue(i));
+                        parameters[i] = Long.valueOf(value);
                     } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Long '{}'", attrs.getValue(i));
-                        parameters[i] = attrs.getValue(i);
+                        LOG.error("Unparsable Long '{}'", value);
+                        parameters[i] = value;
                     }
                     break;
 
                 case Types.DOUBLE:
                     try {
-                        parameters[i] = Double.valueOf(attrs.getValue(i));
+                        parameters[i] = Double.valueOf(value);
                     } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Double '{}'", attrs.getValue(i));
-                        parameters[i] = attrs.getValue(i);
+                        LOG.error("Unparsable Double '{}'", value);
+                        parameters[i] = value;
                     }
                     break;
 
                 case Types.REAL:
                 case Types.FLOAT:
                     try {
-                        parameters[i] = Float.valueOf(attrs.getValue(i));
+                        parameters[i] = Float.valueOf(value);
                     } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Float '{}'", attrs.getValue(i));
-                        parameters[i] = attrs.getValue(i);
+                        LOG.error("Unparsable Float '{}'", value);
+                        parameters[i] = value;
                     }
                     break;
 
@@ -119,41 +138,41 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.TIME:
                 case Types.TIMESTAMP:
                     try {
-                        parameters[i] = FormatUtils.parseDate(attrs.getValue(i));
+                        parameters[i] = FormatUtils.parseDate(value);
                     } catch (ParseException e) {
-                        LOG.error("Unparsable Date '{}'", attrs.getValue(i));
-                        parameters[i] = attrs.getValue(i);
+                        LOG.error("Unparsable Date '{}'", value);
+                        parameters[i] = value;
                     }
                     break;
 
                 case Types.BIT:
                 case Types.BOOLEAN:
-                    parameters[i] = "1".equals(attrs.getValue(i)) ? Boolean.TRUE : Boolean.FALSE;
+                    parameters[i] = "1".equals(value) ? Boolean.TRUE : Boolean.FALSE;
                     break;
 
                 case Types.BINARY:
                 case Types.VARBINARY:
                 case Types.LONGVARBINARY:
                     try {
-                        parameters[i] = DatatypeConverter.parseHexBinary(attrs.getValue(i));
+                        parameters[i] = DatatypeConverter.parseHexBinary(value);
                     } catch (IllegalArgumentException e) {
-                        parameters[i] = attrs.getValue(i);
+                        parameters[i] = value;
                     }
                     break;
 
                 case Types.BLOB:
                     try {
-                        parameters[i] = DatatypeConverter.parseHexBinary(attrs.getValue(i));
+                        parameters[i] = DatatypeConverter.parseHexBinary(value);
                     } catch (IllegalArgumentException e) {
                         LOG.warn("Error decoding hex string to specify a blob parameter", e);
-                        parameters[i] = attrs.getValue(i);
+                        parameters[i] = value;
                     } catch (Exception e) {
                         LOG.warn("Error creating a new blob parameter", e);
                     }
                     break;
 
                 default:
-                    parameters[i] = attrs.getValue(i);
+                    parameters[i] = value;
             }
         }
 

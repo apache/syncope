@@ -33,6 +33,8 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -53,6 +55,9 @@ public class XMLContentLoader implements ContentLoader {
 
     @Resource(name = "indexesXML")
     private ResourceWithFallbackLoader indexesXML;
+
+    @Autowired
+    private Environment env;
 
     @Override
     public int getOrder() {
@@ -101,15 +106,15 @@ public class XMLContentLoader implements ContentLoader {
         }
     }
 
-    private static void loadDefaultContent(
-        final String domain, final InputStream contentXML, final DataSource dataSource)
+    private void loadDefaultContent(
+            final String domain, final InputStream contentXML, final DataSource dataSource)
             throws IOException, ParserConfigurationException, SAXException {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         try (contentXML) {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(contentXML, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true));
+            parser.parse(contentXML, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true, env));
             LOG.debug("[{}] Default content successfully loaded", domain);
         }
     }
