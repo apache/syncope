@@ -391,7 +391,7 @@ under the License.
 
     <cxf.version>3.2.10</cxf.version>
 
-    <jackson.version>2.10.0.pr3</jackson.version>
+    <jackson.version>2.10.0</jackson.version>
 
     <spring.version>5.1.9.RELEASE</spring.version>
     <spring-security.version>5.1.6.RELEASE</spring-security.version>
@@ -2424,12 +2424,12 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.4/</link>
             <link>http://cxf.apache.org/javadoc/latest-3.2.x/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
             <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
-            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.9/</link>
+            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.24.2/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.24.2/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
