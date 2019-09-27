@@ -31,6 +31,8 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -49,6 +51,9 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
 
     @Resource(name = "indexesXML")
     private ResourceWithFallbackLoader indexesXML;
+
+    @Autowired
+    private Environment env;
 
     @Override
     public Integer getPriority() {
@@ -105,7 +110,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
         try (InputStream in = contentXML.getResource().getInputStream()) {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true));
+            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true, env));
             LOG.debug("[{}] Default content successfully loaded", domain);
         }
     }
