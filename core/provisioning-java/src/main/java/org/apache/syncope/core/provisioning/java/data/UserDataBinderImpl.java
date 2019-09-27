@@ -581,7 +581,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                 user.getLinkedAccounts().remove(account);
                 account.setOwner(null);
-                account.getPlainAttrs().forEach(attr -> {
+                account.getPlainAttrs().stream().collect(Collectors.toSet()).forEach(attr -> {
                     account.remove(attr);
                     attr.setOwner(null);
                     attr.setAccount(null);
@@ -608,7 +608,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     ResourceOperation.CREATE,
                     Pair.of(account.getResource().getKey(), account.getConnObjectName()));
         });
-        
+
         // finalize resource management
         reasons.entrySet().stream().
                 filter(entry -> entry.getValue().isEmpty()).

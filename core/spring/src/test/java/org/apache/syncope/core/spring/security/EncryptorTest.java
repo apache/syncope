@@ -74,7 +74,6 @@ public class EncryptorTest {
     @Test
     public void testSaltedHash() throws Exception {
         String encPassword = encryptor.encode(password, CipherAlgorithm.SSHA256);
-        // System.out.println("ENC: " + encPassword);
         assertNotNull(encPassword);
 
         assertTrue(encryptor.verify(password, CipherAlgorithm.SSHA256, encPassword));

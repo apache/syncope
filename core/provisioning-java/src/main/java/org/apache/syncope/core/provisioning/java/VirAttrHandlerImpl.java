@@ -186,5 +186,4 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, VirSchema.class).
                         getForMembership(membership.getRightEnd()));
     }
-
 }

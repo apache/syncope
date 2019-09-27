@@ -62,7 +62,13 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
                 item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH).
                 forEach(item -> {
                     Pair<String, Attribute> attr = mappingManager.prepareAttr(
-                            provision, item, any, null, AccountGetter.DEFAULT, PlainAttrGetter.DEFAULT);
+                            provision,
+                            item,
+                            any,
+                            null,
+                            AccountGetter.DEFAULT,
+                            AccountGetter.DEFAULT,
+                            PlainAttrGetter.DEFAULT);
                     if (attr != null && attr.getRight() != null && conf.getSchemas().contains(item.getIntAttrName())) {
                         filters.add(provision.isIgnoreCaseMatch()
                                 ? FilterBuilder.equalsIgnoreCase(attr.getRight())

@@ -208,6 +208,7 @@ public class MappingManagerImpl implements MappingManager {
                                 any,
                                 password,
                                 AccountGetter.DEFAULT,
+                                AccountGetter.DEFAULT,
                                 PlainAttrGetter.DEFAULT),
                         attributes);
                 if (processedConnObjectKey != null) {
@@ -270,9 +271,8 @@ public class MappingManagerImpl implements MappingManager {
                                 mapItem,
                                 user,
                                 password,
-                                acct -> account.getUsername() == null
-                                ? AccountGetter.DEFAULT.apply(acct)
-                                : account,
+                                acct -> account.getUsername() == null ? AccountGetter.DEFAULT.apply(acct) : account,
+                                acct -> account.getPassword() == null ? AccountGetter.DEFAULT.apply(acct) : account,
                                 (attributable, schema) -> {
                                     PlainAttr<?> result = null;
                                     if (attributable instanceof User) {
@@ -308,12 +308,6 @@ public class MappingManagerImpl implements MappingManager {
 
         if (account.isSuspended() != null) {
             attributes.add(AttributeBuilder.buildEnabled(!BooleanUtils.negate(account.isSuspended())));
-        }
-        if (!changePwd) {
-            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
-            if (pwdAttr != null) {
-                attributes.remove(pwdAttr);
-            }
         }
 
         return attributes;
@@ -416,7 +410,8 @@ public class MappingManagerImpl implements MappingManager {
             final Item item,
             final Any<?> any,
             final String password,
-            final AccountGetter accountGetter,
+            final AccountGetter usernameAccountGetter,
+            final AccountGetter passwordAccountGetter,
             final PlainAttrGetter plainAttrGetter) {
 
         IntAttrName intAttrName;
@@ -435,7 +430,7 @@ public class MappingManagerImpl implements MappingManager {
                 : false;
 
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues =
-                getIntValues(provision, item, intAttrName, schemaType, any, accountGetter, plainAttrGetter);
+                getIntValues(provision, item, intAttrName, schemaType, any, usernameAccountGetter, plainAttrGetter);
         schemaType = intValues.getLeft();
         List<PlainAttrValue> values = intValues.getRight();
 
@@ -473,7 +468,8 @@ public class MappingManagerImpl implements MappingManager {
             if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
             } else if (item.isPassword() && any instanceof User) {
-                String passwordAttrValue = getPasswordAttrValue(provision, accountGetter.apply((User) any), password);
+                String passwordAttrValue =
+                        getPasswordAttrValue(provision, passwordAccountGetter.apply((User) any), password);
                 if (passwordAttrValue == null) {
                     result = null;
                 } else {
@@ -498,7 +494,7 @@ public class MappingManagerImpl implements MappingManager {
             final IntAttrName intAttrName,
             final AttrSchemaType schemaType,
             final Any<?> any,
-            final AccountGetter accountGetter,
+            final AccountGetter usernameAccountGetter,
             final PlainAttrGetter plainAttrGetter) {
 
         LOG.debug("Get internal values for {} as '{}' on {}", any, mapItem.getIntAttrName(), provision.getResource());
@@ -581,7 +577,7 @@ public class MappingManagerImpl implements MappingManager {
 
                     case "username":
                         if (ref instanceof Account) {
-                            attrValue.setStringValue(accountGetter.apply((Account) ref).getUsername());
+                            attrValue.setStringValue(usernameAccountGetter.apply((Account) ref).getUsername());
                             values.add(attrValue);
                         }
                         break;
@@ -756,6 +752,7 @@ public class MappingManagerImpl implements MappingManager {
                     connObjectKeyItem.get(),
                     any,
                     null,
+                    AccountGetter.DEFAULT,
                     AccountGetter.DEFAULT,
                     PlainAttrGetter.DEFAULT);
         }

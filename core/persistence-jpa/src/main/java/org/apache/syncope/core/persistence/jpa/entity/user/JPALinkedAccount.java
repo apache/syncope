@@ -186,7 +186,7 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     @Override
     public boolean remove(final LAPlainAttr attr) {
         checkType(attr, JPALAPlainAttr.class);
-        return getPlainAttrs().remove((JPALAPlainAttr) attr);
+        return plainAttrs.remove((JPALAPlainAttr) attr);
     }
 
     @Override
