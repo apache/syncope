@@ -422,7 +422,6 @@ abstract class AbstractAnyDataBinder {
                         ((PlainAttr) attr).setOwner(any);
                         attr.setSchema(schema);
                         any.add(attr);
-
                     }
                 }
                 if (attr != null) {

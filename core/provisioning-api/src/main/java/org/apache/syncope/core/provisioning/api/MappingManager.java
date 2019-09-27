@@ -63,7 +63,7 @@ public interface MappingManager {
      * @param intAttrName int attr name
      * @param schemaType schema type
      * @param any any object
-     * @param accountGetter function to get actual account instance
+     * @param usernameAccountGetter function to get actual account instance for username
      * @param plainAttrGetter function to get PlainAttr instances
      * @return attribute values and their type
      */
@@ -73,7 +73,7 @@ public interface MappingManager {
             IntAttrName intAttrName,
             AttrSchemaType schemaType,
             Any<?> any,
-            AccountGetter accountGetter,
+            AccountGetter usernameAccountGetter,
             PlainAttrGetter plainAttrGetter);
 
     /**
@@ -83,7 +83,8 @@ public interface MappingManager {
      * @param item mapping item
      * @param any given any object
      * @param password clear-text password
-     * @param accountGetter function to get actual account instance
+     * @param usernameAccountGetter function to get actual account instance for username
+     * @param passwordAccountGetter function to get actual account instance for password
      * @param plainAttrGetter function to get PlainAttr instances
      * @return connObjectLink (if it is the case) + prepared attribute
      */
@@ -91,7 +92,8 @@ public interface MappingManager {
             Provision provision,
             Item item, Any<?> any,
             String password,
-            AccountGetter accountGetter,
+            AccountGetter usernameAccountGetter,
+            AccountGetter passwordAccountGetter,
             PlainAttrGetter plainAttrGetter);
 
     /**
