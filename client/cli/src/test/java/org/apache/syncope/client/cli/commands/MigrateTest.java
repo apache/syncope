@@ -34,6 +34,7 @@ import org.apache.syncope.client.cli.commands.migrate.MigrateCommand;
 import org.apache.syncope.core.persistence.jpa.content.ContentLoaderHandler;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -77,7 +78,7 @@ public class MigrateTest {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try (InputStream in = new FileInputStream(args[3])) {
             SAXParser parser = factory.newSAXParser();
-            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, false));
+            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, false, new StandardEnvironment()));
         }
     }
 }
