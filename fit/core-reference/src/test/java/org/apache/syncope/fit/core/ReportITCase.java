@@ -54,12 +54,25 @@ import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 public class ReportITCase extends AbstractITCase {
 
+    @BeforeEach
+    public void setup() {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            new User("admin", "FAKE_PASSWORD", List.of()), "FAKE_PASSWORD", List.of());
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    
     protected static String execReport(final String reportKey) {
         ReportTO reportTO = reportService.read(reportKey);
         assertNotNull(reportTO);
