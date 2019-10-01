@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +42,6 @@ import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.util.time.Duration;
 
 @ExtWidget(priority = 10)
 public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
@@ -53,7 +54,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
         super(id);
         setOutputMarkupId(true);
 
-        latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.seconds(30)) {
+        latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.ofSeconds(30)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 

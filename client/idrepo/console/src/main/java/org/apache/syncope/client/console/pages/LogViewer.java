@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.list.SetUniqueList;
@@ -38,7 +39,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.util.time.Duration;
 
 public class LogViewer extends WebPage {
 
@@ -76,7 +76,7 @@ public class LogViewer extends WebPage {
         };
         statementView.setOutputMarkupId(true);
         stContainer.add(statementView);
-        stContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(10)) {
+        stContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.ofSeconds(10)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 

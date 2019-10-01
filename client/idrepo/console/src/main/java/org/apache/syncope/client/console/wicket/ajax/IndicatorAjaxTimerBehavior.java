@@ -21,7 +21,8 @@ package org.apache.syncope.client.console.wicket.ajax;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
-import org.apache.wicket.util.time.Duration;
+
+import java.time.Duration;
 
 /**
  * An {@link AbstractAjaxTimerBehavior} not showing veil.

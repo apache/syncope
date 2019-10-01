@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,7 +51,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.time.Duration;
 
 /**
  * Tasks page.
@@ -80,7 +80,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
         // super in order to call the parent implementation
         super.initResultTable();
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.ofSeconds(10)) {
 
             private static final long serialVersionUID = -4661303265651934868L;
 

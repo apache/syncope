@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +33,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.util.time.Duration;
 
 @ExtWidget(cssClass = "col-md-6")
 public class CamelMetricsWidget extends BaseExtWidget {
@@ -59,7 +59,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
         chart = new ChartJSPanel("chart", Model.of(build(meanRates)));
         container.add(chart);
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.ofSeconds(60)) {
 
             private static final long serialVersionUID = -4426283634345968585L;
 

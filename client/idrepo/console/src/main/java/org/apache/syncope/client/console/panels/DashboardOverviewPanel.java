@@ -31,7 +31,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.util.time.Duration;
+
+import java.time.Duration;
 
 public class DashboardOverviewPanel extends Panel {
 
@@ -99,7 +100,7 @@ public class DashboardOverviewPanel extends Panel {
         load = new LoadWidget("load", SyncopeRestClient.system());
         container.add(load);
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.ofSeconds(60)) {
 
             private static final long serialVersionUID = -4426283634345968585L;
 

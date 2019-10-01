@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -81,7 +82,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.time.Duration;
 
 public class JobWidget extends BaseWidget {
 
@@ -180,7 +180,7 @@ public class JobWidget extends BaseWidget {
         recent = getUpdatedRecent();
 
         container = new WebMarkupContainer("jobContainer");
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.ofSeconds(10)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 

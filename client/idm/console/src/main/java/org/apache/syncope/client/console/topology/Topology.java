@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.topology;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -63,7 +64,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.util.time.Duration;
 
 @IdMPage(label = "Topology", icon = "fa-plug", listEntitlement = IdMEntitlement.RESOURCE_LIST, priority = 0)
 public class Topology extends BasePage {
@@ -474,7 +474,7 @@ public class Topology extends BasePage {
             }
         });
 
-        jsPlace.add(new AbstractAjaxTimerBehavior(Duration.seconds(2)) {
+        jsPlace.add(new AbstractAjaxTimerBehavior(Duration.ofSeconds(2)) {
 
             private static final long serialVersionUID = -4426283634345968585L;
 

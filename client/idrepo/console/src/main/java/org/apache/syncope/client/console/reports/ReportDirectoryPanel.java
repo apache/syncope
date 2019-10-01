@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.reports;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,7 +67,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.time.Duration;
 
 /**
  * Reports page.
@@ -87,7 +88,7 @@ public abstract class ReportDirectoryPanel
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.ofSeconds(10)) {
 
             private static final long serialVersionUID = -4661303265651934868L;
 
