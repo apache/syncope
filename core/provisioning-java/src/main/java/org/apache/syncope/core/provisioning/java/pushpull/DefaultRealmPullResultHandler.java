@@ -138,7 +138,7 @@ public class DefaultRealmPullResultHandler
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
         if (realmTO.getFullPath() == null) {
             if (realmTO.getParent() == null) {
-                realmTO.setParent(profile.getTask().getDestinatioRealm().getFullPath());
+                realmTO.setParent(profile.getTask().getDestinationRealm().getFullPath());
             }
 
             realmTO.setFullPath(realmTO.getParent() + '/' + realmTO.getName());
@@ -177,7 +177,7 @@ public class DefaultRealmPullResultHandler
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
         if (realmTO.getFullPath() == null) {
             if (realmTO.getParent() == null) {
-                realmTO.setParent(profile.getTask().getDestinatioRealm().getFullPath());
+                realmTO.setParent(profile.getTask().getDestinationRealm().getFullPath());
             }
 
             realmTO.setFullPath(realmTO.getParent() + '/' + realmTO.getName());
@@ -232,7 +232,7 @@ public class DefaultRealmPullResultHandler
         Result resultStatus;
 
         try {
-            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm(), realmTO));
+            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinationRealm(), realmTO));
 
             PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
@@ -244,7 +244,7 @@ public class DefaultRealmPullResultHandler
             RealmTO actual = binder.getRealmTO(realm, true);
 
             result.setKey(actual.getKey());
-            result.setName(profile.getTask().getDestinatioRealm().getFullPath() + '/' + actual.getName());
+            result.setName(profile.getTask().getDestinationRealm().getFullPath() + '/' + actual.getName());
 
             output = actual;
             resultStatus = Result.SUCCESS;

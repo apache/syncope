@@ -309,7 +309,7 @@ public class ConnObjectUtils {
         anyTO.setType(provision.getAnyType().getKey());
 
         // 1. fill with data from connector object
-        anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
+        anyTO.setRealm(pullTask.getDestinationRealm().getFullPath());
         MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(
                 item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
