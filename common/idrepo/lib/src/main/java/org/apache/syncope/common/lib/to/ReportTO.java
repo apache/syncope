@@ -58,6 +58,8 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
     private String template;
 
+    private String lastExecutor;
+    
     @Override
     public String getKey() {
         return key;
@@ -141,6 +143,14 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.template = template;
     }
 
+    public String getLastExecutor() {
+        return lastExecutor;
+    }
+
+    public void setLastExecutor(final String lastExecutor) {
+        this.lastExecutor = lastExecutor;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -155,6 +165,7 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
                 append(nextExec).
                 append(active).
                 append(template).
+                append(lastExecutor).
                 build();
     }
 
@@ -182,6 +193,7 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
                 append(nextExec, other.nextExec).
                 append(active, other.active).
                 append(template, other.template).
+                append(lastExecutor, other.lastExecutor).
                 build();
     }
 }

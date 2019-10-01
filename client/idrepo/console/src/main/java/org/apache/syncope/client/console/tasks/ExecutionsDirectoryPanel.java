@@ -96,7 +96,8 @@ public abstract class ExecutionsDirectoryPanel
         final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
-
+        columns.add(new PropertyColumn<>(new StringResourceModel("executor", this), "executor", "executor"));
+        
         columns.add(new DatePropertyColumn<>(new StringResourceModel("start", this), "start", "start"));
 
         columns.add(new DatePropertyColumn<>(new StringResourceModel("end", this), "end", "end"));
@@ -179,7 +180,7 @@ public abstract class ExecutionsDirectoryPanel
 
         @Override
         public Iterator<ExecTO> iterator(final long first, final long count) {
-            int page = ((int) first / paginatorRows);
+            int page = (int) first / paginatorRows;
             return restClient.listExecutions(
                     taskKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();

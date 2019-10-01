@@ -49,6 +49,8 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.helpers.AttributesImpl;
@@ -124,6 +126,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         execution.setStatus(ReportExecStatus.STARTED);
         execution.setStart(new Date());
         execution.setReport(report);
+        execution.setExecutor(getAuthenticationPrincipal());
         execution = reportExecDAO.save(execution);
 
         report.add(execution);
@@ -222,5 +225,13 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             execution.setEnd(new Date());
             reportExecDAO.save(execution);
         }
+    }
+
+    private static String getAuthenticationPrincipal() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        return principal.toString();
     }
 }

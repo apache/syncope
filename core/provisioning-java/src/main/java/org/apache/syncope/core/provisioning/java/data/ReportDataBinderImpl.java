@@ -108,6 +108,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
             reportTO.setStart(latestExec.getStart());
             reportTO.setEnd(latestExec.getEnd());
 
+            reportTO.setLastExecutor(latestExec.getExecutor());
             reportTO.setLastExec(reportTO.getStart());
         }
 
@@ -148,6 +149,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         execTO.setStart(execution.getStart());
         execTO.setEnd(execution.getEnd());
 
+        execTO.setExecutor(execution.getExecutor());
         return execTO;
     }
 }
