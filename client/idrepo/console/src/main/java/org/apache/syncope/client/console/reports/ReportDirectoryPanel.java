@@ -110,7 +110,7 @@ public abstract class ReportDirectoryPanel
         columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
 
         columns.add(new DatePropertyColumn<>(
-            new StringResourceModel("lastExec", this), null, "lastExec"));
+                new StringResourceModel("lastExec", this), null, "lastExec"));
 
         columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("nextExec", this), null, "nextExec"));
