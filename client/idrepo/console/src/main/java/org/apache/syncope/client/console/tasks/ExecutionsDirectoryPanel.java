@@ -140,12 +140,12 @@ public abstract class ExecutionsDirectoryPanel
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
-        addFurtherAcions(panel, model);
+        addFurtherActions(panel, model);
 
         return panel;
     }
 
-    protected void addFurtherAcions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
+    protected void addFurtherActions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
     }
 
     @Override

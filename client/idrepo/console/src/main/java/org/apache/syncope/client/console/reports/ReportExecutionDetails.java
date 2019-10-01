@@ -82,7 +82,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
         }
 
         @Override
-        protected void addFurtherAcions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
+        protected void addFurtherActions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
             panel.add(new ActionLink<ExecTO>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;

@@ -35,6 +35,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -126,6 +127,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         execution.setStatus(ReportExecStatus.STARTED);
         execution.setStart(new Date());
         execution.setReport(report);
+
         execution.setExecutor(getAuthenticationPrincipal());
         execution = reportExecDAO.save(execution);
 
