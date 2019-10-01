@@ -412,7 +412,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
                 fill(pullTaskTO, pullTask);
 
-                pullTaskTO.setDestinationRealm(pullTask.getDestinatioRealm().getFullPath());
+                pullTaskTO.setDestinationRealm(pullTask.getDestinationRealm().getFullPath());
                 pullTaskTO.setMatchingRule(pullTask.getMatchingRule() == null
                         ? MatchingRule.UPDATE : pullTask.getMatchingRule());
                 pullTaskTO.setUnmatchingRule(pullTask.getUnmatchingRule() == null
