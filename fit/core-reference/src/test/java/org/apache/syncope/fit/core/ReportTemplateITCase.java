@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,8 +46,8 @@ import org.springframework.security.core.userdetails.User;
 
 public class ReportTemplateITCase extends AbstractITCase {
 
-    @BeforeEach
-    public void setup() {
+    @BeforeAll
+    public static void setup() {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
             new User("admin", "FAKE_PASSWORD", List.of()), "FAKE_PASSWORD", List.of());
         auth.setDetails(new SyncopeAuthenticationDetails("Master"));
