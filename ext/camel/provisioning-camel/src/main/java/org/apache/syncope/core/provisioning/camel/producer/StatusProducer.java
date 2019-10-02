@@ -91,11 +91,21 @@ public class StatusProducer extends AbstractProducer {
 
             PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, statusR.getResources());
-            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(AnyTypeKind.USER,
+
+            PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+            userDAO.findLinkedAccounts(statusR.getKey()).stream().
+                    filter(account -> statusR.getResources().contains(account.getResource().getKey())).
+                    forEach(account -> propByLinkedAccount.add(
+                    ResourceOperation.UPDATE,
+                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+
+            List<PropagationTaskInfo> taskInfos = getPropagationManager().getUpdateTasks(
+                    AnyTypeKind.USER,
                     statusR.getKey(),
                     false,
                     statusR.getType() != StatusRType.SUSPEND,
                     propByRes,
+                    propByLinkedAccount,
                     null,
                     null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);

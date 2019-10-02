@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 public interface UserService {
 
     @GET
+    @Produces({ MediaType.APPLICATION_JSON })
     List<User> list();
 
     @GET

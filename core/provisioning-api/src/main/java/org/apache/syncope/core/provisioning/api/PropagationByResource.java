@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 /**
  * Encapsulates operations to be performed on various resources.
  *
- * @param <T> key for propagation: could be simple resource or pair (resource, connObjectName) for linked accounts
+ * @param <T> key for propagation: could be simple resource or pair (resource, connObjectKeyValue) for linked accounts
  */
 public class PropagationByResource<T extends Serializable> implements Serializable {
 

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -61,7 +60,7 @@ public interface UserDAO extends AnyDAO<User> {
 
     Collection<ExternalResource> findAllResources(User user);
 
-    Optional<LinkedAccount> findLinkedAccountByConnObjectName(String connObjectName);
+    boolean linkedAccountExists(String userKey, String connObjectKeyValue);
 
     List<LinkedAccount> findLinkedAccounts(String userKey);
 

@@ -204,6 +204,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final boolean changePwd,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
@@ -213,7 +214,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 changePwd,
                 enable,
                 propByRes,
-                null,
+                propByLinkedAccount,
                 vAttrs,
                 noPropResourceKeys);
     }
@@ -320,9 +321,10 @@ public class PropagationManagerImpl implements PropagationManager {
             final AnyTypeKind kind,
             final String key,
             final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<String> noPropResourceKeys) {
 
-        return getDeleteTasks(dao(kind).authFind(key), propByRes, null, noPropResourceKeys);
+        return getDeleteTasks(dao(kind).authFind(key), propByRes, propByLinkedAccount, noPropResourceKeys);
     }
 
     @Override
@@ -547,12 +549,12 @@ public class PropagationManagerImpl implements PropagationManager {
                             provision,
                             deleteOnResource,
                             mappingItems,
-                            Pair.of(account.getConnObjectName(),
+                            Pair.of(account.getConnObjectKeyValue(),
                                     mappingManager.prepareAttrs(user, account, password, changePwd, provision)));
                     tasks.add(accountTask);
 
                     LOG.debug("PropagationTask created for Linked Account {}: {}",
-                            account.getConnObjectName(), accountTask);
+                            account.getConnObjectKeyValue(), accountTask);
                 }
             });
         }

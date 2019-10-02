@@ -75,7 +75,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
                 ResourceOperation.CREATE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         return new UserWorkflowResult<>(
                 Pair.of(user.getKey(), propagateEnable),

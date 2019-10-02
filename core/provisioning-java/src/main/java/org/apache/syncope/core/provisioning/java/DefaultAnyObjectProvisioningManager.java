@@ -106,6 +106,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 false,
                 null,
                 updated.getPropByRes(),
+                null,
                 anyObjectUR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
@@ -135,6 +136,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
+                null,
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
 
@@ -171,6 +173,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 propByRes,
                 null,
+                null,
                 null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
 
@@ -188,6 +191,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
+                null,
                 anyObjectDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));

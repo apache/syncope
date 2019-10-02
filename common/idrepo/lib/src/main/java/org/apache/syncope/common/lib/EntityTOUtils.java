@@ -58,7 +58,7 @@ public final class EntityTOUtils {
             final Collection<LinkedAccountTO> accounts) {
 
         return accounts.stream().collect(Collectors.toUnmodifiableMap(
-                account -> Pair.of(account.getResource(), account.getConnObjectName()),
+                account -> Pair.of(account.getResource(), account.getconnObjectKeyValue()),
                 Function.identity(),
                 (exist, repl) -> repl));
     }

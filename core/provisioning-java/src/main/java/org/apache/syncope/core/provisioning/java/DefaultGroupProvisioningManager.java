@@ -128,6 +128,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 false,
                 null,
                 updated.getPropByRes(),
+                null,
                 groupUR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
@@ -149,23 +150,28 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         // Generate propagation tasks for deleting users and any objects from group resources, 
         // if they are on those resources only because of the reason being deleted (see SYNCOPE-357)
-        groupDataBinder.findUsersWithTransitiveResources(key).entrySet().
-                forEach(entry -> taskInfos.addAll(propagationManager.getDeleteTasks(
-                        AnyTypeKind.USER,
-                        entry.getKey(),
-                        entry.getValue(),
-                        excludedResources)));
-        groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet().
-                forEach(entry -> taskInfos.addAll(propagationManager.getDeleteTasks(
-                        AnyTypeKind.ANY_OBJECT,
-                        entry.getKey(),
-                        entry.getValue(),
-                        excludedResources)));
+        groupDataBinder.findUsersWithTransitiveResources(key).forEach((anyKey, propByRes) -> {
+            taskInfos.addAll(propagationManager.getDeleteTasks(
+                    AnyTypeKind.USER,
+                    anyKey,
+                    propByRes,
+                    null,
+                    excludedResources));
+        });
+        groupDataBinder.findAnyObjectsWithTransitiveResources(key).forEach((anyKey, propByRes) -> {
+            taskInfos.addAll(propagationManager.getDeleteTasks(
+                    AnyTypeKind.ANY_OBJECT,
+                    anyKey,
+                    propByRes,
+                    null,
+                    excludedResources));
+        });
 
         // Generate propagation tasks for deleting this group from resources
         taskInfos.addAll(propagationManager.getDeleteTasks(
                 AnyTypeKind.GROUP,
                 key,
+                null,
                 null,
                 null));
 
@@ -195,6 +201,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 propByRes,
                 null,
+                null,
                 null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
 
@@ -212,6 +219,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 AnyTypeKind.GROUP,
                 key,
                 propByRes,
+                null,
                 groupDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));

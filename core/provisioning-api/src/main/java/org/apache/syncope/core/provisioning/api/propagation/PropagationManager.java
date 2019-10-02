@@ -78,6 +78,7 @@ public interface PropagationManager {
      * @param changePwd whether password should be included for propagation attributes or not
      * @param enable whether any object should be enabled or not, may be null to leave unchanged
      * @param propByRes operation to be performed per resource
+     * @param propByLinkedAccount operation to be performed for linked accounts
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceKeys external resource keys not to be considered for propagation
      * @return list of propagation tasks
@@ -88,6 +89,7 @@ public interface PropagationManager {
             boolean changePwd,
             Boolean enable,
             PropagationByResource<String> propByRes,
+            PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<Attr> vAttrs,
             Collection<String> noPropResourceKeys);
 
@@ -119,6 +121,7 @@ public interface PropagationManager {
      * @param kind any object type kind
      * @param key any object key
      * @param propByRes operation to be performed per resource
+     * @param propByLinkedAccount operation to be performed for linked accounts
      * @param noPropResourceKeys external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
@@ -126,6 +129,7 @@ public interface PropagationManager {
             AnyTypeKind kind,
             String key,
             PropagationByResource<String> propByRes,
+            PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<String> noPropResourceKeys);
 
     /**

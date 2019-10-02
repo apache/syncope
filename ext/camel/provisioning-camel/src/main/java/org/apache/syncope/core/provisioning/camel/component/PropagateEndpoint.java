@@ -91,7 +91,7 @@ public class PropagateEndpoint extends DefaultEndpoint {
                     producer = new DeleteProducer(this, anyTypeKind, userDAO, groupDataBinder);
                     break;
                 case provision:
-                    producer = new ProvisionProducer(this, anyTypeKind);
+                    producer = new ProvisionProducer(this, anyTypeKind, userDAO);
                     break;
                 case deprovision:
                     producer = new DeprovisionProducer(this, anyTypeKind, userDAO, groupDAO, anyObjectDAO);
