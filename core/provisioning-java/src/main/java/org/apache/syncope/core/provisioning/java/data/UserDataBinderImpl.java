@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
@@ -161,12 +163,25 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         if (resource == null) {
             LOG.debug("Ignoring invalid resource {}", accountTO.getResource());
         } else {
-            LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
-            account.setOwner(user);
-            user.add(account);
+            Optional<? extends LinkedAccount> found =
+                    user.getLinkedAccount(resource.getKey(), accountTO.getconnObjectKeyValue());
+            LinkedAccount account = found.isPresent()
+                    ? found.get()
+                    : new Supplier<LinkedAccount>() {
 
-            account.setConnObjectName(accountTO.getConnObjectName());
-            account.setResource(resource);
+                        @Override
+                        public LinkedAccount get() {
+                            LinkedAccount acct = entityFactory.newEntity(LinkedAccount.class);
+                            acct.setOwner(user);
+                            user.add(acct);
+
+                            acct.setConnObjectKeyValue(accountTO.getconnObjectKeyValue());
+                            acct.setResource(resource);
+
+                            return acct;
+                        }
+                    }.get();
+
             account.setUsername(accountTO.getUsername());
             if (StringUtils.isNotBlank(accountTO.getPassword())) {
                 account.setPassword(accountTO.getPassword(), CipherAlgorithm.AES);
@@ -577,10 +592,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         userPatch.getLinkedAccounts().stream().filter(patch -> patch.getLinkedAccountTO() != null).forEach(patch -> {
             user.getLinkedAccount(
                     patch.getLinkedAccountTO().getResource(),
-                    patch.getLinkedAccountTO().getConnObjectName()).ifPresent(account -> {
+                    patch.getLinkedAccountTO().getconnObjectKeyValue()).ifPresent(account -> {
 
-                user.getLinkedAccounts().remove(account);
-                account.setOwner(null);
+                if (patch.getOperation() == PatchOperation.DELETE) {
+                    user.getLinkedAccounts().remove(account);
+                    account.setOwner(null);
+
+                    propByLinkedAccount.add(
+                            ResourceOperation.DELETE,
+                            Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
+                }
+
                 account.getPlainAttrs().stream().collect(Collectors.toSet()).forEach(attr -> {
                     account.remove(attr);
                     attr.setOwner(null);
@@ -589,11 +611,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     plainAttrDAO.delete(attr);
                 });
 
-                if (patch.getOperation() == PatchOperation.DELETE) {
-                    propByLinkedAccount.add(
-                            ResourceOperation.DELETE,
-                            Pair.of(account.getResource().getKey(), account.getConnObjectName()));
-                }
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                 linkedAccount(
@@ -606,7 +623,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         user.getLinkedAccounts().forEach(account -> {
             propByLinkedAccount.add(
                     ResourceOperation.CREATE,
-                    Pair.of(account.getResource().getKey(), account.getConnObjectName()));
+                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
         });
 
         // finalize resource management
@@ -748,9 +765,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // linked accounts
             userTO.getLinkedAccounts().addAll(
                     user.getLinkedAccounts().stream().map(account -> {
-                        LinkedAccountTO accountTO = new LinkedAccountTO.Builder().
-                                resource(account.getResource().getKey()).
-                                connObjectName(account.getConnObjectName()).
+                        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
+                                account.getResource().getKey(), account.getConnObjectKeyValue()).
                                 username(account.getUsername()).
                                 password(user.getPassword()).
                                 suspended(BooleanUtils.isTrue(account.isSuspended())).

@@ -1322,7 +1322,7 @@ public class UserITCase extends AbstractITCase {
     public void restResource() {
         UserTO userTO = getUniqueSampleTO("rest@syncope.apache.org");
         userTO.getResources().clear();
-        userTO.getResources().add("rest-target-resource");
+        userTO.getResources().add(RESOURCE_NAME_REST);
 
         // 1. create
         ProvisioningResult<UserTO> result = userService.create(userTO, true).readEntity(
@@ -1330,13 +1330,13 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
         assertEquals("surname", userTO.getPlainAttr("surname").get().getValues().get(0));
 
         // verify user exists on the backend REST service
         WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + result.getEntity().getKey());
         Response response = webClient.get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
 
         // 2. update
@@ -1349,12 +1349,12 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
         assertEquals("surname2", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
 
         // verify user still exists on the backend REST service
         response = webClient.get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
 
         // 3. delete
@@ -1363,10 +1363,10 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
 
         // verify user was removed by the backend REST service
-        assertEquals(404, webClient.get().getStatus());
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), webClient.get().getStatus());
     }
 
     @Test

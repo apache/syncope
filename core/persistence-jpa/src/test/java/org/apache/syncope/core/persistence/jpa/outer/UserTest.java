@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -232,7 +231,7 @@ public class UserTest extends AbstractTest {
         assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> newM.equals(plainAttr.getMembership())));
     }
 
-    private LinkedAccount newLinkedAccount(final String connObjectName) {
+    private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {
         User user = userDAO.findByUsername("vivaldi");
         user.getLinkedAccounts().stream().filter(Objects::nonNull).forEach(account -> account.setOwner(null));
         user.getLinkedAccounts().clear();
@@ -241,7 +240,7 @@ public class UserTest extends AbstractTest {
         account.setOwner(user);
         user.add(account);
 
-        account.setConnObjectName(connObjectName);
+        account.setConnObjectKeyValue(connObjectKeyValue);
         account.setResource(resourceDAO.find("resource-ldap"));
         account.add(applicationDAO.findPrivilege("getMighty"));
 
@@ -272,9 +271,7 @@ public class UserTest extends AbstractTest {
         assertTrue(account.getPlainAttr("obscure").isPresent());
         assertEquals(account.getOwner(), account.getPlainAttr("obscure").get().getOwner());
 
-        Optional<LinkedAccount> found = userDAO.findLinkedAccountByConnObjectName(account.getConnObjectName());
-        assertTrue(found.isPresent());
-        assertEquals(account, found.get());
+        assertTrue(userDAO.linkedAccountExists(account.getOwner().getKey(), account.getConnObjectKeyValue()));
 
         List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(resourceDAO.find("resource-ldap"));
         assertEquals(1, accounts.size());

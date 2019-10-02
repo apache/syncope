@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -632,37 +633,45 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
 
-        Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
+        boolean isLinkedAccount = task.getAnyTypeKind() == AnyTypeKind.USER
+                && userDAO.linkedAccountExists(task.getEntityKey(), connObjectKey);
+
+        Set<MappingItem> linkingMappingItems = isLinkedAccount
+                ? Collections.emptySet()
+                : virSchemaDAO.findByProvision(provision).stream().
+                        map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
 
         ConnectorObject obj = null;
-        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-        if (connObjectKeyItem.isPresent()) {
-            try {
-                obj = connector.getObject(
-                        new ObjectClass(task.getObjectClassName()),
-                        AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey),
-                        provision.isIgnoreCaseMatch(),
-                        MappingUtils.buildOperationOptions(new IteratorChain<>(
-                                MappingUtils.getPropagationItems(provision.getMapping().getItems()).iterator(),
-                                linkingMappingItems.iterator())));
 
-                for (MappingItem item : linkingMappingItems) {
-                    Attribute attr = obj.getAttributeByName(item.getExtAttrName());
-                    if (attr == null) {
-                        virAttrCache.expire(task.getAnyType(), task.getEntityKey(), item.getIntAttrName());
-                    } else {
-                        VirAttrCacheValue cacheValue = new VirAttrCacheValue();
-                        cacheValue.setValues(attr.getValue());
-                        virAttrCache.put(task.getAnyType(), task.getEntityKey(), item.getIntAttrName(), cacheValue);
-                    }
+        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        String connObjectKeyName = connObjectKeyItem.isPresent()
+                ? connObjectKeyItem.get().getExtAttrName()
+                : Name.NAME;
+
+        try {
+            obj = connector.getObject(
+                    new ObjectClass(task.getObjectClassName()),
+                    AttributeBuilder.build(connObjectKeyName, connObjectKey),
+                    provision.isIgnoreCaseMatch(),
+                    MappingUtils.buildOperationOptions(new IteratorChain<>(
+                            MappingUtils.getPropagationItems(provision.getMapping().getItems()).iterator(),
+                            linkingMappingItems.iterator())));
+
+            for (MappingItem item : linkingMappingItems) {
+                Attribute attr = obj.getAttributeByName(item.getExtAttrName());
+                if (attr == null) {
+                    virAttrCache.expire(task.getAnyType(), task.getEntityKey(), item.getIntAttrName());
+                } else {
+                    VirAttrCacheValue cacheValue = new VirAttrCacheValue();
+                    cacheValue.setValues(attr.getValue());
+                    virAttrCache.put(task.getAnyType(), task.getEntityKey(), item.getIntAttrName(), cacheValue);
                 }
-            } catch (TimeoutException toe) {
-                LOG.debug("Request timeout", toe);
-                throw toe;
-            } catch (RuntimeException ignore) {
-                LOG.debug("While resolving {}", connObjectKey, ignore);
             }
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
+        } catch (RuntimeException ignore) {
+            LOG.debug("While resolving {}", connObjectKey, ignore);
         }
 
         return obj;

@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -545,6 +544,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(readOnly = true)
     @Override
+    public boolean linkedAccountExists(final String userKey, final String connObjectKeyValue) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?");
+        query.setParameter(1, userKey);
+        query.setParameter(2, connObjectKeyValue);
+
+        return !query.getResultList().isEmpty();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<LinkedAccount> findLinkedAccounts(final String userKey) {
         TypedQuery<LinkedAccount> query = entityManager().createQuery(
                 "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
@@ -560,19 +570,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 + "WHERE :privilege MEMBER OF e.privileges", LinkedAccount.class);
         query.setParameter("privilege", privilege);
         return query.getResultList();
-    }
-
-    @Override
-    public Optional<LinkedAccount> findLinkedAccountByConnObjectName(final String connObjectName) {
-        TypedQuery<LinkedAccount> query = entityManager().createQuery(
-                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
-                + "WHERE e.connObjectName=:connObjectName", LinkedAccount.class);
-        query.setParameter("connObjectName", connObjectName);
-
-        List<LinkedAccount> result = query.getResultList();
-        return result.isEmpty()
-                ? Optional.empty()
-                : Optional.of(result.get(0));
     }
 
     @Override

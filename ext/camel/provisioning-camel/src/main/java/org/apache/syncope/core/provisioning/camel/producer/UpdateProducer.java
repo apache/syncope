@@ -70,6 +70,7 @@ public class UpdateProducer extends AbstractProducer {
                         false,
                         null,
                         updated.getPropByRes(),
+                        null,
                         ((AnyPatch) actual).getVirAttrs(),
                         excludedResources);
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.cxf.jaxrs.client.WebClient
 import org.identityconnectors.framework.common.objects.Uid
+import javax.ws.rs.core.Response
 
 // Parameters:
 // The connector sends us the following:
@@ -51,10 +52,15 @@ case "__ACCOUNT__":
   node.set("email", node.textNode(attributes.get("email").get(0)));
   
   String payload = mapper.writeValueAsString(node);
-  
+
   webClient.path("/users");
-  webClient.post(payload);
+
+  log.ok("Sending POST to {0} with payload {1}", webClient.getCurrentURI().toASCIIString(), payload);
+
+  Response response = webClient.post(payload);
   
+  log.ok("Create response: {0} {1}", response.getStatus(), response.getHeaders());
+
   key = node.get("key").textValue();
   break
 

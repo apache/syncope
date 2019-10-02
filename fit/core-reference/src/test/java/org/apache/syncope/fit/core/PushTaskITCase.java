@@ -108,8 +108,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
                 SyncopeClient.getGroupSearchConditionBuilder().isNotNull("cool").query());
         task.setMatchingRule(MatchingRule.LINK);
 
-        final Response response = taskService.create(TaskType.PUSH, task);
-        final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        Response response = taskService.create(TaskType.PUSH, task);
+        PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(actual);
 
         task = taskService.read(TaskType.PUSH, actual.getKey(), true);

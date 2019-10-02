@@ -51,7 +51,7 @@ import org.apache.syncope.core.spring.security.Encryptor;
 
 @Entity
 @Table(name = JPALinkedAccount.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "connObjectName", "resource_id" }))
+        @UniqueConstraint(columnNames = { "connObjectKeyValue", "resource_id" }))
 public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements LinkedAccount {
 
     private static final long serialVersionUID = -5141654998687601522L;
@@ -61,7 +61,7 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @NotNull
-    private String connObjectName;
+    private String connObjectKeyValue;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAUser owner;
@@ -94,13 +94,13 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     private Set<JPAPrivilege> privileges = new HashSet<>();
 
     @Override
-    public String getConnObjectName() {
-        return connObjectName;
+    public String getConnObjectKeyValue() {
+        return connObjectKeyValue;
     }
 
     @Override
-    public void setConnObjectName(final String connObjectName) {
-        this.connObjectName = connObjectName;
+    public void setConnObjectKeyValue(final String connObjectKeyValue) {
+        this.connObjectKeyValue = connObjectKeyValue;
     }
 
     @Override

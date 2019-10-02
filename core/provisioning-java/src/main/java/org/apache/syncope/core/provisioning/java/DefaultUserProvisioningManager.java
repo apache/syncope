@@ -198,7 +198,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         userDAO.findLinkedAccounts(key).forEach(account -> propByLinkedAccount.add(
                 ResourceOperation.DELETE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
@@ -280,6 +280,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 statusPatch.getType() != StatusPatchType.SUSPEND,
                 propByRes,
                 null,
+                null,
                 null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
 
@@ -345,10 +346,18 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, resources);
 
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+        userDAO.findLinkedAccounts(key).stream().
+                filter(account -> resources.contains(account.getResource().getKey())).
+                forEach(account -> propByLinkedAccount.add(
+                ResourceOperation.DELETE,
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+
         List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
                 AnyTypeKind.USER,
                 key,
                 propByRes,
+                propByLinkedAccount,
                 userDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));

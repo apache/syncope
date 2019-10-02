@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -36,8 +37,11 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class ProvisionProducer extends AbstractProducer {
 
-    public ProvisionProducer(final Endpoint endpoint, final AnyTypeKind anyType) {
+    private final UserDAO userDAO;
+
+    public ProvisionProducer(final Endpoint endpoint, final AnyTypeKind anyType, final UserDAO userDAO) {
         super(endpoint, anyType);
+        this.userDAO = userDAO;
     }
 
     @SuppressWarnings("unchecked")
@@ -77,6 +81,13 @@ public class ProvisionProducer extends AbstractProducer {
             PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
+            PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+            userDAO.findLinkedAccounts(key).stream().
+                    filter(account -> resources.contains(account.getResource().getKey())).
+                    forEach(account -> propByLinkedAccount.add(
+                    ResourceOperation.UPDATE,
+                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+
             AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;
             if (getAnyTypeKind() != null) {
                 anyTypeKind = getAnyTypeKind();
@@ -88,6 +99,7 @@ public class ProvisionProducer extends AbstractProducer {
                     false,
                     null,
                     propByRes,
+                    propByLinkedAccount,
                     null,
                     null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);

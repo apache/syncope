@@ -133,11 +133,18 @@ public class JPAJSONUser extends JPAUser implements JSONAttributable<User>, User
     }
 
     @Override
-    public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectName) {
+    public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectKeyValue) {
         return linkedAccounts.stream().
                 filter(account -> account.getResource().getKey().equals(resource)
-                && account.getConnObjectName().equals(connObjectName)).
+                && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
                 findFirst();
+    }
+
+    @Override
+    public List<? extends LinkedAccount> getLinkedAccounts(final String resource) {
+        return linkedAccounts.stream().
+                filter(account -> account.getResource().getKey().equals(resource)).
+                collect(Collectors.toList());
     }
 
     @Override

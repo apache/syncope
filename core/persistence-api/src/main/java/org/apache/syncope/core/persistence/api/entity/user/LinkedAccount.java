@@ -25,9 +25,9 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface LinkedAccount extends Account, Attributable<LAPlainAttr> {
 
-    String getConnObjectName();
+    String getConnObjectKeyValue();
 
-    void setConnObjectName(String connObjectName);
+    void setConnObjectKeyValue(String connObjectKeyValue);
 
     User getOwner();
 

@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -483,11 +484,18 @@ public class JPAUser
     }
 
     @Override
-    public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectName) {
+    public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectKeyValue) {
         return linkedAccounts.stream().
                 filter(account -> account.getResource().getKey().equals(resource)
-                && account.getConnObjectName().equals(connObjectName)).
+                && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
                 findFirst();
+    }
+
+    @Override
+    public List<? extends LinkedAccount> getLinkedAccounts(final String resource) {
+        return linkedAccounts.stream().
+                filter(account -> account.getResource().getKey().equals(resource)).
+                collect(Collectors.toList());
     }
 
     @Override

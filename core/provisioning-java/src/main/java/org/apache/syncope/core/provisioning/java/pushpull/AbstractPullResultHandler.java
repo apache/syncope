@@ -23,10 +23,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -37,6 +39,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -80,6 +83,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected ConnObjectUtils connObjectUtils;
+
+    @Autowired
+    protected UserDAO userDAO;
 
     @Autowired
     protected RemediationDAO remediationDAO;
@@ -474,10 +480,19 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                         PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
+
+                        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+                        if (getAnyUtils().anyTypeKind() == AnyTypeKind.USER) {
+                            userDAO.findLinkedAccounts(key).forEach(account -> propByLinkedAccount.add(
+                                    ResourceOperation.DELETE,
+                                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+                        }
+
                         taskExecutor.execute(propagationManager.getDeleteTasks(
                                 provision.getAnyType().getKind(),
                                 key,
                                 propByRes,
+                                propByLinkedAccount,
                                 null),
                                 false);
 
