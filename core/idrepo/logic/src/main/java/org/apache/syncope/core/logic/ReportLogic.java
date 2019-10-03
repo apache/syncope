@@ -99,12 +99,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
+        String executor = AuthContextUtils.getUsername();
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -125,12 +126,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
+        String executor = AuthContextUtils.getUsername();
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -173,10 +175,12 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
 
         try {
+            String executor = AuthContextUtils.getUsername();
             jobManager.register(
                     report,
                     startAt,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
 
             scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {

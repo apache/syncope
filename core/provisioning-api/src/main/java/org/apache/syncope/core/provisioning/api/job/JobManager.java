@@ -30,15 +30,16 @@ import org.quartz.SchedulerException;
 public interface JobManager {
 
     String DOMAIN_KEY = "domain";
+    String EXECUTOR_KEY = "executor";
 
     JobKey NOTIFICATION_JOB = new JobKey("notificationJob", Scheduler.DEFAULT_GROUP);
 
     boolean isRunning(JobKey jobKey) throws SchedulerException;
 
-    Map<String, Object> register(SchedTask task, Date startAt, long interruptMaxRetries)
+    Map<String, Object> register(SchedTask task, Date startAt, long interruptMaxRetries, String executor)
             throws SchedulerException;
 
-    void register(Report report, Date startAt, long interruptMaxRetries)
+    void register(Report report, Date startAt, long interruptMaxRetries, String executor)
             throws SchedulerException;
 
     void unregister(Task task);

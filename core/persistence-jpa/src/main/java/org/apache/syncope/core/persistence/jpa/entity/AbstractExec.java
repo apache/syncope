@@ -38,6 +38,7 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
     @NotNull
     protected String status;
 
+    @NotNull
     protected String executor;
 
     /**

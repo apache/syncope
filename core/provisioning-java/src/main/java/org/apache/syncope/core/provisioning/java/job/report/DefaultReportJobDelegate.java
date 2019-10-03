@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +109,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
 
     @Transactional
     @Override
-    public void execute(final String reportKey) throws JobExecutionException {
+    public void execute(final String reportKey, final String executor) throws JobExecutionException {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
             throw new JobExecutionException("Report " + reportKey + " not found");
@@ -127,7 +126,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         execution.setStart(new Date());
         execution.setReport(report);
 
-        execution.setExecutor(AuthContextUtils.getUsername());
+        execution.setExecutor(executor);
         execution = reportExecDAO.save(execution);
 
         report.add(execution);

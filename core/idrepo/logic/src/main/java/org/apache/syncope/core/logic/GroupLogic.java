@@ -410,10 +410,12 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         task = taskDAO.save(task);
 
         try {
+            String executor = AuthContextUtils.getUsername();
             Map<String, Object> jobDataMap = jobManager.register(
                     task,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
 
             jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);

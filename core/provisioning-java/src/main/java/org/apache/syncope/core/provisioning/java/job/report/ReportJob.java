@@ -61,10 +61,13 @@ public class ReportJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
-            AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
+            String domainKey = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
+            String executor = context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY);
+
+            AuthContextUtils.callAsAdmin(domainKey,
                     () -> {
                         try {
-                            delegate.execute(reportKey);
+                            delegate.execute(reportKey, executor);
                         } catch (Exception e) {
                             LOG.error("While executing report {}", reportKey, e);
                             throw new RuntimeException(e);

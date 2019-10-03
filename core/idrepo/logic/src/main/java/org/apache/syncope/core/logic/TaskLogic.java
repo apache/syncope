@@ -110,7 +110,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
             throw sce;
         }
-
+        String executor = AuthContextUtils.getUsername();
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
 
@@ -118,7 +118,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -146,12 +147,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
-
+        String executor = AuthContextUtils.getUsername();
         try {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -267,11 +269,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 }
 
                 try {
+                    String executor = AuthContextUtils.getUsername();
                     Map<String, Object> jobDataMap = jobManager.register(
                             (SchedTask) task,
                             startAt,
                             confParamOps.get(AuthContextUtils.getDomain(),
-                                    "tasks.interruptMaxRetries", 1L, Long.class));
+                                    "tasks.interruptMaxRetries", 1L, Long.class), executor);
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
