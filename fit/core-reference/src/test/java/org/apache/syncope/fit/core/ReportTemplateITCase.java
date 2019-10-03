@@ -46,14 +46,6 @@ import org.springframework.security.core.userdetails.User;
 
 public class ReportTemplateITCase extends AbstractITCase {
 
-    @BeforeAll
-    public static void setup() {
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-            new User("admin", "FAKE_PASSWORD", List.of()), "FAKE_PASSWORD", List.of());
-        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
     @Test
     public void read() {
         ReportTemplateTO reportTemplateTO = reportTemplateService.read("sample");

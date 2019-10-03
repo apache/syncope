@@ -88,6 +88,7 @@ public class ReportTest extends AbstractTest {
         reportExec.setStart(new Date());
         reportExec.setEnd(new Date());
         reportExec.setStatus(ReportExecStatus.SUCCESS);
+        reportExec.setExecutor("admin");
 
         report.add(reportExec);
         reportDAO.save(report);
