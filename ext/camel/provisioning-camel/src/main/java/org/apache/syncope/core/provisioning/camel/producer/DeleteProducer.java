@@ -67,7 +67,7 @@ public class DeleteProducer extends AbstractProducer {
                     PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
                     userDAO.findLinkedAccounts(key).forEach(account -> propByLinkedAccount.add(
                             ResourceOperation.DELETE,
-                            Pair.of(account.getResource().getKey(), account.getConnObjectName())));
+                            Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
                     // Note here that we can only notify about "delete", not any other
                     // task defined in workflow process definition: this because this
@@ -93,6 +93,7 @@ public class DeleteProducer extends AbstractProducer {
                                     AnyTypeKind.USER,
                                     anyKey,
                                     anyPropByRes,
+                                    null,
                                     excludedResources)));
                     groupDataBinder.findAnyObjectsWithTransitiveResources(key).
                             forEach((anyKey, anyPropByRes) -> {
@@ -100,12 +101,14 @@ public class DeleteProducer extends AbstractProducer {
                                         AnyTypeKind.ANY_OBJECT,
                                         anyKey,
                                         anyPropByRes,
+                                        null,
                                         excludedResources));
                             });
                     // Generate propagation tasks for deleting this group from resources
                     taskInfos.addAll(getPropagationManager().getDeleteTasks(
                             AnyTypeKind.GROUP,
                             key,
+                            null,
                             null,
                             null));
                     reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
@@ -116,6 +119,7 @@ public class DeleteProducer extends AbstractProducer {
                     taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.ANY_OBJECT,
                             key,
+                            null,
                             null,
                             excludedResources);
                     reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);

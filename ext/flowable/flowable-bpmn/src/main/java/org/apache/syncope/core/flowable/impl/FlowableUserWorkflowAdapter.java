@@ -146,7 +146,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
                 ResourceOperation.CREATE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         FlowableRuntimeUtils.saveForFormSubmit(
                 engine,
@@ -397,7 +397,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
                 ResourceOperation.DELETE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectName())));
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {

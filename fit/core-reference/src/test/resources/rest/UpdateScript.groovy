@@ -19,6 +19,7 @@
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.cxf.jaxrs.client.WebClient
+import javax.ws.rs.core.Response
 
 // Parameters:
 // The connector sends us the following:
@@ -81,8 +82,13 @@ case "UPDATE":
 
     // this if update works with PUT
     webClient.path("users").path(uid);
-    webClient.put(payload);
     
+    log.ok("Sending PUT to {0} with payload {1}", webClient.getCurrentURI().toASCIIString(), payload);
+    
+    Response response = webClient.put(payload);
+    
+    log.ok("Update response: {0} {1}", response.getStatus(), response.getHeaders());
+  
     // this instead if update works with PATCH
     //webClient.path("users").path(uid);
     //WebClient.getConfig(webClient).getRequestContext().put("use.async.http.conduit", true);

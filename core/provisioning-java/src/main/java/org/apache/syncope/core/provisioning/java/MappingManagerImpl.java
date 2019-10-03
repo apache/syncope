@@ -292,7 +292,7 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        String connObjectKey = account.getConnObjectName();
+        String connObjectKey = account.getConnObjectKeyValue();
         MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
             Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
             if (connObjectKeyExtAttr != null) {

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,12 +38,12 @@ public class DeletingLinkedAccount implements LinkedAccount {
 
     private final ExternalResource resource;
 
-    private final String connObjectName;
+    private final String connObjectKeyValue;
 
-    public DeletingLinkedAccount(final User user, final ExternalResource resource, final String connObjectName) {
+    public DeletingLinkedAccount(final User user, final ExternalResource resource, final String connObjectKeyValue) {
         this.user = user;
         this.resource = resource;
-        this.connObjectName = connObjectName;
+        this.connObjectKeyValue = connObjectKeyValue;
     }
 
     @Override
@@ -53,12 +52,12 @@ public class DeletingLinkedAccount implements LinkedAccount {
     }
 
     @Override
-    public String getConnObjectName() {
-        return connObjectName;
+    public String getConnObjectKeyValue() {
+        return connObjectKeyValue;
     }
 
     @Override
-    public void setConnObjectName(final String connObjectName) {
+    public void setConnObjectKeyValue(final String connObjectKeyValue) {
         // unsupported
     }
 
@@ -89,7 +88,7 @@ public class DeletingLinkedAccount implements LinkedAccount {
 
     @Override
     public Set<? extends Privilege> getPrivileges() {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     @Override
@@ -154,7 +153,7 @@ public class DeletingLinkedAccount implements LinkedAccount {
 
     @Override
     public List<? extends LAPlainAttr> getPlainAttrs() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -162,7 +161,7 @@ public class DeletingLinkedAccount implements LinkedAccount {
         return new HashCodeBuilder().
                 append(user.getKey()).
                 append(resource).
-                append(connObjectName).
+                append(connObjectKeyValue).
                 build();
     }
 
@@ -181,7 +180,7 @@ public class DeletingLinkedAccount implements LinkedAccount {
         return new EqualsBuilder().
                 append(user.getKey(), other.user.getKey()).
                 append(resource, other.resource).
-                append(connObjectName, other.connObjectName).
+                append(connObjectKeyValue, other.connObjectKeyValue).
                 build();
     }
 }

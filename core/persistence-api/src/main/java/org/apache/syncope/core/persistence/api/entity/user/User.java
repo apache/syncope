@@ -75,7 +75,9 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
 
     boolean add(LinkedAccount account);
 
-    Optional<? extends LinkedAccount> getLinkedAccount(String resource, String connObjectName);
+    Optional<? extends LinkedAccount> getLinkedAccount(String resource, String connObjectKeyValue);
+
+    List<? extends LinkedAccount> getLinkedAccounts(String resource);
 
     List<? extends LinkedAccount> getLinkedAccounts();
 }

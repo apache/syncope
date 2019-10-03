@@ -69,7 +69,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
      */
     protected static PropagationTaskCallable newPropagationTaskCallable(
         final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
-
+        
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultPropagationTaskCallable.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         callable.setTaskInfo(taskInfo);

@@ -17,6 +17,7 @@
  * under the License.
  */
 import org.apache.cxf.jaxrs.client.WebClient
+import javax.ws.rs.core.Response
 
 // Parameters:
 // The connector sends the following:
@@ -36,7 +37,12 @@ assert uid != null
 switch ( objectClass ) {
 case "__ACCOUNT__":
   webClient.path("/users/" + uid);
-  webClient.delete();
+
+  log.ok("Sending DELETE to {0}", webClient.getCurrentURI().toASCIIString());
+
+  Response response =  webClient.delete();
+
+  log.ok("Delete response: {0} {1}", response.getStatus(), response.getHeaders());
   break
 
 default:

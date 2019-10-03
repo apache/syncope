@@ -395,7 +395,7 @@ under the License.
 
     <spring.version>5.1.10.RELEASE</spring.version>
     <spring-security.version>5.1.6.RELEASE</spring-security.version>
-    <spring-boot.version>2.1.8.RELEASE</spring-boot.version>
+    <spring-boot.version>2.1.9.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.1.3.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
@@ -459,7 +459,7 @@ under the License.
     <font-awesome.version>4.7.0</font-awesome.version>
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
-    <highlightjs.version>9.15.8</highlightjs.version>
+    <highlightjs.version>9.15.10</highlightjs.version>
     <codemirror.version>5.48.2</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
@@ -2066,7 +2066,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.24</version>
+              <version>8.25</version>
             </dependency>
           </dependencies>
           <configuration>

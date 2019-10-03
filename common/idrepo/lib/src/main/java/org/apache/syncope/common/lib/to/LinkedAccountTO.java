@@ -42,14 +42,9 @@ public class LinkedAccountTO implements Serializable {
 
         private final LinkedAccountTO instance = new LinkedAccountTO();
 
-        public Builder connObjectName(final String connObjectName) {
-            instance.setConnObjectName(connObjectName);
-            return this;
-        }
-
-        public Builder resource(final String resource) {
+        public Builder(final String resource, final String connObjectKeyValue) {
             instance.setResource(resource);
-            return this;
+            instance.setconnObjectKeyValue(connObjectKeyValue);
         }
 
         public Builder username(final String username) {
@@ -72,7 +67,7 @@ public class LinkedAccountTO implements Serializable {
         }
     }
 
-    private String connObjectName;
+    private String connObjectKeyValue;
 
     private String resource;
 
@@ -86,12 +81,12 @@ public class LinkedAccountTO implements Serializable {
 
     private final Set<String> privileges = new HashSet<>();
 
-    public String getConnObjectName() {
-        return connObjectName;
+    public String getconnObjectKeyValue() {
+        return connObjectKeyValue;
     }
 
-    public void setConnObjectName(final String connObjectName) {
-        this.connObjectName = connObjectName;
+    public void setconnObjectKeyValue(final String connObjectKeyValue) {
+        this.connObjectKeyValue = connObjectKeyValue;
     }
 
     public String getResource() {
@@ -148,7 +143,7 @@ public class LinkedAccountTO implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(connObjectName).
+                append(connObjectKeyValue).
                 append(resource).
                 append(username).
                 append(suspended).
@@ -170,7 +165,7 @@ public class LinkedAccountTO implements Serializable {
         }
         final LinkedAccountTO other = (LinkedAccountTO) obj;
         return new EqualsBuilder().
-                append(connObjectName, other.connObjectName).
+                append(connObjectKeyValue, other.connObjectKeyValue).
                 append(resource, other.resource).
                 append(username, other.username).
                 append(suspended, other.suspended).
