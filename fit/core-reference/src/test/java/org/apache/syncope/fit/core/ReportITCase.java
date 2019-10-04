@@ -64,6 +64,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
 public class ReportITCase extends AbstractITCase {
+
+    @BeforeAll
+    public static void setup() {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            new User("admin", "FAKE_PASSWORD", List.of()), "FAKE_PASSWORD", List.of());
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
     
     protected static String execReport(final String reportKey) {
         ReportTO reportTO = reportService.read(reportKey);
