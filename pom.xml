@@ -527,7 +527,7 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.6</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.2.8</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.17</jdbc.mysql.version>
     <jdbc.mariadb.version>2.4.3</jdbc.mariadb.version>
     <jdbc.mssql.version>7.4.1.jre</jdbc.mssql.version>
@@ -2260,6 +2260,7 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
         <configuration>
           <excludes>
             <exclude>nbactions.xml</exclude>
