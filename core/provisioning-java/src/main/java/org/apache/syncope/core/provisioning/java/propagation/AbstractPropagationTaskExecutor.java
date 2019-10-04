@@ -342,12 +342,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public TaskExec execute(final PropagationTaskInfo taskInfo) {
-        return execute(taskInfo, null);
+    public TaskExec execute(final PropagationTaskInfo taskInfo, final String executor) {
+        return execute(taskInfo, null, executor);
     }
 
     @Override
-    public TaskExec execute(final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
+    public TaskExec execute(final PropagationTaskInfo taskInfo, final PropagationReporter reporter,
+                            final String executor) {
         PropagationTask task;
         if (taskInfo.getKey() == null) {
             task = entityFactory.newEntity(PropagationTask.class);
@@ -376,6 +377,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus(ExecStatus.CREATED.name());
+        execution.setExecutor(executor);
 
         String taskExecutionMessage = null;
         String failureReason = null;
@@ -553,16 +555,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected abstract void doExecute(
-            Collection<PropagationTaskInfo> taskInfos, PropagationReporter reporter, boolean nullPriorityAsync);
+            Collection<PropagationTaskInfo> taskInfos, PropagationReporter reporter, boolean nullPriorityAsync,
+            String executor);
 
     @Override
     public PropagationReporter execute(
             final Collection<PropagationTaskInfo> taskInfos,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String executor) {
 
         PropagationReporter reporter = new DefaultPropagationReporter();
         try {
-            doExecute(taskInfos, reporter, nullPriorityAsync);
+            doExecute(taskInfos, reporter, nullPriorityAsync, executor);
         } catch (PropagationException e) {
             LOG.error("Error propagation priority resource", e);
             reporter.onPriorityResourceFailure(e.getResourceName(), taskInfos);

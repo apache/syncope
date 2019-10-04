@@ -56,10 +56,15 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 @Transactional(rollbackFor = Throwable.class)
 public class DefaultRealmPullResultHandler
         extends AbstractRealmResultHandler<PullTask, PullActions>
         implements RealmPullResultHandler {
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     @Autowired
     private PullUtils pullUtils;
@@ -238,7 +243,7 @@ public class DefaultRealmPullResultHandler
             propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
             if (unmatchingRule == UnmatchingRule.ASSIGN) {
                 List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                taskExecutor.execute(taskInfos, false);
+                taskExecutor.execute(taskInfos, false, this.adminUser);
             }
 
             RealmTO actual = binder.getRealmTO(realm, true);
@@ -324,7 +329,7 @@ public class DefaultRealmPullResultHandler
                         RealmTO updated = binder.getRealmTO(realm, true);
 
                         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                        taskExecutor.execute(taskInfos, false);
+                        taskExecutor.execute(taskInfos, false, this.adminUser);
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, updated, result);
@@ -413,7 +418,8 @@ public class DefaultRealmPullResultHandler
 
                         PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-                        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null), false);
+                        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null),
+                            false, this.adminUser);
 
                         RealmTO realmTO;
                         if (unlink) {
@@ -608,7 +614,7 @@ public class DefaultRealmPullResultHandler
                         PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
                         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                        taskExecutor.execute(taskInfos, false);
+                        taskExecutor.execute(taskInfos, false, this.adminUser);
 
                         realmDAO.delete(realm);
 

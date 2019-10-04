@@ -70,9 +70,14 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHandler<PullTask, PullActions>
         implements SyncopePullResultHandler {
 
+    @Resource(name = "adminUser")
+    protected String adminUser;
+    
     @Autowired
     protected PullUtils pullUtils;
 
@@ -497,7 +502,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 propByRes,
                                 propByLinkedAccount,
                                 null),
-                                false);
+                                false,
+                                this.adminUser);
 
                         AnyUR anyUR = null;
                         if (unlink) {

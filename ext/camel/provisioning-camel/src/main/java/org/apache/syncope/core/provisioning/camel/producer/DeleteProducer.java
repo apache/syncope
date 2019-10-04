@@ -79,7 +79,7 @@ public class DeleteProducer extends AbstractProducer {
                             propByRes,
                             propByLinkedAccount,
                             excludedResources);
-                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.setProperty("statuses", reporter.getStatuses());
                     break;
 
@@ -111,7 +111,7 @@ public class DeleteProducer extends AbstractProducer {
                             null,
                             null,
                             null));
-                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.setProperty("statuses", reporter.getStatuses());
                     break;
 
@@ -122,7 +122,7 @@ public class DeleteProducer extends AbstractProducer {
                             null,
                             null,
                             excludedResources);
-                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.setProperty("statuses", reporter.getStatuses());
                     break;
 

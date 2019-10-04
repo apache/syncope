@@ -79,7 +79,7 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
         LOG.debug("Execution started for {}", taskInfo);
 
-        TaskExec execution = taskExecutor.execute(taskInfo, reporter);
+        TaskExec execution = taskExecutor.execute(taskInfo, reporter, username);
 
         LOG.debug("Execution completed for {}, {}", taskInfo, execution);
 

@@ -233,7 +233,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         TaskUtils taskUtil = taskUtilsFactory.getInstance(task);
-
+        String executor = AuthContextUtils.getUsername();
+        
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
@@ -250,12 +251,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 taskInfo.setAnyType(taskTO.getAnyType());
                 taskInfo.setEntityKey(taskTO.getEntityKey());
 
-                TaskExec propExec = taskExecutor.execute(taskInfo);
+                TaskExec propExec = taskExecutor.execute(taskInfo, executor);
                 result = binder.getExecTO(propExec);
                 break;
 
             case NOTIFICATION:
-                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
+                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task, executor);
                 result = binder.getExecTO(notExec);
                 break;
 
@@ -269,7 +270,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 }
 
                 try {
-                    String executor = AuthContextUtils.getUsername();
                     Map<String, Object> jobDataMap = jobManager.register(
                             (SchedTask) task,
                             startAt,

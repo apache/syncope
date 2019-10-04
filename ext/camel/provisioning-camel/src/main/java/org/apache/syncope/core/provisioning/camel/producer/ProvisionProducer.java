@@ -73,7 +73,8 @@ public class ProvisionProducer extends AbstractProducer {
                     Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
-            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+            PropagationReporter reporter =
+                getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
             exchange.getMessage().setBody(reporter.getStatuses());
         } else {
@@ -101,7 +102,8 @@ public class ProvisionProducer extends AbstractProducer {
                     propByLinkedAccount,
                     null,
                     null);
-            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+            PropagationReporter reporter =
+                getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
             exchange.getMessage().setBody(reporter.getStatuses());
         }
