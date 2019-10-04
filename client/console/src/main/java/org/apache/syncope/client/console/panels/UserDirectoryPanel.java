@@ -341,31 +341,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }
         }, ActionType.DELETE, StandardEntitlement.USER_DELETE, true).setRealm(realm);
 
-        panel.add(new ActionLink<UserTO>() {
-
-            private static final long serialVersionUID = 8011039414597736111L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(model.getObject()));
-                altDefaultModal.setFormModel(formModel);
-
-                target.add(altDefaultModal.setContent(new AnyStatusModal<>(
-                        altDefaultModal,
-                        pageRef,
-                        formModel.getObject().getInnerObject(),
-                        "resource",
-                        false)));
-
-                altDefaultModal.header(new Model<>(
-                        getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
-
-                altDefaultModal.show(true);
-            }
-        }, ActionType.MANAGE_ACCOUNTS,
-                String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE));
-
         return panel;
     }
 
