@@ -504,11 +504,11 @@ under the License.
 
     <tomcat.version>9.0.26</tomcat.version>
 
-    <docker.postgresql.version>11.5</docker.postgresql.version>
+    <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.2.8</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.16</jdbc.mysql.version>
     <jdbc.mariadb.version>2.4.1</jdbc.mariadb.version>
     <jdbc.mssql.version>7.2.2.jre</jdbc.mssql.version>
@@ -2263,6 +2263,7 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+	<version>0.13</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
