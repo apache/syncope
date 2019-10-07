@@ -173,9 +173,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             sce.getElements().add("Report " + key + " is not active");
             throw sce;
         }
-
+        String executor = AuthContextUtils.getUsername();
         try {
-            String executor = AuthContextUtils.getUsername();
             jobManager.register(
                     report,
                     startAt,
@@ -198,7 +197,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
-
+        result.setExecutor(executor);
         return result;
     }
 
