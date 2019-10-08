@@ -32,10 +32,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
-import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
-import org.apache.syncope.core.logic.GroupLogic;
-import org.apache.syncope.core.logic.UserLogic;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,15 +42,6 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Autowired
     private ResourceLogic logic;
-
-    @Autowired
-    private AnyObjectLogic anyObjectLogic;
-
-    @Autowired
-    private UserLogic userLogic;
-
-    @Autowired
-    private GroupLogic groupLogic;
 
     @Override
     public Response create(final ResourceTO resourceTO) {

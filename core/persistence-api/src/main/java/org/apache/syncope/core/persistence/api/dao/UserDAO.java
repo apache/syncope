@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -57,6 +59,14 @@ public interface UserDAO extends AnyDAO<User> {
     Collection<String> findAllGroupNames(User user);
 
     Collection<ExternalResource> findAllResources(User user);
+
+    boolean linkedAccountExists(String userKey, String connObjectKeyValue);
+
+    List<LinkedAccount> findLinkedAccounts(String userKey);
+
+    List<LinkedAccount> findLinkedAccountsByResource(ExternalResource resource);
+
+    List<LinkedAccount> findLinkedAccountsByPrivilege(Privilege privilege);
 
     Pair<Boolean, Boolean> enforcePolicies(User user);
 

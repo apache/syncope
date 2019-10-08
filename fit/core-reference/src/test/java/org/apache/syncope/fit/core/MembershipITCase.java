@@ -81,7 +81,7 @@ public class MembershipITCase extends AbstractITCase {
             createUser(userCR);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidUser, e.getType());
+            assertEquals(ClientExceptionType.InvalidEntity, e.getType());
             assertTrue(e.getMessage().contains("InvalidPlainAttr: fullname not allowed for membership of group"));
         }
 

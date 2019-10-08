@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
@@ -33,6 +34,7 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
@@ -135,5 +137,30 @@ public class PushUtils {
         }
 
         return obj == null ? List.of() : List.of(obj);
+    }
+
+    public ConnectorObject match(
+            final Connector connector,
+            final LinkedAccount account,
+            final Provision provision) {
+
+        Optional<? extends MappingItem> connObjectKey = MappingUtils.getConnObjectKeyItem(provision);
+        String connObjectKeyName = connObjectKey.isPresent()
+                ? connObjectKey.get().getExtAttrName()
+                : Name.NAME;
+
+        ConnectorObject obj = null;
+        try {
+            obj = connector.getObject(
+                    provision.getObjectClass(),
+                    AttributeBuilder.build(connObjectKeyName, account.getConnObjectKeyValue()),
+                    provision.isIgnoreCaseMatch(),
+                    MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
+        }
+
+        return obj;
     }
 }

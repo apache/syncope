@@ -16,17 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.util.List;
+import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
-public interface JSONAny<A extends Any<?>> {
+public interface LinkedAccount extends Account, Attributable<LAPlainAttr> {
 
-    String getPlainAttrsJSON();
+    String getConnObjectKeyValue();
 
-    void setPlainAttrsJSON(String plainAttrs);
+    void setConnObjectKeyValue(String connObjectKeyValue);
 
-    boolean add(JSONPlainAttr<A> attr);
+    User getOwner();
 
-    List<? extends JSONPlainAttr<A>> getPlainAttrList();
+    void setOwner(User owner);
+
+    ExternalResource getResource();
+
+    void setResource(ExternalResource resource);
+
+    boolean add(Privilege privilege);
+
+    Set<? extends Privilege> getPrivileges();
 }

@@ -20,17 +20,12 @@ package org.apache.syncope.core.persistence.api.entity.user;
 
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 
-public interface User extends
-        GroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship> {
-
-    String getUsername();
-
-    void setUsername(String username);
+public interface User extends Account, GroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship> {
 
     String getToken();
 
@@ -44,23 +39,13 @@ public interface User extends
 
     boolean hasTokenExpired();
 
-    Date getChangePwdDate();
-
-    void setChangePwdDate(Date changePwdDate);
-
-    CipherAlgorithm getCipherAlgorithm();
-
-    boolean canDecodePassword();
-
     String getClearPassword();
 
     void removeClearPassword();
 
-    String getPassword();
+    Date getChangePwdDate();
 
-    void setEncodedPassword(String password, CipherAlgorithm cipherAlgoritm);
-
-    void setPassword(String password, CipherAlgorithm cipherAlgoritm);
+    void setChangePwdDate(Date changePwdDate);
 
     List<String> getPasswordHistory();
 
@@ -80,10 +65,6 @@ public interface User extends
 
     void setLastLoginDate(Date lastLoginDate);
 
-    Boolean isSuspended();
-
-    void setSuspended(Boolean suspended);
-
     boolean isMustChangePassword();
 
     void setMustChangePassword(boolean mustChangePassword);
@@ -91,4 +72,12 @@ public interface User extends
     boolean add(Role role);
 
     List<? extends Role> getRoles();
+
+    boolean add(LinkedAccount account);
+
+    Optional<? extends LinkedAccount> getLinkedAccount(String resource, String connObjectKeyValue);
+
+    List<? extends LinkedAccount> getLinkedAccounts(String resource);
+
+    List<? extends LinkedAccount> getLinkedAccounts();
 }

@@ -37,7 +37,7 @@ public interface GroupDataBinder {
 
     void create(Group group, GroupCR groupCR);
 
-    PropagationByResource update(Group group, GroupUR groupUR);
+    PropagationByResource<String> update(Group group, GroupUR groupUR);
 
     /**
      * Finds any objects having resources assigned exclusively because of memberships of the given group.
@@ -46,7 +46,7 @@ public interface GroupDataBinder {
      * @return map containing pairs with any object key and operations to be performed on those resources (DELETE,
      * typically).
      */
-    Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(String groupKey);
+    Map<String, PropagationByResource<String>> findAnyObjectsWithTransitiveResources(String groupKey);
 
     /**
      * Finds users having resources assigned exclusively because of memberships of the given group.
@@ -55,5 +55,5 @@ public interface GroupDataBinder {
      * @return map containing pairs with user key and operations to be performed on those resources (DELETE,
      * typically).
      */
-    Map<String, PropagationByResource> findUsersWithTransitiveResources(String groupKey);
+    Map<String, PropagationByResource<String>> findUsersWithTransitiveResources(String groupKey);
 }

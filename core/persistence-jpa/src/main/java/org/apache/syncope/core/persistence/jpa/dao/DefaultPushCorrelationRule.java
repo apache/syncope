@@ -29,7 +29,9 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +61,14 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
         provision.getMapping().getItems().stream().filter(
                 item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH).
                 forEach(item -> {
-                    Pair<String, Attribute> attr = mappingManager.prepareAttr(provision, item, any, null);
+                    Pair<String, Attribute> attr = mappingManager.prepareAttr(
+                            provision,
+                            item,
+                            any,
+                            null,
+                            AccountGetter.DEFAULT,
+                            AccountGetter.DEFAULT,
+                            PlainAttrGetter.DEFAULT);
                     if (attr != null && attr.getRight() != null && conf.getSchemas().contains(item.getIntAttrName())) {
                         filters.add(provision.isIgnoreCaseMatch()
                                 ? FilterBuilder.equalsIgnoreCase(attr.getRight())

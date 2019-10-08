@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -60,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable;
@@ -90,7 +92,8 @@ public class JPAUser
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
             @JoinColumn(name = "role_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "role_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "user_id", "role_id" }))
     private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -155,7 +158,8 @@ public class JPAUser
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "resource_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "user_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -163,7 +167,8 @@ public class JPAUser
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
             @JoinColumn(name = "anyTypeClass_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "user_id", "anyTypeClass_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "user_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
@@ -179,6 +184,10 @@ public class JPAUser
 
     @Column(nullable = true)
     private String securityAnswer;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
+    @Valid
+    private List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
 
     @Override
     public AnyType getType() {
@@ -455,5 +464,31 @@ public class JPAUser
     @Override
     public List<? extends UMembership> getMemberships() {
         return memberships;
+    }
+
+    @Override
+    public boolean add(final LinkedAccount account) {
+        checkType(account, JPALinkedAccount.class);
+        return linkedAccounts.contains((JPALinkedAccount) account) || linkedAccounts.add((JPALinkedAccount) account);
+    }
+
+    @Override
+    public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectKeyValue) {
+        return linkedAccounts.stream().
+                filter(account -> account.getResource().getKey().equals(resource)
+                && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
+                findFirst();
+    }
+
+    @Override
+    public List<? extends LinkedAccount> getLinkedAccounts(final String resource) {
+        return linkedAccounts.stream().
+                filter(account -> account.getResource().getKey().equals(resource)).
+                collect(Collectors.toList());
+    }
+
+    @Override
+    public List<? extends LinkedAccount> getLinkedAccounts() {
+        return linkedAccounts;
     }
 }

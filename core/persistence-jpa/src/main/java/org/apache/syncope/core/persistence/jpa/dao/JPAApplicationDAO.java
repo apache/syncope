@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.jpa.entity.JPAApplication;
@@ -34,6 +35,9 @@ public class JPAApplicationDAO extends AbstractDAO<Application> implements Appli
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Override
     public Application find(final String key) {
@@ -60,7 +64,10 @@ public class JPAApplicationDAO extends AbstractDAO<Application> implements Appli
     @Override
     public void delete(final Application application) {
         application.getPrivileges().forEach(privilege -> {
-            roleDAO.findByPrivilege(privilege).forEach(role -> role.getPrivileges().remove(privilege));
+            roleDAO.findByPrivilege(privilege).
+                    forEach(role -> role.getPrivileges().remove(privilege));
+            userDAO.findLinkedAccountsByPrivilege(privilege).
+                    forEach(account -> account.getPrivileges().remove(privilege));
 
             privilege.setApplication(null);
         });
@@ -78,5 +85,4 @@ public class JPAApplicationDAO extends AbstractDAO<Application> implements Appli
 
         delete(application);
     }
-
 }

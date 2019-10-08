@@ -189,6 +189,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_DBSCRIPTED = "resource-db-scripted";
 
+    protected static final String RESOURCE_NAME_REST = "rest-target-resource";
+
     protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
 
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
@@ -620,6 +622,29 @@ public abstract class AbstractITCase {
             ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
         } catch (Exception e) {
             LOG.error("While updating {} with {}", objectDn, attributes, e);
+        } finally {
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    protected void removeLdapRemoteObject(
+            final String bindDn,
+            final String bindPwd,
+            final String objectDn) {
+
+        InitialDirContext ctx = null;
+        try {
+            ctx = getLdapResourceDirContext(bindDn, bindPwd);
+
+            ctx.destroySubcontext(objectDn);
+        } catch (Exception e) {
+            LOG.error("While removing {}", objectDn, e);
         } finally {
             if (ctx != null) {
                 try {

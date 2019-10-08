@@ -16,26 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.validation.entity;
+package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+public interface LAPlainAttr extends PlainAttr<User> {
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = JPAJSONAnyValidator.class)
-@Documented
-public @interface JPAJSONAnyCheck {
+    LinkedAccount getAccount();
 
-    String message() default "{org.apache.syncope.core.persistence.validation.any}";
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
+    void setAccount(LinkedAccount account);
 }

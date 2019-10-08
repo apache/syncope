@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -107,7 +108,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.UPDATE, profile.getTask().getResource().getKey());
         propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
 
@@ -117,6 +118,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 changepwd,
                 enable,
                 propByRes,
+                null,
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
@@ -133,7 +135,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
         propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
 
@@ -141,6 +143,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 any.getType().getKind(),
                 any.getKey(),
                 propByRes,
+                null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
@@ -156,7 +159,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getCreateTasks(
@@ -281,15 +284,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
         ConnectorObject beforeObj = connObjs.isEmpty() ? null : connObjs.get(0);
 
-        Object output = null;
-        Result resultStatus = null;
-
-        Boolean enable = any instanceof User && profile.getTask().isSyncStatus()
-                ? ((User) any).isSuspended()
-                ? Boolean.FALSE
-                : Boolean.TRUE
-                : null;
-
         if (profile.isDryRun()) {
             if (beforeObj == null) {
                 result.setOperation(toResourceOperation(profile.getTask().getUnmatchingRule()));
@@ -313,6 +307,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     any.getType().getKind().name().toLowerCase(),
                     profile.getTask().getResource().getKey(),
                     operation);
+
+            Object output = null;
+            Result resultStatus = null;
+
+            Boolean enable = any instanceof User && profile.getTask().isSyncStatus()
+                    ? BooleanUtils.negate(((User) any).isSuspended())
+                    : null;
             try {
                 if (beforeObj == null) {
                     result.setOperation(toResourceOperation(profile.getTask().getUnmatchingRule()));

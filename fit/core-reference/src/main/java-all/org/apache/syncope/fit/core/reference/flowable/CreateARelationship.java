@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -57,11 +58,13 @@ public class CreateARelationship extends FlowableServiceTask {
                     otherEnd("PRINTER", printer).type("neighborhood").build()).
                     build());
 
-            PropagationByResource propByRes = dataBinder.update(user, userUR);
+            Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
+                    dataBinder.update(user, userUR);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
         } else {
             LOG.info("Printer assignment to " + user.getUsername() + " was not approved");
         }

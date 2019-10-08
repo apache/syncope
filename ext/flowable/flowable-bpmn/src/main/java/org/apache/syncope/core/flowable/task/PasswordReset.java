@@ -20,6 +20,7 @@ package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -58,11 +59,13 @@ public class PasswordReset extends FlowableServiceTask {
                         value(password).build()).
                 build();
 
-        PropagationByResource propByRes = dataBinder.update(user, req);
+        Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
+                dataBinder.update(user, req);
 
         // report updated user and propagation by resource as result
         execution.setVariable(FlowableRuntimeUtils.USER, user);
         execution.setVariable(FlowableRuntimeUtils.USER_UR, req);
-        execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+        execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
+        execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
     }
 }

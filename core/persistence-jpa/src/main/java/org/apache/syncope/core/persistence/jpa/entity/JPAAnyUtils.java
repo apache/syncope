@@ -62,6 +62,9 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValu
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -118,6 +121,8 @@ public class JPAAnyUtils implements AnyUtils {
 
     private final AnyTypeKind anyTypeKind;
 
+    private final boolean linkedAccount;
+
     @Autowired
     private UserDAO userDAO;
 
@@ -130,8 +135,13 @@ public class JPAAnyUtils implements AnyUtils {
     @Autowired
     private EntityFactory entityFactory;
 
-    protected JPAAnyUtils(final AnyTypeKind typeKind) {
-        this.anyTypeKind = typeKind;
+    protected JPAAnyUtils(final AnyTypeKind anyTypeKind) {
+        this(anyTypeKind, false);
+    }
+
+    protected JPAAnyUtils(final AnyTypeKind anyTypeKind, final boolean linkedAccount) {
+        this.anyTypeKind = anyTypeKind;
+        this.linkedAccount = linkedAccount;
     }
 
     @Override
@@ -194,7 +204,9 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case USER:
-                result = (T) entityFactory.newEntity(UPlainAttr.class);
+                result = linkedAccount
+                        ? (T) entityFactory.newEntity(LAPlainAttr.class)
+                        : (T) entityFactory.newEntity(UPlainAttr.class);
                 break;
 
             case GROUP:
@@ -223,7 +235,9 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case USER:
-                result = (T) entityFactory.newEntity(UPlainAttrValue.class);
+                result = linkedAccount
+                        ? (T) entityFactory.newEntity(LAPlainAttrValue.class)
+                        : (T) entityFactory.newEntity(UPlainAttrValue.class);
                 break;
 
             case GROUP:
@@ -252,7 +266,9 @@ public class JPAAnyUtils implements AnyUtils {
 
         switch (anyTypeKind) {
             case USER:
-                result = (T) entityFactory.newEntity(UPlainAttrUniqueValue.class);
+                result = linkedAccount
+                        ? (T) entityFactory.newEntity(LAPlainAttrUniqueValue.class)
+                        : (T) entityFactory.newEntity(UPlainAttrUniqueValue.class);
                 break;
 
             case GROUP:

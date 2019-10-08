@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
@@ -46,8 +47,8 @@ public class UpdateProducer extends AbstractProducer {
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
             if (actual instanceof UserUR || isPull()) {
-                WorkflowResult<Pair<UserUR, Boolean>> updated =
-                        (WorkflowResult<Pair<UserUR, Boolean>>) exchange.getIn().getBody();
+                UserWorkflowResult<Pair<UserUR, Boolean>> updated =
+                        (UserWorkflowResult<Pair<UserUR, Boolean>>) exchange.getIn().getBody();
 
                 List<PropagationTaskInfo> taskInfos;
                 if (isPull()) {
@@ -69,6 +70,7 @@ public class UpdateProducer extends AbstractProducer {
                         false,
                         null,
                         updated.getPropByRes(),
+                        null,
                         ((AnyUR) actual).getVirAttrs(),
                         excludedResources);
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);

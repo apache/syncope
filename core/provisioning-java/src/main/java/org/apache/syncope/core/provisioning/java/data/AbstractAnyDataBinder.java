@@ -66,9 +66,11 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
@@ -168,12 +170,12 @@ abstract class AbstractAnyDataBinder {
         return schema;
     }
 
-    private static void fillAttr(
-        final List<String> values,
-        final AnyUtils anyUtils,
-        final PlainSchema schema,
-        final PlainAttr<?> attr,
-        final SyncopeClientException invalidValues) {
+    protected void fillAttr(
+            final List<String> values,
+            final AnyUtils anyUtils,
+            final PlainSchema schema,
+            final PlainAttr<?> attr,
+            final SyncopeClientException invalidValues) {
 
         // if schema is multivalue, all values are considered for addition;
         // otherwise only the fist one - if provided - is considered
@@ -216,8 +218,13 @@ abstract class AbstractAnyDataBinder {
                         ? ((PlainSchema) intAttrName.getSchema()).getType()
                         : AttrSchemaType.String;
 
-                Pair<AttrSchemaType, List<PlainAttrValue>> intValues =
-                        mappingManager.getIntValues(provision, mapItem, intAttrName, schemaType, any);
+                Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(provision,
+                        mapItem,
+                        intAttrName,
+                        schemaType,
+                        any,
+                        AccountGetter.DEFAULT,
+                        PlainAttrGetter.DEFAULT);
                 if (intValues.getRight().isEmpty()
                         && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
 
@@ -250,10 +257,10 @@ abstract class AbstractAnyDataBinder {
     }
 
     private static void checkMandatory(
-        final PlainSchema schema,
-        final PlainAttr<?> attr,
-        final Any<?> any,
-        final SyncopeClientException reqValMissing) {
+            final PlainSchema schema,
+            final PlainAttr<?> attr,
+            final Any<?> any,
+            final SyncopeClientException reqValMissing) {
 
         if (attr == null
                 && !schema.isReadonly()
@@ -295,7 +302,7 @@ abstract class AbstractAnyDataBinder {
             final PlainAttr<?> attr,
             final AnyUtils anyUtils,
             final Collection<ExternalResource> resources,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
             final SyncopeClientException invalidValues) {
 
         switch (patch.getOperation()) {
@@ -349,13 +356,13 @@ abstract class AbstractAnyDataBinder {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected PropagationByResource fill(
+    protected PropagationByResource<String> fill(
             final Any any,
             final AnyUR anyUR,
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         // 1. anyTypeClasses
         for (StringPatchItem patch : anyUR.getAuxClasses()) {
@@ -415,7 +422,6 @@ abstract class AbstractAnyDataBinder {
                         ((PlainAttr) attr).setOwner(any);
                         attr.setSchema(schema);
                         any.add(attr);
-
                     }
                 }
                 if (attr != null) {
@@ -546,14 +552,14 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected static void fillTO(
-        final AnyTO anyTO,
-        final String realmFullPath,
-        final Collection<? extends AnyTypeClass> auxClasses,
-        final Collection<? extends PlainAttr<?>> plainAttrs,
-        final Map<DerSchema, String> derAttrs,
-        final Map<VirSchema, List<String>> virAttrs,
-        final Collection<? extends ExternalResource> resources,
-        final boolean details) {
+            final AnyTO anyTO,
+            final String realmFullPath,
+            final Collection<? extends AnyTypeClass> auxClasses,
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
+            final Map<VirSchema, List<String>> virAttrs,
+            final Collection<? extends ExternalResource> resources,
+            final boolean details) {
 
         anyTO.setRealm(realmFullPath);
 
@@ -579,10 +585,10 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected static MembershipTO getMembershipTO(
-        final Collection<? extends PlainAttr<?>> plainAttrs,
-        final Map<DerSchema, String> derAttrs,
-        final Map<VirSchema, List<String>> virAttrs,
-        final Membership<? extends Any<?>> membership) {
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
+            final Map<VirSchema, List<String>> virAttrs,
+            final Membership<? extends Any<?>> membership) {
 
         MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
                 .groupName(membership.getRightEnd().getName())

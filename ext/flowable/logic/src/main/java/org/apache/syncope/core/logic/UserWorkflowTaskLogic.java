@@ -32,9 +32,9 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -69,13 +69,16 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     public UserTO executeNextTask(final WorkflowTaskExecInput workflowTaskExecInput) {
-        WorkflowResult<String> updated = wfTaskManager.executeNextTask(workflowTaskExecInput);
+        UserWorkflowResult<String> updated = wfTaskManager.executeNextTask(workflowTaskExecInput);
 
         UserUR userUR = new UserUR.Builder(updated.getResult()).build();
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(new WorkflowResult<>(
-                Pair.<UserUR, Boolean>of(userUR, null),
-                updated.getPropByRes(), updated.getPerformedTasks()));
+        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
+                new UserWorkflowResult<>(
+                        Pair.<UserUR, Boolean>of(userUR, null),
+                        updated.getPropByRes(),
+                        updated.getPropByLinkedAccount(),
+                        updated.getPerformedTasks()));
 
         taskExecutor.execute(taskInfos, false);
 

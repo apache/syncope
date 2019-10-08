@@ -35,7 +35,7 @@ public interface PullTask extends ProvisioningTask {
 
     void setReconFilterBuilder(Implementation reconFilterBuilder);
 
-    Realm getDestinatioRealm();
+    Realm getDestinationRealm();
 
     void setDestinationRealm(Realm destinationRealm);
 
