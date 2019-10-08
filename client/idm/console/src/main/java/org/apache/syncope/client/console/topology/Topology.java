@@ -488,17 +488,17 @@ public class Topology extends BasePage {
 
                 long seconds = getUpdateInterval().getSeconds();
                 if (seconds < 5.0) {
-                    setUpdateInterval(java.time.Duration.ofSeconds(5));
+                    setUpdateInterval(Duration.ofSeconds(5));
                 } else if (seconds < 10.0) {
-                    setUpdateInterval(java.time.Duration.ofSeconds(10));
+                    setUpdateInterval(Duration.ofSeconds(10));
                 } else if (seconds < 15.0) {
-                    setUpdateInterval(java.time.Duration.ofSeconds(15));
+                    setUpdateInterval(Duration.ofSeconds(15));
                 } else if (seconds < 20.0) {
-                    setUpdateInterval(java.time.Duration.ofSeconds(20));
+                    setUpdateInterval(Duration.ofSeconds(20));
                 } else if (seconds < 30.0) {
-                    setUpdateInterval(java.time.Duration.ofSeconds(30));
+                    setUpdateInterval(Duration.ofSeconds(30));
                 } else if (seconds < 60.0) {
-                    setUpdateInterval(java.time.Duration.ofSeconds(60));
+                    setUpdateInterval(Duration.ofSeconds(60));
                 }
             }
         });
