@@ -75,6 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 @Component
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
@@ -100,6 +101,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
         String executor = AuthContextUtils.getUsername();
+        Assert.notNull(executor, "executor cannot be null when creating report");
         try {
             jobManager.register(
                     report,
@@ -174,6 +176,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             throw sce;
         }
         String executor = AuthContextUtils.getUsername();
+        Assert.notNull(executor, "executor cannot be null when executing report");
         try {
             jobManager.register(
                     report,

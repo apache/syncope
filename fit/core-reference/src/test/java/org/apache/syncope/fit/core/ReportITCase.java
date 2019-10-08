@@ -79,9 +79,11 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(reportTO.getExecutions());
 
         int preExecSize = reportTO.getExecutions().size();
-        ExecTO exec = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        ExecuteQuery query = new ExecuteQuery.Builder().key(reportKey).build();
+        ExecTO exec = reportService.execute(query);
         assertNotNull(exec);
-
+        assertNotNull(exec.getExecutor());
+        
         int i = 0;
         int maxit = 50;
 
@@ -96,8 +98,7 @@ public class ReportITCase extends AbstractITCase {
 
             assertNotNull(reportTO);
             assertNotNull(reportTO.getExecutions());
-            assertNotNull(reportTO.getLastExecutor());
-
+            
             i++;
         } while (preExecSize == reportTO.getExecutions().size() && i < maxit);
         if (i == maxit) {
