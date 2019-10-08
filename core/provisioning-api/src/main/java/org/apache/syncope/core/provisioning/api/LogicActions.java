@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.List;
+import java.util.function.Function;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -29,27 +30,27 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
  */
 public interface LogicActions {
 
-    default <C extends AnyCR> C beforeCreate(C input) {
-        return input;
+    default <C extends AnyCR> Function<C, C> beforeCreate() {
+        return Function.identity();
     }
 
-    default <A extends AnyTO> A afterCreate(A input, List<PropagationStatus> statuses) {
-        return input;
+    default <A extends AnyTO> Function<A, A> afterCreate(List<PropagationStatus> statuses) {
+        return Function.identity();
     }
 
-    default <U extends AnyUR> U beforeUpdate(U input) {
-        return input;
+    default <U extends AnyUR> Function<U, U> beforeUpdate() {
+        return Function.identity();
     }
 
-    default <A extends AnyTO> A afterUpdate(A input, List<PropagationStatus> statuses) {
-        return input;
+    default <A extends AnyTO> Function<A, A> afterUpdate(List<PropagationStatus> statuses) {
+        return Function.identity();
     }
 
-    default <A extends AnyTO> A beforeDelete(A input) {
-        return input;
+    default <A extends AnyTO> Function<A, A> beforeDelete() {
+        return Function.identity();
     }
 
-    default <A extends AnyTO> A afterDelete(A input, List<PropagationStatus> statuses) {
-        return input;
+    default <A extends AnyTO> Function<A, A> afterDelete(List<PropagationStatus> statuses) {
+        return Function.identity();
     }
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -86,6 +87,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         return actions;
     }
 
+    @SuppressWarnings("unchecked")
     protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
         Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
@@ -112,15 +114,18 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         templateUtils.apply(anyCR, realm.getTemplate(anyType));
 
         List<LogicActions> actions = getActions(realm);
-        for (LogicActions action : actions) {
-            anyCR = action.beforeCreate(anyCR);
-        }
+
+        anyCR = (C) actions.stream().
+                map(action -> action.beforeCreate()).
+                reduce(Function.identity(), Function::andThen).
+                apply(anyCR);
 
         LOG.debug("Input: {}\nOutput: {}\n", input, anyCR);
 
         return Pair.of(anyCR, actions);
     }
 
+    @SuppressWarnings("unchecked")
     protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
         Realm realm = realmDAO.findByFullPath(realmPath);
         if (realm == null) {
@@ -129,18 +134,20 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
             throw sce;
         }
 
-        U mod = input;
+        U update = input;
 
         List<LogicActions> actions = getActions(realm);
-        for (LogicActions action : actions) {
-            mod = action.beforeUpdate(mod);
-        }
+        update = (U) actions.stream().
+                map(action -> action.beforeUpdate()).
+                reduce(Function.identity(), Function::andThen).
+                apply(update);
 
-        LOG.debug("Input: {}\nOutput: {}\n", input, mod);
+        LOG.debug("Input: {}\nOutput: {}\n", input, update);
 
-        return Pair.of(mod, actions);
+        return Pair.of(update, actions);
     }
 
+    @SuppressWarnings("unchecked")
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
         Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
@@ -152,23 +159,26 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         TO any = input;
 
         List<LogicActions> actions = getActions(realm);
-        for (LogicActions action : actions) {
-            any = action.beforeDelete(any);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.beforeDelete()).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
         return Pair.of(any, actions);
     }
 
+    @SuppressWarnings("unchecked")
     protected ProvisioningResult<TO> afterCreate(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 
         TO any = input;
 
-        for (LogicActions action : actions) {
-            any = action.afterCreate(any, statuses);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.afterCreate(statuses)).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);
@@ -197,9 +207,10 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         TO any = input;
 
-        for (LogicActions action : actions) {
-            any = action.afterUpdate(any, statuses);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.afterUpdate(statuses)).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);
@@ -208,14 +219,16 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected ProvisioningResult<TO> afterDelete(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 
         TO any = input;
 
-        for (LogicActions action : actions) {
-            any = action.afterDelete(any, statuses);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.afterDelete(statuses)).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);

@@ -161,23 +161,27 @@ public class ConnObjectUtils {
      * @param pullTask pull task
      * @param provision provision information
      * @param anyUtils utils
-     * @return UserTO for the user to be created
+     * @param generatePasswordIfPossible whether password value shall be generated, in case not found from
+     * connector object and allowed by resource configuration
+     * @param <C> create request type
+     * @return create request
      */
     @Transactional(readOnly = true)
-    public AnyCR getAnyCR(
+    public <C extends AnyCR> C getAnyCR(
             final ConnectorObject obj,
             final PullTask pullTask,
             final Provision provision,
-            final AnyUtils anyUtils) {
+            final AnyUtils anyUtils,
+            final boolean generatePasswordIfPossible) {
 
         AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
-        AnyCR anyCR = anyUtils.newAnyCR();
+        C anyCR = anyUtils.newAnyCR();
         EntityTOUtils.toAnyCR(anyTO, anyCR);
 
         // (for users) if password was not set above, generate if resource is configured for that
         if (anyCR instanceof UserCR
                 && StringUtils.isBlank(((UserCR) anyCR).getPassword())
-                && provision.getResource().isRandomPwdIfNotProvided()) {
+                && generatePasswordIfPossible && provision.getResource().isRandomPwdIfNotProvided()) {
 
             UserCR userCR = (UserCR) anyCR;
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();
@@ -234,64 +238,63 @@ public class ConnObjectUtils {
         updated.setKey(key);
 
         U anyUR = null;
-        if (null != anyUtils.anyTypeKind()) {
-            switch (anyUtils.anyTypeKind()) {
-                case USER:
-                    UserTO originalUser = (UserTO) original;
-                    UserTO updatedUser = (UserTO) updated;
+        switch (anyUtils.anyTypeKind()) {
+            case USER:
+                UserTO originalUser = (UserTO) original;
+                UserTO updatedUser = (UserTO) updated;
 
-                    if (StringUtils.isBlank(updatedUser.getUsername())) {
-                        updatedUser.setUsername(originalUser.getUsername());
-                    }
+                if (StringUtils.isBlank(updatedUser.getUsername())) {
+                    updatedUser.setUsername(originalUser.getUsername());
+                }
 
-                    // update password if and only if password is really changed
-                    User user = userDAO.authFind(key);
-                    if (StringUtils.isBlank(updatedUser.getPassword())
-                            || ENCRYPTOR.verify(updatedUser.getPassword(),
-                                    user.getCipherAlgorithm(), user.getPassword())) {
+                // update password if and only if password is really changed
+                User user = userDAO.authFind(key);
+                if (StringUtils.isBlank(updatedUser.getPassword())
+                        || ENCRYPTOR.verify(updatedUser.getPassword(),
+                                user.getCipherAlgorithm(), user.getPassword())) {
 
-                        updatedUser.setPassword(null);
-                    }
+                    updatedUser.setPassword(null);
+                }
 
-                    updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
+                updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
 
-                    if (!mappingManager.hasMustChangePassword(provision)) {
-                        updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
-                    }
+                if (!mappingManager.hasMustChangePassword(provision)) {
+                    updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
+                }
 
-                    anyUR = (U) AnyOperations.diff(updatedUser, originalUser, true);
-                    break;
+                anyUR = (U) AnyOperations.diff(updatedUser, originalUser, true);
+                break;
 
-                case GROUP:
-                    GroupTO originalGroup = (GroupTO) original;
-                    GroupTO updatedGroup = (GroupTO) updated;
+            case GROUP:
+                GroupTO originalGroup = (GroupTO) original;
+                GroupTO updatedGroup = (GroupTO) updated;
 
-                    if (StringUtils.isBlank(updatedGroup.getName())) {
-                        updatedGroup.setName(originalGroup.getName());
-                    }
-                    updatedGroup.setUserOwner(originalGroup.getUserOwner());
-                    updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
-                    updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
-                    updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
-                    updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
+                if (StringUtils.isBlank(updatedGroup.getName())) {
+                    updatedGroup.setName(originalGroup.getName());
+                }
+                updatedGroup.setUserOwner(originalGroup.getUserOwner());
+                updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
+                updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
+                updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
+                updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
 
-                    anyUR = (U) AnyOperations.diff(updatedGroup, originalGroup, true);
-                    break;
+                anyUR = (U) AnyOperations.diff(updatedGroup, originalGroup, true);
+                break;
 
-                case ANY_OBJECT:
-                    AnyObjectTO originalAnyObject = (AnyObjectTO) original;
-                    AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
+            case ANY_OBJECT:
+                AnyObjectTO originalAnyObject = (AnyObjectTO) original;
+                AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
 
-                    if (StringUtils.isBlank(updatedAnyObject.getName())) {
-                        updatedAnyObject.setName(originalAnyObject.getName());
-                    }
+                if (StringUtils.isBlank(updatedAnyObject.getName())) {
+                    updatedAnyObject.setName(originalAnyObject.getName());
+                }
 
-                    anyUR = (U) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
-                    break;
+                anyUR = (U) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
+                break;
 
-                default:
-            }
+            default:
         }
+
         // SYNCOPE-1343, remove null or empty values from the patch plain attributes
         if (anyUR != null) {
             AnyOperations.cleanEmptyAttrs(updated, anyUR);

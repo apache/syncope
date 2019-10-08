@@ -68,8 +68,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
      * {@link java.util.concurrent.CompletionService}
      */
     protected static PropagationTaskCallable newPropagationTaskCallable(
-        final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
-        
+            final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
+
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultPropagationTaskCallable.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         callable.setTaskInfo(taskInfo);
@@ -115,16 +115,19 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         prioritizedTasks.forEach(task -> {
             TaskExec execution = null;
             ExecStatus execStatus;
+            String errorMessage = null;
             try {
                 execution = newPropagationTaskCallable(task, reporter).call();
                 execStatus = ExecStatus.valueOf(execution.getStatus());
             } catch (Exception e) {
                 LOG.error("Unexpected exception", e);
                 execStatus = ExecStatus.FAILURE;
+                errorMessage = e.getMessage();
             }
             if (execStatus != ExecStatus.SUCCESS) {
-                throw new PropagationException(task.getResource(), Optional.ofNullable(execution)
-                        .map(Exec::getMessage).orElse(null));
+                throw new PropagationException(
+                        task.getResource(),
+                        Optional.ofNullable(execution).map(Exec::getMessage).orElse(errorMessage));
             }
         });
 

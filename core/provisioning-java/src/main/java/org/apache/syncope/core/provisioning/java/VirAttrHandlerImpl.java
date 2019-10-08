@@ -125,10 +125,11 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                         schemasToRead.forEach(schema -> {
                             Attribute attr = connectorObject.getAttributeByName(schema.getExtAttrName());
                             if (attr != null) {
-                                VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue();
-                                virAttrCacheValue.setValues(attr.getValue());
+                                VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue(attr.getValue());
                                 virAttrCache.put(
-                                        any.getType().getKey(), any.getKey(), schema.getKey(),
+                                        any.getType().getKey(),
+                                        any.getKey(),
+                                        schema.getKey(),
                                         virAttrCacheValue);
                                 LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
 

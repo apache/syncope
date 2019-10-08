@@ -654,9 +654,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 if (attr == null) {
                     virAttrCache.expire(task.getAnyType(), task.getEntityKey(), item.getIntAttrName());
                 } else {
-                    VirAttrCacheValue cacheValue = new VirAttrCacheValue();
-                    cacheValue.setValues(attr.getValue());
-                    virAttrCache.put(task.getAnyType(), task.getEntityKey(), item.getIntAttrName(), cacheValue);
+                    virAttrCache.put(
+                            task.getAnyType(),
+                            task.getEntityKey(),
+                            item.getIntAttrName(),
+                            new VirAttrCacheValue(attr.getValue()));
                 }
             }
         } catch (TimeoutException toe) {

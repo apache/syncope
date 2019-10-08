@@ -16,29 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.fit.buildtools.cxf;
 
-import java.util.function.Function;
-import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import java.io.Serializable;
+import java.util.Date;
 
-public interface OIDCProviderActions {
+public class UserMetadata implements Serializable {
 
-    default Function<UserCR, UserCR> beforeCreate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    private static final long serialVersionUID = -5448360771141372951L;
+
+    private User user;
+
+    private Date lastChangeDate;
+
+    private boolean deleted;
+
+    public User getUser() {
+        return user;
     }
 
-    default Function<UserTO, UserTO> afterCreate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    public void setUser(final User user) {
+        this.user = user;
     }
 
-    default Function<UserUR, UserUR> beforeUpdate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    public Date getLastChangeDate() {
+        return lastChangeDate;
     }
 
-    default Function<UserTO, UserTO> afterUpdate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    public void setLastChangeDate(final Date lastChangeDate) {
+        this.lastChangeDate = lastChangeDate;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(final boolean deleted) {
+        this.deleted = deleted;
     }
 }

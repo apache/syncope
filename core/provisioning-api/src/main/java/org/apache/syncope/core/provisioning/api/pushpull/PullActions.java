@@ -20,7 +20,9 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
+import java.util.function.Function;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -36,11 +38,10 @@ public interface PullActions extends ProvisioningActions {
      * Pre-process the pull information received by the underlying connector, before any internal activity occurs.
      *
      * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
-     * @return pull information, possibly altered.
+     * @return pull information, possibly altered
      */
-    default SyncDelta preprocess(ProvisioningProfile<?, ?> profile, SyncDelta delta) {
-        return delta;
+    default Function<SyncDelta, SyncDelta> preprocess(ProvisioningProfile<?, ?> profile) {
+        return Function.identity();
     }
 
     /**
@@ -57,6 +58,20 @@ public interface PullActions extends ProvisioningActions {
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             AnyCR createReq) throws JobExecutionException {
+    }
+
+    /**
+     * Action to be executed before locally creating a linked account.
+     *
+     * @param profile profile of the pull being executed.
+     * @param delta retrieved pull information
+     * @param linkedAccount create request
+     * @throws JobExecutionException in case of generic failure
+     */
+    default void beforeProvision(
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            LinkedAccountTO linkedAccount) throws JobExecutionException {
     }
 
     /**
@@ -89,6 +104,20 @@ public interface PullActions extends ProvisioningActions {
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             AnyCR createReq) throws JobExecutionException {
+    }
+
+    /**
+     * Action to be executed before locally creating a linked account.
+     *
+     * @param profile profile of the pull being executed.
+     * @param delta retrieved pull information
+     * @param linkedAccount linked account
+     * @throws JobExecutionException in case of generic failure
+     */
+    default void beforeAssign(
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            LinkedAccountTO linkedAccount) throws JobExecutionException {
     }
 
     /**

@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Cache entry value.
@@ -32,7 +33,7 @@ public class VirAttrCacheValue {
     /**
      * Virtual attribute values.
      */
-    private final List<String> values;
+    private final List<String> values = new ArrayList<>();
 
     /**
      * Entry creation date.
@@ -44,57 +45,39 @@ public class VirAttrCacheValue {
      */
     private Date lastAccessDate;
 
-    public VirAttrCacheValue() {
-        this.creationDate = new Date();
-        this.lastAccessDate = new Date();
-        this.values = new ArrayList<>();
-    }
-
-    public void setValues(final Collection<Object> values) {
-        this.values.clear();
+    public VirAttrCacheValue(final Collection<Object> values) {
+        creationDate = new Date();
+        lastAccessDate = new Date();
 
         if (values != null) {
             values.forEach(value -> this.values.add(value.toString()));
         }
     }
 
+    public List<String> getValues() {
+        lastAccessDate = new Date();
+        return values;
+    }
+
     public Date getCreationDate() {
-        if (creationDate != null) {
-            return new Date(creationDate.getTime());
-        }
-        return null;
+        return new Date(creationDate.getTime());
     }
 
     public void forceExpiring() {
         creationDate = new Date(0);
     }
 
-    public List<String> getValues() {
-        return values;
-    }
-
     public Date getLastAccessDate() {
-        if (lastAccessDate != null) {
-            return new Date(lastAccessDate.getTime());
-        }
-        return null;
-    }
-
-    public void setLastAccessDate(final Date lastAccessDate) {
-        if (lastAccessDate != null) {
-            this.lastAccessDate = new Date(lastAccessDate.getTime());
-        } else {
-            this.lastAccessDate = null;
-        }
+        return new Date(lastAccessDate.getTime());
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 67 * hash + Objects.hashCode(this.values);
-        hash = 67 * hash + Objects.hashCode(this.creationDate);
-        hash = 67 * hash + Objects.hashCode(this.lastAccessDate);
-        return hash;
+        return new HashCodeBuilder().
+                append(values).
+                append(creationDate).
+                append(lastAccessDate).
+                build();
     }
 
     @Override
@@ -109,13 +92,11 @@ public class VirAttrCacheValue {
             return false;
         }
         final VirAttrCacheValue other = (VirAttrCacheValue) obj;
-        if (!Objects.equals(this.values, other.values)) {
-            return false;
-        }
-        if (!Objects.equals(this.creationDate, other.creationDate)) {
-            return false;
-        }
-        return Objects.equals(this.lastAccessDate, other.lastAccessDate);
+        return new EqualsBuilder().
+                append(values, other.values).
+                append(creationDate, other.creationDate).
+                append(lastAccessDate, other.lastAccessDate).
+                build();
     }
 
     @Override

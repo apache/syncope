@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.Attr
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.request.AttrPatch
+import java.util.function.Function
 import org.apache.syncope.core.provisioning.api.LogicActions
 
 /**
@@ -33,42 +34,50 @@ class DoubleValueLogicActions implements LogicActions {
   private static final String NAME = "makeItDouble";
 
   @Override
-  <C extends AnyCR> C beforeCreate(final C input) {
-    for (Attr attr : input.getPlainAttrs()) {
-      if (NAME.equals(attr.getSchema())) {
-        List<String> values = new ArrayList<String>(attr.getValues().size());
-        for (String value : attr.getValues()) {
-          try {
-            values.add(String.valueOf(2 * Long.parseLong(value)));
-          } catch (NumberFormatException e) {
-            // ignore
+  <C extends AnyCR> Function<C, C> beforeCreate() {
+    Function function = { 
+      C input ->
+      for (Attr attr : input.getPlainAttrs()) {
+        if (NAME.equals(attr.getSchema())) {
+          List<String> values = new ArrayList<String>(attr.getValues().size());
+          for (String value : attr.getValues()) {
+            try {
+              values.add(String.valueOf(2 * Long.parseLong(value)));
+            } catch (NumberFormatException e) {
+              // ignore
+            }
           }
+          attr.getValues().clear();
+          attr.getValues().addAll(values);
         }
-        attr.getValues().clear();
-        attr.getValues().addAll(values);
       }
-    }
 
-    return input;
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <R extends AnyUR> R beforeUpdate(final R input) {
-    for (AttrPatch patch : input.getPlainAttrs()) {
-      if (NAME.equals(patch.getAttr().getSchema())) {
-        List<String> values = new ArrayList<String>(patch.getAttr().getValues().size());
-        for (String value : patch.getAttr().getValues()) {
-          try {
-            values.add(String.valueOf(2 * Long.parseLong(value)));
-          } catch (NumberFormatException e) {
-            // ignore
+  <R extends AnyUR> Function<R, R> beforeUpdate() {
+    Function function = { 
+      R input ->
+      for (AttrPatch patch : input.getPlainAttrs()) {
+        if (NAME.equals(patch.getAttr().getSchema())) {
+          List<String> values = new ArrayList<String>(patch.getAttr().getValues().size());
+          for (String value : patch.getAttr().getValues()) {
+            try {
+              values.add(String.valueOf(2 * Long.parseLong(value)));
+            } catch (NumberFormatException e) {
+              // ignore
+            }
           }
+          patch.getAttr().getValues().clear();
+          patch.getAttr().getValues().addAll(values);
         }
-        patch.getAttr().getValues().clear();
-        patch.getAttr().getValues().addAll(values);
       }
-    }
 
-    return input;
+      return input;
+    }
+    return function;
   }
 }
