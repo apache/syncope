@@ -18,25 +18,26 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.function.Function;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public interface SAML2IdPActions {
 
-    default UserTO beforeCreate(UserTO input, SAML2LoginResponseTO loginResponse) {
-        return input;
+    default Function<UserTO, UserTO> beforeCreate(SAML2LoginResponseTO loginResponse) {
+        return Function.identity();
     }
 
-    default UserTO afterCreate(UserTO input, SAML2LoginResponseTO loginResponse) {
-        return input;
+    default Function<UserTO, UserTO> afterCreate(SAML2LoginResponseTO loginResponse) {
+        return Function.identity();
     }
 
-    default UserPatch beforeUpdate(UserPatch input, SAML2LoginResponseTO loginResponse) {
-        return input;
+    default Function<UserPatch, UserPatch> beforeUpdate(SAML2LoginResponseTO loginResponse) {
+        return Function.identity();
     }
 
-    default UserTO afterUpdate(UserTO input, SAML2LoginResponseTO loginResponse) {
-        return input;
+    default Function<UserTO, UserTO> afterUpdate(SAML2LoginResponseTO loginResponse) {
+        return Function.identity();
     }
 }

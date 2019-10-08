@@ -20,7 +20,9 @@ package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
@@ -33,6 +35,8 @@ public interface UserDataBinder {
     UserTO getUserTO(String key);
 
     UserTO getUserTO(User user, boolean details);
+
+    LinkedAccountTO getLinkedAccountTO(LinkedAccount account);
 
     void create(User user, UserTO userTO, boolean storePassword);
 

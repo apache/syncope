@@ -88,7 +88,6 @@ import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -487,26 +486,33 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ProvisionTO provision = resource.getProvision("PRINTER").get();
         assertNotNull(provision);
 
+        ImplementationTO transformer = null;
+        try {
+            transformer = implementationService.read(
+                    ImplementationType.ITEM_TRANSFORMER, "PrefixItemTransformer");
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                transformer = new ImplementationTO();
+                transformer.setKey("PrefixItemTransformer");
+                transformer.setEngine(ImplementationEngine.GROOVY);
+                transformer.setType(ImplementationType.ITEM_TRANSFORMER);
+                transformer.setBody(IOUtils.toString(
+                        getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
+                Response response = implementationService.create(transformer);
+                transformer = implementationService.read(
+                        transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(transformer.getKey());
+            }
+        }
+        assertNotNull(transformer);
+
         ItemTO mappingItem = provision.getMapping().getItems().stream().
                 filter(object -> "location".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(mappingItem);
-
-        final String prefix = "PREFIX_";
-
-        ImplementationTO transformer = new ImplementationTO();
-        transformer.setKey("PrefixItemTransformer");
-        transformer.setEngine(ImplementationEngine.GROOVY);
-        transformer.setType(ImplementationType.ITEM_TRANSFORMER);
-        transformer.setBody(IOUtils.toString(
-                getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
-        Response response = implementationService.create(transformer);
-        transformer = implementationService.read(
-                transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-        assertNotNull(transformer);
-
         mappingItem.getTransformers().clear();
         mappingItem.getTransformers().add(transformer.getKey());
 
+        final String prefix = "PREFIX_";
         try {
             resourceService.update(resource);
             resourceService.removeSyncToken(resource.getKey(), provision.getAnyType());

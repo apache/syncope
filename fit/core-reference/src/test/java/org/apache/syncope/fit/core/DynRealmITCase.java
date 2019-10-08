@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -62,8 +61,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 public class DynRealmITCase extends AbstractITCase {
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
     public void misc() {

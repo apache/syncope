@@ -114,15 +114,19 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         prioritizedTasks.forEach(task -> {
             TaskExec execution = null;
             ExecStatus execStatus;
+            String errorMessage = null;
             try {
                 execution = newPropagationTaskCallable(task, reporter).call();
                 execStatus = ExecStatus.valueOf(execution.getStatus());
             } catch (Exception e) {
                 LOG.error("Unexpected exception", e);
                 execStatus = ExecStatus.FAILURE;
+                errorMessage = e.getMessage();
             }
             if (execStatus != ExecStatus.SUCCESS) {
-                throw new PropagationException(task.getResource(), execution == null ? null : execution.getMessage());
+                throw new PropagationException(
+                        task.getResource(),
+                        execution == null ? errorMessage : execution.getMessage());
             }
         });
 

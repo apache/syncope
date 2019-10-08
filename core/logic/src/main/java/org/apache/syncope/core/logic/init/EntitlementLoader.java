@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import java.util.Map;
-import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -46,11 +44,11 @@ public class EntitlementLoader implements SyncopeLoader {
     public void load() {
         EntitlementsHolder.getInstance().init(StandardEntitlement.values());
 
-        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-            AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+        domainsHolder.getDomains().forEach((domain, datasource) -> {
+            AuthContextUtils.execWithAuthContext(domain, () -> {
                 entitlementAccessor.addEntitlementsForAnyTypes();
                 return null;
             });
-        }
+        });
     }
 }

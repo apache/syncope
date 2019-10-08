@@ -27,13 +27,18 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions
 import org.identityconnectors.framework.common.objects.SyncDelta
 import org.quartz.JobExecutionException
+import java.util.function.Function
 
 @CompileStatic
 class MyPullActions implements PullActions {
   
   @Override
-  SyncDelta preprocess(ProvisioningProfile profile, SyncDelta delta) {
-    return delta;
+  Function<SyncDelta, SyncDelta> preprocess(ProvisioningProfile<?, ?> profile) {
+    Function function = { 
+      SyncDelta delta ->
+      return delta;        
+    }
+    return function;
   }
   
   @Override

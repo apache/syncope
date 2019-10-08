@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -33,7 +32,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "linkedAccount")
 @XmlType
-public class LinkedAccountTO implements Serializable {
+public class LinkedAccountTO implements EntityTO {
 
     private static final long serialVersionUID = 7396929732310559535L;
 
@@ -42,8 +41,13 @@ public class LinkedAccountTO implements Serializable {
         private final LinkedAccountTO instance = new LinkedAccountTO();
 
         public Builder(final String resource, final String connObjectKeyValue) {
+            this(null, resource, connObjectKeyValue);
+        }
+
+        public Builder(final String key, final String resource, final String connObjectKeyValue) {
+            instance.setKey(key);
             instance.setResource(resource);
-            instance.setconnObjectKeyValue(connObjectKeyValue);
+            instance.setConnObjectKeyValue(connObjectKeyValue);
         }
 
         public Builder username(final String username) {
@@ -66,6 +70,8 @@ public class LinkedAccountTO implements Serializable {
         }
     }
 
+    private String key;
+
     private String connObjectKeyValue;
 
     private String resource;
@@ -80,11 +86,20 @@ public class LinkedAccountTO implements Serializable {
 
     private final Set<String> privileges = new HashSet<>();
 
-    public String getconnObjectKeyValue() {
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public String getConnObjectKeyValue() {
         return connObjectKeyValue;
     }
 
-    public void setconnObjectKeyValue(final String connObjectKeyValue) {
+    public void setConnObjectKeyValue(final String connObjectKeyValue) {
         this.connObjectKeyValue = connObjectKeyValue;
     }
 
@@ -142,6 +157,7 @@ public class LinkedAccountTO implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                append(key).
                 append(connObjectKeyValue).
                 append(resource).
                 append(username).
@@ -164,6 +180,7 @@ public class LinkedAccountTO implements Serializable {
         }
         final LinkedAccountTO other = (LinkedAccountTO) obj;
         return new EqualsBuilder().
+                append(key, other.key).
                 append(connObjectKeyValue, other.connObjectKeyValue).
                 append(resource, other.resource).
                 append(username, other.username).

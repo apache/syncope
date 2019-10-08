@@ -54,11 +54,10 @@ def buildConnectorObject(node) {
   return [
     __UID__:node.get("key").textValue(), 
     __NAME__:node.get("key").textValue(),
+    __ENABLE__:node.get("status").textValue().equals("ACTIVE"),
+    __PASSWORD__:new GuardedString(node.get("password").textValue().toCharArray()),
     key:node.get("key").textValue(),
     username:node.get("username").textValue(),
-    password:node.has("password") && node.get("password").textValue() != null
-    ? new GuardedString(node.get("password").textValue().toCharArray()) 
-  : null,
     firstName:node.get("firstName").textValue(),
     surname:node.get("surname").textValue(),
     email:node.get("email").textValue()

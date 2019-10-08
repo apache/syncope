@@ -164,7 +164,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             LOG.debug("Ignoring invalid resource {}", accountTO.getResource());
         } else {
             Optional<? extends LinkedAccount> found =
-                    user.getLinkedAccount(resource.getKey(), accountTO.getconnObjectKeyValue());
+                    user.getLinkedAccount(resource.getKey(), accountTO.getConnObjectKeyValue());
             LinkedAccount account = found.isPresent()
                     ? found.get()
                     : new Supplier<LinkedAccount>() {
@@ -175,7 +175,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             acct.setOwner(user);
                             user.add(acct);
 
-                            acct.setConnObjectKeyValue(accountTO.getconnObjectKeyValue());
+                            acct.setConnObjectKeyValue(accountTO.getConnObjectKeyValue());
                             acct.setResource(resource);
 
                             return acct;
@@ -592,7 +592,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         userPatch.getLinkedAccounts().stream().filter(patch -> patch.getLinkedAccountTO() != null).forEach(patch -> {
             user.getLinkedAccount(
                     patch.getLinkedAccountTO().getResource(),
-                    patch.getLinkedAccountTO().getconnObjectKeyValue()).ifPresent(account -> {
+                    patch.getLinkedAccountTO().getConnObjectKeyValue()).ifPresent(account -> {
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
                     user.getLinkedAccounts().remove(account);
@@ -694,6 +694,28 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Transactional(readOnly = true)
     @Override
+    public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
+        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
+                account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
+                username(account.getUsername()).
+                password(account.getPassword()).
+                suspended(BooleanUtils.isTrue(account.isSuspended())).
+                build();
+
+        account.getPlainAttrs().forEach(plainAttr -> {
+            accountTO.getPlainAttrs().add(new AttrTO.Builder().
+                    schema(plainAttr.getSchema().getKey()).
+                    values(plainAttr.getValuesAsStrings()).build());
+        });
+
+        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
+                map(Entity::getKey).collect(Collectors.toList()));
+
+        return accountTO;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public UserTO getUserTO(final User user, final boolean details) {
         UserTO userTO = new UserTO();
         userTO.setKey(user.getKey());
@@ -764,25 +786,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(
-                    user.getLinkedAccounts().stream().map(account -> {
-                        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
-                                account.getResource().getKey(), account.getConnObjectKeyValue()).
-                                username(account.getUsername()).
-                                password(user.getPassword()).
-                                suspended(BooleanUtils.isTrue(account.isSuspended())).
-                                build();
-
-                        account.getPlainAttrs().forEach(plainAttr -> {
-                            accountTO.getPlainAttrs().add(new AttrTO.Builder().
-                                    schema(plainAttr.getSchema().getKey()).
-                                    values(plainAttr.getValuesAsStrings()).build());
-                        });
-
-                        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                                map(Entity::getKey).collect(Collectors.toList()));
-
-                        return accountTO;
-                    }).collect(Collectors.toList()));
+                    user.getLinkedAccounts().stream().map(this::getLinkedAccountTO).collect(Collectors.toList()));
         }
 
         return userTO;

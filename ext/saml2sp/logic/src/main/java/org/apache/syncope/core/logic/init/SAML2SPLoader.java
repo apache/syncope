@@ -139,7 +139,7 @@ public class SAML2SPLoader implements SyncopeLoader {
             inited = false;
         }
 
-        domainsHolder.getDomains().keySet().forEach(domain -> {
+        domainsHolder.getDomains().forEach((domain, datasource) -> {
             AuthContextUtils.execWithAuthContext(domain, () -> {
                 idpDAO.findAll().forEach(idp -> {
                     try {

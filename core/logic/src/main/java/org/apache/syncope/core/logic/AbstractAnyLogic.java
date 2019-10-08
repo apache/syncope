@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -107,9 +108,10 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         templateUtils.apply(any, realm.getTemplate(anyType));
 
         List<LogicActions> actions = getActions(realm);
-        for (LogicActions action : actions) {
-            any = action.beforeCreate(any);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.beforeCreate()).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
@@ -124,16 +126,17 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
             throw sce;
         }
 
-        P mod = input;
+        P patch = input;
 
         List<LogicActions> actions = getActions(realm);
-        for (LogicActions action : actions) {
-            mod = action.beforeUpdate(mod);
-        }
+        patch = (P) actions.stream().
+                map(action -> action.beforeUpdate()).
+                reduce(Function.identity(), Function::andThen).
+                apply(patch);
 
-        LOG.debug("Input: {}\nOutput: {}\n", input, mod);
+        LOG.debug("Input: {}\nOutput: {}\n", input, patch);
 
-        return Pair.of(mod, actions);
+        return Pair.of(patch, actions);
     }
 
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
@@ -147,9 +150,10 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         TO any = input;
 
         List<LogicActions> actions = getActions(realm);
-        for (LogicActions action : actions) {
-            any = action.beforeDelete(any);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.beforeDelete()).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
@@ -161,9 +165,10 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         TO any = input;
 
-        for (LogicActions action : actions) {
-            any = action.afterCreate(any, statuses);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.afterCreate(statuses)).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);
@@ -192,9 +197,10 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         TO any = input;
 
-        for (LogicActions action : actions) {
-            any = action.afterUpdate(any, statuses);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.afterUpdate(statuses)).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);
@@ -208,9 +214,10 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         TO any = input;
 
-        for (LogicActions action : actions) {
-            any = action.afterDelete(any, statuses);
-        }
+        any = (TO) actions.stream().
+                map(action -> action.afterDelete(statuses)).
+                reduce(Function.identity(), Function::andThen).
+                apply(any);
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);

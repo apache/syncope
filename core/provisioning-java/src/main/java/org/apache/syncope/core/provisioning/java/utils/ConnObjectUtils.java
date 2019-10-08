@@ -154,6 +154,8 @@ public class ConnObjectUtils {
      * @param pullTask pull task
      * @param provision provision information
      * @param anyUtils utils
+     * @param generatePasswordIfPossible whether password value shall be generated, in case not found from
+     * connector object and allowed by resource configuration
      * @param <T> any object
      * @return UserTO for the user to be created
      */
@@ -162,14 +164,15 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final PullTask pullTask,
             final Provision provision,
-            final AnyUtils anyUtils) {
+            final AnyUtils anyUtils,
+            final boolean generatePasswordIfPossible) {
 
         T anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
 
         // (for users) if password was not set above, generate if resource is configured for that
         if (anyTO instanceof UserTO
                 && StringUtils.isBlank(((UserTO) anyTO).getPassword())
-                && provision.getResource().isRandomPwdIfNotProvided()) {
+                && generatePasswordIfPossible && provision.getResource().isRandomPwdIfNotProvided()) {
 
             UserTO userTO = (UserTO) anyTO;
 
@@ -187,9 +190,7 @@ public class ConnObjectUtils {
             userTO.getResources().stream().
                     map(resource -> resourceDAO.find(resource)).
                     filter(resource -> resource != null && resource.getPasswordPolicy() != null).
-                    forEach(resource -> {
-                        passwordPolicies.add(resource.getPasswordPolicy());
-                    });
+                    forEach(resource -> passwordPolicies.add(resource.getPasswordPolicy()));
 
             String password;
             try {
@@ -241,64 +242,63 @@ public class ConnObjectUtils {
         updated.setKey(key);
 
         T anyPatch = null;
-        if (null != anyUtils.anyTypeKind()) {
-            switch (anyUtils.anyTypeKind()) {
-                case USER:
-                    UserTO originalUser = (UserTO) original;
-                    UserTO updatedUser = (UserTO) updated;
+        switch (anyUtils.anyTypeKind()) {
+            case USER:
+                UserTO originalUser = (UserTO) original;
+                UserTO updatedUser = (UserTO) updated;
 
-                    if (StringUtils.isBlank(updatedUser.getUsername())) {
-                        updatedUser.setUsername(originalUser.getUsername());
-                    }
+                if (StringUtils.isBlank(updatedUser.getUsername())) {
+                    updatedUser.setUsername(originalUser.getUsername());
+                }
 
-                    // update password if and only if password is really changed
-                    User user = userDAO.authFind(key);
-                    if (StringUtils.isBlank(updatedUser.getPassword())
-                            || ENCRYPTOR.verify(updatedUser.getPassword(),
-                                    user.getCipherAlgorithm(), user.getPassword())) {
+                // update password if and only if password is really changed
+                User user = userDAO.authFind(key);
+                if (StringUtils.isBlank(updatedUser.getPassword())
+                        || ENCRYPTOR.verify(updatedUser.getPassword(),
+                                user.getCipherAlgorithm(), user.getPassword())) {
 
-                        updatedUser.setPassword(null);
-                    }
+                    updatedUser.setPassword(null);
+                }
 
-                    updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
+                updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
 
-                    if (!mappingManager.hasMustChangePassword(provision)) {
-                        updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
-                    }
+                if (!mappingManager.hasMustChangePassword(provision)) {
+                    updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
+                }
 
-                    anyPatch = (T) AnyOperations.diff(updatedUser, originalUser, true);
-                    break;
+                anyPatch = (T) AnyOperations.diff(updatedUser, originalUser, true);
+                break;
 
-                case GROUP:
-                    GroupTO originalGroup = (GroupTO) original;
-                    GroupTO updatedGroup = (GroupTO) updated;
+            case GROUP:
+                GroupTO originalGroup = (GroupTO) original;
+                GroupTO updatedGroup = (GroupTO) updated;
 
-                    if (StringUtils.isBlank(updatedGroup.getName())) {
-                        updatedGroup.setName(originalGroup.getName());
-                    }
-                    updatedGroup.setUserOwner(originalGroup.getUserOwner());
-                    updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
-                    updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
-                    updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
-                    updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
+                if (StringUtils.isBlank(updatedGroup.getName())) {
+                    updatedGroup.setName(originalGroup.getName());
+                }
+                updatedGroup.setUserOwner(originalGroup.getUserOwner());
+                updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
+                updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
+                updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
+                updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
 
-                    anyPatch = (T) AnyOperations.diff(updatedGroup, originalGroup, true);
-                    break;
+                anyPatch = (T) AnyOperations.diff(updatedGroup, originalGroup, true);
+                break;
 
-                case ANY_OBJECT:
-                    AnyObjectTO originalAnyObject = (AnyObjectTO) original;
-                    AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
+            case ANY_OBJECT:
+                AnyObjectTO originalAnyObject = (AnyObjectTO) original;
+                AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
 
-                    if (StringUtils.isBlank(updatedAnyObject.getName())) {
-                        updatedAnyObject.setName(originalAnyObject.getName());
-                    }
+                if (StringUtils.isBlank(updatedAnyObject.getName())) {
+                    updatedAnyObject.setName(originalAnyObject.getName());
+                }
 
-                    anyPatch = (T) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
-                    break;
+                anyPatch = (T) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
+                break;
 
-                default:
-            }
+            default:
         }
+
         // SYNCOPE-1343, remove null or empty values from the patch plain attributes
         if (anyPatch != null) {
             AnyOperations.cleanEmptyAttrs(updated, anyPatch);

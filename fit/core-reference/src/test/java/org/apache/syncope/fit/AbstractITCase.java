@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -121,6 +122,8 @@ import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
+
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 

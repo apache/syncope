@@ -17,22 +17,69 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.List
+import java.util.function.Function
 import org.apache.syncope.common.lib.patch.AnyPatch
 import org.apache.syncope.common.lib.patch.AttrPatch
 import org.apache.syncope.common.lib.to.AnyTO
 import org.apache.syncope.common.lib.to.AttrTO
+import org.apache.syncope.common.lib.to.PropagationStatus
 import org.apache.syncope.core.provisioning.api.LogicActions
 
 @CompileStatic
 class MyLogicActions implements LogicActions {
   
   @Override
-  <A extends AnyTO> A beforeCreate(final A input) {
-    return input;
+  <A extends AnyTO> Function<A, A> beforeCreate() {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <M extends AnyPatch> M beforeUpdate(final M input) {
-    return input;
+  <A extends AnyTO> Function<A, A> afterCreate(List<PropagationStatus> statuses) {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
+  }
+
+  @Override
+  <P extends AnyPatch> Function<P, P> beforeUpdate() {
+    Function function = { 
+      P input ->
+      return input;        
+    }
+    return function;
+  }
+
+  @Override
+  <A extends AnyTO> Function<A, A> afterUpdate(List<PropagationStatus> statuses) {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
+  }
+
+  @Override
+  <A extends AnyTO> Function<A, A> beforeDelete() {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
+  }
+
+  @Override
+  <A extends AnyTO> Function<A, A> afterDelete(List<PropagationStatus> statuses) {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
   }
 }

@@ -59,13 +59,17 @@ under the License.
     
     <property name="customizer" ref="openApiCustomizer"/>
   </bean>
-  
+
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider"/>
+
+  <bean id="dateParameterConverterProvider" class="org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider"/>
+
   <jaxrs:server id="restProvisioning" address="/rest"
                 basePackages="org.apache.syncope.fit.buildtools.cxf" 
                 staticSubresourceResolution="true">
     <jaxrs:providers>
       <ref bean="jsonProvider"/>
+      <ref bean="dateParameterConverterProvider"/>
     </jaxrs:providers>
     <jaxrs:features>
       <ref bean="openapiFeature"/>

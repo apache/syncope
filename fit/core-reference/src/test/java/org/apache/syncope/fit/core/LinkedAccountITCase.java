@@ -18,42 +18,60 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.apache.syncope.fit.AbstractITCase.getObject;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapContext;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.LinkedAccountPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRule;
+import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRuleConf;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -199,17 +217,18 @@ public class LinkedAccountITCase extends AbstractITCase {
         pwdCipherAlgo.getValues().set(0, "AES");
         configurationService.set(pwdCipherAlgo);
 
+        String userKey = null;
+        String connObjectKeyValue = UUID.randomUUID().toString();
         try {
             // 1. create user with linked account
             UserTO user = UserITCase.getSampleTO(
                     "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
-            String connObjectKeyValue = UUID.randomUUID().toString();
 
             LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_REST, connObjectKeyValue).build();
             user.getLinkedAccounts().add(account);
 
             user = createUser(user).getEntity();
-            String userKey = user.getKey();
+            userKey = user.getKey();
             assertNotNull(userKey);
             assertNotEquals(userKey, connObjectKeyValue);
 
@@ -273,6 +292,216 @@ public class LinkedAccountITCase extends AbstractITCase {
             // restore initial cipher algorithm
             pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
             configurationService.set(pwdCipherAlgo);
+
+            // delete user and accounts
+            if (userKey != null) {
+                WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + connObjectKeyValue).delete();
+                WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + userKey).delete();
+
+                userService.delete(userKey);
+            }
+        }
+    }
+
+    @Test
+    public void pull() {
+        // -----------------------------
+        // Add a custom policy with correlation rule
+        // -----------------------------
+        ResourceTO restResource = resourceService.read(RESOURCE_NAME_REST);
+        if (restResource.getPullPolicy() == null) {
+            ImplementationTO rule = null;
+            try {
+                rule = implementationService.read(
+                        ImplementationType.PULL_CORRELATION_RULE, "LinkedAccountSamplePullCorrelationRule");
+            } catch (SyncopeClientException e) {
+                if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                    rule = new ImplementationTO();
+                    rule.setKey("LinkedAccountSamplePullCorrelationRule");
+                    rule.setEngine(ImplementationEngine.JAVA);
+                    rule.setType(ImplementationType.PULL_CORRELATION_RULE);
+                    rule.setBody(POJOHelper.serialize(new LinkedAccountSamplePullCorrelationRuleConf()));
+                    Response response = implementationService.create(rule);
+                    rule = implementationService.read(
+                            rule.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                    assertNotNull(rule.getKey());
+                }
+            }
+            assertNotNull(rule);
+
+            PullPolicyTO policy = new PullPolicyTO();
+            policy.setDescription("Linked Account sample Pull policy");
+            policy.getCorrelationRules().put(AnyTypeKind.USER.name(), rule.getKey());
+            Response response = policyService.create(PolicyType.PULL, policy);
+            policy = policyService.read(PolicyType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+            assertNotNull(policy.getKey());
+
+            restResource.setPullPolicy(policy.getKey());
+            resourceService.update(restResource);
+        }
+
+        // -----------------------------
+        // -----------------------------
+        // Add a pull task
+        // -----------------------------
+        String pullTaskKey;
+
+        PagedResult<PullTaskTO> tasks = taskService.search(
+                new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_NAME_REST).build());
+        if (tasks.getTotalCount() > 0) {
+            pullTaskKey = tasks.getResult().get(0).getKey();
+        } else {
+            PullTaskTO task = new PullTaskTO();
+            task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            task.setName("Linked Account Pull Task");
+            task.setActive(true);
+            task.setResource(RESOURCE_NAME_REST);
+            task.setPullMode(PullMode.INCREMENTAL);
+            task.setPerformCreate(true);
+            task.setPerformUpdate(true);
+            task.setPerformDelete(true);
+            task.setSyncStatus(true);
+
+            Response response = taskService.create(TaskType.PULL, task);
+            task = taskService.read(TaskType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY), false);
+            assertNotNull(task.getKey());
+            pullTaskKey = task.getKey();
+        }
+        assertNotNull(pullTaskKey);
+        // -----------------------------
+
+        // 1. create REST users
+        WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users").
+                accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE);
+
+        ObjectNode user = MAPPER.createObjectNode();
+        user.put("username", "linkedaccount1");
+        user.put("password", "Password123");
+        user.put("firstName", "Pasquale");
+        user.put("surname", "Vivaldi");
+        user.put("email", "vivaldi@syncope.org");
+
+        Response response = webClient.post(user.toString());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        String user1Key = StringUtils.substringAfterLast(response.getHeaderString(HttpHeaders.LOCATION), "/");
+        assertNotNull(user1Key);
+
+        user = MAPPER.createObjectNode();
+        user.put("username", "vivaldi");
+        user.put("password", "Password123");
+        user.put("firstName", "Giovannino");
+        user.put("surname", "Vivaldi");
+        user.put("email", "vivaldi@syncope.org");
+
+        response = webClient.post(user.toString());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        String user2Key = StringUtils.substringAfterLast(response.getHeaderString(HttpHeaders.LOCATION), "/");
+        assertNotNull(user2Key);
+
+        user = MAPPER.createObjectNode();
+        user.put("username", "not.vivaldi");
+        user.put("password", "Password123");
+        user.put("email", "not.vivaldi@syncope.org");
+
+        response = webClient.post(user.toString());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+        String user3Key = StringUtils.substringAfterLast(response.getHeaderString(HttpHeaders.LOCATION), "/");
+        assertNotNull(user3Key);
+
+        // 2. execute pull task and verify linked accounts were pulled
+        try {
+            List<LinkedAccountTO> accounts = userService.read("vivaldi").getLinkedAccounts();
+            assertTrue(accounts.isEmpty());
+
+            ExecTO exec = AbstractTaskITCase.execProvisioningTask(taskService, TaskType.PULL, pullTaskKey, 50, false);
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+
+            accounts = userService.read("vivaldi").getLinkedAccounts();
+            assertEquals(3, accounts.size());
+
+            Optional<LinkedAccountTO> firstAccount = accounts.stream().
+                    filter(account -> user1Key.equals(account.getConnObjectKeyValue())).
+                    findFirst();
+            assertTrue(firstAccount.isPresent());
+            assertFalse(firstAccount.get().isSuspended());
+            assertEquals(RESOURCE_NAME_REST, firstAccount.get().getResource());
+            assertEquals("linkedaccount1", firstAccount.get().getUsername());
+            assertEquals("Pasquale", firstAccount.get().getPlainAttr("firstname").get().getValues().get(0));
+
+            Optional<LinkedAccountTO> secondAccount = accounts.stream().
+                    filter(account -> user2Key.equals(account.getConnObjectKeyValue())).
+                    findFirst();
+            assertTrue(secondAccount.isPresent());
+            assertFalse(secondAccount.get().isSuspended());
+            assertEquals(RESOURCE_NAME_REST, secondAccount.get().getResource());
+            assertNull(secondAccount.get().getUsername());
+            assertEquals("Giovannino", secondAccount.get().getPlainAttr("firstname").get().getValues().get(0));
+
+            Optional<LinkedAccountTO> thirdAccount = accounts.stream().
+                    filter(account -> user3Key.equals(account.getConnObjectKeyValue())).
+                    filter(account -> "not.vivaldi".equals(account.getUsername())).
+                    findFirst();
+            assertTrue(thirdAccount.isPresent());
+            assertFalse(thirdAccount.get().isSuspended());
+            assertEquals(RESOURCE_NAME_REST, thirdAccount.get().getResource());
+            assertEquals("not.vivaldi", thirdAccount.get().getUsername());
+
+            // 3. update / remove REST users
+            response = webClient.path(user1Key).delete();
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+            user = MAPPER.createObjectNode();
+            user.put("username", "linkedaccount2");
+            response = webClient.replacePath(user2Key).put(user.toString());
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+            user = MAPPER.createObjectNode();
+            user.put("status", "INACTIVE");
+            response = webClient.replacePath(user3Key).put(user.toString());
+            assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+            // 4. execute pull task again and verify linked accounts were pulled
+            exec = AbstractTaskITCase.execProvisioningTask(taskService, TaskType.PULL, pullTaskKey, 50, false);
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+
+            accounts = userService.read("vivaldi").getLinkedAccounts();
+            assertEquals(2, accounts.size());
+
+            firstAccount = accounts.stream().
+                    filter(account -> user1Key.equals(account.getConnObjectKeyValue())).
+                    findFirst();
+            assertFalse(firstAccount.isPresent());
+
+            secondAccount = accounts.stream().
+                    filter(account -> user2Key.equals(account.getConnObjectKeyValue())).
+                    findFirst();
+            assertTrue(secondAccount.isPresent());
+            assertFalse(secondAccount.get().isSuspended());
+            assertEquals(user2Key, secondAccount.get().getConnObjectKeyValue());
+            assertEquals("linkedaccount2", secondAccount.get().getUsername());
+
+            thirdAccount = accounts.stream().
+                    filter(account -> "not.vivaldi".equals(account.getUsername())).
+                    findFirst();
+            assertTrue(thirdAccount.isPresent());
+            assertTrue(thirdAccount.get().isSuspended());
+            assertEquals(user3Key, thirdAccount.get().getConnObjectKeyValue());
+        } finally {
+            // clean up
+            UserPatch patch = new UserPatch();
+            patch.setKey(LinkedAccountSamplePullCorrelationRule.VIVALDI_KEY);
+            patch.getLinkedAccounts().add(new LinkedAccountPatch.Builder().
+                    operation(PatchOperation.DELETE).
+                    linkedAccountTO(new LinkedAccountTO.Builder(RESOURCE_NAME_REST, user2Key).build()).
+                    build());
+            patch.getLinkedAccounts().add(new LinkedAccountPatch.Builder().
+                    operation(PatchOperation.DELETE).
+                    linkedAccountTO(new LinkedAccountTO.Builder(RESOURCE_NAME_REST, user3Key).build()).
+                    build());
+            userService.update(patch);
+
+            webClient.replacePath(user2Key).delete();
+            webClient.replacePath(user3Key).delete();
         }
     }
 }

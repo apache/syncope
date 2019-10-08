@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import java.util.function.Function;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -34,11 +35,10 @@ public interface PullActions extends ProvisioningActions {
      * Pre-process the pull information received by the underlying connector, before any internal activity occurs.
      *
      * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
-     * @return pull information, possibly altered.
+     * @return pull information, possibly altered
      */
-    default SyncDelta preprocess(ProvisioningProfile<?, ?> profile, SyncDelta delta) {
-        return delta;
+    default Function<SyncDelta, SyncDelta> preprocess(ProvisioningProfile<?, ?> profile) {
+        return Function.identity();
     }
 
     /**

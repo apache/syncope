@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -670,23 +671,23 @@ public class DefaultRealmPullResultHandler
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        SyncDelta processed = delta;
-        for (PullActions action : profile.getActions()) {
-            processed = action.preprocess(profile, processed);
-        }
+        SyncDelta finalDelta = profile.getActions().stream().
+                map(action -> action.preprocess(profile)).
+                reduce(Function.identity(), Function::andThen).
+                apply(delta);
 
         LOG.debug("Transformed {} for {} as {}",
-                processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
+                finalDelta.getDeltaType(), finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass());
 
-        List<String> keys = pullUtils.match(processed, orgUnit);
+        List<String> keys = pullUtils.match(finalDelta, orgUnit);
         LOG.debug("Match found for {} as {}: {}",
-                processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
+                finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass(), keys);
 
         if (keys.size() > 1) {
             switch (profile.getConflictResolutionAction()) {
                 case IGNORE:
                     throw new IgnoreProvisionException("More than one match found for "
-                            + processed.getObject().getUid().getUidValue() + ": " + keys);
+                            + finalDelta.getObject().getUid().getUidValue() + ": " + keys);
 
                 case FIRSTMATCH:
                     keys = keys.subList(0, 1);
@@ -702,19 +703,19 @@ public class DefaultRealmPullResultHandler
         }
 
         try {
-            if (SyncDeltaType.CREATE_OR_UPDATE == processed.getDeltaType()) {
+            if (SyncDeltaType.CREATE_OR_UPDATE == finalDelta.getDeltaType()) {
                 if (keys.isEmpty()) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            profile.getResults().addAll(assign(processed, orgUnit));
+                            profile.getResults().addAll(assign(finalDelta, orgUnit));
                             break;
 
                         case PROVISION:
-                            profile.getResults().addAll(provision(processed, orgUnit));
+                            profile.getResults().addAll(provision(finalDelta, orgUnit));
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(processed, false));
+                            profile.getResults().add(ignore(finalDelta, false));
                             break;
 
                         default:
@@ -723,39 +724,39 @@ public class DefaultRealmPullResultHandler
                 } else {
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(processed, keys, false));
+                            profile.getResults().addAll(update(finalDelta, keys, false));
                             break;
 
                         case DEPROVISION:
-                            profile.getResults().addAll(deprovision(processed, keys, false));
+                            profile.getResults().addAll(deprovision(finalDelta, keys, false));
                             break;
 
                         case UNASSIGN:
-                            profile.getResults().addAll(deprovision(processed, keys, true));
+                            profile.getResults().addAll(deprovision(finalDelta, keys, true));
                             break;
 
                         case LINK:
-                            profile.getResults().addAll(link(processed, keys, false));
+                            profile.getResults().addAll(link(finalDelta, keys, false));
                             break;
 
                         case UNLINK:
-                            profile.getResults().addAll(link(processed, keys, true));
+                            profile.getResults().addAll(link(finalDelta, keys, true));
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(processed, true));
+                            profile.getResults().add(ignore(finalDelta, true));
                             break;
 
                         default:
                         // do nothing
                     }
                 }
-            } else if (SyncDeltaType.DELETE == processed.getDeltaType()) {
+            } else if (SyncDeltaType.DELETE == finalDelta.getDeltaType()) {
                 if (keys.isEmpty()) {
-                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, processed);
+                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, finalDelta);
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(processed, keys));
+                    profile.getResults().addAll(delete(finalDelta, keys));
                 }
             }
         } catch (IllegalStateException | IllegalArgumentException e) {

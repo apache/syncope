@@ -16,28 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.fit.core.reference;
 
-import java.util.function.Function;
-import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 
-public interface OIDCProviderActions {
+public class LinkedAccountSamplePullCorrelationRuleConf
+        extends AbstractCorrelationRuleConf implements PullCorrelationRuleConf {
 
-    default Function<UserTO, UserTO> beforeCreate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
-    }
+    private static final long serialVersionUID = -958386962492907926L;
 
-    default Function<UserTO, UserTO> afterCreate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
-    }
-
-    default Function<UserPatch, UserPatch> beforeUpdate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
-    }
-
-    default Function<UserTO, UserTO> afterUpdate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
-    }
 }

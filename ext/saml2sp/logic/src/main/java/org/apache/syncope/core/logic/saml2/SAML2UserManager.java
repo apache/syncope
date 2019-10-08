@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -258,9 +259,10 @@ public class SAML2UserManager {
         }
 
         List<SAML2IdPActions> actions = getActions(idp);
-        for (SAML2IdPActions action : actions) {
-            userTO = action.beforeCreate(userTO, responseTO);
-        }
+        userTO = actions.stream().
+                map(action -> action.beforeCreate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userTO);
 
         fill(idp.getKey(), responseTO, userTO);
 
@@ -274,9 +276,10 @@ public class SAML2UserManager {
         Pair<String, List<PropagationStatus>> created = provisioningManager.create(userTO, false, false);
         userTO = binder.getUserTO(created.getKey());
 
-        for (SAML2IdPActions action : actions) {
-            userTO = action.afterCreate(userTO, responseTO);
-        }
+        userTO = actions.stream().
+                map(action -> action.afterCreate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userTO);
 
         return userTO.getUsername();
     }
@@ -291,16 +294,18 @@ public class SAML2UserManager {
         UserPatch userPatch = AnyOperations.diff(userTO, original, true);
 
         List<SAML2IdPActions> actions = getActions(idp);
-        for (SAML2IdPActions action : actions) {
-            userPatch = action.beforeUpdate(userPatch, responseTO);
-        }
+        userPatch = actions.stream().
+                map(action -> action.beforeUpdate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userPatch);
 
         Pair<UserPatch, List<PropagationStatus>> updated = provisioningManager.update(userPatch, false);
         userTO = binder.getUserTO(updated.getLeft().getKey());
 
-        for (SAML2IdPActions action : actions) {
-            userTO = action.afterUpdate(userTO, responseTO);
-        }
+        userTO = actions.stream().
+                map(action -> action.afterUpdate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userTO);
 
         return userTO.getUsername();
     }
