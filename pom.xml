@@ -468,7 +468,7 @@ under the License.
     <wicket.version>9.0.0-M3</wicket.version>
     <wicket-jqueryui.version>9.0.0-M3</wicket-jqueryui.version>
     <wicket-bootstrap.version>4.0.0-M3</wicket-bootstrap.version>
-    <wicket-spring-boot.version>2.1.8-SNAPSHOT</wicket-spring-boot.version>
+    <wicket-spring-boot.version>3.0.2-RC</wicket-spring-boot.version>
     
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
