@@ -37,6 +37,8 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     String findKey(String name);
 
+    List<A> findByKeys(List<String> keys);
+
     Date findLastChange(String key);
 
     A authFind(String key);
