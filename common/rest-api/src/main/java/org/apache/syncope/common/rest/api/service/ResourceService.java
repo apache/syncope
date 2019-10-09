@@ -45,7 +45,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 
 /**
  * REST operations for external resources.
@@ -62,16 +62,17 @@ public interface ResourceService extends JAXRSService {
      *
      * @param key name of resource to read connector object from
      * @param anyTypeKey any object type
-     * @param anyKey any object key
+     * @param value if value looks like a UUID then it is interpreted as user, group or any object key, otherwise
+     * as key value on the resource
      * @return connector object from the external resource, for the given type and key
      */
     @GET
-    @Path("{key}/{anyTypeKey}/{anyKey}")
+    @Path("{key}/{anyTypeKey}/{value}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     ConnObjectTO readConnObject(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
-            @NotNull @PathParam("anyKey") String anyKey);
+            @NotNull @PathParam("value") String value);
 
     /**
      * Returns a paged list of connector objects from external resource, for the given type, matching
@@ -79,16 +80,16 @@ public interface ResourceService extends JAXRSService {
      *
      * @param key name of resource to read connector object from
      * @param anyTypeKey any object type
-     * @param listQuery query conditions
+     * @param connObjectTOQuery query conditions
      * @return connector objects from the external resource, for the given type
      */
     @GET
     @Path("{key}/{anyTypeKey}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedConnObjectTOResult listConnObjects(
+    PagedConnObjectTOResult searchConnObjects(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
-            @BeanParam ConnObjectTOListQuery listQuery);
+            @BeanParam ConnObjectTOQuery connObjectTOQuery);
 
     /**
      * Returns the resource with matching name.

@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import org.apache.syncope.client.enduser.model.UserRequestWrapper;
-
-import static org.apache.syncope.client.enduser.resources.BaseResource.LOG;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
@@ -31,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.UserRequestWrapper;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;

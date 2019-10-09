@@ -20,15 +20,14 @@ package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
  * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
- * groups in Syncope.
+ * connector objects.
  */
-public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
+public class ConnObjectTOFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
 
-    private static final long serialVersionUID = 6275686371606165706L;
+    private static final long serialVersionUID = 4983742159694010935L;
 
     @Override
     protected Builder newBuilderInstance() {
@@ -36,30 +35,12 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
     }
 
     @Override
-    public GroupProperty is(final String property) {
+    public SyncopeProperty is(final String property) {
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition isAssignable() {
-        return newBuilderInstance().
-                is(SpecialAttr.ASSIGNABLE.toString()).
-                isAssignable();
-    }
-
-    public CompleteCondition withMembers(final String member, final String... moreMembers) {
-        return newBuilderInstance().
-                is(SpecialAttr.MEMBER.toString()).
-                withMembers(member, moreMembers);
-    }
-
-    public CompleteCondition withoutMembers(final String member, final String... moreMembers) {
-        return newBuilderInstance().
-                is(SpecialAttr.MEMBER.toString()).
-                withoutMembers(member, moreMembers);
-    }
-
     protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder
-            implements GroupProperty, CompleteCondition {
+            implements SyncopeProperty, CompleteCondition {
 
         public Builder(final Map<String, String> properties) {
             super(properties);
@@ -70,28 +51,30 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
         }
 
         @Override
-        public GroupProperty is(final String property) {
+        public SyncopeProperty is(final String property) {
             Builder b = new Builder(this);
             b.result = property;
             return b;
         }
 
         @Override
-        public CompleteCondition isAssignable() {
-            this.result = SpecialAttr.ASSIGNABLE.toString();
-            return condition(FiqlParser.EQ, SpecialAttr.NULL);
+        public CompleteCondition inDynRealms(final String dynRealm, final String... moreDynRealms) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public CompleteCondition withMembers(final String member, final String... moreMembers) {
-            this.result = SpecialAttr.MEMBER.toString();
-            return condition(FiqlParser.EQ, member, (Object[]) moreMembers);
+        public CompleteCondition notInDynRealms(final String dynRealm, final String... moreDynRealms) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
-        public CompleteCondition withoutMembers(final String member, final String... moreMembers) {
-            this.result = SpecialAttr.MEMBER.toString();
-            return condition(FiqlParser.NEQ, member, (Object[]) moreMembers);
+        public CompleteCondition hasResources(final String resource, final String... moreResources) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
+            throw new UnsupportedOperationException();
         }
     }
 }

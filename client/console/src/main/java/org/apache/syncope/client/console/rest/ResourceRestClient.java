@@ -27,7 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
@@ -63,7 +63,7 @@ public class ResourceRestClient extends BaseRestClient {
             final String pagedResultCookie,
             final SortParam<String> sort) {
 
-        ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().
+        ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().
                 pagedResultsCookie(pagedResultCookie).
                 size(size).
                 orderBy(toOrderBy(sort));
@@ -73,7 +73,7 @@ public class ResourceRestClient extends BaseRestClient {
 
         PagedConnObjectTOResult list;
         try {
-            list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
+            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, builder.build());
             result.addAll(list.getResult());
             nextPageResultCookie = list.getPagedResultsCookie();
         } catch (Exception e) {

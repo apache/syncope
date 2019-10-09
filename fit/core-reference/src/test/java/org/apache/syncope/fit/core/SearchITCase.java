@@ -25,8 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -34,19 +40,24 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ElasticsearchDetector;
+import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.Test;
 
 public class SearchITCase extends AbstractITCase {
@@ -444,6 +455,107 @@ public class SearchITCase extends AbstractITCase {
         matchingUsers.getResult().forEach(user -> {
             assertNotNull(user);
         });
+    }
+
+    @Test
+    public void searchConnObjectsBrowsePagedResult() {
+        List<String> groupKeys = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            GroupTO group = GroupITCase.getSampleTO("group");
+            group.getResources().add(RESOURCE_NAME_LDAP);
+            group = createGroup(group).getEntity();
+            groupKeys.add(group.getKey());
+        }
+
+        int totalRead = 0;
+        Set<String> read = new HashSet<>();
+        try {
+            // 1. first search with no filters
+            ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(10);
+            PagedConnObjectTOResult matches;
+            do {
+                matches = null;
+
+                boolean succeeded = false;
+                // needed because ApacheDS seems to randomly fail when searching with cookie
+                for (int i = 0; i < 5 && !succeeded; i++) {
+                    try {
+                        matches = resourceService.searchConnObjects(
+                                RESOURCE_NAME_LDAP,
+                                AnyTypeKind.GROUP.name(),
+                                builder.build());
+                        succeeded = true;
+                    } catch (SyncopeClientException e) {
+                        assertEquals(ClientExceptionType.ConnectorException, e.getType());
+                    }
+                }
+                assertNotNull(matches);
+
+                totalRead += matches.getResult().size();
+                read.addAll(matches.getResult().stream().
+                        map(input -> input.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0)).
+                        collect(Collectors.toList()));
+
+                if (matches.getPagedResultsCookie() != null) {
+                    builder.pagedResultsCookie(matches.getPagedResultsCookie());
+                }
+            } while (matches.getPagedResultsCookie() != null);
+
+            assertEquals(totalRead, read.size());
+            assertTrue(totalRead >= 10);
+        } finally {
+            groupKeys.forEach(key -> {
+                groupService.delete(key);
+            });
+        }
+    }
+
+    @Test
+    public void searchConnObjectsWithFilter() {
+        ConnObjectTO user = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), "pullFromLDAP");
+        assertNotNull(user);
+
+        PagedConnObjectTOResult matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(new ConnObjectTOFiqlSearchConditionBuilder().
+                        is("givenName").equalTo("pullFromLDAP").query()).build());
+        assertTrue(matches.getResult().contains(user));
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(new ConnObjectTOFiqlSearchConditionBuilder().
+                        is("mail").equalTo("pullFromLDAP*").query()).build());
+        assertTrue(matches.getResult().contains(user));
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(new ConnObjectTOFiqlSearchConditionBuilder().
+                        is("mail").equalTo("*@syncope.apache.org").query()).build());
+        assertTrue(matches.getResult().contains(user));
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(new ConnObjectTOFiqlSearchConditionBuilder().
+                        is("givenName").equalToIgnoreCase("pullfromldap").query()).build());
+        assertTrue(matches.getResult().contains(user));
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(new ConnObjectTOFiqlSearchConditionBuilder().
+                        is(Name.NAME).equalTo("uid=pullFromLDAP%252Cou=people%252Co=isp").query()).build());
+        assertTrue(matches.getResult().contains(user));
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(new ConnObjectTOFiqlSearchConditionBuilder().
+                        is("givenName").notEqualTo("pullFromLDAP").query()).build());
+        assertFalse(matches.getResult().contains(user));
     }
 
     @Test

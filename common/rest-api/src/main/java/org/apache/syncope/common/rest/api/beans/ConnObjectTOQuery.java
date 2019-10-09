@@ -25,7 +25,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-public class ConnObjectTOListQuery implements Serializable {
+public class ConnObjectTOQuery implements Serializable {
 
     private static final long serialVersionUID = -371488230250055359L;
 
@@ -33,7 +33,7 @@ public class ConnObjectTOListQuery implements Serializable {
 
     public static class Builder {
 
-        private final ConnObjectTOListQuery instance = new ConnObjectTOListQuery();
+        private final ConnObjectTOQuery instance = new ConnObjectTOQuery();
 
         public Builder size(final Integer size) {
             instance.setSize(size);
@@ -50,10 +50,14 @@ public class ConnObjectTOListQuery implements Serializable {
             return this;
         }
 
-        public ConnObjectTOListQuery build() {
-            return instance;
+        public Builder fiql(final String fiql) {
+            instance.setFiql(fiql);
+            return this;
         }
 
+        public ConnObjectTOQuery build() {
+            return instance;
+        }
     }
 
     private Integer size;
@@ -61,6 +65,8 @@ public class ConnObjectTOListQuery implements Serializable {
     private String pagedResultsCookie;
 
     private String orderBy;
+
+    private String fiql;
 
     public Integer getSize() {
         return size == null
@@ -94,5 +100,14 @@ public class ConnObjectTOListQuery implements Serializable {
 
     public void setOrderBy(final String orderBy) {
         this.orderBy = orderBy;
+    }
+
+    public String getFiql() {
+        return fiql;
+    }
+
+    @QueryParam(JAXRSService.PARAM_FIQL)
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
     }
 }
