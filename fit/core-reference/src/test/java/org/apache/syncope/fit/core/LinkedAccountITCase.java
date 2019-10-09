@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-import javax.naming.ldap.LdapContext;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,6 +42,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
@@ -102,15 +101,11 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
         assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        LdapContext ldapObj = (LdapContext) getLdapRemoteObject(
-                RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, connObjectKeyValue);
+        ConnObjectTO ldapObj = resourceService.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
-
-        Attributes ldapAttrs = ldapObj.getAttributes("");
-        assertEquals(
-                user.getPlainAttr("email").get().getValues().get(0),
-                ldapAttrs.get("mail").getAll().next().toString());
-        assertEquals("LINKED_SURNAME", ldapAttrs.get("sn").getAll().next().toString());
+        assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
+        assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
 
         // 3. remove linked account from user
         UserUR userUR = new UserUR();
@@ -125,12 +120,11 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(1, user.getLinkedAccounts().size());
 
         // 4 verify that account was updated on resource
-        ldapObj = (LdapContext) getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, connObjectKeyValue);
+        ldapObj = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
 
-        ldapAttrs = ldapObj.getAttributes("");
-        assertEquals("UPDATED_EMAIL@syncope.apache.org", ldapAttrs.get("mail").getAll().next().toString());
-        assertEquals("UPDATED_SURNAME", ldapAttrs.get("sn").getAll().next().toString());
+        assertTrue(ldapObj.getAttr("mail").get().getValues().contains("UPDATED_EMAIL@syncope.apache.org"));
+        assertEquals("UPDATED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
 
         // 5. remove linked account from user
         userUR = new UserUR();
@@ -196,15 +190,11 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
         assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        LdapContext ldapObj = (LdapContext) getLdapRemoteObject(
-                RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, connObjectKeyValue);
+        ConnObjectTO ldapObj = resourceService.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
-
-        Attributes ldapAttrs = ldapObj.getAttributes("");
-        assertEquals(
-                user.getPlainAttr("email").get().getValues().get(0),
-                ldapAttrs.get("mail").getAll().next().toString());
-        assertEquals("LINKED_SURNAME", ldapAttrs.get("sn").getAll().next().toString());
+        assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
+        assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
     }
 
     @Test

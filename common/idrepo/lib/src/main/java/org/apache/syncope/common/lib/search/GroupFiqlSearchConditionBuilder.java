@@ -93,6 +93,5 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
             this.result = SpecialAttr.MEMBER.toString();
             return condition(FiqlParser.NEQ, member, (Object[]) moreMembers);
         }
-
     }
 }

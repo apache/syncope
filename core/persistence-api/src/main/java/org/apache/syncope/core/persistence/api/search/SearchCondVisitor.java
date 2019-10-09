@@ -98,13 +98,18 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         ConditionType ct = sc.getConditionType();
         if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
             SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
-            if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
-                ct = ConditionType.EQUALS;
-            } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {
-                ct = ConditionType.NOT_EQUALS;
-            } else {
-                throw new IllegalArgumentException(
-                        String.format("Condition type %s is not supported", sfsc.getOperator()));
+            switch (sfsc.getOperator()) {
+                case SyncopeFiqlParser.IEQ:
+                    ct = ConditionType.EQUALS;
+                    break;
+
+                case SyncopeFiqlParser.NIEQ:
+                    ct = ConditionType.NOT_EQUALS;
+                    break;
+
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Condition type %s is not supported", sfsc.getOperator()));
             }
         }
 
@@ -252,9 +257,9 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     private SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
         List<SearchCond> searchConds = new ArrayList<>();
-        sc.getSearchConditions().forEach(searchCondition -> searchConds.add(searchCondition.getStatement() == null
-                ? visitCompount(searchCondition)
-                : visitPrimitive(searchCondition)));
+        sc.getSearchConditions().forEach(searchCond -> searchConds.add(searchCond.getStatement() == null
+                ? visitCompount(searchCond)
+                : visitPrimitive(searchCond)));
 
         SearchCond compound;
         switch (sc.getConditionType()) {
@@ -285,5 +290,4 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     public SearchCond getQuery() {
         return searchCond;
     }
-
 }
