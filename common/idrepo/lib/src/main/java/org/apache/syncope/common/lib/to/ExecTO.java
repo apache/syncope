@@ -42,6 +42,8 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
 
     private String message;
 
+    private String executor;
+
     @Override
     public String getKey() {
         return key;
@@ -92,6 +94,14 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
         this.status = status;
     }
 
+    public String getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(final String executor) {
+        this.executor = executor;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -102,6 +112,7 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
                 append(refDesc).
                 append(status).
                 append(message).
+                append(executor).
                 build();
     }
 
@@ -125,6 +136,7 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
                 append(refDesc, other.refDesc).
                 append(status, other.status).
                 append(message, other.message).
+                append(executor, other.executor).
                 build();
     }
 }

@@ -54,21 +54,36 @@ import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 public class ReportITCase extends AbstractITCase {
 
+    @BeforeAll
+    public static void setup() {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            new User("admin", "FAKE_PASSWORD", List.of()), "FAKE_PASSWORD", List.of());
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    
     protected static String execReport(final String reportKey) {
         ReportTO reportTO = reportService.read(reportKey);
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
 
         int preExecSize = reportTO.getExecutions().size();
-        ExecTO exec = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        ExecuteQuery query = new ExecuteQuery.Builder().key(reportKey).build();
+        ExecTO exec = reportService.execute(query);
         assertNotNull(exec);
-
+        assertNotNull(exec.getExecutor());
+        
         int i = 0;
         int maxit = 50;
 
@@ -83,7 +98,7 @@ public class ReportITCase extends AbstractITCase {
 
             assertNotNull(reportTO);
             assertNotNull(reportTO.getExecutions());
-
+            
             i++;
         } while (preExecSize == reportTO.getExecutions().size() && i < maxit);
         if (i == maxit) {
@@ -146,10 +161,8 @@ public class ReportITCase extends AbstractITCase {
 
         report = createReport(report);
         assertNotNull(report);
-
         ReportTO actual = reportService.read(report.getKey());
         assertNotNull(actual);
-
         assertEquals(actual, report);
     }
 
@@ -357,7 +370,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO.setTemplate("sample");
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
-
+        
         ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
         assertNotNull(execution);
 

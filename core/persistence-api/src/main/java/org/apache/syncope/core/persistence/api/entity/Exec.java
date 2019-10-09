@@ -43,4 +43,7 @@ public interface Exec extends Entity {
 
     Date getEnd();
 
+    String getExecutor();
+
+    void setExecutor(String executor);
 }

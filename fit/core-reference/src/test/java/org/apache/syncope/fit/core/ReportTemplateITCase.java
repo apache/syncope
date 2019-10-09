@@ -36,11 +36,23 @@ import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 public class ReportTemplateITCase extends AbstractITCase {
-
+    @BeforeAll
+    public static void setup() {
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            new User("admin", "FAKE_PASSWORD", List.of()), "FAKE_PASSWORD", List.of());
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    
     @Test
     public void read() {
         ReportTemplateTO reportTemplateTO = reportTemplateService.read("sample");

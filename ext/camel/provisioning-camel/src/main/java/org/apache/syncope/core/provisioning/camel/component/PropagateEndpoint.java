@@ -72,6 +72,8 @@ public class PropagateEndpoint extends DefaultEndpoint {
 
     private UserWorkflowAdapter uwfAdapter;
 
+    private String executor;
+    
     public PropagateEndpoint(final String endpointUri, final Component component) {
         super(endpointUri, component);
     }
@@ -114,6 +116,7 @@ public class PropagateEndpoint extends DefaultEndpoint {
             producer.setPropagationManager(propagationManager);
             producer.setPropagationTaskExecutor(taskExecutor);
             producer.setPull(pull);
+            producer.setExecutor(this.executor);
         }
         return producer;
     }
@@ -178,5 +181,9 @@ public class PropagateEndpoint extends DefaultEndpoint {
 
     public void setUwfAdapter(final UserWorkflowAdapter uwfAdapter) {
         this.uwfAdapter = uwfAdapter;
+    }
+
+    public void setExecutor(final String executor) {
+        this.executor = executor;
     }
 }

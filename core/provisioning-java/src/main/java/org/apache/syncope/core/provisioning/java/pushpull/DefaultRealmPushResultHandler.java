@@ -60,9 +60,14 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 public class DefaultRealmPushResultHandler
         extends AbstractRealmResultHandler<PushTask, PushActions>
         implements RealmPushResultHandler {
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     @Autowired
     private MappingManager mappingManager;
@@ -110,7 +115,7 @@ public class DefaultRealmPushResultHandler
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
 
@@ -128,7 +133,7 @@ public class DefaultRealmPushResultHandler
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
     }
@@ -141,7 +146,7 @@ public class DefaultRealmPushResultHandler
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         PropagationReporter reporter = taskExecutor.execute(
-                propagationManager.createTasks(realm, propByRes, noPropResources), false);
+                propagationManager.createTasks(realm, propByRes, noPropResources), false, this.adminUser);
         reportPropagation(result, reporter);
     }
 

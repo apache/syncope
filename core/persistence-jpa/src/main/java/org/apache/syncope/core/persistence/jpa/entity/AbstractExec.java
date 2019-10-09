@@ -38,6 +38,9 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
     @NotNull
     protected String status;
 
+    @NotNull
+    protected String executor;
+
     /**
      * Any information to be accompanied to this execution's result.
      */
@@ -67,6 +70,16 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
     @Override
     public void setStatus(final String status) {
         this.status = status;
+    }
+
+    @Override
+    public String getExecutor() {
+        return this.executor;
+    }
+
+    @Override
+    public void setExecutor(final String executor) {
+        this.executor = executor;
     }
 
     @Override

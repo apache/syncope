@@ -110,7 +110,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
             throw sce;
         }
-
+        String executor = AuthContextUtils.getUsername();
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
 
@@ -118,7 +118,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -146,12 +147,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
-
+        String executor = AuthContextUtils.getUsername();
         try {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -231,7 +233,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         TaskUtils taskUtil = taskUtilsFactory.getInstance(task);
-
+        String executor = AuthContextUtils.getUsername();
+        
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
@@ -248,12 +251,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 taskInfo.setAnyType(taskTO.getAnyType());
                 taskInfo.setEntityKey(taskTO.getEntityKey());
 
-                TaskExec propExec = taskExecutor.execute(taskInfo);
+                TaskExec propExec = taskExecutor.execute(taskInfo, executor);
                 result = binder.getExecTO(propExec);
                 break;
 
             case NOTIFICATION:
-                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
+                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task, executor);
                 result = binder.getExecTO(notExec);
                 break;
 
@@ -271,7 +274,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                             (SchedTask) task,
                             startAt,
                             confParamOps.get(AuthContextUtils.getDomain(),
-                                    "tasks.interruptMaxRetries", 1L, Long.class));
+                                    "tasks.interruptMaxRetries", 1L, Long.class), executor);
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 

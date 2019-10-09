@@ -82,7 +82,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     protected void doExecute(
             final Collection<PropagationTaskInfo> taskInfos,
             final PropagationReporter reporter,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String executorId) {
 
         Map<PropagationTaskInfo, ExternalResource> taskToResource = new HashMap<>(taskInfos.size());
         List<PropagationTaskInfo> prioritizedTasks = new ArrayList<>();

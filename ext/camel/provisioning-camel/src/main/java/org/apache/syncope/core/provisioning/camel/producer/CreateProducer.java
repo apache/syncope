@@ -61,7 +61,8 @@ public class CreateProducer extends AbstractProducer {
                         created.getPropByLinkedAccount(),
                         ((UserCR) actual).getVirAttrs(),
                         excludedResources);
-                PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                PropagationReporter reporter = getPropagationTaskExecutor()
+                    .execute(taskInfos, nullPriorityAsync, getExecutor());
 
                 exchange.getMessage().setBody(
                         Pair.of(created.getResult().getKey(), reporter.getStatuses()));
@@ -80,7 +81,7 @@ public class CreateProducer extends AbstractProducer {
                             created.getPropByRes(),
                             ((AnyCR) actual).getVirAttrs(),
                             excludedResources);
-                    getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
                     exchange.getMessage().setBody(Pair.of(created.getResult(), null));
                 } else {
@@ -91,7 +92,8 @@ public class CreateProducer extends AbstractProducer {
                             created.getPropByRes(),
                             ((AnyCR) actual).getVirAttrs(),
                             excludedResources);
-                    PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    PropagationReporter reporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
                     exchange.getMessage().setBody(Pair.of(created.getResult(), reporter.getStatuses()));
                 }

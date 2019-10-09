@@ -51,7 +51,7 @@ public class SuspendProducer extends AbstractProducer {
                                 updated.getLeft().getPropByRes(),
                                 updated.getKey().getPropByLinkedAccount(),
                                 updated.getLeft().getPerformedTasks()));
-                getPropagationTaskExecutor().execute(taskInfos, false);
+                getPropagationTaskExecutor().execute(taskInfos, false, getExecutor());
             }
         }
     }

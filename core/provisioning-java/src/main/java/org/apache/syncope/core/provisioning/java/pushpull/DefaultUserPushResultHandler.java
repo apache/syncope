@@ -82,7 +82,8 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 propByLinkedAccount,
                 before.getVirAttrs(),
                 noPropResources),
-                false);
+                false,
+                this.adminUser);
         reportPropagation(result, reporter);
     }
 
@@ -121,7 +122,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
     }
@@ -152,7 +153,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
     }

@@ -23,5 +23,5 @@ import org.quartz.JobExecutionException;
 
 public interface ReportJobDelegate extends JobDelegate {
 
-    void execute(String reportKey) throws JobExecutionException;
+    void execute(String reportKey, String executor) throws JobExecutionException;
 }

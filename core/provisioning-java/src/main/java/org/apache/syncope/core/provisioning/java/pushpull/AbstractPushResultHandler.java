@@ -62,11 +62,16 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
 
     @Autowired
     protected PushUtils pushUtils;
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     /**
      * Notification Manager.
@@ -124,7 +129,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
     }
@@ -148,7 +153,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
     }
@@ -172,7 +177,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(null));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter);
+            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
             reportPropagation(result, reporter);
         }
     }

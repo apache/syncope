@@ -80,6 +80,7 @@ public class TaskExecTest extends AbstractTest {
         exec.setEnd(new Date());
         exec.setStatus(ExecStatus.SUCCESS.name());
         exec.setMessage(faultyMessage);
+        exec.setExecutor("admin");
 
         task.add(exec);
         exec.setTask(task);

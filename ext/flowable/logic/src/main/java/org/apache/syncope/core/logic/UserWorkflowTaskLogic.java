@@ -36,6 +36,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -79,8 +80,8 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
                         updated.getPropByRes(),
                         updated.getPropByLinkedAccount(),
                         updated.getPerformedTasks()));
-
-        taskExecutor.execute(taskInfos, false);
+        String executor = AuthContextUtils.getUsername();
+        taskExecutor.execute(taskInfos, false, executor);
 
         return binder.getUserTO(updated.getResult());
     }

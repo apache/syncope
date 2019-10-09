@@ -75,6 +75,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 @Component
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
@@ -99,12 +100,14 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
+        String executor = AuthContextUtils.getUsername();
+        Assert.notNull(executor, "executor cannot be null when creating report");
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -125,12 +128,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
+        String executor = AuthContextUtils.getUsername();
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -171,12 +175,14 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             sce.getElements().add("Report " + key + " is not active");
             throw sce;
         }
-
+        String executor = AuthContextUtils.getUsername();
+        Assert.notNull(executor, "executor cannot be null when executing report");
         try {
             jobManager.register(
                     report,
                     startAt,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    executor);
 
             scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {
@@ -194,7 +200,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
-
+        result.setExecutor(executor);
         return result;
     }
 

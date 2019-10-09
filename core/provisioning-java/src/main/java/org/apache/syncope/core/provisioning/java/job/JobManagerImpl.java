@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -98,6 +100,9 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     @Autowired
     private ConfParamOps confParamOps;
 
+    @Resource(name = "adminUser")
+    private String adminUser;
+    
     private boolean disableQuartzInstance;
 
     public void setDisableQuartzInstance(final boolean disableQuartzInstance) {
@@ -216,7 +221,8 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     }
 
     @Override
-    public Map<String, Object> register(final SchedTask task, final Date startAt, final long interruptMaxRetries)
+    public Map<String, Object> register(final SchedTask task, final Date startAt, final long interruptMaxRetries,
+                                        final String executor)
             throws SchedulerException {
 
         TaskJob job = createSpringBean(TaskJob.class);
@@ -238,8 +244,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
                     + " does not provide any " + SchedTaskJobDelegate.class.getSimpleName());
         }
 
-        Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
+        Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
         jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
 
         registerJob(
@@ -252,16 +257,22 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     }
 
     @Override
-    public void register(final Report report, final Date startAt, final long interruptMaxRetries)
-            throws SchedulerException {
+    public void register(final Report report, final Date startAt, final long interruptMaxRetries,
+                         final String executor) throws SchedulerException {
 
         ReportJob job = createSpringBean(ReportJob.class);
         job.setReportKey(report.getKey());
 
-        Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
+        Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
 
         registerJob(JobNamer.getJobKey(report).getName(), job, report.getCronExpression(), startAt, jobMap);
+    }
+
+    private static Map<String, Object> createJobMapForExecutionContext(final String executor) {
+        Map<String, Object> jobMap = new HashMap<>();
+        jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
+        jobMap.put(JobManager.EXECUTOR_KEY, executor);
+        return jobMap;
     }
 
     private void unregisterJob(final String jobName) {
@@ -336,7 +347,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
                 SchedTask task = it.next();
                 try {
-                    register(task, task.getStartAt(), conf.getRight());
+                    register(task, task.getStartAt(), conf.getRight(), this.adminUser);
                 } catch (Exception e) {
                     LOG.error("While loading job instance for task " + task.getKey(), e);
                     loadException = true;
@@ -350,7 +361,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
                 for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
                     try {
-                        register(report, null, conf.getRight());
+                        register(report, null, conf.getRight(), this.adminUser);
                     } catch (Exception e) {
                         LOG.error("While loading job instance for report " + report.getName(), e);
                         loadException = true;
@@ -376,12 +387,13 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
 
                 try {
                     NotificationJob job = createSpringBean(NotificationJob.class);
+                    Map<String, Object> jobData = createJobMapForExecutionContext(this.adminUser);
                     registerJob(
                             NOTIFICATION_JOB.getName(),
                             job,
                             conf.getLeft(),
                             null,
-                            Map.of());
+                            jobData);
                 } catch (Exception e) {
                     LOG.error("While loading {} instance", NotificationJob.class.getSimpleName(), e);
                 }
@@ -391,12 +403,13 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             LOG.debug("Registering {}", SystemLoadReporterJob.class);
             try {
                 SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
+                Map<String, Object> jobData = createJobMapForExecutionContext(this.adminUser);
                 registerJob(
                         StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
                         job,
                         "0 * * * * ?",
                         null,
-                        Map.of());
+                        jobData);
             } catch (Exception e) {
                 LOG.error("While loading {} instance", SystemLoadReporterJob.class.getSimpleName(), e);
             }

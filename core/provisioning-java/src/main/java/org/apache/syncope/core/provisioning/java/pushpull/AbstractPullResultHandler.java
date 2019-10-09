@@ -69,10 +69,15 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 @Transactional(rollbackFor = Throwable.class)
 public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHandler<PullTask, PullActions>
         implements SyncopePullResultHandler {
 
+    @Resource(name = "adminUser")
+    protected String adminUser;
+    
     @Autowired
     protected PullUtils pullUtils;
 
@@ -454,7 +459,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 propByRes,
                                 null,
                                 null),
-                                false);
+                                false,
+                                this.adminUser);
 
                         AnyUR anyUR = null;
                         if (matchingRule == MatchingRule.UNASSIGN) {
