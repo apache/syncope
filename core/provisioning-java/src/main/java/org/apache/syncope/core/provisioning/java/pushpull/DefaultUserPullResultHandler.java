@@ -253,7 +253,6 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 propByLinkedAccount.add(
                         ResourceOperation.DELETE,
                         Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
-                String executor = AuthContextUtils.getUsername();
                 taskExecutor.execute(propagationManager.getDeleteTasks(
                         AnyTypeKind.USER,
                         account.getOwner().getKey(),
@@ -261,7 +260,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         propByLinkedAccount,
                         null),
                         false,
-                        executor);
+                        AuthContextUtils.getUsername());
 
                 for (PullActions action : profile.getActions()) {
                     action.after(profile, delta, before, report);

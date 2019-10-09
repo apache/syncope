@@ -117,11 +117,11 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         Realm realm = realmDAO.save(binder.create(parent, realmTO));
-        String executor = AuthContextUtils.getUsername();
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false, executor);
+        PropagationReporter propagationReporter =
+                taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm, true));
@@ -138,12 +138,12 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
             throw new NotFoundException(realmTO.getFullPath());
         }
-        String executor = AuthContextUtils.getUsername();
         PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false, executor);
+        PropagationReporter propagationReporter =
+                taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm, true));
@@ -180,11 +180,11 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             containedAnys.getElements().add(anyObjects + " anyObject(s)");
             throw containedAnys;
         }
-        String executor = AuthContextUtils.getUsername();
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false, executor);
+        PropagationReporter propagationReporter =
+                taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm, true));

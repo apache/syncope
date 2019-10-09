@@ -80,8 +80,7 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
                         updated.getPropByRes(),
                         updated.getPropByLinkedAccount(),
                         updated.getPerformedTasks()));
-        String executor = AuthContextUtils.getUsername();
-        taskExecutor.execute(taskInfos, false, executor);
+        taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         return binder.getUserTO(updated.getResult());
     }

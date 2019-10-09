@@ -110,7 +110,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
             throw sce;
         }
-        String executor = AuthContextUtils.getUsername();
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
 
@@ -119,7 +118,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     task,
                     task.getStartAt(),
                     confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
-                    executor);
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -147,13 +146,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
-        String executor = AuthContextUtils.getUsername();
         try {
             jobManager.register(
                     task,
                     task.getStartAt(),
                     confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
-                    executor);
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
