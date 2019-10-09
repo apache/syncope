@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -252,14 +253,15 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 propByLinkedAccount.add(
                         ResourceOperation.DELETE,
                         Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
-
+                String executor = AuthContextUtils.getUsername();
                 taskExecutor.execute(propagationManager.getDeleteTasks(
                         AnyTypeKind.USER,
                         account.getOwner().getKey(),
                         null,
                         propByLinkedAccount,
                         null),
-                        false);
+                        false,
+                        executor);
 
                 for (PullActions action : profile.getActions()) {
                     action.after(profile, delta, before, report);
