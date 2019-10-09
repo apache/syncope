@@ -21,8 +21,10 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
@@ -298,26 +300,31 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     }
 
     protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
-        List<T> result = new ArrayList<>();
+        List<String> orderedAnyKeys = extractSortedAnyKeys(raw);
+        return constructSortedAnyTOsBySortedKeys(findAnyTOs(kind, orderedAnyKeys), orderedAnyKeys, kind);
+    }
 
-        raw.stream().map(anyKey -> anyKey instanceof Object[]
+    private List<String> extractSortedAnyKeys(List<Object> raw) {
+        return raw.stream().map(anyKey -> anyKey instanceof Object[]
                 ? (String) ((Object[]) anyKey)[0]
-                : ((String) anyKey)).
-                forEachOrdered(actualKey -> {
-                    @SuppressWarnings("unchecked")
-                    T any = kind == AnyTypeKind.USER
-                            ? (T) userDAO.find(actualKey)
-                            : kind == AnyTypeKind.GROUP
-                                    ? (T) groupDAO.find(actualKey)
-                                    : (T) anyObjectDAO.find(actualKey);
-                    if (any == null) {
-                        LOG.error("Could not find {} with id {}, even if returned by native query", kind, actualKey);
-                    } else if (!result.contains(any)) {
-                        result.add(any);
-                    }
-                });
+                : ((String) anyKey))
+                .collect(Collectors.toList());
+    }
 
-        return result;
+    @SuppressWarnings("unchecked")
+    private <T extends Any<?>> List<T> findAnyTOs(AnyTypeKind kind, List<String> orderedAnyKeys) {
+        return new ArrayList<>((List<T>) anyUtilsFactory.getInstance(kind).dao().findByKeys(orderedAnyKeys));
+    }
+
+    private <T extends Any<?>> List<T> constructSortedAnyTOsBySortedKeys(List<T> anyTOs,
+            List<String> sortedAnyKeys, AnyTypeKind kind) {
+        Map<String, T> anyMap = anyTOs.stream().collect(Collectors.toMap(T::getKey, anyTO -> anyTO));
+        return sortedAnyKeys.stream().map(key -> {
+            if (anyMap.get(key) == null) {
+                LOG.error("Could not find {} with id {}, even if returned by native query", kind, key);
+            }
+            return anyMap.get(key);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     @Override

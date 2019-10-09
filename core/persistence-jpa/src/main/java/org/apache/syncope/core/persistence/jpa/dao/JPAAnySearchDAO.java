@@ -96,24 +96,22 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     map(Entity::getKey).collect(Collectors.toSet()));
         }
 
+        List<String> realmKeyArgs = getRealmKeySqlArgsAndFillParameters(parameters, realmKeys);
+
         StringBuilder adminRealmFilter = new StringBuilder("u.any_id IN (").
-                append("SELECT any_id FROM ").append(svs.field().name).
-                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
-
-        boolean firstRealm = true;
-        for (String realmKey : realmKeys) {
-            if (firstRealm) {
-                adminRealmFilter.append(" WHERE");
-                firstRealm = false;
-            } else {
-                adminRealmFilter.append(" OR");
-            }
-            adminRealmFilter.append(" id=?").append(setParameter(parameters, realmKey));
-        }
-
-        adminRealmFilter.append("))");
-
+                append("SELECT any_id FROM ").append(svs.field().name)
+                .append(" WHERE realm_id IN (")
+                .append(StringUtils.join(realmKeyArgs, ", "))
+                .append("))");
         return Pair.of(adminRealmFilter.toString(), dynRealmKeys);
+    }
+
+    private List<String> getRealmKeySqlArgsAndFillParameters(List<Object> parameters, Set<String> realmKeys) {
+        List<String> realmKeyArgs = new ArrayList<>();
+        for (String realmKey : realmKeys) {
+            realmKeyArgs.add("?" + setParameter(parameters, realmKey));
+        }
+        return realmKeyArgs;
     }
 
     SearchSupport buildSearchSupport(final AnyTypeKind kind) {
