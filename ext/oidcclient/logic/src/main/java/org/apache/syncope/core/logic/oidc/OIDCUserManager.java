@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -241,9 +242,10 @@ public class OIDCUserManager {
         }
 
         List<OIDCProviderActions> actions = getActions(op);
-        for (OIDCProviderActions action : actions) {
-            userCR = action.beforeCreate(userCR, responseTO);
-        }
+        userCR = actions.stream().
+                map(action -> action.beforeCreate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userCR);
 
         UserTO userTO = new UserTO();
         fill(op, responseTO, userTO);
@@ -259,9 +261,10 @@ public class OIDCUserManager {
         Pair<String, List<PropagationStatus>> created = provisioningManager.create(userCR, false);
         userTO = binder.getUserTO(created.getKey());
 
-        for (OIDCProviderActions action : actions) {
-            userTO = action.afterCreate(userTO, responseTO);
-        }
+        userTO = actions.stream().
+                map(action -> action.afterCreate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userTO);
 
         return userTO.getUsername();
     }
@@ -276,16 +279,18 @@ public class OIDCUserManager {
         UserUR userUR = AnyOperations.diff(userTO, original, true);
 
         List<OIDCProviderActions> actions = getActions(op);
-        for (OIDCProviderActions action : actions) {
-            userUR = action.beforeUpdate(userUR, responseTO);
-        }
+        userUR = actions.stream().
+                map(action -> action.beforeUpdate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userUR);
 
         Pair<UserUR, List<PropagationStatus>> updated = provisioningManager.update(userUR, false);
         userTO = binder.getUserTO(updated.getLeft().getKey());
 
-        for (OIDCProviderActions action : actions) {
-            userTO = action.afterUpdate(userTO, responseTO);
-        }
+        userTO = actions.stream().
+                map(action -> action.afterUpdate(responseTO)).
+                reduce(Function.identity(), Function::andThen).
+                apply(userTO);
 
         return userTO.getUsername();
     }

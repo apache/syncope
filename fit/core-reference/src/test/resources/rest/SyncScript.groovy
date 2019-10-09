@@ -54,9 +54,10 @@ def buildConnectorObject(node) {
   return [
     __UID__:node.get("key").textValue(), 
     __NAME__:node.get("key").textValue(),
+    __ENABLE__:node.get("status").textValue().equals("ACTIVE"),
+    __PASSWORD__:new GuardedString(node.get("password").textValue().toCharArray()),
     key:node.get("key").textValue(),
     username:node.get("username").textValue(),
-    password:new GuardedString(node.get("password").textValue().toCharArray()),
     firstName:node.get("firstName").textValue(),
     surname:node.get("surname").textValue(),
     email:node.get("email").textValue()
@@ -84,17 +85,40 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
 
   switch (objectClass) {
   case "__ACCOUNT__":
-    webClient.path("/users");
+    webClient.path("/users/changelog");      
+    if (token != null) {
+      webClient.query("from", token.toString());            
+    }
+
+    log.ok("Sending GET to {0}", webClient.getCurrentURI().toASCIIString());
+
     Response response = webClient.get();    
+
+    log.ok("CHANGELOG response: {0} {1}", response.getStatus(), response.getHeaders());
+
+    if (response.getStatus() != 200) {
+      throw new RuntimeException("Unexpected response from server: " 
+        + response.getStatus() + " " + response.getHeaders());
+    }
+    
     ArrayNode node = mapper.readTree(response.getEntity());
     
     for (i = 0; i < node.size(); i++) {
-      result.add([
-          operation:"CREATE_OR_UPDATE",
-          uid:node.get(i).get("key").textValue(),
-          token:new Date().getTime(),
-          attributes:buildConnectorObject(node.get(i))
-        ]);
+      if (node.get(i).get("deleted").booleanValue()) {
+        result.add([
+            operation:"DELETE",
+            uid:node.get(i).get("user").get("key").textValue(),
+            token:node.get(i).get("lastChangeDate").longValue(),
+            attributes:[]
+          ]);        
+      } else {
+        result.add([
+            operation:"CREATE_OR_UPDATE",
+            uid:node.get(i).get("user").get("key").textValue(),
+            token:node.get(i).get("lastChangeDate").longValue(),
+            attributes:buildConnectorObject(node.get(i).get("user"))
+          ]);
+      }
     }
     break;
   }

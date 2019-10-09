@@ -133,6 +133,7 @@ public class ITImplementationLookup implements ImplementationLookup {
         {
             put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
             put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
+            put(LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
         }
     };
 

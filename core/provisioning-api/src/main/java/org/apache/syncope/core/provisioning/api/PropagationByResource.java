@@ -192,28 +192,28 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      * Removes only the resource names in the underlying resource name sets that are contained in the specified
      * collection.
      *
-     * @param resourceKeys collection containing resource names to be retained in the underlying resource name sets
+     * @param keys collection containing resource names to be retained in the underlying resource name sets
      * @return {@code true} if the underlying resource name sets changed as a result of the call
      * @see Collection#removeAll(java.util.Collection)
      */
-    public boolean removeAll(final Collection<String> resourceKeys) {
-        return toBeCreated.removeAll(resourceKeys)
-                | toBeUpdated.removeAll(resourceKeys)
-                | toBeDeleted.removeAll(resourceKeys);
+    public boolean removeAll(final Collection<T> keys) {
+        return toBeCreated.removeAll(keys)
+                | toBeUpdated.removeAll(keys)
+                | toBeDeleted.removeAll(keys);
     }
 
     /**
      * Retains only the resource names in the underlying resource name sets that are contained in the specified
      * collection.
      *
-     * @param resourceKeys collection containing resource names to be retained in the underlying resource name sets
+     * @param keys collection containing resource names to be retained in the underlying resource name sets
      * @return {@code true} if the underlying resource name sets changed as a result of the call
      * @see Collection#retainAll(java.util.Collection)
      */
-    public boolean retainAll(final Collection<String> resourceKeys) {
-        return toBeCreated.retainAll(resourceKeys)
-                | toBeUpdated.retainAll(resourceKeys)
-                | toBeDeleted.retainAll(resourceKeys);
+    public boolean retainAll(final Collection<T> keys) {
+        return toBeCreated.retainAll(keys)
+                | toBeUpdated.retainAll(keys)
+                | toBeDeleted.retainAll(keys);
     }
 
     public boolean contains(final ResourceOperation type, final T key) {

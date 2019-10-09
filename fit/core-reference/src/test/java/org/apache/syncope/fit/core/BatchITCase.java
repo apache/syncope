@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,8 +68,6 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
 public class BatchITCase extends AbstractITCase {
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static String requestBody(final String boundary) throws JsonProcessingException, JAXBException {
         List<BatchRequestItem> reqItems = new ArrayList<>();

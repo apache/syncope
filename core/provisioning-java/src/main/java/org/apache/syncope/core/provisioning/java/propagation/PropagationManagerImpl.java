@@ -191,7 +191,14 @@ public class PropagationManagerImpl implements PropagationManager {
         }
 
         if (noPropResourceKeys != null) {
-            propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceKeys);
+            if (propByRes != null) {
+                propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceKeys);
+            }
+
+            if (propByLinkedAccount != null) {
+                propByLinkedAccount.get(ResourceOperation.CREATE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+            }
         }
 
         return createTasks(any, password, true, enable, false, propByRes, propByLinkedAccount, vAttrs);
@@ -301,8 +308,19 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<Attr> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        if (noPropResourceKeys != null && propByRes != null) {
-            propByRes.removeAll(noPropResourceKeys);
+        if (noPropResourceKeys != null) {
+            if (propByRes != null) {
+                propByRes.removeAll(noPropResourceKeys);
+            }
+
+            if (propByLinkedAccount != null) {
+                propByLinkedAccount.get(ResourceOperation.CREATE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                propByLinkedAccount.get(ResourceOperation.UPDATE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                propByLinkedAccount.get(ResourceOperation.DELETE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+            }
         }
 
         return createTasks(
@@ -355,6 +373,15 @@ public class PropagationManagerImpl implements PropagationManager {
 
         if (noPropResourceKeys != null) {
             localPropByRes.removeAll(noPropResourceKeys);
+
+            if (propByLinkedAccount != null) {
+                propByLinkedAccount.get(ResourceOperation.CREATE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                propByLinkedAccount.get(ResourceOperation.UPDATE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                propByLinkedAccount.get(ResourceOperation.DELETE).
+                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+            }
         }
 
         return createTasks(any, null, false, false, true, localPropByRes, propByLinkedAccount, null);

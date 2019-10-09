@@ -17,41 +17,68 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.List
+import java.util.function.Function
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AnyTO
+import org.apache.syncope.common.lib.to.PropagationStatus
 import org.apache.syncope.core.provisioning.api.LogicActions
 
 @CompileStatic
 class MyLogicActions implements LogicActions {
   
   @Override
-  <C extends AnyCR> C beforeCreate(C input) {
-    return input;
+  <C extends AnyCR> Function<C, C> beforeCreate() {
+    Function function = { 
+      C input ->
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <A extends AnyTO> A afterCreate(A input) {
-    return input;
+  <A extends AnyTO> Function<A, A> afterCreate(List<PropagationStatus> statuses) {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <U extends AnyUR> U beforeUpdate(U input) {
-    return input;
+  <U extends AnyUR> Function<U, U> beforeUpdate() {
+    Function function = { 
+      U input ->
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <A extends AnyTO> A afterUpdate(A input) {
-    return input;
+  <A extends AnyTO> Function<A, A> afterUpdate(List<PropagationStatus> statuses) {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <A extends AnyTO> A beforeDelete(A input) {
-    return input;
+  <A extends AnyTO> Function<A, A> beforeDelete() {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
   }
 
   @Override
-  <A extends AnyTO> A afterDelete(A input) {
-    return input;
+  <A extends AnyTO> Function<A, A> afterDelete(List<PropagationStatus> statuses) {
+    Function function = { 
+      A input ->
+      return input;        
+    }
+    return function;
   }
 }
