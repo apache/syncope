@@ -70,7 +70,8 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_CREATE + "')")
     public NotificationTO create(final NotificationTO notificationTO) {
-        return binder.getNotificationTO(notificationDAO.save(binder.create(notificationTO)));
+        Notification notification = notificationDAO.save(binder.create(notificationTO));
+        return binder.getNotificationTO(notification);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_UPDATE + "')")

@@ -312,7 +312,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         execTO.setMessage(execution.getMessage());
         execTO.setStart(execution.getStart());
         execTO.setEnd(execution.getEnd());
-
+        execTO.setExecutor(execution.getExecutor());
+        
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
             execTO.setJobType(JobType.TASK);
             execTO.setRefKey(execution.getTask().getKey());
@@ -330,7 +331,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         schedTaskTO.setActive(schedTask.isActive());
 
         schedTaskTO.setLastExec(schedTaskTO.getStart());
-
+       
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(schedTask).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
@@ -371,6 +372,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             taskTO.setLatestExecStatus(latestExec.getStatus());
             taskTO.setStart(latestExec.getStart());
             taskTO.setEnd(latestExec.getEnd());
+            taskTO.setLastExecutor(latestExec.getExecutor());
         }
 
         if (details) {
