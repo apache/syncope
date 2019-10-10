@@ -334,6 +334,16 @@ under the License.
       </roles>
       <email>dimaayash@apache.org</email>
     </developer>
+    <developer>
+      <id>mmoayyed</id>
+      <name>Misagh Moayyed</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <email>mmoayyed@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
