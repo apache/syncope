@@ -154,10 +154,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Transactional(readOnly = true)
     @Override
-    public List<A> findByKeys(List<String> keys) {
+    public List<A> findByKeys(final List<String> keys) {
         Class<A> entityClass = anyUtils().anyClass();
-        TypedQuery<A> query = entityManager()
-                .createQuery("SELECT e FROM " + entityClass.getSimpleName() + " e WHERE e.id IN (:keys)", entityClass);
+        TypedQuery<A> query = entityManager().createQuery(
+                "SELECT e FROM " + entityClass.getSimpleName() + " e WHERE e.id IN (:keys)", entityClass);
         query.setParameter("keys", keys);
         return query.getResultList();
     }

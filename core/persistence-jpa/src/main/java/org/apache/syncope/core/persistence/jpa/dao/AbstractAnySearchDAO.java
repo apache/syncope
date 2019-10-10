@@ -20,11 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
@@ -299,32 +296,18 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         return memberKey;
     }
 
-    protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
-        List<String> orderedAnyKeys = extractSortedAnyKeys(raw);
-        return constructSortedAnyTOsBySortedKeys(findAnyTOs(kind, orderedAnyKeys), orderedAnyKeys, kind);
-    }
-
-    private List<String> extractSortedAnyKeys(List<Object> raw) {
-        return raw.stream().map(anyKey -> anyKey instanceof Object[]
-                ? (String) ((Object[]) anyKey)[0]
-                : ((String) anyKey))
-                .collect(Collectors.toList());
-    }
-
     @SuppressWarnings("unchecked")
-    private <T extends Any<?>> List<T> findAnyTOs(AnyTypeKind kind, List<String> orderedAnyKeys) {
-        return new ArrayList<>((List<T>) anyUtilsFactory.getInstance(kind).dao().findByKeys(orderedAnyKeys));
-    }
+    protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
+        List<String> keys = raw.stream().
+                map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
+                collect(Collectors.toList());
 
-    private <T extends Any<?>> List<T> constructSortedAnyTOsBySortedKeys(List<T> anyTOs,
-            List<String> sortedAnyKeys, AnyTypeKind kind) {
-        Map<String, T> anyMap = anyTOs.stream().collect(Collectors.toMap(T::getKey, anyTO -> anyTO));
-        return sortedAnyKeys.stream().map(key -> {
-            if (anyMap.get(key) == null) {
-                LOG.error("Could not find {} with id {}, even if returned by native query", kind, key);
-            }
-            return anyMap.get(key);
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys);
+
+        keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
+                forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
+
+        return (List<T>) anys;
     }
 
     @Override
