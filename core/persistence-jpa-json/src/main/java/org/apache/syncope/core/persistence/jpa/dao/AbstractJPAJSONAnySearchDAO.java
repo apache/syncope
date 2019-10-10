@@ -18,15 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 
 abstract class AbstractJPAJSONAnySearchDAO extends JPAAnySearchDAO {
-
-    protected static final FastDateFormat DATE_FORMAT =
-            FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN);
 
     @Override
     SearchSupport buildSearchSupport(final AnyTypeKind kind) {

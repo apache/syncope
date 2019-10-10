@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 
 public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
@@ -157,7 +158,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 String value = cond.getExpression();
                 if (schema.getType() == AttrSchemaType.Date) {
                     try {
-                        value = String.valueOf(DATE_FORMAT.parse(value).getTime());
+                        value = String.valueOf(FormatUtils.parseDate(value).getTime());
                     } catch (ParseException e) {
                         LOG.error("Could not parse {} as date", value, e);
                     }

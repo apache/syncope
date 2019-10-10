@@ -38,6 +38,32 @@ import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
     @Override
+    protected String buildAdminRealmsFilter(
+            final Set<String> realmKeys,
+            final SearchSupport svs,
+            final List<Object> parameters) {
+
+        StringBuilder adminRealmsFilter = new StringBuilder("u.any_id IN (").
+                append("SELECT any_id FROM ").append(svs.field().name).
+                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
+
+        boolean firstRealm = true;
+        for (String realmKey : realmKeys) {
+            if (firstRealm) {
+                adminRealmsFilter.append(" WHERE");
+                firstRealm = false;
+            } else {
+                adminRealmsFilter.append(" OR");
+            }
+            adminRealmsFilter.append(" id=?").append(setParameter(parameters, realmKey));
+        }
+
+        adminRealmsFilter.append("))");
+
+        return adminRealmsFilter.toString();
+    }
+
+    @Override
     protected void processOBS(
             final SearchSupport svs,
             final Set<String> involvedPlainAttrs,
