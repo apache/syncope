@@ -294,6 +294,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 result.setRefKey(task.getKey());
                 result.setRefDesc(binder.buildRefDesc(task));
                 result.setStart(new Date());
+                result.setExecutor(executor);
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
                 break;
