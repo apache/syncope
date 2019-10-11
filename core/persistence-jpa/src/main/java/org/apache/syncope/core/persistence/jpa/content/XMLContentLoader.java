@@ -107,6 +107,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         try (InputStream in = contentXML.getResource().getInputStream()) {
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true, env));
