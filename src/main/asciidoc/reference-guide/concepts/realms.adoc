@@ -62,6 +62,9 @@ As with <<pull-templates,pull>> it is also possible to add templates to a realm.
 
 The values specified in the template are applied to entities belonging to that realm, hence this can be used as
 a mechanism for setting default values for attributes or external resources on entities.
+
+[NOTE]
+Logic Templates apply to all operations passing through the <<logic,logic layer>>, e.g. triggered by REST requests.
 ====
 
 ==== Realm Provisioning
@@ -73,8 +76,8 @@ with LDAP and Active Directory.
 
 ==== LogicActions
 
-When Users, Groups or Any Objects get created, updated or deleted in a realm, custom logic can be invoked by
-associating the given realm with one or more implementations of the
+When Users, Groups or Any Objects get created, updated or deleted in a realm, custom logic can be invoked
+by associating the given Realm with one or more implementations of the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LogicActions.java[LogicActions^]
 endif::[]
@@ -82,3 +85,6 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LogicActions.java[LogicActions^]
 endif::[]
 interface.
+
+[NOTE]
+LogicActions apply to all operations passing through the <<logic,logic layer>>, e.g. triggered by REST requests.
