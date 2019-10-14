@@ -453,7 +453,7 @@ under the License.
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
 
-    <swagger-core.version>2.0.9</swagger-core.version>    
+    <swagger-core.version>2.0.10</swagger-core.version>    
     <swagger-ui.version>3.23.8</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
@@ -476,7 +476,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>8.6.1</wicket.version>
-    <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>8.6.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.11</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
@@ -1774,7 +1774,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.63</version>
+        <version>1.64</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -2195,7 +2195,7 @@ under the License.
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.4</version>
+        <version>0.8.5</version>
         <configuration>
           <append>true</append>
           <skip>${skipTests}</skip>
@@ -2453,7 +2453,7 @@ under the License.
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
             <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.8.3/index.html</link>
-            <link>http://docs.swagger.io/swagger-core/v2.0.9/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.0.10/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
