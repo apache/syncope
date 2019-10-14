@@ -444,7 +444,7 @@ under the License.
 
     <joda.version>2.10.4</joda.version>
 
-    <h2.version>1.4.199</h2.version>
+    <h2.version>1.4.200</h2.version>
 
     <junit.version>5.5.2</junit.version>
 
@@ -512,7 +512,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.26</tomcat.version>
+    <tomcat.version>9.0.27</tomcat.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
