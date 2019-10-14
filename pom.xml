@@ -1849,7 +1849,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.63</version>
+        <version>1.64</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -2250,7 +2250,7 @@ under the License.
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.4</version>
+        <version>0.8.5</version>
         <configuration>
           <append>true</append>
           <skip>${skipTests}</skip>
