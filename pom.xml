@@ -444,7 +444,7 @@ under the License.
 
     <joda.version>2.10.4</joda.version>
 
-    <h2.version>1.4.199</h2.version>
+    <h2.version>1.4.200</h2.version>
 
     <junit.version>5.5.2</junit.version>
 
@@ -528,7 +528,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.26</tomcat.version>
+    <tomcat.version>9.0.27</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
