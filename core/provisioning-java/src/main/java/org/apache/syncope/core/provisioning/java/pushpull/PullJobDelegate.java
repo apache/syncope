@@ -356,7 +356,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
                         profile.getResults().stream().
                                 filter(result -> result.getUidValue() != null
-                                && result.getOperation() == ResourceOperation.CREATE).
+                                && result.getOperation() == ResourceOperation.CREATE
+                                && result.getAnyType().equals(provision.getAnyType().getKey())).
                                 forEach(result -> {
                                     anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
                                 });
