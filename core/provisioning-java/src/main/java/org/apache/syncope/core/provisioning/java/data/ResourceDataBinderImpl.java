@@ -270,7 +270,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // 2. remove all provisions not contained in the TO
         for (Iterator<? extends Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
             Provision provision = itor.next();
-            if (resourceTO.getProvision(provision.getAnyType().getKey()) == null) {
+            if (resourceTO.getProvision(provision.getAnyType().getKey()).isEmpty()) {
                 virSchemaDAO.findByProvision(provision).forEach(schema -> virSchemaDAO.delete(schema.getKey()));
 
                 itor.remove();
