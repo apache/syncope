@@ -148,6 +148,13 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
       </resource>
       <resource>
+        <directory>../core/persistence-jpa-json/src/main/resources/</directory>
+        <includes>
+          <include>META-INF/*</include>
+        </includes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+      </resource>
+      <resource>
         <directory>../core/persistence-jpa/src/test/resources/domains</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/domains</targetPath>
       </resource>
