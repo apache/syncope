@@ -21,10 +21,13 @@ package org.apache.syncope.client.console.panels.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -86,6 +89,18 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
                         MAX_GROUP_LIST_CARDINALITY,
                         new SortParam<>("name", true),
                         null).stream().collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName));
+            }
+        };
+
+        this.anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected Map<String, PlainSchemaTO> load() {
+                return schemaRestClient.<PlainSchemaTO>getSchemas(
+                        SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
+                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
             }
         };
     }
