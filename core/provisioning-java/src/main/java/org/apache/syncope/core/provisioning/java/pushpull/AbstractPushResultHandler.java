@@ -102,7 +102,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             final ProvisioningReport result) {
 
         boolean changepwd = any instanceof User;
-        List<String> ownedResources = anyUtilsFactory.getInstance(any).getAllResources(any).stream().
+        List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
                 map(Entity::getKey).collect(Collectors.toList());
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
@@ -178,7 +178,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
-        AnyPatch patch = anyUtilsFactory.getInstance(any).newAnyPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -189,7 +189,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void unassign(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        AnyPatch patch = anyUtilsFactory.getInstance(any).newAnyPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -200,7 +200,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
-        AnyPatch patch = anyUtilsFactory.getInstance(any).newAnyPatch(any.getKey());
+        AnyPatch patch = getAnyUtils().newAnyPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());

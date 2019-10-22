@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.core.logic.ReconciliationLogic;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +33,6 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
 
     @Autowired
     private ReconciliationLogic logic;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     private void validate(final ReconQuery reconQuery) {
         if ((reconQuery.getAnyKey() == null && reconQuery.getConnObjectKeyValue() == null)

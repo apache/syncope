@@ -320,14 +320,9 @@ public class PushTaskITCase extends AbstractTaskITCase {
             // as task executor is not able any more to identify the entry to UPDATE
             execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
 
-            PagedResult<PropagationTaskTO> propagationTasks = taskService.search(
-                    new TaskQuery.Builder(TaskType.PROPAGATION).
-                            resource(RESOURCE_NAME_LDAP).entityKey("vivaldi").details(true).build());
-            PropagationTaskTO lastPropagation = propagationTasks.getResult().stream().
-                    sorted((t1, t2) -> t2.getExecutions().get(0).getStart().
-                    compareTo(t1.getExecutions().get(0).getStart())).findFirst().get();
-            assertEquals(ExecStatus.FAILURE, ExecStatus.valueOf(lastPropagation.getLatestExecStatus()));
-            assertTrue(lastPropagation.getExecutions().get(0).getMessage().contains("ENTRY_ALREADY_EXISTS"));
+            status = reconciliationService.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
+            assertNull(status.getOnResource());
         } finally {
             ldap.setPushPolicy(null);
             resourceService.update(ldap);
