@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -116,21 +115,6 @@ public class ConnObjectUtils {
     }
 
     /**
-     * <<<<<<< HEAD
-     * Builds {@link ConnObjectTO} out of {@link ConnectorObject}.
-     *
-     * @param connObject connector object.
-     * @return transfer object
-     */
-    public static ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
-        return Optional.ofNullable(connObject)
-                .map(object -> getConnObjectTO(object.getAttributes())).orElseGet(ConnObjectTO::new);
-    }
-
-    /**
-     * =======
-     * >>>>>>> 1b918568e... [SYNCOPE-1500] Reconciliation now supports single pull / push + [SYNCOPE-957] Reconciliation
-     * now supports Linked Accounts + [SYNCOPE-1499] Use Push correlation rule wherever it makes sense
      * Builds {@link ConnObjectTO} out of a collection of {@link Attribute} instances.
      *
      * @param attrs attributes
