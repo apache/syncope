@@ -31,7 +31,9 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -66,8 +68,8 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected AnyTO getAnyTO(final String key) {
-        return anyObjectDataBinder.getAnyObjectTO(key);
+    protected AnyTO getAnyTO(final Any<?> any) {
+        return anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true);
     }
 
     @Override
@@ -82,7 +84,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
         Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
                 anyObjectCR, Set.of(profile.getTask().getResource().getKey()), true);
 
-        return getAnyTO(created.getKey());
+        return anyObjectDataBinder.getAnyObjectTO(created.getKey());
     }
 
     @Override

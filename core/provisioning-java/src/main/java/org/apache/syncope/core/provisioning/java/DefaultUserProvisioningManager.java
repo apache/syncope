@@ -101,7 +101,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 created.getPropByLinkedAccount(),
                 userCR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(created.getResult().getLeft(), propagationReporter.getStatuses());
     }
@@ -111,7 +111,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(updated);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
     }
@@ -172,7 +172,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                 updated, updated.getResult().getLeft().getPassword() != null, excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
     }
@@ -205,7 +205,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 propByRes,
                 propByLinkedAccount,
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         try {
             uwfAdapter.delete(key);
@@ -266,7 +266,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
@@ -285,7 +285,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                     updated.getLeft().getPropByRes(),
                     updated.getLeft().getPropByLinkedAccount(),
                     updated.getLeft().getPerformedTasks()));
-            taskExecutor.execute(taskInfos, false, this.adminUser);
+            taskExecutor.execute(taskInfos, false, adminUser);
         }
     }
 
@@ -318,7 +318,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
@@ -345,7 +345,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 userDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
@@ -360,6 +360,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.confirmPasswordReset(key, token, password);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(updated);
-        taskExecutor.execute(taskInfos, false, this.adminUser);
+        taskExecutor.execute(taskInfos, false, adminUser);
     }
 }

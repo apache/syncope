@@ -21,69 +21,49 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.MatchType;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 
 public final class PullMatch implements Serializable {
 
     private static final long serialVersionUID = 6515473131174179932L;
 
-    public enum MatchTarget {
-        ANY,
-        LINKED_ACCOUNT;
+    private final MatchType matchTarget;
 
-    }
+    private Any<?> any;
 
-    public static class Builder {
+    private LinkedAccount linkedAccount;
 
-        private final PullMatch instance = new PullMatch();
+    public PullMatch(final MatchType matchTarget, final Entity entity) {
+        this.matchTarget = matchTarget;
 
-        public Builder matchingKey(final String matchingKey) {
-            instance.matchingKey = matchingKey;
-            return this;
-        }
-
-        public Builder matchTarget(final MatchTarget matchTarget) {
-            instance.matchTarget = matchTarget;
-            return this;
-        }
-
-        public Builder linkingUserKey(final String linkingUserKey) {
-            instance.linkingUserKey = linkingUserKey;
-            return this;
-        }
-
-        public PullMatch build() {
-            return instance;
+        if (entity instanceof Any) {
+            any = (Any<?>) entity;
+        } else if (entity instanceof LinkedAccount) {
+            linkedAccount = (LinkedAccount) entity;
         }
     }
 
-    private MatchTarget matchTarget = MatchTarget.ANY;
-
-    private String matchingKey;
-
-    private String linkingUserKey;
-
-    private PullMatch() {
-        // private constructor
-    }
-
-    public MatchTarget getMatchTarget() {
+    public MatchType getMatchTarget() {
         return matchTarget;
     }
 
-    public String getMatchingKey() {
-        return matchingKey;
+    public Any<?> getAny() {
+        return any;
     }
 
-    public String getLinkingUserKey() {
-        return linkingUserKey;
+    public LinkedAccount getLinkedAccount() {
+        return linkedAccount;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 append(matchTarget).
-                append(matchingKey).
-                append(linkingUserKey).
+                append(any).
+                append(linkedAccount).
                 build();
     }
 
@@ -100,9 +80,9 @@ public final class PullMatch implements Serializable {
         }
         final PullMatch other = (PullMatch) obj;
         return new EqualsBuilder().
-                append(matchingKey, other.matchingKey).
                 append(matchTarget, other.matchTarget).
-                append(linkingUserKey, other.linkingUserKey).
+                append(any, other.any).
+                append(linkedAccount, other.linkedAccount).
                 build();
     }
 
@@ -110,7 +90,8 @@ public final class PullMatch implements Serializable {
     public String toString() {
         return "PullMatch{"
                 + "matchTarget=" + matchTarget
-                + ", matchingKey=" + matchingKey
-                + ", linkingUserKey=" + linkingUserKey + '}';
+                + ", any=" + any
+                + ", linkedAccount=" + linkedAccount
+                + '}';
     }
 }

@@ -103,23 +103,6 @@ public class ResourceStatusDirectoryPanel
         return columns;
     }
 
-    private AnyTypeKind getAnyTypeKind() {
-        if (StringUtils.isBlank(type)) {
-            return null;
-        }
-
-        switch (type) {
-            case "USER":
-                return AnyTypeKind.USER;
-
-            case "GROUP":
-                return AnyTypeKind.GROUP;
-
-            default:
-                return AnyTypeKind.ANY_OBJECT;
-        }
-    }
-
     @Override
     public ActionsPanel<StatusBean> getActions(final IModel<StatusBean> model) {
         final ActionsPanel<StatusBean> panel = super.getActions(model);
@@ -130,13 +113,13 @@ public class ResourceStatusDirectoryPanel
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                return getAnyTypeKind() != null;
+                return StringUtils.isNotBlank(type);
             }
 
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next(bean.getResource(),
-                        new ReconStatusPanel(bean.getResource(), getAnyTypeKind(), bean.getKey()),
+                        new ReconStatusPanel(bean.getResource(), type, bean.getKey()),
                         target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
@@ -149,7 +132,7 @@ public class ResourceStatusDirectoryPanel
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                return getAnyTypeKind() != null;
+                return StringUtils.isNotBlank(type);
             }
 
             @Override
@@ -158,7 +141,7 @@ public class ResourceStatusDirectoryPanel
                         new ReconTaskPanel(
                                 bean.getResource(),
                                 new PushTaskTO(),
-                                getAnyTypeKind(),
+                                type,
                                 bean.getKey(),
                                 multiLevelPanelRef,
                                 pageRef),
@@ -174,7 +157,7 @@ public class ResourceStatusDirectoryPanel
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                return getAnyTypeKind() != null;
+                return StringUtils.isNotBlank(type);
             }
 
             @Override
@@ -183,7 +166,7 @@ public class ResourceStatusDirectoryPanel
                         new ReconTaskPanel(
                                 bean.getResource(),
                                 new PullTaskTO(),
-                                getAnyTypeKind(),
+                                type,
                                 bean.getKey(),
                                 multiLevelPanelRef,
                                 pageRef),

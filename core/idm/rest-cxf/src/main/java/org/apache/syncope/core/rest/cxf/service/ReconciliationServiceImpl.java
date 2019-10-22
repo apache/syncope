@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import javax.validation.ValidationException;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.core.logic.ReconciliationLogic;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,42 +34,29 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
     @Autowired
     private ReconciliationLogic logic;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    private void validate(final ReconQuery reconQuery) {
+        if ((reconQuery.getAnyKey() == null && reconQuery.getConnObjectKeyValue() == null)
+                || (reconQuery.getAnyKey() != null && reconQuery.getConnObjectKeyValue() != null)) {
 
-    @Override
-    public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
-        return logic.status(
-                anyTypeKind,
-                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
-                resourceKey);
+            throw new ValidationException("Either provide anyKey or connObjectKeyValue, not both");
+        }
     }
 
     @Override
-    public void push(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PushTaskTO pushTask) {
-
-        logic.push(
-                anyTypeKind,
-                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
-                resourceKey,
-                pushTask);
+    public ReconStatus status(final ReconQuery reconQuery) {
+        validate(reconQuery);
+        return logic.status(reconQuery);
     }
 
     @Override
-    public void pull(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PullTaskTO pullTask) {
+    public void push(final ReconQuery reconQuery, final PushTaskTO pushTask) {
+        validate(reconQuery);
+        logic.push(reconQuery, pushTask);
+    }
 
-        logic.pull(
-                anyTypeKind,
-                getActualKey(anyUtilsFactory.getInstance(anyTypeKind).dao(), anyKey),
-                resourceKey,
-                pullTask);
+    @Override
+    public void pull(final ReconQuery reconQuery, final PullTaskTO pullTask) {
+        validate(reconQuery);
+        logic.pull(reconQuery, pullTask);
     }
 }

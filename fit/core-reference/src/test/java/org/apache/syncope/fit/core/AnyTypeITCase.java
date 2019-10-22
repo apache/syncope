@@ -52,10 +52,10 @@ public class AnyTypeITCase extends AbstractITCase {
         assertEquals(AnyTypeKind.GROUP.name(), groupType.getKey());
         assertFalse(groupType.getClasses().isEmpty());
 
-        AnyTypeTO otherType = anyTypeService.read("PRINTER");
+        AnyTypeTO otherType = anyTypeService.read(PRINTER);
         assertNotNull(otherType);
         assertEquals(AnyTypeKind.ANY_OBJECT, otherType.getKind());
-        assertEquals("PRINTER", otherType.getKey());
+        assertEquals(PRINTER, otherType.getKey());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class AnyTypeITCase extends AbstractITCase {
         newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
         assertNotNull(newClass);
 
-        AnyTypeTO other = anyTypeService.read("PRINTER");
+        AnyTypeTO other = anyTypeService.read(PRINTER);
         assertNotNull(other);
 
         other.getClasses().add(newClass.getKey());
@@ -182,7 +182,7 @@ public class AnyTypeITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1472() {
         // 1. add any type class csv twice to PRINTER any type
-        AnyTypeTO anyTypeTO = anyTypeService.read("PRINTER");
+        AnyTypeTO anyTypeTO = anyTypeService.read(PRINTER);
         anyTypeTO.getClasses().clear();
         anyTypeTO.getClasses().add("minimal printer");
         anyTypeTO.getClasses().add("csv");
@@ -190,11 +190,11 @@ public class AnyTypeITCase extends AbstractITCase {
         anyTypeService.update(anyTypeTO);
 
         // 2. read again and remove any type class
-        anyTypeTO = anyTypeService.read("PRINTER");
+        anyTypeTO = anyTypeService.read(PRINTER);
         anyTypeTO.getClasses().remove("csv");
         anyTypeService.update(anyTypeTO);
 
-        assertFalse(anyTypeService.read("PRINTER").getClasses().contains("csv"), 
+        assertFalse(anyTypeService.read(PRINTER).getClasses().contains("csv"), 
                 "Should not contain removed any type classes");
     }
 }

@@ -57,6 +57,7 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.core.logic.ConnectorLogic;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
@@ -421,8 +422,8 @@ public class LoggerITCase extends AbstractITCase {
             pushTask.setPerformUpdate(true);
             pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
             pushTask.setMatchingRule(MatchingRule.UPDATE);
-            reconciliationService.push(
-                    AnyTypeKind.ANY_OBJECT, "fc6dbc3a-6c07-4965-8781-921e7401a4a5", RESOURCE_NAME_DBSCRIPTED, pushTask);
+            reconciliationService.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+                    anyKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5").build(), pushTask);
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
             fail(e::getMessage);

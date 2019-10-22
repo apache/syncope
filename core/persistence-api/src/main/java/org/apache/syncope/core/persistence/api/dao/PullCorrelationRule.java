@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -31,7 +32,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 @FunctionalInterface
 public interface PullCorrelationRule {
 
-    PullMatch NO_MATCH = new PullMatch.Builder().build();
+    PullMatch NO_MATCH = new PullMatch(MatchType.ANY, null);
 
     default void setConf(PullCorrelationRuleConf conf) {
     }
@@ -57,7 +58,7 @@ public interface PullCorrelationRule {
      * @return matching information
      */
     default PullMatch matching(Any<?> any, SyncDelta syncDelta, Provision provision) {
-        return new PullMatch.Builder().matchingKey(any.getKey()).build();
+        return new PullMatch(MatchType.ANY, any);
     }
 
     /**

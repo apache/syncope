@@ -26,9 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -230,18 +230,17 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     }
 
                     AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
-                    for (Iterator<AnyTypeClass> itor = new IteratorChain<>(
-                            provision.getAnyType().getClasses().iterator(),
-                            provision.getAuxClasses().iterator()); itor.hasNext();) {
+                    Stream.concat(
+                            provision.getAnyType().getClasses().stream(),
+                            provision.getAuxClasses().stream()).forEach(anyTypeClass -> {
 
-                        AnyTypeClass anyTypeClass = itor.next();
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
                                 map(Entity::getKey).collect(Collectors.toList()));
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
                                 map(Entity::getKey).collect(Collectors.toList()));
                         allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
                                 map(Entity::getKey).collect(Collectors.toList()));
-                    }
+                    });
 
                     populateMapping(
                             provisionTO.getMapping(),
@@ -627,7 +626,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.setConnector(Optional.ofNullable(connector).map(Entity::getKey).orElse(null));
         resourceTO.setConnectorDisplayName(Optional.ofNullable(connector)
-            .map(ConnInstance::getDisplayName).orElse(null));
+                .map(ConnInstance::getDisplayName).orElse(null));
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {

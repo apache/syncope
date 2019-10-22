@@ -62,16 +62,11 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
 
     @Autowired
-    protected PushUtils pushUtils;
-
-    @Resource(name = "adminUser")
-    protected String adminUser;
+    protected OutboundMatcher outboundMatcher;
 
     /**
      * Notification Manager.
@@ -129,13 +124,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
             reportPropagation(result, reporter);
         }
     }
 
     protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        AnyTO before = getAnyTO(any.getKey());
+        AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -153,13 +148,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
             reportPropagation(result, reporter);
         }
     }
 
     protected void provision(final Any<?> any, final Boolean enable, final ProvisioningReport result) {
-        AnyTO before = getAnyTO(any.getKey());
+        AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -177,7 +172,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(null));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, this.adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
             reportPropagation(result, reporter);
         }
     }
@@ -263,11 +258,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(any.getType().getKey());
         result.setName(getName(any));
 
-        LOG.debug("Propagating {} with key {} towards {}",
+        LOG.debug("Pushing {} with key {} towards {}",
                 any.getType().getKind(), any.getKey(), profile.getTask().getResource());
 
         // Try to read remote object BEFORE any actual operation
-        List<ConnectorObject> connObjs = pushUtils.match(profile.getConnector(), any, provision);
+        List<ConnectorObject> connObjs = outboundMatcher.match(profile.getConnector(), any, provision);
         LOG.debug("Match(es) found for {} as {}: {}", any, provision.getObjectClass(), connObjs);
 
         if (connObjs.size() > 1) {
@@ -460,7 +455,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                 if (notificationsAvailable || auditRequested) {
                     resultStatus = AuditElements.Result.SUCCESS;
-                    output = pushUtils.findByConnObjectKey(profile.getConnector(), any, provision);
+                    output = outboundMatcher.match(profile.getConnector(), any, provision);
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;

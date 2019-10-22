@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Optional;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.provisioning.api.Connector;
 
 /**
@@ -38,14 +36,10 @@ public class ADMembershipPullActions extends LDAPMembershipPullActions {
      */
     @Override
     protected String getGroupMembershipAttrName(final Connector connector) {
-        Optional<ConnConfProperty> groupMembership = connector.getConnInstance().getConf().stream().
+        return connector.getConnInstance().getConf().stream().
                 filter(property -> "groupMemberReferenceAttribute".equals(property.getSchema().getName())
-                && !property.getValues().isEmpty()).
-                findFirst();
-
-        return groupMembership.isPresent()
-                ? (String) groupMembership.get().getValues().get(0)
-                : "member";
+                && !property.getValues().isEmpty()).findFirst().
+                map(groupMembership -> (String) groupMembership.getValues().get(0)).
+                orElse("member");
     }
-
 }

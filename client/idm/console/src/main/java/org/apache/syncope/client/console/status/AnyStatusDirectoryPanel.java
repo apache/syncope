@@ -192,7 +192,7 @@ public class AnyStatusDirectoryPanel
                 @Override
                 public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                     multiLevelPanelRef.next(bean.getResource(),
-                            new ReconStatusPanel(bean.getResource(), anyTypeKind, anyTO.getKey()),
+                            new ReconStatusPanel(bean.getResource(), anyTO.getType(), anyTO.getKey()),
                             target);
                     target.add(multiLevelPanelRef);
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
@@ -211,7 +211,7 @@ public class AnyStatusDirectoryPanel
                             new ReconTaskPanel(
                                     bean.getResource(),
                                     new PushTaskTO(),
-                                    anyTypeKind,
+                                    anyTO.getType(),
                                     anyTO.getKey(),
                                     multiLevelPanelRef,
                                     pageRef),
@@ -231,7 +231,7 @@ public class AnyStatusDirectoryPanel
                             new ReconTaskPanel(
                                     bean.getResource(),
                                     new PullTaskTO(),
-                                    anyTypeKind,
+                                    anyTO.getType(),
                                     anyTO.getKey(),
                                     multiLevelPanelRef,
                                     pageRef),
@@ -288,7 +288,7 @@ public class AnyStatusDirectoryPanel
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
                 List<Pair<String, ReconStatus>> statuses = List.of();
                 if (statusOnly) {
-                    statuses = ReconStatusUtils.getReconStatuses(anyTypeKind, anyTO.getKey(), List.of(resource));
+                    statuses = ReconStatusUtils.getReconStatuses(anyTO.getType(), anyTO.getKey(), List.of(resource));
                 }
 
                 return StatusUtils.getStatusBean(actual,

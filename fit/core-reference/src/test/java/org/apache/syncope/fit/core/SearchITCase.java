@@ -337,7 +337,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByType() {
         PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).build());
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).query()).build());
         assertNotNull(matching);
 
         assertFalse(matching.getResult().isEmpty());
@@ -356,7 +356,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByRelationship() {
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                         inRelationships("Canon MF 8030cn").query()).
                 build());
         assertNotNull(anyObjects);
@@ -375,7 +375,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByRelationshipType() {
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                         inRelationshipTypes("neighborhood").query()).
                 build());
         assertNotNull(anyObjects);
@@ -423,7 +423,7 @@ public class SearchITCase extends AbstractITCase {
                 anyMatch(group -> "e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed".equals(group.getKey())));
 
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(new AnyQuery.Builder().realm("/odd").
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").isAssignable().
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).isAssignable().
                         and("name").equalTo("*").query()).
                 build());
         assertNotNull(anyObjects);

@@ -43,6 +43,11 @@ under the License.
       <artifactId>syncope-core-idrepo-logic</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.idm</groupId>
+      <artifactId>syncope-common-idm-rest-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

@@ -198,6 +198,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
 
+    protected static final String PRINTER = "PRINTER";
+
     protected static String ANONYMOUS_UNAME;
 
     protected static String ANONYMOUS_KEY;

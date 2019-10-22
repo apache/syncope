@@ -408,22 +408,22 @@ public class ResourceITCase extends AbstractITCase {
         try {
             // create a new resource
             resource = createResource(resource);
-            assertNull(resource.getProvision("PRINTER").get().getSyncToken());
+            assertNull(resource.getProvision(PRINTER).get().getSyncToken());
 
             // create some object on the new resource
             anyObject = createAnyObject(anyObjectCR).getEntity();
 
             // update sync token
-            resourceService.setLatestSyncToken(resource.getKey(), "PRINTER");
+            resourceService.setLatestSyncToken(resource.getKey(), PRINTER);
 
             resource = resourceService.read(resource.getKey());
-            assertNotNull(resource.getProvision("PRINTER").get().getSyncToken());
+            assertNotNull(resource.getProvision(PRINTER).get().getSyncToken());
 
             // remove sync token
-            resourceService.removeSyncToken(resource.getKey(), "PRINTER");
+            resourceService.removeSyncToken(resource.getKey(), PRINTER);
 
             resource = resourceService.read(resource.getKey());
-            assertNull(resource.getProvision("PRINTER").get().getSyncToken());
+            assertNull(resource.getProvision(PRINTER).get().getSyncToken());
         } finally {
             if (anyObject != null) {
                 anyObjectService.delete(anyObject.getKey());

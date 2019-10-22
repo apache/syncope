@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import javax.annotation.Resource;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -68,6 +69,9 @@ public abstract class AbstractRealmResultHandler<T extends ProvisioningTask, A e
      */
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     /**
      * Provisioning profile.

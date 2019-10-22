@@ -479,7 +479,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision("PRINTER").get();
+        ProvisionTO provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
         ImplementationTO transformer = null;
@@ -537,7 +537,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                            fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                            fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                                     is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
@@ -557,7 +557,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
             matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                             is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
 

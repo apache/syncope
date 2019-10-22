@@ -92,7 +92,7 @@ public class PolicyTest extends AbstractTest {
                 POJOHelper.deserialize(pushCR.getImplementation().getBody(), DefaultPushCorrelationRuleConf.class);
         assertNotNull(pushCRConf);
         assertEquals(1, pushCRConf.getSchemas().size());
-        assertTrue(pushCRConf.getSchemas().contains("email"));
+        assertTrue(pushCRConf.getSchemas().contains("surname"));
     }
 
     @Test

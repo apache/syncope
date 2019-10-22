@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test;
 public class AnyObjectITCase extends AbstractITCase {
 
     public static AnyObjectCR getSample(final String location) {
-        return new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, "PRINTER", location + getUUIDString()).
+        return new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, location + getUUIDString()).
                 plainAttr(attr("location", location + getUUIDString())).
                 resource(RESOURCE_NAME_DBSCRIPTED).
                 build();
@@ -122,7 +122,7 @@ public class AnyObjectITCase extends AbstractITCase {
     public void list() {
         PagedResult<AnyObjectTO> anyObjectTOs = anyObjectService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).
+                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).query()).
                         build());
         assertNotNull(anyObjectTOs);
         assertTrue(anyObjectTOs.getResult().size() >= 2);

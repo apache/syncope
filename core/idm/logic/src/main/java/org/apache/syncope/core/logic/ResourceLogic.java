@@ -20,15 +20,14 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -54,21 +53,17 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,13 +87,16 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private VirSchemaDAO virSchemaDAO;
 
     @Autowired
+    private VirAttrHandler virAttrHandler;
+
+    @Autowired
     private ResourceDataBinder binder;
 
     @Autowired
     private ConnInstanceDataBinder connInstanceDataBinder;
 
     @Autowired
-    private MappingManager mappingManager;
+    private OutboundMatcher outboundMatcher;
 
     @Autowired
     private ConnectorFactory connFactory;
@@ -267,9 +265,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
     }
 
-    private Pair<AnyType, Provision> connObjectInit(
-            final String resourceKey, final String anyTypeKey) {
-
+    private Provision getProvision(final String resourceKey, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.authFind(resourceKey);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + '\'');
@@ -280,53 +276,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
         }
 
-        Provision provision = resource.getProvision(anyType).
+        return resource.getProvision(anyType).
                 orElseThrow(() -> new NotFoundException(
                 "Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + "'"));
-
-        return Pair.of(anyType, provision);
-    }
-
-    private ConnObjectTO readConnObject(
-            final Provision provision,
-            final String connObjectKeyValue) {
-
-        // 0. build connObjectKeyItem
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
-                orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey mapping for " + provision.getAnyType().getKey()
-                + " on resource '" + provision.getResource().getKey() + "'"));
-
-        // 1. determine attributes to query
-        Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
-        Iterator<MappingItem> mapItems = new IteratorChain<>(
-                provision.getMapping().getItems().iterator(),
-                linkinMappingItems.iterator());
-
-        // 2. read from the underlying connector
-        Connector connector = connFactory.getConnector(provision.getResource());
-        ConnectorObject connectorObject = connector.getObject(
-                provision.getObjectClass(),
-                AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
-                provision.isIgnoreCaseMatch(),
-                MappingUtils.buildOperationOptions(mapItems));
-        if (connectorObject == null) {
-            throw new NotFoundException(
-                    "Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
-                    + " not found on resource " + provision.getResource().getKey());
-        }
-
-        // 3. build result
-        Set<Attribute> attributes = connectorObject.getAttributes();
-        if (AttributeUtil.find(Uid.NAME, attributes) == null) {
-            attributes.add(connectorObject.getUid());
-        }
-        if (AttributeUtil.find(Name.NAME, attributes) == null) {
-            attributes.add(connectorObject.getName());
-        }
-
-        return ConnObjectUtils.getConnObjectTO(connectorObject);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -336,31 +288,58 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final String anyKey) {
 
-        Pair<AnyType, Provision> init = connObjectInit(key, anyTypeKey);
+        Provision provision = getProvision(key, anyTypeKey);
 
         // 1. find any
-        Any<?> any = anyUtilsFactory.getInstance(init.getLeft().getKind()).dao().authFind(anyKey);
+        Any<?> any = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao().authFind(anyKey);
         if (any == null) {
-            throw new NotFoundException(init.getLeft() + " " + anyKey);
+            throw new NotFoundException(provision.getAnyType() + " " + anyKey);
         }
 
-        // 2. find connObjectKeyValue
-        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight()).
-                orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey value for " + init.getLeft() + " " + anyKey + " on resource '" + key + "'"));
+        // 2. find on resource
+        List<ConnectorObject> connObjs = outboundMatcher.match(
+                connFactory.getConnector(provision.getResource()), any, provision);
+        if (connObjs.isEmpty()) {
+            throw new NotFoundException(
+                    "Object " + any + " with class " + provision.getObjectClass()
+                    + " not found on resource " + provision.getResource().getKey());
+        }
 
-        return readConnObject(init.getRight(), connObjectKeyValue);
+        if (connObjs.size() > 1) {
+            LOG.warn("Expected single match, found {}", connObjs);
+        } else {
+            virAttrHandler.setValues(any, connObjs.get(0));
+        }
+
+        return ConnObjectUtils.getConnObjectTO(connObjs.get(0).getAttributes());
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
-    public ConnObjectTO readConnObjectByConnObjectKey(
+    public ConnObjectTO readConnObjectByConnObjectKeyValue(
             final String key,
             final String anyTypeKey,
             final String connObjectKeyValue) {
 
-        Pair<AnyType, Provision> init = connObjectInit(key, anyTypeKey);
-        return readConnObject(init.getRight(), connObjectKeyValue);
+        Provision provision = getProvision(key, anyTypeKey);
+
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
+                orElseThrow(() -> new NotFoundException(
+                "ConnObjectKey mapping for " + provision.getAnyType().getKey()
+                + " on resource '" + provision.getResource().getKey() + "'"));
+
+        Optional<ConnectorObject> connObj = outboundMatcher.matchByConnObjectKeyValue(
+                connFactory.getConnector(provision.getResource()),
+                connObjectKeyItem,
+                connObjectKeyValue,
+                provision);
+        if (connObj.isPresent()) {
+            return ConnObjectUtils.getConnObjectTO(connObj.get().getAttributes());
+        }
+
+        throw new NotFoundException(
+                "Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
+                + " not found on resource " + provision.getResource().getKey());
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
@@ -386,19 +365,15 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             }
 
             objectClass = resource.getOrgUnit().getObjectClass();
-            options = MappingUtils.buildOperationOptions(
-                    MappingUtils.getPropagationItems(resource.getOrgUnit().getItems()).iterator());
+            options = MappingUtils.buildOperationOptions(resource.getOrgUnit().getItems().stream());
         } else {
-            Pair<AnyType, Provision> init = connObjectInit(key, anyTypeKey);
-            resource = init.getRight().getResource();
-            objectClass = init.getRight().getObjectClass();
-            init.getRight().getMapping().getItems();
+            Provision provision = getProvision(key, anyTypeKey);
+            resource = provision.getResource();
+            objectClass = provision.getObjectClass();
 
-            Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(init.getRight()).stream().
-                    map(VirSchema::asLinkingMappingItem).collect(Collectors.toSet());
-            Iterator<MappingItem> mapItems = new IteratorChain<>(
-                    init.getRight().getMapping().getItems().iterator(),
-                    linkinMappingItems.iterator());
+            Stream<MappingItem> mapItems = Stream.concat(
+                    provision.getMapping().getItems().stream(),
+                    virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
             options = MappingUtils.buildOperationOptions(mapItems);
         }
 
@@ -410,7 +385,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
                     @Override
                     public boolean handle(final ConnectorObject connectorObject) {
-                        connObjects.add(ConnObjectUtils.getConnObjectTO(connectorObject));
+                        connObjects.add(ConnObjectUtils.getConnObjectTO(connectorObject.getAttributes()));
                         // safety protection against uncontrolled result size
                         count++;
                         return count < size;

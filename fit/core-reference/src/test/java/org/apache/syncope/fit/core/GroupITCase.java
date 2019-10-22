@@ -249,7 +249,7 @@ public class GroupITCase extends AbstractITCase {
         GroupCR createReq = getBasicSample("patch");
         createReq.setUDynMembershipCond("(($groups==3;$resources!=ws-target-resource-1);aLong==1)");
         createReq.getADynMembershipConds().put(
-                "PRINTER",
+                PRINTER,
                 "(($groups==7;cool==ss);$resources==ws-target-resource-2);$type==PRINTER");
 
         GroupTO created = createGroup(createReq).getEntity();
@@ -649,17 +649,17 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void aDynMembership() {
-        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").notNullValue().query();
+        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").notNullValue().query();
 
         // 1. create group with a given aDynMembership condition
         GroupCR groupCR = getBasicSample("aDynMembership");
-        groupCR.getADynMembershipConds().put("PRINTER", fiql);
+        groupCR.getADynMembershipConds().put(PRINTER, fiql);
         GroupTO group = createGroup(groupCR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         group = groupService.read(group.getKey());
         final String groupKey = group.getKey();
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
         AnyObjectCR newAnyCR = AnyObjectITCase.getSample("aDynMembership");
@@ -678,17 +678,17 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         // 2. update group and change aDynMembership condition
-        fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").nullValue().query();
+        fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").nullValue().query();
 
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(group.getKey());
-        groupUR.getADynMembershipConds().put("PRINTER", fiql);
+        groupUR.getADynMembershipConds().put(PRINTER, fiql);
 
         group = updateGroup(groupUR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         group = groupService.read(group.getKey());
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
         AnyObjectUR anyObjectUR = new AnyObjectUR();
@@ -713,14 +713,14 @@ public class GroupITCase extends AbstractITCase {
     public void aDynMembershipCount() {
         // Create a new printer as a dynamic member of a new group
         GroupCR groupCR = getBasicSample("aDynamicMembership");
-        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").equalTo("home").query();
-        groupCR.getADynMembershipConds().put("PRINTER", fiql);
+        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").equalTo("home").query();
+        groupCR.getADynMembershipConds().put(PRINTER, fiql);
         GroupTO group = createGroup(groupCR).getEntity();
 
         AnyObjectCR printerCR = new AnyObjectCR();
         printerCR.setRealm(SyncopeConstants.ROOT_REALM);
         printerCR.setName("Printer_" + getUUIDString());
-        printerCR.setType("PRINTER");
+        printerCR.setType(PRINTER);
         printerCR.getPlainAttrs().add(new Attr.Builder("location").value("home").build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
@@ -741,7 +741,7 @@ public class GroupITCase extends AbstractITCase {
         AnyObjectCR printerCR = new AnyObjectCR();
         printerCR.setRealm(SyncopeConstants.ROOT_REALM);
         printerCR.setName("Printer_" + getUUIDString());
-        printerCR.setType("PRINTER");
+        printerCR.setType(PRINTER);
         printerCR.getMemberships().add(new MembershipTO.Builder(group.getKey()).build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 

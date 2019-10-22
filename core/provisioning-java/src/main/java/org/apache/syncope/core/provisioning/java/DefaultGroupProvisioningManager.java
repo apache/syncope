@@ -45,7 +45,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
@@ -82,7 +81,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getPropByRes(),
                 groupCR.getVirAttrs(),
                 Set.of());
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, adminUser);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
@@ -108,7 +107,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getPropByRes(),
                 groupCR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, adminUser);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
@@ -136,7 +135,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 groupUR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, adminUser);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
@@ -180,7 +179,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null));
 
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         gwfAdapter.delete(key);
 
@@ -208,7 +207,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
@@ -228,7 +227,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 groupDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, this.adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
