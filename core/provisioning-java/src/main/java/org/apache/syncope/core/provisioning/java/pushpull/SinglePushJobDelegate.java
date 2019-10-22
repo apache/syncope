@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -31,12 +31,14 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
+import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +50,9 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
     @Autowired
     private ImplementationDAO implementationDAO;
 
-    @Override
-    public List<ProvisioningReport> push(
+    private List<PushActions> before(
             final Provision provision,
             final Connector connector,
-            final Any<?> any,
             final PushTaskTO pushTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing push on {}", provision.getResource());
@@ -71,25 +71,37 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             }
         });
 
+        PushTask pushTask = entityFactory.newEntity(PushTask.class);
+        pushTask.setResource(provision.getResource());
+        pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
+                ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
+        pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
+                ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
+        pushTask.setPerformCreate(pushTaskTO.isPerformCreate());
+        pushTask.setPerformUpdate(pushTaskTO.isPerformUpdate());
+        pushTask.setPerformDelete(pushTaskTO.isPerformDelete());
+        pushTask.setSyncStatus(pushTaskTO.isSyncStatus());
+
+        profile = new ProvisioningProfile<>(connector, pushTask);
+        profile.getActions().addAll(actions);
+        profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+
+        for (PushActions action : actions) {
+            action.beforeAll(profile);
+        }
+
+        return actions;
+    }
+
+    @Override
+    public List<ProvisioningReport> push(
+            final Provision provision,
+            final Connector connector,
+            final Any<?> any,
+            final PushTaskTO pushTaskTO) throws JobExecutionException {
+
         try {
-            PushTask pushTask = entityFactory.newEntity(PushTask.class);
-            pushTask.setResource(provision.getResource());
-            pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
-                    ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
-            pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
-                    ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
-            pushTask.setPerformCreate(pushTaskTO.isPerformCreate());
-            pushTask.setPerformUpdate(pushTaskTO.isPerformUpdate());
-            pushTask.setPerformDelete(pushTaskTO.isPerformDelete());
-            pushTask.setSyncStatus(pushTaskTO.isSyncStatus());
-
-            profile = new ProvisioningProfile<>(connector, pushTask);
-            profile.getActions().addAll(actions);
-            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
-
-            for (PushActions action : actions) {
-                action.beforeAll(profile);
-            }
+            List<PushActions> actions = before(provision, connector, pushTaskTO);
 
             SyncopePushResultHandler handler;
             switch (provision.getAnyType().getKind()) {
@@ -107,13 +119,40 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             }
             handler.setProfile(profile);
 
-            doHandle(Arrays.asList(any), handler, pushTask.getResource());
+            doHandle(Collections.singletonList(any), handler, provision.getResource());
 
             for (PushActions action : actions) {
                 action.afterAll(profile);
             }
 
             return profile.getResults();
+        } catch (Exception e) {
+            throw e instanceof JobExecutionException
+                    ? (JobExecutionException) e
+                    : new JobExecutionException("While pushing to connector", e);
+        }
+    }
+
+    @Override
+    public ProvisioningReport push(
+            final Provision provision,
+            final Connector connector,
+            final LinkedAccount account,
+            final PushTaskTO pushTaskTO) throws JobExecutionException {
+
+        try {
+            List<PushActions> actions = before(provision, connector, pushTaskTO);
+
+            UserPushResultHandler handler = buildUserHandler();
+            handler.setProfile(profile);
+
+            handler.handle(account, provision);
+
+            for (PushActions action : actions) {
+                action.afterAll(profile);
+            }
+
+            return profile.getResults().get(0);
         } catch (Exception e) {
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e

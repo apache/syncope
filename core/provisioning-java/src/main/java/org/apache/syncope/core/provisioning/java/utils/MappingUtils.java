@@ -20,11 +20,10 @@ package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
@@ -66,16 +65,14 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem();
     }
 
-    public static List<? extends Item> getPropagationItems(final List<? extends Item> items) {
-        return items.stream().
-                filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
-                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
+    public static Stream<? extends Item> getPropagationItems(final Stream<? extends Item> items) {
+        return items.filter(
+                item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH);
     }
 
-    public static List<? extends Item> getPullItems(final List<? extends Item> items) {
-        return items.stream().
-                filter(item -> item.getPurpose() == MappingPurpose.PULL
-                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
+    public static Stream<? extends Item> getPullItems(final Stream<? extends Item> items) {
+        return items.filter(
+                item -> item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH);
     }
 
     private static Name getName(final String evalConnObjectLink, final String connObjectKey) {
@@ -84,14 +81,14 @@ public final class MappingUtils {
         Name name;
         if (StringUtils.isBlank(evalConnObjectLink)) {
             // add connObjectKey as __NAME__ attribute ...
-            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
+            LOG.debug("Add connObjectKey [{}] as {}", connObjectKey, Name.NAME);
             name = new Name(connObjectKey);
         } else {
-            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
+            LOG.debug("Add connObjectLink [{}] as {}", evalConnObjectLink, Name.NAME);
             name = new Name(evalConnObjectLink);
 
             // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("connObjectKey will be used just as __UID__ attribute");
+            LOG.debug("connObjectKey will be used just as {} attribute", Uid.NAME);
         }
 
         return name;
@@ -189,11 +186,11 @@ public final class MappingUtils {
     /**
      * Build options for requesting all mapped connector attributes.
      *
-     * @param iterator items
+     * @param items items
      * @return options for requesting all mapped connector attributes
      * @see OperationOptions
      */
-    public static OperationOptions buildOperationOptions(final Iterator<? extends Item> iterator) {
+    public static OperationOptions buildOperationOptions(final Stream<? extends Item> items) {
         OperationOptionsBuilder builder = new OperationOptionsBuilder();
 
         Set<String> attrsToGet = new HashSet<>();
@@ -201,12 +198,8 @@ public final class MappingUtils {
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
 
-        while (iterator.hasNext()) {
-            Item item = iterator.next();
-            if (item.getPurpose() != MappingPurpose.NONE) {
-                attrsToGet.add(item.getExtAttrName());
-            }
-        }
+        items.filter(item -> item.getPurpose() != MappingPurpose.NONE).
+                forEach(item -> attrsToGet.add(item.getExtAttrName()));
 
         builder.setAttributesToGet(attrsToGet);
         // -------------------------------------

@@ -25,16 +25,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
+import java.util.UUID;
 import javax.sql.DataSource;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -60,9 +65,12 @@ public class ReconciliationITCase extends AbstractITCase {
                 "SELECT id FROM testPRINTER WHERE printername=?", printer.getName()).size());
 
         // 3. verify reconciliation status
-        ReconStatus status =
-                reconciliationService.status(AnyTypeKind.ANY_OBJECT, printer.getName(), "resource-db-scripted");
+        ReconStatus status = reconciliationService.status(
+                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).anyKey(printer.getName()).build());
         assertNotNull(status);
+        assertEquals(AnyTypeKind.ANY_OBJECT, status.getAnyTypeKind());
+        assertEquals(printer.getKey(), status.getAnyKey());
+        assertEquals(MatchType.ANY, status.getMatchType());
         assertNotNull(status.getOnSyncope());
         assertNull(status.getOnResource());
 
@@ -70,7 +78,8 @@ public class ReconciliationITCase extends AbstractITCase {
         PushTaskTO pushTask = new PushTaskTO();
         pushTask.setPerformCreate(true);
         pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
-        reconciliationService.push(AnyTypeKind.ANY_OBJECT, printer.getKey(), "resource-db-scripted", pushTask);
+        reconciliationService.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+                anyKey(printer.getKey()).build(), pushTask);
 
         // 5. verify that printer is now propagated
         assertEquals(1, jdbcTemplate.queryForList(
@@ -81,7 +90,8 @@ public class ReconciliationITCase extends AbstractITCase {
         assertTrue(printer.getResources().isEmpty());
 
         // 7. verify reconciliation status
-        status = reconciliationService.status(AnyTypeKind.ANY_OBJECT, printer.getName(), "resource-db-scripted");
+        status = reconciliationService.status(
+                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).anyKey(printer.getName()).build());
         assertNotNull(status);
         assertNotNull(status.getOnSyncope());
         assertNotNull(status.getOnResource());
@@ -103,15 +113,15 @@ public class ReconciliationITCase extends AbstractITCase {
         assertNotNull(printer.getKey());
         assertNotEquals("Nowhere", printer.getPlainAttr("location").get().getValues().get(0));
 
-        // 2. create table into the external resource's db, with same name
+        // 2. add row into the external resource's table, with same name
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         jdbcTemplate.update(
                 "INSERT INTO TESTPRINTER (id, printername, location, deleted, lastmodification) VALUES (?,?,?,?,?)",
                 printer.getKey(), printer.getName(), "Nowhere", false, new Date());
 
         // 3. verify reconciliation status
-        ReconStatus status =
-                reconciliationService.status(AnyTypeKind.ANY_OBJECT, printer.getName(), "resource-db-scripted");
+        ReconStatus status = reconciliationService.status(
+                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).anyKey(printer.getName()).build());
         assertNotNull(status);
         assertNotNull(status.getOnSyncope());
         assertNotNull(status.getOnResource());
@@ -119,12 +129,49 @@ public class ReconciliationITCase extends AbstractITCase {
 
         // 4. pull
         PullTaskTO pullTask = new PullTaskTO();
+        pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTask.setPerformUpdate(true);
-        reconciliationService.pull(AnyTypeKind.ANY_OBJECT, printer.getName(), "resource-db-scripted", pullTask);
+        reconciliationService.pull(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+                anyKey(printer.getName()).build(), pullTask);
 
         // 5. verify reconciliation result (and resource is still not assigned)
         printer = anyObjectService.read(printer.getKey());
         assertEquals("Nowhere", printer.getPlainAttr("location").get().getValues().get(0));
         assertTrue(printer.getResources().isEmpty());
+    }
+
+    @Test
+    public void importSingle() {
+        // 1. add row into the external resource's table
+        String externalKey = UUID.randomUUID().toString();
+        String externalName = "printer" + getUUIDString();
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        jdbcTemplate.update(
+                "INSERT INTO TESTPRINTER (id, printername, location, deleted, lastmodification) VALUES (?,?,?,?,?)",
+                externalKey, externalName, "Nowhere", false, new Date());
+
+        // 2. verify reconciliation status
+        ReconStatus status = reconciliationService.status(
+                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).connObjectKeyValue(externalKey).build());
+        assertNotNull(status);
+        assertNull(status.getAnyTypeKind());
+        assertNull(status.getAnyKey());
+        assertNull(status.getMatchType());
+        assertNull(status.getOnSyncope());
+        assertNotNull(status.getOnResource());
+        assertEquals(externalKey, status.getOnResource().getAttr(Uid.NAME).get().getValues().get(0));
+        assertEquals(externalName, status.getOnResource().getAttr("PRINTERNAME").get().getValues().get(0));
+
+        // 3. pull
+        PullTaskTO pullTask = new PullTaskTO();
+        pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+        pullTask.setPerformCreate(true);
+        reconciliationService.pull(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+                connObjectKeyValue(externalKey).build(), pullTask);
+
+        // 4. verify reconciliation result
+        AnyObjectTO printer = anyObjectService.read(externalName);
+        assertNotNull(printer);
     }
 }

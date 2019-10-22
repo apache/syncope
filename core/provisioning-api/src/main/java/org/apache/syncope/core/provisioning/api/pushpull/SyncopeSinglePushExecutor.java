@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
 
@@ -31,5 +32,11 @@ public interface SyncopeSinglePushExecutor {
             Provision provision,
             Connector connector,
             Any<?> any,
+            PushTaskTO pushTaskTO) throws JobExecutionException;
+
+    ProvisioningReport push(
+            Provision provision,
+            Connector connector,
+            LinkedAccount account,
             PushTaskTO pushTaskTO) throws JobExecutionException;
 }

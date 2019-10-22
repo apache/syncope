@@ -94,7 +94,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String value) {
         return SyncopeConstants.UUID_PATTERN.matcher(value).matches()
                 ? logic.readConnObjectByAnyKey(key, anyTypeKey, value)
-                : logic.readConnObjectByConnObjectKey(key, anyTypeKey, value);
+                : logic.readConnObjectByConnObjectKeyValue(key, anyTypeKey, value);
     }
 
     @Override

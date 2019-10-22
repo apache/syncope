@@ -57,6 +57,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -253,7 +254,8 @@ public class MultitenancyITCase extends AbstractITCase {
             pushTask.setPerformUpdate(true);
             pushTask.setMatchingRule(MatchingRule.UPDATE);
             adminClient.getService(ReconciliationService.class).
-                    push(AnyTypeKind.USER, pullFromLDAPKey, resource.getKey(), pushTask);
+                    push(new ReconQuery.Builder(AnyTypeKind.USER.name(), resource.getKey()).
+                            anyKey(pullFromLDAPKey).build(), pushTask);
 
             assertEquals(1, adminClient.getService(TaskService.class).
                     search(new TaskQuery.Builder(TaskType.PROPAGATION).

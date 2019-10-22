@@ -195,13 +195,13 @@ public class MappingManagerImpl implements MappingManager {
                 any, provision, any.getPlainAttrs());
 
         Set<Attribute> attributes = new HashSet<>();
-        String connObjectKey = null;
+        String[] connObjectKeyValue = new String[1];
 
-        for (Item mapItem : MappingUtils.getPropagationItems(provision.getMapping().getItems())) {
+        MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
 
             try {
-                String processedConnObjectKey = processPreparedAttr(
+                String processedConnObjectKeyValue = processPreparedAttr(
                         prepareAttr(
                                 provision,
                                 mapItem,
@@ -211,27 +211,28 @@ public class MappingManagerImpl implements MappingManager {
                                 AccountGetter.DEFAULT,
                                 PlainAttrGetter.DEFAULT),
                         attributes);
-                if (processedConnObjectKey != null) {
-                    connObjectKey = processedConnObjectKey;
+                if (processedConnObjectKeyValue != null) {
+                    connObjectKeyValue[0] = processedConnObjectKeyValue;
                 }
             } catch (Exception e) {
                 LOG.error("Expression '{}' processing failed", mapItem.getIntAttrName(), e);
             }
-        }
+        });
 
-        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-        if (connObjectKeyItem.isPresent()) {
-            Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
-            if (connObjectKeyExtAttr != null) {
-                attributes.remove(connObjectKeyExtAttr);
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey));
+        MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
+            Attribute connObjectKeyAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
+            if (connObjectKeyAttr != null) {
+                attributes.remove(connObjectKeyAttr);
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue[0]));
             }
-            Name name = MappingUtils.evaluateNAME(any, provision, connObjectKey);
+            Name name = MappingUtils.evaluateNAME(any, provision, connObjectKeyValue[0]);
             attributes.add(name);
-            if (connObjectKey != null && !connObjectKey.equals(name.getNameValue()) && connObjectKeyExtAttr == null) {
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey));
+            if (connObjectKeyAttr == null
+                    && connObjectKeyValue[0] != null && !connObjectKeyValue[0].equals(name.getNameValue())) {
+
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue[0]));
             }
-        }
+        });
 
         if (enable != null) {
             attributes.add(AttributeBuilder.buildEnabled(enable));
@@ -243,7 +244,7 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        return Pair.of(connObjectKey, attributes);
+        return Pair.of(connObjectKeyValue[0], attributes);
     }
 
     @Transactional(readOnly = true)
@@ -261,7 +262,7 @@ public class MappingManagerImpl implements MappingManager {
 
         Set<Attribute> attributes = new HashSet<>();
 
-        for (Item mapItem : MappingUtils.getPropagationItems(provision.getMapping().getItems())) {
+        MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
 
             try {
@@ -290,7 +291,7 @@ public class MappingManagerImpl implements MappingManager {
             } catch (Exception e) {
                 LOG.error("Expression '{}' processing failed", mapItem.getIntAttrName(), e);
             }
-        }
+        });
 
         String connObjectKey = account.getConnObjectKeyValue();
         MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
@@ -339,15 +340,15 @@ public class MappingManagerImpl implements MappingManager {
         LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, orgUnit);
 
         Set<Attribute> attributes = new HashSet<>();
-        String connObjectKey = null;
+        String[] connObjectKeyValue = new String[1];
 
-        for (Item orgUnitItem : MappingUtils.getPropagationItems(orgUnit.getItems())) {
+        MappingUtils.getPropagationItems(orgUnit.getItems().stream()).forEach(orgUnitItem -> {
             LOG.debug("Processing expression '{}'", orgUnitItem.getIntAttrName());
 
             String value = getIntValue(realm, orgUnitItem);
 
             if (orgUnitItem.isConnObjectKey()) {
-                connObjectKey = value;
+                connObjectKeyValue[0] = value;
             }
 
             Attribute alreadyAdded = AttributeUtil.find(orgUnitItem.getExtAttrName(), attributes);
@@ -368,19 +369,19 @@ public class MappingManagerImpl implements MappingManager {
 
                 attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), values));
             }
-        }
+        });
 
         Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
-            Attribute connObjectKeyExtAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
-            if (connObjectKeyExtAttr != null) {
-                attributes.remove(connObjectKeyExtAttr);
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey));
+            Attribute connObjectKeyAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
+            if (connObjectKeyAttr != null) {
+                attributes.remove(connObjectKeyAttr);
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue[0]));
             }
-            attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
+            attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKeyValue[0]));
         }
 
-        return Pair.of(connObjectKey, attributes);
+        return Pair.of(connObjectKeyValue[0], attributes);
     }
 
     protected String getPasswordAttrValue(final Provision provision, final Account account, final String defaultValue) {

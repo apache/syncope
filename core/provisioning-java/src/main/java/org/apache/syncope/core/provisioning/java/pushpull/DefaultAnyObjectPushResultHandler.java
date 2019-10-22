@@ -41,8 +41,8 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
     }
 
     @Override
-    protected AnyTO getAnyTO(final String key) {
-        return anyObjectDataBinder.getAnyObjectTO(key);
+    protected AnyTO getAnyTO(final Any<?> any) {
+        return anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true);
     }
 
     @Override

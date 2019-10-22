@@ -71,6 +71,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         return getAnyObjectTO(anyObjectDAO.authFind(key), true);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public AnyObjectTO getAnyObjectTO(final AnyObject anyObject, final boolean details) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();

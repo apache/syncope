@@ -93,7 +93,6 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         }
 
         binder.update(anyType, anyTypeTO);
-        anyType = anyTypeDAO.save(anyType);
 
         return binder.getAnyTypeTO(anyTypeDAO.save(anyType));
     }

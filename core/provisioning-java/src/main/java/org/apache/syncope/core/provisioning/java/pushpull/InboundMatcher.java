@@ -24,40 +24,41 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
@@ -71,40 +72,30 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncToken;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Transactional(readOnly = true)
 @Component
-public class PullUtils {
+public class InboundMatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PullUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InboundMatcher.class);
 
-    /**
-     * Any Object DAO.
-     */
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
-
-    /**
-     * User DAO.
-     */
     @Autowired
     private UserDAO userDAO;
 
-    /**
-     * Group DAO.
-     */
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
+
     @Autowired
     private GroupDAO groupDAO;
 
-    /**
-     * Search DAO.
-     */
     @Autowired
     private AnySearchDAO searchDAO;
 
@@ -112,31 +103,39 @@ public class PullUtils {
     private RealmDAO realmDAO;
 
     @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private VirAttrHandler virAttrHandler;
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
-    public Optional<String> match(
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
+
+    public Optional<PullMatch> match(
             final AnyType anyType,
-            final String name,
+            final String nameValue,
             final ExternalResource resource,
-            final Connector connector,
-            final boolean ignoreCaseMatch) {
+            final Connector connector) {
 
         Optional<? extends Provision> provision = resource.getProvision(anyType);
         if (!provision.isPresent()) {
             return Optional.empty();
         }
 
-        Optional<String> result = Optional.empty();
-
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
+        Stream<MappingItem> mapItems = Stream.concat(
+                provision.get().getMapping().getItems().stream(),
+                virSchemaDAO.findByProvision(provision.get()).stream().map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> found = new ArrayList<>();
-        Name nameAttr = new Name(name);
+
+        Name nameAttr = new Name(nameValue);
         connector.search(provision.get().getObjectClass(),
-                ignoreCaseMatch ? FilterBuilder.equalsIgnoreCase(nameAttr) : FilterBuilder.equalTo(nameAttr),
+                provision.get().isIgnoreCaseMatch()
+                ? FilterBuilder.equalsIgnoreCase(nameAttr)
+                : FilterBuilder.equalTo(nameAttr),
                 new SearchResultsHandler() {
 
             @Override
@@ -148,15 +147,16 @@ public class PullUtils {
             public boolean handle(final ConnectorObject connectorObject) {
                 return found.add(connectorObject);
             }
-        }, MappingUtils.buildOperationOptions(
-                        MappingUtils.getPullItems(provision.get().getMapping().getItems()).iterator()));
+        }, MappingUtils.buildOperationOptions(mapItems));
+
+        Optional<PullMatch> result = Optional.empty();
 
         if (found.isEmpty()) {
-            LOG.debug("No {} found on {} with __NAME__ {}", provision.get().getObjectClass(), resource, name);
+            LOG.debug("No {} found on {} with {} {}", provision.get().getObjectClass(), resource, Name.NAME, nameValue);
         } else {
             if (found.size() > 1) {
-                LOG.warn("More than one {} found on {} with __NAME__ {} - taking first only",
-                        provision.get().getObjectClass(), resource, name);
+                LOG.warn("More than one {} found on {} with {} {} - taking first only",
+                        provision.get().getObjectClass(), resource, Name.NAME, nameValue);
             }
 
             ConnectorObject connObj = found.iterator().next();
@@ -167,15 +167,18 @@ public class PullUtils {
                                 setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
                                 setObject(connObj).
                                 build(),
-                        provision.get(), anyUtils);
+                        provision.get());
                 if (matches.isEmpty()) {
-                    LOG.debug("No matching {} found for {}, aborting", anyUtils.anyTypeKind(), connObj);
+                    LOG.debug("No matching {} found for {}, aborting", anyType.getKind(), connObj);
                 } else {
                     if (matches.size() > 1) {
-                        LOG.warn("More than one {} found {} - taking first only", anyUtils.anyTypeKind(), matches);
+                        LOG.warn("More than one {} found {} - taking first only", anyType.getKind(), matches);
                     }
 
-                    result = Optional.ofNullable(matches.iterator().next().getMatchingKey());
+                    result = matches.stream().filter(match -> match.getAny() != null).findFirst();
+                    if (result.isPresent()) {
+                        virAttrHandler.setValues(result.get().getAny(), connObj);
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());
@@ -185,69 +188,51 @@ public class PullUtils {
         return result;
     }
 
-    private List<PullMatch> findByConnObjectKey(
-            final SyncDelta syncDelta, final Provision provision, final AnyUtils anyUtils) {
+    public List<PullMatch> matchByConnObjectKeyValue(
+            final MappingItem connObjectKeyItem,
+            final String connObjectKeyValue,
+            final Provision provision) {
+
+        String finalConnObjectKeyValue = connObjectKeyValue;
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
+            List<Object> output = transformer.beforePull(
+                    connObjectKeyItem,
+                    null,
+                    Collections.<Object>singletonList(finalConnObjectKeyValue));
+            if (!CollectionUtils.isEmpty(output)) {
+                finalConnObjectKeyValue = output.get(0).toString();
+            }
+        }
 
         List<PullMatch> noMatchResult = Collections.singletonList(PullCorrelationRule.NO_MATCH);
-
-        String connObjectKey = null;
-
-        Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-        if (connObjectKeyItem.isPresent()) {
-            Attribute connObjectKeyAttr = syncDelta.getObject().
-                    getAttributeByName(connObjectKeyItem.get().getExtAttrName());
-            if (connObjectKeyAttr != null) {
-                connObjectKey = AttributeUtil.getStringValue(connObjectKeyAttr);
-            }
-        }
-        if (connObjectKey == null) {
-            return noMatchResult;
-        }
-
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
-            List<Object> output = transformer.beforePull(
-                    connObjectKeyItem.get(),
-                    null,
-                    Collections.<Object>singletonList(connObjectKey));
-            if (output != null && !output.isEmpty()) {
-                connObjectKey = output.get(0).toString();
-            }
-        }
 
         IntAttrName intAttrName;
         try {
             intAttrName = intAttrNameParser.parse(
-                    connObjectKeyItem.get().getIntAttrName(),
-                    provision.getAnyType().getKind());
+                    connObjectKeyItem.getIntAttrName(), provision.getAnyType().getKind());
         } catch (ParseException e) {
-            LOG.error("Invalid intAttrName '{}' specified, ignoring", connObjectKeyItem.get().getIntAttrName(), e);
+            LOG.error("Invalid intAttrName '{}' specified, ignoring", connObjectKeyItem.getIntAttrName(), e);
             return noMatchResult;
         }
 
-        List<PullMatch> result = new ArrayList<>();
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
+
+        List<Any<?>> anys = new ArrayList<>();
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
                 case "key":
-                    Any<?> any = anyUtils.dao().find(connObjectKey);
-                    if (any != null) {
-                        result.add(new PullMatch.Builder().matchingKey(any.getKey()).build());
-                    }
+                    Optional.ofNullable(anyUtils.dao().find(connObjectKeyValue)).ifPresent(anys::add);
                     break;
 
                 case "username":
                     if (provision.getAnyType().getKind() == AnyTypeKind.USER && provision.isIgnoreCaseMatch()) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("username");
-                        cond.setExpression(connObjectKey);
-                        result.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.USER).stream().
-                                map(user -> new PullMatch.Builder().matchingKey(user.getKey()).build()).
-                                collect(Collectors.toList()));
+                        cond.setExpression(connObjectKeyValue);
+                        anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.USER));
                     } else {
-                        User user = userDAO.findByUsername(connObjectKey);
-                        if (user != null) {
-                            result.add(new PullMatch.Builder().matchingKey(user.getKey()).build());
-                        }
+                        Optional.ofNullable(userDAO.findByUsername(connObjectKeyValue)).ifPresent(anys::add);
                     }
                     break;
 
@@ -255,29 +240,19 @@ public class PullUtils {
                     if (provision.getAnyType().getKind() == AnyTypeKind.GROUP && provision.isIgnoreCaseMatch()) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("name");
-                        cond.setExpression(connObjectKey);
-                        result.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.GROUP).stream().
-                                map(group -> new PullMatch.Builder().matchingKey(group.getKey()).build()).
-                                collect(Collectors.toList()));
+                        cond.setExpression(connObjectKeyValue);
+                        anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.GROUP));
                     } else {
-                        Group group = groupDAO.findByName(connObjectKey);
-                        if (group != null) {
-                            result.add(new PullMatch.Builder().matchingKey(group.getKey()).build());
-                        }
+                        Optional.ofNullable(groupDAO.findByName(connObjectKeyValue)).ifPresent(anys::add);
                     }
 
                     if (provision.getAnyType().getKind() == AnyTypeKind.ANY_OBJECT && provision.isIgnoreCaseMatch()) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("name");
-                        cond.setExpression(connObjectKey);
-                        result.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT).stream().
-                                map(anyObject -> new PullMatch.Builder().matchingKey(anyObject.getKey()).build()).
-                                collect(Collectors.toList()));
+                        cond.setExpression(connObjectKeyValue);
+                        anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
-                        AnyObject anyObject = anyObjectDAO.findByName(connObjectKey);
-                        if (anyObject != null) {
-                            result.add(new PullMatch.Builder().matchingKey(anyObject.getKey()).build());
-                        }
+                        Optional.ofNullable(anyObjectDAO.findByName(connObjectKeyValue)).ifPresent(anys::add);
                     }
                     break;
 
@@ -290,39 +265,43 @@ public class PullUtils {
                             ? anyUtils.newPlainAttrUniqueValue()
                             : anyUtils.newPlainAttrValue();
                     try {
-                        value.parseValue((PlainSchema) intAttrName.getSchema(), connObjectKey);
+                        value.parseValue((PlainSchema) intAttrName.getSchema(), connObjectKeyValue);
                     } catch (ParsingValidationException e) {
-                        LOG.error("While parsing provided __UID__ {}", value, e);
-                        value.setStringValue(connObjectKey);
+                        LOG.error("While parsing provided {} {}", Uid.NAME, value, e);
+                        value.setStringValue(connObjectKeyValue);
                     }
 
                     if (intAttrName.getSchema().isUniqueConstraint()) {
                         anyUtils.dao().findByPlainAttrUniqueValue((PlainSchema) intAttrName.getSchema(),
                                 (PlainAttrUniqueValue) value, provision.isIgnoreCaseMatch()).
-                                ifPresent(any -> result.add(new PullMatch.Builder().matchingKey(any.getKey()).build()));
+                                ifPresent(anys::add);
                     } else {
-                        result.addAll(anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(),
-                                value, provision.isIgnoreCaseMatch()).stream().
-                                map(any -> new PullMatch.Builder().matchingKey(any.getKey()).build()).
-                                collect(Collectors.toList()));
+                        anys.addAll(anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(),
+                                value, provision.isIgnoreCaseMatch()));
                     }
                     break;
 
                 case DERIVED:
-                    result.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
-                            connObjectKey, provision.isIgnoreCaseMatch()).stream().
-                            map(any -> new PullMatch.Builder().matchingKey(any.getKey()).build()).
-                            collect(Collectors.toList()));
+                    anys.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
+                            connObjectKeyValue, provision.isIgnoreCaseMatch()));
                     break;
 
                 default:
             }
         }
 
+        List<PullMatch> result = anys.stream().
+                map(any -> new PullMatch(MatchType.ANY, any)).
+                collect(Collectors.toList());
+
+        userDAO.findLinkedAccount(provision.getResource(), finalConnObjectKeyValue).
+                map(account -> new PullMatch(MatchType.LINKED_ACCOUNT, account)).
+                ifPresent(result::add);
+
         return result.isEmpty() ? noMatchResult : result;
     }
 
-    private List<PullMatch> findByCorrelationRule(
+    private List<PullMatch> matchByCorrelationRule(
             final SyncDelta syncDelta,
             final Provision provision,
             final PullCorrelationRule rule,
@@ -346,14 +325,9 @@ public class PullUtils {
      *
      * @param syncDelta change operation, including external attributes
      * @param provision mapping
-     * @param anyUtils any utils
      * @return list of matching users' / groups' / any objects' keys
      */
-    public List<PullMatch> match(
-            final SyncDelta syncDelta,
-            final Provision provision,
-            final AnyUtils anyUtils) {
-
+    public List<PullMatch> match(final SyncDelta syncDelta, final Provision provision) {
         Optional<? extends PullCorrelationRuleEntity> correlationRule = provision.getResource().getPullPolicy() == null
                 ? Optional.empty()
                 : provision.getResource().getPullPolicy().getCorrelationRule(provision.getAnyType());
@@ -367,14 +341,40 @@ public class PullUtils {
             }
         }
 
+        List<PullMatch> result = Collections.emptyList();
         try {
-            return rule.isPresent()
-                    ? findByCorrelationRule(syncDelta, provision, rule.get(), anyUtils.anyTypeKind())
-                    : findByConnObjectKey(syncDelta, provision, anyUtils);
+            if (rule.isPresent()) {
+                result = matchByCorrelationRule(syncDelta, provision, rule.get(), provision.getAnyType().getKind());
+            } else {
+                String connObjectKeyValue = null;
+
+                Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                if (connObjectKeyItem.isPresent()) {
+                    Attribute connObjectKeyAttr = syncDelta.getObject().
+                            getAttributeByName(connObjectKeyItem.get().getExtAttrName());
+                    if (connObjectKeyAttr != null) {
+                        connObjectKeyValue = AttributeUtil.getStringValue(connObjectKeyAttr);
+                    }
+                    // fallback to __UID__
+                    if (connObjectKeyValue == null) {
+                        connObjectKeyValue = syncDelta.getUid().getUidValue();
+                    }
+                }
+                if (connObjectKeyValue == null) {
+                    result = Collections.singletonList(PullCorrelationRule.NO_MATCH);
+                } else {
+                    result = matchByConnObjectKeyValue(connObjectKeyItem.get(), connObjectKeyValue, provision);
+                }
+            }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
-            return Collections.emptyList();
         }
+
+        if (result.size() == 1 && result.get(0).getMatchTarget() == MatchType.ANY) {
+            virAttrHandler.setValues(result.get(0).getAny(), syncDelta.getObject());
+        }
+
+        return result;
     }
 
     /**
@@ -384,10 +384,8 @@ public class PullUtils {
      * @param orgUnit mapping
      * @return list of matching realms' keys.
      */
-    public List<String> match(
-            final SyncDelta syncDelta,
-            final OrgUnit orgUnit) {
-
+    @Transactional(readOnly = true)
+    public List<Realm> match(final SyncDelta syncDelta, final OrgUnit orgUnit) {
         String connObjectKey = null;
 
         Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
@@ -407,19 +405,19 @@ public class PullUtils {
                     connObjectKeyItem.get(),
                     null,
                     Collections.<Object>singletonList(connObjectKey));
-            if (output != null && !output.isEmpty()) {
+            if (!CollectionUtils.isEmpty(output)) {
                 connObjectKey = output.get(0).toString();
             }
         }
 
-        List<String> result = new ArrayList<>();
+        List<Realm> result = new ArrayList<>();
 
         Realm realm;
         switch (connObjectKeyItem.get().getIntAttrName()) {
             case "key":
                 realm = realmDAO.find(connObjectKey);
                 if (realm != null) {
-                    result.add(realm.getKey());
+                    result.add(realm);
                 }
                 break;
 
@@ -427,18 +425,16 @@ public class PullUtils {
                 if (orgUnit.isIgnoreCaseMatch()) {
                     final String realmName = connObjectKey;
                     result.addAll(realmDAO.findAll().stream().
-                            filter(r -> r.getName().equalsIgnoreCase(realmName)).
-                            map(Entity::getKey).collect(Collectors.toList()));
+                            filter(r -> r.getName().equalsIgnoreCase(realmName)).collect(Collectors.toList()));
                 } else {
-                    result.addAll(realmDAO.findByName(connObjectKey).stream().
-                            map(Entity::getKey).collect(Collectors.toList()));
+                    result.addAll(realmDAO.findByName(connObjectKey).stream().collect(Collectors.toList()));
                 }
                 break;
 
             case "fullpath":
                 realm = realmDAO.findByFullPath(connObjectKey);
                 if (realm != null) {
-                    result.add(realm.getKey());
+                    result.add(realm);
                 }
                 break;
 

@@ -35,10 +35,10 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -86,7 +86,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
     public ReconTaskPanel(
             final String resource,
             final ProvisioningTaskTO taskTO,
-            final AnyTypeKind anyTypeKind,
+            final String anyType,
             final String anyKey,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
@@ -97,41 +97,41 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).
                 build("actions",
-                        new PropertyModel<List<String>>(taskTO, "actions"),
+                        new PropertyModel<>(taskTO, "actions"),
                         new ListModel<>(taskTO instanceof PushTaskTO
                                 ? pushActions.getObject() : pullActions.getObject()));
         actions.setOutputMarkupId(true);
         form.add(actions);
 
         AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
-                "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"), false);
+                "matchingRule", "matchingRule", new PropertyModel<>(taskTO, "matchingRule"), false);
         matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
         form.add(matchingRule);
 
         AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
-                "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"),
+                "unmatchingRule", "unmatchingRule", new PropertyModel<>(taskTO, "unmatchingRule"),
                 false);
         unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
         form.add(unmatchingRule);
 
         taskTO.setPerformCreate(true);
         AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
-                "performCreate", "performCreate", new PropertyModel<Boolean>(taskTO, "performCreate"), false);
+                "performCreate", "performCreate", new PropertyModel<>(taskTO, "performCreate"), false);
         form.add(performCreate);
 
         taskTO.setPerformUpdate(true);
         AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
-                "performUpdate", "performUpdate", new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
+                "performUpdate", "performUpdate", new PropertyModel<>(taskTO, "performUpdate"), false);
         form.add(performUpdate);
 
         taskTO.setPerformDelete(true);
         AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
-                "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
+                "performDelete", "performDelete", new PropertyModel<>(taskTO, "performDelete"), false);
         form.add(performDelete);
 
         taskTO.setSyncStatus(true);
         AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
-                "syncStatus", "syncStatus", new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+                "syncStatus", "syncStatus", new PropertyModel<>(taskTO, "syncStatus"), false);
         form.add(syncStatus);
 
         form.add(new AjaxSubmitLink("reconcile") {
@@ -140,17 +140,17 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
+                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).anyKey(anyKey).build();
                 try {
                     if (taskTO instanceof PushTaskTO) {
-                        restClient.push(anyTypeKind, anyKey, resource, (PushTaskTO) form.getModelObject());
+                        restClient.push(reconQuery, (PushTaskTO) form.getModelObject());
                     } else {
-                        restClient.pull(anyTypeKind, anyKey, resource, (PullTaskTO) form.getModelObject());
+                        restClient.pull(reconQuery, (PullTaskTO) form.getModelObject());
                     }
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
-                    LOG.error("While attempting reconciliation on {} {} {} {}",
-                            anyTypeKind, anyKey, resource, form.getModelObject(), e);
+                    LOG.error("While attempting reconciliation on {}", reconQuery, form.getModelObject(), e);
                     SyncopeConsoleSession.get().error(resource + ": "
                             + (StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage()));
                 }

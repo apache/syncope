@@ -20,10 +20,10 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -175,7 +175,7 @@ public class DefaultRealmPushResultHandler
             final String connObjectKey,
             final String connObjectKeyValue,
             final boolean ignoreCaseMatch,
-            final Iterator<? extends Item> iterator) {
+            final Stream<? extends Item> mapItems) {
 
         ConnectorObject obj = null;
         try {
@@ -183,7 +183,7 @@ public class DefaultRealmPushResultHandler
                     objectClass,
                     AttributeBuilder.build(connObjectKey, connObjectKeyValue),
                     ignoreCaseMatch,
-                    MappingUtils.buildOperationOptions(iterator));
+                    MappingUtils.buildOperationOptions(mapItems));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -219,7 +219,7 @@ public class DefaultRealmPushResultHandler
                     connObjectKey.get().getExtAttrName(),
                     connObjecKeyValue.get(),
                     orgUnit.isIgnoreCaseMatch(),
-                    orgUnit.getItems().iterator());
+                    orgUnit.getItems().stream());
         } else {
             LOG.debug("OrgUnitItem {} or its value {} are null", connObjectKey, connObjecKeyValue);
         }
@@ -401,7 +401,7 @@ public class DefaultRealmPushResultHandler
                                 connObjectKey.get().getExtAttrName(),
                                 connObjecKeyValue.get(),
                                 orgUnit.isIgnoreCaseMatch(),
-                                orgUnit.getItems().iterator());
+                                orgUnit.getItems().stream());
                     }
                 }
             } catch (IgnoreProvisionException e) {

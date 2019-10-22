@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.common.lib.types;
 
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import javax.xml.bind.annotation.XmlEnum;
 
-public interface UserPushResultHandler extends SyncopePushResultHandler {
+@XmlEnum
+public enum MatchType {
+    ANY,
+    LINKED_ACCOUNT;
 
-    boolean handle(LinkedAccount account, Provision provision);
 }

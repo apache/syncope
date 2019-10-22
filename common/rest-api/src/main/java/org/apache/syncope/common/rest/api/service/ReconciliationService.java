@@ -24,18 +24,18 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 
 /**
  * REST operations for reconciliation.
@@ -48,29 +48,19 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 public interface ReconciliationService extends JAXRSService {
 
     /**
-     * Gets current attributes on Syncope and on the given External Resource, related to given user, group or
-     * any object.
+     * Gets compared status between attributes in Syncope and on the given External Resource.
      *
-     * @param anyTypeKind anyTypeKind
-     * @param anyKey user, group or any object: if value looks like a UUID then it is interpreted as key, otherwise as
-     * a (user)name
-     * @param resourceKey resource key
+     * @param query query conditions
      * @return reconciliation status
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ReconStatus status(
-            @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
-            @NotNull @QueryParam("anyKey") String anyKey,
-            @NotNull @QueryParam("resourceKey") String resourceKey);
+    ReconStatus status(@BeanParam ReconQuery query);
 
     /**
-     * Pushes the given user, group or any object in Syncope onto the External Resource.
+     * Pushes the matching user, group, any object or linked account in Syncope onto the External Resource.
      *
-     * @param anyTypeKind anyTypeKind
-     * @param anyKey user, group or any object: if value looks like a UUID then it is interpreted as key, otherwise as
-     * a (user)name
-     * @param resourceKey resource key
+     * @param query query conditions
      * @param pushTask push specification
      */
     @ApiResponses(
@@ -79,19 +69,12 @@ public interface ReconciliationService extends JAXRSService {
     @Path("push")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void push(
-            @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
-            @NotNull @QueryParam("anyKey") String anyKey,
-            @NotNull @QueryParam("resourceKey") String resourceKey,
-            @NotNull PushTaskTO pushTask);
+    void push(@BeanParam ReconQuery query, @NotNull PushTaskTO pushTask);
 
     /**
-     * Pulls the given user, group or any object from the External Resource into Syncope.
+     * Pulls the matching user, group, any object or linked account from the External Resource into Syncope.
      *
-     * @param anyTypeKind anyTypeKind
-     * @param anyKey user, group or any object: if value looks like a UUID then it is interpreted as key, otherwise as
-     * a (user)name
-     * @param resourceKey resource key
+     * @param query query conditions
      * @param pullTask pull specification
      */
     @ApiResponses(
@@ -100,9 +83,5 @@ public interface ReconciliationService extends JAXRSService {
     @Path("pull")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void pull(
-            @NotNull @QueryParam("anyTypeKind") AnyTypeKind anyTypeKind,
-            @NotNull @QueryParam("anyKey") String anyKey,
-            @NotNull @QueryParam("resourceKey") String resourceKey,
-            @NotNull PullTaskTO pullTask);
+    void pull(@BeanParam ReconQuery query, @NotNull PullTaskTO pullTask);
 }

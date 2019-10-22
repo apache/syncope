@@ -23,25 +23,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.LinkingMappingItem;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,86 +59,85 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     private VirAttrCache virAttrCache;
 
     @Autowired
-    private MappingManager mappingManager;
+    private OutboundMatcher outboundMatcher;
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
+    @Override
+    public void setValues(final Any<?> any, final ConnectorObject connObj) {
+        if (any == null) {
+            LOG.warn("Null any passed, ignoring");
+            return;
+        }
+
+        AllowedSchemas<VirSchema> schemas =
+                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, VirSchema.class);
+        Stream.concat(
+                schemas.getForSelf().stream(),
+                schemas.getForMemberships().values().stream().flatMap(Set::stream)).forEach(schema -> {
+            Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
+            if (attr == null) {
+                virAttrCache.expire(any.getType().getKey(), any.getKey(), schema.getKey());
+            } else {
+                VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue(attr.getValue());
+                virAttrCache.put(
+                        any.getType().getKey(),
+                        any.getKey(),
+                        schema.getKey(),
+                        virAttrCacheValue);
+                LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
+            }
+        });
+    }
+
     private Map<VirSchema, List<String>> getValues(final Any<?> any, final Set<VirSchema> schemas) {
-        Set<ExternalResource> ownedResources = anyUtilsFactory.getInstance(any).getAllResources(any);
+        Set<ExternalResource> resources = anyUtilsFactory.getInstance(any).getAllResources(any);
 
         Map<VirSchema, List<String>> result = new HashMap<>();
 
         Map<Provision, Set<VirSchema>> toRead = new HashMap<>();
 
-        schemas.forEach(schema -> {
-            if (ownedResources.contains(schema.getProvision().getResource())) {
-                VirAttrCacheValue virAttrCacheValue =
-                        virAttrCache.get(any.getType().getKey(), any.getKey(), schema.getKey());
+        schemas.stream().filter(schema -> resources.contains(schema.getProvision().getResource())).forEach(schema -> {
+            VirAttrCacheValue virAttrCacheValue =
+                    virAttrCache.get(any.getType().getKey(), any.getKey(), schema.getKey());
 
-                if (virAttrCache.isValidEntry(virAttrCacheValue)) {
-                    LOG.debug("Values for {} found in cache: {}", schema, virAttrCacheValue);
-                    result.put(schema, virAttrCacheValue.getValues());
-                } else if (schema.getProvision().getAnyType().equals(any.getType())) {
-                    Set<VirSchema> schemasToRead = toRead.get(schema.getProvision());
-                    if (schemasToRead == null) {
-                        schemasToRead = new HashSet<>();
-                        toRead.put(schema.getProvision(), schemasToRead);
-                    }
-                    schemasToRead.add(schema);
+            if (virAttrCache.isValidEntry(virAttrCacheValue)) {
+                LOG.debug("Values for {} found in cache: {}", schema, virAttrCacheValue);
+                result.put(schema, virAttrCacheValue.getValues());
+            } else if (schema.getProvision().getAnyType().equals(any.getType())) {
+                Set<VirSchema> schemasToRead = toRead.get(schema.getProvision());
+                if (schemasToRead == null) {
+                    schemasToRead = new HashSet<>();
+                    toRead.put(schema.getProvision(), schemasToRead);
                 }
-            } else {
-                LOG.debug("Not considering {} since {} is not assigned to {}",
-                        schema, any, schema.getProvision().getResource());
+                schemasToRead.add(schema);
             }
         });
 
         toRead.forEach((provision, schemasToRead) -> {
             LOG.debug("About to read from {}: {}", provision, schemasToRead);
 
-            Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-            String connObjectKeyValue = connObjectKeyItem.isPresent()
-                    ? mappingManager.getConnObjectKeyValue(any, provision).orElse(null)
-                    : null;
-            if (!connObjectKeyItem.isPresent() || connObjectKeyValue == null) {
-                LOG.error("No ConnObjectKey or value found for {}, ignoring...", provision);
-            } else {
-                Set<MappingItem> linkingMappingItems = new HashSet<>();
-                linkingMappingItems.add(connObjectKeyItem.get());
-                linkingMappingItems.addAll(schemasToRead.stream().
-                        map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet()));
+            outboundMatcher.match(
+                    connFactory.getConnector(provision.getResource()),
+                    any,
+                    provision,
+                    schemasToRead.stream().map(VirSchema::asLinkingMappingItem).toArray(LinkingMappingItem[]::new)).
+                    forEach(connObj -> schemasToRead.forEach(schema -> {
 
-                Connector connector = connFactory.getConnector(provision.getResource());
-                try {
-                    ConnectorObject connectorObject = connector.getObject(
-                            provision.getObjectClass(),
-                            AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
-                            provision.isIgnoreCaseMatch(),
-                            MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
+                Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
+                if (attr != null) {
+                    VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue(attr.getValue());
+                    virAttrCache.put(
+                            any.getType().getKey(),
+                            any.getKey(),
+                            schema.getKey(),
+                            virAttrCacheValue);
+                    LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
 
-                    if (connectorObject == null) {
-                        LOG.debug("No read from {} with filter '{} == {}'",
-                                provision, connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue);
-                    } else {
-                        schemasToRead.forEach(schema -> {
-                            Attribute attr = connectorObject.getAttributeByName(schema.getExtAttrName());
-                            if (attr != null) {
-                                VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue(attr.getValue());
-                                virAttrCache.put(
-                                        any.getType().getKey(),
-                                        any.getKey(),
-                                        schema.getKey(),
-                                        virAttrCacheValue);
-                                LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
-
-                                result.put(schema, virAttrCacheValue.getValues());
-                            }
-                        });
-                    }
-                } catch (Exception e) {
-                    LOG.error("Error reading from {}", provision, e);
+                    result.put(schema, virAttrCacheValue.getValues());
                 }
-            }
+            }));
         });
 
         return result;

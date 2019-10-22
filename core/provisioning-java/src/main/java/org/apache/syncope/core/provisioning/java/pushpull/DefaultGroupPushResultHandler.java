@@ -41,8 +41,8 @@ public class DefaultGroupPushResultHandler extends AbstractPushResultHandler imp
     }
 
     @Override
-    protected AnyTO getAnyTO(final String key) {
-        return groupDataBinder.getGroupTO(key);
+    protected AnyTO getAnyTO(final Any<?> any) {
+        return groupDataBinder.getGroupTO((Group) any, true);
     }
 
     @Override

@@ -19,21 +19,28 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 @PullCorrelationRuleConfClass(LinkedAccountSamplePullCorrelationRuleConf.class)
 public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRule {
 
     public static final String VIVALDI_KEY = "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee";
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Override
     public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
@@ -51,6 +58,7 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
         return SearchCond.getLeafCond(cond);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PullMatch matching(final Any<?> any, final SyncDelta syncDelta, final Provision provision) {
         // if match with internal user vivaldi was found but firstName is different, update linked account
@@ -60,19 +68,16 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
                 && firstName != null && !CollectionUtils.isEmpty(firstName.getValue())
                 && !"Antonio".equals(firstName.getValue().get(0).toString())) {
 
-            return new PullMatch.Builder().
-                    linkingUserKey(VIVALDI_KEY).
-                    matchTarget(PullMatch.MatchTarget.LINKED_ACCOUNT).build();
+            return new PullMatch(MatchType.LINKED_ACCOUNT, any);
         }
 
         return PullCorrelationRule.super.matching(any, syncDelta, provision);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<PullMatch> unmatching(final SyncDelta syncDelta, final Provision provision) {
         // if no match with internal user was found, link account to vivaldi instead of creating new user
-        return Optional.of(new PullMatch.Builder().
-                linkingUserKey(VIVALDI_KEY).
-                matchTarget(PullMatch.MatchTarget.LINKED_ACCOUNT).build());
+        return Optional.of(new PullMatch(MatchType.LINKED_ACCOUNT, userDAO.find(VIVALDI_KEY)));
     }
 }

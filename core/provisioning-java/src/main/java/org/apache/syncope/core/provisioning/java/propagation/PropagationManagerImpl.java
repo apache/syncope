@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -392,7 +393,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final ResourceOperation operation,
             final Provision provision,
             final boolean deleteOnResource,
-            final List<? extends Item> mappingItems,
+            final Stream<? extends Item> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
         PropagationTaskInfo task = new PropagationTaskInfo();
@@ -410,7 +411,7 @@ public class PropagationManagerImpl implements PropagationManager {
         // if so, add special attributes that will be evaluated by PropagationTaskExecutor
         List<String> mandatoryMissing = new ArrayList<>();
         List<String> mandatoryNullOrEmpty = new ArrayList<>();
-        mappingItems.stream().filter(item -> (!item.isConnObjectKey()
+        mappingItems.filter(item -> (!item.isConnObjectKey()
                 && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any))).forEach(item -> {
 
             Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getRight());
@@ -504,16 +505,16 @@ public class PropagationManagerImpl implements PropagationManager {
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             Provision provision = resource == null ? null : resource.getProvision(any.getType()).orElse(null);
-            List<? extends Item> mappingItems = provision == null
-                    ? Collections.<Item>emptyList()
-                    : MappingUtils.getPropagationItems(provision.getMapping().getItems());
+            Stream<? extends Item> mappingItems = provision == null
+                    ? Stream.empty()
+                    : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);
             } else if (provision == null) {
                 LOG.error("No provision specified on resource {} for type {}, ignoring...",
                         resource, any.getType());
-            } else if (mappingItems.isEmpty()) {
+            } else if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
                 LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                         any.getType(), resource);
             } else {
@@ -550,9 +551,9 @@ public class PropagationManagerImpl implements PropagationManager {
                 Provision provision = account == null || account.getResource() == null
                         ? null
                         : account.getResource().getProvision(AnyTypeKind.USER.name()).orElse(null);
-                List<? extends Item> mappingItems = provision == null
-                        ? Collections.<Item>emptyList()
-                        : MappingUtils.getPropagationItems(provision.getMapping().getItems());
+                Stream<? extends Item> mappingItems = provision == null
+                        ? Stream.empty()
+                        : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
                 if (account == null) {
                     LOG.error("Invalid operation {} on deleted account {} on resource {}, ignoring...",
@@ -562,7 +563,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 } else if (provision == null) {
                     LOG.error("No provision specified on resource {} for type {}, ignoring...",
                             account.getResource(), AnyTypeKind.USER.name());
-                } else if (mappingItems.isEmpty()) {
+                } else if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
                     LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                             AnyTypeKind.USER.name(), account.getResource());
                 } else {

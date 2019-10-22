@@ -205,7 +205,7 @@ abstract class AbstractAnyDataBinder {
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        MappingUtils.getPropagationItems(provision.getMapping().getItems()).forEach(mapItem -> {
+        MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             IntAttrName intAttrName = null;
             try {
                 intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
@@ -344,7 +344,7 @@ abstract class AbstractAnyDataBinder {
                 && resource.getProvision(any.getType()).get().getMapping() != null).
                 forEach(resource -> {
                     MappingUtils.getPropagationItems(
-                            resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
+                            resource.getProvision(any.getType()).get().getMapping().getItems().stream()).
                             filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
                             forEach(item -> {
                                 propByRes.add(ResourceOperation.UPDATE, resource.getKey());

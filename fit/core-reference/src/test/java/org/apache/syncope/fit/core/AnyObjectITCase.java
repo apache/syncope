@@ -52,7 +52,7 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
         anyObjectTO.setName(location + getUUIDString());
         anyObjectTO.setRealm(SyncopeConstants.ROOT_REALM);
-        anyObjectTO.setType("PRINTER");
+        anyObjectTO.setType(PRINTER);
         anyObjectTO.getPlainAttrs().add(attrTO("location", location + getUUIDString()));
 
         anyObjectTO.getResources().add(RESOURCE_NAME_DBSCRIPTED);
@@ -125,7 +125,7 @@ public class AnyObjectITCase extends AbstractITCase {
     public void list() {
         PagedResult<AnyObjectTO> anyObjectTOs = anyObjectService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).
+                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).query()).
                         build());
         assertNotNull(anyObjectTOs);
         assertTrue(anyObjectTOs.getResult().size() >= 2);

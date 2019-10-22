@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -161,14 +162,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
     @Override
     public AnyTypeTO getAnyTypeTO(final AnyType anyType) {
         AnyTypeTO anyTypeTO = new AnyTypeTO();
-
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
-        anyType.getClasses().forEach(anyTypeClass -> {
-            anyTypeTO.getClasses().add(anyTypeClass.getKey());
-        });
-
+        anyTypeTO.getClasses().addAll(anyType.getClasses().stream().map(Entity::getKey).collect(Collectors.toList()));
         return anyTypeTO;
     }
-
 }

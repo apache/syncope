@@ -35,9 +35,9 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -84,6 +84,9 @@ public class ConnObjectUtils {
     @Autowired
     private MappingManager mappingManager;
 
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
+
     /**
      * Extract password value from passed value (if instance of GuardedString or GuardedByteArray).
      *
@@ -104,16 +107,6 @@ public class ConnObjectUtils {
         }
 
         return result.toString();
-    }
-
-    /**
-     * Builds {@link ConnObjectTO} out of {@link ConnectorObject}.
-     *
-     * @param connObject connector object.
-     * @return transfer object
-     */
-    public static ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
-        return connObject == null ? new ConnObjectTO() : getConnObjectTO(connObject.getAttributes());
     }
 
     /**
@@ -153,7 +146,6 @@ public class ConnObjectUtils {
      * @param obj connector object
      * @param pullTask pull task
      * @param provision provision information
-     * @param anyUtils utils
      * @param generatePasswordIfPossible whether password value shall be generated, in case not found from
      * connector object and allowed by resource configuration
      * @param <T> any object
@@ -164,10 +156,9 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final PullTask pullTask,
             final Provision provision,
-            final AnyUtils anyUtils,
             final boolean generatePasswordIfPossible) {
 
-        T anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
+        T anyTO = getAnyTOFromConnObject(obj, pullTask, provision);
 
         // (for users) if password was not set above, generate if resource is configured for that
         if (anyTO instanceof UserTO
@@ -209,9 +200,8 @@ public class ConnObjectUtils {
     public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        MappingUtils.getPullItems(orgUnit.getItems()).forEach(item -> {
-            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO);
-        });
+        MappingUtils.getPullItems(orgUnit.getItems().stream()).forEach(item
+                -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
 
         return realmTO;
     }
@@ -224,7 +214,6 @@ public class ConnObjectUtils {
      * @param original any object to get diff from
      * @param pullTask pull task
      * @param provision provision information
-     * @param anyUtils utils
      * @param <T> any object
      * @return modifications for the any object to be updated
      */
@@ -235,14 +224,13 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final AnyTO original,
             final PullTask pullTask,
-            final Provision provision,
-            final AnyUtils anyUtils) {
+            final Provision provision) {
 
-        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
+        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision);
         updated.setKey(key);
 
         T anyPatch = null;
-        switch (anyUtils.anyTypeKind()) {
+        switch (provision.getAnyType().getKind()) {
             case USER:
                 UserTO originalUser = (UserTO) original;
                 UserTO updatedUser = (UserTO) updated;
@@ -307,19 +295,15 @@ public class ConnObjectUtils {
     }
 
     private <T extends AnyTO> T getAnyTOFromConnObject(
-            final ConnectorObject obj,
-            final PullTask pullTask,
-            final Provision provision,
-            final AnyUtils anyUtils) {
+            final ConnectorObject obj, final PullTask pullTask, final Provision provision) {
 
-        T anyTO = anyUtils.newAnyTO();
+        T anyTO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyTO();
         anyTO.setType(provision.getAnyType().getKey());
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(item -> {
-            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO);
-        });
+        MappingUtils.getPullItems(provision.getMapping().getItems().stream()).forEach(item
+                -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
         // 2. add data from defined template (if any)
         templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));

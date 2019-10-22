@@ -292,7 +292,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             provision.getObjectClass(),
                             AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
                             provision.isIgnoreCaseMatch(),
-                            MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
+                            MappingUtils.buildOperationOptions(provision.getMapping().getItems().stream()));
 
                     if (connectorObject == null) {
                         // 2. not found on resource?

@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -56,6 +57,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -277,46 +279,59 @@ public class PushTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
         assertNull(ldap.getPushPolicy());
 
-        ldap.setPushPolicy("fb6530e5-892d-4f47-a46b-180c5b6c5c83");
-        resourceService.update(ldap);
+        try {
+            ldap.setPushPolicy("fb6530e5-892d-4f47-a46b-180c5b6c5c83");
+            resourceService.update(ldap);
 
-        // 2. create push task with sole scope as the user 'vivaldi'
-        PushTaskTO sendVivaldi = new PushTaskTO();
-        sendVivaldi.setName("Send Vivaldi");
-        sendVivaldi.setResource(RESOURCE_NAME_LDAP);
-        sendVivaldi.setUnmatchingRule(UnmatchingRule.PROVISION);
-        sendVivaldi.setMatchingRule(MatchingRule.UPDATE);
-        sendVivaldi.setSourceRealm(SyncopeConstants.ROOT_REALM);
-        sendVivaldi.getFilters().put(AnyTypeKind.GROUP.name(), "name==$null");
-        sendVivaldi.getFilters().put(AnyTypeKind.USER.name(), "username==vivaldi");
-        sendVivaldi.setPerformCreate(true);
-        sendVivaldi.setPerformUpdate(true);
+            // 2. create push task with sole scope as the user 'vivaldi'
+            PushTaskTO sendVivaldi = new PushTaskTO();
+            sendVivaldi.setName("Send Vivaldi");
+            sendVivaldi.setResource(RESOURCE_NAME_LDAP);
+            sendVivaldi.setUnmatchingRule(UnmatchingRule.PROVISION);
+            sendVivaldi.setMatchingRule(MatchingRule.UPDATE);
+            sendVivaldi.setSourceRealm(SyncopeConstants.ROOT_REALM);
+            sendVivaldi.getFilters().put(AnyTypeKind.GROUP.name(), "name==$null");
+            sendVivaldi.getFilters().put(AnyTypeKind.USER.name(), "username==vivaldi");
+            sendVivaldi.setPerformCreate(true);
+            sendVivaldi.setPerformUpdate(true);
 
-        Response response = taskService.create(TaskType.PUSH, sendVivaldi);
-        sendVivaldi = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
-        assertNotNull(sendVivaldi);
+            Response response = taskService.create(TaskType.PUSH, sendVivaldi);
+            sendVivaldi = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+            assertNotNull(sendVivaldi);
 
-        // 3. execute push: vivaldi is found on ldap
-        execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
+            // 3. execute push: vivaldi is found on ldap
+            execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
 
-        ReconStatus status = reconciliationService.status(AnyTypeKind.USER, "vivaldi", RESOURCE_NAME_LDAP);
-        assertNotNull(status.getOnResource());
+            ReconStatus status = reconciliationService.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
+            assertNotNull(status.getOnResource());
 
-        // 4. update vivaldi on ldap: reconciliation status does not find it anymore, as remote key was changed
-        Map<String, String> attrs = new HashMap<>();
-        attrs.put("cn", "vivaldiZZ");
-        attrs.put("mail", "vivaldi@syncope.org");
-        updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "uid=vivaldi,ou=People,o=isp", attrs);
+            // 4. update vivaldi on ldap: reconciliation status does not find it anymore, as remote key was changed
+            Map<String, String> attrs = new HashMap<>();
+            attrs.put("sn", "VivaldiZ");
+            updateLdapRemoteObject(
+                    RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "uid=vivaldi,ou=People,o=isp", attrs);
 
-        status = reconciliationService.status(AnyTypeKind.USER, "vivaldi", RESOURCE_NAME_LDAP);
-        assertNull(status.getOnResource());
+            status = reconciliationService.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
+            assertNull(status.getOnResource());
 
-        // 5. execute push again: the push policy will find anyway vivaldi because of the email attribute
-        execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
+            // 5. execute push again: propagation task for CREATE will be generated, but that will fail
+            // as task executor is not able any more to identify the entry to UPDATE
+            execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
 
-        // 6. now the reconciliation status is fine again, as the push above did overwrite the entry on ldap
-        status = reconciliationService.status(AnyTypeKind.USER, "vivaldi", RESOURCE_NAME_LDAP);
-        assertNotNull(status.getOnResource());
+            PagedResult<PropagationTaskTO> propagationTasks = taskService.search(
+                    new TaskQuery.Builder(TaskType.PROPAGATION).
+                            resource(RESOURCE_NAME_LDAP).entityKey("vivaldi").details(true).build());
+            PropagationTaskTO lastPropagation = propagationTasks.getResult().stream().
+                    sorted((t1, t2) -> t2.getExecutions().get(0).getStart().
+                    compareTo(t1.getExecutions().get(0).getStart())).findFirst().get();
+            assertEquals(ExecStatus.FAILURE, ExecStatus.valueOf(lastPropagation.getLatestExecStatus()));
+            assertTrue(lastPropagation.getExecutions().get(0).getMessage().contains("ENTRY_ALREADY_EXISTS"));
+        } finally {
+            ldap.setPushPolicy(null);
+            resourceService.update(ldap);
+        }
     }
 
     @Test

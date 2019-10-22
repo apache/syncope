@@ -20,27 +20,24 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -49,6 +46,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
@@ -67,16 +65,13 @@ import org.apache.syncope.core.spring.ImplementationManager;
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
     @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
     protected GroupDAO groupDAO;
 
     @Autowired
     protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
-    protected PullUtils pullUtils;
+    protected InboundMatcher inboundMatcher;
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
@@ -130,40 +125,33 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         return status.get();
     }
 
-    protected void setGroupOwners(
-            final GroupPullResultHandler ghandler,
-            final boolean userIgnoreCaseMatch,
-            final boolean groupIgnoreCaseMatch) {
-
-        ghandler.getGroupOwnerMap().entrySet().stream().map(entry -> {
-            Group group = groupDAO.find(entry.getKey());
+    protected void setGroupOwners(final GroupPullResultHandler ghandler) {
+        ghandler.getGroupOwnerMap().forEach((groupKey, ownerKey) -> {
+            Group group = groupDAO.find(groupKey);
             if (group == null) {
-                throw new NotFoundException("Group " + entry.getKey());
+                throw new NotFoundException("Group " + groupKey);
             }
-            if (StringUtils.isBlank(entry.getValue())) {
+            if (StringUtils.isBlank(ownerKey)) {
                 group.setGroupOwner(null);
                 group.setUserOwner(null);
             } else {
-                Optional<String> userKey = pullUtils.match(
+                Optional<PullMatch> match = inboundMatcher.match(
                         anyTypeDAO.findUser(),
-                        entry.getValue(),
+                        ownerKey,
                         ghandler.getProfile().getTask().getResource(),
-                        ghandler.getProfile().getConnector(),
-                        userIgnoreCaseMatch);
-                if (userKey.isPresent()) {
-                    group.setUserOwner(userDAO.find(userKey.get()));
+                        ghandler.getProfile().getConnector());
+                if (match.isPresent()) {
+                    group.setUserOwner((User) match.get().getAny());
                 } else {
-                    pullUtils.match(
+                    inboundMatcher.match(
                             anyTypeDAO.findGroup(),
-                            entry.getValue(),
+                            ownerKey,
                             ghandler.getProfile().getTask().getResource(),
-                            ghandler.getProfile().getConnector(),
-                            groupIgnoreCaseMatch).
-                            ifPresent(groupKey -> group.setGroupOwner(groupDAO.find(groupKey)));
+                            ghandler.getProfile().getConnector()).
+                            ifPresent(groupMatch -> group.setGroupOwner((Group) groupMatch.getAny()));
                 }
             }
-            return group;
-        }).forEachOrdered(group -> {
+
             groupDAO.save(group);
         });
     }
@@ -232,7 +220,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
             OperationOptions options = MappingUtils.buildOperationOptions(
-                    MappingUtils.getPullItems(orgUnit.getItems()).iterator());
+                    MappingUtils.getPullItems(orgUnit.getItems().stream()));
 
             RealmPullResultHandler handler = buildRealmHandler();
             handler.setProfile(profile);
@@ -281,16 +269,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         // ...then provisions for any types
         SyncopePullResultHandler handler;
         GroupPullResultHandler ghandler = buildGroupHandler();
-        boolean userIgnoreCaseMatch = false;
-        boolean groupIgnoreCaseMatch = false;
         for (Provision provision : pullTask.getResource().getProvisions()) {
             if (provision.getMapping() != null) {
-                if (provision.getAnyType().getKind() == AnyTypeKind.USER) {
-                    userIgnoreCaseMatch = provision.isIgnoreCaseMatch();
-                } else if (provision.getAnyType().getKind() == AnyTypeKind.GROUP) {
-                    groupIgnoreCaseMatch = provision.isIgnoreCaseMatch();
-                }
-
                 status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
 
                 switch (provision.getAnyType().getKind()) {
@@ -310,11 +290,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 handler.setPullExecutor(this);
 
                 try {
-                    Set<MappingItem> linkingMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                            map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet());
-                    Iterator<MappingItem> mapItems = new IteratorChain<>(
-                            provision.getMapping().getItems().iterator(),
-                            linkingMappingItems.iterator());
+                    Stream<? extends Item> mapItems = Stream.concat(
+                            MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
+                            virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
                     OperationOptions options = MappingUtils.buildOperationOptions(mapItems);
 
                     switch (pullTask.getPullMode()) {
@@ -336,17 +314,17 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                             break;
 
                         case FILTERED_RECONCILIATION:
-                            ReconFilterBuilder filterBuilder =
-                                    ImplementationManager.build(pullTask.getReconFilterBuilder());
-                            connector.filteredReconciliation(provision.getObjectClass(),
-                                    filterBuilder,
+                            connector.filteredReconciliation(
+                                    provision.getObjectClass(),
+                                    ImplementationManager.build(pullTask.getReconFilterBuilder()),
                                     handler,
                                     options);
                             break;
 
                         case FULL_RECONCILIATION:
                         default:
-                            connector.fullReconciliation(provision.getObjectClass(),
+                            connector.fullReconciliation(
+                                    provision.getObjectClass(),
                                     handler,
                                     options);
                             break;
@@ -368,7 +346,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
         try {
-            setGroupOwners(ghandler, userIgnoreCaseMatch, groupIgnoreCaseMatch);
+            setGroupOwners(ghandler);
         } catch (Exception e) {
             LOG.error("While setting group owners", e);
         }

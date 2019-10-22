@@ -21,32 +21,22 @@ package org.apache.syncope.client.console.rest;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 
 public class ReconciliationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
-        return getService(ReconciliationService.class).status(anyTypeKind, anyKey, resourceKey);
+    public ReconStatus status(final ReconQuery reconQuery) {
+        return getService(ReconciliationService.class).status(reconQuery);
     }
 
-    public void push(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PushTaskTO pushTask) {
-
-        getService(ReconciliationService.class).push(anyTypeKind, anyKey, resourceKey, pushTask);
+    public void push(final ReconQuery reconQuery, final PushTaskTO pushTask) {
+        getService(ReconciliationService.class).push(reconQuery, pushTask);
     }
 
-    public void pull(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PullTaskTO pullTask) {
-
-        getService(ReconciliationService.class).pull(anyTypeKind, anyKey, resourceKey, pullTask);
+    public void pull(final ReconQuery reconQuery, final PullTaskTO pullTask) {
+        getService(ReconciliationService.class).pull(reconQuery, pullTask);
     }
 }

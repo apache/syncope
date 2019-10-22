@@ -36,8 +36,8 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -53,13 +53,14 @@ public final class StatusUtils implements Serializable {
     private static final ReconciliationRestClient RECONCILIATION_REST_CLIENT = new ReconciliationRestClient();
 
     public static List<Pair<String, ReconStatus>> getReconStatuses(
-            final AnyTypeKind anyTypeKind, final String anyKey, final Collection<String> resources) {
+            final String anyTypeKey, final String anyKey, final Collection<String> resources) {
 
         return resources.stream().map(resource -> {
             try {
-                return Pair.of(resource, RECONCILIATION_REST_CLIENT.status(anyTypeKind, anyKey, resource));
+                return Pair.of(resource, RECONCILIATION_REST_CLIENT.status(
+                        new ReconQuery.Builder(anyTypeKey, resource).anyKey(anyKey).build()));
             } catch (Exception e) {
-                LOG.warn("Unexpected error for {} {} on {}", anyTypeKind, anyKey, resource, e);
+                LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, anyKey, resource, e);
                 return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toList());

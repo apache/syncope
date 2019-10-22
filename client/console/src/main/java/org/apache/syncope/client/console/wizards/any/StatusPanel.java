@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -70,7 +69,7 @@ public class StatusPanel extends Panel {
 
         super(id);
         init(any, model, StatusUtils.getReconStatuses(
-                AnyTypeKind.fromTOClass(any.getClass()), any.getKey(), any.getResources()).stream().
+                any.getType(), any.getKey(), any.getResources()).stream().
                 map(status -> Triple.<ConnObjectTO, ConnObjectWrapper, String>of(
                 status.getRight().getOnSyncope(),
                 new ConnObjectWrapper(any, status.getLeft(), status.getRight().getOnResource()),
