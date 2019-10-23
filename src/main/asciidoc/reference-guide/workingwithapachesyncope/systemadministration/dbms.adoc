@@ -195,9 +195,6 @@ This assumes that you have a MySQL instance running on localhost, listening on i
 With the configurations reported below, Apache Syncope will leverage the
 https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html[JSON_TABLE^] function.
 
-[CAUTION]
-This MySQL feature does not appear yet to be production-ready, use it with caution.
-
 [NOTE]
 Apache Syncope {docVersion} is verified with MySQL server >= 8.0 and JDBC driver >= {mysqlJDBC}.
 
