@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
 import org.apache.commons.jexl3.parser.Parser;
@@ -181,7 +182,27 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         return attrValues;
     }
 
-    protected abstract List<Object> findByDerAttrValue(String table, Map<String, List<Object>> clauses);
+    @SuppressWarnings("unchecked")
+    protected List<Object> findByDerAttrValue(
+            final String table,
+            final Map<String, List<Object>> clauses) {
+
+        StringJoiner actualClauses = new StringJoiner(" AND id IN ");
+        List<Object> queryParams = new ArrayList<>();
+
+        clauses.forEach((clause, parameters) -> {
+            actualClauses.add(clause);
+            queryParams.addAll(parameters);
+        });
+
+        Query query = entityManager().createNativeQuery(
+                "SELECT DISTINCT id FROM " + table + " u WHERE id IN " + actualClauses.toString());
+        for (int i = 0; i < queryParams.size(); i++) {
+            query.setParameter(i + 1, queryParams.get(i));
+        }
+
+        return query.getResultList();
+    }
 
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
