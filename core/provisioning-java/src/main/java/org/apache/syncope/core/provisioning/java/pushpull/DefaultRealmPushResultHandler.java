@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -81,7 +82,7 @@ public class DefaultRealmPushResultHandler
         } catch (IgnoreProvisionException e) {
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
-            result.setAnyType(realm == null ? null : REALM_TYPE);
+            result.setAnyType(realm == null ? null : SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.IGNORE);
             result.setKey(realmKey);
             profile.getResults().add(result);
@@ -199,7 +200,7 @@ public class DefaultRealmPushResultHandler
         profile.getResults().add(result);
 
         result.setKey(realm.getKey());
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setName(realm.getFullPath());
 
         LOG.debug("Propagating Realm with key {} towards {}", realm.getKey(), profile.getTask().getResource());
@@ -238,13 +239,13 @@ public class DefaultRealmPushResultHandler
 
             boolean notificationsAvailable = notificationManager.notificationsAvailable(
                     AuditElements.EventCategoryType.PUSH,
-                    REALM_TYPE.toLowerCase(),
+                    SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                     profile.getTask().getResource().getKey(),
                     operation);
             boolean auditRequested = auditManager.auditRequested(
                     AuthContextUtils.getUsername(),
                     AuditElements.EventCategoryType.PUSH,
-                    REALM_TYPE.toLowerCase(),
+                    SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                     profile.getTask().getResource().getKey(),
                     operation);
             try {
@@ -428,7 +429,7 @@ public class DefaultRealmPushResultHandler
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
                             AuthContextUtils.getUsername(),
                             AuditElements.EventCategoryType.PUSH,
-                            REALM_TYPE.toLowerCase(),
+                            SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                             profile.getTask().getResource().getKey(),
                             operation,
                             resultStatus,

@@ -26,11 +26,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -47,7 +50,6 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -223,7 +225,31 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
             connIdObjectClassTO.getAttributes().addAll(info.getAttributeInfo().stream().
                     filter(attrInfo -> includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())).
-                    map(AttributeInfo::getName).
+                    map(attrInfo -> {
+                        PlainSchemaTO schema = new PlainSchemaTO();
+                        schema.setKey(attrInfo.getName());
+                        schema.setMandatoryCondition(BooleanUtils.toStringTrueFalse(attrInfo.isRequired()));
+                        schema.setMultivalue(attrInfo.isMultiValued());
+                        schema.setReadonly(!attrInfo.isUpdateable());
+
+                        if (attrInfo.getType().equals(int.class) || attrInfo.getType().equals(Integer.class)
+                                || attrInfo.getType().equals(long.class) || attrInfo.getType().equals(Long.class)) {
+
+                            schema.setType(AttrSchemaType.Long);
+                        } else if (attrInfo.getType().equals(float.class) || attrInfo.getType().equals(Float.class)
+                                || attrInfo.getType().equals(double.class) || attrInfo.getType().equals(Double.class)) {
+
+                            schema.setType(AttrSchemaType.Double);
+                        } else if (attrInfo.getType().equals(boolean.class)
+                                || attrInfo.getType().equals(Boolean.class)) {
+
+                            schema.setType(AttrSchemaType.Boolean);
+                        } else {
+                            schema.setType(AttrSchemaType.String);
+                        }
+
+                        return schema;
+                    }).
                     collect(Collectors.toList()));
 
             return connIdObjectClassTO;

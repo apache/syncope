@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -111,7 +112,7 @@ public class DefaultRealmPullResultHandler
             ProvisioningReport ignoreResult = new ProvisioningReport();
             ignoreResult.setOperation(ResourceOperation.NONE);
             ignoreResult.setStatus(ProvisioningReport.Status.IGNORE);
-            ignoreResult.setAnyType(REALM_TYPE);
+            ignoreResult.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             ignoreResult.setKey(null);
             ignoreResult.setName(delta.getObject().getName().getNameValue());
             profile.getResults().add(ignoreResult);
@@ -148,7 +149,7 @@ public class DefaultRealmPullResultHandler
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(realmTO.getFullPath());
 
@@ -186,7 +187,7 @@ public class DefaultRealmPullResultHandler
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(realmTO.getFullPath());
 
@@ -292,7 +293,7 @@ public class DefaultRealmPullResultHandler
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.UPDATE);
-            result.setAnyType(REALM_TYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(realm.getKey());
             result.setName(realm.getFullPath());
@@ -370,7 +371,7 @@ public class DefaultRealmPullResultHandler
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.DELETE);
-            result.setAnyType(REALM_TYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(realm.getKey());
             result.setName(realm.getFullPath());
@@ -458,7 +459,7 @@ public class DefaultRealmPullResultHandler
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
-            result.setAnyType(REALM_TYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(realm.getKey());
             result.setName(realm.getFullPath());
@@ -539,7 +540,7 @@ public class DefaultRealmPullResultHandler
                 result.setKey(realm.getKey());
                 result.setName(realm.getFullPath());
                 result.setOperation(ResourceOperation.DELETE);
-                result.setAnyType(REALM_TYPE);
+                result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
 
                 if (!profile.isDryRun()) {
@@ -613,7 +614,7 @@ public class DefaultRealmPullResultHandler
         result.setKey(null);
         result.setName(delta.getObject().getUid().getUidValue());
         result.setOperation(ResourceOperation.NONE);
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
 
         if (!profile.isDryRun()) {
@@ -736,7 +737,7 @@ public class DefaultRealmPullResultHandler
         notificationManager.createTasks(
                 AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.PULL,
-                REALM_TYPE.toLowerCase(),
+                SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -747,7 +748,7 @@ public class DefaultRealmPullResultHandler
         auditManager.audit(
                 AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.PULL,
-                REALM_TYPE.toLowerCase(),
+                SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,

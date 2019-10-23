@@ -42,7 +42,7 @@ public class ConnIdObjectClassTO implements Serializable {
 
     private boolean auxiliary;
 
-    private final List<String> attributes = new ArrayList<>();
+    private final List<PlainSchemaTO> attributes = new ArrayList<>();
 
     public String getType() {
         return type;
@@ -71,7 +71,7 @@ public class ConnIdObjectClassTO implements Serializable {
     @XmlElementWrapper(name = "attributes")
     @XmlElement(name = "attribute")
     @JsonProperty("attributes")
-    public List<String> getAttributes() {
+    public List<PlainSchemaTO> getAttributes() {
         return attributes;
     }
 }
