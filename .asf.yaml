@@ -1,0 +1,16 @@
+github:
+  description: "Apache Syncope"
+  homepage: https://syncope.apache.org/
+  labels:
+    - IAM
+    - security
+    - identity-management
+    - identity-provisioning
+    - identity-governance
+  enabled_merge_buttons:
+    # enable squash button:
+    squash:  true
+    # enable merge button:
+    merge:   false
+    # disable rebase button:
+    rebase:  true
