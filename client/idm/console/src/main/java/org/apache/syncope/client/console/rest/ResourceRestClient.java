@@ -56,16 +56,18 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public static Pair<String, List<ConnObjectTO>> listConnObjects(
-        final String resource,
-        final String anyTypeKey,
-        final int size,
-        final String pagedResultCookie,
-        final SortParam<String> sort) {
+            final String resource,
+            final String anyTypeKey,
+            final int size,
+            final String pagedResultCookie,
+            final SortParam<String> sort,
+            final String fiql) {
 
         ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().
                 pagedResultsCookie(pagedResultCookie).
                 size(size).
-                orderBy(toOrderBy(sort));
+                orderBy(toOrderBy(sort)).
+                fiql(fiql);
 
         final List<ConnObjectTO> result = new ArrayList<>();
         String nextPageResultCookie = null;
