@@ -2,7 +2,7 @@ github:
   description: "Apache Syncope"
   homepage: https://syncope.apache.org/
   labels:
-    - IAM
+    - iam
     - security
     - identity-management
     - identity-provisioning
