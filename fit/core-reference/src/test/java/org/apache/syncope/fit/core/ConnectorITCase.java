@@ -460,7 +460,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(objectClassInfo);
         assertEquals(1, objectClassInfo.size());
         assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.get(0).getType());
-        assertTrue(objectClassInfo.get(0).getAttributes().contains("ID"));
+        assertTrue(objectClassInfo.get(0).getAttributes().stream().anyMatch(schema -> "ID".equals(schema.getKey())));
 
         ConnInstanceTO ldap = connectorService.read(
                 "74141a3b-0762-4720-a4aa-fc3e374ef3ef", Locale.ENGLISH.getLanguage());
