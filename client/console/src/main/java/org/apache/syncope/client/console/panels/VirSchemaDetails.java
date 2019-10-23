@@ -19,11 +19,9 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -33,8 +31,7 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormCompo
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -159,16 +156,10 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
     }
 
     private List<String> getExtAttrNames() {
-        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(selectedResource.getConnector());
-        connInstanceTO.getConf().addAll(selectedResource.getConfOverride());
-
-        Optional<ConnIdObjectClassTO> connIdObjectClass = connRestClient.buildObjectClassInfo(connInstanceTO, false).
-                stream().filter(object -> object.getType().equals(anyTypes.get(anyType.getModelObject()))).
-                findAny();
-
-        return connIdObjectClass.isPresent()
-                ? connIdObjectClass.get().getAttributes()
-                : Collections.<String>emptyList();
+        return connectorRestClient.getExtAttrNames(
+                SyncopeConstants.ROOT_REALM,
+                anyTypes.get(anyType.getModelObject()),
+                selectedResource.getConnector(),
+                selectedResource.getConfOverride());
     }
 }
