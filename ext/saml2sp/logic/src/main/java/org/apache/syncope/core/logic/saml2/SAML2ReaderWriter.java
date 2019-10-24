@@ -84,6 +84,13 @@ public class SAML2ReaderWriter {
         } catch (TransformerConfigurationException e) {
             LOG.error("Could not enable secure XML processing", e);
         }
+
+        try {
+            TRANSFORMER_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            TRANSFORMER_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        } catch (IllegalArgumentException ex) {
+             LOG.debug("The JAXP parser does not support the following attribute: ", ex);
+        }
     }
 
     @Autowired
