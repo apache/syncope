@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -510,16 +509,14 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchConnObjectsWithFilter() {
-        ConnObjectTO user = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), "pullFromLDAP");
-        assertNotNull(user);
-
         PagedConnObjectTOResult matches = resourceService.searchConnObjects(
                 RESOURCE_NAME_LDAP,
                 AnyTypeKind.USER.name(),
                 new ConnObjectTOQuery.Builder().size(100).fiql(
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").equalTo("pullFromLDAP").query()).build());
-        assertTrue(matches.getResult().contains(user));
+        assertTrue(matches.getResult().stream().
+                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
 
         matches = resourceService.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -527,7 +524,8 @@ public class SearchITCase extends AbstractITCase {
                 new ConnObjectTOQuery.Builder().size(100).fiql(
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("mail").equalTo("pullFromLDAP*").query()).build());
-        assertTrue(matches.getResult().contains(user));
+        assertTrue(matches.getResult().stream().
+                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
 
         matches = resourceService.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -535,7 +533,8 @@ public class SearchITCase extends AbstractITCase {
                 new ConnObjectTOQuery.Builder().size(100).fiql(
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("mail").equalTo("*@syncope.apache.org").query()).build());
-        assertTrue(matches.getResult().contains(user));
+        assertTrue(matches.getResult().stream().
+                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
 
         matches = resourceService.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -543,7 +542,8 @@ public class SearchITCase extends AbstractITCase {
                 new ConnObjectTOQuery.Builder().size(100).fiql(
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").equalToIgnoreCase("pullfromldap").query()).build());
-        assertTrue(matches.getResult().contains(user));
+        assertTrue(matches.getResult().stream().
+                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
 
         matches = resourceService.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -551,7 +551,8 @@ public class SearchITCase extends AbstractITCase {
                 new ConnObjectTOQuery.Builder().size(100).fiql(
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is(Name.NAME).equalTo("uid=pullFromLDAP%252Cou=people%252Co=isp").query()).build());
-        assertTrue(matches.getResult().contains(user));
+        assertTrue(matches.getResult().stream().
+                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
 
         matches = resourceService.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -559,7 +560,25 @@ public class SearchITCase extends AbstractITCase {
                 new ConnObjectTOQuery.Builder().size(100).fiql(
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").notEqualTo("pullFromLDAP").query()).build());
-        assertFalse(matches.getResult().contains(user));
+        assertFalse(matches.getResult().stream().
+                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(
+                        SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
+                                is("homePhone").notNullValue().query()).build());
+        assertTrue(matches.getResult().isEmpty());
+
+        matches = resourceService.searchConnObjects(
+                RESOURCE_NAME_LDAP,
+                AnyTypeKind.USER.name(),
+                new ConnObjectTOQuery.Builder().size(100).fiql(
+                        SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
+                                is("homePhone").nullValue().query()).build());
+        assertTrue(matches.getResult().stream().
+                anyMatch(connObject -> !connObject.getAttr("homePhone").isPresent()));
     }
 
     @Test

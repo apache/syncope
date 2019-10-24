@@ -346,6 +346,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @Transactional(readOnly = true)
     public Pair<SearchResult, List<ConnObjectTO>> searchConnObjects(
             final Filter filter,
+            final Set<String> moreAttrsToGet,
             final String key,
             final String anyTypeKey,
             final int size,
@@ -365,7 +366,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             }
 
             objectClass = resource.getOrgUnit().getObjectClass();
-            options = MappingUtils.buildOperationOptions(resource.getOrgUnit().getItems().stream());
+            options = MappingUtils.buildOperationOptions(
+                    resource.getOrgUnit().getItems().stream(), moreAttrsToGet.toArray(new String[0]));
         } else {
             Provision provision = getProvision(key, anyTypeKey);
             resource = provision.getResource();
@@ -374,7 +376,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             Stream<MappingItem> mapItems = Stream.concat(
                     provision.getMapping().getItems().stream(),
                     virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
-            options = MappingUtils.buildOperationOptions(mapItems);
+            options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0]));
         }
 
         List<ConnObjectTO> connObjects = new ArrayList<>();
