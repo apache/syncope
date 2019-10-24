@@ -22,8 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -40,6 +43,8 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Filter> {
 
     private Filter filter;
+
+    private final Set<String> attrs = new HashSet<>();
 
     public FilterVisitor() {
         super(null);
@@ -78,6 +83,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
         }
 
         Attribute attr = AttributeBuilder.build(name, value);
+        attrs.add(name);
 
         Filter leaf;
         switch (ct) {
@@ -85,27 +91,36 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
             case NOT_EQUALS:
                 if (!specialAttrName.isPresent()) {
                     if (specialAttrValue.isPresent() && specialAttrValue.get() == SpecialAttr.NULL) {
-                        leaf = FilterBuilder.equalTo(AttributeBuilder.build(name));
-                    } else if (value.indexOf('%') == -1) {
-                        leaf = sc.getConditionType() == ConditionType.CUSTOM
-                                ? FilterBuilder.equalsIgnoreCase(attr)
-                                : FilterBuilder.equalTo(attr);
-                    } else if (sc.getConditionType() != ConditionType.CUSTOM && value.startsWith("%")) {
-                        leaf = FilterBuilder.endsWith(
-                                AttributeBuilder.build(name, value.substring(1)));
-                    } else if (sc.getConditionType() != ConditionType.CUSTOM && value.endsWith("%")) {
-                        leaf = FilterBuilder.startsWith(
-                                AttributeBuilder.build(name, value.substring(0, value.length() - 1)));
+                        Filter empty = FilterBuilder.startsWith(AttributeBuilder.build(name, StringUtils.EMPTY));
+                        if (ct == ConditionType.NOT_EQUALS) {
+                            leaf = empty;
+                        } else {
+                            leaf = FilterBuilder.not(empty);
+                            attrs.remove(name);
+                        }
                     } else {
-                        throw new IllegalArgumentException(
-                                String.format("Unsupported search value %s", value));
+                        if (value.indexOf('%') == -1) {
+                            leaf = sc.getConditionType() == ConditionType.CUSTOM
+                                    ? FilterBuilder.equalsIgnoreCase(attr)
+                                    : FilterBuilder.equalTo(attr);
+                        } else if (sc.getConditionType() != ConditionType.CUSTOM && value.startsWith("%")) {
+                            leaf = FilterBuilder.endsWith(
+                                    AttributeBuilder.build(name, value.substring(1)));
+                        } else if (sc.getConditionType() != ConditionType.CUSTOM && value.endsWith("%")) {
+                            leaf = FilterBuilder.startsWith(
+                                    AttributeBuilder.build(name, value.substring(0, value.length() - 1)));
+                        } else {
+                            throw new IllegalArgumentException(
+                                    String.format("Unsupported search value %s", value));
+                        }
+
+                        if (ct == ConditionType.NOT_EQUALS) {
+                            leaf = FilterBuilder.not(leaf);
+                        }
                     }
                 } else {
                     throw new IllegalArgumentException(
                             String.format("Special attr name %s is not supported", specialAttrName));
-                }
-                if (ct == ConditionType.NOT_EQUALS) {
-                    leaf = FilterBuilder.not(leaf);
                 }
                 break;
 
@@ -168,5 +183,9 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
     @Override
     public Filter getQuery() {
         return filter;
+    }
+
+    public Set<String> getAttrs() {
+        return attrs;
     }
 }

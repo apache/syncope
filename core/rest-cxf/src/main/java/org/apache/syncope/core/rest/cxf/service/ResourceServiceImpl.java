@@ -19,8 +19,10 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -102,6 +104,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
             final String key, final String anyTypeKey, final ConnObjectTOQuery query) {
 
         Filter filter = null;
+        Set<String> moreAttrsToGet = Collections.emptySet();
         if (StringUtils.isNotBlank(query.getFiql())) {
             try {
                 FilterVisitor visitor = new FilterVisitor();
@@ -109,6 +112,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                 sc.accept(visitor);
 
                 filter = visitor.getQuery();
+                moreAttrsToGet = visitor.getAttrs();
             } catch (Exception e) {
                 LOG.error("Invalid FIQL expression: {}", query.getFiql(), e);
 
@@ -121,6 +125,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
         Pair<SearchResult, List<ConnObjectTO>> list = logic.searchConnObjects(
                 filter,
+                moreAttrsToGet,
                 key,
                 anyTypeKey,
                 query.getSize(),

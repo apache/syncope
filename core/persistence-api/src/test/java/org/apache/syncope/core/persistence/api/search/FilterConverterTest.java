@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.ListIterator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.search.SpecialAttr;
@@ -152,9 +153,14 @@ public class FilterConverterTest {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("loginDate").nullValue().query();
         assertEquals("loginDate==" + SpecialAttr.NULL, fiql);
 
-        Filter filter = FilterBuilder.equalTo(AttributeBuilder.build("loginDate"));
+        Filter filter = FilterBuilder.not(
+                FilterBuilder.startsWith(AttributeBuilder.build("loginDate", StringUtils.EMPTY)));
 
-        assertTrue(equals(filter, FilterConverter.convert(fiql)));
+        Filter converted = FilterConverter.convert(fiql);
+        assertTrue(converted instanceof NotFilter);
+
+        assertTrue(equals(
+                ((NotFilter) filter).getFilter(), ((NotFilter) converted).getFilter()));
     }
 
     @Test
@@ -162,14 +168,9 @@ public class FilterConverterTest {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("loginDate").notNullValue().query();
         assertEquals("loginDate!=" + SpecialAttr.NULL, fiql);
 
-        Filter filter = FilterBuilder.not(FilterBuilder.equalTo(AttributeBuilder.build("loginDate")));
-        assertTrue(filter instanceof NotFilter);
+        Filter filter = FilterBuilder.startsWith(AttributeBuilder.build("loginDate", StringUtils.EMPTY));
 
-        Filter converted = FilterConverter.convert(fiql);
-        assertTrue(converted instanceof NotFilter);
-
-        assertTrue(equals(
-                ((NotFilter) filter).getFilter(), ((NotFilter) converted).getFilter()));
+        assertTrue(equals(filter, FilterConverter.convert(fiql)));
     }
 
     @Test

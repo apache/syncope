@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -187,16 +189,23 @@ public final class MappingUtils {
      * Build options for requesting all mapped connector attributes.
      *
      * @param items items
+     * @param moreAttrsToGet additional attributes to get
      * @return options for requesting all mapped connector attributes
      * @see OperationOptions
      */
-    public static OperationOptions buildOperationOptions(final Stream<? extends Item> items) {
+    public static OperationOptions buildOperationOptions(
+            final Stream<? extends Item> items,
+            final String... moreAttrsToGet) {
+
         OperationOptionsBuilder builder = new OperationOptionsBuilder();
 
         Set<String> attrsToGet = new HashSet<>();
         attrsToGet.add(Name.NAME);
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
+        if (!ArrayUtils.isEmpty(moreAttrsToGet)) {
+            attrsToGet.addAll(Arrays.asList(moreAttrsToGet));
+        }
 
         items.filter(item -> item.getPurpose() != MappingPurpose.NONE).
                 forEach(item -> attrsToGet.add(item.getExtAttrName()));
