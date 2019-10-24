@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -114,11 +113,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         templateUtils.apply(anyCR, realm.getTemplate(anyType));
 
         List<LogicActions> actions = getActions(realm);
-
-        anyCR = (C) actions.stream().
-                map(action -> action.beforeCreate()).
-                reduce(Function.identity(), Function::andThen).
-                apply(anyCR);
+        for (LogicActions action : actions) {
+            anyCR = action.beforeCreate(anyCR);
+        }
 
         LOG.debug("Input: {}\nOutput: {}\n", input, anyCR);
 
@@ -137,10 +134,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         U update = input;
 
         List<LogicActions> actions = getActions(realm);
-        update = (U) actions.stream().
-                map(action -> action.beforeUpdate()).
-                reduce(Function.identity(), Function::andThen).
-                apply(update);
+        for (LogicActions action : actions) {
+            update = action.beforeUpdate(update);
+        }
 
         LOG.debug("Input: {}\nOutput: {}\n", input, update);
 
@@ -159,10 +155,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         TO any = input;
 
         List<LogicActions> actions = getActions(realm);
-        any = (TO) actions.stream().
-                map(action -> action.beforeDelete()).
-                reduce(Function.identity(), Function::andThen).
-                apply(any);
+        for (LogicActions action : actions) {
+            any = action.beforeDelete(any);
+        }
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
@@ -175,10 +170,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         TO any = input;
 
-        any = (TO) actions.stream().
-                map(action -> action.afterCreate(statuses)).
-                reduce(Function.identity(), Function::andThen).
-                apply(any);
+        for (LogicActions action : actions) {
+            any = action.afterCreate(any, statuses);
+        }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);
@@ -207,10 +201,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         TO any = input;
 
-        any = (TO) actions.stream().
-                map(action -> action.afterUpdate(statuses)).
-                reduce(Function.identity(), Function::andThen).
-                apply(any);
+        for (LogicActions action : actions) {
+            any = action.afterUpdate(any, statuses);
+        }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);
@@ -225,10 +218,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         TO any = input;
 
-        any = (TO) actions.stream().
-                map(action -> action.afterDelete(statuses)).
-                reduce(Function.identity(), Function::andThen).
-                apply(any);
+        for (LogicActions action : actions) {
+            any = action.afterDelete(any, statuses);
+        }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
         result.setEntity(any);

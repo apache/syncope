@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import java.util.function.Function;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -38,10 +37,11 @@ public interface PullActions extends ProvisioningActions {
      * Pre-process the pull information received by the underlying connector, before any internal activity occurs.
      *
      * @param profile profile of the pull being executed.
-     * @return pull information, possibly altered
+     * @param delta retrieved pull information
+     * @return pull information, possibly altered.
      */
-    default Function<SyncDelta, SyncDelta> preprocess(ProvisioningProfile<?, ?> profile) {
-        return Function.identity();
+    default SyncDelta preprocess(ProvisioningProfile<?, ?> profile, SyncDelta delta) {
+        return delta;
     }
 
     /**

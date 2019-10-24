@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -848,10 +847,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        SyncDelta finalDelta = profile.getActions().stream().
-                map(action -> action.preprocess(profile)).
-                reduce(Function.identity(), Function::andThen).
-                apply(delta);
+        SyncDelta finalDelta = delta;
+        for (PullActions action : profile.getActions()) {
+            finalDelta = action.preprocess(profile, finalDelta);
+        }
 
         LOG.debug("Transformed {} for {} as {}",
                 finalDelta.getDeltaType(), finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass());

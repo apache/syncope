@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -630,10 +629,10 @@ public class DefaultRealmPullResultHandler
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        SyncDelta finalDelta = profile.getActions().stream().
-                map(action -> action.preprocess(profile)).
-                reduce(Function.identity(), Function::andThen).
-                apply(delta);
+        SyncDelta finalDelta = delta;
+        for (PullActions action : profile.getActions()) {
+            finalDelta = action.preprocess(profile, finalDelta);
+        }
 
         LOG.debug("Transformed {} for {} as {}",
                 finalDelta.getDeltaType(), finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass());
