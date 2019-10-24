@@ -154,6 +154,12 @@ public class CamelRouteLoader implements SyncopeLoader {
                 if (IS_JBOSS) {
                     tf = TransformerFactory.newInstance();
                     tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                    try {
+                        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+                    } catch (IllegalArgumentException ex) {
+                        LOG.debug("The JAXP parser does not support the following attribute: ", ex);
+                    }
                     tf.setURIResolver((href, base) -> null);
 
                     Document doc = StaxUtils.read(resource.getInputStream());
