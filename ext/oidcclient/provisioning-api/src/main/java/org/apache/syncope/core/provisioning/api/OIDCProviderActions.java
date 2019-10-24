@@ -18,26 +18,25 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.function.Function;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public interface OIDCProviderActions {
 
-    default Function<UserTO, UserTO> beforeCreate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    default UserTO beforeCreate(UserTO input, OIDCLoginResponseTO loginResponse) {
+        return input;
     }
 
-    default Function<UserTO, UserTO> afterCreate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    default UserTO afterCreate(UserTO input, OIDCLoginResponseTO loginResponse) {
+        return input;
     }
 
-    default Function<UserPatch, UserPatch> beforeUpdate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    default UserPatch beforeUpdate(UserPatch input, OIDCLoginResponseTO loginResponse) {
+        return input;
     }
 
-    default Function<UserTO, UserTO> afterUpdate(OIDCLoginResponseTO loginResponse) {
-        return Function.identity();
+    default UserTO afterUpdate(UserTO input, OIDCLoginResponseTO loginResponse) {
+        return input;
     }
 }
