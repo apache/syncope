@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -35,7 +34,6 @@ import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -176,18 +174,6 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return SearchableFields.get(typeKind.getTOClass());
-            }
-        };
-
-        anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected Map<String, PlainSchemaTO> load() {
-                return schemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
-                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
             }
         };
 
