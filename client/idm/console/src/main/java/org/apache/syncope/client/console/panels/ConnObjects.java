@@ -83,7 +83,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         };
         connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                connObjects, resource.getKey(), anyTypes.getField().getModelObject(), pageRef));
+                connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
         connObjects.setOutputMarkupId(true);
         add(connObjects);
 
@@ -94,7 +94,7 @@ public class ConnObjects extends Panel implements ModalPanel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                        connObjects, resource.getKey(), anyTypes.getField().getModelObject(), pageRef));
+                        connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
                 target.add(connObjects);
             }
         });
@@ -106,7 +106,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         NextableConnObjectDirectoryPanel(
                 final MultilevelPanel multiLevelPanelRef,
-                final String resource,
+                final ResourceTO resource,
                 final String anyType,
                 final PageReference pageRef) {
 

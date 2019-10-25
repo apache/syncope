@@ -21,21 +21,15 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -170,18 +164,6 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return SearchableFields.get(typeKind.getTOClass());
-            }
-        };
-
-        anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected Map<String, PlainSchemaTO> load() {
-                return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
-                        stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
 
