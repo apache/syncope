@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -179,7 +181,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         // do nothing
                     }
                 } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-                    delete(delta, account).ifPresent(profile.getResults()::add);
+                    delete(delta, account, provision).ifPresent(profile.getResults()::add);
                 }
             } else {
                 if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
@@ -396,6 +398,19 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 LOG.error("Could not create linked account {} ", accountTO.getConnObjectKeyValue(), e);
                 output = e;
                 resultStatus = Result.FAILURE;
+
+                if (profile.getTask().isRemediation()) {
+                    Remediation entity = entityFactory.newEntity(Remediation.class);
+                    entity.setAnyType(provision.getAnyType());
+                    entity.setOperation(ResourceOperation.UPDATE);
+                    entity.setPayload(patch);
+                    entity.setError(report.getMessage());
+                    entity.setInstant(new Date());
+                    entity.setRemoteName(delta.getObject().getName().getNameValue());
+                    entity.setPullTask(profile.getTask());
+
+                    remediationDAO.save(entity);
+                }
             }
 
             end(AnyTypeKind.USER, UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
@@ -508,6 +523,19 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 LOG.error("Could not update linked account {}", account, e);
                 output = e;
                 resultStatus = Result.FAILURE;
+
+                if (profile.getTask().isRemediation()) {
+                    Remediation entity = entityFactory.newEntity(Remediation.class);
+                    entity.setAnyType(provision.getAnyType());
+                    entity.setOperation(ResourceOperation.UPDATE);
+                    entity.setPayload(patch);
+                    entity.setError(report.getMessage());
+                    entity.setInstant(new Date());
+                    entity.setRemoteName(delta.getObject().getName().getNameValue());
+                    entity.setPullTask(profile.getTask());
+
+                    remediationDAO.save(entity);
+                }
             }
 
             end(AnyTypeKind.USER, MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
@@ -518,7 +546,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
     protected Optional<ProvisioningReport> delete(
             final SyncDelta delta,
-            final LinkedAccount account)
+            final LinkedAccount account,
+            final Provision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
@@ -574,6 +603,19 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     report.setMessage(ExceptionUtils.getRootCauseMessage(e));
                     LOG.error("Could not delete linked account {}", account, e);
                     output = e;
+
+                    if (profile.getTask().isRemediation()) {
+                        Remediation entity = entityFactory.newEntity(Remediation.class);
+                        entity.setAnyType(provision.getAnyType());
+                        entity.setOperation(ResourceOperation.UPDATE);
+                        entity.setPayload(patch);
+                        entity.setError(report.getMessage());
+                        entity.setInstant(new Date());
+                        entity.setRemoteName(delta.getObject().getName().getNameValue());
+                        entity.setPullTask(profile.getTask());
+
+                        remediationDAO.save(entity);
+                    }
                 }
 
                 end(AnyTypeKind.USER,
