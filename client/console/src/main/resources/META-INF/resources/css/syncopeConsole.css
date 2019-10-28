@@ -517,6 +517,10 @@ END - Style for Information panel
   width: 110px !important;
 }
 
+.table > tbody > tr > td.list_view_panel_labels {
+  vertical-align: middle;
+}
+
 div.searchResult{
   padding-top: 30px;
   display: block;
@@ -880,7 +884,7 @@ li.todoitem a {
 }
 
 .popover{
-    max-width: 100%;
+  max-width: 100%;
 }
 
 #popover:hover {

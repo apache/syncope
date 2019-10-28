@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavior;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +29,8 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AbstractSearchPanel;
 import org.apache.syncope.client.console.panels.search.ConnObjectSearchPanel;
@@ -33,6 +38,7 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -41,10 +47,13 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -68,7 +77,11 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
+    private final ReconciliationRestClient reconRestClient = new ReconciliationRestClient();
+
     private static final int SIZE = 10;
+
+    private static final String STATUS = "Status";
 
     private String nextPageCookie;
 
@@ -140,12 +153,42 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             protected Component getValueComponent(final String key, final ConnObjectTO bean) {
-                Optional<AttrTO> attrTO =
-                        bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
+                if (StringUtils.equals(key, STATUS)) {
+                    ReconStatus status = reconRestClient.status(new ReconQuery.Builder(anyType, resource.getKey()).
+                            connObjectKeyValue(bean.getAttr(ConnIdSpecialName.UID).get().getValues().get(0)).build());
 
-                return !attrTO.isPresent() || attrTO.get().getValues().isEmpty()
-                        ? new Label("field", StringUtils.EMPTY)
-                        : new CollectionPanel("field", attrTO.get().getValues());
+                    return status.getOnSyncope() == null
+                            ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
+                            : new Label("field", Model.of()).add(new PopoverBehavior(
+                                    Model.<String>of(),
+                                    Model.of(status.getAnyKey()),
+                                    new PopoverConfig().
+                                            withTitle(status.getMatchType() == MatchType.LINKED_ACCOUNT
+                                                    ? MatchType.LINKED_ACCOUNT.name() + ", " + AnyTypeKind.USER
+                                                    : status.getAnyTypeKind().name()).
+                                            withPlacement(TooltipConfig.Placement.left)) {
+
+                                private static final long serialVersionUID = -7867802555691605021L;
+
+                                @Override
+                                protected String createRelAttribute() {
+                                    return "field";
+                                }
+
+                                @Override
+                                public void onComponentTag(Component component, ComponentTag tag) {
+                                    super.onComponentTag(component, tag);
+                                    tag.put("class", Constants.ACTIVE_ICON);
+                                }
+                            });
+                } else {
+                    Optional<AttrTO> attrTO =
+                            bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
+
+                    return !attrTO.isPresent() || attrTO.get().getValues().isEmpty()
+                            ? new Label("field", StringUtils.EMPTY)
+                            : new CollectionPanel("field", attrTO.get().getValues());
+                }
             }
 
         };
@@ -166,6 +209,30 @@ public abstract class ConnObjectListViewPanel extends Panel {
                         ConnIdSpecialName.ENABLE).
                 withChecks(ListViewPanel.CheckAvailability.NONE).
                 setReuseItem(false);
+
+        if (!StringUtils.equals(anyType, SyncopeConstants.REALM_ANYTYPE)) {
+            builder.addAction(new ActionLink<ConnObjectTO>() {
+
+                private static final long serialVersionUID = 6377238742125L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
+                    String connObjectKeyValue = modelObject.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);
+                    String anyKey = reconRestClient.status(new ReconQuery.Builder(anyType, resource.getKey()).
+                            connObjectKeyValue(connObjectKeyValue).build()).getAnyKey();
+
+                    pullConnObject(
+                            connObjectKeyValue,
+                            target,
+                            resource.getKey(),
+                            anyType,
+                            StringUtils.isNotBlank(anyKey),
+                            pageRef);
+                }
+            }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.TASK_EXECUTE);
+
+            builder.includes(STATUS);
+        }
 
         add(builder.build("objs"));
 
@@ -207,6 +274,14 @@ public abstract class ConnObjectListViewPanel extends Panel {
     }
 
     protected abstract void viewConnObject(ConnObjectTO connObjectTO, AjaxRequestTarget target);
+
+    protected abstract void pullConnObject(
+            String connObjectTO,
+            AjaxRequestTarget target,
+            String resource,
+            String anyType,
+            boolean isOnSyncope,
+            PageReference pageRef);
 
     private List<ConnObjectTO> reloadItems(
             final String resource,
