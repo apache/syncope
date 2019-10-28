@@ -217,5 +217,4 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
 
         throw new UnresolvedReferenceException();
     }
-
 }
