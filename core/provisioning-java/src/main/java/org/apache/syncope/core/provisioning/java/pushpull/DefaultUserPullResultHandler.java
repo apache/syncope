@@ -403,7 +403,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     Remediation entity = entityFactory.newEntity(Remediation.class);
                     entity.setAnyType(provision.getAnyType());
                     entity.setOperation(ResourceOperation.UPDATE);
-                    entity.setPayload(patch);
+                    entity.setPayload(req);
                     entity.setError(report.getMessage());
                     entity.setInstant(new Date());
                     entity.setRemoteName(delta.getObject().getName().getNameValue());
@@ -608,7 +608,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         Remediation entity = entityFactory.newEntity(Remediation.class);
                         entity.setAnyType(provision.getAnyType());
                         entity.setOperation(ResourceOperation.UPDATE);
-                        entity.setPayload(patch);
+                        entity.setPayload(req);
                         entity.setError(report.getMessage());
                         entity.setInstant(new Date());
                         entity.setRemoteName(delta.getObject().getName().getNameValue());
