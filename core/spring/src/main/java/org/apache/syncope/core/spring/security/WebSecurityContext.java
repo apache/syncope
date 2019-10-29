@@ -59,7 +59,7 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(final WebSecurity web) throws Exception {
+    public void configure(final WebSecurity web) {
         web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
     }
 

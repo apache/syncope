@@ -403,10 +403,10 @@ under the License.
 
     <jackson.version>2.10.0</jackson.version>
 
-    <spring.version>5.1.10.RELEASE</spring.version>
-    <spring-security.version>5.1.6.RELEASE</spring-security.version>
-    <spring-boot.version>2.1.9.RELEASE</spring-boot.version>
-    <spring-cloud-gateway.version>2.1.3.RELEASE</spring-cloud-gateway.version>
+    <spring.version>5.2.0.RELEASE</spring.version>
+    <spring-security.version>5.2.0.RELEASE</spring-security.version>
+    <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
+    <spring-cloud-gateway.version>2.2.0.RC1</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
     <hikaricp.version>3.4.1</hikaricp.version>
@@ -1812,6 +1812,18 @@ under the License.
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+    <!-- Temporary until Spring Gateway goes GA -->
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/milestone</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>shibboleth-releases</id>
       <url>https://build.shibboleth.net/nexus/content/repositories/releases</url>
@@ -2273,7 +2285,7 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-	    <version>0.13</version>
+        <version>0.13</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
