@@ -148,7 +148,8 @@ endif::[]
 * mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
 this mapping item must be necessarily available or not; compared to a simple boolean value, such condition allows
 complex statements to be expressed such as 'be mandatory only if this other attribute value is above 14', and so on
-* remote key flag - should this item be considered as the key value on the Identity Store?
+* remote key flag - should this item be considered as the key value on the Identity Store, if no
+<<pull-correlation-rules,pull>> or <<push-correlation-rules,push>> correlation rules are applicable?
 * password flag (Users only) - should this item be treated as the password value?
 * purpose - should this item be considered for <<propagation,propagation>> / <<provisioning-push,push>>,
 <<provisioning-pull,pull>>, both or none? 
@@ -156,7 +157,7 @@ complex statements to be expressed such as 'be mandatory only if this other attr
 Besides the items documented above, some more data needs to be specified for a complete mapping:
 
 * which
-http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
+http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
 shall be used during communication with the Identity Store; predefined are `\\__ACCOUNT__` for Users and 
 `\\__GROUP__` for Groups
 * whether matches between user / group / any object's attribute values and their counterparts on the Identity Store

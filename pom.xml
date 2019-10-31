@@ -515,7 +515,7 @@ under the License.
     <tomcat.version>9.0.27</tomcat.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
-    <docker.mysql.version>8.0</docker.mysql.version>
+    <docker.mysql.version>8.0.18</docker.mysql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.2.8</jdbc.postgresql.version>
@@ -2549,6 +2549,9 @@ under the License.
               <attributes>
                 <docVersion>${project.version}</docVersion>
                 <snapshotOrRelease>${snapshotOrRelease}</snapshotOrRelease>
+                <postgresql>${docker.postgresql.version}</postgresql>
+                <mysql>${docker.mysql.version}</mysql>
+                <mariadb>${docker.mariadb.version}</mariadb>
                 <postgresqlJDBC>${jdbc.postgresql.version}</postgresqlJDBC>
                 <mysqlJDBC>${jdbc.mysql.version}</mysqlJDBC>
                 <mariadbJDBC>${jdbc.mariadb.version}</mariadbJDBC>
