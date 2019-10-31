@@ -299,8 +299,8 @@ different rule is required
 
 ===== Pull Correlation Rules
 
-Pull correlation rules define how to match objects received from <<connector-instance-details,connector instances>>
-with existing Users, Groups or Any Objects.
+Pull correlation rules define how to match objects received from <<external-resources>>
+with existing Users (including <<linked-accounts>>), Groups or Any Objects.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -336,8 +336,8 @@ When set for resource R, a push policy is enforced on all Users, Groups and Any 
 
 ===== Push Correlation Rules
 
-Push correlation rules define how to match existing Users, Groups or Any Objects with objects received from
-<<connector-instance-details,connector instances>>.
+Push correlation rules define how to match Users (including <<linked-accounts>>), Groups or Any Objects with
+objects existing on <<external-resources>>.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
