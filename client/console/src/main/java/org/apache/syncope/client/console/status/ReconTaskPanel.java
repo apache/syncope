@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.status;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -27,14 +28,17 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -42,6 +46,7 @@ import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -57,9 +62,11 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReconTaskPanel.class);
 
-    private final ReconciliationRestClient restClient = new ReconciliationRestClient();
-
     private final ImplementationRestClient implRestClient = new ImplementationRestClient();
+
+    private final RealmRestClient realmRestClient = new RealmRestClient();
+
+    private final ReconciliationRestClient reconRestClient = new ReconciliationRestClient();
 
     private final IModel<List<String>> pullActions = new LoadableDetachableModel<List<String>>() {
 
@@ -88,11 +95,44 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             final ProvisioningTaskTO taskTO,
             final String anyType,
             final String anyKey,
+            final boolean isOnSyncope,
+            final MultilevelPanel multiLevelPanelRef,
+            final PageReference pageRef) {
+        this(resource, taskTO, anyType, anyKey, null, isOnSyncope, multiLevelPanelRef, pageRef);
+    }
+
+    public ReconTaskPanel(
+            final String resource,
+            final ProvisioningTaskTO taskTO,
+            final String anyType,
+            final String anyKey,
+            final String connObjectKeyValue,
+            final boolean isOnSyncope,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
 
         Form<ProvisioningTaskTO> form = new Form<>("form", new CompoundPropertyModel<>(taskTO));
         add(form);
+
+        if (taskTO instanceof PushTaskTO) {
+            form.add(new Label("realm", ""));
+        } else {
+            AjaxDropDownChoicePanel<String> realm = new AjaxDropDownChoicePanel<>(
+                    "realm", "destinationRealm", new PropertyModel<>(taskTO, "destinationRealm"), false);
+            form.add(realm);
+            realm.addRequiredLabel();
+            realm.setOutputMarkupId(true);
+
+            if (isOnSyncope) {
+                realm.getField().setModelObject(SyncopeConstants.ROOT_REALM);
+                realm.setVisible(false);
+            } else {
+                realm.setChoices(realmRestClient.list().stream().
+                        sorted(Comparator.comparing(RealmTO::getName)).
+                        map(RealmTO::getFullPath).
+                        collect(Collectors.toList()));
+            }
+        }
 
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).
@@ -140,12 +180,14 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).anyKey(anyKey).build();
+                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).
+                        anyKey(anyKey).
+                        connObjectKeyValue(connObjectKeyValue).build();
                 try {
                     if (taskTO instanceof PushTaskTO) {
-                        restClient.push(reconQuery, (PushTaskTO) form.getModelObject());
+                        reconRestClient.push(reconQuery, (PushTaskTO) form.getModelObject());
                     } else {
-                        restClient.pull(reconQuery, (PullTaskTO) form.getModelObject());
+                        reconRestClient.pull(reconQuery, (PullTaskTO) form.getModelObject());
                     }
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

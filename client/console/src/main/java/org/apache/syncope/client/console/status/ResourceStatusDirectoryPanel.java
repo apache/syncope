@@ -141,6 +141,7 @@ public class ResourceStatusDirectoryPanel
                                 new PushTaskTO(),
                                 type,
                                 bean.getKey(),
+                                true,
                                 multiLevelPanelRef,
                                 pageRef),
                         target);
@@ -166,6 +167,7 @@ public class ResourceStatusDirectoryPanel
                                 new PullTaskTO(),
                                 type,
                                 bean.getKey(),
+                                true,
                                 multiLevelPanelRef,
                                 pageRef),
                         target);
