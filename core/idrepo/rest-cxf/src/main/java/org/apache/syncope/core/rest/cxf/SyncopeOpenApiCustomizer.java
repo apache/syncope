@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -43,6 +44,7 @@ import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ErrorTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -150,13 +152,20 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
                 RESTHeaders.ERROR_INFO,
                 new Header().schema(new Schema<>().type("string")).description("Error message"));
 
+        ErrorTO sampleError = new ErrorTO();
+        sampleError.setStatus(Response.Status.BAD_REQUEST.getStatusCode());
+        sampleError.setType(ClientExceptionType.InvalidEntity);
+        sampleError.getElements().add("additional information");
         Content content = new Content();
         content.addMediaType(
-                javax.ws.rs.core.MediaType.APPLICATION_JSON, new MediaType().schema(new Schema<ErrorTO>()));
+                javax.ws.rs.core.MediaType.APPLICATION_JSON,
+                new MediaType().schema(new Schema<ErrorTO>().example(sampleError)));
         content.addMediaType(
-                RESTHeaders.APPLICATION_YAML, new MediaType().schema(new Schema<ErrorTO>()));
+                RESTHeaders.APPLICATION_YAML,
+                new MediaType().schema(new Schema<ErrorTO>().example(sampleError)));
         content.addMediaType(
-                javax.ws.rs.core.MediaType.APPLICATION_XML, new MediaType().schema(new Schema<ErrorTO>()));
+                javax.ws.rs.core.MediaType.APPLICATION_XML,
+                new MediaType().schema(new Schema<ErrorTO>().example(sampleError)));
 
         responses.addApiResponse("400", new ApiResponse().
                 description("An error occurred; HTTP status code can vary depending on the actual error: "
