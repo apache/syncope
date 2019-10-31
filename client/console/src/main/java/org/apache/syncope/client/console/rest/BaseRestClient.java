@@ -55,7 +55,7 @@ public abstract class BaseRestClient implements RestClient {
         SyncopeConsoleSession.get().resetClient(serviceClass);
     }
 
-    public static String toOrderBy(final SortParam<String> sort) {
+    protected static String toOrderBy(final SortParam<String> sort) {
         OrderByClauseBuilder builder = SyncopeClient.getOrderByClauseBuilder();
 
         String property = sort.getProperty();

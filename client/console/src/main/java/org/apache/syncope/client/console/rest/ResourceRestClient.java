@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 /**
  * Console client for invoking Rest Resources services.
@@ -58,14 +59,16 @@ public class ResourceRestClient extends BaseRestClient {
     public Pair<String, List<ConnObjectTO>> searchConnObjects(
             final String resource,
             final String anyTypeKey,
-            final ConnObjectTOQuery query) {
+            final ConnObjectTOQuery.Builder queryBuilder,
+            final SortParam<String> sortParam) {
 
         final List<ConnObjectTO> result = new ArrayList<>();
         String nextPageResultCookie = null;
 
         PagedConnObjectTOResult list;
         try {
-            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, query);
+            queryBuilder.orderBy(toOrderBy(sortParam));
+            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, queryBuilder.build());
             result.addAll(list.getResult());
             nextPageResultCookie = list.getPagedResultsCookie();
         } catch (Exception e) {

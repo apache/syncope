@@ -44,7 +44,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.LinkedAccountPlainAttrProperty;
+import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;

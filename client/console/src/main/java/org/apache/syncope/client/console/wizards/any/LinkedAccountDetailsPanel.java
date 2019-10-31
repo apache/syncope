@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -56,6 +55,8 @@ public class LinkedAccountDetailsPanel extends WizardStep {
     private static final long serialVersionUID = 1221037007528732347L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountDetailsPanel.class);
+
+    private static final int SEARCH_SIZE = 20;
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
@@ -165,16 +166,15 @@ public class LinkedAccountDetailsPanel extends WizardStep {
             LOG.error("While reading mapping for resource {}", resource, ex);
         }
 
-        ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().
-                size(2).
-                orderBy(BaseRestClient.toOrderBy(new SortParam<>(resourceRemoteKey, true)));
+        ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(SEARCH_SIZE);
         if (StringUtils.isNotBlank(searchTerm)) {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                     is(resourceRemoteKey).equalTo(searchTerm + "*").query()).build();
         }
         Pair<String, List<ConnObjectTO>> items = resourceRestClient.searchConnObjects(resource,
                 AnyTypeKind.USER.name(),
-                builder.build());
+                builder,
+                new SortParam<>(resourceRemoteKey, true));
 
         choices.addAll(items.getRight().stream().map(item -> {
             return item.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);

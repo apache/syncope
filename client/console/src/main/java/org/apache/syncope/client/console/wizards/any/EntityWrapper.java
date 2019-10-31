@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
-import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 
-public class EntityWrapper<T extends BaseBean> implements Serializable {
-
-    private static final long serialVersionUID = -187286422128231810L;
+public class EntityWrapper<T extends EntityTO> {
 
     protected final T entityTO;
 

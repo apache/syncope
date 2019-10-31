@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFie
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
-import org.apache.syncope.common.lib.types.LinkedAccountPlainAttrProperty;
+import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.ComponentTag;
