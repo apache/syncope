@@ -67,7 +67,9 @@ public class ResourceRestClient extends BaseRestClient {
 
         PagedConnObjectTOResult list;
         try {
-            queryBuilder.orderBy(toOrderBy(sortParam));
+            if (sortParam != null) {
+                queryBuilder.orderBy(toOrderBy(sortParam));
+            }
             list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, queryBuilder.build());
             result.addAll(list.getResult());
             nextPageResultCookie = list.getPagedResultsCookie();
