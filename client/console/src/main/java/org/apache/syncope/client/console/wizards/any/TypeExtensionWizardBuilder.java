@@ -112,7 +112,7 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
                     map(EntityTO::getKey).collect(Collectors.toList());
             AjaxPalettePanel<String> auxClassesPalette = new AjaxPalettePanel.Builder<String>().build(
                     "auxClasses.palette",
-                    new PropertyModel<List<String>>(typeExtensionTO, "auxClasses"),
+                    new PropertyModel<>(typeExtensionTO, "auxClasses"),
                     new ListModel<>(anyTypeClasses));
             add(auxClassesPalette.hideLabel().setOutputMarkupId(true));
         }

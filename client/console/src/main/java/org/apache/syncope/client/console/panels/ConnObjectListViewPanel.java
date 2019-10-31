@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -44,6 +45,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -213,12 +215,12 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String cookie,
             final String fiql) {
 
-        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().listConnObjects(resource,
+        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().searchConnObjects(resource,
                 anyType,
-                SIZE,
-                cookie,
-                new SortParam<>(ConnIdSpecialName.UID, true),
-                fiql);
+                new ConnObjectTOQuery.Builder().
+                        size(SIZE).
+                        pagedResultsCookie(cookie).
+                        orderBy(BaseRestClient.toOrderBy(new SortParam<>(ConnIdSpecialName.UID, true))).build());
 
         nextPageCookie = items.getLeft();
         return items.getRight();

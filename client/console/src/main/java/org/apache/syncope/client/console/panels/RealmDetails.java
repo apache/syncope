@@ -146,7 +146,7 @@ public class RealmDetails extends Panel {
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).
                 build("actions",
-                        new PropertyModel<List<String>>(realmTO, "actions"),
+                        new PropertyModel<>(realmTO, "actions"),
                         new ListModel<>(logicActions.getObject()));
         actions.setOutputMarkupId(true);
         container.add(actions);

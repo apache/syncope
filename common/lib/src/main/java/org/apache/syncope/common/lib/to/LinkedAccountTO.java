@@ -29,10 +29,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
 @XmlRootElement(name = "linkedAccount")
 @XmlType
-public class LinkedAccountTO implements EntityTO {
+public class LinkedAccountTO extends BaseBean implements EntityTO {
 
     private static final long serialVersionUID = 7396929732310559535L;
 

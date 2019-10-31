@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.status.ChangePasswordModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -59,6 +61,18 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    protected final BaseModal<Serializable> wizardWrapperModal = new BaseModal<Serializable>("outer") {
+
+        private static final long serialVersionUID = 389935548143327858L;
+
+        @Override
+        protected void onConfigure() {
+            super.onConfigure();
+            setFooterVisible(false);
+        }
+
+    };
+
     protected UserDirectoryPanel(final String id, final Builder builder) {
         this(id, builder, true);
     }
@@ -76,6 +90,9 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 modal.show(false);
             }
         });
+
+        wizardWrapperModal.size(Modal.Size.Large);
+        addOuterObject(wizardWrapperModal);
     }
 
     @Override
@@ -309,11 +326,26 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                     target.add(utilityModal.setContent(
                             new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+
                     utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                     utilityModal.show(true);
                     target.add(utilityModal);
                 }
             }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+
+            panel.add(new ActionLink<UserTO>() {
+
+                private static final long serialVersionUID = 8011039414597736111L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                    target.add(wizardWrapperModal.setContent(
+                            new LinkedAccountModalPanel(wizardWrapperModal, model.getObject(), pageRef)));
+                    wizardWrapperModal.header(new ResourceModel("linkedAccounts.title"));
+                    wizardWrapperModal.show(true);
+                }
+            }, ActionType.MANAGE_ACCOUNTS,
+                    String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE));
         }
 
         panel.add(new ActionLink<UserTO>() {

@@ -547,7 +547,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:8:action:action", IndicatingOnConfirmAjaxLink.class);
+                + "actions:actions:actionRepeater:9:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 
     @Test

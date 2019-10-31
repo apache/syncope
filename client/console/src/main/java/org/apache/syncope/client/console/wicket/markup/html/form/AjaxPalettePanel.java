@@ -200,6 +200,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         target.add(palette);
     }
 
+    @Override
+    public AbstractFieldPanel<List<T>> setReadOnly(final boolean readOnly) {
+        palette.setEnabled(!readOnly);
+        return this;
+    }
+
     public static class Builder<T extends Serializable> implements Serializable {
 
         private static final long serialVersionUID = 991248996001040352L;

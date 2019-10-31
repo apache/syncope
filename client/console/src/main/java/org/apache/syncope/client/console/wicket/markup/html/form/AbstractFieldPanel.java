@@ -122,4 +122,6 @@ public abstract class AbstractFieldPanel<T> extends Panel {
     public String getName() {
         return this.name;
     }
+
+    public abstract AbstractFieldPanel<T> setReadOnly(boolean readOnly);
 }

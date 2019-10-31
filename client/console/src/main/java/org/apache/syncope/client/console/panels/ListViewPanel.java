@@ -201,7 +201,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                     }
                 };
 
-                beanItem.add(fields);
+                beanItem.add(fields.setOutputMarkupId(true));
 
                 if (togglePanel == null) {
                     beanItem.add(actions.clone("actions", new Model<>(bean)));
@@ -226,6 +226,14 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 item.add(new Label("name", new ResourceModel(item.getModelObject(), item.getModelObject())));
             }
         };
+    }
+
+    /**
+     * Use this to refresh the ListView with updated items (e.g. from callback methods)
+     * @param elements 
+     */
+    public void refreshList(final List<T> elements) {
+        beans.setList(elements);
     }
 
     public void setCheckAvailability(final CheckAvailability check) {

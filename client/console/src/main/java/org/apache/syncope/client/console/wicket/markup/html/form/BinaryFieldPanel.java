@@ -291,4 +291,12 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         setVisibleFileButtons(StringUtils.isNotBlank(modelObj));
         return this;
     }
+
+    @Override
+    public FieldPanel<String> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        fileUpload.setEnabled(!readOnly);
+        return this;
+    }
+
 }

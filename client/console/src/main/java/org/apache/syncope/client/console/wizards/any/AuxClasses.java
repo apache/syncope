@@ -51,7 +51,7 @@ public class AuxClasses extends WizardStep {
         }
         Collections.sort(choices);
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("auxClasses",
-                new PropertyModel<List<String>>(modelObject.getInnerObject(), "auxClasses"),
+                new PropertyModel<>(modelObject.getInnerObject(), "auxClasses"),
                 new ListModel<>(choices)).hideLabel().setOutputMarkupId(true));
 
         // ------------------

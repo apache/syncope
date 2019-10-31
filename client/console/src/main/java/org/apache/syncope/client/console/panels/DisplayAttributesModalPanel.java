@@ -122,7 +122,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         // remove old schemas from selected lists
         selectedPlainSchemas.retainAll(pSchemaNames);
         selectedDerSchemas.retainAll(dSchemaNames);
-        
+
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
@@ -131,7 +131,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("details",
-                        new PropertyModel<List<String>>(this, "selectedDetails"),
+                        new PropertyModel<>(this, "selectedDetails"),
                         new ListModel<>(fnames.getObject()));
         details.hideLabel();
         details.setOutputMarkupId(true);
@@ -141,7 +141,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("plainSchemas",
-                        new PropertyModel<List<String>>(this, "selectedPlainSchemas"),
+                        new PropertyModel<>(this, "selectedPlainSchemas"),
                         new ListModel<>(psnames.getObject()));
         plainSchemas.hideLabel();
         plainSchemas.setOutputMarkupId(true);
@@ -151,7 +151,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("derSchemas",
-                        new PropertyModel<List<String>>(this, "selectedDerSchemas"),
+                        new PropertyModel<>(this, "selectedDerSchemas"),
                         new ListModel<>(dsnames.getObject()));
         derSchemas.hideLabel();
         derSchemas.setOutputMarkupId(true);

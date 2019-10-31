@@ -784,7 +784,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:8:"
+                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:9:"
                 + "action:action"), Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
@@ -792,7 +792,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         component = findComponentByProp("username",
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini_clone");
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini_clone");
         assertNull(component);
 
         // delete default policy

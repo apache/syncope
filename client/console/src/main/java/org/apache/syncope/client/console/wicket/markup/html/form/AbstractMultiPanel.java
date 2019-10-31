@@ -200,8 +200,14 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         // do nothing by default
     }
 
+    @Override
     public AbstractFieldPanel<List<INNER>> setReadOnly(final boolean readOnly) {
         container.setEnabled(!readOnly);
+        return this;
+    }
+
+    public AbstractFieldPanel<List<INNER>> setFormReadOnly(final boolean readOnly) {
+        form.setEnabled(!readOnly);
         return this;
     }
 }
