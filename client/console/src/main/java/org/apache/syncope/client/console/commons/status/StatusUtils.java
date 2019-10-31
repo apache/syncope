@@ -178,7 +178,7 @@ public final class StatusUtils implements Serializable {
             case CREATED:
                 alt = "created icon";
                 title = "Created";
-                clazz = Constants.UNDEFINED_ICON;
+                clazz = Constants.CREATED_ICON;
                 break;
 
             case SUSPENDED:
