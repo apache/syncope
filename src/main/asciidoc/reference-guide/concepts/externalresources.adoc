@@ -235,3 +235,27 @@ previous working state.
 The maximum number of configurations to keep, for each Connector Instance and for each External Resource, is set by
 `connector.conf.history.size` and `resource.conf.history.size`: see <<configuration-parameters, below>> for details.
 ====
+
+==== Linked Accounts
+
+Sometimes the information provided by the <<mapping,mapping>> is not enough to define a one-to-one correspondence
+between Users / Groups / Any Objects and objects on External Resources.
+
+There can be many reasons for this situation, including existence of so-called _service accounts_ (typical with LDAP or
+Active Directory), or simply the uncomfortable reality that system integrators keep encountering when legacy systems
+are to be enrolled into a brand new IAM system.
+
+Starting with Apache Syncope 2.1.6, Users can have, on a given External Resource with `USER` mapping defined:
+
+. zero or one _mapped account_ +
+if the External Resource is assigned either directly or via Group membership.
+. zero or more _linked accounts_ +
+as internal representation of objects on the External Resource, defined in terms of username, password and / or plain
+attribute values override, with reference to the owning User.
+
+Linked Accounts are propagated alongside with owning User - following the existing
+<<push-correlation-rules,push correation rule>> if available - and pulled according to the given
+<<pull-correlation-rules,pull correation rule>>, if present.
+
+[.text-center]
+image::linked_accounts.png[title="Linked Accounts",alt="Linked Accounts"]
