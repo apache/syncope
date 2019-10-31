@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -291,8 +292,11 @@ public class ConnObjectUtils {
             default:
         }
 
-        // SYNCOPE-1343, remove null or empty values from the patch plain attributes
         if (anyUR != null) {
+            // ensure not to include incidental realm changes in the patch
+            anyUR.setRealm(null);
+
+            // SYNCOPE-1343, remove null or empty values from the patch plain attributes
             AnyOperations.cleanEmptyAttrs(updated, anyUR);
         }
         return anyUR;
@@ -303,6 +307,8 @@ public class ConnObjectUtils {
 
         T anyTO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyTO();
         anyTO.setType(provision.getAnyType().getKey());
+        anyTO.getAuxClasses().addAll(provision.getAuxClasses().stream().
+                map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinationRealm().getFullPath());

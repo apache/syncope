@@ -213,6 +213,7 @@ public class AnyStatusDirectoryPanel
                                     new PushTaskTO(),
                                     anyTO.getType(),
                                     anyTO.getKey(),
+                                    true,
                                     multiLevelPanelRef,
                                     pageRef),
                             target);
@@ -233,6 +234,7 @@ public class AnyStatusDirectoryPanel
                                     new PullTaskTO(),
                                     anyTO.getType(),
                                     anyTO.getKey(),
+                                    true,
                                     multiLevelPanelRef,
                                     pageRef),
                             target);
