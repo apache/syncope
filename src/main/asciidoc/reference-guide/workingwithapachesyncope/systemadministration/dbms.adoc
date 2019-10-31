@@ -25,7 +25,7 @@ updated.
 ===== PostgreSQL
 
 [NOTE]
-Apache Syncope {docVersion} is verified with PostgreSQL server >= 10.3 and JDBC driver >= {postgresqlJDBC}.
+Apache Syncope {docVersion} is verified with PostgreSQL server >= {postgresql} and JDBC driver >= {postgresqlJDBC}.
 
 In `provisioning.properties`, replace as follows:
 
@@ -66,7 +66,7 @@ With the configurations reported below, Apache Syncope will leverage the
 https://www.postgresql.org/docs/current/datatype-json.html[JSONB^] column type for attribute storage.
 
 [NOTE]
-Apache Syncope {docVersion} is verified with PostgreSQL server >= 10.3 and JDBC driver >= {postgresqlJDBC}.
+Apache Syncope {docVersion} is verified with PostgreSQL server >= {postgresql} and JDBC driver >= {postgresqlJDBC}.
 
 Add the following dependency to `core/pom.xml`:
 
@@ -153,7 +153,7 @@ and save it under `core/src/test/resources/domains/`.
 ===== MySQL
 
 [NOTE]
-Apache Syncope {docVersion} is verified with MySQL server >= 8.0 and JDBC driver >= {mysqlJDBC}.
+Apache Syncope {docVersion} is verified with MySQL server >= {mysql} and JDBC driver >= {mysqlJDBC}.
 
 In `provisioning.properties`, replace as follows:
 
@@ -197,7 +197,7 @@ With the configurations reported below, Apache Syncope will leverage the
 https://dev.mysql.com/doc/refman/8.0/en/json-table-functions.html[JSON_TABLE^] function.
 
 [NOTE]
-Apache Syncope {docVersion} is verified with MySQL server >= 8.0 and JDBC driver >= {mysqlJDBC}.
+Apache Syncope {docVersion} is verified with MySQL server >= {mysql} and JDBC driver >= {mysqlJDBC}.
 
 Add the following dependency to `core/pom.xml`:
 
@@ -282,7 +282,7 @@ and save it under `core/src/test/resources/domains/`.
 ===== MariaDB
 
 [NOTE]
-Apache Syncope {docVersion} is verified with MariaDB server >= 10.3.7 and JDBC driver >= {mariadbJDBC}.
+Apache Syncope {docVersion} is verified with MariaDB server >= {mariadb} and JDBC driver >= {mariadbJDBC}.
 
 In `provisioning.properties`, replace as follows:
 

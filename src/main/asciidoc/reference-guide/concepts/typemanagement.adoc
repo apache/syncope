@@ -22,6 +22,10 @@ In order to manage which attributes can be owned by Users, Groups and any object
 Apache Syncope defines a simple yet powerful type management system, vaguely inspired by the LDAP/X.500 information
 model.
 
+[NOTE]
+Starting with Apache Syncope 2.1, it is possible to define i18n labels for each schema, with purpose of improving
+presentation with Admin and End-user UIs.
+
 ==== Schema
 
 A schema instance describes the values that attributes with that schema will hold; it can be defined plain, derived or
