@@ -176,7 +176,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                                 }
 
                                 @Override
-                                public void onComponentTag(Component component, ComponentTag tag) {
+                                public void onComponentTag(final Component component, final ComponentTag tag) {
                                     super.onComponentTag(component, tag);
                                     tag.put("class", Constants.ACTIVE_ICON);
                                 }
