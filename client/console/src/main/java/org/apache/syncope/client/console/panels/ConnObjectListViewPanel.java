@@ -245,7 +245,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, nextPageCookie, null);
+                List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, nextPageCookie, getFiql());
                 target.add(arrows);
                 send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
             }
@@ -261,11 +261,8 @@ public abstract class ConnObjectListViewPanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
             this.nextPageCookie = null;
-            final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, SearchUtils.buildFIQL(
-                    ConnObjectListViewPanel.this.searchPanel.getModel().getObject(),
-                    SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder(),
-                    ConnObjectListViewPanel.this.searchPanel.getAvailableSchemaTypes()));
+            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+            List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, getFiql());
             target.add(arrows);
             send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
         } else {
@@ -316,5 +313,12 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
         return new ConnObjectSearchPanel.Builder(resource, anyTypeKind, anyType,
                 new ListModel<>(clauses)).required(true).enableSearch().build(id);
+    }
+
+    private String getFiql() {
+        return SearchUtils.buildFIQL(
+                searchPanel.getModel().getObject(),
+                SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder(),
+                searchPanel.getAvailableSchemaTypes());
     }
 }
