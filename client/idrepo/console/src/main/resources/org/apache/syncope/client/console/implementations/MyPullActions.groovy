@@ -17,10 +17,14 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.Set
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
-import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.to.LinkedAccountTO
 import org.apache.syncope.common.lib.to.RealmTO
+import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
+import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions
@@ -32,6 +36,16 @@ import org.quartz.JobExecutionException
 
 @CompileStatic
 class MyPullActions implements PullActions {
+
+  @Override
+  Set<String> moreAttrsToGet(ProvisioningProfile profile, OrgUnit orgUnit) {
+    return Set.of();
+  }
+
+  @Override
+  Set<String> moreAttrsToGet(ProvisioningProfile profile, Provision provision) {
+    return Set.of();
+  }
   
   @Override
   SyncDelta preprocess(ProvisioningProfile profile, SyncDelta delta) {

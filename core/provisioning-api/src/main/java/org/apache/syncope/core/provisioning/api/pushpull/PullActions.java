@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -32,6 +35,28 @@ import org.quartz.JobExecutionException;
  * process.
  */
 public interface PullActions extends ProvisioningActions {
+
+    /**
+     * Return additional attributes to include in the result from the underlying connector.
+     *
+     * @param profile profile of the pull being executed.
+     * @param orgUnit Realm provisioning information
+     * @return additional attributes to include in the result from the underlying connector
+     */
+    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, OrgUnit orgUnit) {
+        return Set.of();
+    }
+
+    /**
+     * Return additional attributes to include in the result from the underlying connector.
+     *
+     * @param profile profile of the pull being executed.
+     * @param provision Any provisioning information
+     * @return additional attributes to include in the result from the underlying connector
+     */
+    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, Provision provision) {
+        return Set.of();
+    }
 
     /**
      * Pre-process the pull information received by the underlying connector, before any internal activity occurs.

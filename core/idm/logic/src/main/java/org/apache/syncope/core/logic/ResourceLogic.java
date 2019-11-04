@@ -332,7 +332,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connFactory.getConnector(provision.getResource()),
                 connObjectKeyItem,
                 connObjectKeyValue,
-                provision);
+                provision,
+                Optional.empty(),
+                Optional.empty());
         if (connObj.isPresent()) {
             return ConnObjectUtils.getConnObjectTO(connObj.get().getAttributes());
         }

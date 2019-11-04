@@ -199,7 +199,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connFactory.getConnector(provision.getResource()),
                     connObjectKeyItem,
                     query.getConnObjectKeyValue(),
-                    provision).
+                    provision,
+                    Optional.empty(),
+                    Optional.empty()).
                     ifPresent(connObj -> {
                         status.setOnResource(ConnObjectUtils.getConnObjectTO(connObj.getAttributes()));
 
