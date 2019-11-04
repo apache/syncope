@@ -19,8 +19,12 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -39,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -93,6 +98,7 @@ public class OutboundMatcher {
             final PropagationTask task,
             final Connector connector,
             final Provision provision,
+            final List<PropagationActions> actions,
             final String connObjectKeyValue) {
 
         Optional<PushCorrelationRule> rule = rule(provision);
@@ -104,14 +110,27 @@ public class OutboundMatcher {
             any = anyUtilsFactory.getInstance(task.getAnyTypeKind()).dao().find(task.getEntityKey());
         }
 
+        Set<String> moreAttrsToGet = new HashSet<>();
+        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(task, provision)));
+
         List<ConnectorObject> result = new ArrayList<>();
         try {
             if (any != null && rule.isPresent()) {
-                result.addAll(matchByCorrelationRule(connector, rule.get().getFilter(any, provision), provision));
+                result.addAll(matchByCorrelationRule(
+                        connector,
+                        rule.get().getFilter(any, provision),
+                        provision,
+                        Optional.empty(),
+                        Optional.of(moreAttrsToGet.toArray(new String[0]))));
             } else {
-                MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem
-                        -> matchByConnObjectKeyValue(connector, connObjectKeyItem, connObjectKeyValue, provision).
-                                ifPresent(result::add));
+                MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> matchByConnObjectKeyValue(
+                        connector,
+                        connObjectKeyItem,
+                        connObjectKeyValue,
+                        provision,
+                        Optional.empty(),
+                        Optional.of(moreAttrsToGet.toArray(new String[0]))).
+                        ifPresent(result::add));
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
@@ -137,14 +156,25 @@ public class OutboundMatcher {
         try {
             if (rule.isPresent()) {
                 result.addAll(matchByCorrelationRule(
-                        connector, rule.get().getFilter(any, provision), provision, linkingItems));
+                        connector,
+                        rule.get().getFilter(any, provision),
+                        provision,
+                        ArrayUtils.isEmpty(linkingItems)
+                        ? Optional.empty() : Optional.of(Arrays.asList(linkingItems)),
+                        Optional.empty()));
             } else {
                 Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
 
                 if (connObjectKeyItem.isPresent() && connObjectKeyValue.isPresent()) {
                     matchByConnObjectKeyValue(
-                            connector, connObjectKeyItem.get(), connObjectKeyValue.get(), provision, linkingItems).
+                            connector,
+                            connObjectKeyItem.get(),
+                            connObjectKeyValue.get(),
+                            provision,
+                            ArrayUtils.isEmpty(linkingItems)
+                            ? Optional.empty() : Optional.of(Arrays.asList(linkingItems)),
+                            Optional.empty()).
                             ifPresent(result::add);
                 }
             }
@@ -163,13 +193,14 @@ public class OutboundMatcher {
             final Connector connector,
             final Filter filter,
             final Provision provision,
-            final LinkingMappingItem... linkingItems) {
+            final Optional<Collection<LinkingMappingItem>> linkingItems,
+            final Optional<String[]> moreAttrsToGet) {
 
         Stream<MappingItem> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
-                ArrayUtils.isEmpty(linkingItems)
-                ? virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem)
-                : Stream.of(linkingItems));
+                linkingItems.isPresent()
+                ? linkingItems.get().stream()
+                : virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> objs = new ArrayList<>();
         try {
@@ -185,7 +216,7 @@ public class OutboundMatcher {
                     objs.add(connectorObject);
                     return true;
                 }
-            }, MappingUtils.buildOperationOptions(items));
+            }, MappingUtils.buildOperationOptions(items, moreAttrsToGet.orElse(null)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -202,13 +233,14 @@ public class OutboundMatcher {
             final MappingItem connObjectKeyItem,
             final String connObjectKeyValue,
             final Provision provision,
-            final LinkingMappingItem... linkingItems) {
+            final Optional<Collection<LinkingMappingItem>> linkingItems,
+            final Optional<String[]> moreAttrsToGet) {
 
         Stream<MappingItem> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
-                ArrayUtils.isEmpty(linkingItems)
-                ? virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem)
-                : Stream.of(linkingItems));
+                linkingItems.isPresent()
+                ? linkingItems.get().stream()
+                : virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
 
         ConnectorObject obj = null;
         try {
@@ -216,7 +248,7 @@ public class OutboundMatcher {
                     provision.getObjectClass(),
                     AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                     provision.isIgnoreCaseMatch(),
-                    MappingUtils.buildOperationOptions(items));
+                    MappingUtils.buildOperationOptions(items, moreAttrsToGet.orElse(null)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

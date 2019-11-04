@@ -18,20 +18,68 @@
  */
 package org.apache.syncope.core.provisioning.api.propagation;
 
+import java.util.Collections;
+import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public interface PropagationActions {
 
+    /**
+     * Return additional attributes to include in the result from the underlying connector.
+     *
+     * @param task propagation task
+     * @param orgUnit Realm provisioning information
+     * @return additional attributes to include in the result from the underlying connector
+     */
+    default Set<String> moreAttrsToGet(PropagationTask task, OrgUnit orgUnit) {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Return additional attributes to include in the result from the underlying connector.
+     *
+     * @param task propagation task
+     * @param provision Any provisioning information
+     * @return additional attributes to include in the result from the underlying connector
+     */
+    default Set<String> moreAttrsToGet(PropagationTask task, Provision provision) {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Executes logic before actual propagation.
+     *
+     * @param task propagation task
+     * @param beforeObj connector object read before propagation
+     */
     default void before(PropagationTask task, ConnectorObject beforeObj) {
         // do nothing
     }
 
+    /**
+     * Executes logic in case of propagation error.
+     * This method can throw {@link org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException} to
+     * ignore the reported error and continue.
+     *
+     * @param task propagation task
+     * @param execution execution result
+     * @param error propagation error
+     */
     default void onError(PropagationTask task, TaskExec execution, Exception error) {
         // do nothing
     }
 
+    /**
+     * Executes logic after actual propagation.
+     *
+     * @param task propagation task
+     * @param execution execution result
+     * @param afterObj connector object read after propagation
+     */
     default void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj) {
         // do nothing
     }

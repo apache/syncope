@@ -20,9 +20,11 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -219,8 +221,12 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             status.set("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass().getObjectClassValue());
 
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
+
+            Set<String> moreAttrsToGet = new HashSet<>();
+            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, orgUnit)));
+
             OperationOptions options = MappingUtils.buildOperationOptions(
-                    MappingUtils.getPullItems(orgUnit.getItems().stream()));
+                    MappingUtils.getPullItems(orgUnit.getItems().stream()), moreAttrsToGet.toArray(new String[0]));
 
             RealmPullResultHandler handler = buildRealmHandler();
             handler.setProfile(profile);
@@ -290,10 +296,15 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 handler.setPullExecutor(this);
 
                 try {
+                    Set<String> moreAttrsToGet = new HashSet<>();
+                    actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+
                     Stream<? extends Item> mapItems = Stream.concat(
                             MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                             virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
-                    OperationOptions options = MappingUtils.buildOperationOptions(mapItems);
+
+                    OperationOptions options = MappingUtils.buildOperationOptions(
+                            mapItems, moreAttrsToGet.toArray(new String[0]));
 
                     switch (pullTask.getPullMode()) {
                         case INCREMENTAL:

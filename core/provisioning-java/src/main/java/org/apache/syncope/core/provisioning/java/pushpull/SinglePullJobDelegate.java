@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -152,14 +154,18 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             handler.setPullExecutor(this);
 
             // execute filtered pull
+            Set<String> moreAttrsToGet = new HashSet<>();
+            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+
             Stream<? extends Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+
             connector.filteredReconciliation(
                     provision.getObjectClass(),
                     new AccountReconciliationFilterBuilder(connObjectKey, connObjectValue),
                     handler,
-                    MappingUtils.buildOperationOptions(mapItems));
+                    MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0])));
 
             try {
                 setGroupOwners(ghandler);

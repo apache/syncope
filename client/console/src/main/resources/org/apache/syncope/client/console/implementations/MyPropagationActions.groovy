@@ -18,6 +18,10 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.Collections
+import java.util.Set
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
+import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions
@@ -26,6 +30,16 @@ import org.identityconnectors.framework.common.objects.ConnectorObject
 @CompileStatic
 class MyPropagationActions implements PropagationActions {
   
+  @Override
+  Set<String> moreAttrsToGet(PropagationTask task, OrgUnit orgUnit) {
+    return Collections.emptySet();
+  }
+
+  @Override
+  Set<String> moreAttrsToGet(PropagationTask task, Provision provision) {
+    return Collections.emptySet();
+  }
+
   @Override
   void before(PropagationTask task, ConnectorObject beforeObj) {
     // do nothing

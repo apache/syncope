@@ -17,8 +17,11 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.Collections
 import org.apache.syncope.common.lib.patch.AnyPatch
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
+import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions
@@ -30,6 +33,16 @@ import org.quartz.JobExecutionException
 
 @CompileStatic
 class MyPullActions implements PullActions {
+
+  @Override
+  Set<String> moreAttrsToGet(ProvisioningProfile profile, OrgUnit orgUnit) {
+    return Collections.emptySet();
+  }
+
+  @Override
+  Set<String> moreAttrsToGet(ProvisioningProfile profile, Provision provision) {
+    return Collections.emptySet();
+  }
   
   @Override
   SyncDelta preprocess(ProvisioningProfile profile, SyncDelta delta) {

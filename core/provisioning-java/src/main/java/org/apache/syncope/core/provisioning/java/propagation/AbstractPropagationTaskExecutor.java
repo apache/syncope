@@ -301,28 +301,28 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 switch (task.getAnyTypeKind()) {
                     case USER:
                         try {
-                            resources = userDAO.findAllResourceKeys(task.getEntityKey());
-                        } catch (Exception e) {
-                            LOG.error("Could not read user {}", task.getEntityKey(), e);
-                        }
-                        break;
+                        resources = userDAO.findAllResourceKeys(task.getEntityKey());
+                    } catch (Exception e) {
+                        LOG.error("Could not read user {}", task.getEntityKey(), e);
+                    }
+                    break;
 
                     case GROUP:
                         try {
-                            resources = groupDAO.findAllResourceKeys(task.getEntityKey());
-                        } catch (Exception e) {
-                            LOG.error("Could not read group {}", task.getEntityKey(), e);
-                        }
-                        break;
+                        resources = groupDAO.findAllResourceKeys(task.getEntityKey());
+                    } catch (Exception e) {
+                        LOG.error("Could not read group {}", task.getEntityKey(), e);
+                    }
+                    break;
 
                     case ANY_OBJECT:
                     default:
                         try {
-                            resources = anyObjectDAO.findAllResourceKeys(task.getEntityKey());
-                        } catch (Exception e) {
-                            LOG.error("Could not read any object {}", task.getEntityKey(), e);
-                        }
-                        break;
+                        resources = anyObjectDAO.findAllResourceKeys(task.getEntityKey());
+                    } catch (Exception e) {
+                        LOG.error("Could not read any object {}", task.getEntityKey(), e);
+                    }
+                    break;
                 }
             }
             if (task.getAnyTypeKind() == null || !resources.contains(task.getResource().getKey())) {
@@ -398,8 +398,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 beforeObj = provision == null && orgUnit == null
                         ? null
                         : orgUnit == null
-                                ? getRemoteObject(task, connector, provision, false)
-                                : getRemoteObject(task, connector, orgUnit, false);
+                                ? getRemoteObject(task, connector, provision, actions, false)
+                                : getRemoteObject(task, connector, orgUnit, actions, false);
             } else if (taskInfo.getBeforeObj().isPresent()) {
                 beforeObj = taskInfo.getBeforeObj().get();
             }
@@ -468,8 +468,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     afterObj = provision == null && orgUnit == null
                             ? null
                             : orgUnit == null
-                                    ? getRemoteObject(task, connector, provision, true)
-                                    : getRemoteObject(task, connector, orgUnit, true);
+                                    ? getRemoteObject(task, connector, provision, actions, true)
+                                    : getRemoteObject(task, connector, orgUnit, actions, true);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
@@ -612,6 +612,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param connector connector facade proxy.
      * @param task current propagation task.
      * @param provision provision
+     * @param actions propagation actions
      * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
@@ -619,13 +620,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTask task,
             final Connector connector,
             final Provision provision,
+            final List<PropagationActions> actions,
             final boolean latest) {
 
         String connObjectKeyValue = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
 
-        List<ConnectorObject> matches = outboundMatcher.match(task, connector, provision, connObjectKeyValue);
+        List<ConnectorObject> matches = outboundMatcher.match(task, connector, provision, actions, connObjectKeyValue);
         LOG.debug("Found for propagation task {}: {}", task, matches);
 
         return matches.isEmpty() ? null : matches.get(0);
@@ -637,6 +639,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param connector connector facade proxy.
      * @param task current propagation task.
      * @param orgUnit orgUnit
+     * @param actions propagation actions
      * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
@@ -644,11 +647,15 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTask task,
             final Connector connector,
             final OrgUnit orgUnit,
+            final List<PropagationActions> actions,
             final boolean latest) {
 
         String connObjectKey = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
+
+        Set<String> moreAttrsToGet = new HashSet<>();
+        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(task, orgUnit)));
 
         ConnectorObject obj = null;
         Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
@@ -659,7 +666,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey),
                         orgUnit.isIgnoreCaseMatch(),
                         MappingUtils.buildOperationOptions(
-                                MappingUtils.getPropagationItems(orgUnit.getItems().stream())));
+                                MappingUtils.getPropagationItems(orgUnit.getItems().stream()),
+                                moreAttrsToGet.toArray(new String[0])));
             } catch (TimeoutException toe) {
                 LOG.debug("Request timeout", toe);
                 throw toe;
