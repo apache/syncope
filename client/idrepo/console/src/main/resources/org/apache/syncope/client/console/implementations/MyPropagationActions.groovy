@@ -18,7 +18,6 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import java.util.Collections
 import java.util.Set
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
 import org.apache.syncope.core.persistence.api.entity.resource.Provision
@@ -32,12 +31,12 @@ class MyPropagationActions implements PropagationActions {
   
   @Override
   Set<String> moreAttrsToGet(PropagationTask task, OrgUnit orgUnit) {
-    return Collections.emptySet();
+    return Set.of();
   }
 
   @Override
   Set<String> moreAttrsToGet(PropagationTask task, Provision provision) {
-    return Collections.emptySet();
+    return Set.of();
   }
 
   @Override

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -33,10 +32,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvider {
 
     private static final long serialVersionUID = -5385695412826366167L;
-
-    public IdMImplementationInfoProvider(final ClassPathScanImplementationLookup lookup) {
-        super(lookup);
-    }
 
     @Override
     public ViewMode getViewMode(final ImplementationTO implementation) {

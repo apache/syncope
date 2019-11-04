@@ -19,16 +19,12 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
@@ -43,21 +39,5 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         builder.properties(WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED + "=false");
         return super.configure(builder);
-    }
-
-    @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
-    @Bean
-    public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
-        lookup.load();
-        return lookup;
-    }
-
-    @ConditionalOnMissingBean(name = "mimeTypesLoader")
-    @Bean
-    public MIMETypesLoader mimeTypesLoader() {
-        MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
-        mimeTypesLoader.load();
-        return mimeTypesLoader;
     }
 }

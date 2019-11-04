@@ -118,18 +118,25 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     private Integer queueCapacity;
 
+    @Autowired
     private ExternalResourceProvider resourceProvider;
 
+    @Autowired
     private AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
 
+    @Autowired
     private StatusProvider statusProvider;
 
+    @Autowired
     private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
 
+    @Autowired
     private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider;
 
+    @Autowired
     private ImplementationInfoProvider implementationInfoProvider;
 
+    @Autowired
     private PolicyTabProvider policyTabProvider;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
@@ -208,14 +215,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         getResourceSettings().setThrowExceptionOnMissingResource(true);
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
-
-        resourceProvider = lookup.getResourceProvider();
-        anyWizardBuilderAdditionalSteps = lookup.getAnyWizardBuilderAdditionalSteps();
-        statusProvider = lookup.getStatusProvider();
-        virSchemaDetailsPanelProvider = lookup.getVirSchemaDetailsPanelProvider();
-        anyDirectoryPanelAditionalActionLinksProvider = lookup.getAnyDirectoryPanelAditionalActionLinksProvider();
-        implementationInfoProvider = lookup.getImplementationInfoProvider();
-        policyTabProvider = lookup.getPolicyTabProvider();
 
         lookup.getPageClasses().
                 forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, Constants.ROLE_AUTHENTICATED));
