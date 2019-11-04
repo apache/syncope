@@ -53,6 +53,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.MatchType;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -152,7 +153,8 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 if (StringUtils.equals(key, STATUS)) {
                     ReconStatus status = ReconciliationRestClient.status(
                             new ReconQuery.Builder(anyType, resource.getKey()).
-                            connObjectKeyValue(bean.getAttr(ConnIdSpecialName.UID).get().getValues().get(0)).build());
+                                    connObjectKeyValue(bean.getAttr(ConnIdSpecialName.UID).get().getValues().get(0)).
+                                    build());
 
                     return status.getOnSyncope() == null
                             ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
@@ -283,12 +285,13 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String cookie,
             final String fiql) {
 
-        Pair<String, List<ConnObjectTO>> items = ResourceRestClient.listConnObjects(resource,
+        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().searchConnObjects(resource,
                 anyType,
-                SIZE,
-                cookie,
-                new SortParam<>(ConnIdSpecialName.UID, true),
-                fiql);
+                new ConnObjectTOQuery.Builder().
+                        size(SIZE).
+                        pagedResultsCookie(cookie).
+                        fiql(fiql),
+                new SortParam<>(ConnIdSpecialName.UID, true));
 
         nextPageCookie = items.getLeft();
         return items.getRight();

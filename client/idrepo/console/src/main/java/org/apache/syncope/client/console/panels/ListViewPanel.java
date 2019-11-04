@@ -227,6 +227,15 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         };
     }
 
+    /**
+     * Use this to refresh the ListView with updated items (e.g. from callback methods)
+     *
+     * @param elements
+     */
+    public void refreshList(final List<T> elements) {
+        beans.setList(elements);
+    }
+
     public void setCheckAvailability(final CheckAvailability check) {
         // used to perform selectable enabling check condition
         this.check.setObject(check);
@@ -384,8 +393,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             LOG.debug("Field value {}", value);
 
             return Optional.ofNullable(value)
-                .map(o -> new Label("field", new ResourceModel(o.toString(), o.toString())))
-                .orElseGet(() -> new Label("field", StringUtils.EMPTY));
+                    .map(o -> new Label("field", new ResourceModel(o.toString(), o.toString())))
+                    .orElseGet(() -> new Label("field", StringUtils.EMPTY));
         }
 
         protected T getActualItem(final T item, final List<T> list) {

@@ -55,26 +55,21 @@ public class ResourceRestClient extends BaseRestClient {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
-    public static Pair<String, List<ConnObjectTO>> listConnObjects(
+    public Pair<String, List<ConnObjectTO>> searchConnObjects(
             final String resource,
             final String anyTypeKey,
-            final int size,
-            final String pagedResultCookie,
-            final SortParam<String> sort,
-            final String fiql) {
-
-        ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().
-                pagedResultsCookie(pagedResultCookie).
-                size(size).
-                orderBy(toOrderBy(sort)).
-                fiql(fiql);
+            final ConnObjectTOQuery.Builder queryBuilder,
+            final SortParam<String> sortParam) {
 
         final List<ConnObjectTO> result = new ArrayList<>();
         String nextPageResultCookie = null;
 
         PagedConnObjectTOResult list;
         try {
-            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, builder.build());
+            if (sortParam != null) {
+                queryBuilder.orderBy(toOrderBy(sortParam));
+            }
+            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, queryBuilder.build());
             result.addAll(list.getResult());
             nextPageResultCookie = list.getPagedResultsCookie();
         } catch (Exception e) {

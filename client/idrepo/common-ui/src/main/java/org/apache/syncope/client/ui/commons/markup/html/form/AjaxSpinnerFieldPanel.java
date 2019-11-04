@@ -48,6 +48,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     private final Options options;
 
+    private SpinnerBehavior behavior;
+
     private AjaxSpinnerFieldPanel(
             final String id,
             final String name,
@@ -64,7 +66,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
             @Override
             public JQueryUIBehavior newWidgetBehavior(final String selector) {
-                SpinnerBehavior behavior = new SpinnerBehavior(selector, new SpinnerAdapter());
+                behavior = new SpinnerBehavior(selector, new SpinnerAdapter());
                 behavior.setOptions(options);
                 return behavior;
             }
@@ -227,6 +229,17 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         }
 
         return panel;
+    }
+
+    @Override
+    public FieldPanel<T> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        AjaxSpinner.class.cast(field).setEnabled(!readOnly);
+        options.set("disabled", readOnly);
+        if (behavior != null) {
+            behavior.setOptions(options);
+        }
+        return this;
     }
 
     public static class Builder<T extends Number> {
