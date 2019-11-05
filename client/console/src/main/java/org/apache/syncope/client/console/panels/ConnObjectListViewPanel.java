@@ -307,7 +307,8 @@ public abstract class ConnObjectListViewPanel extends Panel {
         clause.setType(SearchClause.Type.ATTRIBUTE);
         clause.setProperty("");
 
-        AnyTypeKind anyTypeKind = anyType.equals(SyncopeConstants.REALM_ANYTYPE)
+        AnyTypeKind anyTypeKind =
+                StringUtils.equals(anyType, SyncopeConstants.REALM_ANYTYPE) || StringUtils.isEmpty(anyType)
                 ? AnyTypeKind.ANY_OBJECT
                 : anyTypeRestClient.read(anyType).getKind();
 
