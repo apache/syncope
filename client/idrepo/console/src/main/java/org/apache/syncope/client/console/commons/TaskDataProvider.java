@@ -29,15 +29,12 @@ public abstract class TaskDataProvider<T extends TaskTO> extends DirectoryDataPr
 
     private static final long serialVersionUID = -20112718133295756L;
 
-    private final SortableDataProviderComparator<T> comparator;
-
     protected final TaskType taskType;
 
     public TaskDataProvider(final int paginatorRows, final TaskType taskType) {
         super(paginatorRows);
 
         setSort("start", SortOrder.ASCENDING);
-        comparator = new SortableDataProviderComparator<>(this);
         this.taskType = taskType;
     }
 

@@ -104,7 +104,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
         super();
         this.anyTypeClasses = anyTypeClasses;
-        this.attrs = new ListModel<>(Collections.<Attr>emptyList());
+        this.attrs = new ListModel<>(Collections.emptyList());
 
         this.setOutputMarkupId(true);
 
@@ -119,7 +119,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 map(EntityTO::getKey).collect(Collectors.toList()));
         setSchemas(classes);
         setAttrs();
-        return AbstractAttrsWizardStep.this.getAttrsFromTO();
+        return getAttrsFromTO();
     }
 
     protected boolean reoderSchemas() {
@@ -133,17 +133,14 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     }
 
     protected void setSchemas(final List<String> anyTypeClasses, final Map<String, S> scs) {
-        final List<S> allSchemas;
-        if (anyTypeClasses.isEmpty()) {
-            allSchemas = new ArrayList<>();
-        } else {
-            allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
-        }
+        List<S> allSchemas = anyTypeClasses.isEmpty()
+                ? Collections.emptyList()
+                : SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
 
         scs.clear();
 
         if (reoderSchemas()) {
-            // 1. remove attributes not selected for display
+            // remove attributes not selected for display
             allSchemas.removeAll(allSchemas.stream().
                     filter(schemaTO -> !whichAttrs.contains(schemaTO.getKey())).collect(Collectors.toSet()));
         }

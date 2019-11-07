@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -47,7 +46,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    protected final IModel<List<MembershipTO>> membershipTOs;
+    protected final IModel<List<MembershipTO>> memberships;
 
     protected final Map<String, Map<String, S>> membershipSchemas = new LinkedHashMap<>();
 
@@ -58,37 +57,36 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
 
         super(modelObject.getInnerObject(), AjaxWizard.Mode.CREATE, anyTypeClasses, whichAttrs, null);
 
-        this.membershipTOs = new ListModel<>(Collections.<MembershipTO>emptyList());
+        this.memberships = new ListModel<>(Collections.<MembershipTO>emptyList());
 
         this.setOutputMarkupId(true);
     }
 
     @SuppressWarnings("unchecked")
-    private List<MembershipTO> loadMembershipAttrs() {
-        List<MembershipTO> memberships = new ArrayList<>();
+    private List<MembershipTO> loadMemberships() {
+        membershipSchemas.clear();
+
+        List<MembershipTO> membs = new ArrayList<>();
         try {
-            membershipSchemas.clear();
-
-            for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
-                    "memberships", anyTO).get(anyTO)) {
-                setSchemas(membership.getGroupKey(),
-                        AnyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())).
+            ((List<MembershipTO>) PropertyResolver.getPropertyField("memberships", anyTO).get(anyTO)).forEach(memb -> {
+                setSchemas(memb.getGroupKey(),
+                        anyTypeClassRestClient.list(getMembershipAuxClasses(memb, anyTO.getType())).
                                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
-                setAttrs(membership);
+                setAttrs(memb);
 
-                if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
-                    memberships.add(membership);
-                } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
-                    memberships.add(membership);
-                } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
-                    memberships.add(membership);
+                if (this instanceof PlainAttrs && !memb.getPlainAttrs().isEmpty()) {
+                    membs.add(memb);
+                } else if (this instanceof DerAttrs && !memb.getDerAttrs().isEmpty()) {
+                    membs.add(memb);
+                } else if (this instanceof VirAttrs && !memb.getVirAttrs().isEmpty()) {
+                    membs.add(memb);
                 }
-            }
+            });
         } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
             // ignore
         }
 
-        return memberships;
+        return membs;
     }
 
     private void setSchemas(final String membership, final List<String> anyTypeClasses) {
@@ -119,8 +117,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        if (CollectionUtils.isEmpty(attrs.getObject())
-                && CollectionUtils.isEmpty(membershipTOs.getObject())) {
+        if (CollectionUtils.isEmpty(attrs.getObject()) && CollectionUtils.isEmpty(memberships.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
                     String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
                             getString("attribute.empty.list"))));
@@ -130,8 +127,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
     @Override
     public boolean evaluate() {
         this.attrs.setObject(loadAttrs());
-        this.membershipTOs.setObject(loadMembershipAttrs());
-        return !attrs.getObject().isEmpty() || !membershipTOs.getObject().isEmpty();
+        this.memberships.setObject(loadMemberships());
+        return !attrs.getObject().isEmpty() || !memberships.getObject().isEmpty();
     }
-
 }

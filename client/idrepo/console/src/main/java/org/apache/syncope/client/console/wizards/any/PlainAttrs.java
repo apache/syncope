@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +30,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -96,9 +96,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
-        add(new ListView<MembershipTO>("membershipsPlainSchemas", membershipTOs) {
+        add(new ListView<MembershipTO>("membershipsPlainSchemas", memberships) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 6741044372185745296L;
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
@@ -154,20 +154,18 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        List<Attr> attrs = new ArrayList<>();
-
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
-        attrs.addAll(schemas.values().stream().map(schema -> {
-            Attr attrTO = new Attr();
-            attrTO.setSchema(schema.getKey());
+        List<Attr> attrs = schemas.values().stream().map(schema -> {
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                attrTO.getValues().add("");
+                attr.getValues().add("");
             } else {
-                attrTO = attrMap.get(schema.getKey());
+                attr = attrMap.get(schema.getKey());
             }
-            return attrTO;
-        }).collect(Collectors.toList()));
+            return attr;
+        }).collect(Collectors.toList());
 
         anyTO.getPlainAttrs().clear();
         anyTO.getPlainAttrs().addAll(attrs);
@@ -175,27 +173,22 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<Attr> attrs = new ArrayList<>();
+        Map<String, Attr> attrMap =
+                GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()
+                ? EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO).
+                        getMembership(membershipTO.getGroupKey()).get().getPlainAttrs())
+                : new HashMap<>();
 
-        final Map<String, Attr> attrMap;
-        if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
-            attrMap = EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO)
-                    .getMembership(membershipTO.getGroupKey()).get().getPlainAttrs());
-        } else {
-            attrMap = new HashMap<>();
-        }
-
-        attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
-                map(schema -> {
-                    Attr attrTO = new Attr();
-                    attrTO.setSchema(schema.getKey());
-                    if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                        attrTO.getValues().add(StringUtils.EMPTY);
-                    } else {
-                        attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
-                    }
-                    return attrTO;
-                }).collect(Collectors.toList()));
+        List<Attr> attrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
+            if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
+                attr.getValues().add(StringUtils.EMPTY);
+            } else {
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+            }
+            return attr;
+        }).collect(Collectors.toList());
 
         membershipTO.getPlainAttrs().clear();
         membershipTO.getPlainAttrs().addAll(attrs);
@@ -274,5 +267,4 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             });
         }
     }
-
 }

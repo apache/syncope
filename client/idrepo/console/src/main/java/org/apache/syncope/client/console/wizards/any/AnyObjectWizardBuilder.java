@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.syncope.client.console.layout.AnyObjectForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
@@ -39,7 +38,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
     private static final long serialVersionUID = -2480279868319546243L;
 
-    private final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
+    protected final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
     public AnyObjectWizardBuilder(
             final AnyObjectTO anyObjectTO,
@@ -48,7 +47,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             final PageReference pageRef) {
 
         super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new)
-            .orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+                .orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**
@@ -97,10 +96,10 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
     }
 
     @Override
-    protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
-        return new AnyObjectDetails(
+    protected Optional<Details<AnyObjectTO>> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
+        return Optional.of(new AnyObjectDetails(
                 modelObject,
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null, pageRef);
+                modelObject.getInnerObject().getKey() != null, pageRef));
     }
 }
