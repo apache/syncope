@@ -20,6 +20,7 @@ package org.apache.syncope.fit.console;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Locale;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -55,6 +56,8 @@ public abstract class AbstractConsoleITCase {
 
     @BeforeAll
     public static void setUp() {
+        Locale.setDefault(Locale.ENGLISH);
+
         TESTER = ConsoleSetup.TESTER;
 
         SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
