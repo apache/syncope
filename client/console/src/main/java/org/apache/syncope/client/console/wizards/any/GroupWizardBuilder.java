@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.client.console.layout.GroupForm;
@@ -37,7 +38,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final GroupRestClient groupRestClient = new GroupRestClient();
+    protected final GroupRestClient groupRestClient = new GroupRestClient();
 
     public GroupWizardBuilder(
             final GroupTO groupTO,
@@ -83,35 +84,36 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     @Override
     protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
-        GroupTO inner = modelObject instanceof GroupWrapper
+        GroupTO updated = modelObject instanceof GroupWrapper
                 ? GroupWrapper.class.cast(modelObject).fillDynamicConditions()
                 : modelObject.getInnerObject();
 
         ProvisioningResult<GroupTO> result;
-        if (inner.getKey() == null) {
-            result = groupRestClient.create(inner);
+        if (updated.getKey() == null) {
+            result = groupRestClient.create(updated);
         } else {
-            fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
-            GroupPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
-            GroupTO originaObj = getOriginalItem().getInnerObject();
+            GroupTO original = getOriginalItem().getInnerObject();
+            fixPlainAndVirAttrs(updated, original);
 
             // SYNCOPE-1170
             boolean othersNotEqualsOrBlanks =
-                    !inner.getADynMembershipConds().equals(originaObj.getADynMembershipConds())
-                    || (StringUtils.isNotBlank(originaObj.getUDynMembershipCond()) && StringUtils.isBlank(inner.
-                    getUDynMembershipCond()))
-                    || (StringUtils.isBlank(originaObj.getUDynMembershipCond()) && StringUtils.isNotBlank(inner.
-                    getUDynMembershipCond()))
-                    || StringUtils.isAllBlank(originaObj.getUDynMembershipCond(), inner.getUDynMembershipCond())
-                    || !inner.getUDynMembershipCond().equals(originaObj.getUDynMembershipCond())
-                    || !CollectionUtils.diff(inner.getTypeExtensions(), originaObj.getTypeExtensions()).isEmpty();
+                    !updated.getADynMembershipConds().equals(original.getADynMembershipConds())
+                    || (StringUtils.isNotBlank(original.getUDynMembershipCond())
+                    && StringUtils.isBlank(updated.getUDynMembershipCond()))
+                    || (StringUtils.isBlank(original.getUDynMembershipCond())
+                    && StringUtils.isNotBlank(updated.getUDynMembershipCond()))
+                    || StringUtils.isAllBlank(original.getUDynMembershipCond(), updated.getUDynMembershipCond())
+                    || !updated.getUDynMembershipCond().equals(original.getUDynMembershipCond())
+                    || !CollectionUtils.diff(updated.getTypeExtensions(), original.getTypeExtensions()).isEmpty();
+
+            GroupPatch patch = AnyOperations.diff(updated, original, false);
 
             // update just if it is changed
             if (patch.isEmpty() && !othersNotEqualsOrBlanks) {
                 result = new ProvisioningResult<>();
-                result.setEntity(inner);
+                result.setEntity(updated);
             } else {
-                result = groupRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+                result = groupRestClient.update(original.getETagValue(), patch);
             }
         }
 
@@ -119,10 +121,10 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
     }
 
     @Override
-    protected Details<GroupTO> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
-        return new GroupDetails(
+    protected Optional<Details<GroupTO>> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
+        return Optional.of(new GroupDetails(
                 GroupWrapper.class.cast(modelObject),
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null, pageRef);
+                modelObject.getInnerObject().getKey() != null, pageRef));
     }
 }

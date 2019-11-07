@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -70,10 +71,10 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
     }
 
     @Override
-    protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
-        final Details<UserTO> details = super.addOptionalDetailsPanel(modelObject);
-        if (templatable instanceof RealmTO) {
-            details.disableRealmSpecification();
+    protected Optional<Details<UserTO>> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
+        Optional<Details<UserTO>> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO && details.isPresent()) {
+            details.get().disableRealmSpecification();
         }
         return details;
     }

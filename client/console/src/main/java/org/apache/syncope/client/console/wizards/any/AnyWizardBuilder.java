@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -83,10 +84,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
     @Override
     protected WizardModel buildModelSteps(final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
         // optional details panel step
-        final Details<A> details = addOptionalDetailsPanel(modelObject);
-        if (details != null) {
-            wizardModel.add(details);
-        }
+        addOptionalDetailsPanel(modelObject).ifPresent(wizardModel::add);
 
         if ((this instanceof GroupWizardBuilder)
                 && (modelObject.getInnerObject() instanceof GroupTO)
@@ -162,15 +160,11 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         return wizardModel;
     }
 
-    protected Details<A> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
+    protected Optional<Details<A>> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
         if (modelObject.getInnerObject().getKey() == null) {
-            return null;
+            return Optional.empty();
         } else {
-            return new Details<>(
-                    modelObject,
-                    mode == AjaxWizard.Mode.TEMPLATE,
-                    true,
-                    pageRef);
+            return Optional.of(new Details<>(modelObject, mode == AjaxWizard.Mode.TEMPLATE, true, pageRef));
         }
     }
 

@@ -71,7 +71,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
-        add(new ListView<MembershipTO>("membershipsDerSchemas", membershipTOs) {
+        add(new ListView<MembershipTO>("membershipsDerSchemas", memberships) {
 
             private static final long serialVersionUID = 6741044372185745296L;
 

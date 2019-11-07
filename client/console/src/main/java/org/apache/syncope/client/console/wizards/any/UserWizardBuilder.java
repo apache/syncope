@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.layout.UserForm;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
@@ -38,13 +39,6 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
     protected final UserRestClient userRestClient = new UserRestClient();
 
-    /**
-     * Constructor to be used for templating only.
-     *
-     * @param anyTypeClasses any type classes.
-     * @param formLayoutInfo form layout.
-     * @param pageRef reference page.
-     */
     public UserWizardBuilder(
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
@@ -53,15 +47,6 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
         super(new UserWrapper(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
-    /**
-     * Constructor to be used for Approval and Remediation details only.
-     *
-     * @param previousUserTO previous user status.
-     * @param userTO new user status to be approved.
-     * @param anyTypeClasses any type classes.
-     * @param formLayoutInfo from layout.
-     * @param pageRef reference page.
-     */
     public UserWizardBuilder(
             final UserTO previousUserTO,
             final UserTO userTO,
@@ -104,13 +89,13 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     }
 
     @Override
-    protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
-        return new UserDetails(
+    protected Optional<Details<UserTO>> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
+        return Optional.of(new UserDetails(
                 UserWrapper.class.cast(modelObject),
                 mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
-                pageRef);
+                pageRef));
     }
 
     /**

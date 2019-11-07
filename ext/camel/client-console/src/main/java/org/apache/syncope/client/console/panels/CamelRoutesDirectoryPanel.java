@@ -84,7 +84,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected CamelRoutesProvider dataProvider() {
-        return new CamelRoutesProvider(anyTypeKind, rows);
+        return new CamelRoutesProvider(rows);
     }
 
     @Override
@@ -148,13 +148,10 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final AnyTypeKind anyTypeKind;
-
         private final SortableDataProviderComparator<CamelRouteTO> comparator;
 
-        private CamelRoutesProvider(final AnyTypeKind anyTypeKind, final int paginatorRows) {
+        private CamelRoutesProvider(final int paginatorRows) {
             super(paginatorRows);
-            this.anyTypeKind = anyTypeKind;
             comparator = new SortableDataProviderComparator<>(this);
         }
 

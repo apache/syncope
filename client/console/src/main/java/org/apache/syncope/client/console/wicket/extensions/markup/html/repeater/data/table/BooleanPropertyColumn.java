@@ -47,7 +47,7 @@ public class BooleanPropertyColumn<T> extends PropertyColumn<T, String> {
         Object obj = bwi.getPropertyValue(getPropertyExpression());
 
         item.add(new Label(componentId, StringUtils.EMPTY));
-        if (Boolean.valueOf(obj.toString())) {
+        if (obj != null && Boolean.valueOf(obj.toString())) {
             item.add(new AttributeModifier("class", "glyphicon glyphicon-ok"));
             item.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
         }

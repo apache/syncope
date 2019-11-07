@@ -82,7 +82,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
-        add(new ListView<MembershipTO>("membershipsVirSchemas", membershipTOs) {
+        add(new ListView<MembershipTO>("membershipsVirSchemas", memberships) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
