@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeIdRepoConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.PreviewUtils;
+import java.util.Locale;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
@@ -79,6 +80,8 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
     @BeforeAll
     public static void setUp() {
+        Locale.setDefault(Locale.ENGLISH);
+
         synchronized (LOG) {
             if (UTILITY_UI == null) {
                 AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();

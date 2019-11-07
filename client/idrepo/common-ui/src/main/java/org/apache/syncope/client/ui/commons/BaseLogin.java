@@ -22,13 +22,15 @@ import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -47,6 +49,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -255,8 +259,23 @@ public abstract class BaseLogin extends WebPage {
                 }
             });
 
-            // set default value to English
-            getModel().setObject(Locale.ENGLISH);
+            // set default language selection
+            List<Locale> filtered = Collections.emptyList();
+
+            String acceptLanguage = ((ServletWebRequest) RequestCycle.get().getRequest()).
+                    getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+            if (StringUtils.isNotBlank(acceptLanguage)) {
+                try {
+                    filtered = Locale.filter(Locale.LanguageRange.parse(acceptLanguage), getSupportedLocales());
+                } catch (Exception e) {
+                    LOG.debug("Could not parse {} HTTP header value '{}'",
+                            HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage, e);
+                }
+            }
+
+            getModel().setObject(filtered.isEmpty()
+                    ? Locale.ENGLISH
+                    : filtered.get(0));
         }
     }
 }
