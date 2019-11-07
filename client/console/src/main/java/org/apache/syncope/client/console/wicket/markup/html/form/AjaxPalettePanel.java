@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -92,7 +94,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
     private void initialize(final IModel<List<T>> model, final Builder<T> builder) {
         setOutputMarkupId(true);
 
-        this.palette = new NonI18nPalette<T>(
+        palette = new NonI18nPalette<T>(
                 "paletteField", model, choicesModel, builder.renderer, 8, builder.allowOrder, builder.allowMoveAll) {
 
             private static final long serialVersionUID = -3074655279011678437L;
@@ -109,7 +111,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             @Override
             protected Recorder<T> newRecorderComponent() {
-                return new Recorder<T>("recorder", this) {
+                Recorder<T> recorder = new Recorder<T>("recorder", this) {
 
                     private static final long serialVersionUID = -9169109967480083523L;
 
@@ -158,6 +160,17 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         return selected;
                     }
                 };
+                recorder.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = -6139318907146065915L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        processInput();
+                    }
+                });
+
+                return recorder;
             }
         };
 
