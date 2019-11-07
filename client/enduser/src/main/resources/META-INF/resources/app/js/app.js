@@ -61,7 +61,14 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
     $translatePartialLoaderProvider.addPart('dynamic');
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
-    }).preferredLanguage('en');
+    }).registerAvailableLanguageKeys(['en', 'it', 'de', 'ja'], {
+      'en_*': 'en',
+      'de_*': 'de',
+      'it_*': 'it',
+      'ja_*': 'ja',
+      '*': 'en'
+    }).fallbackLanguage('en').
+       determinePreferredLanguage();
     /*
      * State provider
      */
@@ -375,9 +382,9 @@ app.run(['$rootScope', '$state', 'AuthService', '$transitions',
       }
     };
   }]);
-app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 'SAML2IdPService',
+app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', 'InfoService', 'SAML2IdPService',
   'OIDCProviderService', 'DynamicTemplateService',
-  function ($scope, $rootScope, InfoService, SAML2IdPService, OIDCProviderService, DynamicTemplateService) {
+  function ($scope, $rootScope, $translate, InfoService, SAML2IdPService, OIDCProviderService, DynamicTemplateService) {
     $scope.initApplication = function () {
       /* 
        * disable by default wizard buttons in self-registration
@@ -396,7 +403,9 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           {id: '4', name: '日本語', code: 'ja', format: 'yyyy/MM/dd HH:mm'}
         ]
       };
-      $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages[1];
+      $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages.filter(function(obj) {
+        return obj.code === $translate.preferredLanguage();
+      })[0];
       /*
        |--------------------------------------------------------------------------
        | Syncope Enduser properties initialization
