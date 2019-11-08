@@ -235,7 +235,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
-                if (org.apache.commons.lang3.StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
+                if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
@@ -432,7 +432,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     ? Optional.empty()
                     : previousObject.getPlainAttr(attr.getSchema());
             if (previousObject != null
-                    && ((prevAttr.isEmpty() && attr.getValues().stream().anyMatch(StringUtils::isNotBlank))
+                    && ((!prevAttr.isPresent() && attr.getValues().stream().anyMatch(StringUtils::isNotBlank))
                     || (prevAttr.isPresent() && !ListUtils.isEqualList(
                     prevAttr.get().getValues().stream().
                             filter(StringUtils::isNotBlank).collect(Collectors.toList()),
@@ -446,5 +446,4 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             }
         }
     }
-
 }
