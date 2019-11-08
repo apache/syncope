@@ -91,7 +91,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             try {
                 propertySchemaClass = ClassUtils.getClass(property.getSchema().getType());
                 if (ClassUtils.isPrimitiveOrWrapper(propertySchemaClass)) {
-                    propertySchemaClass = org.apache.commons.lang3.ClassUtils.primitiveToWrapper(propertySchemaClass);
+                    propertySchemaClass = ClassUtils.primitiveToWrapper(propertySchemaClass);
                 }
             } catch (ClassNotFoundException e) {
                 LOG.error("Error parsing attribute type", e);

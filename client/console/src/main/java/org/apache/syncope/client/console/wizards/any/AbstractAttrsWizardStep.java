@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.cxf.common.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -236,7 +236,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
-                if (org.apache.commons.lang3.StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
+                if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
@@ -433,13 +433,12 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     ? Optional.empty()
                     : previousObject.getPlainAttr(attrTO.getSchema());
             if (previousObject != null
-                    && ((!prevAttr.isPresent() && attrTO.getValues().stream().anyMatch(
-                    org.apache.commons.lang3.StringUtils::isNotBlank))
+                    && ((!prevAttr.isPresent() && attrTO.getValues().stream().anyMatch(StringUtils::isNotBlank))
                     || (prevAttr.isPresent() && !ListUtils.isEqualList(
                     prevAttr.get().getValues().stream().
-                            filter(org.apache.commons.lang3.StringUtils::isNotBlank).collect(Collectors.toList()),
+                            filter(StringUtils::isNotBlank).collect(Collectors.toList()),
                     attrTO.getValues().stream().
-                            filter(org.apache.commons.lang3.StringUtils::isNotBlank).collect(Collectors.toList()))))) {
+                            filter(StringUtils::isNotBlank).collect(Collectors.toList()))))) {
 
                 List<String> oldValues = prevAttr.isPresent()
                         ? prevAttr.get().getValues()
@@ -448,5 +447,4 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             }
         }
     }
-
 }
