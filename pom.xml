@@ -401,7 +401,7 @@ under the License.
 
     <cxf.version>3.2.11</cxf.version>
 
-    <jackson.version>2.10.0</jackson.version>
+    <jackson.version>2.10.1</jackson.version>
 
     <spring.version>5.1.11.RELEASE</spring.version>
     <spring-security.version>5.1.7.RELEASE</spring-security.version>
