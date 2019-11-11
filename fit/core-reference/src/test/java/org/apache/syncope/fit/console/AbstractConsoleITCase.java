@@ -26,10 +26,11 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.
 
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
-import org.apache.syncope.client.console.SyncopeIdRepoConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import java.util.Locale;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
@@ -73,6 +74,20 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         }
 
         @Bean
+        public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+            lookup.load();
+            return lookup;
+        }
+
+        @Bean
+        public MIMETypesLoader mimeTypesLoader() {
+            MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
+            mimeTypesLoader.load();
+            return mimeTypesLoader;
+        }
+
+        @Bean
         public PreviewUtils previewUtils() {
             return new PreviewUtils();
         }
@@ -87,7 +102,6 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
                 AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
                 ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
                 ctx.register(SyncopeWebApplication.class);
-                ctx.register(SyncopeIdRepoConsoleContext.class);
                 ctx.register(SyncopeIdMConsoleContext.class);
                 ctx.refresh();
 
