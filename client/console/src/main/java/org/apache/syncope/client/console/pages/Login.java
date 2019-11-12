@@ -102,7 +102,7 @@ public class Login extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -110,10 +110,10 @@ public class Login extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         });
-        form.add(languageSelect);
+        form.add(languageSelect.setOutputMarkupId(true));
 
         DomainDropDown domainSelect = new DomainDropDown("domain");
         if (SyncopeConsoleApplication.get().getDomains().size() == 1) {
@@ -125,7 +125,7 @@ public class Login extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -133,10 +133,10 @@ public class Login extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         });
-        form.add(domainSelect);
+        form.add(domainSelect.setOutputMarkupId(true));
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
