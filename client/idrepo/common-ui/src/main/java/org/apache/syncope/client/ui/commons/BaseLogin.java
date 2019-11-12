@@ -130,7 +130,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -138,10 +138,10 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         });
-        form.add(languageSelect);
+        form.add(languageSelect.setOutputMarkupId(true));
 
         DomainDropDown domainSelect = new DomainDropDown("domain", domains);
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
@@ -150,7 +150,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -158,10 +158,10 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                target.add(form);
             }
         });
-        form.add(domainSelect);
+        form.add(domainSelect.setOutputMarkupId(true));
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
