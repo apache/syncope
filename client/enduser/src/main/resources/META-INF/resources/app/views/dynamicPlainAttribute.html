@@ -16,7 +16,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<div ng-switch="schema.type" class="schema-type">
+<div ng-switch="schemaType(schema)" class="schema-type">
   <input ng-switch-when="String" class="form-control" type="text"
          ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
@@ -143,8 +143,3 @@ under the License.
          ng-disabled="schema.readonly || customReadonly(schema.key)"
          ng-init="initAttribute(schema, index)"/>
 </div>
-
-
-
-
-

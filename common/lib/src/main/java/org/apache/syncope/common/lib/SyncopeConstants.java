@@ -63,6 +63,8 @@ public final class SyncopeConstants {
 
     public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
 
+    public static final String ENCRYPTED_DECODE_CONVERSION_PATTERN = "ENCRYPTED_DECODE_CONVERSION_PATTERN";
+
     public static final String DOUBLE_DASH = "--";
 
     public static final String CRLF = "\r\n";

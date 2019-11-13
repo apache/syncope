@@ -29,6 +29,11 @@ angular.module('self')
               user: "="
             },
             controller: function ($scope, $rootScope, $element, $window) {
+              $scope.schemaType = function (schema) {
+                return schema.type == "Encrypted" && schema.conversionPattern == 'ENCRYPTED_DECODE_CONVERSION_PATTERN'
+                        ? "String"
+                        : schema.type;
+              };
               $scope.initAttribute = function (schema, index) {
                 switch (schema.type) {
                   case "Long":

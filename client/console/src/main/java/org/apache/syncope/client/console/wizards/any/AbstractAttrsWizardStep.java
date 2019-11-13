@@ -177,7 +177,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
+    protected FieldPanel getFieldPanel(final PlainSchemaTO plainSchema) {
         final boolean required;
         final boolean readOnly;
         final AttrSchemaType type;
@@ -189,9 +189,9 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             type = AttrSchemaType.String;
             jexlHelp = true;
         } else {
-            required = schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
-            readOnly = schemaTO.isReadonly();
-            type = schemaTO.getType();
+            required = plainSchema.getMandatoryCondition().equalsIgnoreCase("true");
+            readOnly = plainSchema.isReadonly();
+            type = plainSchema.getType();
             jexlHelp = false;
         }
 
@@ -200,27 +200,27 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             case Boolean:
                 panel = new AjaxCheckBoxPanel(
                         "panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         new Model<>(),
                         true);
                 panel.setRequired(required);
                 break;
 
             case Date:
-                String datePattern = schemaTO.getConversionPattern() == null
+                String datePattern = plainSchema.getConversionPattern() == null
                         ? SyncopeConstants.DEFAULT_DATE_PATTERN
-                        : schemaTO.getConversionPattern();
+                        : plainSchema.getConversionPattern();
 
                 if (datePattern.contains("H")) {
                     panel = new AjaxDateTimeFieldPanel(
                             "panel",
-                            schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                            plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                             new Model<>(),
                             datePattern);
                 } else {
                     panel = new AjaxDateFieldPanel(
                             "panel",
-                            schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                            plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                             new Model<>(),
                             datePattern);
                 }
@@ -233,15 +233,15 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
-                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
+                        plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
 
-                if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
+                if (StringUtils.isNotBlank(plainSchema.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
 
-                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(schemaTO);
+                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchema);
 
                         @Override
                         public String getDisplayValue(final String value) {
@@ -269,7 +269,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             case Long:
                 panel = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
                         "panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         Long.class,
                         new Model<>());
 
@@ -281,7 +281,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             case Double:
                 panel = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
                         "panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         Double.class,
                         new Model<>());
 
@@ -294,9 +294,9 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 final PageReference pageRef = getPageReference();
                 panel = new BinaryFieldPanel(
                         "panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         new Model<>(),
-                        schemaTO.getMimeType(),
+                        plainSchema.getMimeType(),
                         fileKey) {
 
                     private static final long serialVersionUID = -3268213909514986831L;
@@ -313,8 +313,11 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 break;
 
             case Encrypted:
-                panel = new EncryptedFieldPanel("panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
+                panel = SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN.equals(plainSchema.getConversionPattern())
+                        ? new AjaxTextFieldPanel("panel",
+                                plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true)
+                        : new EncryptedFieldPanel("panel",
+                                plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -323,7 +326,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
             default:
                 panel = new AjaxTextFieldPanel("panel",
-                        schemaTO.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
+                        plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
 
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();

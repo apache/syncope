@@ -78,21 +78,21 @@ public class ParametersDetailsPanel extends Panel {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Panel getFieldPanel(final String id, final AttrTO attrTO) {
-        final String valueHeaderName = getString("values");
+        String valueHeaderName = getString("values");
 
-        final PlainSchemaTO schemaTO = schemaRestClient.read(SchemaType.PLAIN, attrTO.getSchema());
+        PlainSchemaTO plainSchema = schemaRestClient.read(SchemaType.PLAIN, attrTO.getSchema());
 
-        final FieldPanel panel;
-        switch (schemaTO.getType()) {
+        FieldPanel panel;
+        switch (plainSchema.getType()) {
             case Date:
-                final String datePattern = schemaTO.getConversionPattern() == null
+                final String datePattern = plainSchema.getConversionPattern() == null
                         ? SyncopeConstants.DEFAULT_DATE_PATTERN
-                        : schemaTO.getConversionPattern();
+                        : plainSchema.getConversionPattern();
 
                 if (StringUtils.containsIgnoreCase(datePattern, "H")) {
-                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<>(), datePattern);
+                    panel = new AjaxDateTimeFieldPanel("panel", plainSchema.getKey(), new Model<>(), datePattern);
                 } else {
-                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<>(), datePattern);
+                    panel = new AjaxDateFieldPanel("panel", plainSchema.getKey(), new Model<>(), datePattern);
                 }
                 break;
             case Boolean:
@@ -125,7 +125,7 @@ public class ParametersDetailsPanel extends Panel {
                 break;
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<>(), false);
-                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
 
                 if (!attrTO.getValues().isEmpty()) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
@@ -150,7 +150,7 @@ public class ParametersDetailsPanel extends Panel {
                     });
                 }
                 ((AjaxDropDownChoicePanel<String>) panel).setNullValid(
-                        "false".equalsIgnoreCase(schemaTO.getMandatoryCondition()));
+                        "false".equalsIgnoreCase(plainSchema.getMandatoryCondition()));
                 break;
 
             case Long:
@@ -164,25 +164,26 @@ public class ParametersDetailsPanel extends Panel {
                 break;
 
             case Binary:
-                panel = new BinaryFieldPanel(id, valueHeaderName, new Model<>(), schemaTO.getMimeType(),
+                panel = new BinaryFieldPanel(id, valueHeaderName, new Model<>(), plainSchema.getMimeType(),
                         schema.getModelObject());
                 break;
 
             case Encrypted:
-                panel = new EncryptedFieldPanel(id, valueHeaderName, new Model<>(), true);
+                panel = SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN.equals(plainSchema.getConversionPattern())
+                        ? new AjaxTextFieldPanel(id, valueHeaderName, new Model<>(), false)
+                        : new EncryptedFieldPanel(id, valueHeaderName, new Model<>(), true);
                 break;
 
             default:
                 panel = new AjaxTextFieldPanel(id, valueHeaderName, new Model<>(), false);
         }
-        if (schemaTO.isMultivalue()) {
+        if (plainSchema.isMultivalue()) {
             return new MultiFieldPanel.Builder<>(
                     new PropertyModel<List<String>>(attrTO, "values")).build(id, valueHeaderName, panel);
-        } else {
-            panel.setNewModel(attrTO.getValues());
         }
 
-        panel.setRequired("true".equalsIgnoreCase(schemaTO.getMandatoryCondition()));
+        panel.setNewModel(attrTO.getValues());
+        panel.setRequired("true".equalsIgnoreCase(plainSchema.getMandatoryCondition()));
         return panel;
     }
 }

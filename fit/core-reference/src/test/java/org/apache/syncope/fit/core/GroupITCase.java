@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -76,6 +77,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -90,6 +92,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -592,6 +595,57 @@ public class GroupITCase extends AbstractITCase {
             typeClass = anyTypeClassService.read(typeClassName);
             assertFalse(typeClass.getPlainSchemas().contains(badge.getKey()));
         }
+    }
+
+    @Test
+    public void encrypted() throws Exception {
+        // 1. create encrypted schema with secret key as system property
+        PlainSchemaTO encrypted = new PlainSchemaTO();
+        encrypted.setKey("encrypted" + getUUIDString());
+        encrypted.setType(AttrSchemaType.Encrypted);
+        encrypted.setCipherAlgorithm(CipherAlgorithm.SHA512);
+        encrypted.setSecretKey("${obscureSecretKey}");
+        schemaService.create(SchemaType.PLAIN, encrypted);
+
+        // 2. add the new schema to the default group type
+        AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
+        String typeClassName = type.getClasses().get(0);
+        AnyTypeClassTO typeClass = anyTypeClassService.read(typeClassName);
+        typeClass.getPlainSchemas().add(encrypted.getKey());
+        anyTypeClassService.update(typeClass);
+        typeClass = anyTypeClassService.read(typeClassName);
+        assertTrue(typeClass.getPlainSchemas().contains(encrypted.getKey()));
+
+        // 3. create group, verify that the correct encrypted value is returned
+        GroupTO group = getSampleTO("encrypted");
+        group.getPlainAttrs().add(new AttrTO.Builder().schema(encrypted.getKey()).value("testvalue").build());
+        group = createGroup(group).getEntity();
+
+        assertEquals(Encryptor.getInstance(System.getProperty("obscureSecretKey")).
+                encode("testvalue", encrypted.getCipherAlgorithm()),
+                group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+
+        // 4. update schema to return cleartext values
+        encrypted.setAnyTypeClass(typeClassName);
+        encrypted.setCipherAlgorithm(CipherAlgorithm.AES);
+        encrypted.setConversionPattern(SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN);
+        schemaService.update(SchemaType.PLAIN, encrypted);
+
+        // 5. update group, verify that the cleartext value is returned
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(group.getKey());
+        patch.getPlainAttrs().add(new AttrPatch.Builder().
+                attrTO(new AttrTO.Builder().schema(encrypted.getKey()).value("testvalue").build()).build());
+        group = updateGroup(patch).getEntity();
+
+        assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+
+        // 6. update schema again to disallow cleartext values
+        encrypted.setConversionPattern(null);
+        schemaService.update(SchemaType.PLAIN, encrypted);
+
+        group = groupService.read(group.getKey());
+        assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
     }
 
     @Test
