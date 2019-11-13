@@ -332,9 +332,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
-        anyObjectUR.getMemberships().stream().
-                filter((membPatch) -> (membPatch.getGroup() != null)).forEachOrdered(membPatch -> {
-            anyObject.getMembership(membPatch.getGroup()).ifPresent(membership -> {
+        anyObjectUR.getMemberships().stream().filter(patch -> patch.getGroup() != null).forEach(patch -> {
+            anyObject.getMembership(patch.getGroup()).ifPresent(membership -> {
                 anyObject.remove(membership);
                 membership.setLeftEnd(null);
                 anyObject.getPlainAttrs(membership).forEach(attr -> {
@@ -344,7 +343,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     plainAttrValueDAO.deleteAll(attr, anyUtils);
                 });
 
-                if (membPatch.getOperation() == PatchOperation.DELETE) {
+                if (patch.getOperation() == PatchOperation.DELETE) {
                     groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
                             filter(reasons::containsKey).
                             forEach(resource -> {
@@ -353,10 +352,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             });
                 }
             });
-            if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                Group group = groupDAO.find(membPatch.getGroup());
+            if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                Group group = groupDAO.find(patch.getGroup());
                 if (group == null) {
-                    LOG.debug("Ignoring invalid group {}", membPatch.getGroup());
+                    LOG.debug("Ignoring invalid group {}", patch.getGroup());
                 } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     AMembership newMembership = entityFactory.newEntity(AMembership.class);
                     newMembership.setRightEnd(group);
@@ -364,7 +363,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                     anyObject.add(newMembership);
 
-                    membPatch.getPlainAttrs().forEach(attrTO -> {
+                    patch.getPlainAttrs().forEach(attrTO -> {
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
                             LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
@@ -382,10 +381,15 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 newAttr.setSchema(schema);
                                 anyObject.add(newAttr);
 
-                                AttrPatch patch = new AttrPatch.Builder(attrTO).build();
                                 processAttrPatch(
-                                        anyObject, patch, schema, newAttr, anyUtils,
-                                        resources, propByRes, invalidValues);
+                                        anyObject,
+                                        new AttrPatch.Builder(attrTO).build(),
+                                        schema,
+                                        newAttr,
+                                        anyUtils,
+                                        resources,
+                                        propByRes,
+                                        invalidValues);
                             }
                         }
                     });

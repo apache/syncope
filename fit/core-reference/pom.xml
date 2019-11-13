@@ -39,6 +39,8 @@ under the License.
     <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
     <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
 
+    <obscureSecretKey>obscureSecretKeyValue</obscureSecretKey>
+
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
@@ -297,6 +299,12 @@ under the License.
             <timeout>300000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output>
+            <systemProperties>
+              <java.security.egd>file:/dev/./urandom</java.security.egd>
+              <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
+              
+              <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
+            </systemProperties>
             <dependencies>
               <dependency>
                 <groupId>com.h2database</groupId>
@@ -446,6 +454,7 @@ under the License.
             <configuration>
               <systemPropertyVariables>
                 <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
+                <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
               </systemPropertyVariables>
               <includes>
                 <include>**/*ITCase.java</include>

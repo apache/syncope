@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
@@ -33,6 +34,7 @@ import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponent
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -77,20 +79,20 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         add(type);
 
         // long, double, date
-        final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
+        AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
                 getString("conversionPattern"), new PropertyModel<>(schemaTO, "conversionPattern"));
         add(conversionPattern);
 
-        final WebMarkupContainer conversionParams = new WebMarkupContainer("conversionParams");
+        WebMarkupContainer conversionParams = new WebMarkupContainer("conversionParams");
         conversionParams.setOutputMarkupPlaceholderTag(true);
         conversionParams.add(conversionPattern);
         add(conversionParams);
 
-        final WebMarkupContainer typeParams = new WebMarkupContainer("typeParams");
+        WebMarkupContainer typeParams = new WebMarkupContainer("typeParams");
         typeParams.setOutputMarkupPlaceholderTag(true);
 
         // enum
-        final AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel",
+        AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel",
                 "enumerationValues", new Model<>(null));
 
         enumerationValues = new MultiFieldPanel.Builder<String>(
@@ -171,34 +173,52 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 "enumerationKeys",
                 new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>()));
 
-        final WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
+        WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
         enumParams.setOutputMarkupPlaceholderTag(true);
         enumParams.add(enumerationValues);
         enumParams.add(enumerationKeys);
         typeParams.add(enumParams);
 
         // encrypted
-        final AjaxTextFieldPanel secretKey = new AjaxTextFieldPanel("secretKey",
+        AjaxTextFieldPanel secretKey = new AjaxTextFieldPanel("secretKey",
                 getString("secretKey"), new PropertyModel<>(schemaTO, "secretKey"));
 
-        final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm = new AjaxDropDownChoicePanel<>(
                 "cipherAlgorithm", getString("cipherAlgorithm"),
                 new PropertyModel<>(schemaTO, "cipherAlgorithm"));
-
         cipherAlgorithm.setChoices(List.of(CipherAlgorithm.values()));
 
-        final WebMarkupContainer encryptedParams = new WebMarkupContainer("encryptedParams");
+        AjaxCheckBoxPanel transparentEncryption = new AjaxCheckBoxPanel(
+                "transparentEncryption", "transparentEncryption", new Model<Boolean>() {
+
+            private static final long serialVersionUID = 5636572627689425575L;
+
+            @Override
+            public Boolean getObject() {
+                return SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN.equals(schemaTO.getConversionPattern());
+            }
+
+            @Override
+            public void setObject(final Boolean object) {
+                schemaTO.setConversionPattern(BooleanUtils.isTrue(object)
+                        ? SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN
+                        : null);
+            }
+        }, true);
+
+        WebMarkupContainer encryptedParams = new WebMarkupContainer("encryptedParams");
         encryptedParams.setOutputMarkupPlaceholderTag(true);
         encryptedParams.add(secretKey);
         encryptedParams.add(cipherAlgorithm);
+        encryptedParams.add(transparentEncryption);
 
         typeParams.add(encryptedParams);
 
         // binary
-        final AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
+        AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
                 getString("mimeType"), new PropertyModel<>(schemaTO, "mimeType"));
 
-        final WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
+        WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
         binaryParams.setOutputMarkupPlaceholderTag(true);
         binaryParams.add(mimeType);
         typeParams.add(binaryParams);
@@ -296,7 +316,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             final AjaxTextFieldPanel secretKey, final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm,
             final WebMarkupContainer binaryParams, final AjaxTextFieldPanel mimeType) {
 
-        final int typeOrdinal = Integer.parseInt(type.getField().getValue());
+        int typeOrdinal = Integer.parseInt(type.getField().getValue());
         if (AttrSchemaType.Long.ordinal() == typeOrdinal
                 || AttrSchemaType.Double.ordinal() == typeOrdinal
                 || AttrSchemaType.Date.ordinal() == typeOrdinal) {

@@ -33,7 +33,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 public class JPAJSONLinkedAccountListener extends JPAJSONEntityListener<User> {
 
     @Override
-    protected List<? extends JSONLAPlainAttr> getValues(final String plainAttrsJSON) {
+    protected List<? extends JSONLAPlainAttr> getAttrs(final String plainAttrsJSON) {
         return POJOHelper.deserialize(plainAttrsJSON, new TypeReference<List<JPAJSONLAPlainAttr>>() {
         });
     }

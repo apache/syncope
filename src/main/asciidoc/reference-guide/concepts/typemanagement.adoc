@@ -50,8 +50,10 @@ https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/DateForma
 *** enumeration values (mandatory)
 *** enumeration labels (optional, values will be used alternatively)
 ** `Encrypted`
-*** secret key
+*** secret key (stored or referenced as https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#beans-property-source-abstraction[Spring property^])
 *** cipher algorithm
+*** whether transparent encryption is to be enabled, e.g. attribute values are stored as encrypted but available as
+cleartext on-demand (requires AES ciphering)
 ** `Binary` - it is required to provide the declared mime type
 * Validator class - (optional) Java class validating the value(s) provided for attributes, see 
 ifeval::["{snapshotOrRelease}" == "release"]
