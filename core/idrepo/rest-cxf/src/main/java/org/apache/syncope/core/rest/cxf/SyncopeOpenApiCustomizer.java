@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -123,8 +124,13 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
             parameter.setName(RESTHeaders.DOMAIN);
             parameter.setRequired(true);
 
+            ExternalDocumentation extDoc = new ExternalDocumentation();
+            extDoc.setDescription("Apache Syncope Reference Guide");
+            extDoc.setUrl("http://syncope.apache.org/docs/2.1/reference-guide.html#domains");
+
             Schema<String> schema = new Schema<>();
-            schema.setType("string");
+            schema.setDescription("Domains are built to facilitate multitenancy.");
+            schema.setExternalDocs(extDoc);
             schema.setEnum(domains);
             schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
             parameter.setSchema(schema);

@@ -96,10 +96,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 anyObjectDAO.findAllResources(anyObject),
                 details);
 
-        if (details) {
-            // dynamic realms
-            anyObjectTO.getDynRealms().addAll(anyObjectDAO.findDynRealms(anyObject.getKey()));
+        // dynamic realms
+        anyObjectTO.getDynRealms().addAll(anyObjectDAO.findDynRealms(anyObject.getKey()));
 
+        if (details) {
             // relationships
             anyObjectTO.getRelationships().addAll(
                     anyObjectDAO.findAllRelationships(anyObject).stream().
