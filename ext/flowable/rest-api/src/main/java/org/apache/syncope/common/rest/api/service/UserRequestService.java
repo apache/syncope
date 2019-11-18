@@ -74,7 +74,7 @@ public interface UserRequestService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserRequest start(
             @NotNull @PathParam("bpmnProcess") String bpmnProcess,
-            @QueryParam("user") String user);
+            @QueryParam(JAXRSService.PARAM_USER) String user);
 
     /**
      * Cancel a running user request.
@@ -104,7 +104,7 @@ public interface UserRequestService extends JAXRSService {
     UserRequestForm getForm(
             @NotNull @PathParam("username") String username,
             @NotNull @PathParam("taskId") String taskId);
-    
+
     /**
      * Returns a list of user request forms matching the given query.
      *

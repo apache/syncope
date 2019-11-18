@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import javax.validation.constraints.Min;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PathParam;
@@ -91,6 +92,8 @@ public class TaskQuery extends AbstractQuery {
         this.type = type;
     }
 
+    @Parameter(name = JAXRSService.PARAM_RESOURCE, description = "resource key to match", schema =
+            @Schema(implementation = String.class, example = "resource-ldap"))
     public String getResource() {
         return resource;
     }
@@ -100,6 +103,8 @@ public class TaskQuery extends AbstractQuery {
         this.resource = resource;
     }
 
+    @Parameter(name = JAXRSService.PARAM_NOTIFICATION, description = "notification key to match", schema =
+            @Schema(implementation = String.class, example = "4bf255f1-85a0-43d6-8988-128dad646f08"))
     public String getNotification() {
         return notification;
     }
@@ -109,6 +114,8 @@ public class TaskQuery extends AbstractQuery {
         this.notification = notification;
     }
 
+    @Parameter(name = JAXRSService.PARAM_ANYTYPE_KIND, description = "entity type to match", schema =
+            @Schema(implementation = AnyTypeKind.class))
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -118,16 +125,22 @@ public class TaskQuery extends AbstractQuery {
         this.anyTypeKind = anyTypeKind;
     }
 
+    @Parameter(name = JAXRSService.PARAM_ENTITY_KEY, description = "entity key to match", schema =
+            @Schema(implementation = String.class, example = "50592942-73ec-44c4-a377-e859524245e4"))
     public String getEntityKey() {
         return entityKey;
     }
 
-    @Min(1)
+    @Parameter(name = JAXRSService.PARAM_RESOURCE, description = " key", schema =
+            @Schema(implementation = String.class, example = "resource-ldap"))
     @QueryParam(JAXRSService.PARAM_ENTITY_KEY)
     public void setEntityKey(final String entityKey) {
         this.entityKey = entityKey;
     }
 
+    @Parameter(name = JAXRSService.PARAM_DETAILS, description = "whether detailed information about executions is to "
+            + "be included", schema =
+            @Schema(implementation = Boolean.class))
     public Boolean getDetails() {
         return details == null ? Boolean.TRUE : details;
     }

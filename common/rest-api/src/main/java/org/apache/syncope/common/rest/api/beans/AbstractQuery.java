@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
@@ -70,6 +72,8 @@ public abstract class AbstractQuery implements Serializable {
 
     private String orderBy;
 
+    @Parameter(name = JAXRSService.PARAM_PAGE, description = "page", schema =
+            @Schema(minimum = "1", implementation = Integer.class, defaultValue = "1"))
     public Integer getPage() {
         return page;
     }
@@ -81,6 +85,8 @@ public abstract class AbstractQuery implements Serializable {
         this.page = page;
     }
 
+    @Parameter(name = JAXRSService.PARAM_SIZE, description = "items per page", schema =
+            @Schema(minimum = "1", implementation = Integer.class, defaultValue = "25"))
     public Integer getSize() {
         return size;
     }
@@ -92,6 +98,8 @@ public abstract class AbstractQuery implements Serializable {
         this.size = size;
     }
 
+    @Parameter(name = JAXRSService.PARAM_ORDERBY, description = "sorting conditions", schema =
+            @Schema(implementation = String.class, example = "key DESC"))
     public String getOrderBy() {
         return orderBy;
     }

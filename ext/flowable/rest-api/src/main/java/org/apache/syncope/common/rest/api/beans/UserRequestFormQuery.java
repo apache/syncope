@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import javax.ws.rs.QueryParam;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class UserRequestFormQuery extends AbstractQuery {
 
@@ -39,11 +42,13 @@ public class UserRequestFormQuery extends AbstractQuery {
 
     private String user;
 
+    @Parameter(name = JAXRSService.PARAM_USER, description = "user to match either by key or username", schema =
+            @Schema(implementation = String.class, example = "50592942-73ec-44c4-a377-e859524245e4"))
     public String getUser() {
         return user;
     }
 
-    @QueryParam("user")
+    @QueryParam(JAXRSService.PARAM_USER)
     public void setUser(final String user) {
         this.user = user;
     }
