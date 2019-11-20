@@ -16,8 +16,6 @@
 # under the License.
 console.directory=/etc/apache-syncope
 
-site=http://syncope.apache.org
-
 anonymousUser=${anonymousUser}
 anonymousKey=${anonymousKey}
 
