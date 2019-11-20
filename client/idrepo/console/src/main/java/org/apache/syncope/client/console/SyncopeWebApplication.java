@@ -23,7 +23,6 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -85,7 +84,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
     public static final List<Locale> SUPPORTED_LOCALES = List.of(
-        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
+            Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
@@ -162,6 +161,17 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
     }
 
+    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
+        @SuppressWarnings("unchecked")
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("security.headers.")) {
+                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
+            }
+        }
+    }
+
     private NetworkService getNetworkService() {
         NetworkService ns = new NetworkService();
         ns.setType(NetworkService.Type.CONSOLE);
@@ -194,8 +204,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
 
-        boolean csrf = BooleanUtils.toBoolean(props.getProperty("csrf"));
-
         // process page properties
         pageClasses = new HashMap<>();
         populatePageClasses(props);
@@ -222,10 +230,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        if (csrf) {
-            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
-        }
-
         getRequestCycleListeners().add(new SyncopeUIRequestCycleListener() {
 
             @Override
@@ -244,15 +248,15 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             }
         });
 
+        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
+            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
+        }
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {
                 if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
-                    WebResponse response = (WebResponse) cycle.getResponse();
-                    response.setHeader("X-XSS-Protection", "1; mode=block");
-                    response.setHeader("X-Content-Type-Options", "nosniff");
-                    response.setHeader("X-Frame-Options", "sameorigin");
+                    setSecurityHeaders(props, (WebResponse) cycle.getResponse());
                 }
             }
         });

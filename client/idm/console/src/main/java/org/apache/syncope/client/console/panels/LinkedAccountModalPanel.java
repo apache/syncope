@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -228,5 +226,4 @@ public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
     private void checkAddButton() {
         addAjaxLink.setVisible(SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_UPDATE));
     }
-
 }

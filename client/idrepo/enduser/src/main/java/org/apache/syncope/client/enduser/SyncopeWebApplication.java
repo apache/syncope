@@ -27,6 +27,7 @@ import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -68,6 +69,9 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.component.IRequestablePage;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
@@ -90,7 +94,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     private static final String CUSTOM_FORM_ATTRIBUTES_FILE = "customFormAttributes.json";
 
     public static final List<Locale> SUPPORTED_LOCALES = List.of(
-        Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
+            Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -129,6 +133,17 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private Map<String, CustomAttributesInfo> customFormAttributes;
 
+    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
+        @SuppressWarnings("unchecked")
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("security.headers.")) {
+                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
+            }
+        }
+    }
+
     private NetworkService getNetworkService() {
         NetworkService ns = new NetworkService();
         ns.setType(NetworkService.Type.ENDUSER);
@@ -152,9 +167,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         captchaEnabled = Boolean.parseBoolean(props.getProperty("captcha"));
         Args.notNull(captchaEnabled, "<captcha>");
-
-        boolean xsrf = Boolean.parseBoolean(props.getProperty("xsrf"));
-        Args.notNull(xsrf, "<xsrf>");
 
         useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
@@ -268,10 +280,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             }
         });
 
-        if (xsrf) {
-            getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
-        }
-
         getRequestCycleListeners().add(new SyncopeUIRequestCycleListener() {
 
             @Override
@@ -289,6 +297,19 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 return new Login(errorParameters);
             }
 
+        });
+
+        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
+            getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
+        }
+        getRequestCycleListeners().add(new IRequestCycleListener() {
+
+            @Override
+            public void onEndRequest(final RequestCycle cycle) {
+                if (cycle.getResponse() instanceof WebResponse) {
+                    setSecurityHeaders(props, (WebResponse) cycle.getResponse());
+                }
+            }
         });
 
         // Confirm password reset page
@@ -414,5 +435,4 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             LOG.error("While extracting ext attributes", e);
         }
     }
-
 }
