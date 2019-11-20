@@ -31,15 +31,12 @@ maxUploadFileSizeMB=5
 # Max wait time on apply changes from modals/wizards (given in seconds)
 maxWaitTimeOnApplyChanges=30
 
-csrf=true
-
 reconciliationReportKey=c3520ad9-179f-49e7-b315-d684d216dd97
 
 page.dashboard=org.apache.syncope.client.console.pages.Dashboard
 page.realms=org.apache.syncope.client.console.pages.Realms
 page.topology=org.apache.syncope.client.console.topology.Topology
 page.reports=org.apache.syncope.client.console.pages.Reports
-page.workflow=org.apache.syncope.client.console.pages.Workflow
 page.audit=org.apache.syncope.client.console.pages.Audit
 page.implementations=org.apache.syncope.client.console.pages.Implementations
 page.logs=org.apache.syncope.client.console.pages.Logs
@@ -48,3 +45,15 @@ page.types=org.apache.syncope.client.console.pages.Types
 page.policies=org.apache.syncope.client.console.pages.Policies
 page.notifications=org.apache.syncope.client.console.pages.Notifications
 page.parameters=org.apache.syncope.client.console.pages.Parameters
+
+topology.corePoolSize=10
+topology.maxPoolSize=20
+topology.queueCapacity=50
+
+csrf=true
+
+security.headers.X-XSS-Protection=1; mode=block
+security.headers.Strict-Transport-Security=max-age=31536000; includeSubDomains; preload
+security.headers.X-Content-Type-Options=nosniff
+security.headers.X-Frame-Options=sameorigin
+#security.headers.Content-Security-Policy=default-src https:
