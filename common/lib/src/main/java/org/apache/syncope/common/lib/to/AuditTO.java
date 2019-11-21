@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import org.apache.syncope.common.lib.BaseBean;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @XmlRootElement(name = "audit")
 @XmlType
-public class AuditTO implements Serializable {
+public class AuditTO extends BaseBean implements EntityTO {
     private static final long serialVersionUID = 1215115961911228005L;
 
     private final List<String> inputs = new ArrayList<>();
@@ -48,6 +49,8 @@ public class AuditTO implements Serializable {
     private Date date;
 
     private String throwable;
+
+    private String key;
 
     public Date getDate() {
         return date;
@@ -115,5 +118,15 @@ public class AuditTO implements Serializable {
 
     public void setWho(final String who) {
         this.who = who;
+    }
+
+    @Override
+    public String getKey() {
+        return this.key;
+    }
+
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
     }
 }

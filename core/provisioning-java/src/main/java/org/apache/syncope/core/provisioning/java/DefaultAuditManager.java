@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -47,7 +48,7 @@ public class DefaultAuditManager implements AuditManager {
             final String subcategory,
             final String event) {
 
-        AuditEntry auditEntry = new AuditEntry(
+        AuditEntryImpl auditEntry = new AuditEntryImpl(
                 who,
                 new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS),
                 null,
@@ -61,7 +62,7 @@ public class DefaultAuditManager implements AuditManager {
             return true;
         }
 
-        auditEntry = new AuditEntry(
+        auditEntry = new AuditEntryImpl(
                 who,
                 new AuditLoggerName(type, category, subcategory, event, Result.FAILURE),
                 null,
@@ -106,7 +107,7 @@ public class DefaultAuditManager implements AuditManager {
             throwable = (Throwable) output;
         }
 
-        AuditEntry auditEntry = new AuditEntry(
+        AuditEntryImpl auditEntry = new AuditEntryImpl(
                 who,
                 new AuditLoggerName(type, category, subcategory, event, condition),
                 before,

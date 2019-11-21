@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
-public class AuditEntry implements Serializable {
+public class AuditEntryImpl implements AuditEntry {
 
     private static final long serialVersionUID = -2299082316063743582L;
 
@@ -44,12 +44,12 @@ public class AuditEntry implements Serializable {
     private final Object[] input;
 
     @JsonCreator
-    public AuditEntry(
-            @JsonProperty("who") final String who,
-            @JsonProperty("logger") final AuditLoggerName logger,
-            @JsonProperty("before") final Object before,
-            @JsonProperty("output") final Object output,
-            @JsonProperty("input") final Object[] input) {
+    public AuditEntryImpl(
+        @JsonProperty("who") final String who,
+        @JsonProperty("logger") final AuditLoggerName logger,
+        @JsonProperty("before") final Object before,
+        @JsonProperty("output") final Object output,
+        @JsonProperty("input") final Object[] input) {
 
         super();
 
@@ -65,7 +65,7 @@ public class AuditEntry implements Serializable {
         }
     }
 
-    private Object maskSensitive(final Object object) {
+    private static Object maskSensitive(final Object object) {
         Object masked;
 
         if (object instanceof UserTO) {
@@ -86,22 +86,27 @@ public class AuditEntry implements Serializable {
         return masked;
     }
 
+    @Override
     public String getWho() {
         return who;
     }
 
+    @Override
     public AuditLoggerName getLogger() {
         return logger;
     }
 
+    @Override
     public Object getBefore() {
         return before;
     }
 
+    @Override
     public Object getOutput() {
         return output;
     }
 
+    @Override
     public Object[] getInput() {
         return input;
     }

@@ -18,24 +18,18 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.syncope.common.lib.to.AuditTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
-import java.util.List;
 
 /**
  * REST operations for audit events.
@@ -48,26 +42,12 @@ import java.util.List;
 public interface AuditService {
 
     /**
-     * Returns a list of all audit events.
+     * Returns a paged list of audit objects matching the given query.
      *
-     * @return list of all audit events.
-     */
-    @ApiResponses(
-        @ApiResponse(responseCode = "200", description =
-            "List of all audit events recorded and found in Syncope.",
-            headers = @Header(name = HttpHeaders.ETAG)))
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    List<AuditTO> list();
-
-    /**
-     * Returns audit record with matching key.
-     *
-     * @param key audit key to be read
-     * @return audit record with matching key
+     * @param anyQuery query conditions
+     * @return paged list of objects matching the given query
      */
     @GET
-    @Path("{key}")
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    AuditTO read(@NotNull @PathParam("key") String key);
+    PagedResult<AuditTO> search(AnyQuery anyQuery);
 }
