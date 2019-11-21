@@ -38,6 +38,10 @@ public class AuditITCase extends AbstractITCase {
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
         userTO.setUsername(email);
+        userTO.getPlainAttrs().add(attrTO("fullname", "Apache Syncope"));
+        userTO.getPlainAttrs().add(attrTO("firstname", "Apache"));
+        userTO.getPlainAttrs().add(attrTO("surname", "Syncope"));
+        userTO.getPlainAttrs().add(attrTO("userId", email));
         userTO.getPlainAttrs().add(attrTO("email", email));
         return userTO;
     }

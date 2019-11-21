@@ -33,12 +33,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class AuditLogic extends AbstractTransactionalLogic<AuditTO> {
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogic.class);
 
