@@ -20,10 +20,16 @@ package org.apache.syncope.core.upgrade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.AssertionsKt.fail;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
@@ -54,6 +60,8 @@ public class GeneratedUpgradeSQLTest {
     @Autowired
     private DataSource syncope20DataSource;
 
+    private static final String TEST_PULL_RULE = "org.apache.syncope.fit.core.reference.TestPullRuleConf";
+
     @Test
     public void upgradefrom20() throws Exception {
         StringWriter out = new StringWriter();
@@ -76,9 +84,21 @@ public class GeneratedUpgradeSQLTest {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(syncope20DataSource);
 
-        Integer implementations = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Implementation", Integer.class);
+        // check that custom JAVA PullCorrelationRule(s) have been moved to correct implementation with PullCorrelationRuleConf
+        List<Map<String, Object>> implementations = jdbcTemplate.queryForList("SELECT * FROM Implementation");
         assertNotNull(implementations);
-        assertEquals(15, implementations.intValue());
+        assertEquals(16, implementations.size());
+        assertTrue(implementations.stream()
+                .anyMatch(impl -> {
+                    try {
+                        ObjectNode body = (ObjectNode) new ObjectMapper().readTree(impl.get("body").toString());
+                        return "PULL_CORRELATION_RULE".equals(impl.get("type"))
+                                && TEST_PULL_RULE.equals(body.get("@class").asText())
+                                && TEST_PULL_RULE.equals(body.get("name").asText());
+                    } catch (JsonProcessingException e) {
+                    }
+                    return false;
+                }));
 
         Integer pullTaskActions = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM PullTaskAction", Integer.class);
         assertNotNull(pullTaskActions);
@@ -110,7 +130,7 @@ public class GeneratedUpgradeSQLTest {
         Integer pullCorrelationRuleEntities = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM PullCorrelationRuleEntity", Integer.class);
         assertNotNull(pullCorrelationRuleEntities);
-        assertEquals(1, pullCorrelationRuleEntities.intValue());
+        assertEquals(2, pullCorrelationRuleEntities.intValue());
 
         Integer pushCorrelationRuleEntities = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM PushCorrelationRuleEntity", Integer.class);
