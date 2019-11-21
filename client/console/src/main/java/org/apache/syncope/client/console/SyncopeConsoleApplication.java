@@ -77,9 +77,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
-            }));
+            Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
+    ));
 
     public static SyncopeConsoleApplication get() {
         return (SyncopeConsoleApplication) WebApplication.get();
@@ -136,6 +135,17 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         }
     }
 
+    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
+        @SuppressWarnings("unchecked")
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("security.headers.")) {
+                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
+            }
+        }
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -169,8 +179,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         maxPoolSize = Integer.valueOf(props.getProperty("topology.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("topology.queueCapacity", "50"));
 
-        String csrf = props.getProperty("csrf");
-
         // process page properties
         pageClasses = new HashMap<>();
         populatePageClasses(props);
@@ -201,7 +209,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        if (BooleanUtils.toBoolean(csrf)) {
+        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
             getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
@@ -210,10 +218,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
             @Override
             public void onEndRequest(final RequestCycle cycle) {
                 if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
-                    WebResponse response = (WebResponse) cycle.getResponse();
-                    response.setHeader("X-XSS-Protection", "1; mode=block");
-                    response.setHeader("X-Content-Type-Options", "nosniff");
-                    response.setHeader("X-Frame-Options", "sameorigin");
+                    setSecurityHeaders(props, (WebResponse) cycle.getResponse());
                 }
             }
         });

@@ -183,7 +183,7 @@ public final class GenerateUpgradeSQL {
                 String implementationId = "PasswordRule_" + passwordPolicyId + "_" + id;
                 OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                         + "'" + implementationId + "',"
-                        + "'ACCOUNT_RULE',"
+                        + "'PASSWORD_RULE',"
                         + "'JAVA',"
                         + "'" + serializedInstance + "');\n");
                 OUT.write("INSERT INTO PasswordPolicyRule(policy_id,implementation_id) VALUES("
