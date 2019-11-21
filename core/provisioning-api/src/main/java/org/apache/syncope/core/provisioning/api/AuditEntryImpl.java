@@ -110,4 +110,52 @@ public class AuditEntryImpl implements AuditEntry {
     public Object[] getInput() {
         return input;
     }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private String who;
+
+        private AuditLoggerName logger;
+
+        private Object before;
+
+        private Object output;
+
+        private Object[] input;
+
+        private Builder() {
+        }
+
+        public Builder who(final String who) {
+            this.who = who;
+            return this;
+        }
+
+        public Builder logger(final AuditLoggerName logger) {
+            this.logger = logger;
+            return this;
+        }
+
+        public Builder before(final Object before) {
+            this.before = before;
+            return this;
+        }
+
+        public Builder output(final Object output) {
+            this.output = output;
+            return this;
+        }
+
+        public Builder input(final Object[] input) {
+            this.input = input;
+            return this;
+        }
+
+        public AuditEntryImpl build() {
+            return new AuditEntryImpl(who, logger, before, output, input);
+        }
+    }
 }

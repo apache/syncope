@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -48,12 +49,10 @@ public class DefaultAuditManager implements AuditManager {
             final String subcategory,
             final String event) {
 
-        AuditEntryImpl auditEntry = new AuditEntryImpl(
-                who,
-                new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS),
-                null,
-                null,
-                null);
+        AuditEntry auditEntry = AuditEntryImpl.builder()
+            .who(who)
+            .logger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS))
+            .build();
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         boolean auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
@@ -62,12 +61,10 @@ public class DefaultAuditManager implements AuditManager {
             return true;
         }
 
-        auditEntry = new AuditEntryImpl(
-                who,
-                new AuditLoggerName(type, category, subcategory, event, Result.FAILURE),
-                null,
-                null,
-                null);
+        auditEntry = AuditEntryImpl.builder()
+            .who(who)
+            .logger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE))
+            .build();
         syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
         auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
 
@@ -107,13 +104,14 @@ public class DefaultAuditManager implements AuditManager {
             throwable = (Throwable) output;
         }
 
-        AuditEntryImpl auditEntry = new AuditEntryImpl(
-                who,
-                new AuditLoggerName(type, category, subcategory, event, condition),
-                before,
-                throwable == null ? output : throwable.getMessage(),
-                input);
-
+        AuditEntry auditEntry = AuditEntryImpl.builder()
+            .who(who)
+            .logger(new AuditLoggerName(type, category, subcategory, event, condition))
+            .before(before)
+            .output(throwable == null ? output : throwable.getMessage())
+            .input(input)
+            .build();
+        
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
