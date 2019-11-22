@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -141,15 +142,23 @@ public class SAML2UserManager {
                         }
                     }
 
-                    CollectionUtils.collect(
-                            userDAO.findByPlainAttrValue((PlainSchema) intAttrName.getSchema(), value),
-                            new Transformer<User, String>() {
-
-                        @Override
-                        public String transform(final User input) {
-                            return input.getUsername();
+                    if (intAttrName.getSchema().isUniqueConstraint()) {
+                        User found = userDAO.findByPlainAttrUniqueValue(
+                                (PlainSchema) intAttrName.getSchema(), (PlainAttrUniqueValue) value);
+                        if (found != null) {
+                            result.add(found.getUsername());
                         }
-                    }, result);
+                    } else {
+                        result.addAll(CollectionUtils.collect(
+                                userDAO.findByPlainAttrValue((PlainSchema) intAttrName.getSchema(), value),
+                                new Transformer<User, String>() {
+
+                            @Override
+                            public String transform(final User input) {
+                                return input.getUsername();
+                            }
+                        }));
+                    }
                     break;
 
                 case DERIVED:
