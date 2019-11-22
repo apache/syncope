@@ -36,24 +36,17 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.SAML2IdPActions;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
@@ -73,6 +66,9 @@ public class SAML2UserManager {
     private SAML2IdPDAO idpDAO;
 
     @Autowired
+    private InboundMatcher inboundMatcher;
+
+    @Autowired
     private UserDAO userDAO;
 
     @Autowired
@@ -80,9 +76,6 @@ public class SAML2UserManager {
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
-
-    @Autowired
-    private EntityFactory entityFactory;
 
     @Autowired
     private TemplateUtils templateUtils;
@@ -94,85 +87,18 @@ public class SAML2UserManager {
     private UserDataBinder binder;
 
     @Transactional(readOnly = true)
-    public List<String> findMatchingUser(final String keyValue, final String idpKey) {
-        List<String> result = new ArrayList<>();
-
+    public List<String> findMatchingUser(final String connObjectKeyValue, final String idpKey) {
         SAML2IdP idp = idpDAO.find(idpKey);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);
-            return result;
+            return Collections.emptyList();
         }
 
-        String transformed = keyValue;
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(idp.getConnObjectKeyItem().get())) {
-            List<Object> output = transformer.beforePull(
-                    null,
-                    null,
-                    Collections.<Object>singletonList(transformed));
-            if (output != null && !output.isEmpty()) {
-                transformed = output.get(0).toString();
-            }
-        }
-
-        IntAttrName intAttrName;
-        try {
-            intAttrName = intAttrNameParser.parse(idp.getConnObjectKeyItem().get().getIntAttrName(), AnyTypeKind.USER);
-        } catch (ParseException e) {
-            LOG.error("Invalid intAttrName '{}' specified, ignoring",
-                    idp.getConnObjectKeyItem().get().getIntAttrName(), e);
-            return result;
-        }
-
-        if (intAttrName.getField() != null) {
-            switch (intAttrName.getField()) {
-                case "key":
-                    User byKey = userDAO.find(transformed);
-                    if (byKey != null) {
-                        result.add(byKey.getUsername());
-                    }
-                    break;
-
-                case "username":
-                    User byUsername = userDAO.findByUsername(transformed);
-                    if (byUsername != null) {
-                        result.add(byUsername.getUsername());
-                    }
-                    break;
-
-                default:
-            }
-        } else if (intAttrName.getSchemaType() != null) {
-            switch (intAttrName.getSchemaType()) {
-                case PLAIN:
-                    PlainAttrValue value = entityFactory.newEntity(UPlainAttrValue.class);
-
-                    if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
-                        value.setStringValue(transformed);
-                    } else {
-                        try {
-                            value.parseValue((PlainSchema) intAttrName.getSchema(), transformed);
-                        } catch (ParsingValidationException e) {
-                            LOG.error("While parsing provided key value {}", transformed, e);
-                            value.setStringValue(transformed);
-                        }
-                    }
-
-                    result.addAll(userDAO.findByPlainAttrValue(
-                            (PlainSchema) intAttrName.getSchema(), value, false).stream().
-                            map(User::getUsername).collect(Collectors.toList()));
-                    break;
-
-                case DERIVED:
-                    result.addAll(userDAO.findByDerAttrValue(
-                            (DerSchema) intAttrName.getSchema(), transformed, false).stream().
-                            map(User::getUsername).collect(Collectors.toList()));
-                    break;
-
-                default:
-            }
-        }
-
-        return result;
+        return inboundMatcher.matchByConnObjectKeyValue(
+                idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
+                filter(match -> match.getAny() != null).
+                map(match -> match.getAny().getKey()).
+                collect(Collectors.toList());
     }
 
     private List<SAML2IdPActions> getActions(final SAML2IdPEntity idp) {
