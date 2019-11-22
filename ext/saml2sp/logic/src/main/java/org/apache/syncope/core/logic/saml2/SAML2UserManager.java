@@ -129,7 +129,9 @@ public class SAML2UserManager {
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
                 case PLAIN:
-                    PlainAttrValue value = entityFactory.newEntity(UPlainAttrValue.class);
+                    PlainAttrValue value = intAttrName.getSchema().isUniqueConstraint()
+                            ? entityFactory.newEntity(UPlainAttrUniqueValue.class)
+                            : entityFactory.newEntity(UPlainAttrValue.class);
 
                     if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
                         value.setStringValue(transformed);

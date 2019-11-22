@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -130,7 +131,9 @@ public class OIDCUserManager {
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
                 case PLAIN:
-                    PlainAttrValue value = entityFactory.newEntity(UPlainAttrValue.class);
+                    PlainAttrValue value = intAttrName.getSchema().isUniqueConstraint()
+                            ? entityFactory.newEntity(UPlainAttrUniqueValue.class)
+                            : entityFactory.newEntity(UPlainAttrValue.class);
 
                     if (intAttrName.getSchemaType() == SchemaType.PLAIN) {
                         value.setStringValue(transformed);
