@@ -521,8 +521,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             if (idp.isUpdateMatching()) {
                 LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
 
-                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), ()
-                        -> userManager.update(matchingUsers.get(0), idp, responseTO));
+                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(),
+                        () -> userManager.update(matchingUsers.get(0), idp, responseTO));
             } else {
                 username = matchingUsers.get(0);
             }
@@ -541,8 +541,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).
-                    getBytes();
+                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

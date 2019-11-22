@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.SAML2IdPActions;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -92,7 +93,7 @@ public class SAML2UserManager {
         return inboundMatcher.matchByConnObjectKeyValue(
                 idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
-                map(match -> match.getAny().getKey()).
+                map(match -> ((User) match.getAny()).getUsername()).
                 collect(Collectors.toList());
     }
 
