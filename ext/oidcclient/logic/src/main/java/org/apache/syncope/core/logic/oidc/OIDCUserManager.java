@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.OIDCProviderActions;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -83,7 +84,7 @@ public class OIDCUserManager {
         return inboundMatcher.matchByConnObjectKeyValue(
                 connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
-                map(match -> match.getAny().getKey()).
+                map(match -> ((User) match.getAny()).getUsername()).
                 collect(Collectors.toList());
     }
 
