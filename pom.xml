@@ -512,7 +512,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.27</tomcat.version>
+    <tomcat.version>9.0.29</tomcat.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0.18</docker.mysql.version>
