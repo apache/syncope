@@ -152,6 +152,9 @@ under the License.
   <SyncopeSchema id="title"/>
   <PlainSchema id="title" type="String" anyTypeClass_id="minimal group"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <SyncopeSchema id="originalName"/>
+  <PlainSchema id="originalName" type="String" anyTypeClass_id="minimal group"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="1" readonly="0"/>
 
   <SyncopeSchema id="rderiveddata"/>
   <DerSchema id="rderiveddata" expression="rderived_sx + '-' + rderived_dx"

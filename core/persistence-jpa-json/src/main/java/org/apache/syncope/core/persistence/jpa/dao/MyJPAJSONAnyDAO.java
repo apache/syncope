@@ -70,7 +70,7 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
             } else {
                 ((JSONPlainAttr) container).add(attrValue);
             }
-            return "JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(List.of(container)) + "')";
+            return "JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''") + "')";
         }
     }
 }
