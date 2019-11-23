@@ -138,7 +138,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 }
 
                 query.append("plainAttrs @> '").
-                        append(POJOHelper.serialize(Arrays.asList(container))).
+                        append(POJOHelper.serialize(Arrays.asList(container)).replace("'", "''")).
                         append("'::jsonb");
             } else {
                 String key = key(schema.getType());

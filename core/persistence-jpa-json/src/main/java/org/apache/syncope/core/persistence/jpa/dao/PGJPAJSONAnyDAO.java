@@ -64,7 +64,7 @@ public class PGJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
             } else {
                 ((JSONPlainAttr) container).add(attrValue);
             }
-            return "plainAttrs @> '" + POJOHelper.serialize(Arrays.asList(container)) + "'::jsonb";
+            return "plainAttrs @> '" + POJOHelper.serialize(Arrays.asList(container)).replace("'", "''") + "'::jsonb";
         }
     }
 }

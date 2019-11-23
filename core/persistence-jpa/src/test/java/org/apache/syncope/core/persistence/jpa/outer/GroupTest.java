@@ -371,4 +371,32 @@ public class GroupTest extends AbstractTest {
         dynGroupMemberships = findDynGroups(anyObject);
         assertTrue(dynGroupMemberships.isEmpty());
     }
+
+    @Test
+    public void issueSYNCOPE1512() {
+        Group group = groupDAO.findByName("root");
+        assertNotNull(group);
+
+        // non unique
+        GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
+        title.setOwner(group);
+        title.setSchema(plainSchemaDAO.find("title"));
+        title.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        group.add(title);
+
+        // unique
+        GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
+        originalName.setOwner(group);
+        originalName.setSchema(plainSchemaDAO.find("originalName"));
+        originalName.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        group.add(originalName);
+
+        groupDAO.save(group);
+
+        entityManager().flush();
+
+        group = groupDAO.find(group.getKey());
+        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().get(0));
+        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().get(0));
+    }
 }
