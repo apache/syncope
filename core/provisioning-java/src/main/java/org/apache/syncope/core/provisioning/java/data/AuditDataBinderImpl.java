@@ -13,12 +13,12 @@ public class AuditDataBinderImpl implements AuditDataBinder {
     }
 
     @Override
-    public AuditEntryTO getAuditTO(final AuditEntry application) {
+    public AuditEntryTO getAuditTO(final AuditEntry application, final boolean details) {
         return null;
     }
 
     @Override
-    public AuditEntryTO returnAuditTO(final AuditEntryTO user, final boolean details) {
+    public AuditEntryTO returnAuditTO(final AuditEntryTO user) {
         return null;
     }
 }

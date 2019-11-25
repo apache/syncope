@@ -25,7 +25,7 @@ public interface AuditDataBinder {
 
     AuditEntry create(AuditEntryTO applicationTO);
 
-    AuditEntryTO getAuditTO(AuditEntry application);
+    AuditEntryTO getAuditTO(AuditEntry application, boolean details);
 
-    AuditEntryTO returnAuditTO(AuditEntryTO user, boolean details);
+    AuditEntryTO returnAuditTO(AuditEntryTO user);
 }

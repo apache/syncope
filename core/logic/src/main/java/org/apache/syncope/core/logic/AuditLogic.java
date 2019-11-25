@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.AuditTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
@@ -41,7 +42,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class AuditLogic extends AbstractTransactionalLogic<AuditTO> {
+public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogic.class);
 
     @Autowired
@@ -51,36 +52,16 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditTO> {
     private AuditDAO auditDAO;
 
     @Override
-    protected AuditTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
-        String who = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; who == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    who = (String) args[i];
-                } else if (args[i] instanceof AuditTO) {
-                    who = ((AuditTO) args[i]).getWho();
-                }
-            }
-        }
-
-        if (who != null) {
-            try {
-                return binder.getAuditTO(auditDAO.findByUsername(who));
-            } catch (final Throwable throwable) {
-                LOG.debug("Unresolved reference", throwable);
-                throw new UnresolvedReferenceException(throwable);
-            }
-        }
-
+    protected AuditEntryTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
         throw new UnresolvedReferenceException();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<AuditTO>> search(
+    public Pair<Integer, List<AuditEntryTO>> search(
         final SearchCond searchCond,
-        final int page, final int size, final List<OrderByClause> orderBy,
+        final int page, final int size,
+        final List<OrderByClause> orderBy,
         final String realm,
         final boolean details) {
 
@@ -91,8 +72,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditTO> {
         List<AuditEntry> matching = auditDAO.search(RealmUtils.getEffective(
             AuthContextUtils.getAuthorizations().get(StandardEntitlement.AUDIT_SEARCH), realm),
             effectiveSearchCond, page, size, orderBy);
-        List<AuditTO> result = matching.stream().
-            map(binder::getAuditTO).
+        List<AuditEntryTO> result = matching.stream().
+            map(audit -> binder.returnAuditTO(binder.getAuditTO(audit, details))).
             collect(Collectors.toList());
 
         return Pair.of(count, result);

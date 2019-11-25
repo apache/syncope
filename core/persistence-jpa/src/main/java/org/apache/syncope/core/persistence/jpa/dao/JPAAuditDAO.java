@@ -39,7 +39,7 @@ public class JPAAuditDAO implements AuditDAO<AuditEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(JPAAuditDAO.class);
 
     @Override
-    public AuditEntry findByUsername(final String who) {
+    public AuditEntry findByEntityKey(final String key) {
         return null;
     }
 
