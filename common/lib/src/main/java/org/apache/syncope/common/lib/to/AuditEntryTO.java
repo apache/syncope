@@ -52,6 +52,8 @@ public class AuditEntryTO extends BaseBean implements EntityTO  {
 
     private String key;
 
+    private String loggerName;
+
     public Date getDate() {
         return date;
     }
@@ -118,6 +120,14 @@ public class AuditEntryTO extends BaseBean implements EntityTO  {
 
     public void setWho(final String who) {
         this.who = who;
+    }
+
+    public String getLoggerName() {
+        return loggerName;
+    }
+
+    public void setLoggerName(final String loggerName) {
+        this.loggerName = loggerName;
     }
 
     @Override

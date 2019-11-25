@@ -24,8 +24,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -44,10 +45,10 @@ public interface AuditService {
     /**
      * Returns a paged list of audit objects matching the given query.
      *
-     * @param anyQuery query conditions
+     * @param auditQuery query conditions
      * @return paged list of objects matching the given query
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    PagedResult<AuditEntryTO> search(AnyQuery anyQuery);
+    PagedResult<AuditEntryTO> search(@BeanParam AuditQuery auditQuery);
 }

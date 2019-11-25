@@ -18,20 +18,13 @@
  */
 package org.apache.syncope.core.logic;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
-import org.apache.syncope.common.lib.to.AuditTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -43,8 +36,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
-    private static final Logger LOG = LoggerFactory.getLogger(AuditLogic.class);
-
     @Autowired
     private AuditDataBinder binder;
 
@@ -52,30 +43,23 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
     private AuditDAO auditDAO;
 
     @Override
-    protected AuditEntryTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+    protected AuditEntryTO resolveReference(final Method method, final Object... args)
+        throws UnresolvedReferenceException {
         throw new UnresolvedReferenceException();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
     public Pair<Integer, List<AuditEntryTO>> search(
-        final SearchCond searchCond,
-        final int page, final int size,
-        final List<OrderByClause> orderBy,
-        final String realm,
-        final boolean details) {
+        final String key,
+        final int page,
+        final int size,
+        final List<OrderByClause> orderByClauses) {
 
-        SearchCond effectiveSearchCond = searchCond == null ? auditDAO.getAllMatchingCond() : searchCond;
-        int count = auditDAO.count(RealmUtils.getEffective(
-            AuthContextUtils.getAuthorizations().get(StandardEntitlement.AUDIT_SEARCH), realm), effectiveSearchCond);
-
-        List<AuditEntry> matching = auditDAO.search(RealmUtils.getEffective(
-            AuthContextUtils.getAuthorizations().get(StandardEntitlement.AUDIT_SEARCH), realm),
-            effectiveSearchCond, page, size, orderBy);
-        List<AuditEntryTO> result = matching.stream().
-            map(audit -> binder.returnAuditTO(binder.getAuditTO(audit, details))).
+        List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, orderByClauses);
+        List<AuditEntryTO> results = matching.stream().
+            map(audit -> binder.returnAuditTO(binder.getAuditTO(audit))).
             collect(Collectors.toList());
-
-        return Pair.of(count, result);
+        return Pair.of(results.size(), results);
     }
 }

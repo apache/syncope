@@ -128,7 +128,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
                 ? null
                 : getSearchCond(anyQuery.getFiql(), realm);
-
+                
         Pair<Integer, List<TO>> result = getAnyLogic().search(
                 searchCond,
                 anyQuery.getPage(),

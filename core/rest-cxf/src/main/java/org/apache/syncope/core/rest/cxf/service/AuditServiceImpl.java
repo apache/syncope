@@ -18,16 +18,12 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.core.logic.AuditLogic;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,26 +35,14 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
     private AuditLogic logic;
 
     @Override
-    public PagedResult<AuditEntryTO> search(final AnyQuery anyQuery) {
-        String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
-
-        boolean isAssignableCond = !StringUtils.isBlank(anyQuery.getFiql())
-            && anyQuery.getFiql().contains(SpecialAttr.ASSIGNABLE.toString());
-
-        SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
-            ? null
-            : getSearchCond(anyQuery.getFiql(), realm);
-
-        Pair<Integer, List<AuditEntryTO>> result = this.logic.search(
-            searchCond,
-            anyQuery.getPage(),
-            anyQuery.getSize(),
-            getOrderByClauses(anyQuery.getOrderBy()),
-            isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-            anyQuery.getDetails());
-
-        return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
+    public PagedResult<AuditEntryTO> search(final AuditQuery auditQuery) {
+        Pair<Integer, List<AuditEntryTO>> result = logic.search(
+            auditQuery.getKey(),
+            auditQuery.getPage(),
+            auditQuery.getSize(),
+            getOrderByClauses(auditQuery.getOrderBy())
+            );
+        return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }
-
 
 }

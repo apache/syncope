@@ -16,13 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.common.rest.api.beans;
 
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.AuditEntry;
+import javax.ws.rs.QueryParam;
 
-import java.util.List;
+public class AuditQuery extends AbstractQuery {
 
-public interface AuditDAO<T extends AuditEntry> {
-    List<AuditEntry> findByEntityKey(String key, int page, int size, List<OrderByClause> orderByClauses);
+    private static final long serialVersionUID = -2863334226169614417L;
+
+    private String key;
+
+    public String getKey() {
+        return key;
+    }
+
+    @QueryParam("key")
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public static class Builder extends AbstractQuery.Builder<AuditQuery, Builder> {
+
+        public Builder key(final String keyword) {
+            getInstance().setKey(keyword);
+            return this;
+        }
+
+        @Override
+        protected AuditQuery newInstance() {
+            return new AuditQuery();
+        }
+    }
+
 }

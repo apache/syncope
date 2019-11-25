@@ -19,50 +19,88 @@
 
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
+import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Transactional(rollbackFor = Throwable.class)
 @Repository
-public class JPAAuditDAO implements AuditDAO<AuditEntry> {
+public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(JPAAuditDAO.class);
 
-    @Override
-    public AuditEntry findByEntityKey(final String key) {
-        return null;
-    }
+    @Autowired
+    private DomainsHolder domainsHolder;
 
     @Override
-    public SearchCond getAllMatchingCond() {
-        AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
-        idCond.setSchema("logger");
-        return SearchCond.getLeafCond(idCond);
-    }
-
-    @Override
-    public int count(final Set<String> adminRealms, final SearchCond cond) {
-        LOG.debug("Search condition:\n{}", cond);
-        if (cond == null || !cond.isValid()) {
-            LOG.error("Invalid search condition:\n{}", cond);
-            return 0;
+    public List<AuditEntry> findByEntityKey(final String key, final int page,
+                                            final int itemsPerPage,
+                                            final List<OrderByClause> orderByClauses) {
+        try {
+            String queryString = "SELECT * FROM SYNCOPEAUDIT WHERE MESSAGE LIKE '%" + key + "%' ";
+            if (!orderByClauses.isEmpty()) {
+                 queryString += " ORDER BY " + orderByClauses.
+                    stream().
+                    map(orderBy -> orderBy.getField() + " " + orderBy.getDirection().name()).
+                    collect(Collectors.joining(","));
+            }
+            JdbcTemplate template = getJdbcTemplate();
+            template.setMaxRows(itemsPerPage);
+            template.setFetchSize(itemsPerPage * (page <= 0 ? 0 : page - 1));
+            return template.query(queryString, new AuditEntryRowMapper(key));
+        } catch (SyncopeClientException e) {
+            throw e;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
         }
-        return 0;
+        return Collections.emptyList();
     }
 
-    @Override
-    public List<AuditEntry> search(final Set<String> effective, final SearchCond effectiveSearchCond,
-                                   final int page, final int size, final List<OrderByClause> orderBy) {
-        return null;
+    private JdbcTemplate getJdbcTemplate() {
+        DataSource datasource = domainsHolder.getDomains().get(AuthContextUtils.getDomain());
+        if (datasource == null) {
+            throw new IllegalArgumentException("Could not get to DataSource");
+        }
+        return new JdbcTemplate(datasource);
+    }
+
+    private static class AuditEntryRowMapper implements RowMapper<AuditEntry> {
+        private final String key;
+        
+        AuditEntryRowMapper(final String key) {
+            this.key = key;
+        }
+
+        @Override
+        public AuditEntry mapRow(final ResultSet resultSet, final int i) throws SQLException {
+            AuditEntryImpl entry = POJOHelper.deserialize(resultSet.getString("MESSAGE"), AuditEntryImpl.class);
+            String throwable = resultSet.getString("THROWABLE");
+            entry.setThrowable(throwable);
+            Timestamp date = resultSet.getTimestamp("EVENT_DATE");
+            entry.setDate(new Date(date.getTime()));
+            entry.setKey(this.key);
+            return entry;
+        }
     }
 }

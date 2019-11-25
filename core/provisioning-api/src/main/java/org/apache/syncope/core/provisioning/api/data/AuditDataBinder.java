@@ -22,10 +22,7 @@ import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
 public interface AuditDataBinder {
-
-    AuditEntry create(AuditEntryTO applicationTO);
-
-    AuditEntryTO getAuditTO(AuditEntry application, boolean details);
+    AuditEntryTO getAuditTO(AuditEntry application);
 
     AuditEntryTO returnAuditTO(AuditEntryTO user);
 }

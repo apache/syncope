@@ -27,6 +27,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
+import java.util.Date;
+
 public class AuditEntryImpl implements AuditEntry {
 
     private static final long serialVersionUID = -2299082316063743582L;
@@ -43,6 +45,12 @@ public class AuditEntryImpl implements AuditEntry {
 
     private final Object[] input;
 
+    private String throwable;
+
+    private Date date;
+
+    private String key;
+    
     @JsonCreator
     public AuditEntryImpl(
         @JsonProperty("who") final String who,
@@ -111,6 +119,33 @@ public class AuditEntryImpl implements AuditEntry {
         return input;
     }
 
+    @Override
+    public String getThrowable() {
+        return throwable;
+    }
+
+    public void setThrowable(final String throwable) {
+        this.throwable = throwable;
+    }
+
+    @Override
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(final Date date) {
+        this.date = date;
+    }
+
+    @Override
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -126,7 +161,28 @@ public class AuditEntryImpl implements AuditEntry {
 
         private Object[] input;
 
+        private String throwable;
+
+        private Date date;
+
+        private String key;
+
         private Builder() {
+        }
+
+        public Builder date(final Date date) {
+            this.date = date;
+            return this;
+        }
+
+        public Builder throwable(final String throwable) {
+            this.throwable = throwable;
+            return this;
+        }
+
+        public Builder key(final String key) {
+            this.key = key;
+            return this;
         }
 
         public Builder who(final String who) {
@@ -155,7 +211,11 @@ public class AuditEntryImpl implements AuditEntry {
         }
 
         public AuditEntryImpl build() {
-            return new AuditEntryImpl(who, logger, before, output, input);
+            AuditEntryImpl entry = new AuditEntryImpl(who, logger, before, output, input);
+            entry.setDate(date);
+            entry.setThrowable(throwable);
+            entry.setKey(key);
+            return entry;
         }
     }
 }
