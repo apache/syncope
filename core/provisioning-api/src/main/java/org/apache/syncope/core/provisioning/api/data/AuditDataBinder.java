@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.AuditTO;
+import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
 public interface AuditDataBinder {
 
-    AuditEntry create(AuditTO applicationTO);
+    AuditEntry create(AuditEntryTO applicationTO);
 
-    AuditTO getAuditTO(AuditEntry application);
+    AuditEntryTO getAuditTO(AuditEntry application);
+
+    AuditEntryTO returnAuditTO(AuditEntryTO user, boolean details);
 }

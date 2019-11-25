@@ -21,7 +21,7 @@ package org.apache.syncope.common.rest.api.service;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.to.AuditTO;
+import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -49,5 +49,5 @@ public interface AuditService {
      */
     @GET
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    PagedResult<AuditTO> search(AnyQuery anyQuery);
+    PagedResult<AuditEntryTO> search(AnyQuery anyQuery);
 }

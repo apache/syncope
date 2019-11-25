@@ -29,7 +29,7 @@ import java.util.List;
 
 @XmlRootElement(name = "audit")
 @XmlType
-public class AuditTO extends BaseBean implements EntityTO {
+public class AuditEntryTO extends BaseBean implements EntityTO  {
     private static final long serialVersionUID = 1215115961911228005L;
 
     private final List<String> inputs = new ArrayList<>();

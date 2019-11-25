@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SpecialAttr;
-import org.apache.syncope.common.lib.to.AuditTO;
+import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
@@ -39,7 +39,7 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
     private AuditLogic logic;
 
     @Override
-    public PagedResult<AuditTO> search(final AnyQuery anyQuery) {
+    public PagedResult<AuditEntryTO> search(final AnyQuery anyQuery) {
         String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
         boolean isAssignableCond = !StringUtils.isBlank(anyQuery.getFiql())
@@ -49,7 +49,7 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
             ? null
             : getSearchCond(anyQuery.getFiql(), realm);
 
-        Pair<Integer, List<AuditTO>> result = this.logic.search(
+        Pair<Integer, List<AuditEntryTO>> result = this.logic.search(
             searchCond,
             anyQuery.getPage(),
             anyQuery.getSize(),
