@@ -2602,4 +2602,19 @@ $$ }&#10;
   <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" LOGLEVEL="DEBUG"/>
   <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[FAILURE]" LOGLEVEL="DEBUG"/>
   <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[delete]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[link]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[own]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provision]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[read]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[search]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" LOGLEVEL="DEBUG"/>
+  <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" LOGLEVEL="DEBUG"/>
 </dataset>

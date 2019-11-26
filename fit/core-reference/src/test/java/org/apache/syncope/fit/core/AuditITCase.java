@@ -18,16 +18,14 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +35,17 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditITCase extends AbstractITCase {
     private static final String USER_KEY = getUUIDString();
+    private static final String GROUP_KEY = getUUIDString();
 
-    public static UserTO getSampleUserTO(final String email) {
+    private static GroupTO getSampleGroupTO(final String name) {
+        GroupTO groupTO = new GroupTO();
+        groupTO.setRealm(SyncopeConstants.ROOT_REALM);
+        groupTO.setName(name + getUUIDString());
+        groupTO.setKey(GROUP_KEY);
+        return groupTO;
+    }
+
+    private static UserTO getSampleUserTO(final String email) {
         UserTO userTO = new UserTO();
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
@@ -51,47 +58,51 @@ public class AuditITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("email", email));
         return userTO;
     }
-    
-    private static void deleteUserIfFound() {
-        try {
-            UserTO userTO = userService.read(USER_KEY);
-            userService.delete(userTO.getKey());
-        } catch (SyncopeClientException e) {
-            if (e.getType() != ClientExceptionType.NotFound) {
-                fail(e.getMessage(), e);
-            }
-        }
-    }
 
-    @AfterEach
-    public void afterEach() {
-        deleteUserIfFound();
-    }
-
-    @BeforeEach
-    public void setup() {
-        deleteUserIfFound();
-
+    @Test
+    public void findByUser() {
         UserTO userTO = getSampleUserTO("example@syncope.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(result);
         userTO = result.getEntity();
         userService.read(userTO.getKey());
-    }
 
-    @Test
-    public void findByUser() {
-        PagedResult<AuditEntryTO> result = auditService.search(
+        PagedResult<AuditEntryTO> auditResult = auditService.search(
             new AuditQuery.Builder()
                 .key(USER_KEY)
                 .orderBy("event_date desc")
                 .page(1)
                 .size(1)
                 .build());
+        assertNotNull(auditResult);
+        List<AuditEntryTO> results = auditResult.getResult();
+        assertFalse(results.isEmpty());
+        assertEquals(1, results.size());
+        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(USER_KEY)));
+        userService.delete(userTO.getKey());
+    }
+
+    @Test
+    public void findByGroup() {
+        GroupTO groupTO = getSampleGroupTO("AuditGroup");
+        ProvisioningResult<GroupTO> groupResult = createGroup(groupTO);
+        assertNotNull(groupResult);
+        groupTO = groupResult.getEntity();
+        groupService.read(groupTO.getKey());
+
+        PagedResult<AuditEntryTO> result = auditService.search(
+            new AuditQuery.Builder()
+                .key(GROUP_KEY)
+                .orderBy("event_date asc")
+                .page(1)
+                .size(1)
+                .build());
         assertNotNull(result);
         List<AuditEntryTO> results = result.getResult();
         assertFalse(results.isEmpty());
-        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(USER_KEY)));
+        assertEquals(1, results.size());
+        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(GROUP_KEY)));
+        groupService.delete(groupTO.getKey());
     }
 }
