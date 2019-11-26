@@ -61,6 +61,7 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.protocol.ws.WebSocketAwareCsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
@@ -176,8 +177,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         maxPoolSize = Integer.valueOf(props.getProperty("topology.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("topology.queueCapacity", "50"));
 
-        String csrf = props.getProperty("csrf");
-
         // process page properties
         pageClasses = new HashMap<>();
         populatePageClasses(props);
@@ -209,7 +208,11 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        if (BooleanUtils.toBoolean(csrf)) {
+        if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
+            getFilterFactoryManager().add(new XForwardedRequestWrapperFactory());
+        }
+
+        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
             getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
         }
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());

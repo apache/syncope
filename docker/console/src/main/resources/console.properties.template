@@ -31,6 +31,7 @@ maxUploadFileSizeMB=5
 # Max wait time on apply changes from modals/wizards (given in seconds)
 maxWaitTimeOnApplyChanges=30
 
+x-forward=true
 csrf=true
 
 activitiModelerDirectory=/etc/apache-syncope/activiti-modeler
@@ -51,3 +52,7 @@ page.types=org.apache.syncope.client.console.pages.Types
 page.policies=org.apache.syncope.client.console.pages.Policies
 page.notifications=org.apache.syncope.client.console.pages.Notifications
 page.parameters=org.apache.syncope.client.console.pages.Parameters
+
+topology.corePoolSize=10
+topology.maxPoolSize=20
+topology.queueCapacity=50
