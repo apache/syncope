@@ -56,10 +56,11 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
         final int size,
         final List<OrderByClause> orderByClauses) {
 
+        Integer count = auditDAO.count(key);
         List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, orderByClauses);
         List<AuditEntryTO> results = matching.stream().
             map(audit -> binder.returnAuditTO(binder.getAuditTO(audit))).
             collect(Collectors.toList());
-        return Pair.of(results.size(), results);
+        return Pair.of(count, results);
     }
 }

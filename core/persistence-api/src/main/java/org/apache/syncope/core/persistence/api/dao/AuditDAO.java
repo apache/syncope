@@ -25,4 +25,6 @@ import java.util.List;
 
 public interface AuditDAO<T extends AuditEntry> {
     List<AuditEntry> findByEntityKey(String key, int page, int size, List<OrderByClause> orderByClauses);
+
+    Integer count(String key);
 }

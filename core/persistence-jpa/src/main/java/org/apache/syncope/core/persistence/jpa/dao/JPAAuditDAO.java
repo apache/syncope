@@ -19,7 +19,6 @@
 
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -31,18 +30,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Transactional(rollbackFor = Throwable.class)
@@ -50,57 +47,62 @@ import java.util.stream.Collectors;
 public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
     private static final Logger LOG = LoggerFactory.getLogger(JPAAuditDAO.class);
 
+    private static final String TABLE_NAME = "SYNCOPEAUDIT";
+
     @Autowired
     private DomainsHolder domainsHolder;
+
+    private static String buildWhereClauseForEntityKey(final String key) {
+        return " WHERE MESSAGE LIKE '%" + key + "%' ";
+    }
 
     @Override
     public List<AuditEntry> findByEntityKey(final String key, final int page,
                                             final int itemsPerPage,
                                             final List<OrderByClause> orderByClauses) {
         try {
-            String queryString = "SELECT * FROM SYNCOPEAUDIT WHERE MESSAGE LIKE '%" + key + "%' ";
+            String queryString = "SELECT * FROM " + TABLE_NAME + buildWhereClauseForEntityKey(key);
             if (!orderByClauses.isEmpty()) {
-                 queryString += " ORDER BY " + orderByClauses.
+                queryString += " ORDER BY " + orderByClauses.
                     stream().
-                    map(orderBy -> orderBy.getField() + " " + orderBy.getDirection().name()).
+                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
                     collect(Collectors.joining(","));
             }
             JdbcTemplate template = getJdbcTemplate();
             template.setMaxRows(itemsPerPage);
             template.setFetchSize(itemsPerPage * (page <= 0 ? 0 : page - 1));
-            return template.query(queryString, new AuditEntryRowMapper(key));
-        } catch (SyncopeClientException e) {
-            throw e;
+            return template.query(queryString, (resultSet, i) -> {
+                AuditEntryImpl entry = POJOHelper.deserialize(resultSet.getString("MESSAGE"), AuditEntryImpl.class);
+                String throwable = resultSet.getString("THROWABLE");
+                entry.setThrowable(throwable);
+                Timestamp date = resultSet.getTimestamp("EVENT_DATE");
+                entry.setDate(new Date(date.getTime()));
+                entry.setKey(key);
+                return entry;
+            });
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("Unable to execute search query to find entity " + key, e);
         }
         return Collections.emptyList();
     }
 
-    private JdbcTemplate getJdbcTemplate() {
-        DataSource datasource = domainsHolder.getDomains().get(AuthContextUtils.getDomain());
-        if (datasource == null) {
-            throw new IllegalArgumentException("Could not get to DataSource");
+    @Override
+    public Integer count(final String key) {
+        try {
+            String queryString = "SELECT COUNT(0) FROM " + TABLE_NAME + buildWhereClauseForEntityKey(key);
+            return Objects.requireNonNull(getJdbcTemplate().queryForObject(queryString, Integer.class));
+        } catch (Exception e) {
+            LOG.error("Unable to execute count query for entity " + key, e);
         }
-        return new JdbcTemplate(datasource);
+        return 0;
     }
 
-    private static class AuditEntryRowMapper implements RowMapper<AuditEntry> {
-        private final String key;
-        
-        AuditEntryRowMapper(final String key) {
-            this.key = key;
+    private JdbcTemplate getJdbcTemplate() {
+        String domain = AuthContextUtils.getDomain();
+        DataSource datasource = domainsHolder.getDomains().get(domain);
+        if (datasource == null) {
+            throw new IllegalArgumentException("Could not get to DataSource for domain " + domain);
         }
-
-        @Override
-        public AuditEntry mapRow(final ResultSet resultSet, final int i) throws SQLException {
-            AuditEntryImpl entry = POJOHelper.deserialize(resultSet.getString("MESSAGE"), AuditEntryImpl.class);
-            String throwable = resultSet.getString("THROWABLE");
-            entry.setThrowable(throwable);
-            Timestamp date = resultSet.getTimestamp("EVENT_DATE");
-            entry.setDate(new Date(date.getTime()));
-            entry.setKey(this.key);
-            return entry;
-        }
+        return new JdbcTemplate(datasource);
     }
 }

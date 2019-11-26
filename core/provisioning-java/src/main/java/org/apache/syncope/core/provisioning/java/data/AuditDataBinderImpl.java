@@ -1,6 +1,5 @@
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
@@ -23,12 +22,10 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         auditTO.setThrowable(auditEntry.getThrowable());
         auditTO.setLoggerName(auditEntry.getLogger().toLoggerName());
 
-        if (StringUtils.isNotBlank(auditEntry.getLogger().getSubcategory())) {
-            auditTO.setSubCategory(auditEntry.getLogger().getSubcategory());
-        }
-        if (StringUtils.isNotBlank(auditEntry.getLogger().getEvent())) {
-            auditTO.setEvent(auditEntry.getLogger().getEvent());
-        }
+
+        auditTO.setSubCategory(auditEntry.getLogger().getSubcategory());
+        auditTO.setEvent(auditEntry.getLogger().getEvent());
+
         if (auditEntry.getLogger().getResult() != null) {
             auditTO.setResult(auditEntry.getLogger().getResult().name());
         }
@@ -54,7 +51,7 @@ public class AuditDataBinderImpl implements AuditDataBinder {
     }
 
     @Override
-    public AuditEntryTO returnAuditTO(final AuditEntryTO user) {
-        return user;
+    public AuditEntryTO returnAuditTO(final AuditEntryTO auditEntryTO) {
+        return auditEntryTO;
     }
 }

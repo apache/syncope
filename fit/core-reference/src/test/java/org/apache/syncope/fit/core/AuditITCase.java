@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.fit.core;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.AfterEach;
@@ -32,17 +32,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditITCase extends AbstractITCase {
+    private static final String USER_KEY = getUUIDString();
 
     public static UserTO getSampleUserTO(final String email) {
         UserTO userTO = new UserTO();
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
         userTO.setUsername(email);
+        userTO.setKey(USER_KEY);
         userTO.getPlainAttrs().add(attrTO("fullname", "Apache Syncope"));
         userTO.getPlainAttrs().add(attrTO("firstname", "Apache"));
         userTO.getPlainAttrs().add(attrTO("surname", "Syncope"));
@@ -50,25 +51,16 @@ public class AuditITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("email", email));
         return userTO;
     }
-
-    private static Optional<UserTO> findUser(final String username) {
-        PagedResult<UserTO> matching = userService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
-                .fiql(new UserFiqlSearchConditionBuilder()
-                    .is("username").equalTo(username).query())
-                .size(1)
-                .page(1)
-                .details(false)
-                .build());
-        assertNotNull(matching);
-        if (matching.getSize() > 0) {
-            return Optional.of(matching.getResult().get(0));
-        }
-        return Optional.empty();
-    }
-
+    
     private static void deleteUserIfFound() {
-        findUser("example@syncope.org").ifPresent(user -> userService.delete(user.getKey()));
+        try {
+            UserTO userTO = userService.read(USER_KEY);
+            userService.delete(userTO.getKey());
+        } catch (SyncopeClientException e) {
+            if (e.getType() != ClientExceptionType.NotFound) {
+                fail(e.getMessage(), e);
+            }
+        }
     }
 
     @AfterEach
@@ -90,18 +82,16 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void findByUser() {
-        findUser("example@syncope.org").ifPresent(user -> {
-            PagedResult<AuditEntryTO> result = auditService.search(
-                new AuditQuery.Builder()
-                    .key(user.getKey())
-                    .orderBy("event_date desc")
-                    .page(1)
-                    .size(1)
-                    .build());
-            assertNotNull(result);
-            List<AuditEntryTO> results = result.getResult();
-            assertFalse(results.isEmpty());
-            assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(user.getKey())));
-        });
+        PagedResult<AuditEntryTO> result = auditService.search(
+            new AuditQuery.Builder()
+                .key(USER_KEY)
+                .orderBy("event_date desc")
+                .page(1)
+                .size(1)
+                .build());
+        assertNotNull(result);
+        List<AuditEntryTO> results = result.getResult();
+        assertFalse(results.isEmpty());
+        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(USER_KEY)));
     }
 }
