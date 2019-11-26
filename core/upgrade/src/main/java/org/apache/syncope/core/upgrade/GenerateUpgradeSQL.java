@@ -119,10 +119,15 @@ public final class GenerateUpgradeSQL {
                 if (specification.has("correlationRules")) {
                     specification.get("correlationRules").fields().forEachRemaining(entry -> {
                         ObjectNode body = MAPPER.createObjectNode();
-                        body.put("@class", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
-                        body.put("name", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
-                        body.set("schemas", entry.getValue());
-
+                        if ((entry.getValue().asText().contains("org.apache.syncope"))) {
+                            final String confClassName = entry.getValue().asText() + "Conf";
+                            body.put("@class", confClassName);
+                            body.put("name", confClassName);
+                        } else {
+                            body.put("@class", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
+                            body.put("name", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
+                            body.set("schemas", entry.getValue());
+                        }
                         try {
                             String implementationId = "PullCorrelationRule_" + entry.getKey() + "_" + id;
                             OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("

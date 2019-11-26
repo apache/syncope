@@ -382,6 +382,11 @@ under the License.
       <email>tusharm567@gmail.com</email>
       <url>http://tusharmishra.in</url>
     </contributor>
+    <contributor>
+      <name>Dmitriy Brashevets</name>
+      <organization>United Security Providers AG</organization>
+      <organizationUrl>https://www.united-security-providers.com/</organizationUrl>
+    </contributor>
   </contributors>
 
   <properties>
@@ -528,7 +533,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.27</tomcat.version>
+    <tomcat.version>9.0.29</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
@@ -2568,7 +2573,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>1.5.0-beta.7</version>
+                <version>1.5.0-beta.8</version>
               </dependency>
             </dependencies>
             <configuration>

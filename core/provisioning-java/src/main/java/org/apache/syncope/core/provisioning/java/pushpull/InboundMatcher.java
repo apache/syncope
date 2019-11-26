@@ -37,9 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -58,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -125,7 +124,7 @@ public class InboundMatcher {
             return Optional.empty();
         }
 
-        Stream<MappingItem> mapItems = Stream.concat(
+        Stream<Item> mapItems = Stream.concat(
                 provision.get().getMapping().getItems().stream(),
                 virSchemaDAO.findByProvision(provision.get()).stream().map(VirSchema::asLinkingMappingItem));
 
@@ -189,9 +188,24 @@ public class InboundMatcher {
     }
 
     public List<PullMatch> matchByConnObjectKeyValue(
-            final MappingItem connObjectKeyItem,
+            final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final Provision provision) {
+
+        return matchByConnObjectKeyValue(
+                connObjectKeyItem,
+                connObjectKeyValue,
+                provision.getAnyType().getKind(),
+                provision.isIgnoreCaseMatch(),
+                provision.getResource());
+    }
+
+    public List<PullMatch> matchByConnObjectKeyValue(
+            final Item connObjectKeyItem,
+            final String connObjectKeyValue,
+            final AnyTypeKind anyTypeKind,
+            final boolean ignoreCaseMatch,
+            final ExternalResource resource) {
 
         String finalConnObjectKeyValue = connObjectKeyValue;
         for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
@@ -208,14 +222,13 @@ public class InboundMatcher {
 
         IntAttrName intAttrName;
         try {
-            intAttrName = intAttrNameParser.parse(
-                    connObjectKeyItem.getIntAttrName(), provision.getAnyType().getKind());
+            intAttrName = intAttrNameParser.parse(connObjectKeyItem.getIntAttrName(), anyTypeKind);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", connObjectKeyItem.getIntAttrName(), e);
             return noMatchResult;
         }
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
 
         List<Any<?>> anys = new ArrayList<>();
 
@@ -226,7 +239,7 @@ public class InboundMatcher {
                     break;
 
                 case "username":
-                    if (provision.getAnyType().getKind() == AnyTypeKind.USER && provision.isIgnoreCaseMatch()) {
+                    if (anyTypeKind == AnyTypeKind.USER && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("username");
                         cond.setExpression(connObjectKeyValue);
@@ -237,7 +250,7 @@ public class InboundMatcher {
                     break;
 
                 case "name":
-                    if (provision.getAnyType().getKind() == AnyTypeKind.GROUP && provision.isIgnoreCaseMatch()) {
+                    if (anyTypeKind == AnyTypeKind.GROUP && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(connObjectKeyValue);
@@ -246,7 +259,7 @@ public class InboundMatcher {
                         Optional.ofNullable(groupDAO.findByName(connObjectKeyValue)).ifPresent(anys::add);
                     }
 
-                    if (provision.getAnyType().getKind() == AnyTypeKind.ANY_OBJECT && provision.isIgnoreCaseMatch()) {
+                    if (anyTypeKind == AnyTypeKind.ANY_OBJECT && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(connObjectKeyValue);
@@ -273,17 +286,17 @@ public class InboundMatcher {
 
                     if (intAttrName.getSchema().isUniqueConstraint()) {
                         anyUtils.dao().findByPlainAttrUniqueValue((PlainSchema) intAttrName.getSchema(),
-                                (PlainAttrUniqueValue) value, provision.isIgnoreCaseMatch()).
+                                (PlainAttrUniqueValue) value, ignoreCaseMatch).
                                 ifPresent(anys::add);
                     } else {
                         anys.addAll(anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(),
-                                value, provision.isIgnoreCaseMatch()));
+                                value, ignoreCaseMatch));
                     }
                     break;
 
                 case DERIVED:
                     anys.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
-                            connObjectKeyValue, provision.isIgnoreCaseMatch()));
+                            connObjectKeyValue, ignoreCaseMatch));
                     break;
 
                 default:
@@ -294,9 +307,11 @@ public class InboundMatcher {
                 map(any -> new PullMatch(MatchType.ANY, any)).
                 collect(Collectors.toList());
 
-        userDAO.findLinkedAccount(provision.getResource(), finalConnObjectKeyValue).
-                map(account -> new PullMatch(MatchType.LINKED_ACCOUNT, account)).
-                ifPresent(result::add);
+        if (resource != null) {
+            userDAO.findLinkedAccount(resource, finalConnObjectKeyValue).
+                    map(account -> new PullMatch(MatchType.LINKED_ACCOUNT, account)).
+                    ifPresent(result::add);
+        }
 
         return result.isEmpty() ? noMatchResult : result;
     }
@@ -348,7 +363,7 @@ public class InboundMatcher {
             } else {
                 String connObjectKeyValue = null;
 
-                Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                Optional<? extends Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 if (connObjectKeyItem.isPresent()) {
                     Attribute connObjectKeyAttr = syncDelta.getObject().
                             getAttributeByName(connObjectKeyItem.get().getExtAttrName());
@@ -388,7 +403,7 @@ public class InboundMatcher {
     public List<Realm> match(final SyncDelta syncDelta, final OrgUnit orgUnit) {
         String connObjectKey = null;
 
-        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<? extends Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyAttr = syncDelta.getObject().
                     getAttributeByName(connObjectKeyItem.get().getExtAttrName());

@@ -1182,7 +1182,7 @@ INSERT INTO PUBLIC.PULLPOLICY(ID, DESCRIPTION, SPECIFICATION) VALUES
 ('66691e96-285f-4464-bc19-e68384ea4c85', 'a pull policy', '{"conflictResolutionAction":"IGNORE"}'),
 ('880f8553-069b-4aed-9930-2cd53873f544', 'another pull policy', '{"conflictResolutionAction":"ALL","correlationRules":{"USER":["username","firstname"]}}'),
 ('4ad10d94-e002-4b3f-b771-16089cc71da9', 'pull policy 1', '{"conflictResolutionAction":"IGNORE"}'),
-('9454b0d7-2610-400a-be82-fc23cf553dd6', 'pull policy for java rule', '{"conflictResolutionAction":"IGNORE"}'); 
+('9454b0d7-2610-400a-be82-fc23cf553dd6', 'pull policy for java rule', '{"conflictResolutionAction":"IGNORE", "correlationRules":{"USER":"org.apache.syncope.fit.core.reference.TestPullRule"}}'); 
 CREATE MEMORY TABLE PUBLIC.PULLTASK_ACTIONSCLASSNAMES(
     PULLTASK_ID VARCHAR(36),
     ACTIONCLASSNAME VARCHAR(255)
