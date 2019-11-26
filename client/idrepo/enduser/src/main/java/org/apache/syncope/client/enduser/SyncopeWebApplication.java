@@ -66,6 +66,7 @@ import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.component.IRequestablePage;
@@ -298,6 +299,10 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             }
 
         });
+
+        if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
+            getFilterFactoryManager().add(new XForwardedRequestWrapperFactory());
+        }
 
         if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
             getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
