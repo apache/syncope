@@ -120,7 +120,7 @@ public class DefaultAuditManager implements AuditManager {
             String serializedAuditEntry = POJOHelper.serialize(auditEntry);
             if (throwable == null) {
                 logger.debug(serializedAuditEntry);
-                eventLogger.debug(POJOHelper.serialize(auditEntry));
+                eventLogger.debug(serializedAuditEntry);
             } else {
                 logger.debug(serializedAuditEntry, throwable);
                 eventLogger.debug(serializedAuditEntry, throwable);
