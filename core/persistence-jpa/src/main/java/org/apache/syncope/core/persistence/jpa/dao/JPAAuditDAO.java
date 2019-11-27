@@ -53,12 +53,12 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
 
     @Override
     public List<AuditEntry> findByEntityKey(
-        final String key,
-        final int page,
-        final int itemsPerPage,
-        final List<OrderByClause> orderByClauses,
-        final List<String> results,
-        final List<String> events) {
+            final String key,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderByClauses,
+            final List<String> results,
+            final List<String> events) {
         try {
             String query = new MessageCriteriaBuilder()
                 .results(results)
