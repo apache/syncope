@@ -192,7 +192,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public void delete(final String key, final SchemaType schemaType, final String schema) {
-        addUpdateOrReplaceAttr(getActualKey(getAnyDAO(), key),
+        addUpdateOrReplaceAttr(
+                getActualKey(getAnyDAO(), key),
                 schemaType,
                 new Attr.Builder(schema).build(),
                 PatchOperation.DELETE);
