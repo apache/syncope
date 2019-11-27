@@ -31,6 +31,7 @@ import java.util.List;
 
 @Service
 public class AuditServiceImpl extends AbstractServiceImpl implements AuditService {
+
     @Autowired
     private AuditLogic logic;
 
@@ -42,9 +43,7 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
             auditQuery.getSize(),
             getOrderByClauses(auditQuery.getOrderBy()),
             auditQuery.getResults(),
-            auditQuery.getEvents()
-            );
+            auditQuery.getEvents());
         return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }
-
 }

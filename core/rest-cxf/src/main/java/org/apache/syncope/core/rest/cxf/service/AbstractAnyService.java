@@ -56,8 +56,8 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
-    extends AbstractServiceImpl
-    implements AnyService<TO> {
+        extends AbstractServiceImpl
+        implements AnyService<TO> {
 
     protected abstract AnyDAO<?> getAnyDAO();
 
@@ -122,20 +122,20 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         // if an assignable query is provided in the FIQL string, start anyway from root realm
         boolean isAssignableCond = StringUtils.isBlank(anyQuery.getFiql())
-            ? false
-            : -1 != anyQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
+                ? false
+                : -1 != anyQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
 
         SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
-            ? null
-            : getSearchCond(anyQuery.getFiql(), realm);
+                ? null
+                : getSearchCond(anyQuery.getFiql(), realm);
 
         Pair<Integer, List<TO>> result = getAnyLogic().search(
-            searchCond,
-            anyQuery.getPage(),
-            anyQuery.getSize(),
-            getOrderByClauses(anyQuery.getOrderBy()),
-            isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-            anyQuery.getDetails());
+                searchCond,
+                anyQuery.getPage(),
+                anyQuery.getSize(),
+                getOrderByClauses(anyQuery.getOrderBy()),
+                isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
+                anyQuery.getDetails());
 
         return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
     }
@@ -159,7 +159,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     private void addUpdateOrReplaceAttr(
-        final String key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
+            final String key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
 
         if (attrTO.getSchema() == null) {
             throw new NotFoundException("Must specify schema");
@@ -193,10 +193,10 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     @Override
     public void delete(final String key, final SchemaType schemaType, final String schema) {
         addUpdateOrReplaceAttr(
-            getActualKey(getAnyDAO(), key),
-            schemaType,
-            new AttrTO.Builder().schema(schema).build(),
-            PatchOperation.DELETE);
+                getActualKey(getAnyDAO(), key),
+                schemaType,
+                new AttrTO.Builder().schema(schema).build(),
+                PatchOperation.DELETE);
     }
 
     @Override
@@ -242,13 +242,13 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
 
                 item.setStatus(updated.getEntity().getResources().contains(resource)
-                    ? Response.Status.BAD_REQUEST.getStatusCode()
-                    : Response.Status.OK.getStatusCode());
+                        ? Response.Status.BAD_REQUEST.getStatusCode()
+                        : Response.Status.OK.getStatusCode());
 
                 if (getPreference() == Preference.RETURN_NO_CONTENT) {
                     item.getHeaders().put(
-                        RESTHeaders.PREFERENCE_APPLIED,
-                        Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                            RESTHeaders.PREFERENCE_APPLIED,
+                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
                 } else {
                     item.setContent(POJOHelper.serialize(updated.getEntity()));
                 }
@@ -257,34 +257,34 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             }).collect(Collectors.toList());
         } else {
             batchResponseItems = updated.getPropagationStatuses().stream().
-                map(status -> {
-                    BatchResponseItem item = new BatchResponseItem();
+                    map(status -> {
+                        BatchResponseItem item = new BatchResponseItem();
 
-                    item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
+                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
 
-                    item.setStatus(status.getStatus().getHttpStatus());
+                        item.setStatus(status.getStatus().getHttpStatus());
 
-                    if (status.getFailureReason() != null) {
-                        item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
-                    }
+                        if (status.getFailureReason() != null) {
+                            item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
+                        }
 
-                    if (getPreference() == Preference.RETURN_NO_CONTENT) {
-                        item.getHeaders().put(
-                            RESTHeaders.PREFERENCE_APPLIED,
-                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
-                    } else {
-                        item.setContent(POJOHelper.serialize(updated.getEntity()));
-                    }
+                        if (getPreference() == Preference.RETURN_NO_CONTENT) {
+                            item.getHeaders().put(
+                                    RESTHeaders.PREFERENCE_APPLIED,
+                                    Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                        } else {
+                            item.setContent(POJOHelper.serialize(updated.getEntity()));
+                        }
 
-                    return item;
-                }).collect(Collectors.toList());
+                        return item;
+                    }).collect(Collectors.toList());
         }
 
         String boundary = "deassociate_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
-            batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
-            type(RESTHeaders.multipartMixedWith(boundary)).
-            build();
+                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                type(RESTHeaders.multipartMixedWith(boundary)).
+                build();
     }
 
     @Override
@@ -297,26 +297,26 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             case LINK:
                 updated = new ProvisioningResult<>();
                 updated.setEntity(getAnyLogic().link(
-                    patch.getKey(),
-                    patch.getResources()));
+                        patch.getKey(),
+                        patch.getResources()));
                 break;
 
             case ASSIGN:
                 updated = getAnyLogic().assign(
-                    patch.getKey(),
-                    patch.getResources(),
-                    patch.getValue() != null,
-                    patch.getValue(),
-                    isNullPriorityAsync());
+                        patch.getKey(),
+                        patch.getResources(),
+                        patch.getValue() != null,
+                        patch.getValue(),
+                        isNullPriorityAsync());
                 break;
 
             case PROVISION:
                 updated = getAnyLogic().provision(
-                    patch.getKey(),
-                    patch.getResources(),
-                    patch.getValue() != null,
-                    patch.getValue(),
-                    isNullPriorityAsync());
+                        patch.getKey(),
+                        patch.getResources(),
+                        patch.getValue() != null,
+                        patch.getValue(),
+                        isNullPriorityAsync());
                 break;
 
             default:
@@ -331,13 +331,13 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
 
                 item.setStatus(updated.getEntity().getResources().contains(resource)
-                    ? Response.Status.OK.getStatusCode()
-                    : Response.Status.BAD_REQUEST.getStatusCode());
+                        ? Response.Status.OK.getStatusCode()
+                        : Response.Status.BAD_REQUEST.getStatusCode());
 
                 if (getPreference() == Preference.RETURN_NO_CONTENT) {
                     item.getHeaders().put(
-                        RESTHeaders.PREFERENCE_APPLIED,
-                        Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                            RESTHeaders.PREFERENCE_APPLIED,
+                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
                 } else {
                     item.setContent(POJOHelper.serialize(updated.getEntity()));
                 }
@@ -346,33 +346,33 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             }).collect(Collectors.toList());
         } else {
             batchResponseItems = updated.getPropagationStatuses().stream().
-                map(status -> {
-                    BatchResponseItem item = new BatchResponseItem();
+                    map(status -> {
+                        BatchResponseItem item = new BatchResponseItem();
 
-                    item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
+                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
 
-                    item.setStatus(status.getStatus().getHttpStatus());
+                        item.setStatus(status.getStatus().getHttpStatus());
 
-                    if (status.getFailureReason() != null) {
-                        item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
-                    }
+                        if (status.getFailureReason() != null) {
+                            item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
+                        }
 
-                    if (getPreference() == Preference.RETURN_NO_CONTENT) {
-                        item.getHeaders().put(
-                            RESTHeaders.PREFERENCE_APPLIED,
-                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
-                    } else {
-                        item.setContent(POJOHelper.serialize(updated.getEntity()));
-                    }
+                        if (getPreference() == Preference.RETURN_NO_CONTENT) {
+                            item.getHeaders().put(
+                                    RESTHeaders.PREFERENCE_APPLIED,
+                                    Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                        } else {
+                            item.setContent(POJOHelper.serialize(updated.getEntity()));
+                        }
 
-                    return item;
-                }).collect(Collectors.toList());
+                        return item;
+                    }).collect(Collectors.toList());
         }
 
         String boundary = "associate_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
-            batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
-            type(RESTHeaders.multipartMixedWith(boundary)).
-            build();
+                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                type(RESTHeaders.multipartMixedWith(boundary)).
+                build();
     }
 }

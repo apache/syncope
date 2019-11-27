@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -30,30 +33,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
 public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
+
     @Autowired
     private AuditDataBinder binder;
 
     @Autowired
     private AuditDAO auditDAO;
 
-    @Override
-    protected AuditEntryTO resolveReference(final Method method, final Object... args)
-        throws UnresolvedReferenceException {
-        throw new UnresolvedReferenceException();
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
     public Pair<Integer, List<AuditEntryTO>> search(
-        final String key,
-        final int page,
-        final int size,
+            final String key,
+            final int page,
+            final int size,
         final List<OrderByClause> orderByClauses,
         final List<String> results,
         final List<String> events) {
@@ -61,8 +55,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
         Integer count = auditDAO.count(key);
         List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, orderByClauses, results, events);
         List<AuditEntryTO> finalResults = matching.stream().
-            map(audit -> binder.returnAuditTO(binder.getAuditTO(audit))).
-            collect(Collectors.toList());
+                map(audit -> binder.returnAuditTO(binder.getAuditTO(audit))).
+                collect(Collectors.toList());
         return Pair.of(count, finalResults);
+    }
+
+    @Override
+    protected AuditEntryTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+        throw new UnresolvedReferenceException();
     }
 }

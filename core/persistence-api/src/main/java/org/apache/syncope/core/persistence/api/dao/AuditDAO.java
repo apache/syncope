@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.List;
+
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
-import java.util.List;
+public interface AuditDAO {
 
-public interface AuditDAO<T extends AuditEntry> {
+    String TABLE_NAME = "SYNCOPEAUDIT";
+
     List<AuditEntry> findByEntityKey(String key, int page, int size,
                                      List<OrderByClause> orderByClauses,
                                      List<String> results,

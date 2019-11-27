@@ -19,15 +19,14 @@
 
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @Component
 public class AuditDataBinderImpl implements AuditDataBinder {
@@ -41,7 +40,6 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         auditTO.setThrowable(auditEntry.getThrowable());
         auditTO.setLoggerName(auditEntry.getLogger().toLoggerName());
 
-
         auditTO.setSubCategory(auditEntry.getLogger().getSubcategory());
         auditTO.setEvent(auditEntry.getLogger().getEvent());
 
@@ -50,9 +48,7 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getBefore() != null) {
-            String before = ToStringBuilder.reflectionToString(
-                auditEntry.getBefore(), ToStringStyle.JSON_STYLE);
-            auditTO.setBefore(before);
+            auditTO.setBefore(ToStringBuilder.reflectionToString(auditEntry.getBefore(), ToStringStyle.JSON_STYLE));
         }
 
         if (auditEntry.getInput() != null) {
@@ -64,8 +60,7 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getOutput() != null) {
-            auditTO.setOutput(ToStringBuilder.reflectionToString(
-                auditEntry.getOutput(), ToStringStyle.JSON_STYLE));
+            auditTO.setOutput(ToStringBuilder.reflectionToString(auditEntry.getOutput(), ToStringStyle.JSON_STYLE));
         }
 
         return auditTO;
