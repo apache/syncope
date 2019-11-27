@@ -57,11 +57,19 @@ public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
     }
 
     @Override
-    public List<AuditEntry> findByEntityKey(final String key, final int page,
+    public List<AuditEntry> findByEntityKey(final String key,
+                                            final int page,
                                             final int itemsPerPage,
-                                            final List<OrderByClause> orderByClauses) {
+                                            final List<OrderByClause> orderByClauses,
+                                            final List<String> results,
+                                            final List<String> events) {
         try {
-            String queryString = "SELECT * FROM " + TABLE_NAME + buildWhereClauseForEntityKey(key);
+            String query = new MessageCriteriaBuilder()
+                .results(results)
+                .events(events)
+                .key(key)
+                .build();
+            String queryString = "SELECT * FROM " + TABLE_NAME + " WHERE " + query;
             if (!orderByClauses.isEmpty()) {
                 queryString += " ORDER BY " + orderByClauses.
                     stream().
@@ -104,5 +112,38 @@ public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
             throw new IllegalArgumentException("Could not get to DataSource for domain " + domain);
         }
         return new JdbcTemplate(datasource);
+    }
+
+    private static class MessageCriteriaBuilder {
+        private final StringBuilder query = new StringBuilder(" 1=1 ");
+
+        public MessageCriteriaBuilder key(final String key) {
+            query.append(" AND MESSAGE LIKE '%\"key\":\"").append(key).append("\"%' ");
+            return this;
+        }
+
+        public MessageCriteriaBuilder results(final List<String> results) {
+            buildCriteriaFor(results, "result");
+            return this;
+        }
+
+        private void buildCriteriaFor(final List<String> items, final String field) {
+            if (!items.isEmpty()) {
+                query.append(" AND ( ");
+                query.append(items.stream().map(res -> "MESSAGE LIKE '%\"" + field + "\":\"" + res + "\"%'")
+                    .collect(Collectors.joining(" OR ")));
+                query.append(" )");
+            }
+        }
+
+        public MessageCriteriaBuilder events(final List<String> events) {
+            buildCriteriaFor(events, "event");
+            return this;
+        }
+
+        public String build() {
+            query.trimToSize();
+            return query.toString();
+        }
     }
 }

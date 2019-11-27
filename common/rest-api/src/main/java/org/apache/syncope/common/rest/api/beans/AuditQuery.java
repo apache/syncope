@@ -20,11 +20,16 @@ package org.apache.syncope.common.rest.api.beans;
 
 import javax.ws.rs.QueryParam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AuditQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -2863334226169614417L;
 
     private String key;
+    private List<String> results = new ArrayList<>();
+    private List<String> events = new ArrayList<>();
 
     public String getKey() {
         return key;
@@ -35,10 +40,38 @@ public class AuditQuery extends AbstractQuery {
         this.key = key;
     }
 
+    public List<String> getResults() {
+        return results;
+    }
+
+    @QueryParam("results")
+    public void setResults(final List<String> results) {
+        this.results = results;
+    }
+
+    public List<String> getEvents() {
+        return events;
+    }
+
+    @QueryParam("events")
+    public void setEvents(final List<String> events) {
+        this.events = events;
+    }
+
     public static class Builder extends AbstractQuery.Builder<AuditQuery, Builder> {
 
         public Builder key(final String keyword) {
             getInstance().setKey(keyword);
+            return this;
+        }
+
+        public Builder results(final List<String> results) {
+            getInstance().setResults(results);
+            return this;
+        }
+
+        public Builder events(final List<String> events) {
+            getInstance().setEvents(events);
             return this;
         }
 

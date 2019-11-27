@@ -29,19 +29,16 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditITCase extends AbstractITCase {
-    private static final String USER_KEY = getUUIDString();
-    private static final String GROUP_KEY = getUUIDString();
-
     private static GroupTO getSampleGroupTO(final String name) {
         GroupTO groupTO = new GroupTO();
         groupTO.setRealm(SyncopeConstants.ROOT_REALM);
         groupTO.setName(name + getUUIDString());
-        groupTO.setKey(GROUP_KEY);
         return groupTO;
     }
 
@@ -50,7 +47,6 @@ public class AuditITCase extends AbstractITCase {
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
         userTO.setUsername(email);
-        userTO.setKey(USER_KEY);
         userTO.getPlainAttrs().add(attrTO("fullname", "Apache Syncope"));
         userTO.getPlainAttrs().add(attrTO("firstname", "Apache"));
         userTO.getPlainAttrs().add(attrTO("surname", "Syncope"));
@@ -61,27 +57,59 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void findByUser() {
-        UserTO userTO = getSampleUserTO("example@syncope.org");
+        UserTO sampleUser = getSampleUserTO("example@syncope.org");
+        sampleUser.getResources().add(RESOURCE_NAME_TESTDB);
+        ProvisioningResult<UserTO> result = createUser(sampleUser);
+        assertNotNull(result);
+        final UserTO userTO = result.getEntity();
+        final String key = userService.read(userTO.getKey()).getKey();
+
+        try {
+            PagedResult<AuditEntryTO> auditResult = auditService.search(
+                new AuditQuery.Builder()
+                    .key(userTO.getKey())
+                    .orderBy("event_date desc")
+                    .page(1)
+                    .size(1)
+                    .build());
+            assertNotNull(auditResult);
+            List<AuditEntryTO> results = auditResult.getResult();
+            assertFalse(results.isEmpty());
+            assertEquals(1, results.size());
+            assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(userTO.getKey())));
+        } finally {
+            userService.delete(key);
+        }
+    }
+
+    @Test
+    public void findByUserByEventAndResults() {
+        UserTO userTO = getSampleUserTO("example-success@syncope.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(result);
         userTO = result.getEntity();
-        userService.read(userTO.getKey());
-
-        PagedResult<AuditEntryTO> auditResult = auditService.search(
-            new AuditQuery.Builder()
-                .key(USER_KEY)
-                .orderBy("event_date desc")
-                .page(1)
-                .size(1)
-                .build());
-        assertNotNull(auditResult);
-        List<AuditEntryTO> results = auditResult.getResult();
-        assertFalse(results.isEmpty());
-        assertEquals(1, results.size());
-        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(USER_KEY)));
-        userService.delete(userTO.getKey());
+        final String key = userTO.getKey();
+        try {
+            PagedResult<AuditEntryTO> auditResult = auditService.search(
+                new AuditQuery.Builder()
+                    .key(key)
+                    .orderBy("event_date desc")
+                    .page(1)
+                    .events(Collections.singletonList("create"))
+                    .results(Collections.singletonList("SUCCESS"))
+                    .size(1)
+                    .build());
+            assertNotNull(auditResult);
+            List<AuditEntryTO> results = auditResult.getResult();
+            assertFalse(results.isEmpty());
+            assertEquals(1, results.size());
+            assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(key)));
+        } finally {
+            userService.delete(key);
+        }
     }
+
 
     @Test
     public void findByGroup() {
@@ -89,20 +117,23 @@ public class AuditITCase extends AbstractITCase {
         ProvisioningResult<GroupTO> groupResult = createGroup(groupTO);
         assertNotNull(groupResult);
         groupTO = groupResult.getEntity();
-        groupService.read(groupTO.getKey());
+        final String key = groupService.read(groupTO.getKey()).getKey();
 
-        PagedResult<AuditEntryTO> result = auditService.search(
-            new AuditQuery.Builder()
-                .key(GROUP_KEY)
-                .orderBy("event_date asc")
-                .page(1)
-                .size(1)
-                .build());
-        assertNotNull(result);
-        List<AuditEntryTO> results = result.getResult();
-        assertFalse(results.isEmpty());
-        assertEquals(1, results.size());
-        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(GROUP_KEY)));
-        groupService.delete(groupTO.getKey());
+        try {
+            PagedResult<AuditEntryTO> result = auditService.search(
+                new AuditQuery.Builder()
+                    .key(key)
+                    .orderBy("event_date asc")
+                    .page(1)
+                    .size(1)
+                    .build());
+            assertNotNull(result);
+            List<AuditEntryTO> results = result.getResult();
+            assertFalse(results.isEmpty());
+            assertEquals(1, results.size());
+            assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(key)));
+        } finally {
+            groupService.delete(key);
+        }
     }
 }

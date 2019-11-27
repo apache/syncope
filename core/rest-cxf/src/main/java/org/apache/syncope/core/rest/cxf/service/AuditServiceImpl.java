@@ -40,7 +40,9 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
             auditQuery.getKey(),
             auditQuery.getPage(),
             auditQuery.getSize(),
-            getOrderByClauses(auditQuery.getOrderBy())
+            getOrderByClauses(auditQuery.getOrderBy()),
+            auditQuery.getResults(),
+            auditQuery.getEvents()
             );
         return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }

@@ -24,7 +24,10 @@ import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import java.util.List;
 
 public interface AuditDAO<T extends AuditEntry> {
-    List<AuditEntry> findByEntityKey(String key, int page, int size, List<OrderByClause> orderByClauses);
+    List<AuditEntry> findByEntityKey(String key, int page, int size,
+                                     List<OrderByClause> orderByClauses,
+                                     List<String> results,
+                                     List<String> events);
 
     Integer count(String key);
 }
