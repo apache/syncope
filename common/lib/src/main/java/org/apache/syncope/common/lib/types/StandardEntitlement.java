@@ -110,6 +110,8 @@ public final class StandardEntitlement {
 
     public static final String SCHEMA_DELETE = "SCHEMA_DELETE";
 
+    public static final String AUDIT_SEARCH = "AUDIT_SEARCH";
+
     public static final String USER_SEARCH = "USER_SEARCH";
 
     public static final String USER_CREATE = "USER_CREATE";

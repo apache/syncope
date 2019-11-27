@@ -27,7 +27,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.core.provisioning.java.AuditEntry;
+import org.apache.syncope.core.persistence.api.entity.AuditEntry;
+import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
@@ -59,7 +60,7 @@ public class AuditReportlet extends AbstractReportlet {
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();
         for (Map<String, Object> row : rows) {
-            AuditEntry auditEntry = POJOHelper.deserialize(row.get("MESSAGE").toString(), AuditEntry.class);
+            AuditEntry auditEntry = POJOHelper.deserialize(row.get("MESSAGE").toString(), AuditEntryImpl.class);
 
             atts.clear();
             if (StringUtils.isNotBlank(auditEntry.getWho())) {

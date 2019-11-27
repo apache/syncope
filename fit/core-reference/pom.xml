@@ -338,7 +338,7 @@ under the License.
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
               <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
-              <pingTimeout>60000</pingTimeout>
+              <pingTimeout>180000</pingTimeout>
               <properties>
                 <context>syncope</context>
               </properties>

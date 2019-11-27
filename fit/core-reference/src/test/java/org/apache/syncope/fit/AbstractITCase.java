@@ -77,6 +77,7 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
@@ -281,6 +282,8 @@ public abstract class AbstractITCase {
 
     protected static SCIMConfService scimConfService;
 
+    protected static AuditService auditService;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = Encryptor.class.getResourceAsStream("/security.properties")) {
@@ -353,6 +356,7 @@ public abstract class AbstractITCase {
         oidcClientService = adminClient.getService(OIDCClientService.class);
         oidcProviderService = adminClient.getService(OIDCProviderService.class);
         scimConfService = adminClient.getService(SCIMConfService.class);
+        auditService = adminClient.getService(AuditService.class);
     }
 
     protected static String getUUIDString() {
