@@ -411,7 +411,7 @@ under the License.
     <spring.version>5.2.1.RELEASE</spring.version>
     <spring-security.version>5.2.1.RELEASE</spring-security.version>
     <spring-boot.version>2.2.1.RELEASE</spring-boot.version>
-    <spring-cloud-gateway.version>2.2.0.RC2</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>2.2.0.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
     <hikaricp.version>3.4.1</hikaricp.version>
@@ -1822,18 +1822,6 @@ under the License.
     <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
-    </repository>
-    <!-- Temporary until Spring Gateway goes GA -->
-    <repository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
     <repository>
       <id>shibboleth-releases</id>
