@@ -42,6 +42,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,7 @@ public class LoggerLoader implements SyncopeLoader {
                         setIgnoreExceptions(false).
                         setConnectionSource(new DataSourceConnectionSource(key, value)).
                         setBufferSize(0).
-                        setTableName("SYNCOPEAUDIT").
+                        setTableName(AuditDAO.TABLE_NAME).
                         setColumnConfigs(columnConfigs).
                         setColumnMappings(columnMappings).
                         build();
