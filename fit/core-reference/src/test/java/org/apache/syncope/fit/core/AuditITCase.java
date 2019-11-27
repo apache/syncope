@@ -67,7 +67,7 @@ public class AuditITCase extends AbstractITCase {
     }
 
     @Test
-    public void findByUserByEventAndResults() {
+    public void findByUserAndByEventAndByResults() {
         UserTO userTO = createUser(UserITCase.getUniqueSampleTO("audit-2@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
