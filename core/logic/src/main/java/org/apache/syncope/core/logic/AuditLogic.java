@@ -48,9 +48,9 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
             final String key,
             final int page,
             final int size,
-        final List<OrderByClause> orderByClauses,
-        final List<String> results,
-        final List<String> events) {
+            final List<OrderByClause> orderByClauses,
+            final List<String> results,
+            final List<String> events) {
 
         Integer count = auditDAO.count(key);
         List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, orderByClauses, results, events);

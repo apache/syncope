@@ -68,8 +68,8 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
             String queryString = "SELECT * FROM " + TABLE_NAME + " WHERE " + query;
             if (!orderByClauses.isEmpty()) {
                 queryString += " ORDER BY " + orderByClauses.stream().
-                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
-                    collect(Collectors.joining(","));
+                        map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
+                        collect(Collectors.joining(","));
             }
             JdbcTemplate template = getJdbcTemplate();
             template.setMaxRows(itemsPerPage);
