@@ -23,16 +23,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.persistence.api.DomainsHolder;
-import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -90,8 +88,7 @@ public class AuditReportlet extends AbstractReportlet {
             handler.endElement("", "", "logger");
 
             if (auditEntry.getBefore() != null) {
-                char[] before = ToStringBuilder.reflectionToString(
-                        auditEntry.getBefore(), ToStringStyle.JSON_STYLE).toCharArray();
+                char[] before = POJOHelper.serialize(auditEntry.getBefore()).toCharArray();
                 handler.startElement("", "", "before", null);
                 handler.characters(before, 0, before.length);
                 handler.endElement("", "", "before");
@@ -100,8 +97,7 @@ public class AuditReportlet extends AbstractReportlet {
             if (auditEntry.getInput() != null) {
                 handler.startElement("", "", "inputs", null);
                 for (Object inputObj : auditEntry.getInput()) {
-                    char[] input = ToStringBuilder.reflectionToString(
-                            inputObj, ToStringStyle.JSON_STYLE).toCharArray();
+                    char[] input = POJOHelper.serialize(inputObj).toCharArray();
                     handler.startElement("", "", "input", null);
                     handler.characters(input, 0, input.length);
                     handler.endElement("", "", "input");
@@ -110,8 +106,7 @@ public class AuditReportlet extends AbstractReportlet {
             }
 
             if (auditEntry.getOutput() != null) {
-                char[] output = ToStringBuilder.reflectionToString(
-                        auditEntry.getOutput(), ToStringStyle.JSON_STYLE).toCharArray();
+                char[] output = POJOHelper.serialize(auditEntry.getOutput()).toCharArray();
                 handler.startElement("", "", "output", null);
                 handler.characters(output, 0, output.length);
                 handler.endElement("", "", "output");
@@ -149,5 +144,4 @@ public class AuditReportlet extends AbstractReportlet {
 
         doExtractConf(handler, status);
     }
-
 }

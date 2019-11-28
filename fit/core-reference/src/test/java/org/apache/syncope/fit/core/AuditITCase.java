@@ -18,19 +18,19 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditITCase extends AbstractITCase {
 
@@ -59,9 +59,9 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSampleTO("audit@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder()
-            .key(userTO.getKey()).orderBy("event_date desc")
-            .page(1).size(1).build();
+        AuditQuery query = new AuditQuery.Builder().
+                key(userTO.getKey()).orderBy("event_date desc").
+                page(1).size(1).build();
         AuditEntryTO entry = query(query, 50);
         assertEquals(userTO.getKey(), entry.getKey());
         userService.delete(userTO.getKey());
@@ -72,14 +72,14 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSampleTO("audit-2@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder()
-            .key(userTO.getKey())
-            .orderBy("event_date desc")
-            .page(1)
-            .size(1)
-            .events(Collections.singletonList("create"))
-            .results(Collections.singletonList(AuditElements.Result.SUCCESS))
-            .build();
+        AuditQuery query = new AuditQuery.Builder().
+                key(userTO.getKey()).
+                orderBy("event_date desc").
+                page(1).
+                size(1).
+                event("create").
+                result(AuditElements.Result.SUCCESS).
+                build();
         AuditEntryTO entry = query(query, 50);
         assertEquals(userTO.getKey(), entry.getKey());
         userService.delete(userTO.getKey());
@@ -91,8 +91,8 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(groupTO.getKey());
 
         AuditQuery query = new AuditQuery.Builder()
-            .key(groupTO.getKey()).orderBy("event_date desc")
-            .page(1).size(1).build();
+                .key(groupTO.getKey()).orderBy("event_date desc")
+                .page(1).size(1).build();
         AuditEntryTO entry = query(query, 50);
         assertEquals(groupTO.getKey(), entry.getKey());
         groupService.delete(groupTO.getKey());

@@ -21,11 +21,10 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,25 +47,20 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getBefore() != null) {
-            auditTO.setBefore(ToStringBuilder.reflectionToString(auditEntry.getBefore(), ToStringStyle.JSON_STYLE));
+            auditTO.setBefore(POJOHelper.serialize(auditEntry.getBefore()));
         }
 
         if (auditEntry.getInput() != null) {
-            auditTO.getInputs().addAll(Arrays.stream(auditEntry.getInput())
-                .filter(Objects::nonNull)
-                .map(input -> ToStringBuilder.reflectionToString(input, ToStringStyle.JSON_STYLE))
-                .collect(Collectors.toList()));
+            auditTO.getInputs().addAll(Arrays.stream(auditEntry.getInput()).
+                    filter(Objects::nonNull).
+                    map(POJOHelper::serialize).
+                    collect(Collectors.toList()));
         }
 
         if (auditEntry.getOutput() != null) {
-            auditTO.setOutput(ToStringBuilder.reflectionToString(auditEntry.getOutput(), ToStringStyle.JSON_STYLE));
+            auditTO.setOutput(POJOHelper.serialize(auditEntry.getOutput()));
         }
 
         return auditTO;
-    }
-
-    @Override
-    public AuditEntryTO returnAuditTO(final AuditEntryTO auditEntryTO) {
-        return auditEntryTO;
     }
 }

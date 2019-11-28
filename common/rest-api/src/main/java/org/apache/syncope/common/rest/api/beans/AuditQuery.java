@@ -18,19 +18,19 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import org.apache.syncope.common.lib.types.AuditElements;
-
 import javax.ws.rs.QueryParam;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.lib.types.AuditElements;
 
 public class AuditQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -2863334226169614417L;
 
     private String key;
+
     private final List<AuditElements.Result> results = new ArrayList<>();
+
     private final List<String> events = new ArrayList<>();
 
     public String getKey() {
@@ -76,8 +76,8 @@ public class AuditQuery extends AbstractQuery {
             return this;
         }
 
-        public Builder result(final String result) {
-            getInstance().getResults().add(AuditElements.Result.valueOf(result.toUpperCase()));
+        public Builder result(final AuditElements.Result result) {
+            getInstance().getResults().add(result);
             return this;
         }
 
@@ -96,5 +96,4 @@ public class AuditQuery extends AbstractQuery {
             return new AuditQuery();
         }
     }
-
 }
