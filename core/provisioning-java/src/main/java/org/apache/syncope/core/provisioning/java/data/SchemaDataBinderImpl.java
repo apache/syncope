@@ -177,7 +177,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         boolean hasAttrs = false;
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
             AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-            hasAttrs |= plainSchemaDAO.findAttrs(schema, anyUtils.plainAttrClass()).isEmpty();
+            hasAttrs |= plainSchemaDAO.hasAttrs(schema, anyUtils.plainAttrClass());
         }
 
         if (hasAttrs) {
