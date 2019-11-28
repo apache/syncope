@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -51,9 +52,10 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getInput() != null) {
-            auditTO.getInputs().addAll(Arrays.stream(auditEntry.getInput()).
-                    map(input -> ToStringBuilder.reflectionToString(input, ToStringStyle.JSON_STYLE)).
-                    collect(Collectors.toList()));
+            auditTO.getInputs().addAll(Arrays.stream(auditEntry.getInput())
+                .filter(Objects::nonNull)
+                .map(input -> ToStringBuilder.reflectionToString(input, ToStringStyle.JSON_STYLE))
+                .collect(Collectors.toList()));
         }
 
         if (auditEntry.getOutput() != null) {

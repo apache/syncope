@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -27,6 +26,8 @@ import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.core.logic.AuditLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AuditServiceImpl extends AbstractServiceImpl implements AuditService {
@@ -40,8 +41,9 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
                 auditQuery.getKey(),
                 auditQuery.getPage(),
                 auditQuery.getSize(),
+                auditQuery.getResults(),
+                auditQuery.getEvents(),
                 getOrderByClauses(auditQuery.getOrderBy()));
-
         return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }
 }
