@@ -18,16 +18,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <SyncopeDomain id="Two" adminCipherAlgorithm="SHA" adminPwd="2AA60A8FF7FCD473D321E0146AFD9E26DF395147"/>
-
+  <SyncopeDomain id="Two" adminCipherAlgorithm="SHA" adminPwd="2AA60A8FF7FCD473D321E0146AFD9E26DF395147"/>  
+  
   <SyncopeConf id="cd64d66f-6fff-4008-b966-a06b1cc1436d"/>
 
   <SyncopeSchema id="password.cipher.algorithm"/>
   <PlainSchema id="password.cipher.algorithm" type="String"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="56db89b9-119e-4923-a16e-f42823b90c66"
+  <CPlainAttr id="56db89b9-119e-4923-a16e-f42823b90c66" 
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="password.cipher.algorithm"/>
-  <CPlainAttrValue id="870323e8-8db6-4a64-b512-15f9fa094905"
+  <CPlainAttrValue id="870323e8-8db6-4a64-b512-15f9fa094905" 
                    attribute_id="56db89b9-119e-4923-a16e-f42823b90c66" stringValue="SHA1"/>
 
   <!-- notificationjob.cronExpression:
@@ -41,7 +41,7 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="notificationjob.cronExpression"/>
   <CPlainAttrValue id="4828ea70-d151-4c16-b344-2d07b1956bee"
                    attribute_id="abd5a2d2-25ee-48b7-b5ca-76813b54a6f2" stringValue="0/20 * * * * ?"/>
-
+  
   <SyncopeSchema id="notification.maxRetries"/>
   <PlainSchema id="notification.maxRetries" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -125,8 +125,8 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="return.password.value"/>
   <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f779"
                    attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f6493a" booleanValue="0"/>
-
-  <!--  JWT lifetime in minutes -->
+  
+  <!--  JWT lifetime in minutes -->                   
   <SyncopeSchema id="jwt.lifetime.minutes"/>
   <PlainSchema id="jwt.lifetime.minutes" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -134,8 +134,8 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="jwt.lifetime.minutes"/>
   <CPlainAttrValue id="447e2456-3ff5-41bc-8ff1-cbb0567546cb"
                    attribute_id="cfec3140-562d-459c-ac6a-e3e10758661d" longValue="120"/>
-
-  <!--  Connector and Resource configuration history -->
+    
+  <!--  Connector and Resource configuration history -->                   
   <SyncopeSchema id="connector.conf.history.size"/>
   <PlainSchema id="connector.conf.history.size" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -143,7 +143,7 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="connector.conf.history.size"/>
   <CPlainAttrValue id="4989ce5d-7b42-4a5c-b725-54286888df10"
                    attribute_id="ae36c6ab-0f39-40d7-b6e6-3b8394547c9c" longValue="10"/>
-
+  
   <SyncopeSchema id="resource.conf.history.size"/>
   <PlainSchema id="resource.conf.history.size" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -151,7 +151,7 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="resource.conf.history.size"/>
   <CPlainAttrValue id="059ac3e1-687f-4dd9-a28b-a23f8b436f31"
                    attribute_id="ae7ae53a-74cf-48b0-9a57-6d2c94928e60" longValue="10"/>
-
+  
   <!-- sample policies -->
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
                   historyLength="1" allowNullPassword="1"/>
@@ -159,7 +159,7 @@ under the License.
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" implementation_id="DefaultPasswordRuleConf1"/>
   <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
-                  description="sample password policy" historyLength="0" allowNullPassword="1"/>
+                  description="sample password policy" historyLength="0" allowNullPassword="1"/> 
   <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1" implementation_id="DefaultPasswordRuleConf2"/>
@@ -173,14 +173,14 @@ under the License.
   <Implementation id="DefaultAccountRuleConf2" type="ACCOUNT_RULE"  engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <AccountPolicyRule policy_id="06e2ed52-6966-44aa-a177-a0ca7434201f" implementation_id="DefaultAccountRuleConf2"/>
-  <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" description="sample password policy" historyLength="0" allowNullPassword="0"/>
+  <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
-
+  
   <AnyTypeClass id="generic membership"/>
 
   <AnyType id="USER" kind="USER"/>
@@ -192,40 +192,40 @@ under the License.
   <AnyType id="GROUP" kind="GROUP"/>
   <AnyTypeClass id="minimal group"/>
   <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="minimal group"/>
-
+  
   <AnyType id="PRINTER" kind="ANY_OBJECT"/>
   <AnyTypeClass id="minimal printer"/>
   <AnyType_AnyTypeClass anyType_id="PRINTER" anyTypeClass_id="minimal printer"/>
-
+      
   <AnyTypeClass id="csv"/>
 
   <Realm id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" name="/" passwordPolicy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1"/>
-  <Realm id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" name="odd"
+  <Realm id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" name="odd" 
          parent_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" accountPolicy_id="06e2ed52-6966-44aa-a177-a0ca7434201f"/>
-  <Realm id="c5b75db1-fce7-470f-b780-3b9934d82a9d" name="even"
+  <Realm id="c5b75db1-fce7-470f-b780-3b9934d82a9d" name="even" 
          parent_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
-  <Realm id="0679e069-7355-4b20-bd11-a5a0a5453c7c" name="two"
+  <Realm id="0679e069-7355-4b20-bd11-a5a0a5453c7c" name="two" 
          parent_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
          accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"
          passwordPolicy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85"/>
-
+  
   <AnyObject id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" name="HP LJ 1300n"
              realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
-             creator="admin" lastModifier="admin"
+             creator="admin" lastModifier="admin" 
              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <AnyObject id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" name="Canon MF 8030cn"
              realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
-             creator="admin" lastModifier="admin"
+             creator="admin" lastModifier="admin" 
              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <AnyObject id="9e1d130c-d6a3-48b1-98b3-182477ed0688" name="Epson Stylus Color"
              realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c" type_id="PRINTER"
-             creator="admin" lastModifier="admin"
+             creator="admin" lastModifier="admin" 
              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-
+  
   <ARelationship id="11a0ec66-b59b-428a-af3d-f856950ff1c5" type_id="neighborhood"
                  left_anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5"
                  right_anyObject_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
-
+  
   <Application id="mightyApp" description="A cool application"/>
   <Privilege id="postMighty" description="Ability to POST"
              spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
@@ -244,7 +244,7 @@ under the License.
   <SyncopeRole_entitlements entitlement="ANYTYPECLASS_READ" role_id="User reviewer"/>
   <SyncopeRole_Realm role_id="User reviewer" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
   <SyncopeRole_Realm role_id="User reviewer" realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
-
+  
   <SyncopeRole id="User manager"/>
   <SyncopeRole_entitlements entitlement="USER_READ" role_id="User manager"/>
   <SyncopeRole_entitlements entitlement="USER_LIST" role_id="User manager"/>
@@ -264,7 +264,7 @@ under the License.
   <SyncopeRole_entitlements entitlement="USER_REQUEST_FORM_CLAIM" role_id="Other"/>
   <SyncopeRole_Realm role_id="Other" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
   <SyncopeRole_Privilege role_id="Other" privilege_id="postMighty"/>
-
+  
   <SyncopeRole id="Search for realm evenTwo"/>
   <SyncopeRole_entitlements entitlement="USER_READ" role_id="Search for realm evenTwo"/>
   <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="Search for realm evenTwo"/>
@@ -308,73 +308,73 @@ under the License.
   <SyncopeUser mustChangePassword="0" id="823074dc-d280-436d-a7dd-07399fae48ec" status="active"
                password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-               username="puccini" creator="admin" lastModifier="admin"
+               username="puccini" creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Search for realm evenTwo"/>
   <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Connector and Resource for realm evenTwo"/>
-
+  
   <SyncopeGroup id="37d15e4c-cdc1-460b-a591-8505c8133806" name="root"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" name="child"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="29f96485-729e-4d31-88a1-6fc60e4677f3" name="citizen"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="8fb2d51e-c605-4e80-a72b-13ffecf1aa9a" name="employee"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="a3c1a693-a6be-483f-a2b3-5cfec146f4bf" name="secretary"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="ebf97068-aa4b-4a85-9f01-680e8c4cf227" name="director"
                 userOwner_id="823074dc-d280-436d-a7dd-07399fae48ec"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="bf825fe1-7320-4a54-bd64-143b5c18ab97" name="managingDirector"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" name="otherchild"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="b8d38784-57e7-4595-859a-076222644b55" name="managingConsultant"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="268fed79-f440-4390-9435-b273768eb5d6" name="groupForWorkflowOptIn"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="0626100b-a4ba-4e00-9971-86fad52a6216" name="aGroupForPropagation"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup_AnyTypeClass group_id="0626100b-a4ba-4e00-9971-86fad52a6216" anyTypeClass_id="csv"/>
+  <SyncopeGroup_AnyTypeClass group_id="0626100b-a4ba-4e00-9971-86fad52a6216" anyTypeClass_id="csv"/>  
   <SyncopeGroup id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" name="bGroupForPropagation"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup_AnyTypeClass group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" anyTypeClass_id="csv"/>
+  <SyncopeGroup_AnyTypeClass group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" anyTypeClass_id="csv"/>  
   <SyncopeGroup id="ece66293-8f31-4a84-8e8d-23da36e70846" name="artDirector"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin"
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>  
   <SyncopeGroup id="034740a9-fa10-453b-af37-dc7897e98fb1" name="additional"
                 realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <TypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"
                  group_id="034740a9-fa10-453b-af37-dc7897e98fb1" anyType_id="USER"/>
@@ -382,9 +382,9 @@ under the License.
   <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="other"/>
   <SyncopeGroup id="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" name="fake"
                 realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"
-                creator="admin" lastModifier="admin"
+                creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-
+  
   <URelationship id="ca20ffca-1305-442f-be9a-3723a0cd88ca"
                  user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24"
                  anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" type_id="neighborhood"/>
@@ -443,7 +443,7 @@ under the License.
   <PlainSchema id="uselessReadonly" type="String" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
   <SyncopeSchema id="cool"/>
-  <PlainSchema id="cool" type="Boolean" anyTypeClass_id="other"
+  <PlainSchema id="cool" type="Boolean" anyTypeClass_id="other" 
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <SyncopeSchema id="gender"/>
   <PlainSchema id="gender" type="Enum" anyTypeClass_id="other"
@@ -463,7 +463,7 @@ under the License.
   <PlainSchema id="photo" type="Binary" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                mimeType="image/jpeg"/>
-
+  
   <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
 
@@ -478,7 +478,7 @@ under the License.
 
   <SyncopeSchema id="icon"/>
   <PlainSchema id="icon" type="String" anyTypeClass_id="minimal group"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
   <SyncopeSchema id="show"/>
   <PlainSchema id="show" type="Boolean" anyTypeClass_id="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -487,7 +487,7 @@ under the License.
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <SyncopeSchema id="rderived_dx"/>
   <PlainSchema id="rderived_dx" type="String" anyTypeClass_id="minimal group"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
   <SyncopeSchema id="title"/>
   <PlainSchema id="title" type="String" anyTypeClass_id="minimal group"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
@@ -517,7 +517,7 @@ under the License.
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <SyncopeSchema id="mderived_dx"/>
   <PlainSchema id="mderived_dx" type="String" anyTypeClass_id="generic membership"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
   <SyncopeSchema id="postalAddress"/>
   <PlainSchema id="postalAddress" type="String" anyTypeClass_id="generic membership"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -525,21 +525,21 @@ under the License.
   <SyncopeSchema id="mderiveddata"/>
   <DerSchema id="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
   <SyncopeSchema id="mderToBePropagated"/>
-  <DerSchema id="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"
+  <DerSchema id="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx" 
              anyTypeClass_id="generic membership"/>
-
+         
   <SyncopeSchema id="model"/>
   <PlainSchema id="model" type="String" anyTypeClass_id="minimal printer"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <SyncopeSchema id="location"/>
   <PlainSchema id="location" type="String" anyTypeClass_id="minimal printer"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
+    
   <APlainAttr id="956a8440-1df7-4ed6-b156-04173ca47528" owner_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" schema_id="model"/>
   <APlainAttrValue id="15f64e99-20cc-42ec-a77a-3396dea4248f" attribute_id="956a8440-1df7-4ed6-b156-04173ca47528" stringValue="Canon MFC8030"/>
   <APlainAttr id="1fa796fd-c7e2-414e-8ad3-ac86b729d62c" owner_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" schema_id="location"/>
   <APlainAttrValue id="ad0452c9-93b9-4248-b2ca-48ef8a1cf5b5" attribute_id="1fa796fd-c7e2-414e-8ad3-ac86b729d62c" stringValue="1st floor"/>
-
+    
   <APlainAttr id="b8342732-81bd-440b-91ac-b8cdad288ed5" owner_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" schema_id="model"/>
   <APlainAttrValue id="50e852ac-68ba-4b12-85ca-e366987fd855" attribute_id="b8342732-81bd-440b-91ac-b8cdad288ed5" stringValue="HP Laserjet 1300n"/>
   <APlainAttr id="c4cb0684-a033-425c-8b1b-d283597f999b" owner_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" schema_id="location"/>
@@ -591,7 +591,7 @@ under the License.
   <UPlainAttrValue id="16dd73d3-4f89-4ebc-a446-41a06848bdb3" attribute_id="a38423c2-4c29-4eeb-aa14-d984f78c083d" booleanValue="1"/>
   <UPlainAttr id="3e86f9fa-a19b-4f7b-b19a-f28e1b052a68" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="gender"/>
   <UPlainAttrValue id="55efeccf-c124-4115-99e1-50e04dfc18e1" attribute_id="3e86f9fa-a19b-4f7b-b19a-f28e1b052a68" stringValue="M"/>
-
+  
   <UPlainAttr id="185ce8e4-fc28-4b0b-9f41-595b6ca53e6f" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="firstname"/>
   <UPlainAttrValue id="1e76b9b8-2fa3-4a96-8098-f96b6bfe3284" attribute_id="185ce8e4-fc28-4b0b-9f41-595b6ca53e6f" stringValue="Giacomo"/>
   <UPlainAttr id="28023d9c-18bc-431c-80e2-412741d235e6" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="surname"/>
@@ -600,14 +600,14 @@ under the License.
   <UPlainAttrUniqueValue id="c9afa8f6-9a8a-4c8e-b4d1-a46f50996a38" attribute_id="17141999-5e09-4364-9cd2-dc05632e0a63" schema_id="fullname" stringValue="Giacomo Puccini"/>
   <UPlainAttr id="15704022-315d-4740-8f79-7d60dd6165d4" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="userId"/>
   <UPlainAttrUniqueValue id="1e565925-30e3-4ed0-8894-2b70d2ebaa6a" attribute_id="15704022-315d-4740-8f79-7d60dd6165d4" schema_id="userId" stringValue="puccini@apache.org"/>
-
+  
   <UPlainAttr id="cf2eb45f-0877-49f3-9eb7-844fea0e1a64" owner_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" schema_id="email"/>
   <UPlainAttrValue id="e5cfa8e0-6089-415a-bf5d-54a123c2cb6b" attribute_id="cf2eb45f-0877-49f3-9eb7-844fea0e1a64" stringValue="verdi@syncope.org"/>
   <UPlainAttr id="514f586e-fd38-45a8-a2af-730d297f1022" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="email"/>
   <UPlainAttrValue id="272b5971-15b5-4435-b816-34ca3b8184f3" attribute_id="514f586e-fd38-45a8-a2af-730d297f1022" stringValue="vivaldi@syncope.org"/>
   <UPlainAttr id="4192de6e-11dd-4435-80a8-4340d3586af1" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="ctype"/>
   <UPlainAttrValue id="e171e555-b47e-45b9-b291-d027a5bf9596" attribute_id="4192de6e-11dd-4435-80a8-4340d3586af1" stringValue="F"/>
-
+   
   <GPlainAttr id="86eeb796-e419-4409-b5e2-7c2adb342ca4" owner_id="37d15e4c-cdc1-460b-a591-8505c8133806" schema_id="icon"/>
   <GPlainAttrValue attribute_id="86eeb796-e419-4409-b5e2-7c2adb342ca4" id="4a6a769e-a9c8-40f1-9746-b23d5af5a50a" stringValue="niceIcon"/>
 
@@ -631,7 +631,7 @@ under the License.
 
   <GPlainAttr id="1be7cf7e-b05c-4089-8ecb-fcafe0a162b9" owner_id="0626100b-a4ba-4e00-9971-86fad52a6216" schema_id="title"/>
   <GPlainAttrValue attribute_id="1be7cf7e-b05c-4089-8ecb-fcafe0a162b9" id="0f5255af-34f5-4372-93a3-ede2778303d8" stringValue="r12"/>
-
+  
   <GPlainAttr id="22690472-ed3f-4972-8979-4c9251fab044" owner_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" schema_id="title"/>
   <GPlainAttrValue attribute_id="22690472-ed3f-4972-8979-4c9251fab044" id="e16765e6-f806-469e-ae34-1ddf56f2102a" stringValue="r13"/>
 
@@ -640,7 +640,7 @@ under the License.
   <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy" conflictResolutionAction="ALL"/>
   <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
-  <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544"
+  <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
                              anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
   <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" conflictResolutionAction="IGNORE"/>
   <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" description="pull policy for java rule" conflictResolutionAction="IGNORE"/>
@@ -649,9 +649,9 @@ under the License.
   <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" description="a push policy" conflictResolutionAction="IGNORE"/>
   <Implementation id="TestPushCorrelationRule" type="PUSH_CORRELATION_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["surname"]}'/>
-  <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83"
+  <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" 
                              anyType_id="USER" implementation_id="TestPushCorrelationRule"/>
-
+  
   <ConnInstance id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" displayName="ConnInstance100"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
@@ -711,19 +711,19 @@ under the License.
   <ConnInstance_capabilities connInstance_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" capability="DELETE"/>
   <ConnInstance_capabilities connInstance_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" capability="SEARCH"/>
   <ConnInstance_capabilities connInstance_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" capability="SYNC"/>
-
+    
   <ConnInstance id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
                 bundleName="net.tirasa.connid.bundles.ldap" displayName="ApacheDS"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
                 connectorName="net.tirasa.connid.bundles.ldap.LdapConnector"
-                version="${connid.ldap.version}"
+                version="${connid.ldap.version}" 
                 jsonConf='[{"schema":{"name":"synchronizePasswords","displayName":"Enable Password Synchronization","helpMessage":"If true, the connector will synchronize passwords. The Password Capture Plugin needs to be installed for password synchronization to work.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"maintainLdapGroupMembership","displayName":"Maintain LDAP Group Membership","helpMessage":"When enabled and a user is renamed or deleted, update any LDAP groups to which the user belongs to reflect the new name. Otherwise, the LDAP resource must maintain referential integrity with respect to group membership.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"host","displayName":"Host","helpMessage":"The name or IP address of the host where the LDAP server is running.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["localhost"]},{"schema":{"name":"passwordHashAlgorithm","displayName":"Password Hash Algorithm","helpMessage":"Indicates the algorithm that the Identity system should use to hash the password. Currently supported values are SSHA, SHA, SSHA1, and SHA1. A blank value indicates that the system will not hash passwords. This will cause cleartext passwords to be stored in LDAP unless the LDAP server performs the hash (Netscape Directory Server and iPlanet Directory Server do).","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["SHA"]},{"schema":{"name":"port","displayName":"TCP Port","helpMessage":"TCP/IP port number used to communicate with the LDAP server.","type":"int","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[1389]},{"schema":{"name":"vlvSortAttribute","displayName":"VLV Sort Attribute","helpMessage":"Specify the sort attribute to use for VLV indexes on the resource.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"statusManagementClass","displayName":"Status management class ","helpMessage":"Class to be used to manage enabled/disabled status. If no class is specified then identity status management wont be possible.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.ldap.commons.AttributeStatusManagement"]},{"schema":{"name":"accountObjectClasses","displayName":"Account Object Classes","helpMessage":"The object class or classes that will be used when creating new user objects in the LDAP tree. When entering more than one object class, each entry should be on its own line; do not use commas or semi-colons to separate multiple object classes. Some object classes may require that you specify all object classes in the class hierarchy.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["inetOrgPerson"]},{"schema":{"name":"accountUserNameAttributes","displayName":"Account User Name Attributes","helpMessage":"Attribute or attributes which holds the account user name. They will be used when authenticating to find the LDAP entry for the user name to authenticate.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["uid"]},{"schema":{"name":"baseContextsToSynchronize","displayName":"Base Contexts to Synchronize","helpMessage":"One or more starting points in the LDAP tree that will be used to determine if a change should be synchronized. The base contexts attribute will be used to synchronize a change if this property is not set.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["ou=people,o=isp","ou=groups,o=isp"]},{"schema":{"name":"accountSynchronizationFilter","displayName":"LDAP Filter for Accounts to Synchronize","helpMessage":"An optional LDAP filter for the objects to synchronize. Because the change log is for all objects, this filter updates only objects that match the specified filter. If you specify a filter, an object will be synchronized only if it matches the filter and includes a synchronized object class.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"removeLogEntryObjectClassFromFilter","displayName":"Remove Log Entry Object Class from Filter","helpMessage":"If this property is set (the default), the filter used to fetch change log entries does not contain the \"changeLogEntry\" object class, expecting that there are no entries of other object types in the change log.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordDecryptionKey","displayName":"Password Decryption Key","helpMessage":"The key to decrypt passwords with when performing password synchronization.","type":"org.identityconnectors.common.security.GuardedByteArray","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"readSchema","displayName":"Read Schema","helpMessage":"If true, the connector will read the schema from the server. If false, the connector will provide a default schema based on the object classes in the configuration. This property must be true in order to use extended object classes.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"ssl","displayName":"SSL","helpMessage":"Select the check box to connect to the LDAP server using SSL.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordAttributeToSynchronize","displayName":"Password Attribute to Synchronize","helpMessage":"The name of the password attribute to synchronize when performing password synchronization.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"accountSearchFilter","displayName":"LDAP Filter for Retrieving Accounts","helpMessage":"An optional LDAP filter to control which accounts are returned from the LDAP resource. If no filter is specified, only accounts that include all specified object classes are returned.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["uid=*"]},{"schema":{"name":"passwordDecryptionInitializationVector","displayName":"Password Decryption Initialization Vector","helpMessage":"The initialization vector to decrypt passwords with when performing password synchronization.","type":"org.identityconnectors.common.security.GuardedByteArray","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"groupMemberAttribute","displayName":"Group Member Attribute","helpMessage":"The name of the group attribute that will be updated with the distinguished name of the user when the user is added to the group.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"failover","displayName":"Failover Servers","helpMessage":"List all servers that should be used for failover in case the preferred server fails. If the preferred server fails, JNDI will connect to the next available server in the list. List all servers in the form of \"ldap://ldap.example.com:389/\", which follows the standard LDAP v3 URLs described in RFC 2255. Only the host and port parts of the URL are relevant in this setting.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"modifiersNamesToFilterOut","displayName":"Filter Out Changes By","helpMessage":"The names (DNs) of directory administrators to filter from the changes. Changes with the attribute \"modifiersName\" that match entries in this list will be filtered out. The standard value is the administrator name used by this adapter, to prevent loops. Entries should be of the format \"cn=Directory Manager\".","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"groupNameAttributes","displayName":"Group Name Attributes","helpMessage":"Attribute or attributes which holds the group name.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["cn"]},{"schema":{"name":"uidAttribute","displayName":"Uid Attribute","helpMessage":"The name of the LDAP attribute which is mapped to the Uid attribute.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["cn"]},{"schema":{"name":"gidAttribute","displayName":"Uid Attribute for groups","helpMessage":"The name of the LDAP attribute which is mapped to the Uid attribute for groups.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["cn"]},{"schema":{"name":"respectResourcePasswordPolicyChangeAfterReset","displayName":"Respect Resource Password Policy Change-After-Reset","helpMessage":"When this resource is specified in a Login Module (i.e., this resource is a pass-through authentication target) and the resource password policy is configured for change-after-reset, a user whose resource account password has been administratively reset will be required to change that password after successfully authenticating.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"filterWithOrInsteadOfAnd","displayName":"Filter with Or Instead of And","helpMessage":"Normally the the filter used to fetch change log entries is an and-based filter retrieving an interval of change entries. If this property is set, the filter will or together the required change numbers instead.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"principal","displayName":"Principal","helpMessage":"The distinguished name with which to authenticate to the LDAP server.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["uid=admin,ou=system"]},{"schema":{"name":"changeLogBlockSize","displayName":"Change Log Block Size","helpMessage":"The number of change log entries to fetch per query.","type":"int","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[100]},{"schema":{"name":"baseContexts","displayName":"Base Contexts","helpMessage":"One or more starting points in the LDAP tree that will be used when searching the tree. Searches are performed when discovering users from the LDAP server or when looking for the groups of which a user is a member.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["ou=people,o=isp","ou=groups,o=isp"]},{"schema":{"name":"passwordAttribute","displayName":"Password Attribute","helpMessage":"The name of the LDAP attribute which holds the password. When changing an user password, the new password is set to this attribute.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["userpassword"]},{"schema":{"name":"changeNumberAttribute","displayName":"Change Number Attribute","helpMessage":"The name of the change number attribute in the change log entry.","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["changeNumber"]},{"schema":{"name":"objectClassesToSynchronize","displayName":"Object Classes to Synchronize","helpMessage":"The object classes to synchronize. The change log is for all objects; this filters updates to just the listed object classes. You should not list the superclasses of an object class unless you intend to synchronize objects with any of the superclass values. For example, if only \"inetOrgPerson\" objects should be synchronized, but the superclasses of \"inetOrgPerson\" (\"person\", \"organizationalperson\" and \"top\") should be filtered out, then list only \"inetOrgPerson\" here. All objects in LDAP are subclassed from \"top\". For this reason, you should never list \"top\", otherwise no object would be filtered.","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["inetOrgPerson","groupOfUniqueNames"]},{"schema":{"name":"credentials","displayName":"Password","helpMessage":"Password for the principal.","type":"org.identityconnectors.common.security.GuardedString","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["secret"]},{"schema":{"name":"attributesToSynchronize","displayName":"Attributes to Synchronize","helpMessage":"The names of the attributes to synchronize. This ignores updates from the change log if they do not update any of the named attributes. For example, if only \"department\" is listed, then only changes that affect \"department\" will be processed. All other updates are ignored. If blank (the default), then all changes are processed.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"maintainPosixGroupMembership","displayName":"Maintain POSIX Group Membership","helpMessage":"When enabled and a user is renamed or deleted, update any POSIX groups to which the user belongs to reflect the new name. Otherwise, the LDAP resource must maintain referential integrity with respect to group membership.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]}]'/>
   <ConnInstance_capabilities connInstance_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef" capability="CREATE"/>
   <ConnInstance_capabilities connInstance_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef" capability="UPDATE"/>
   <ConnInstance_capabilities connInstance_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef" capability="DELETE"/>
   <ConnInstance_capabilities connInstance_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef" capability="SEARCH"/>
-
+  
   <ConnInstance id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" displayName="H2-test2"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
@@ -735,19 +735,19 @@ under the License.
   <ConnInstance_capabilities connInstance_id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" capability="UPDATE"/>
   <ConnInstance_capabilities connInstance_id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" capability="SEARCH"/>
   <ConnInstance_capabilities connInstance_id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" capability="SYNC"/>
-
-  <ConnInstance id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" bundleName="net.tirasa.connid.bundles.db.table"
+  
+  <ConnInstance id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" bundleName="net.tirasa.connid.bundles.db.table" 
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
-                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector" 
                 displayName="H2-testpull" version="${connid.database.version}"
                 jsonConf='[{"schema":{"name":"changeLogColumn","displayName":"Change Log Column (Sync)","helpMessage":"=&lt;b&gt;Change Log Column&lt;/b&gt;&lt;br&gt;The change log column store the latest change time. Providing this value the Pull capabilities are activated.","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"nativeTimestamps","displayName":"Native Timestamps ","helpMessage":"&lt;b&gt;Native Timestamps&lt;/b&gt;&lt;br&gt;Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table.","type":"boolean","required":false,"order":18,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"cipherAlgorithm","displayName":"Password cipher algorithm (defaults to CLEARTEXT)","helpMessage":"Cipher algorithm used to encode password before to store it onto the database table.\nSpecify one of the values among CLEARTEXT,AES, MD5, SHA1, SHA256 or a custom implementation identified by its class name.","type":"java.lang.String","required":false,"order":24,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"enabledStatusValue","displayName":"Enabled Status Value","helpMessage":"&lt;b&gt;Enabled Status Value&lt;/b&gt;&lt;br&gt;Enter the value for enabled status.","type":"java.lang.String","required":false,"order":12,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"retrievePassword","displayName":"Retrieve password","helpMessage":"Specify if password must be retrieved by default.","type":"boolean","required":true,"order":27,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"datasource","displayName":"Datasource Path","helpMessage":"&lt;b&gt;JDBC Data Source Name/Path&lt;/b&gt;&lt;br&gt;Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified.&lt;br&gt;the example value is: &lt;CODE&gt;jdbc/SampleDataSourceName&lt;/CODE&gt;","type":"java.lang.String","required":false,"order":22,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"allNative","displayName":"All native","helpMessage":"&lt;b&gt;All native&lt;/b&gt;&lt;br&gt;Select to retrieve all data type of the columns in a native format from the database table.","type":"boolean","required":false,"order":19,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":"User","helpMessage":"&lt;b&gt;User&lt;/b&gt;&lt;br&gt;Enter the name of the mandatory Database user with permission to account table.","type":"java.lang.String","required":false,"order":4,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"pwdEncodeToLowerCase","displayName":"Force password encoding to lower case","helpMessage":"Force password encoding to lower case.","type":"boolean","required":false,"order":26,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"jdbcUrlTemplate","displayName":"JDBC Connection URL","helpMessage":"&lt;b&gt;JDBC Connection URL&lt;/b&gt;&lt;br&gt;Specify the JDBC Driver Connection URL.&lt;br&gt; Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB].&lt;br&gt;  MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation.&lt;br&gt;Could be empty if datasource is provided.","type":"java.lang.String","required":false,"order":15,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]},{"schema":{"name":"keyColumn","displayName":"Key Column","helpMessage":"&lt;b&gt;Key Column&lt;/b&gt;&lt;br&gt;This mandatory column value will be used as the unique identifier for rows in the table.&lt;br&gt;","type":"java.lang.String","required":true,"order":8,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"validConnectionQuery","displayName":"Validate Connection Query","helpMessage":"&lt;b&gt;Validate Connection Query&lt;/b&gt;&lt;br&gt;There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.","type":"java.lang.String","required":false,"order":20,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"rethrowAllSQLExceptions","displayName":"Rethrow all SQLExceptions","helpMessage":"If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown.","type":"boolean","required":false,"order":17,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordColumn","displayName":"Password Column","helpMessage":"&lt;b&gt;Password Column&lt;/b&gt;&lt;br&gt;Enter the name of the column in the table that will hold the password values. If empty, no validation on resource and passwords are activated.","type":"java.lang.String","required":false,"order":9,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"jndiProperties","displayName":"Initial JNDI Properties","helpMessage":"&lt;b&gt;Initial JNDI Properties&lt;/b&gt;&lt;br&gt;Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.","type":"[Ljava.lang.String;","required":false,"order":23,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"password","displayName":"User Password","helpMessage":"&lt;b&gt;User Password&lt;/b&gt;&lt;br&gt;Enter a user account that has permission to access accounts table.","type":"org.identityconnectors.common.security.GuardedString","required":false,"order":5,"confidential":true,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"host","displayName":"Host","helpMessage":"&lt;b&gt;Host&lt;/b&gt;&lt;br&gt;Enter the name of the host where the database is running.","type":"java.lang.String","required":false,"order":2,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"port","displayName":"Port","helpMessage":"&lt;b&gt;TCP Port&lt;/b&gt;&lt;br&gt;Enter the port number the database server is listening on.","type":"java.lang.String","required":false,"order":3,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"statusColumn","displayName":"Status Column","helpMessage":"&lt;b&gt;Status Column&lt;/b&gt;&lt;br&gt;Enter the name of the column in the table that will hold the status values. If empty enabled and disabled operation wont be performed.","type":"java.lang.String","required":false,"order":10,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"pwdEncodeToUpperCase","displayName":"Force password encoding to upper case","helpMessage":"Force password encoding to upper case.","type":"boolean","required":false,"order":25,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"enableEmptyString","displayName":"Enable writing empty string","helpMessage":"&lt;b&gt;Enable writing empty string&lt;/b&gt;&lt;br&gt;Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. By default empty strings are written as a NULL value.","type":"boolean","required":false,"order":16,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"database","displayName":"Database","helpMessage":"&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;Enter the name of the database on the database server that contains the table.","type":"java.lang.String","required":false,"order":6,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"defaultStatusValue","displayName":"Default Status Value","helpMessage":"&lt;b&gt;Default Status Value&lt;/b&gt;&lt;br&gt;Enter the value for status in case of status not specified.","type":"java.lang.String","required":false,"order":13,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"table","displayName":"Table","helpMessage":"&lt;b&gt;Table&lt;/b&gt;&lt;br&gt;Enter the name of the table in the database that contains the accounts.","type":"java.lang.String","required":true,"order":7,"confidential":false,"defaultValues":null},"overridable":false,"values":["testpull"]},{"schema":{"name":"disabledStatusValue","displayName":"Disabled Status Value","helpMessage":"&lt;b&gt;Disabled Status Value&lt;/b&gt;&lt;br&gt;Enter the value for disabled status.","type":"java.lang.String","required":false,"order":11,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"jdbcDriver","displayName":"JDBC Driver","helpMessage":"&lt;b&gt;JDBC Driver&lt;/b&gt;&lt;br&gt;Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver.&lt;br&gt;Could be empty if datasource is provided.","type":"java.lang.String","required":false,"order":14,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"quoting","displayName":"Name Quoting","helpMessage":"&lt;b&gt;Name Quoting&lt;/b&gt;&lt;br&gt;Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.","type":"java.lang.String","required":false,"order":1,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"cipherKey","displayName":"Password cipher key","helpMessage":"Specify key in case of reversible algorithm.","type":"java.lang.String","required":false,"order":25,"confidential":false,"defaultValues":null},"overridable":false,"values":[]}]'/>
   <ConnInstance_capabilities connInstance_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" capability="CREATE"/>
   <ConnInstance_capabilities connInstance_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" capability="UPDATE"/>
   <ConnInstance_capabilities connInstance_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" capability="DELETE"/>
   <ConnInstance_capabilities connInstance_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" capability="SEARCH"/>
-
-  <ConnInstance id="a6d017fd-a705-4507-bb7c-6ab6a6745997" bundleName="net.tirasa.connid.bundles.db.scriptedsql"
+  
+  <ConnInstance id="a6d017fd-a705-4507-bb7c-6ab6a6745997" bundleName="net.tirasa.connid.bundles.db.scriptedsql" 
                 adminRealm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
                 connectorName="net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector"
@@ -758,7 +758,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="a6d017fd-a705-4507-bb7c-6ab6a6745997" capability="DELETE"/>
   <ConnInstance_capabilities connInstance_id="a6d017fd-a705-4507-bb7c-6ab6a6745997" capability="SEARCH"/>
   <ConnInstance_capabilities connInstance_id="a6d017fd-a705-4507-bb7c-6ab6a6745997" capability="SYNC"/>
-
+  
   <ConnInstance id="44c02549-19c3-483c-8025-4919c3283c37" bundlename="net.tirasa.connid.bundles.rest"
                 adminRealm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
@@ -828,28 +828,28 @@ under the License.
   <OrgUnitItem id="1df556d3-bc23-48b7-a09b-fc3794a00019" connObjectKey="0" extAttrName="ou"
                intAttrName="name" mandatoryCondition="true" purpose="BOTH"
                orgUnit_id="599a59cf-9a23-4447-9a59-cf9a2334473a"/>
-
+  
   <ExternalResource id="ws-target-resource-nopropagation" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     passwordPolicy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1"/>
-
+  
   <!-- The following three resources have been added to verify the issue SYNCOPE-68 -->
-  <ExternalResource id="ws-target-resource-nopropagation2" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"
+  <ExternalResource id="ws-target-resource-nopropagation2" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" 
                     enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
-  <ExternalResource id="ws-target-resource-nopropagation3" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"
+  <ExternalResource id="ws-target-resource-nopropagation3" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" 
                     enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
-  <ExternalResource id="ws-target-resource-nopropagation4" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"
+  <ExternalResource id="ws-target-resource-nopropagation4" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" 
                     enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
-
+                    
   <!-- External resource for issue SYNCOPE-230 -->
   <ExternalResource id="resource-db-pull" connector_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" overrideCapabilities="0"/>
-
+                    
   <!-- External resource for issue SYNCOPE-267 -->
   <ExternalResource id="resource-db-virattr" connector_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
@@ -860,13 +860,13 @@ under the License.
                     enforceMandatoryCondition="0" overrideCapabilities="0"/>
 
   <ExternalResource id="rest-target-resource" connector_id="44c02549-19c3-483c-8025-4919c3283c37"
-                    createTraceLevel="ALL" updateTraceLevel="ALL"  deleteTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    createTraceLevel="ALL" updateTraceLevel="ALL"  deleteTraceLevel="ALL" provisioningTraceLevel="ALL" 
                     enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" randomPwdIfNotProvided="0"/>
 
   <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
   <AccountPolicy_ExternalResource accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" resource_id="resource-testdb"/>
-
+    
   <SyncopeUser_ExternalResource user_id="1417acbe-cbf6-4277-9372-e75e04f97000" resource_id="resource-testdb2"/>
   <SyncopeUser_ExternalResource user_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" resource_id="ws-target-resource-delete"/>
   <SyncopeUser_ExternalResource user_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" resource_id="ws-target-resource-2"/>
@@ -879,7 +879,7 @@ under the License.
   <SyncopeGroup_ExternalResource group_id="b8d38784-57e7-4595-859a-076222644b55" resource_id="ws-target-resource-nopropagation3"/>
   <SyncopeGroup_ExternalResource group_id="0626100b-a4ba-4e00-9971-86fad52a6216" resource_id="resource-csv"/>
   <SyncopeGroup_ExternalResource group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" resource_id="resource-csv"/>
-
+     
   <Provision ignoreCaseMatch="0" id="209ea85f-f964-49c7-a498-6c9c2baa3bd8" resource_id="ws-target-resource-1" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc" provision_id="209ea85f-f964-49c7-a498-6c9c2baa3bd8"/>
   <MappingItem id="96aad4e0-2678-4903-a52f-0a7d090a2863" mapping_id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc" extAttrName="userId"
@@ -894,7 +894,7 @@ under the License.
   <MappingItem id="d118671c-2e3e-4aa3-a3dd-fde2ba4c4ded" mapping_id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc"
                extAttrName="__PASSWORD__" intAttrName="password" mandatoryCondition="true"
                connObjectKey="0" password="1" purpose="PROPAGATION"/>
-  <MappingItem id="dca9de4f-9a5a-4280-8e9a-357e321ba7a5" mapping_id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc"
+  <MappingItem id="dca9de4f-9a5a-4280-8e9a-357e321ba7a5" mapping_id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc" 
                extAttrName="fullname" intAttrName="surname" mandatoryCondition="true"
                connObjectKey="0" password="0" purpose="PROPAGATION"/>
   <MappingItem id="471f0e2e-2bde-4442-9abf-0effb533f2ee" mapping_id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc"
@@ -903,7 +903,7 @@ under the License.
   <MappingItem id="72324cda-a66c-4ffe-b6b6-1d9b6cee9bf2" mapping_id="bc0cf27b-16b7-4e83-a4b0-09af7ea4aacc"
                extAttrName="name" intAttrName="firstname" mandatoryCondition="false"
                connObjectKey="0" password="0" purpose="NONE"/>
-
+  
   <Provision ignoreCaseMatch="0" id="41a53a00-0b35-4047-831a-d5238f74c7ba" resource_id="ws-target-resource-list-mappings-1" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="bf8afa4a-1522-44b9-91d0-c7b035e4fd99" provision_id="41a53a00-0b35-4047-831a-d5238f74c7ba"/>
   <MappingItem id="6f8d7b42-44f4-4697-aff5-1736c4b01ee4" mapping_id="bf8afa4a-1522-44b9-91d0-c7b035e4fd99"
@@ -940,7 +940,7 @@ under the License.
   <MappingItem id="6972a78b-2570-45d9-bc0b-31d2f2f9c860" extAttrName="fullname" mapping_id="240a0291-f89d-4557-a547-2a3b9aad625b"
                intAttrName="cn" mandatoryCondition="true"
                connObjectKey="0" password="0" purpose="PROPAGATION"/>
-
+    
   <Provision ignoreCaseMatch="0" id="9ebc3237-49fa-4dce-9a4c-3070e931812f" resource_id="ws-target-resource-update" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="c17813c0-4e90-4118-bb28-cd36ad6d5a4d" provision_id="9ebc3237-49fa-4dce-9a4c-3070e931812f"/>
   <MappingItem id="cc973ed6-d031-4790-adab-fc059ac0c818" extAttrName="email" mapping_id="c17813c0-4e90-4118-bb28-cd36ad6d5a4d"
@@ -952,31 +952,31 @@ under the License.
   <MappingItem id="946a3c7f-6359-4ab7-8a5f-adb08bdb4b5b" extAttrName="test3" mapping_id="c17813c0-4e90-4118-bb28-cd36ad6d5a4d"
                intAttrName="fullname" mandatoryCondition="false"
                connObjectKey="0" password="0" purpose="PROPAGATION"/>
-
+    
   <Provision ignoreCaseMatch="0" id="8680bc79-dfa1-4719-9886-1d582bf1124f" resource_id="ws-target-resource-nopropagation" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="63ddd4c8-efed-4a22-a4b4-1f4e6f47c8d0" provision_id="8680bc79-dfa1-4719-9886-1d582bf1124f"/>
-  <MappingItem id="ffcfbb5e-7bbd-489a-a69e-2dd84f00731a" mapping_id="63ddd4c8-efed-4a22-a4b4-1f4e6f47c8d0" extAttrName="fullname"
+  <MappingItem id="ffcfbb5e-7bbd-489a-a69e-2dd84f00731a" mapping_id="63ddd4c8-efed-4a22-a4b4-1f4e6f47c8d0" extAttrName="fullname" 
                intAttrName="fullname" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
-
+                     
   <Provision ignoreCaseMatch="0" id="0bfa7c3e-2bb3-43d7-ac0e-d57cff7a18c8" resource_id="ws-target-resource-nopropagation2" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="3f636292-6edb-4d20-ab24-fe0c5fc3dec3" provision_id="0bfa7c3e-2bb3-43d7-ac0e-d57cff7a18c8"/>
-  <MappingItem id="e34928b8-ca57-4b6c-81c1-70bc87ff3fdc" mapping_id="3f636292-6edb-4d20-ab24-fe0c5fc3dec3" extAttrName="fullname"
+  <MappingItem id="e34928b8-ca57-4b6c-81c1-70bc87ff3fdc" mapping_id="3f636292-6edb-4d20-ab24-fe0c5fc3dec3" extAttrName="fullname" 
                intAttrName="fullname" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
-
+                     
   <Provision ignoreCaseMatch="0" id="5bd76fec-f8d7-4ab9-acd7-89e099d534e8" resource_id="ws-target-resource-nopropagation3" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="c2a0cec1-32c4-4493-8f01-d1176e557fc1" provision_id="5bd76fec-f8d7-4ab9-acd7-89e099d534e8"/>
   <MappingItem id="f3ba0859-b0f0-44a5-abfd-4a1a5ca29fbf" mapping_id="c2a0cec1-32c4-4493-8f01-d1176e557fc1" extAttrName="fullname"
                intAttrName="fullname" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
-
+                     
   <Provision ignoreCaseMatch="0" id="18de6376-7051-4216-96f0-26629076abb9" resource_id="ws-target-resource-nopropagation4" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="906452d9-3eeb-4ef7-ac90-5ffc14513fbf" provision_id="18de6376-7051-4216-96f0-26629076abb9"/>
   <MappingItem id="118" mapping_id="906452d9-3eeb-4ef7-ac90-5ffc14513fbf"
                extAttrName="fullname" intAttrName="fullname" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
-
+                       
   <Provision ignoreCaseMatch="0" id="779fefb5-dd25-4078-915d-3c199ee32158" resource_id="resource-testdb" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="cb624b93-874b-40a0-8021-3b8116b781ab" provision_id="779fefb5-dd25-4078-915d-3c199ee32158"/>
   <MappingItem id="1e0d30cd-2569-4a80-b9dc-af1467bd1c0b" mapping_id="cb624b93-874b-40a0-8021-3b8116b781ab"
@@ -985,16 +985,16 @@ under the License.
   <MappingItem id="7fd1a178-77a1-4c4c-aca2-3c3f1834b77b" mapping_id="cb624b93-874b-40a0-8021-3b8116b781ab"
                extAttrName="__PASSWORD__" intAttrName="password" mandatoryCondition="true"
                connObjectKey="0" password="1" purpose="BOTH"/>
-
+                     
   <Provision ignoreCaseMatch="0" id="0359084d-68fe-4bf8-b42b-2ebe4f578ae7" resource_id="resource-testdb2" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="935a0fc2-4a0b-4d82-9931-3c5ce44a33c1" provision_id="0359084d-68fe-4bf8-b42b-2ebe4f578ae7"/>
-  <MappingItem id="6d90658a-f470-4450-912d-6fe7d3bcda46" mapping_id="935a0fc2-4a0b-4d82-9931-3c5ce44a33c1" extAttrName="ID"
+  <MappingItem id="6d90658a-f470-4450-912d-6fe7d3bcda46" mapping_id="935a0fc2-4a0b-4d82-9931-3c5ce44a33c1" extAttrName="ID" 
                intAttrName="username" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
-  <MappingItem id="2fb9eb01-50df-456e-86c1-b55f68cde2da" mapping_id="935a0fc2-4a0b-4d82-9931-3c5ce44a33c1" extAttrName="__PASSWORD__"
+  <MappingItem id="2fb9eb01-50df-456e-86c1-b55f68cde2da" mapping_id="935a0fc2-4a0b-4d82-9931-3c5ce44a33c1" extAttrName="__PASSWORD__" 
                intAttrName="password" mandatoryCondition="true"
                connObjectKey="0" password="1" purpose="PROPAGATION"/>
-
+                         
   <Provision ignoreCaseMatch="0" id="2adb6537-e207-4d9b-804f-90bf18cd6f48" resource_id="resource-csv" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Provision_AnyTypeClass provision_id="2adb6537-e207-4d9b-804f-90bf18cd6f48" anyTypeClass_id="csv"/>
   <Provision_AnyTypeClass provision_id="2adb6537-e207-4d9b-804f-90bf18cd6f48" anyTypeClass_id="generic membership"/>
@@ -1027,7 +1027,7 @@ under the License.
   <MappingItem id="63151b89-2eb3-4980-a682-0215d54ab4a2" extAttrName="theirgroup" mapping_id="538c27dc-d260-4c53-9fc8-bf02ee226911"
                intAttrName="groups[root].rderToBePropagated" mandatoryCondition="false"
                connObjectKey="0" password="0" purpose="PROPAGATION"/>
-
+                         
   <Provision ignoreCaseMatch="0" id="1b53c74e-6a63-49ef-b2f1-96eeb7f1bbb8" resource_id="ws-target-resource-update-resetsynctoken" anyType_id="USER" objectClass="__ACCOUNT__"
              serializedSyncToken='{"value":null}'/>
   <Mapping id="23e20ce6-1ff9-495e-aa59-a58e5127a008" provision_id="1b53c74e-6a63-49ef-b2f1-96eeb7f1bbb8"/>
@@ -1073,7 +1073,7 @@ under the License.
   <MappingItem id="5bb62bd2-5007-4eb8-b4f9-9df8917dc767" connObjectKey="0" password="0" mapping_id="ae1c77c3-2f1d-4258-ad06-710bb09041a9"
                extAttrName="jpegPhoto" intAttrName="photo"
                mandatoryCondition="false" purpose="BOTH"/>
-
+        
   <SyncopeSchema id="virtualReadOnly"/>
   <VirSchema id="virtualReadOnly" READONLY="1" anyTypeClass_id="minimal user"
              provision_id="8b938d63-aa92-448c-89a8-a685fc0a67c8" extAttrName="givenname"/>
@@ -1093,7 +1093,7 @@ under the License.
                connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="description" intAttrName="title"
                mandatoryCondition="false" purpose="BOTH"/>
-
+  
   <SyncopeSchema id="rvirtualdata"/>
   <VirSchema id="rvirtualdata" READONLY="0" anyTypeClass_id="minimal group"
              provision_id="20a75199-3f2e-4b9a-9510-c68dd7fc7b3d" extAttrName="businessCategory"/>
@@ -1101,61 +1101,61 @@ under the License.
   <Provision ignoreCaseMatch="0" id="46b54e2a-e43e-4cd7-8c13-1af1bd65c3d3" resource_id="resource-db-pull" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="cda910bd-fc28-4f63-890e-66edc62d428b" provision_id="46b54e2a-e43e-4cd7-8c13-1af1bd65c3d3"/>
   <MappingItem id="1a345706-a498-41bb-a948-820307a4365e" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="EMAIL" intAttrName="email"
+               extAttrName="EMAIL" intAttrName="email" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="a234bde8-b431-408c-8ec9-c986c5b7f98d" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="SURNAME" intAttrName="fullname"
+               extAttrName="SURNAME" intAttrName="fullname" 
                mandatoryCondition="false" password="0" purpose="PULL"/>
   <MappingItem id="51a856de-ae25-41cd-967a-86920c834b70" connObjectKey="1" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="ID" intAttrName="firstname"
+               extAttrName="ID" intAttrName="firstname" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="f4e5178e-ef37-4949-933a-7ec7eaea64c6" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="SURNAME" intAttrName="surname"
+               extAttrName="SURNAME" intAttrName="surname" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="3ac0ecaf-d9a1-4fc1-9ae9-84dc34576810" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="USERNAME" intAttrName="username"
+               extAttrName="USERNAME" intAttrName="username" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="e7215305-93c9-460b-b862-46f7b60de72d" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="EMAIL" intAttrName="userId"
+               extAttrName="EMAIL" intAttrName="userId" 
                mandatoryCondition="false" password="0" purpose="PULL"/>
   <MappingItem id="fb59d169-cf59-43f6-a517-adfd9aacc609" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
-               extAttrName="MUSTCHANGEPASSWORD" intAttrName="mustChangePassword"
+               extAttrName="MUSTCHANGEPASSWORD" intAttrName="mustChangePassword" 
                mandatoryCondition="false" password="0" purpose="PULL"/>
-
+              
   <Provision ignoreCaseMatch="0" id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930" resource_id="resource-db-virattr" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="45280585-308f-4571-9788-c7a4734b3614" provision_id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930"/>
   <MappingItem id="6cb2f9f0-5fb4-4686-a375-31e2c34a6cd8" mapping_id="45280585-308f-4571-9788-c7a4734b3614" connObjectKey="1" password="0"
-               extAttrName="ID" intAttrName="key"
+               extAttrName="ID" intAttrName="key" 
                mandatoryCondition="true" purpose="BOTH"/>
-
+                
   <SyncopeSchema id="virtualdata"/>
   <VirSchema id="virtualdata" READONLY="0" anyTypeClass_id="minimal user"
              provision_id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930" extAttrName="USERNAME"/>
-
+  
   <Provision ignoreCaseMatch="0" id="cfa86cbe-94b6-4712-a40a-a4861be1d425" resource_id="ws-target-resource-timeout" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="c71d690a-3dd9-48a5-b76f-32805186c4dc" provision_id="cfa86cbe-94b6-4712-a40a-a4861be1d425"/>
   <MappingItem id="321bc904-e1fc-4a54-bf7c-74c8cbcc0815" mapping_id="c71d690a-3dd9-48a5-b76f-32805186c4dc" connObjectKey="1" password="0"
                extAttrName="fullname" intAttrName="fullname"
                mandatoryCondition="true" purpose="PROPAGATION"/>
-
+  
   <Provision ignoreCaseMatch="0" id="ac1659dc-3ea3-45eb-8ae6-626e3d916492" resource_id="ws-target-resource-delete" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="72f590ae-2754-456b-aabb-eda7d8459dd3" provision_id="ac1659dc-3ea3-45eb-8ae6-626e3d916492"/>
-  <MappingItem id="4c98536f-10df-4953-b2df-59d7cd057fd2" mapping_id="72f590ae-2754-456b-aabb-eda7d8459dd3" extAttrName="userId"
+  <MappingItem id="4c98536f-10df-4953-b2df-59d7cd057fd2" mapping_id="72f590ae-2754-456b-aabb-eda7d8459dd3" extAttrName="userId" 
                intAttrName="username" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
 
   <Provision ignoreCaseMatch="0" id="f1b55b66-eb13-4a93-a49c-448e93756eb6" resource_id="resource-db-scripted" anyType_id="PRINTER" objectClass="__PRINTER__"/>
   <Mapping id="16439b5f-50c3-4604-97e9-f4004933abd8" provision_id="f1b55b66-eb13-4a93-a49c-448e93756eb6"/>
-  <MappingItem id="23aa0299-ddbb-4e59-8918-0ab2a32465fa" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="ID"
+  <MappingItem id="23aa0299-ddbb-4e59-8918-0ab2a32465fa" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="ID" 
                intAttrName="key" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="BOTH"/>
-  <MappingItem id="3dc96af0-5d0a-4ec1-be84-244716d88401" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="PRINTERNAME"
+  <MappingItem id="3dc96af0-5d0a-4ec1-be84-244716d88401" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="PRINTERNAME" 
                intAttrName="name" mandatoryCondition="true"
                connObjectKey="0" password="0" purpose="BOTH"/>
-  <MappingItem id="f3ef9f8b-e667-4b18-969f-ba98c3d78bc0" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="LOCATION"
+  <MappingItem id="f3ef9f8b-e667-4b18-969f-ba98c3d78bc0" mapping_id="16439b5f-50c3-4604-97e9-f4004933abd8" extAttrName="LOCATION" 
                intAttrName="location"
                mandatoryCondition="false" connObjectKey="0" password="0" purpose="BOTH"/>
-
+    
   <Provision ignoreCaseMatch="0" id="2e372858-f43c-4e1c-b728-58f43c5e1c23" objectClass="__ACCOUNT__" anyType_id="USER" resource_id="rest-target-resource"/>
   <Mapping id="e6b64584-94a2-4890-b645-8494a2089011" provision_id="2e372858-f43c-4e1c-b728-58f43c5e1c23"/>
   <MappingItem id="14726efb-09e1-441e-b26e-fb09e1841eb2" connObjectKey="0"
@@ -1241,67 +1241,67 @@ under the License.
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <Task DTYPE="PushTask" id="af558be4-9d2f-4359-bf85-a554e6e90be1" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+        unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>  
   <PushTaskAnyFilter id="1fdcff65-765f-4a6e-98a7-13ef7cca47e2" anyType_id="USER" pushTask_id="af558be4-9d2f-4359-bf85-a554e6e90be1" fiql="surname==Vivaldi"/>
   <PushTaskAnyFilter id="3b564c51-5d64-48b3-8da5-fd4ebc10e0a8" anyType_id="GROUP" pushTask_id="af558be4-9d2f-4359-bf85-a554e6e90be1" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="97f327b6-2eff-4d35-85e8-d581baaab855" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
         unmatchingRule="PROVISION" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="199efd21-5e89-46ac-95de-f47e9d0569fc" anyType_id="USER" pushTask_id="97f327b6-2eff-4d35-85e8-d581baaab855" fiql="surname==Bellini"/>
   <PushTaskAnyFilter id="7672a167-77d6-4639-8b1d-0af561293c7d" anyType_id="GROUP" pushTask_id="97f327b6-2eff-4d35-85e8-d581baaab855" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="03aa2a04-4881-4573-9117-753f81b04865" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="UNLINK" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="39a11ba6-397a-4c94-8bfe-1f4f757d6501" anyType_id="USER" pushTask_id="03aa2a04-4881-4573-9117-753f81b04865" fiql="surname==Puccini"/>
   <PushTaskAnyFilter id="5bd7501e-8a18-4fbd-a3fe-a1e731ba95db" anyType_id="GROUP" pushTask_id="03aa2a04-4881-4573-9117-753f81b04865" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
         unmatchingRule="IGNORE" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="0d0371a3-5772-4b4c-ad14-139adf1d346a" anyType_id="USER" pushTask_id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="2e7488ae-a2fc-4657-a93b-159b8433c0e7" anyType_id="GROUP" pushTask_id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="41bf22fe-a014-41af-9a75-402b987eb433" anyType_id="USER" pushTask_id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" fiql="username==_NO_ONE_"/>
   <PushTaskAnyFilter id="fa983fde-795e-4c89-a6f7-1ccd80a8adeb" anyType_id="GROUP" pushTask_id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="ec674143-480a-4816-98ad-b61fa090821e" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="DEPROVISION" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="e238a6dc-0b04-46cf-9bfa-be68bd9f2da0" anyType_id="USER" pushTask_id="ec674143-480a-4816-98ad-b61fa090821e" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="0eaa643e-0add-4c46-8273-539f9d6abec5" anyType_id="GROUP" pushTask_id="ec674143-480a-4816-98ad-b61fa090821e" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="c46edc3a-a18b-4af2-b707-f4a415507496" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UNASSIGN" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="335b4f11-589a-44c5-80b0-ba94892f0c62" anyType_id="USER" pushTask_id="c46edc3a-a18b-4af2-b707-f4a415507496" fiql="surname==Rossini"/>
   <PushTaskAnyFilter id="b32eecc2-aa4f-43c6-a501-a692c3e93113" anyType_id="GROUP" pushTask_id="c46edc3a-a18b-4af2-b707-f4a415507496" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="51318433-cce4-4f71-8f45-9534b6c9c819" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="LINK" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="9f974a0d-87d8-4cae-9ea9-1fc245bc1dbf" anyType_id="USER" pushTask_id="51318433-cce4-4f71-8f45-9534b6c9c819" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="0dc46ba4-1270-4fa9-b3e1-79f940d4308f" anyType_id="GROUP" pushTask_id="51318433-cce4-4f71-8f45-9534b6c9c819" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UNLINK" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="3aa3b0b8-7469-4859-89d5-476ae5915101" anyType_id="USER" pushTask_id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="f054810e-6842-4017-8f60-5b4031fa2c72" anyType_id="GROUP" pushTask_id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="IGNORE" matchingRule="UPDATE"  active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="95f047fc-1a8a-45f4-b56c-6e04d8ca5567" anyType_id="USER" pushTask_id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="013a4298-4b14-4f8b-9f59-191c2d53dbd8" anyType_id="GROUP" pushTask_id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="fd905ba5-9d56-4f51-83e2-859096a67b75" name="Export on resource-ldap" resource_id="resource-ldap"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
         unmatchingRule="ASSIGN" matchingRule="UNLINK" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="30842acc-f2dd-4d47-b359-20db06c30803" anyType_id="USER" pushTask_id="fd905ba5-9d56-4f51-83e2-859096a67b75" fiql="username==_NO_ONE_"/>
   <PushTaskAnyFilter id="9e4c0233-440e-4b5b-9563-11ec0f55a334" anyType_id="GROUP" pushTask_id="fd905ba5-9d56-4f51-83e2-859096a67b75" fiql="name==citizen"/>
@@ -1427,22 +1427,22 @@ $$ }&#10;
 &lt;/body&gt;
 &lt;/html&gt;"/>
 
-  <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1"
-                sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset"
-                traceLevel="FAILURES"/>
+  <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
+                traceLevel="FAILURES"/> 
   <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
   <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   <Task DTYPE="NotificationTask" id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4"
         sender="admin@prova.org" subject="Notification for SYNCOPE-81" executed="0"
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
-  <NotificationTask_recipients notificationTask_id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" address="recipient@prova.org"/>
-
-  <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1"
-                sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset"
-                traceLevel="FAILURES"/>
+  <NotificationTask_recipients notificationTask_id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" address="recipient@prova.org"/>  
+  
+  <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
+                traceLevel="FAILURES"/> 
   <Notification_events notification_id="bef0c250-e8a7-4848-bb63-2564fc409ce2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
-  <Notification id="9e2b911c-25de-4c77-bcea-b86ed9451050" sender="test@syncope.apache.org" subject="Test subject" template_id="test" selfAsRecipient="0"
+  <Notification id="9e2b911c-25de-4c77-bcea-b86ed9451050" sender="test@syncope.apache.org" subject="Test subject" template_id="test" selfAsRecipient="0" 
                 traceLevel="FAILURES"
                 recipientsFIQL="$groups==7"
                 recipientAttrName="email" active="1"/>
@@ -1450,7 +1450,7 @@ $$ }&#10;
   <Notification_events notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
 
-  <ReportTemplate id="empty"/>
+  <ReportTemplate id="empty"/>  
   <ReportTemplate id="sample"
                   htmlTemplate="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;
 &lt;xsl:stylesheet xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot;&#10;
@@ -2545,7 +2545,7 @@ $$ }&#10;
   &lt;/xsl:template&gt;&#10;
 &#10;
 &lt;/xsl:stylesheet&gt;&#10;"/>
-
+  
   <Report id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" name="test" active="1" template_id="sample"/>
   <Implementation id="UserReportletConf" type="REPORTLET" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
@@ -2557,11 +2557,11 @@ $$ }&#10;
   <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
-
+  
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
 
   <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
-
+  
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[FAILURE]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[FAILURE]" logLevel="DEBUG"/>
