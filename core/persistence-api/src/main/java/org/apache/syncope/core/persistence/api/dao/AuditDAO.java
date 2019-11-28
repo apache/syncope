@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
@@ -28,9 +29,9 @@ public interface AuditDAO {
     String TABLE_NAME = "SYNCOPEAUDIT";
 
     List<AuditEntry> findByEntityKey(String key, int page, int size,
-                                     List<OrderByClause> orderByClauses,
-                                     List<String> results,
-                                     List<String> events);
+                                     List<AuditElements.Result> results,
+                                     List<String> events,
+                                     List<OrderByClause> orderByClauses);
 
     Integer count(String key);
 }

@@ -25,6 +25,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -77,7 +78,7 @@ public class AuditITCase extends AbstractITCase {
             .page(1)
             .size(1)
             .events(Collections.singletonList("create"))
-            .results(Collections.singletonList("SUCCESS"))
+            .results(Collections.singletonList(AuditElements.Result.SUCCESS))
             .build();
         AuditEntryTO entry = query(query, 50);
         assertEquals(userTO.getKey(), entry.getKey());

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -53,12 +54,12 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
 
     @Override
     public List<AuditEntry> findByEntityKey(
-            final String key,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderByClauses,
-            final List<String> results,
-            final List<String> events) {
+        final String key,
+        final int page,
+        final int itemsPerPage,
+        final List<AuditElements.Result> results,
+        final List<String> events,
+        final List<OrderByClause> orderByClauses) {
         try {
             String query = new MessageCriteriaBuilder()
                 .results(results)
@@ -68,8 +69,8 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
             String queryString = "SELECT * FROM " + TABLE_NAME + " WHERE " + query;
             if (!orderByClauses.isEmpty()) {
                 queryString += " ORDER BY " + orderByClauses.stream().
-                        map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
-                        collect(Collectors.joining(","));
+                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
+                    collect(Collectors.joining(","));
             }
             JdbcTemplate template = getJdbcTemplate();
             template.setMaxRows(itemsPerPage);
@@ -117,8 +118,8 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
             return this;
         }
 
-        public MessageCriteriaBuilder results(final List<String> results) {
-            buildCriteriaFor(results, "result");
+        public MessageCriteriaBuilder results(final List<AuditElements.Result> results) {
+            buildCriteriaFor(results.stream().map(Enum::name).collect(Collectors.toList()), "result");
             return this;
         }
 

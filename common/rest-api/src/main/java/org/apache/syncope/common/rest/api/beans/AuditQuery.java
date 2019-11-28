@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import org.apache.syncope.common.lib.types.AuditElements;
+
 import javax.ws.rs.QueryParam;
 
 import java.util.ArrayList;
@@ -28,8 +30,8 @@ public class AuditQuery extends AbstractQuery {
     private static final long serialVersionUID = -2863334226169614417L;
 
     private String key;
-    private List<String> results = new ArrayList<>();
-    private List<String> events = new ArrayList<>();
+    private final List<AuditElements.Result> results = new ArrayList<>();
+    private final List<String> events = new ArrayList<>();
 
     public String getKey() {
         return key;
@@ -40,13 +42,15 @@ public class AuditQuery extends AbstractQuery {
         this.key = key;
     }
 
-    public List<String> getResults() {
+    public List<AuditElements.Result> getResults() {
         return results;
     }
 
     @QueryParam("results")
-    public void setResults(final List<String> results) {
-        this.results = results;
+    public void setResults(final List<AuditElements.Result> results) {
+        if (results != null) {
+            this.results.addAll(results);
+        }
     }
 
     public List<String> getEvents() {
@@ -55,7 +59,9 @@ public class AuditQuery extends AbstractQuery {
 
     @QueryParam("events")
     public void setEvents(final List<String> events) {
-        this.events = events;
+        if (events != null) {
+            this.events.addAll(events);
+        }
     }
 
     public static class Builder extends AbstractQuery.Builder<AuditQuery, Builder> {
@@ -65,13 +71,23 @@ public class AuditQuery extends AbstractQuery {
             return this;
         }
 
-        public Builder results(final List<String> results) {
+        public Builder results(final List<AuditElements.Result> results) {
             getInstance().setResults(results);
+            return this;
+        }
+
+        public Builder result(final String result) {
+            getInstance().getResults().add(AuditElements.Result.valueOf(result.toUpperCase()));
             return this;
         }
 
         public Builder events(final List<String> events) {
             getInstance().setEvents(events);
+            return this;
+        }
+
+        public Builder event(final String event) {
+            getInstance().getEvents().add(event);
             return this;
         }
 
