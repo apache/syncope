@@ -7,8 +7,8 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -16,19 +16,16 @@ import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -86,6 +83,8 @@ public class AuditHistoryDirectoryPanel extends
     @Override
     protected List<IColumn<AuditEntryBean, String>> getColumns() {
         final List<IColumn<AuditEntryBean, String>> columns = new ArrayList<>();
+        columns.add(new KeyPropertyColumn<>(
+            new StringResourceModel("key", this), "key"));
         columns.add(new PropertyColumn<>(
             new StringResourceModel("who", this), "who"));
         columns.add(new DatePropertyColumn<>(
@@ -118,7 +117,7 @@ public class AuditHistoryDirectoryPanel extends
 
         @Override
         public long size() {
-            return restClient.count(anyTO.getKey());
+            return restClient.count(anyTO.getKey(), getQueryableAuditEvents(), getQueryableAuditResults());
         }
 
         @Override
@@ -138,7 +137,8 @@ public class AuditHistoryDirectoryPanel extends
             List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
                 Math.max(page, 0) + 1, paginatorRows,
                 new SortParam<>("event_date", false),
-                new ArrayList<>(), new ArrayList<>());
+                getQueryableAuditEvents(),
+                getQueryableAuditResults());
             return search
                 .stream()
                 .map(entry -> {
@@ -156,6 +156,14 @@ public class AuditHistoryDirectoryPanel extends
                     return bean;
                 })
                 .collect(Collectors.toList());
+        }
+
+        private List<AuditElements.Result> getQueryableAuditResults() {
+            return Collections.singletonList(AuditElements.Result.SUCCESS);
+        }
+
+        private List<String> getQueryableAuditEvents() {
+            return Arrays.asList("create", "update");
         }
     }
 }

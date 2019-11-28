@@ -384,7 +384,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     new AnyWrapper<>(model.getObject()));
                 altDefaultModal.setFormModel(formModel);
 
-                target.add(altDefaultModal.setContent(new AuditHistoryModal(
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
                     altDefaultModal,
                     pageRef,
                     formModel.getObject().getInnerObject())));
