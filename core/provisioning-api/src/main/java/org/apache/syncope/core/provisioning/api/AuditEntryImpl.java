@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.ArrayUtils;
@@ -27,8 +28,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
-
-import java.util.Date;
 
 public class AuditEntryImpl implements AuditEntry {
 
@@ -51,14 +50,14 @@ public class AuditEntryImpl implements AuditEntry {
     private Date date;
 
     private String key;
-    
+
     @JsonCreator
     public AuditEntryImpl(
-        @JsonProperty("who") final String who,
-        @JsonProperty("logger") final AuditLoggerName logger,
-        @JsonProperty("before") final Object before,
-        @JsonProperty("output") final Object output,
-        @JsonProperty("input") final Object[] input) {
+            @JsonProperty("who") final String who,
+            @JsonProperty("logger") final AuditLoggerName logger,
+            @JsonProperty("before") final Object before,
+            @JsonProperty("output") final Object output,
+            @JsonProperty("input") final Object[] input) {
 
         super();
 
@@ -160,6 +159,7 @@ public class AuditEntryImpl implements AuditEntry {
     }
 
     public static final class Builder {
+
         private String who;
 
         private AuditLoggerName logger;

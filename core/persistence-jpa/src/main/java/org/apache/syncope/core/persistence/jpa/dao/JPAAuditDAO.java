@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
@@ -54,10 +55,17 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
             final String key,
             final int page,
             final int itemsPerPage,
+            final List<AuditElements.Result> results,
+            final List<String> events,
             final List<OrderByClause> orderByClauses) {
 
         try {
-            String queryString = "SELECT * FROM " + AuditDAO.TABLE_NAME + buildWhereClauseForEntityKey(key);
+            String query = new MessageCriteriaBuilder().
+                    results(results).
+                    events(events).
+                    key(key).
+                    build();
+            String queryString = "SELECT * FROM " + TABLE_NAME + " WHERE " + query;
             if (!orderByClauses.isEmpty()) {
                 queryString += " ORDER BY " + orderByClauses.stream().
                         map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
@@ -99,5 +107,39 @@ public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO
             throw new IllegalArgumentException("Could not get to DataSource for domain " + domain);
         }
         return new JdbcTemplate(datasource);
+    }
+
+    private static class MessageCriteriaBuilder {
+
+        private final StringBuilder query = new StringBuilder(" 1=1 ");
+
+        public MessageCriteriaBuilder key(final String key) {
+            query.append(" AND MESSAGE LIKE '%\"key\":\"").append(key).append("\"%' ");
+            return this;
+        }
+
+        public MessageCriteriaBuilder results(final List<AuditElements.Result> results) {
+            buildCriteriaFor(results.stream().map(Enum::name).collect(Collectors.toList()), "result");
+            return this;
+        }
+
+        private void buildCriteriaFor(final List<String> items, final String field) {
+            if (!items.isEmpty()) {
+                query.append(" AND ( ");
+                query.append(items.stream().map(res -> "MESSAGE LIKE '%\"" + field + "\":\"" + res + "\"%'").
+                        collect(Collectors.joining(" OR ")));
+                query.append(" )");
+            }
+        }
+
+        public MessageCriteriaBuilder events(final List<String> events) {
+            buildCriteriaFor(events, "event");
+            return this;
+        }
+
+        public String build() {
+            query.trimToSize();
+            return query.toString();
+        }
     }
 }

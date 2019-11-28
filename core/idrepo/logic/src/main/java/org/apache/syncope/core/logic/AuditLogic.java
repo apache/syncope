@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
@@ -48,14 +49,16 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
             final String key,
             final int page,
             final int size,
+            final List<AuditElements.Result> results,
+            final List<String> events,
             final List<OrderByClause> orderByClauses) {
 
         Integer count = auditDAO.count(key);
-        List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, orderByClauses);
-        List<AuditEntryTO> results = matching.stream().
-                map(audit -> binder.returnAuditTO(binder.getAuditTO(audit))).
+        List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, results, events, orderByClauses);
+        List<AuditEntryTO> searchResults = matching.stream().
+                map(binder::getAuditTO).
                 collect(Collectors.toList());
-        return Pair.of(count, results);
+        return Pair.of(count, searchResults);
     }
 
     @Override
