@@ -18,91 +18,83 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.common.lib.SyncopeConstants;
+import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditITCase extends AbstractITCase {
-    private static final String USER_KEY = getUUIDString();
-    private static final String GROUP_KEY = getUUIDString();
 
-    private static GroupTO getSampleGroupTO(final String name) {
-        GroupTO groupTO = new GroupTO();
-        groupTO.setRealm(SyncopeConstants.ROOT_REALM);
-        groupTO.setName(name + getUUIDString());
-        groupTO.setKey(GROUP_KEY);
-        return groupTO;
-    }
+    private AuditEntryTO query(final AuditQuery query, final int maxWaitSeconds) {
+        int i = 0;
+        List<AuditEntryTO> results = Collections.emptyList();
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
 
-    private static UserTO getSampleUserTO(final String email) {
-        UserTO userTO = new UserTO();
-        userTO.setRealm(SyncopeConstants.ROOT_REALM);
-        userTO.setPassword("password123");
-        userTO.setUsername(email);
-        userTO.setKey(USER_KEY);
-        userTO.getPlainAttrs().add(attrTO("fullname", "Apache Syncope"));
-        userTO.getPlainAttrs().add(attrTO("firstname", "Apache"));
-        userTO.getPlainAttrs().add(attrTO("surname", "Syncope"));
-        userTO.getPlainAttrs().add(attrTO("userId", email));
-        userTO.getPlainAttrs().add(attrTO("email", email));
-        return userTO;
+            results = auditService.search(query).getResult();
+
+            i++;
+        } while (results.isEmpty() && i < maxWaitSeconds);
+        if (results.isEmpty()) {
+            fail("Timeout when executing query for key " + query.getKey());
+        }
+
+        return results.get(0);
     }
 
     @Test
     public void findByUser() {
-        UserTO userTO = getSampleUserTO("example@syncope.org");
-        userTO.getResources().add(RESOURCE_NAME_TESTDB);
-        ProvisioningResult<UserTO> result = createUser(userTO);
-        assertNotNull(result);
-        userTO = result.getEntity();
-        userService.read(userTO.getKey());
+        UserTO userTO = createUser(UserITCase.getUniqueSampleTO("audit@syncope.org")).getEntity();
+        assertNotNull(userTO.getKey());
 
-        PagedResult<AuditEntryTO> auditResult = auditService.search(
-            new AuditQuery.Builder()
-                .key(USER_KEY)
-                .orderBy("event_date desc")
-                .page(1)
-                .size(1)
-                .build());
-        assertNotNull(auditResult);
-        List<AuditEntryTO> results = auditResult.getResult();
-        assertFalse(results.isEmpty());
-        assertEquals(1, results.size());
-        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(USER_KEY)));
+        AuditQuery query = new AuditQuery.Builder()
+            .key(userTO.getKey()).orderBy("event_date desc")
+            .page(1).size(1).build();
+        AuditEntryTO entry = query(query, 50);
+        assertEquals(userTO.getKey(), entry.getKey());
+        userService.delete(userTO.getKey());
+    }
+
+    @Test
+    public void findByUserAndByEventAndByResults() {
+        UserTO userTO = createUser(UserITCase.getUniqueSampleTO("audit-2@syncope.org")).getEntity();
+        assertNotNull(userTO.getKey());
+
+        AuditQuery query = new AuditQuery.Builder()
+            .key(userTO.getKey())
+            .orderBy("event_date desc")
+            .page(1)
+            .size(1)
+            .events(Collections.singletonList("create"))
+            .results(Collections.singletonList(AuditElements.Result.SUCCESS))
+            .build();
+        AuditEntryTO entry = query(query, 50);
+        assertEquals(userTO.getKey(), entry.getKey());
         userService.delete(userTO.getKey());
     }
 
     @Test
     public void findByGroup() {
-        GroupTO groupTO = getSampleGroupTO("AuditGroup");
-        ProvisioningResult<GroupTO> groupResult = createGroup(groupTO);
-        assertNotNull(groupResult);
-        groupTO = groupResult.getEntity();
-        groupService.read(groupTO.getKey());
+        GroupTO groupTO = createGroup(GroupITCase.getBasicSampleTO("AuditGroup")).getEntity();
+        assertNotNull(groupTO.getKey());
 
-        PagedResult<AuditEntryTO> result = auditService.search(
-            new AuditQuery.Builder()
-                .key(GROUP_KEY)
-                .orderBy("event_date asc")
-                .page(1)
-                .size(1)
-                .build());
-        assertNotNull(result);
-        List<AuditEntryTO> results = result.getResult();
-        assertFalse(results.isEmpty());
-        assertEquals(1, results.size());
-        assertTrue(results.stream().allMatch(entry -> entry.getKey().equalsIgnoreCase(GROUP_KEY)));
+        AuditQuery query = new AuditQuery.Builder()
+            .key(groupTO.getKey()).orderBy("event_date desc")
+            .page(1).size(1).build();
+        AuditEntryTO entry = query(query, 50);
+        assertEquals(groupTO.getKey(), entry.getKey());
         groupService.delete(groupTO.getKey());
     }
 }

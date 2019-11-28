@@ -2558,10 +2558,11 @@ $$ }&#10;
                   body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
   
-  <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
-  
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
 
+  <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
+  
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[FAILURE]" logLevel="DEBUG"/>
   <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[FAILURE]" LOGLEVEL="DEBUG"/>
   <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" LOGLEVEL="DEBUG"/>
   <SYNCOPELOGGER LOGTYPE="AUDIT" LOGNAME="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[FAILURE]" LOGLEVEL="DEBUG"/>

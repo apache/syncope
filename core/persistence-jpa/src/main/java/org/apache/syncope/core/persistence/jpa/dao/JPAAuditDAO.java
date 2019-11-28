@@ -16,18 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -44,10 +43,7 @@ import java.util.stream.Collectors;
 
 @Transactional(rollbackFor = Throwable.class)
 @Repository
-public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
-    private static final Logger LOG = LoggerFactory.getLogger(JPAAuditDAO.class);
-
-    private static final String TABLE_NAME = "SYNCOPEAUDIT";
+public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO {
 
     @Autowired
     private DomainsHolder domainsHolder;
@@ -57,14 +53,22 @@ public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
     }
 
     @Override
-    public List<AuditEntry> findByEntityKey(final String key, final int page,
-                                            final int itemsPerPage,
-                                            final List<OrderByClause> orderByClauses) {
+    public List<AuditEntry> findByEntityKey(
+        final String key,
+        final int page,
+        final int itemsPerPage,
+        final List<AuditElements.Result> results,
+        final List<String> events,
+        final List<OrderByClause> orderByClauses) {
         try {
-            String queryString = "SELECT * FROM " + TABLE_NAME + buildWhereClauseForEntityKey(key);
+            String query = new MessageCriteriaBuilder()
+                .results(results)
+                .events(events)
+                .key(key)
+                .build();
+            String queryString = "SELECT * FROM " + TABLE_NAME + " WHERE " + query;
             if (!orderByClauses.isEmpty()) {
-                queryString += " ORDER BY " + orderByClauses.
-                    stream().
+                queryString += " ORDER BY " + orderByClauses.stream().
                     map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
                     collect(Collectors.joining(","));
             }
@@ -89,7 +93,7 @@ public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
     @Override
     public Integer count(final String key) {
         try {
-            String queryString = "SELECT COUNT(0) FROM " + TABLE_NAME + buildWhereClauseForEntityKey(key);
+            String queryString = "SELECT COUNT(0) FROM " + AuditDAO.TABLE_NAME + buildWhereClauseForEntityKey(key);
             return Objects.requireNonNull(getJdbcTemplate().queryForObject(queryString, Integer.class));
         } catch (Exception e) {
             LOG.error("Unable to execute count query for entity " + key, e);
@@ -104,5 +108,38 @@ public class JPAAuditDAO extends AbstractDAO implements AuditDAO<AuditEntry> {
             throw new IllegalArgumentException("Could not get to DataSource for domain " + domain);
         }
         return new JdbcTemplate(datasource);
+    }
+
+    private static class MessageCriteriaBuilder {
+        private final StringBuilder query = new StringBuilder(" 1=1 ");
+
+        public MessageCriteriaBuilder key(final String key) {
+            query.append(" AND MESSAGE LIKE '%\"key\":\"").append(key).append("\"%' ");
+            return this;
+        }
+
+        public MessageCriteriaBuilder results(final List<AuditElements.Result> results) {
+            buildCriteriaFor(results.stream().map(Enum::name).collect(Collectors.toList()), "result");
+            return this;
+        }
+
+        private void buildCriteriaFor(final List<String> items, final String field) {
+            if (!items.isEmpty()) {
+                query.append(" AND ( ");
+                query.append(items.stream().map(res -> "MESSAGE LIKE '%\"" + field + "\":\"" + res + "\"%'")
+                    .collect(Collectors.joining(" OR ")));
+                query.append(" )");
+            }
+        }
+
+        public MessageCriteriaBuilder events(final List<String> events) {
+            buildCriteriaFor(events, "event");
+            return this;
+        }
+
+        public String build() {
+            query.trimToSize();
+            return query.toString();
+        }
     }
 }

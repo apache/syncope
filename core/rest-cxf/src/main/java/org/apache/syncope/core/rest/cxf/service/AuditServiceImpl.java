@@ -31,18 +31,19 @@ import java.util.List;
 
 @Service
 public class AuditServiceImpl extends AbstractServiceImpl implements AuditService {
+
     @Autowired
     private AuditLogic logic;
 
     @Override
     public PagedResult<AuditEntryTO> search(final AuditQuery auditQuery) {
         Pair<Integer, List<AuditEntryTO>> result = logic.search(
-            auditQuery.getKey(),
-            auditQuery.getPage(),
-            auditQuery.getSize(),
-            getOrderByClauses(auditQuery.getOrderBy())
-            );
+                auditQuery.getKey(),
+                auditQuery.getPage(),
+                auditQuery.getSize(),
+                auditQuery.getResults(),
+                auditQuery.getEvents(),
+                getOrderByClauses(auditQuery.getOrderBy()));
         return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }
-
 }
