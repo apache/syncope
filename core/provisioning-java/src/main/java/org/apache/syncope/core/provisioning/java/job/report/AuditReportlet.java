@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -48,12 +49,12 @@ public class AuditReportlet extends AbstractReportlet {
     private DataSource datasource;
 
     private void doExtractConf(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
-        status.set("Fetching " + conf.getSize() + " rows from the SYNCOPEAUDIT table");
+        status.set("Fetching " + conf.getSize() + " rows from the " + AuditDAO.TABLE_NAME + " table");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         jdbcTemplate.setMaxRows(conf.getSize());
         List<Map<String, Object>> rows = jdbcTemplate.
-                queryForList("SELECT * FROM SYNCOPEAUDIT ORDER BY EVENT_DATE DESC");
+                queryForList("SELECT * FROM " + AuditDAO.TABLE_NAME + " ORDER BY EVENT_DATE DESC");
 
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();

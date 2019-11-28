@@ -41,6 +41,7 @@ import org.apache.syncope.core.logic.MemoryAppender;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,7 +98,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
                     setIgnoreExceptions(false).
                     setConnectionSource(new DataSourceConnectionSource(domain, datasource)).
                     setBufferSize(0).
-                    setTableName("SYNCOPEAUDIT").
+                    setTableName(AuditDAO.TABLE_NAME).
                     setColumnConfigs(buildColumnConfigs(ctx)).
                     setColumnMappings(new ColumnMapping[0]).
                     build();
@@ -155,9 +156,9 @@ public class LoggerLoader implements SyncopeCoreLoader {
     }
 
     public static void addAppenderToContext(
-        final LoggerContext ctx,
-        final AuditAppender auditAppender,
-        final LoggerConfig eventLogConf) {
+            final LoggerContext ctx,
+            final AuditAppender auditAppender,
+            final LoggerConfig eventLogConf) {
 
         Appender targetAppender = ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName());
         if (targetAppender == null) {
