@@ -235,17 +235,17 @@ public class InboundMatcher {
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
                 case "key":
-                    Optional.ofNullable(anyUtils.dao().find(connObjectKeyValue)).ifPresent(anys::add);
+                    Optional.ofNullable(anyUtils.dao().find(finalConnObjectKeyValue)).ifPresent(anys::add);
                     break;
 
                 case "username":
                     if (anyTypeKind == AnyTypeKind.USER && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("username");
-                        cond.setExpression(connObjectKeyValue);
+                        cond.setExpression(finalConnObjectKeyValue);
                         anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.USER));
                     } else {
-                        Optional.ofNullable(userDAO.findByUsername(connObjectKeyValue)).ifPresent(anys::add);
+                        Optional.ofNullable(userDAO.findByUsername(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
                     break;
 
@@ -253,19 +253,19 @@ public class InboundMatcher {
                     if (anyTypeKind == AnyTypeKind.GROUP && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("name");
-                        cond.setExpression(connObjectKeyValue);
+                        cond.setExpression(finalConnObjectKeyValue);
                         anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.GROUP));
                     } else {
-                        Optional.ofNullable(groupDAO.findByName(connObjectKeyValue)).ifPresent(anys::add);
+                        Optional.ofNullable(groupDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
 
                     if (anyTypeKind == AnyTypeKind.ANY_OBJECT && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
                         cond.setSchema("name");
-                        cond.setExpression(connObjectKeyValue);
+                        cond.setExpression(finalConnObjectKeyValue);
                         anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
-                        Optional.ofNullable(anyObjectDAO.findByName(connObjectKeyValue)).ifPresent(anys::add);
+                        Optional.ofNullable(anyObjectDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
                     break;
 
@@ -278,10 +278,10 @@ public class InboundMatcher {
                             ? anyUtils.newPlainAttrUniqueValue()
                             : anyUtils.newPlainAttrValue();
                     try {
-                        value.parseValue((PlainSchema) intAttrName.getSchema(), connObjectKeyValue);
+                        value.parseValue((PlainSchema) intAttrName.getSchema(), finalConnObjectKeyValue);
                     } catch (ParsingValidationException e) {
                         LOG.error("While parsing provided {} {}", Uid.NAME, value, e);
-                        value.setStringValue(connObjectKeyValue);
+                        value.setStringValue(finalConnObjectKeyValue);
                     }
 
                     if (intAttrName.getSchema().isUniqueConstraint()) {
@@ -296,7 +296,7 @@ public class InboundMatcher {
 
                 case DERIVED:
                     anys.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
-                            connObjectKeyValue, ignoreCaseMatch));
+                            finalConnObjectKeyValue, ignoreCaseMatch));
                     break;
 
                 default:
