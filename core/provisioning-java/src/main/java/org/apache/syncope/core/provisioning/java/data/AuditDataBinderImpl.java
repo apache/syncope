@@ -31,36 +31,36 @@ import org.springframework.stereotype.Component;
 public class AuditDataBinderImpl implements AuditDataBinder {
 
     @Override
-    public AuditEntryTO getAuditTO(final AuditEntry auditEntry) {
-        AuditEntryTO auditTO = new AuditEntryTO();
-        auditTO.setKey(auditEntry.getKey());
-        auditTO.setWho(auditEntry.getWho());
-        auditTO.setDate(auditEntry.getDate());
-        auditTO.setThrowable(auditEntry.getThrowable());
-        auditTO.setLoggerName(auditEntry.getLogger().toLoggerName());
+    public AuditEntryTO getAuditTO(final String key, final AuditEntry auditEntry) {
+        AuditEntryTO auditEntryTO = new AuditEntryTO();
+        auditEntryTO.setKey(key);
+        auditEntryTO.setWho(auditEntry.getWho());
+        auditEntryTO.setDate(auditEntry.getDate());
+        auditEntryTO.setThrowable(auditEntry.getThrowable());
+        auditEntryTO.setLoggerName(auditEntry.getLogger().toLoggerName());
 
-        auditTO.setSubCategory(auditEntry.getLogger().getSubcategory());
-        auditTO.setEvent(auditEntry.getLogger().getEvent());
+        auditEntryTO.setSubCategory(auditEntry.getLogger().getSubcategory());
+        auditEntryTO.setEvent(auditEntry.getLogger().getEvent());
 
         if (auditEntry.getLogger().getResult() != null) {
-            auditTO.setResult(auditEntry.getLogger().getResult().name());
+            auditEntryTO.setResult(auditEntry.getLogger().getResult().name());
         }
 
         if (auditEntry.getBefore() != null) {
-            auditTO.setBefore(POJOHelper.serialize(auditEntry.getBefore()));
+            auditEntryTO.setBefore(POJOHelper.serialize(auditEntry.getBefore()));
         }
 
         if (auditEntry.getInput() != null) {
-            auditTO.getInputs().addAll(Arrays.stream(auditEntry.getInput()).
+            auditEntryTO.getInputs().addAll(Arrays.stream(auditEntry.getInput()).
                     filter(Objects::nonNull).
                     map(POJOHelper::serialize).
                     collect(Collectors.toList()));
         }
 
         if (auditEntry.getOutput() != null) {
-            auditTO.setOutput(POJOHelper.serialize(auditEntry.getOutput()));
+            auditEntryTO.setOutput(POJOHelper.serialize(auditEntry.getOutput()));
         }
 
-        return auditTO;
+        return auditEntryTO;
     }
 }

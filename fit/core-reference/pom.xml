@@ -1262,13 +1262,14 @@ under the License.
                   </build>
                   <run>
                     <env>
-                      <ORACLE_DISABLE_ASYNCH_IO>true</ORACLE_DISABLE_ASYNCH_IO>
+                      <ORACLE_ALLOW_REMOTE>true</ORACLE_ALLOW_REMOTE>
+                      <ORACLE_ENABLE_XDB>true</ORACLE_ENABLE_XDB>
                     </env>
                     <ports>
                       <port>1521:1521</port>
                     </ports>
                     <wait>
-                      <log>Disconnected from Oracle Database 11g Express Edition Release 11.2.0.2.0 - 64bit Production</log>
+                      <log>Disconnected from Oracle Database 11g Express Edition</log>
                       <time>30000</time>
                     </wait>                
                   </run>

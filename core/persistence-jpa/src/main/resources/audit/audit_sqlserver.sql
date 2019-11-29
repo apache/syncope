@@ -15,14 +15,13 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
-IF NOT EXISTS
-(SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SYNCOPEAUDIT]') AND type in (N'U'))
-BEGIN
+IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[SYNCOPEAUDIT]') AND OBJECTPROPERTY(id, N'ISUSERTABLE') = 1)
+DROP TABLE [dbo].[SYNCOPEAUDIT];
+
 CREATE TABLE SYNCOPEAUDIT (
   EVENT_DATE DATETIME,
   LOGGER_LEVEL VARCHAR(255) NOT NULL,
   LOGGER VARCHAR(255) NOT NULL,
   MESSAGE TEXT NOT NULL,
   THROWABLE TEXT
-)
-END
+)  ON [PRIMARY];
