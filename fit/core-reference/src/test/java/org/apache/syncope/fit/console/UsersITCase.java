@@ -257,10 +257,10 @@ public class UsersITCase extends AbstractConsoleITCase {
     @Test
     public void editUserMembership() {
         UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().
-                executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        UTILITY_UI.getTester().executeAjaxEvent(
-                "body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
+        UTILITY_UI.getTester().executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:btn", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
         UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
@@ -351,10 +351,10 @@ public class UsersITCase extends AbstractConsoleITCase {
     @Test
     public void editUserMemberships() {
         UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().
-                executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        UTILITY_UI.getTester().executeAjaxEvent(
-                "body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
+        UTILITY_UI.getTester().executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:btn", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
         UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
