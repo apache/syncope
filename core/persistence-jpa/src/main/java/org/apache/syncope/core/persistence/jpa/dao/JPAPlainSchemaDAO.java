@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.Collection;
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -32,6 +33,9 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
@@ -104,6 +108,18 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     }
 
     @Override
+    public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
+        String plainAttrTable = getPlainAttrTable(reference);
+        Query query = entityManager()
+                .createNativeQuery("SELECT COUNT(" + plainAttrTable + ".id) FROM " + JPAPlainSchema.TABLE
+                        + " JOIN " + plainAttrTable + " ON " + JPAPlainSchema.TABLE + ".id = " + plainAttrTable
+                        + ".schema_id WHERE " + JPAPlainSchema.TABLE + ".id = ?1");
+        query.setParameter(1, schema.getKey());
+
+        return (long) query.getSingleResult() > 0;
+    }
+
+    @Override
     public PlainSchema save(final PlainSchema schema) {
         return entityManager().merge(schema);
     }
@@ -134,5 +150,18 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         }
 
         entityManager().remove(schema);
+    }
+
+    private <T extends PlainAttr<?>> String getPlainAttrTable(final Class<T> plainAttrClass) {
+        if (plainAttrClass.equals(JPAGPlainAttr.class)) {
+            return JPAGPlainAttr.TABLE;
+        }
+        if (plainAttrClass.equals(JPAAPlainAttr.class)) {
+            return JPAAPlainAttr.TABLE;
+        }
+        if (plainAttrClass.equals(JPAUPlainAttr.class)) {
+            return JPAUPlainAttr.TABLE;
+        }
+        return JPAUPlainAttr.TABLE;
     }
 }
