@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class AuditEntryBean implements Serializable {
+public class AnyTOAuditEntryBean implements Serializable {
     private static final long serialVersionUID = -1207260204921071129L;
 
     private final String key;
@@ -52,7 +52,7 @@ public class AuditEntryBean implements Serializable {
 
     private String throwable;
 
-    public AuditEntryBean(final AnyTO any) {
+    public AnyTOAuditEntryBean(final AnyTO any) {
         this.key = any.getKey();
     }
 
@@ -167,7 +167,7 @@ public class AuditEntryBean implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AuditEntryBean other = (AuditEntryBean) obj;
+        final AnyTOAuditEntryBean other = (AnyTOAuditEntryBean) obj;
         return new EqualsBuilder().
             append(key, other.key).
             append(loggerName, other.loggerName).

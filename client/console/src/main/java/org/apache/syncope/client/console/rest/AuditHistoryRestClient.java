@@ -46,14 +46,7 @@ public class AuditHistoryRestClient extends BaseRestClient {
             .build();
         return getService(AuditService.class).search(query).getResult();
     }
-
-    public int count(final String key) {
-        AuditQuery query = new AuditQuery.Builder()
-            .key(key)
-            .build();
-        return getService(AuditService.class).search(query).getTotalCount();
-    }
-
+    
     public int count(final String key,
                      final List<String> events,
                      final List<AuditElements.Result> results) {

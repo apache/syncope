@@ -26,19 +26,17 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -51,7 +49,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AuditHistoryDirectoryPanel extends
-    DirectoryPanel<AuditEntryBean, AuditEntryBean, DirectoryDataProvider<AuditEntryBean>, AuditHistoryRestClient>
+        DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean,
+        DirectoryDataProvider<AnyTOAuditEntryBean>, AuditHistoryRestClient>
     implements ModalPanel {
 
     private static final long serialVersionUID = -8248734710505211261L;
@@ -77,19 +76,13 @@ public class AuditHistoryDirectoryPanel extends
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.anyTO = anyTO;
 
-        if (anyTO instanceof UserTO) {
-            anyTypeKind = AnyTypeKind.USER;
-        } else if (anyTO instanceof GroupTO) {
-            anyTypeKind = AnyTypeKind.GROUP;
-        } else {
-            anyTypeKind = AnyTypeKind.ANY_OBJECT;
-        }
+        anyTypeKind = AnyTypeKind.fromTOClass(anyTO.getClass());
         this.restClient = new AuditHistoryRestClient();
         initResultTable();
     }
 
     @Override
-    protected DirectoryDataProvider<AuditEntryBean> dataProvider() {
+    protected DirectoryDataProvider<AnyTOAuditEntryBean> dataProvider() {
         return new AuditHistoryProvider(rows);
     }
 
@@ -99,10 +92,8 @@ public class AuditHistoryDirectoryPanel extends
     }
 
     @Override
-    protected List<IColumn<AuditEntryBean, String>> getColumns() {
-        final List<IColumn<AuditEntryBean, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<>(
-            new StringResourceModel("key", this), "key"));
+    protected List<IColumn<AnyTOAuditEntryBean, String>> getColumns() {
+        final List<IColumn<AnyTOAuditEntryBean, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(
             new StringResourceModel("who", this), "who"));
         columns.add(new DatePropertyColumn<>(
@@ -112,7 +103,7 @@ public class AuditHistoryDirectoryPanel extends
 
     @Override
     protected void resultTableCustomChanges(
-        final AjaxDataTablePanel.Builder<AuditEntryBean, String> resultTableBuilder) {
+        final AjaxDataTablePanel.Builder<AnyTOAuditEntryBean, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
@@ -121,7 +112,7 @@ public class AuditHistoryDirectoryPanel extends
         return Collections.emptyList();
     }
 
-    private class AuditHistoryProvider extends DirectoryDataProvider<AuditEntryBean> {
+    private class AuditHistoryProvider extends DirectoryDataProvider<AnyTOAuditEntryBean> {
         private static final long serialVersionUID = 415113175628260864L;
 
         AuditHistoryProvider(final int paginatorRows) {
@@ -129,7 +120,7 @@ public class AuditHistoryDirectoryPanel extends
         }
 
         @Override
-        public Iterator<? extends AuditEntryBean> iterator(final long first, final long count) {
+        public Iterator<? extends AnyTOAuditEntryBean> iterator(final long first, final long count) {
             return getAuditEntryBeans(first, count).iterator();
         }
 
@@ -139,18 +130,11 @@ public class AuditHistoryDirectoryPanel extends
         }
 
         @Override
-        public IModel<AuditEntryBean> model(final AuditEntryBean auditEntryBean) {
-            return new IModel<AuditEntryBean>() {
-                private static final long serialVersionUID = -7802635613997243712L;
-
-                @Override
-                public AuditEntryBean getObject() {
-                    return auditEntryBean;
-                }
-            };
+        public IModel<AnyTOAuditEntryBean> model(final AnyTOAuditEntryBean auditEntryBean) {
+            return new CompoundPropertyModel<>(auditEntryBean);
         }
 
-        private List<AuditEntryBean> getAuditEntryBeans(final long first, final long count) {
+        private List<AnyTOAuditEntryBean> getAuditEntryBeans(final long first, final long count) {
             int page = (int) first / paginatorRows;
             List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
                 Math.max(page, 0) + 1, paginatorRows,
@@ -160,7 +144,7 @@ public class AuditHistoryDirectoryPanel extends
             return search
                 .stream()
                 .map(entry -> {
-                    AuditEntryBean bean = new AuditEntryBean(anyTO);
+                    AnyTOAuditEntryBean bean = new AnyTOAuditEntryBean(anyTO);
                     bean.setBefore(entry.getBefore());
                     bean.setDate(entry.getDate());
                     bean.setEvent(entry.getEvent());

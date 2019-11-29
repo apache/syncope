@@ -31,7 +31,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPanel {
     private static final long serialVersionUID = 1066124171682570080L;
 
-    protected final DirectoryPanel<AuditEntryBean, AuditEntryBean, ?, ?> directoryPanel;
+    protected final DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean, ?, ?> directoryPanel;
 
     public AuditHistoryModal(
         final BaseModal<?> baseModal,
@@ -46,8 +46,8 @@ public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPa
         add(mlp.setFirstLevel(this.directoryPanel));
     }
 
-    protected DirectoryPanel<AuditEntryBean, AuditEntryBean,
-        DirectoryDataProvider<AuditEntryBean>, AuditHistoryRestClient> getDirectoryPanel(
+    protected DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean,
+        DirectoryDataProvider<AnyTOAuditEntryBean>, AuditHistoryRestClient> getDirectoryPanel(
         final MultilevelPanel mlp,
         final BaseModal<?> baseModal,
         final PageReference pageReference,
