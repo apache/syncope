@@ -162,7 +162,7 @@ public class AuditHistoryDirectoryPanel extends
         List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
             getSortParam(),
             getQueryableAuditEvents(),
-            getQueryableAuditResults());
+            getQueryableAuditResult());
 
         multiLevelPanelRef.next(
             new StringResourceModel("audit.diff.view", this).getObject(),
@@ -174,8 +174,8 @@ public class AuditHistoryDirectoryPanel extends
         return new SortParam<>("event_date", false);
     }
 
-    private List<AuditElements.Result> getQueryableAuditResults() {
-        return Collections.singletonList(AuditElements.Result.SUCCESS);
+    private AuditElements.Result getQueryableAuditResult() {
+        return AuditElements.Result.SUCCESS;
     }
 
     private List<String> getQueryableAuditEvents() {
@@ -216,7 +216,7 @@ public class AuditHistoryDirectoryPanel extends
 
         @Override
         public long size() {
-            return restClient.count(anyTO.getKey(), getQueryableAuditEvents(), getQueryableAuditResults());
+            return restClient.count(anyTO.getKey(), getQueryableAuditEvents(), getQueryableAuditResult());
         }
 
         @Override
@@ -230,7 +230,7 @@ public class AuditHistoryDirectoryPanel extends
                 Math.max(page, 0) + 1, paginatorRows,
                 getSortParam(),
                 getQueryableAuditEvents(),
-                getQueryableAuditResults());
+                getQueryableAuditResult());
             return toAnyTOAuditEntryBeans(search);
         }
     }

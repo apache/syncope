@@ -50,13 +50,12 @@ public class AuditHistoryRestClient extends BaseRestClient {
                                      final int size,
                                      final SortParam<String> sort,
                                      final List<String> events,
-                                     final List<AuditElements.Result> results) {
-        AuditQuery query = new AuditQuery.Builder()
+                                     final AuditElements.Result result) {
+        AuditQuery query = new AuditQuery.Builder(key)
             .size(size)
-            .key(key)
             .page(page)
             .events(events)
-            .results(results)
+            .result(result)
             .orderBy(toOrderBy(sort))
             .build();
         return getService(AuditService.class).search(query).getResult();
@@ -65,11 +64,10 @@ public class AuditHistoryRestClient extends BaseRestClient {
     public List<AuditEntryTO> search(final String key,
                                      final SortParam<String> sort,
                                      final List<String> events,
-                                     final List<AuditElements.Result> results) {
-        AuditQuery query = new AuditQuery.Builder()
-            .key(key)
+                                     final AuditElements.Result result) {
+        AuditQuery query = new AuditQuery.Builder(key)
             .events(events)
-            .results(results)
+            .result(result)
             .orderBy(toOrderBy(sort))
             .build();
         return getService(AuditService.class).search(query).getResult();
@@ -77,11 +75,10 @@ public class AuditHistoryRestClient extends BaseRestClient {
 
     public int count(final String key,
                      final List<String> events,
-                     final List<AuditElements.Result> results) {
-        AuditQuery query = new AuditQuery.Builder()
-            .key(key)
+                     final AuditElements.Result result) {
+        AuditQuery query = new AuditQuery.Builder(key)
             .events(events)
-            .results(results)
+            .result(result)
             .build();
         return getService(AuditService.class).search(query).getTotalCount();
     }
