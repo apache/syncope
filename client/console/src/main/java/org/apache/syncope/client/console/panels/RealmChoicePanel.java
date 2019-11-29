@@ -218,7 +218,7 @@ public class RealmChoicePanel extends Panel {
                 }
 
                 @Override
-                public String getIdValue(final Pair<String, RealmTO> object, int index) {
+                public String getIdValue(final Pair<String, RealmTO> object, final int index) {
                     return object.getKey();
                 }
 
