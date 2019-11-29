@@ -49,12 +49,12 @@ public class AuditReportlet extends AbstractReportlet {
     private DataSource datasource;
 
     private void doExtractConf(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
-        status.set("Fetching " + conf.getSize() + " rows from the " + AuditDAO.TABLE_NAME + " table");
+        status.set("Fetching " + conf.getSize() + " rows from the " + AuditDAO.TABLE + " table");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         jdbcTemplate.setMaxRows(conf.getSize());
         List<Map<String, Object>> rows = jdbcTemplate.
-                queryForList("SELECT * FROM " + AuditDAO.TABLE_NAME + " ORDER BY EVENT_DATE DESC");
+                queryForList("SELECT * FROM " + AuditDAO.TABLE + " ORDER BY EVENT_DATE DESC");
 
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();

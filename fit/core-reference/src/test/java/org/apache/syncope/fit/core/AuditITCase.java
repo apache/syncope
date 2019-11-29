@@ -47,7 +47,7 @@ public class AuditITCase extends AbstractITCase {
             i++;
         } while (results.isEmpty() && i < maxWaitSeconds);
         if (results.isEmpty()) {
-            fail("Timeout when executing query for key " + query.getKey());
+            fail("Timeout when executing query for key " + query.getEntityKey());
         }
 
         return results.get(0);
@@ -58,8 +58,7 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSample("audit@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder().
-                key(userTO.getKey()).orderBy("event_date desc").
+        AuditQuery query = new AuditQuery.Builder(userTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
         AuditEntryTO entry = query(query, 50);
         assertEquals(userTO.getKey(), entry.getKey());
@@ -67,15 +66,16 @@ public class AuditITCase extends AbstractITCase {
     }
 
     @Test
-    public void findByUserAndByEventAndByResults() {
+    public void findByUserAndOther() {
         UserTO userTO = createUser(UserITCase.getUniqueSample("audit-2@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder().
-                key(userTO.getKey()).
+        AuditQuery query = new AuditQuery.Builder(userTO.getKey()).
                 orderBy("event_date desc").
                 page(1).
                 size(1).
+                type(AuditElements.EventCategoryType.LOGIC).
+                category("UserLogic").
                 event("create").
                 result(AuditElements.Result.SUCCESS).
                 build();
@@ -89,8 +89,7 @@ public class AuditITCase extends AbstractITCase {
         GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroup")).getEntity();
         assertNotNull(groupTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder().
-                key(groupTO.getKey()).orderBy("event_date desc").
+        AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
         AuditEntryTO entry = query(query, 50);
         assertEquals(groupTO.getKey(), entry.getKey());

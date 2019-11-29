@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.types.AuditLoggerName;
-
 import java.io.Serializable;
 import java.util.Date;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
 
 public interface AuditEntry extends Serializable {
 
@@ -38,6 +37,4 @@ public interface AuditEntry extends Serializable {
     String getThrowable();
 
     Date getDate();
-
-    String getKey();
 }

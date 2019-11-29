@@ -49,8 +49,6 @@ public class AuditEntryImpl implements AuditEntry {
 
     private Date date;
 
-    private String key;
-
     @JsonCreator
     public AuditEntryImpl(
             @JsonProperty("who") final String who,
@@ -145,15 +143,6 @@ public class AuditEntryImpl implements AuditEntry {
         this.date = date;
     }
 
-    @Override
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(final String key) {
-        this.key = key;
-    }
-
     public static Builder builder() {
         return new Builder();
     }
@@ -223,7 +212,6 @@ public class AuditEntryImpl implements AuditEntry {
             AuditEntryImpl entry = new AuditEntryImpl(who, logger, before, output, input);
             entry.setDate(date);
             entry.setThrowable(throwable);
-            entry.setKey(key);
             return entry;
         }
     }

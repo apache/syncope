@@ -38,7 +38,7 @@ import javax.ws.rs.core.MediaType;
 @Tag(name = "Audits")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
-    @SecurityRequirement(name = "Bearer")})
+    @SecurityRequirement(name = "Bearer") })
 @Path("audits")
 public interface AuditService {
 
@@ -49,6 +49,6 @@ public interface AuditService {
      * @return paged list of objects matching the given query
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<AuditEntryTO> search(@BeanParam AuditQuery auditQuery);
 }

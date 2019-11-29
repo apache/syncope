@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import javax.sql.DataSource;
-import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.Date;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.syncope.core.persistence.api.DomainHolder;
+import javax.persistence.Query;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -33,113 +32,132 @@ import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = Throwable.class)
-@Repository
 public class JPAAuditDAO extends AbstractDAO<AbstractEntity> implements AuditDAO {
 
-    @Autowired
-    private DomainHolder domainHolder;
+    protected static class MessageCriteriaBuilder {
 
-    private static String buildWhereClauseForEntityKey(final String key) {
-        return " WHERE MESSAGE LIKE '%" + key + "%' ";
-    }
+        protected final StringBuilder query = new StringBuilder();
 
-    @Override
-    public List<AuditEntry> findByEntityKey(
-            final String key,
-            final int page,
-            final int itemsPerPage,
-            final List<AuditElements.Result> results,
-            final List<String> events,
-            final List<OrderByClause> orderByClauses) {
-
-        try {
-            String query = new MessageCriteriaBuilder().
-                    results(results).
-                    events(events).
-                    key(key).
-                    build();
-            String queryString = "SELECT * FROM " + TABLE_NAME + " WHERE " + query;
-            if (!orderByClauses.isEmpty()) {
-                queryString += " ORDER BY " + orderByClauses.stream().
-                        map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
-                        collect(Collectors.joining(","));
-            }
-            JdbcTemplate template = getJdbcTemplate();
-            template.setMaxRows(itemsPerPage);
-            template.setFetchSize(itemsPerPage * (page <= 0 ? 0 : page - 1));
-            return template.query(queryString, (resultSet, i) -> {
-                AuditEntryImpl entry = POJOHelper.deserialize(resultSet.getString("MESSAGE"), AuditEntryImpl.class);
-                String throwable = resultSet.getString("THROWABLE");
-                entry.setThrowable(throwable);
-                Timestamp date = resultSet.getTimestamp("EVENT_DATE");
-                entry.setDate(new Date(date.getTime()));
-                entry.setKey(key);
-                return entry;
-            });
-        } catch (Exception e) {
-            LOG.error("Unable to execute search query to find entity " + key, e);
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Integer count(final String key) {
-        try {
-            String queryString = "SELECT COUNT(0) FROM " + AuditDAO.TABLE_NAME + buildWhereClauseForEntityKey(key);
-            return Objects.requireNonNull(getJdbcTemplate().queryForObject(queryString, Integer.class));
-        } catch (Exception e) {
-            LOG.error("Unable to execute count query for entity " + key, e);
-        }
-        return 0;
-    }
-
-    private JdbcTemplate getJdbcTemplate() {
-        String domain = AuthContextUtils.getDomain();
-        DataSource datasource = domainHolder.getDomains().get(domain);
-        if (datasource == null) {
-            throw new IllegalArgumentException("Could not get to DataSource for domain " + domain);
-        }
-        return new JdbcTemplate(datasource);
-    }
-
-    private static class MessageCriteriaBuilder {
-
-        private final StringBuilder query = new StringBuilder(" 1=1 ");
-
-        public MessageCriteriaBuilder key(final String key) {
-            query.append(" AND MESSAGE LIKE '%\"key\":\"").append(key).append("\"%' ");
+        protected MessageCriteriaBuilder entityKey(final String entityKey) {
+            query.append(' ').append(MESSAGE_COLUMN).append(" LIKE '%\"key\":\"").append(entityKey).append("\"%'");
             return this;
         }
 
-        public MessageCriteriaBuilder results(final List<AuditElements.Result> results) {
-            buildCriteriaFor(results.stream().map(Enum::name).collect(Collectors.toList()), "result");
+        public MessageCriteriaBuilder type(final AuditElements.EventCategoryType type) {
+            if (type != null) {
+                query.append(" AND " + MESSAGE_COLUMN + " LIKE '%\"type\":\"").append(type.name()).append("\"%'");
+            }
             return this;
         }
 
-        private void buildCriteriaFor(final List<String> items, final String field) {
-            if (!items.isEmpty()) {
-                query.append(" AND ( ");
-                query.append(items.stream().map(res -> "MESSAGE LIKE '%\"" + field + "\":\"" + res + "\"%'").
-                        collect(Collectors.joining(" OR ")));
-                query.append(" )");
+        public MessageCriteriaBuilder category(final String category) {
+            if (StringUtils.isNotBlank(category)) {
+                query.append(" AND " + MESSAGE_COLUMN + " LIKE '%\"category\":\"").append(category).append("\"%'");
             }
+            return this;
+        }
+
+        public MessageCriteriaBuilder subcategory(final String subcategory) {
+            if (StringUtils.isNotBlank(subcategory)) {
+                query.append(" AND " + MESSAGE_COLUMN + " LIKE '%\"subcategory\":\"").
+                        append(subcategory).append("\"%'");
+            }
+            return this;
         }
 
         public MessageCriteriaBuilder events(final List<String> events) {
-            buildCriteriaFor(events, "event");
+            if (!events.isEmpty()) {
+                query.append(" AND ( ").
+                        append(events.stream().
+                                map(event -> MESSAGE_COLUMN + " LIKE '%\"event\":\"" + event + "\"%'").
+                                collect(Collectors.joining(" OR "))).
+                        append(" )");
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder result(final AuditElements.Result result) {
+            if (result != null) {
+                query.append(" AND ").
+                        append(MESSAGE_COLUMN).append(" LIKE '%\"result\":\"").append(result.name()).append("\"%' ");
+            }
             return this;
         }
 
         public String build() {
-            query.trimToSize();
             return query.toString();
         }
+    }
+
+    protected MessageCriteriaBuilder messageCriteriaBuilder(final String entityKey) {
+        return new MessageCriteriaBuilder().entityKey(entityKey);
+    }
+
+    protected String select() {
+        return MESSAGE_COLUMN;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<AuditEntry> findByEntityKey(
+            final String entityKey,
+            final int page,
+            final int itemsPerPage,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final List<String> events,
+            final AuditElements.Result result,
+            final List<OrderByClause> orderByClauses) {
+
+        String queryString = "SELECT " + select()
+                + " FROM " + TABLE
+                + " WHERE " + messageCriteriaBuilder(entityKey).
+                        type(type).
+                        category(category).
+                        subcategory(subcategory).
+                        result(result).
+                        events(events).
+                        build();
+        if (!orderByClauses.isEmpty()) {
+            queryString += " ORDER BY " + orderByClauses.stream().
+                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
+                    collect(Collectors.joining(","));
+        }
+
+        Query query = entityManager().createNativeQuery(queryString);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Object> entries = query.getResultList();
+        return entries.stream().map(row -> {
+            String value;
+            if (row instanceof Clob) {
+                Clob clob = (Clob) row;
+                try {
+                    value = clob.getSubString(1, (int) clob.length());
+                } catch (SQLException e) {
+                    LOG.error("Unexpected error reading Audit Entry for entity key {}", entityKey, e);
+                    return null;
+                }
+            } else {
+                value = row.toString();
+            }
+            return POJOHelper.deserialize(value, AuditEntryImpl.class);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    @Override
+    public int count(final String key) {
+        String queryString = "SELECT COUNT(0) FROM " + TABLE
+                + " WHERE " + messageCriteriaBuilder(key).build();
+        Query countQuery = entityManager().createNativeQuery(queryString);
+
+        return ((Number) countQuery.getSingleResult()).intValue();
     }
 }

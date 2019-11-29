@@ -23,5 +23,5 @@ import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
 public interface AuditDataBinder {
 
-    AuditEntryTO getAuditTO(AuditEntry auditEntry);
+    AuditEntryTO getAuditTO(String key, AuditEntry auditEntry);
 }

@@ -133,8 +133,6 @@ public class TaskQuery extends AbstractQuery {
         return entityKey;
     }
 
-    @Parameter(name = JAXRSService.PARAM_RESOURCE, description = " key", schema =
-            @Schema(implementation = String.class, example = "resource-ldap"))
     @QueryParam(JAXRSService.PARAM_ENTITY_KEY)
     public void setEntityKey(final String entityKey) {
         this.entityKey = entityKey;

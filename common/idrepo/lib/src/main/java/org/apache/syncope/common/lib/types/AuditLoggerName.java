@@ -45,7 +45,7 @@ public class AuditLoggerName implements Serializable {
         return domain + '.' + loggerName;
     }
 
-    private final AuditElements.EventCategoryType type;
+    private final EventCategoryType type;
 
     private final String category;
 

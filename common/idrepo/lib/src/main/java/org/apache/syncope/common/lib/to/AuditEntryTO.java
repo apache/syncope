@@ -18,21 +18,18 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.common.lib.BaseBean;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 
 @XmlRootElement(name = "audit")
 @XmlType
-public class AuditEntryTO extends BaseBean implements EntityTO  {
-    private static final long serialVersionUID = 1215115961911228005L;
+public class AuditEntryTO extends BaseBean implements EntityTO {
 
-    private final List<String> inputs = new ArrayList<>();
+    private static final long serialVersionUID = 1215115961911228005L;
 
     private String who;
 
@@ -43,6 +40,8 @@ public class AuditEntryTO extends BaseBean implements EntityTO  {
     private String result;
 
     private String before;
+
+    private final List<String> inputs = new ArrayList<>();
 
     private String output;
 
