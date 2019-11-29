@@ -67,7 +67,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
       'ja_*': 'ja',
       '*': 'en'
     }).fallbackLanguage('en').
-       determinePreferredLanguage();
+            determinePreferredLanguage();
     /*
      * State provider
      */
@@ -414,7 +414,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '
           {id: '4', name: '日本語', code: 'ja', format: 'yyyy/MM/dd HH:mm'}
         ]
       };
-      $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages.filter(function(obj) {
+      $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages.filter(function (obj) {
         return obj.code === $translate.preferredLanguage();
       })[0];
       /*
@@ -594,7 +594,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '
        |--------------------------------------------------------------------------
        */
       $scope.notificationSuccessTimeout = 4000;
-//      $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
       $scope.notification = $("#notifications").kendoNotification({
         stacking: "down",
         hideOnClick: true,
@@ -603,18 +602,18 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '
       $scope.notification.options.position["top"] = 20;
       $scope.showSuccess = function (message, component) {
         if (!$scope.notificationExists(message)) {
-          //forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
+          // forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
           window.scrollTo(0, 0);
           component.options.autoHideAfter = $scope.notificationSuccessTimeout;
-          component.show(message, "success");
+          component.show(String(message).replace(/<[^>]+>/gm, ''), "success");
         }
       };
       $scope.showError = function (message, component) {
         if (!$scope.notificationExists(message)) {
-          //forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
+          // forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
           window.scrollTo(0, 0);
           component.options.autoHideAfter = 0;
-          component.show(message, "error");
+          component.show(String(message).replace(/<[^>]+>/gm, ''), "error");
         }
       };
       $scope.hideError = function (message, component) {
