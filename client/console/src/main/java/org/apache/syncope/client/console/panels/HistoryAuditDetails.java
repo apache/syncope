@@ -129,6 +129,9 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         for (AnyTOAuditEntryBean audit : entries) {
             String value = audit.getWho()
                 + " - " + SyncopeConsoleSession.get().getDateFormat().format(audit.getDate());
+            if (audit.getKey().equalsIgnoreCase("current")) {
+                value += " - " + audit.getKey();
+            }
             map.put(audit.getKey(), value);
         }
         return map;

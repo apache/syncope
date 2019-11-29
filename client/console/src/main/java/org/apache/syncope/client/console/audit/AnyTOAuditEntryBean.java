@@ -56,7 +56,7 @@ public class AnyTOAuditEntryBean implements Serializable {
     public AnyTOAuditEntryBean(final String key) {
         this.entityKey = key;
     }
-
+    
     public String getEntityKey() {
         return entityKey;
     }

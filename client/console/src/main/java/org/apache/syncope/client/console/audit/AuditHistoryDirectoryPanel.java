@@ -138,11 +138,11 @@ public class AuditHistoryDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTOAuditEntryBean modelObject) {
                 try {
-                    restClient.restore(modelObject.getKey());
                     AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
+                    restClient.restore(modelObject, anyTypeKind, anyTO);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    LOG.error("While restoring {}", auditEntryTO.getKey(), e);
+                    LOG.error("While restoring {}", auditEntryTO.getEntityKey(), e);
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                         ? e.getClass().getName() : e.getMessage());
                 }
