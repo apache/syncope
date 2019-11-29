@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.init;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
-import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -80,19 +80,18 @@ public class LoggerLoader implements SyncopeLoader {
                 });
 
         // Audit table and DataSource for each configured domain
-        ColumnConfig[] columnConfigs = {
-            ColumnConfig.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),
-            ColumnConfig.newBuilder().setUnicode(false).
+        ColumnMapping[] columnMappings = {
+            ColumnMapping.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setType(Timestamp.class).build(),
+            ColumnMapping.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
-            ColumnConfig.newBuilder().setUnicode(false).
+            ColumnMapping.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
-            ColumnConfig.newBuilder().setUnicode(false).
-            setConfiguration(ctx.getConfiguration()).setName("MESSAGE").setPattern("%message").build(),
-            ColumnConfig.newBuilder().setUnicode(false).
+            ColumnMapping.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName(AuditDAO.MESSAGE_COLUMN).setPattern("%message").build(),
+            ColumnMapping.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
-        ColumnMapping[] columnMappings = new ColumnMapping[0];
 
         domainsHolder.getDomains().forEach((key, value) -> {
             Appender appender = ctx.getConfiguration().getAppender("audit_for_" + key);
@@ -102,8 +101,7 @@ public class LoggerLoader implements SyncopeLoader {
                         setIgnoreExceptions(false).
                         setConnectionSource(new DataSourceConnectionSource(key, value)).
                         setBufferSize(0).
-                        setTableName(AuditDAO.TABLE_NAME).
-                        setColumnConfigs(columnConfigs).
+                        setTableName(AuditDAO.TABLE).
                         setColumnMappings(columnMappings).
                         build();
                 appender.start();

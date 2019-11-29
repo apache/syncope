@@ -38,11 +38,14 @@ public class AuditServiceImpl extends AbstractServiceImpl implements AuditServic
     @Override
     public PagedResult<AuditEntryTO> search(final AuditQuery auditQuery) {
         Pair<Integer, List<AuditEntryTO>> result = logic.search(
-                auditQuery.getKey(),
+                auditQuery.getEntityKey(),
                 auditQuery.getPage(),
                 auditQuery.getSize(),
-                auditQuery.getResults(),
+                auditQuery.getType(),
+                auditQuery.getCategory(),
+                auditQuery.getSubcategory(),
                 auditQuery.getEvents(),
+                auditQuery.getResult(),
                 getOrderByClauses(auditQuery.getOrderBy()));
         return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }

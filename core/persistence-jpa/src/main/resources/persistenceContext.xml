@@ -39,6 +39,7 @@ under the License.
   <bean class="${group.dao}"/>
   <bean class="${anyObject.dao}"/>
   <bean class="${conf.dao}"/>
+  <bean class="${audit.dao}"/>
 
   <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 

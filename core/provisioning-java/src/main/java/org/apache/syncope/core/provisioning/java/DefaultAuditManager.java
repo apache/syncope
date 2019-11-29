@@ -49,10 +49,10 @@ public class DefaultAuditManager implements AuditManager {
             final String subcategory,
             final String event) {
 
-        AuditEntry auditEntry = AuditEntryImpl.builder()
-            .who(who)
-            .logger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS))
-            .build();
+        AuditEntry auditEntry = AuditEntryImpl.builder().
+                who(who).
+                logger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS)).
+                build();
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         boolean auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
@@ -62,9 +62,9 @@ public class DefaultAuditManager implements AuditManager {
         }
 
         auditEntry = AuditEntryImpl.builder()
-            .who(who)
-            .logger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE))
-            .build();
+                .who(who)
+                .logger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE))
+                .build();
         syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
         auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
 
@@ -104,14 +104,14 @@ public class DefaultAuditManager implements AuditManager {
             throwable = (Throwable) output;
         }
 
-        AuditEntry auditEntry = AuditEntryImpl.builder()
-            .who(who)
-            .logger(new AuditLoggerName(type, category, subcategory, event, condition))
-            .before(before)
-            .output(throwable == null ? output : throwable.getMessage())
-            .input(input)
-            .build();
-        
+        AuditEntry auditEntry = AuditEntryImpl.builder().
+                who(who).
+                logger(new AuditLoggerName(type, category, subcategory, event, condition)).
+                before(before).
+                output(throwable == null ? output : throwable.getMessage()).
+                input(input).
+                build();
+
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {

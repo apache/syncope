@@ -46,19 +46,23 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditEntryTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
     public Pair<Integer, List<AuditEntryTO>> search(
-            final String key,
+            final String entityKey,
             final int page,
             final int size,
-            final List<AuditElements.Result> results,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
             final List<String> events,
+            final AuditElements.Result result,
             final List<OrderByClause> orderByClauses) {
 
-        Integer count = auditDAO.count(key);
-        List<AuditEntry> matching = auditDAO.findByEntityKey(key, page, size, results, events, orderByClauses);
-        List<AuditEntryTO> finalResults = matching.stream().
-                map(audit -> binder.returnAuditTO(binder.getAuditTO(audit))).
+        Integer count = auditDAO.count(entityKey);
+        List<AuditEntry> matching = auditDAO.findByEntityKey(
+                entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
+        List<AuditEntryTO> searchResults = matching.stream().
+                map(auditEntry -> binder.getAuditTO(entityKey, auditEntry)).
                 collect(Collectors.toList());
-        return Pair.of(count, finalResults);
+        return Pair.of(count, searchResults);
     }
 
     @Override

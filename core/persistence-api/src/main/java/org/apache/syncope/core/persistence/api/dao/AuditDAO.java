@@ -26,12 +26,20 @@ import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
 public interface AuditDAO {
 
-    String TABLE_NAME = "SYNCOPEAUDIT";
+    String TABLE = "SYNCOPEAUDIT";
 
-    List<AuditEntry> findByEntityKey(String key, int page, int size,
-                                     List<AuditElements.Result> results,
-                                     List<String> events,
-                                     List<OrderByClause> orderByClauses);
+    String MESSAGE_COLUMN = "MESSAGE";
 
-    Integer count(String key);
+    List<AuditEntry> findByEntityKey(
+            String entityKey,
+            int page,
+            int size,
+            AuditElements.EventCategoryType type,
+            String category,
+            String subcategory,
+            List<String> events,
+            AuditElements.Result result,
+            List<OrderByClause> orderByClauses);
+
+    int count(String key);
 }

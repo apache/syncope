@@ -65,8 +65,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         // remove the new realm just created
         TESTER.clickLink("body:realmsLI:realms");
 
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:5:button",
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realmsFragment:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:5:button",
                 Constants.ON_CLICK);
 
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/testRealm");
@@ -103,8 +103,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void addUserTemplate() {
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:4:button",
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realmsFragment:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:4:button",
                 Constants.ON_CLICK);
 
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
@@ -153,8 +153,10 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void verifyPropagation() {
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
         TESTER.clickLink(
