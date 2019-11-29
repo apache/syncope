@@ -67,10 +67,10 @@ public class RealmsITCase extends AbstractConsoleITCase {
         // remove the new realm just created
         UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
 
-        UTILITY_UI.getTester().
-                executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
         UTILITY_UI.getTester().executeAjaxEvent(
-                "body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:5:button",
+                "body:content:realmChoicePanel:container:realmsFragment:realms:btn", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(
+                "body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:5:button",
                 Constants.ON_CLICK);
 
         UTILITY_UI.getTester().assertLabel("body:content:realmChoicePanel:container:realm", "/testRealm");
@@ -109,10 +109,11 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void addUserTemplate() {
-        UTILITY_UI.getTester().
-                executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
         UTILITY_UI.getTester().executeAjaxEvent(
-                "body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:4:button",
+                "body:content:realmChoicePanel:container:realmsFragment:realms:btn",
+                Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent(
+                "body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:4:button",
                 Constants.ON_CLICK);
 
         UTILITY_UI.getTester().assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
@@ -161,10 +162,10 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void verifyPropagation() {
-        UTILITY_UI.getTester().
-                executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        UTILITY_UI.getTester().executeAjaxEvent(
-                "body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
+        UTILITY_UI.getTester().executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:btn", Constants.ON_CLICK);
+        UTILITY_UI.getTester().executeAjaxEvent("body:content:realmChoicePanel:container"
+                + ":realmsFragment:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
         UTILITY_UI.getTester().clickLink(
