@@ -643,7 +643,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       $translate.use($scope.languages.selectedLanguage.code);
       $rootScope.endReached = false;
       var destination = params && params.successMessage
-              ? '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout?successMessage=' + params.successMessage
+              ? '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout?successMessage=' +
+              params.successMessage
               : '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout';
       window.location.href = destination;
     };
@@ -651,7 +652,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.success = function (params) {
       $rootScope.endReached = false;
       var destination = params && params.successMessage
-              ? '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage?successMessage=' + params.successMessage
+              ? '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage?successMessage=' +
+              params.successMessage
               : '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage';
       window.location.href = destination;
     };
