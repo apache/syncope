@@ -86,6 +86,20 @@ public class AuditHistoryRestClient extends BaseRestClient {
         return getService(AuditService.class).search(query).getTotalCount();
     }
 
+    /**
+     * Restore an object based on the audit record.
+     *
+     * Note that for user objects, the original audit record masks
+     * the password and the security answer; so we cannot use the audit
+     * record to resurrect the entry based on mask data. The method behavior
+     * below will reset the audit record such that the current security answer
+     * and the password for the object are always maintained, and such properties
+     * for the user cannot be restored using audit records.
+     * @param entryBean   the entry bean
+     * @param anyTypeKind the any type kind
+     * @param anyTO       the any to
+     * @return the response
+     */
     public Response restore(final AnyTOAuditEntryBean entryBean, final AnyTypeKind anyTypeKind, final AnyTO anyTO) {
         if (anyTypeKind == AnyTypeKind.USER) {
             UserTO userTO = (UserTO) MAPPER.convertValue(entryBean.getBefore(), anyTypeKind.getTOClass());
