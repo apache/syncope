@@ -42,9 +42,9 @@ public class AuditEntryTO extends BaseBean implements EntityTO  {
 
     private String result;
 
-    private String before;
+    private Object before;
 
-    private String output;
+    private Object output;
 
     private Date date;
 
@@ -70,19 +70,19 @@ public class AuditEntryTO extends BaseBean implements EntityTO  {
         this.throwable = throwable;
     }
 
-    public String getOutput() {
+    public Object getOutput() {
         return output;
     }
 
-    public void setOutput(final String output) {
+    public void setOutput(final Object output) {
         this.output = output;
     }
 
-    public String getBefore() {
+    public Object getBefore() {
         return before;
     }
 
-    public void setBefore(final String before) {
+    public void setBefore(final Object before) {
         this.before = before;
     }
 

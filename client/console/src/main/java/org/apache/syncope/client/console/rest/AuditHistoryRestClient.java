@@ -46,7 +46,20 @@ public class AuditHistoryRestClient extends BaseRestClient {
             .build();
         return getService(AuditService.class).search(query).getResult();
     }
-    
+
+    public List<AuditEntryTO> search(final String key,
+                                     final SortParam<String> sort,
+                                     final List<String> events,
+                                     final List<AuditElements.Result> results) {
+        AuditQuery query = new AuditQuery.Builder()
+            .key(key)
+            .events(events)
+            .results(results)
+            .orderBy(toOrderBy(sort))
+            .build();
+        return getService(AuditService.class).search(query).getResult();
+    }
+
     public int count(final String key,
                      final List<String> events,
                      final List<AuditElements.Result> results) {
@@ -58,5 +71,8 @@ public class AuditHistoryRestClient extends BaseRestClient {
         return getService(AuditService.class).search(query).getTotalCount();
     }
 
+    public void restore(final String key) {
+
+    }
 }
 

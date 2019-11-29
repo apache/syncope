@@ -48,7 +48,7 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getBefore() != null) {
-            auditTO.setBefore(ToStringBuilder.reflectionToString(auditEntry.getBefore(), ToStringStyle.JSON_STYLE));
+            auditTO.setBefore(auditEntry.getBefore());
         }
 
         if (auditEntry.getInput() != null) {
@@ -59,7 +59,7 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getOutput() != null) {
-            auditTO.setOutput(ToStringBuilder.reflectionToString(auditEntry.getOutput(), ToStringStyle.JSON_STYLE));
+            auditTO.setOutput(auditEntry.getOutput());
         }
 
         return auditTO;

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.audit;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.syncope.common.lib.to.AnyTO;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -30,7 +29,7 @@ import java.util.List;
 public class AnyTOAuditEntryBean implements Serializable {
     private static final long serialVersionUID = -1207260204921071129L;
 
-    private final String key;
+    private String entityKey;
 
     private String loggerName;
 
@@ -44,20 +43,26 @@ public class AnyTOAuditEntryBean implements Serializable {
 
     private String result;
 
-    private String before;
+    private Object before;
 
-    private String output;
+    private Object output;
 
     private Date date;
 
     private String throwable;
 
-    public AnyTOAuditEntryBean(final AnyTO any) {
-        this.key = any.getKey();
+    private String key;
+
+    public AnyTOAuditEntryBean(final String key) {
+        this.entityKey = key;
     }
 
-    public String getKey() {
-        return key;
+    public String getEntityKey() {
+        return entityKey;
+    }
+
+    public void setEntityKey(final String key) {
+        this.entityKey = key;
     }
 
     public String getLoggerName() {
@@ -108,19 +113,19 @@ public class AnyTOAuditEntryBean implements Serializable {
         this.result = result;
     }
 
-    public String getBefore() {
+    public Object getBefore() {
         return before;
     }
 
-    public void setBefore(final String before) {
+    public void setBefore(final Object before) {
         this.before = before;
     }
 
-    public String getOutput() {
+    public Object getOutput() {
         return output;
     }
 
-    public void setOutput(final String output) {
+    public void setOutput(final Object output) {
         this.output = output;
     }
 
@@ -143,7 +148,7 @@ public class AnyTOAuditEntryBean implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-            append(key).
+            append(entityKey).
             append(loggerName).
             append(inputs).
             append(who).
@@ -169,7 +174,7 @@ public class AnyTOAuditEntryBean implements Serializable {
         }
         final AnyTOAuditEntryBean other = (AnyTOAuditEntryBean) obj;
         return new EqualsBuilder().
-            append(key, other.key).
+            append(entityKey, other.entityKey).
             append(loggerName, other.loggerName).
             append(inputs, other.inputs).
             append(who, other.who).
@@ -185,7 +190,7 @@ public class AnyTOAuditEntryBean implements Serializable {
     @Override
     public String toString() {
         return new ToStringBuilder(this).
-            append(key).
+            append(entityKey).
             append(loggerName).
             append(inputs).
             append(who).
@@ -196,5 +201,13 @@ public class AnyTOAuditEntryBean implements Serializable {
             append(output).
             append(date).
             build();
+    }
+
+    public String getKey() {
+        return key == null ? String.valueOf(Math.abs(hashCode())) : key;
+    }
+
+    public void setKey(final String key) {
+        this.key = key;
     }
 }

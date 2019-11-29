@@ -18,21 +18,29 @@
  */
 package org.apache.syncope.client.console.audit;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
+import org.apache.syncope.client.console.panels.HistoryAuditDetails;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -49,7 +57,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AuditHistoryDirectoryPanel extends
-        DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean,
+    DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean,
         DirectoryDataProvider<AnyTOAuditEntryBean>, AuditHistoryRestClient>
     implements ModalPanel {
 
@@ -71,7 +79,7 @@ public class AuditHistoryDirectoryPanel extends
 
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
         disableCheckBoxes();
-        
+
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.anyTO = anyTO;
@@ -108,8 +116,90 @@ public class AuditHistoryDirectoryPanel extends
     }
 
     @Override
+    protected ActionsPanel<AnyTOAuditEntryBean> getActions(final IModel<AnyTOAuditEntryBean> model) {
+        final ActionsPanel<AnyTOAuditEntryBean> panel = super.getActions(model);
+        final AnyTOAuditEntryBean auditEntryTO = model.getObject();
+
+        panel.add(new ActionLink<AnyTOAuditEntryBean>() {
+            private static final long serialVersionUID = -6745431735457245600L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyTOAuditEntryBean modelObject) {
+                AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
+                viewAuditHistory(modelObject, target);
+                target.add(modal);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.AUDIT_READ);
+
+        panel.add(new ActionLink<AnyTOAuditEntryBean>() {
+
+            private static final long serialVersionUID = -6745431735457245600L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyTOAuditEntryBean modelObject) {
+                try {
+                    restClient.restore(modelObject.getKey());
+                    AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While restoring {}", auditEntryTO.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                        ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.RESTORE, StandardEntitlement.AUDIT_RESTORE);
+
+        return panel;
+    }
+
+    @Override
     protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.emptyList();
+    }
+
+    private void viewAuditHistory(final AnyTOAuditEntryBean auditEntryBean, final AjaxRequestTarget target) {
+        List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
+            getSortParam(),
+            getQueryableAuditEvents(),
+            getQueryableAuditResults());
+
+        multiLevelPanelRef.next(
+            new StringResourceModel("audit.diff.view", this).getObject(),
+            new HistoryAuditDetails(modal, auditEntryBean,
+                getPage().getPageReference(), toAnyTOAuditEntryBeans(search), anyTO), target);
+    }
+
+    private SortParam<String> getSortParam() {
+        return new SortParam<>("event_date", false);
+    }
+
+    private List<AuditElements.Result> getQueryableAuditResults() {
+        return Collections.singletonList(AuditElements.Result.SUCCESS);
+    }
+
+    private List<String> getQueryableAuditEvents() {
+        return Arrays.asList("create", "update");
+    }
+
+    private List<AnyTOAuditEntryBean> toAnyTOAuditEntryBeans(final List<AuditEntryTO> search) {
+        return search
+            .stream()
+            .map(entry -> {
+                AnyTOAuditEntryBean bean = new AnyTOAuditEntryBean(anyTO.getKey());
+                bean.setBefore(entry.getBefore());
+                bean.setDate(entry.getDate());
+                bean.setEvent(entry.getEvent());
+                bean.setInputs(entry.getInputs());
+                bean.setLoggerName(entry.getLoggerName());
+                bean.setOutput(entry.getOutput());
+                bean.setResult(entry.getResult());
+                bean.setSubCategory(entry.getSubCategory());
+                bean.setThrowable(entry.getThrowable());
+                bean.setWho(entry.getWho());
+                return bean;
+            })
+            .collect(Collectors.toList());
     }
 
     private class AuditHistoryProvider extends DirectoryDataProvider<AnyTOAuditEntryBean> {
@@ -138,34 +228,10 @@ public class AuditHistoryDirectoryPanel extends
             int page = (int) first / paginatorRows;
             List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
                 Math.max(page, 0) + 1, paginatorRows,
-                new SortParam<>("event_date", false),
+                getSortParam(),
                 getQueryableAuditEvents(),
                 getQueryableAuditResults());
-            return search
-                .stream()
-                .map(entry -> {
-                    AnyTOAuditEntryBean bean = new AnyTOAuditEntryBean(anyTO);
-                    bean.setBefore(entry.getBefore());
-                    bean.setDate(entry.getDate());
-                    bean.setEvent(entry.getEvent());
-                    bean.setInputs(entry.getInputs());
-                    bean.setLoggerName(entry.getLoggerName());
-                    bean.setOutput(entry.getOutput());
-                    bean.setResult(entry.getResult());
-                    bean.setSubCategory(entry.getSubCategory());
-                    bean.setThrowable(entry.getThrowable());
-                    bean.setWho(entry.getWho());
-                    return bean;
-                })
-                .collect(Collectors.toList());
-        }
-
-        private List<AuditElements.Result> getQueryableAuditResults() {
-            return Collections.singletonList(AuditElements.Result.SUCCESS);
-        }
-
-        private List<String> getQueryableAuditEvents() {
-            return Arrays.asList("create", "update");
+            return toAnyTOAuditEntryBeans(search);
         }
     }
 }
