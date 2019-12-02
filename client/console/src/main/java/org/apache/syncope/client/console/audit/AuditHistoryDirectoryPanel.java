@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.audit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -28,16 +29,28 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.HistoryAuditDetails;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -63,6 +76,8 @@ public class AuditHistoryDirectoryPanel extends
 
     private static final long serialVersionUID = -8248734710505211261L;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+    
     private final BaseModal<?> baseModal;
 
     private final MultilevelPanel multiLevelPanelRef;
@@ -131,6 +146,19 @@ public class AuditHistoryDirectoryPanel extends
             }
         }, ActionLink.ActionType.VIEW, StandardEntitlement.AUDIT_READ);
 
+        final String auditRestoreEntitlement;
+        switch (this.anyTypeKind) {
+            case USER:
+                auditRestoreEntitlement = StandardEntitlement.USER_UPDATE;
+                break;
+            case GROUP:
+                auditRestoreEntitlement = StandardEntitlement.GROUP_UPDATE;
+                break;
+            default:
+                auditRestoreEntitlement = StandardEntitlement.ANYTYPE_UPDATE;
+                break;
+        }
+
         panel.add(new ActionLink<AnyTOAuditEntryBean>() {
 
             private static final long serialVersionUID = -6745431735457245600L;
@@ -139,7 +167,7 @@ public class AuditHistoryDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final AnyTOAuditEntryBean modelObject) {
                 try {
                     AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
-                    restClient.restore(modelObject, anyTypeKind, anyTO);
+                    restore(modelObject, anyTypeKind, anyTO);
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While restoring {}", auditEntryTO.getEntityKey(), e);
@@ -148,11 +176,57 @@ public class AuditHistoryDirectoryPanel extends
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.RESTORE, StandardEntitlement.AUDIT_RESTORE);
+        }, ActionLink.ActionType.RESTORE, auditRestoreEntitlement);
 
         return panel;
     }
 
+    /**
+     * Restore an object based on the audit record.
+     * <p>
+     * Note that for user objects, the original audit record masks
+     * the password and the security answer; so we cannot use the audit
+     * record to resurrect the entry based on mask data. The method behavior
+     * below will reset the audit record such that the current security answer
+     * and the password for the object are always maintained, and such properties
+     * for the user cannot be restored using audit records.
+     *
+     * @param entryBean   the entry bean
+     * @param anyTypeKind the any type kind
+     * @param anyTO       the any to
+     * @return the response
+     */
+    private ProvisioningResult<? extends AnyTO> restore(final AnyTOAuditEntryBean entryBean,
+                                                        final AnyTypeKind anyTypeKind, final AnyTO anyTO) {
+        try {
+            if (anyTypeKind == AnyTypeKind.USER) {
+                UserTO userTO = (UserTO) MAPPER.readValue(entryBean.getBefore().toString(), anyTypeKind.getTOClass());
+                UserTO current = new UserRestClient().read(anyTO.getKey());
+                userTO.setPassword(((UserTO) anyTO).getPassword());
+                userTO.setSecurityAnswer(((UserTO) anyTO).getSecurityAnswer());
+                UserPatch userPatch = AnyOperations.diff(userTO, current, false);
+                return new UserRestClient().update(current.getETagValue(), userPatch);
+            }
+            if (anyTypeKind == AnyTypeKind.GROUP) {
+                GroupTO groupTO = (GroupTO)
+                    MAPPER.readValue(entryBean.getBefore().toString(), anyTypeKind.getTOClass());
+                GroupTO current = new GroupRestClient().read(anyTO.getKey());
+                GroupPatch groupPatch = AnyOperations.diff(groupTO, current, false);
+                return new GroupRestClient().update(current.getETagValue(), groupPatch);
+            }
+            if (anyTypeKind == AnyTypeKind.ANY_OBJECT) {
+                AnyObjectTO anyObjectTO = (AnyObjectTO)
+                    MAPPER.readValue(entryBean.getBefore().toString(), anyTypeKind.getTOClass());
+                AnyObjectTO current = new AnyObjectRestClient().read(anyTO.getKey());
+                AnyObjectPatch anyObjectPatch = AnyOperations.diff(anyObjectTO, anyTO, false);
+                return new AnyObjectRestClient().update(current.getETagValue(), anyObjectPatch);
+            }
+        } catch (final Exception e) {
+            LOG.error("Could not restore object for {}", anyTO, e);
+        }
+        throw SyncopeClientException.build(ClientExceptionType.InvalidAnyObject);
+    }
+    
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.emptyList();

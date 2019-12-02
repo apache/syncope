@@ -35,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Transactional(readOnly = true)
 public class DefaultAuditManager implements AuditManager {
 
@@ -52,6 +54,7 @@ public class DefaultAuditManager implements AuditManager {
         AuditEntry auditEntry = AuditEntryImpl.builder().
                 who(who).
                 logger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS)).
+                date(new Date()).
                 build();
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
@@ -64,6 +67,7 @@ public class DefaultAuditManager implements AuditManager {
         auditEntry = AuditEntryImpl.builder()
                 .who(who)
                 .logger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE))
+                .date(new Date())
                 .build();
         syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
         auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
@@ -110,6 +114,7 @@ public class DefaultAuditManager implements AuditManager {
                 before(before).
                 output(throwable == null ? output : throwable.getMessage()).
                 input(input).
+                date(new Date()).
                 build();
 
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =

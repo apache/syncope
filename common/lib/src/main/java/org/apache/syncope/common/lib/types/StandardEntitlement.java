@@ -262,8 +262,6 @@ public final class StandardEntitlement {
 
     public static final String AUDIT_DISABLE = "AUDIT_DISABLE";
 
-    public static final String AUDIT_RESTORE = "AUDIT_RESTORE";
-
     public static final String SECURITY_QUESTION_CREATE = "SECURITY_QUESTION_CREATE";
 
     public static final String SECURITY_QUESTION_READ = "SECURITY_QUESTION_READ";
