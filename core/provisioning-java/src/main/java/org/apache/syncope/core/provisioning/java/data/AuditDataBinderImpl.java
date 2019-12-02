@@ -47,18 +47,18 @@ public class AuditDataBinderImpl implements AuditDataBinder {
         }
 
         if (auditEntry.getBefore() != null) {
-            auditEntryTO.setBefore(POJOHelper.serialize(auditEntry.getBefore()));
+            auditEntryTO.setBefore(POJOHelper.serializeWithDefaultPrettyPrinter(auditEntry.getBefore()));
         }
 
         if (auditEntry.getInput() != null) {
             auditEntryTO.getInputs().addAll(Arrays.stream(auditEntry.getInput()).
                     filter(Objects::nonNull).
-                    map(POJOHelper::serialize).
+                    map(POJOHelper::serializeWithDefaultPrettyPrinter).
                     collect(Collectors.toList()));
         }
 
         if (auditEntry.getOutput() != null) {
-            auditEntryTO.setOutput(POJOHelper.serialize(auditEntry.getOutput()));
+            auditEntryTO.setOutput(POJOHelper.serializeWithDefaultPrettyPrinter(auditEntry.getOutput()));
         }
 
         return auditEntryTO;

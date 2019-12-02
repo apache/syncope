@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.List;
 
 public class AnyTOAuditEntryBean implements Serializable {
+    public static final String SORT_COLUMN = "event_date";
+
     private static final long serialVersionUID = -1207260204921071129L;
 
     private String entityKey;

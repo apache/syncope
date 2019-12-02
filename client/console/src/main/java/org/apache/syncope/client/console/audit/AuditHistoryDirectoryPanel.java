@@ -171,7 +171,7 @@ public class AuditHistoryDirectoryPanel extends
     }
 
     private SortParam<String> getSortParam() {
-        return new SortParam<>("event_date", false);
+        return new SortParam<>(AnyTOAuditEntryBean.SORT_COLUMN, false);
     }
 
     private AuditElements.Result getQueryableAuditResult() {

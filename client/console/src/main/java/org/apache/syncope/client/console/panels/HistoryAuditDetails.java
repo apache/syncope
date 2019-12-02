@@ -23,7 +23,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AnyTOAuditEntryBean;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
@@ -38,7 +37,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,6 +44,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
+    private static final String KEY_CURRENT = "current";
 
     private static final long serialVersionUID = -7400543686272100483L;
 
@@ -56,8 +55,6 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
     private final List<AnyTOAuditEntryBean> availableTOs;
 
     private AbstractModalPanel<String> jsonPanel;
-
-    private AuditHistoryRestClient auditHistoryRestClient;
 
     public HistoryAuditDetails(final BaseModal<?> baseModal, final AnyTOAuditEntryBean selected,
                                final PageReference pageRef, final List<AnyTOAuditEntryBean> availableTOs,
@@ -79,7 +76,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
     private void showConfigurationSinglePanel() {
         Pair<String, String> info = getJSONInfo(selected);
 
-        jsonPanel = new JsonEditorPanel(null, new PropertyModel<String>(info, "right"), true, null) {
+        jsonPanel = new JsonEditorPanel(null, new PropertyModel<>(info, "right"), true, null) {
 
             private static final long serialVersionUID = -8927036362466990179L;
 
@@ -100,7 +97,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         });
 
         jsonPanel = new JsonDiffPanel(null, new PropertyModel<String>(infos.get(0), "value"),
-            new PropertyModel<String>(infos.get(1), "value"), null) {
+            new PropertyModel<>(infos.get(1), "value"), null) {
 
             private static final long serialVersionUID = -8927036362466990179L;
 
@@ -114,14 +111,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
     }
 
     private Pair<String, String> getJSONInfo(final AnyTOAuditEntryBean auditEntryBean) {
-        String json = "";
-        try {
-            json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(auditEntryBean.getBefore());
-        } catch (IOException ex) {
-            DirectoryPanel.LOG.error("Error converting objects to JSON", ex);
-        }
-
-        return Pair.of(auditEntryBean.getKey(), json);
+        return Pair.of(auditEntryBean.getKey(), auditEntryBean.getBefore().toString());
     }
 
     private <T extends AnyTOAuditEntryBean> Map<String, String> getDropdownNamesMap(final List<T> entries) {
@@ -129,7 +119,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         for (AnyTOAuditEntryBean audit : entries) {
             String value = audit.getWho()
                 + " - " + SyncopeConsoleSession.get().getDateFormat().format(audit.getDate());
-            if (audit.getKey().equalsIgnoreCase("current")) {
+            if (audit.getKey().equalsIgnoreCase(KEY_CURRENT)) {
                 value += " - " + audit.getKey();
             }
             map.put(audit.getKey(), value);
@@ -200,11 +190,15 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
     }
 
     private void addCurrentInstanceConf(final AnyTO currentTO) {
-        AnyTOAuditEntryBean conf = new AnyTOAuditEntryBean(currentTO.getKey());
-        conf.setKey("current");
-        conf.setWho(currentTO.getCreator());
-        conf.setDate(currentTO.getCreationDate());
-        conf.setBefore(MAPPER.convertValue(currentTO, AnyTO.class));
-        availableTOs.add(conf);
+        try {
+            AnyTOAuditEntryBean entryBean = new AnyTOAuditEntryBean(currentTO.getKey());
+            entryBean.setKey(KEY_CURRENT);
+            entryBean.setWho(currentTO.getCreator());
+            entryBean.setDate(currentTO.getCreationDate());
+            entryBean.setBefore(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(currentTO));
+            availableTOs.add(entryBean);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

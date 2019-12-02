@@ -85,35 +85,43 @@ public class AuditHistoryRestClient extends BaseRestClient {
 
     /**
      * Restore an object based on the audit record.
-     *
+     * <p>
      * Note that for user objects, the original audit record masks
      * the password and the security answer; so we cannot use the audit
      * record to resurrect the entry based on mask data. The method behavior
      * below will reset the audit record such that the current security answer
      * and the password for the object are always maintained, and such properties
      * for the user cannot be restored using audit records.
+     *
      * @param entryBean   the entry bean
      * @param anyTypeKind the any type kind
      * @param anyTO       the any to
      * @return the response
      */
     public Response restore(final AnyTOAuditEntryBean entryBean, final AnyTypeKind anyTypeKind, final AnyTO anyTO) {
-        if (anyTypeKind == AnyTypeKind.USER) {
-            UserTO userTO = (UserTO) MAPPER.convertValue(entryBean.getBefore(), anyTypeKind.getTOClass());
-            userTO.setPassword(((UserTO) anyTO).getPassword());
-            userTO.setSecurityAnswer(((UserTO) anyTO).getSecurityAnswer());
-            return getService(UserService.class).update(userTO);
-        }
-        if (anyTypeKind == AnyTypeKind.GROUP) {
-            GroupTO groupTO = (GroupTO) MAPPER.convertValue(entryBean.getBefore(), anyTypeKind.getTOClass());
-            return getService(GroupService.class).update(groupTO);
-        }
-        if (anyTypeKind == AnyTypeKind.ANY_OBJECT) {
-            AnyObjectTO anyObjectTO = (AnyObjectTO)
-                MAPPER.convertValue(entryBean.getBefore(), anyTypeKind.getTOClass());
-            return getService(AnyObjectService.class).update(anyObjectTO);
+        try {
+            if (anyTypeKind == AnyTypeKind.USER) {
+                UserTO userTO = (UserTO) MAPPER.readValue(entryBean.getBefore().toString(), anyTypeKind.getTOClass());
+                userTO.setPassword(((UserTO) anyTO).getPassword());
+                userTO.setSecurityAnswer(((UserTO) anyTO).getSecurityAnswer());
+                return getService(UserService.class).update(userTO);
+            }
+            if (anyTypeKind == AnyTypeKind.GROUP) {
+                GroupTO groupTO = (GroupTO)
+                    MAPPER.readValue(entryBean.getBefore().toString(), anyTypeKind.getTOClass());
+                return getService(GroupService.class).update(groupTO);
+            }
+            if (anyTypeKind == AnyTypeKind.ANY_OBJECT) {
+                AnyObjectTO anyObjectTO = (AnyObjectTO)
+                    MAPPER.readValue(entryBean.getBefore().toString(), anyTypeKind.getTOClass());
+                return getService(AnyObjectService.class).update(anyObjectTO);
+            }
+        } catch (final Exception e) {
+            LOG.error("Could not restore object for {}", anyTO, e);
         }
         throw SyncopeClientException.build(ClientExceptionType.InvalidAnyObject);
     }
+
+
 }
 
