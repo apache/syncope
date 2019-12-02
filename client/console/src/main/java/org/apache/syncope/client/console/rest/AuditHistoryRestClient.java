@@ -121,7 +121,5 @@ public class AuditHistoryRestClient extends BaseRestClient {
         }
         throw SyncopeClientException.build(ClientExceptionType.InvalidAnyObject);
     }
-
-
 }
 
