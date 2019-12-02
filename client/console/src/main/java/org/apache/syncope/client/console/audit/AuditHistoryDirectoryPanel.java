@@ -76,8 +76,10 @@ public class AuditHistoryDirectoryPanel extends
 
     private static final long serialVersionUID = -8248734710505211261L;
 
+    private static final int TOTAL_AUDIT_HISTORY_COMPARISONS = 25;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     private final BaseModal<?> baseModal;
 
     private final MultilevelPanel multiLevelPanelRef;
@@ -181,6 +183,11 @@ public class AuditHistoryDirectoryPanel extends
         return panel;
     }
 
+    @Override
+    protected Collection<ActionLink.ActionType> getBatches() {
+        return Collections.emptyList();
+    }
+
     /**
      * Restore an object based on the audit record.
      * <p>
@@ -226,14 +233,11 @@ public class AuditHistoryDirectoryPanel extends
         }
         throw SyncopeClientException.build(ClientExceptionType.InvalidAnyObject);
     }
-    
-    @Override
-    protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
-    }
 
     private void viewAuditHistory(final AnyTOAuditEntryBean auditEntryBean, final AjaxRequestTarget target) {
         List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
+            0,
+            TOTAL_AUDIT_HISTORY_COMPARISONS,
             getSortParam(),
             getQueryableAuditEvents(),
             getQueryableAuditResult());
@@ -301,7 +305,8 @@ public class AuditHistoryDirectoryPanel extends
         private List<AnyTOAuditEntryBean> getAuditEntryBeans(final long first, final long count) {
             int page = (int) first / paginatorRows;
             List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
-                Math.max(page, 0) + 1, paginatorRows,
+                Math.max(page, 0) + 1,
+                Long.valueOf(count).intValue(),
                 getSortParam(),
                 getQueryableAuditEvents(),
                 getQueryableAuditResult());
