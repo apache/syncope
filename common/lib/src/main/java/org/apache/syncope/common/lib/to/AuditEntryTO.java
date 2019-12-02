@@ -39,11 +39,11 @@ public class AuditEntryTO extends BaseBean implements EntityTO {
 
     private String result;
 
-    private Object before;
+    private String before;
 
     private final List<String> inputs = new ArrayList<>();
 
-    private Object output;
+    private String output;
 
     private Date date;
 
@@ -69,19 +69,19 @@ public class AuditEntryTO extends BaseBean implements EntityTO {
         this.throwable = throwable;
     }
 
-    public Object getOutput() {
+    public String getOutput() {
         return output;
     }
 
-    public void setOutput(final Object output) {
+    public void setOutput(final String output) {
         this.output = output;
     }
 
-    public Object getBefore() {
+    public String getBefore() {
         return before;
     }
 
-    public void setBefore(final Object before) {
+    public void setBefore(final String before) {
         this.before = before;
     }
 
