@@ -1797,7 +1797,7 @@ under the License.
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -2022,7 +2022,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.7</version>
+          <version>1.7.8</version>
           <configuration>
             <container>
               <containerId>tomcat9x</containerId>
