@@ -324,7 +324,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
             if (attr.getUniqueValue() != null && attr instanceof JSONPlainAttr) {
                 PlainSchema schema = attr.getSchema();
                 Optional<A> other = findByPlainAttrUniqueValue(table, anyUtils, schema, attr.getUniqueValue(), false);
-                if (other.isEmpty()|| other.get().getKey().equals(any.getKey())) {
+                if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
                     LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
                 } else {
                     throw new DuplicateException(
