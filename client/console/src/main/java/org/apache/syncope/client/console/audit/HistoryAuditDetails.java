@@ -16,18 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.audit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.audit.AnyTOAuditEntryBean;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AuditEntryTO;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -50,22 +54,28 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final AnyTOAuditEntryBean selected;
+    private final AuditEntryTO selected;
 
-    private final List<AnyTOAuditEntryBean> availableTOs;
+    private final List<AuditEntryTO> availableTOs;
+
+    private final AnyTypeKind anyTypeKind;
 
     private AbstractModalPanel<String> jsonPanel;
 
-    public HistoryAuditDetails(final BaseModal<?> baseModal, final AnyTOAuditEntryBean selected,
-                               final PageReference pageRef, final List<AnyTOAuditEntryBean> availableTOs,
-                               final AnyTO currentTO) {
-        super();
+    private final AnyTO currentTO;
 
+    public HistoryAuditDetails(final BaseModal<?> baseModal, final AuditEntryTO selected,
+                               final PageReference pageRef, final List<AuditEntryTO> availableTOs,
+                               final AnyTO currentTO, final AnyTypeKind anyTypeKind) {
+        super();
         this.availableTOs = availableTOs.stream()
             .filter(object -> !selected.equals(object))
             .collect(Collectors.toList());
         this.selected = selected;
-        addCurrentInstanceConf(currentTO);
+        this.anyTypeKind = anyTypeKind;
+        this.currentTO = currentTO;
+
+        addCurrentInstanceConf();
 
         Form<?> form = initDropdownDiffConfForm();
         add(form);
@@ -90,13 +100,11 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         addOrReplace(jsonPanel);
     }
 
-    private void showConfigurationDiffPanel(final List<AnyTOAuditEntryBean> entries) {
+    private void showConfigurationDiffPanel(final List<AuditEntryTO> entries) {
         List<Pair<String, String>> infos = new ArrayList<>();
-        entries.forEach(entry -> {
-            infos.add(getJSONInfo(entry));
-        });
+        entries.forEach(entry -> infos.add(getJSONInfo(entry)));
 
-        jsonPanel = new JsonDiffPanel(null, new PropertyModel<String>(infos.get(0), "value"),
+        jsonPanel = new JsonDiffPanel(null, new PropertyModel<>(infos.get(0), "value"),
             new PropertyModel<>(infos.get(1), "value"), null) {
 
             private static final long serialVersionUID = -8927036362466990179L;
@@ -110,13 +118,40 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         replace(jsonPanel);
     }
 
-    private Pair<String, String> getJSONInfo(final AnyTOAuditEntryBean auditEntryBean) {
-        return Pair.of(auditEntryBean.getKey(), auditEntryBean.getBefore().toString());
+    private String getSanitizedTOAsJSON(final AnyTO anyTO) throws Exception {
+        if (this.anyTypeKind == AnyTypeKind.USER) {
+            UserTO userTO = (UserTO) anyTO;
+            userTO.setPassword(null);
+            userTO.setSecurityAnswer(null);
+            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(userTO);
+        }
+        return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(anyTO);
     }
 
-    private <T extends AnyTOAuditEntryBean> Map<String, String> getDropdownNamesMap(final List<T> entries) {
+    private Pair<String, String> getJSONInfo(final AuditEntryTO auditEntryBean) {
+        try {
+            final String json;
+            if (this.anyTypeKind == AnyTypeKind.USER) {
+                final String content;
+                if (auditEntryBean.getBefore() == null) {
+                    content = MAPPER.readTree(auditEntryBean.getOutput()).get("entity").toPrettyString();
+                } else {
+                    content = auditEntryBean.getBefore();
+                }
+                UserTO userTO = (UserTO) MAPPER.readValue(content, anyTypeKind.getTOClass());
+                json = getSanitizedTOAsJSON(userTO);
+            } else {
+                json = auditEntryBean.getBefore();
+            }
+            return Pair.of(auditEntryBean.getKey(), json);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static <T extends AuditEntryTO> Map<String, String> getDropdownNamesMap(final List<T> entries) {
         Map<String, String> map = new LinkedHashMap<>();
-        for (AnyTOAuditEntryBean audit : entries) {
+        for (AuditEntryTO audit : entries) {
             String value = audit.getWho()
                 + " - " + SyncopeConsoleSession.get().getDateFormat().format(audit.getDate());
             if (audit.getKey().equalsIgnoreCase(KEY_CURRENT)) {
@@ -128,7 +163,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
     }
 
     private Form<?> initDropdownDiffConfForm() {
-        final Form<AnyTOAuditEntryBean> form = new Form<>("form");
+        final Form<AuditEntryTO> form = new Form<>("form");
         form.setModel(new CompoundPropertyModel<>(selected));
         form.setOutputMarkupId(true);
 
@@ -167,13 +202,13 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                List<AnyTOAuditEntryBean> elemsToCompare = new ArrayList<>();
+                List<AuditEntryTO> elemsToCompare = new ArrayList<>();
                 elemsToCompare.add(selected);
 
                 final String selectedKey = dropdownElem.getModelObject();
                 if (selectedKey != null) {
                     if (!selectedKey.isEmpty()) {
-                        AnyTOAuditEntryBean confToCompare = availableTOs.stream().
+                        AuditEntryTO confToCompare = availableTOs.stream().
                             filter(object -> object.getKey().equals(selectedKey)).findAny().orElse(null);
                         elemsToCompare.add(confToCompare);
                         showConfigurationDiffPanel(elemsToCompare);
@@ -189,9 +224,9 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         return form;
     }
 
-    private void addCurrentInstanceConf(final AnyTO currentTO) {
+    private void addCurrentInstanceConf() {
         try {
-            AnyTOAuditEntryBean entryBean = new AnyTOAuditEntryBean(currentTO.getKey());
+            AuditEntryTO entryBean = new AuditEntryTO();
             entryBean.setKey(KEY_CURRENT);
             entryBean.setWho(currentTO.getCreator());
             entryBean.setDate(currentTO.getCreationDate());

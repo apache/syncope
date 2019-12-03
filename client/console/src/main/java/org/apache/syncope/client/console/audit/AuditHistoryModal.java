@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.client.console.audit;
 
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPanel {
     private static final long serialVersionUID = 1066124171682570080L;
 
-    protected final DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean, ?, ?> directoryPanel;
+    protected final DirectoryPanel<AuditEntryTO, AuditEntryTO, ?, ?> directoryPanel;
 
     public AuditHistoryModal(
         final BaseModal<?> baseModal,
@@ -46,8 +46,8 @@ public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPa
         add(mlp.setFirstLevel(this.directoryPanel));
     }
 
-    protected DirectoryPanel<AnyTOAuditEntryBean, AnyTOAuditEntryBean,
-        DirectoryDataProvider<AnyTOAuditEntryBean>, AuditHistoryRestClient> getDirectoryPanel(
+    protected DirectoryPanel<AuditEntryTO, AuditEntryTO,
+        AuditHistoryDirectoryPanel.AuditHistoryProvider, AuditHistoryRestClient> getDirectoryPanel(
         final MultilevelPanel mlp,
         final BaseModal<?> baseModal,
         final PageReference pageReference,
