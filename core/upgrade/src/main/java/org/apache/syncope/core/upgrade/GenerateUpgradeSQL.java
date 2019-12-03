@@ -119,16 +119,21 @@ public final class GenerateUpgradeSQL {
                 if (specification.has("correlationRules")) {
                     specification.get("correlationRules").fields().forEachRemaining(entry -> {
                         ObjectNode body = MAPPER.createObjectNode();
-                        if ((entry.getValue().asText().contains("org.apache.syncope"))) {
-                            final String confClassName = entry.getValue().asText() + "Conf";
-                            body.put("@class", confClassName);
-                            body.put("name", confClassName);
-                        } else {
-                            body.put("@class", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
-                            body.put("name", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
-                            body.set("schemas", entry.getValue());
-                        }
                         try {
+                            final String pullRuleClass = entry.getValue().asText();
+                            if ((pullRuleClass.contains("org.apache.syncope"))) {
+                                final String confClassName = "org.apache.syncope.common.lib.policy."
+                                        + pullRuleClass.substring(pullRuleClass.lastIndexOf(".")).replace(".", "")
+                                        + "Conf";
+                                body.put("@class", confClassName);
+                                body.put("name", confClassName);
+                            } else {
+                                body.
+                                        put("@class",
+                                                "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
+                                body.put("name", "org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf");
+                                body.set("schemas", entry.getValue());
+                            }
                             String implementationId = "PullCorrelationRule_" + entry.getKey() + "_" + id;
                             OUT.write("INSERT INTO Implementation(id,type,engine,body) VALUES("
                                     + "'" + implementationId + "',"

@@ -60,7 +60,7 @@ public class GeneratedUpgradeSQLTest {
     @Autowired
     private DataSource syncope20DataSource;
 
-    private static final String TEST_PULL_RULE = "org.apache.syncope.fit.core.reference.TestPullRuleConf";
+    private static final String TEST_PULL_RULE = "org.apache.syncope.common.lib.policy.TestPullRuleConf";
 
     @Test
     public void upgradefrom20() throws Exception {
