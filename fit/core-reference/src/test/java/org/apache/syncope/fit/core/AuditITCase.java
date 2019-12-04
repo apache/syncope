@@ -24,11 +24,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -95,5 +98,16 @@ public class AuditITCase extends AbstractITCase {
         AuditEntryTO entry = query(query, 50);
         assertEquals(groupTO.getKey(), entry.getKey());
         groupService.delete(groupTO.getKey());
+    }
+
+    @Test
+    public void findByAnyObject() {
+        AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSampleTO("Italy")).getEntity();
+        assertNotNull(anyObjectTO.getKey());
+        AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).orderBy("event_date desc").
+            page(1).size(1).build();
+        AuditEntryTO entry = query(query, 50);
+        assertEquals(anyObjectTO.getKey(), entry.getKey());
+        anyObjectService.delete(anyObjectTO.getKey());
     }
 }
