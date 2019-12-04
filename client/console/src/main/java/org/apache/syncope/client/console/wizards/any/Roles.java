@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
@@ -67,7 +67,7 @@ public class Roles extends WizardStep implements ICondition {
         // -----------------------------------------------------------------
         // Pre-Authorizations
         // -----------------------------------------------------------------
-        final ActionPermissions permissions = new ActionPermissions();
+        ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER,
                 new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.ROLE_LIST));
@@ -77,9 +77,8 @@ public class Roles extends WizardStep implements ICondition {
 
         allRoles = SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)
-                ? new RoleRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList())
+                ? new RoleRestClient().list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
                 : Collections.<String>emptyList();
-        Collections.sort(allRoles);
 
         add(new AjaxPalettePanel.Builder<String>().
                 withFilter().
