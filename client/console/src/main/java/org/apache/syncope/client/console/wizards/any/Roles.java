@@ -44,6 +44,8 @@ public class Roles extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    private static final int MAX_ROLE_LIST_SIZE = 30;
+
     private final List<String> allRoles;
 
     public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
@@ -79,12 +81,33 @@ public class Roles extends WizardStep implements ICondition {
                 : Collections.<String>emptyList();
         Collections.sort(allRoles);
 
-        add(new AjaxPalettePanel.Builder<String>().build("roles",
-                new PropertyModel<List<String>>(entityTO, "roles"),
-                new ListModel<>(allRoles)).hideLabel().setOutputMarkupId(true));
+        add(new AjaxPalettePanel.Builder<String>().
+                withFilter().
+                setAllowOrder(true).
+                build("roles",
+                        new PropertyModel<>(modelObject.getInnerObject(), "roles"),
+                        new AjaxPalettePanel.Builder.Query<String>() {
+
+                    private static final long serialVersionUID = 3900199363626636719L;
+
+                    @Override
+                    public List<String> execute(final String filter) {
+                        if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
+                            return allRoles.size() > MAX_ROLE_LIST_SIZE
+                                    ? allRoles.subList(0, MAX_ROLE_LIST_SIZE)
+                                    : allRoles;
+
+                        }
+                        return allRoles.stream().
+                                filter(role -> StringUtils.containsIgnoreCase(role, filter)).
+                                collect(Collectors.toList());
+                    }
+                }).
+                hideLabel().
+                setOutputMarkupId(true));
 
         add(new AjaxPalettePanel.Builder<String>().build("dynroles",
-                new PropertyModel<List<String>>(entityTO, "dynRoles"),
+                new PropertyModel<>(entityTO, "dynRoles"),
                 new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 
