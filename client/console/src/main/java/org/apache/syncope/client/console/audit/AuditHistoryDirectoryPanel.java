@@ -117,32 +117,28 @@ public class AuditHistoryDirectoryPanel extends
      * and the password for the object are always maintained, and such properties
      * for the user cannot be restored using audit records.
      *
-     * @param entryBean   the entry bean
-     * @param anyTypeKind the any type kind
-     * @param anyTO       the any to
+     * @param entryBean the entry bean
+     * @param anyTO     the any to
      * @return the response
      */
     private static ProvisioningResult<? extends AnyTO> restore(final AuditEntryTO entryBean,
-                                                               final AnyTypeKind anyTypeKind,
                                                                final AnyTO anyTO) {
         try {
-            if (anyTypeKind == AnyTypeKind.USER) {
-                String json = getJSONFromAuditEntry(entryBean);
-                UserTO userTO = (UserTO) MAPPER.readValue(json, anyTypeKind.getTOClass());
+            String json = getJSONFromAuditEntry(entryBean);
+            if (anyTO instanceof UserTO) {
+                UserTO userTO = MAPPER.readValue(json, UserTO.class);
                 UserPatch userPatch = AnyOperations.diff(userTO, anyTO, false);
                 userPatch.setPassword(null);
                 userPatch.setSecurityAnswer(null);
                 return new UserRestClient().update(anyTO.getETagValue(), userPatch);
             }
-            if (anyTypeKind == AnyTypeKind.GROUP) {
-                String json = getJSONFromAuditEntry(entryBean);
-                GroupTO groupTO = (GroupTO) MAPPER.readValue(json, anyTypeKind.getTOClass());
+            if (anyTO instanceof GroupTO) {
+                GroupTO groupTO = MAPPER.readValue(json, GroupTO.class);
                 GroupPatch groupPatch = AnyOperations.diff(groupTO, anyTO, false);
                 return new GroupRestClient().update(anyTO.getETagValue(), groupPatch);
             }
-            if (anyTypeKind == AnyTypeKind.ANY_OBJECT) {
-                String json = getJSONFromAuditEntry(entryBean);
-                AnyObjectTO anyObjectTO = (AnyObjectTO) MAPPER.readValue(json, anyTypeKind.getTOClass());
+            if (anyTO instanceof AnyObjectTO) {
+                AnyObjectTO anyObjectTO = MAPPER.readValue(json, AnyObjectTO.class);
                 AnyObjectPatch anyObjectPatch = AnyOperations.diff(anyObjectTO, anyTO, false);
                 return new AnyObjectRestClient().update(anyTO.getETagValue(), anyObjectPatch);
             }
@@ -237,7 +233,7 @@ public class AuditHistoryDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final AuditEntryTO modelObject) {
                 try {
                     AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
-                    ProvisioningResult<? extends AnyTO> result = restore(modelObject, anyTypeKind, anyTO);
+                    ProvisioningResult<? extends AnyTO> result = restore(modelObject, anyTO);
                     anyTO.setLastChangeDate(new Date(Long.parseLong(result.getEntity().getETagValue())));
                     target.add(container);
                 } catch (SyncopeClientException e) {

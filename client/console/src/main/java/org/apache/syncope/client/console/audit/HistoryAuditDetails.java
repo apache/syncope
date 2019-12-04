@@ -69,17 +69,17 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
                                final AnyTO currentTO, final AnyTypeKind anyTypeKind) {
         super();
         this.availableTOs = availableTOs.stream()
-            .filter(object -> !selected.equals(object))
+            .filter(object -> !selected.equals(object) && selected.getBefore() != null)
             .collect(Collectors.toList());
         this.selected = selected;
         this.anyTypeKind = anyTypeKind;
         this.currentTO = currentTO;
 
         addCurrentInstanceConf();
-
         Form<?> form = initDropdownDiffConfForm();
         add(form);
-        form.setVisible(!availableTOs.isEmpty());
+        form.setVisible(!this.availableTOs.isEmpty());
+
         showConfigurationSinglePanel();
     }
 
@@ -130,19 +130,15 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
 
     private Pair<String, String> getJSONInfo(final AuditEntryTO auditEntryBean) {
         try {
-            final String json;
-            if (this.anyTypeKind == AnyTypeKind.USER) {
-                final String content;
-                if (auditEntryBean.getBefore() == null) {
-                    content = MAPPER.readTree(auditEntryBean.getOutput()).get("entity").toPrettyString();
-                } else {
-                    content = auditEntryBean.getBefore();
-                }
-                UserTO userTO = (UserTO) MAPPER.readValue(content, anyTypeKind.getTOClass());
-                json = getSanitizedTOAsJSON(userTO);
+            final String content;
+            if (auditEntryBean.getBefore() == null) {
+                content = MAPPER.readTree(auditEntryBean.getOutput()).get("entity").toPrettyString();
             } else {
-                json = auditEntryBean.getBefore();
+                content = auditEntryBean.getBefore();
             }
+
+            AnyTO userTO = MAPPER.readValue(content, anyTypeKind.getTOClass());
+            String json = getSanitizedTOAsJSON(userTO);
             return Pair.of(auditEntryBean.getKey(), json);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -196,7 +192,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
                 return id;
             }
         });
-        dropdownElem.setNullValid(true);
+        dropdownElem.setNullValid(false);
         dropdownElem.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
             private static final long serialVersionUID = -1107858522700306810L;
 
