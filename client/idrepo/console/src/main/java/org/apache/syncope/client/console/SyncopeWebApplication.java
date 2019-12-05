@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
+import com.google.common.net.HttpHeaders;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
@@ -250,7 +251,14 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         });
 
         if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
-            getFilterFactoryManager().add(new XForwardedRequestWrapperFactory());
+            XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
+            config.setProtocolHeader(props.getProperty("x-forward.protocol.header", HttpHeaders.X_FORWARDED_PROTO));
+            config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
+            config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
+
+            XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
+            factory.setConfig(config);
+            getFilterFactoryManager().add(factory);
         }
 
         if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
