@@ -19,6 +19,10 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +38,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditITCase extends AbstractITCase {
     private static final int MAX_WAIT_SECONDS = 30;
