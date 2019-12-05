@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
@@ -160,10 +161,7 @@ public class AuditITCase extends AbstractITCase {
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(getUUIDString()).query()).
                 build());
         assertNotNull(anyObjects);
-        assertFalse(anyObjects.getResult().isEmpty());
-        for (AnyObjectTO anyObjectTO : anyObjects.getResult()) {
-            assertNotNull(anyObjectService.read(anyObjectTO.getKey()));
-        }
+        assertTrue(anyObjects.getResult().isEmpty());
         for (AnyObjectTO anyObjectTO : anyObjects.getResult()) {
             AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).build();
             AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, false);
