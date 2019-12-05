@@ -66,6 +66,8 @@ public final class IdRepoConstants {
 
     public static final String PREF_ACCESS_TOKEN_PAGINATOR_ROWS = "accessToken.paginator.rows";
 
+    public static final String PREF_AUDIT_HISTORY_PAGINATOR_ROWS = "audit.history.paginator.rows";
+
     public static final String PREF_NOTIFICATION_PAGINATOR_ROWS = "notification.paginator.rows";
 
     public static final String PREF_IMPLEMENTATION_PAGINATOR_ROWS = "implementation.paginator.rows";

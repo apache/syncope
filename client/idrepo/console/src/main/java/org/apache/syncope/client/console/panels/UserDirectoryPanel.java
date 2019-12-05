@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -272,6 +273,27 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
             }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
         }
+
+        panel.add(new ActionLink<UserTO>() {
+
+            private static final long serialVersionUID = -1978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                IModel<UserWrapper> formModel = new CompoundPropertyModel<>(
+                        new UserWrapper(new UserRestClient().read(model.getObject().getKey())));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                        altDefaultModal,
+                        pageRef,
+                        formModel.getObject().getInnerObject())));
+
+                altDefaultModal.header(new Model<>(
+                        getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                altDefaultModal.show(true);
+            }
+        }, ActionType.VIEW_AUDIT_HISTORY, IdRepoEntitlement.AUDIT_LIST).
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<UserTO>() {
 
