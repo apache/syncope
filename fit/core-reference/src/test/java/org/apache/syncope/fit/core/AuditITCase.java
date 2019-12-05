@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
@@ -155,7 +156,9 @@ public class AuditITCase extends AbstractITCase {
     @Test
     public void anyObjectReadAndSearchYieldsNoAudit() {
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).query()).
+                build());
         assertNotNull(anyObjects);
         assertFalse(anyObjects.getResult().isEmpty());
         for (AnyObjectTO anyObjectTO : anyObjects.getResult()) {
