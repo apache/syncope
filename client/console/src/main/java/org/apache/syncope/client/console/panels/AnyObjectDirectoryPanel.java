@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -188,7 +189,27 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 }
             }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
         }
+        panel.add(new ActionLink<AnyObjectTO>() {
+            private static final long serialVersionUID = -2878723352517770644L;
 
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
+                    new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())));
+                altDefaultModal.setFormModel(formModel);
+
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                    altDefaultModal,
+                    pageRef,
+                    formModel.getObject().getInnerObject())));
+
+                altDefaultModal.header(new StringResourceModel("auditHistory.title", model));
+
+                altDefaultModal.show(true);
+            }
+        }, ActionType.VIEW_AUDIT_HISTORY, StandardEntitlement.AUDIT_LIST).
+            setRealms(realm, model.getObject().getDynRealms());
+        
         panel.add(new ActionLink<AnyObjectTO>() {
 
             private static final long serialVersionUID = -7978723352517770646L;
@@ -212,7 +233,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
         }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type), true).setRealm(realm);
-
+        
         return panel;
     }
 

@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -144,7 +145,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     @Override
     public ActionsPanel<UserTO> getActions(final IModel<UserTO> model) {
         final ActionsPanel<UserTO> panel = super.getActions(model);
-
+         
         panel.add(new ActionLink<UserTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -347,6 +348,27 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }, ActionType.MANAGE_ACCOUNTS,
                     String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE));
         }
+
+        panel.add(new ActionLink<UserTO>() {
+
+            private static final long serialVersionUID = -1978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                IModel<UserWrapper> formModel = new CompoundPropertyModel<>(
+                    new UserWrapper(new UserRestClient().read(model.getObject().getKey())));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                    altDefaultModal,
+                    pageRef,
+                    formModel.getObject().getInnerObject())));
+
+                altDefaultModal.header(new Model<>(
+                    getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                altDefaultModal.show(true);
+            }
+        }, ActionType.VIEW_AUDIT_HISTORY, StandardEntitlement.AUDIT_LIST).
+            setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<UserTO>() {
 

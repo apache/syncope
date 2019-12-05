@@ -25,6 +25,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
@@ -361,6 +362,26 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 utilityModal.show(true);
             }
         }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+
+        panel.add(new ActionLink<GroupTO>() {
+            private static final long serialVersionUID = -2878723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                IModel<GroupWrapper> formModel = new CompoundPropertyModel<>(
+                    new GroupWrapper(new GroupRestClient().read(model.getObject().getKey())));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                    altDefaultModal,
+                    pageRef,
+                    formModel.getObject().getInnerObject())));
+
+                altDefaultModal.header(new Model<>(
+                    getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                altDefaultModal.show(true);
+            }
+        }, ActionType.VIEW_AUDIT_HISTORY, StandardEntitlement.AUDIT_LIST).
+            setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 
