@@ -58,41 +58,7 @@ domain and MySQL): please also check that the connection parameters are the same
 [CAUTION]
 Be sure to put the corresponding JDBC driver JAR file under `$CATALINA_HOME/lib` for each datasource defined.
 
-===== Glassfish 5 and Payara Server 5
-
-Replace
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-    </dependency>
-....
-
-with
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-      <version>${syncope.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.bval</groupId>
-          <artifactId>bval-jsr</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>6.0.11.Final</version>
-    </dependency>
-....
-
-in `core/pom.xml`.
+===== Payara Server 5
 
 When using a datasource for internal storage, be sure to add
 
@@ -104,7 +70,7 @@ When using a datasource for internal storage, be sure to add
 </resource-ref>
 ....
 
-right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Glassfish instance
+right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Payara Server instance
 provides a datasource named `jdbc/syncopeMasterDataSource`.
 
 [TIP]

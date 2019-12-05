@@ -1499,18 +1499,6 @@ under the License.
 
       <dependencies>
         <dependency>
-          <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-persistence-jpa</artifactId>
-          <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.bval</groupId>
-              <artifactId>bval-jsr</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
         </dependency>
@@ -1526,9 +1514,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>glassfish5x</containerId>
+                <containerId>payara</containerId>
                 <zipUrlInstaller>
-                  <url>https://repo1.maven.org/maven2/fish/payara/distributions/payara/5.191/payara-5.191.zip</url>
+                  <url>https://repo1.maven.org/maven2/fish/payara/distributions/payara/5.194/payara-5.194.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
