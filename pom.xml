@@ -518,6 +518,8 @@ under the License.
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>9.0.29</tomcat.version>
+    <payara.version>5.194</payara.version>
+    <javax.faces.version>2.4.0</javax.faces.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0.18</docker.mysql.version>
@@ -2459,7 +2461,7 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
             <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/3.0.0/</link>
-	    <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/3.0.0/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/3.0.0/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>

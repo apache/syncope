@@ -38,7 +38,6 @@ for the Master domain.
 `java:comp/env/jdbc/syncopeMasterDataSource` for the Master domain. +
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
-  * https://javaeesquad.github.io/tutorials/glassfishDatasource/glassFishDatasource.html[Glassfish 5^]
   * https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
   * http://docs.wildfly.org/18/Admin_Guide.html#DataSource[Wildfly 18^]
 ****
@@ -83,41 +82,25 @@ domain and MySQL): please also check that the connection parameters are the same
 [CAUTION]
 Be sure to put the corresponding JDBC driver JAR file under `$CATALINA_HOME/lib` for each datasource defined.
 
-===== Glassfish 5 and Payara Server 5
+===== Payara Server 5
 
-Replace
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-    </dependency>
-....
-
-with
+Add
 
 [source,xml]
 ....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-      <version>${syncope.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.bval</groupId>
-          <artifactId>bval-jsr</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>6.0.11.Final</version>
-    </dependency>
+        <dependency>
+          <groupId>org.glassfish</groupId>
+          <artifactId>javax.faces</artifactId>
+          <version>2.4.0</version>
+        </dependency>
+
+        <dependency>
+          <groupId>com.fasterxml.jackson.dataformat</groupId>
+          <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
 ....
 
-in `core/pom.xml`.
+to `core/pom.xml`, `console/pom.xml` and `enduser/pom.xml`.
 
 When using a datasource for internal storage, be sure to add
 
@@ -129,7 +112,7 @@ When using a datasource for internal storage, be sure to add
 </resource-ref>
 ....
 
-right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Glassfish instance
+right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Payara Server instance
 provides a datasource named `jdbc/syncopeMasterDataSource`.
 
 [TIP]
