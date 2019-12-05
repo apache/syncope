@@ -157,7 +157,7 @@ public class AuditITCase extends AbstractITCase {
     public void anyObjectReadAndSearchYieldsNoAudit() {
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
             new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).query()).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(getUUIDString()).query()).
                 build());
         assertNotNull(anyObjects);
         assertFalse(anyObjects.getResult().isEmpty());
