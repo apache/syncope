@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -164,7 +165,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
             ItemTO connObjectKeyItem = new ItemTO();
             connObjectKeyItem.setIntAttrName("username");
-            connObjectKeyItem.setExtAttrName("NameID");
+            connObjectKeyItem.setExtAttrName(NameID.DEFAULT_ELEMENT_LOCAL_NAME);
             idpTO.setConnObjectKeyItem(connObjectKeyItem);
 
             SAML2IdPEntity idp = cache.put(idpEntityDescriptor, idpTO);

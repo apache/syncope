@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -438,12 +439,12 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         Assertion assertion = validatorResponse.getOpensamlAssertion();
         NameID nameID = assertion.getSubject().getNameID();
         if (nameID == null) {
-            throw new IllegalArgumentException("NameID not found");
+            throw new IllegalArgumentException(NameID.DEFAULT_ELEMENT_LOCAL_NAME + " not found");
         }
 
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())
-                && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
+                && idp.getConnObjectKeyItem().getExtAttrName().equals(NameID.DEFAULT_ELEMENT_LOCAL_NAME)) {
 
             keyValue = nameID.getValue();
         }
@@ -472,13 +473,11 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                         }
                     }
 
-                    AttrTO attrTO = new AttrTO();
-                    attrTO.setSchema(attrName);
-                    attr.getAttributeValues().stream().
-                            filter(value -> value.getDOM() != null).
-                            forEachOrdered(value -> {
-                                attrTO.getValues().add(value.getDOM().getTextContent());
-                            });
+                    AttrTO attrTO = new AttrTO.Builder().schema(attrName).
+                            values(attr.getAttributeValues().stream().
+                                    filter(value -> value.getDOM() != null).
+                                    map(value -> value.getDOM().getTextContent()).
+                                    collect(Collectors.toList())).build();
                     responseTO.getAttrs().add(attrTO);
                 }
             }
