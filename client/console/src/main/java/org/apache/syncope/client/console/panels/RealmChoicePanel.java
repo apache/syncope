@@ -92,12 +92,12 @@ public class RealmChoicePanel extends Panel {
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
+        availableRealms = SyncopeConsoleSession.get().getAuthRealms();
         tree = new HashMap<>();
 
         RealmTO fakeRootRealm = new RealmTO();
         fakeRootRealm.setName(SyncopeConstants.ROOT_REALM);
         fakeRootRealm.setFullPath(SyncopeConstants.ROOT_REALM);
-        model = Model.of(fakeRootRealm);
 
         realmTree = new LoadableDetachableModel<List<Pair<String, RealmTO>>>() {
 
@@ -121,11 +121,14 @@ public class RealmChoicePanel extends Panel {
             @Override
             protected List<Pair<String, RealmTO>> load() {
                 Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
-                model.setObject(map.get(null).getKey());
-
-                final List<Pair<String, RealmTO>> full = new ArrayList<>();
+                List<Pair<String, RealmTO>> full = new ArrayList<>();
                 getChildren(full, null, map, StringUtils.EMPTY);
-                return full;
+
+                return full.stream().filter(realm
+                        -> availableRealms.stream().anyMatch(
+                                availableRealm -> realm.getValue().getFullPath()
+                                        .startsWith(availableRealm))).collect(Collectors.toList());
+
             }
         };
 
@@ -145,17 +148,17 @@ public class RealmChoicePanel extends Panel {
                         return left.getKey().compareTo(right.getKey());
                     }
                 });
-
-                return dynRealms;
+                return dynRealms.stream().filter(dynRealm
+                        -> availableRealms.stream().anyMatch(
+                                availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
+                                || dynRealm.getKey().equals(availableRealm))).collect(Collectors.toList());
             }
         };
-
+       
+        model = Model.of(realmTree.getObject().stream().findFirst().get().getValue());
         container = new WebMarkupContainer("container", realmTree);
         container.setOutputMarkupId(true);
         add(container);
-
-        availableRealms = SyncopeConsoleSession.get().getAuthRealms();
-
         reloadRealmTree();
     }
 
@@ -190,22 +193,7 @@ public class RealmChoicePanel extends Panel {
             BootstrapSelectConfig config = new BootstrapSelectConfig().withLiveSearch(true);
             config.put(new Key<>("styleBase", "btn"), "btn glyphicon glyphicon-folder-open");
             BootstrapSelect<Pair<String, RealmTO>> select =
-                    new BootstrapSelect<Pair<String, RealmTO>>("realmsLiveSearch", new Model<>(), realms) {
-
-                private static final long serialVersionUID = -12358873583862012L;
-
-                @Override
-                protected boolean isDisabled(
-                        final Pair<String, RealmTO> object,
-                        final int index,
-                        final String selected) {
-                    return availableRealms.stream().anyMatch(availableRealm -> {
-                        return !SyncopeConstants.ROOT_REALM.equals(availableRealm)
-                                && !object.getValue().getFullPath().equals(availableRealm);
-                    });
-                }
-            };
-
+                    new BootstrapSelect<>("realmsLiveSearch", new Model<>(), realms);
             select.with(config);
             select.setOutputMarkupId(true);
             select.setChoiceRenderer(new IChoiceRenderer<Pair<String, RealmTO>>() {
@@ -319,12 +307,6 @@ public class RealmChoicePanel extends Panel {
                     target.add(label);
                     send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
                 }
-
-                @Override
-                public boolean isEnabled() {
-                    return availableRealms.stream().
-                            anyMatch(availableRealm -> realmTO.getFullPath().startsWith(availableRealm));
-                }
             });
         }
 
@@ -375,14 +357,6 @@ public class RealmChoicePanel extends Panel {
                         realmLabel.setDefaultModel(new ResourceModel("dynRealmLabel", "Dynamic Realm"));
                         target.add(label);
                         send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
-                    }
-
-                    @Override
-                    public boolean isEnabled() {
-                        return availableRealms.stream().anyMatch(availableRealm -> {
-                            return SyncopeConstants.ROOT_REALM.equals(availableRealm)
-                                    || realmTO.getKey().equals(availableRealm);
-                        });
                     }
                 });
             }
