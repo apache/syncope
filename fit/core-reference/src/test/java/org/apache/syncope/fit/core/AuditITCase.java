@@ -20,9 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -41,9 +39,20 @@ import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
 
-    private static final int MAX_WAIT_SECONDS = 30;
+    private static final int MAX_WAIT_SECONDS = 50;
 
     private static AuditEntryTO query(final AuditQuery query, final int maxWaitSeconds, final boolean failIfEmpty) {
+        List<AuditEntryTO> results = query(query, maxWaitSeconds);
+        if (results.isEmpty()) {
+            if (failIfEmpty) {
+                fail("Timeout when executing query for key " + query.getEntityKey());
+            }
+            return null;
+        }
+        return results.get(0);
+    }
+
+    private static List<AuditEntryTO> query(final AuditQuery query, final int maxWaitSeconds) {
         int i = 0;
         List<AuditEntryTO> results = List.of();
         do {
@@ -51,35 +60,31 @@ public class AuditITCase extends AbstractITCase {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-
             results = auditService.search(query).getResult();
-
             i++;
         } while (results.isEmpty() && i < maxWaitSeconds);
-        if (results.isEmpty()) {
-            if (failIfEmpty) {
-                fail("Timeout when executing query for key " + query.getEntityKey());
-            }
-            return null;
-        }
-
-        return results.get(0);
+        return results;
     }
 
     @Test
     public void userReadAndSearchYieldsNoAudit() {
-        PagedResult<UserTO> users = userService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
-        assertNotNull(users);
-        assertFalse(users.getResult().isEmpty());
+        UserTO userTO = createUser(UserITCase.getUniqueSample("audit@syncope.org")).getEntity();
+        assertNotNull(userTO.getKey());
 
-        users.getResult().forEach(user -> assertNotNull(userService.read(user.getKey())));
+        AuditQuery query = new AuditQuery.Builder(userTO.getKey()).build();
+        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
 
-        users.getResult().forEach(user -> {
-            AuditQuery query = new AuditQuery.Builder(user.getKey()).build();
-            AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, false);
-            assertNull(entry);
-        });
+        PagedResult<UserTO> usersTOs = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(userTO.getUsername()).
+                                query()).
+                        build());
+        assertNotNull(usersTOs);
+        assertFalse(usersTOs.getResult().isEmpty());
+
+        entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
     }
 
     @Test
@@ -127,18 +132,23 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void groupReadAndSearchYieldsNoAudit() {
+        GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroupSearch")).getEntity();
+        assertNotNull(groupTO.getKey());
+
+        AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).build();
+        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
+
         PagedResult<GroupTO> groups = groupService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).
+                                query()).
+                        build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
 
-        groups.getResult().forEach(groupTO -> assertNotNull(groupService.read(groupTO.getKey())));
-
-        groups.getResult().forEach(groupTO -> {
-            AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).build();
-            AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, false);
-            assertNull(entry);
-        });
+        entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
     }
 
     @Test
@@ -154,17 +164,21 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void anyObjectReadAndSearchYieldsNoAudit() {
+        AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSample("USA")).getEntity();
+        assertNotNull(anyObjectTO);
+
+        AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).build();
+        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
+
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(getUUIDString()).query()).
+                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectTO.getType()).query()).
                         build());
         assertNotNull(anyObjects);
-        assertTrue(anyObjects.getResult().isEmpty());
+        assertFalse(anyObjects.getResult().isEmpty());
 
-        anyObjects.getResult().forEach(anyObjectTO -> {
-            AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).build();
-            AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, false);
-            assertNull(entry);
-        });
+        entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
     }
 }
