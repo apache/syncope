@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
@@ -42,7 +41,7 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
-    private static final int MAX_WAIT_SECONDS = 20;
+    private static final int MAX_WAIT_SECONDS = 50;
 
     private static AuditEntryTO query(final AuditQuery query, final int maxWaitSeconds, final boolean failIfEmpty) {
         List<AuditEntryTO> results = query(query, maxWaitSeconds);
@@ -78,12 +77,12 @@ public class AuditITCase extends AbstractITCase {
         List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
-        PagedResult<UserTO> anyObjects = userService.search(
+        PagedResult<UserTO> usersTOs = userService.search(
             new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(getUUIDString()).query()).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(userTO.getUsername()).query()).
                 build());
-        assertNotNull(anyObjects);
-        assertTrue(anyObjects.getResult().isEmpty());
+        assertNotNull(usersTOs);
+        assertFalse(usersTOs.getResult().isEmpty());
 
         entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
@@ -135,8 +134,7 @@ public class AuditITCase extends AbstractITCase {
     @Test
     public void groupReadAndSearchYieldsNoAudit() {
         PagedResult<GroupTO> groups = groupService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                build());
+            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
         for (GroupTO groupTO : groups.getResult()) {
@@ -170,10 +168,10 @@ public class AuditITCase extends AbstractITCase {
 
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
             new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("BUILDING").query()).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectTO.getType()).query()).
                 build());
         assertNotNull(anyObjects);
-        assertTrue(anyObjects.getResult().isEmpty());
+        assertFalse(anyObjects.getResult().isEmpty());
         
         entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
