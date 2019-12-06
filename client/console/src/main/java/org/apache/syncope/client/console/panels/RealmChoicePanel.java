@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -95,10 +93,6 @@ public class RealmChoicePanel extends Panel {
         availableRealms = SyncopeConsoleSession.get().getAuthRealms();
         tree = new HashMap<>();
 
-        RealmTO fakeRootRealm = new RealmTO();
-        fakeRootRealm.setName(SyncopeConstants.ROOT_REALM);
-        fakeRootRealm.setFullPath(SyncopeConstants.ROOT_REALM);
-
         realmTree = new LoadableDetachableModel<List<Pair<String, RealmTO>>>() {
 
             private static final long serialVersionUID = -7688359318035249200L;
@@ -123,12 +117,9 @@ public class RealmChoicePanel extends Panel {
                 Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
                 List<Pair<String, RealmTO>> full = new ArrayList<>();
                 getChildren(full, null, map, StringUtils.EMPTY);
-
-                return full.stream().filter(realm
-                        -> availableRealms.stream().anyMatch(
-                                availableRealm -> realm.getValue().getFullPath()
-                                        .startsWith(availableRealm))).collect(Collectors.toList());
-
+                return full.stream().filter(realm -> availableRealms.stream().anyMatch(
+                        availableRealm -> realm.getValue().getFullPath().startsWith(availableRealm))).
+                        collect(Collectors.toList());
             }
         };
 
@@ -154,7 +145,7 @@ public class RealmChoicePanel extends Panel {
                                 || dynRealm.getKey().equals(availableRealm))).collect(Collectors.toList());
             }
         };
-       
+
         model = Model.of(realmTree.getObject().stream().findFirst().get().getValue());
         container = new WebMarkupContainer("container", realmTree);
         container.setOutputMarkupId(true);
@@ -213,13 +204,9 @@ public class RealmChoicePanel extends Panel {
                 @Override
                 public Pair<String, RealmTO> getObject(final String id,
                         final IModel<? extends List<? extends Pair<String, RealmTO>>> choices) {
-                    return IterableUtils.find(choices.getObject(), new Predicate<Pair<String, RealmTO>>() {
 
-                        @Override
-                        public boolean evaluate(final Pair<String, RealmTO> object) {
-                            return object.getKey().equals(id);
-                        }
-                    });
+                    return choices.getObject().stream().
+                            filter(object -> object.getKey().equals(id)).findFirst().orElse(null);
                 }
             });
             select.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -289,8 +276,8 @@ public class RealmChoicePanel extends Panel {
             }
         });
 
-        for (Pair<String, RealmTO> link : realmTree.getObject()) {
-            final RealmTO realmTO = link.getValue();
+        realmTree.getObject().forEach(link -> {
+            RealmTO realmTO = link.getValue();
             RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                     ButtonList.getButtonMarkupId(),
                     Model.of(realmTO),
@@ -308,7 +295,7 @@ public class RealmChoicePanel extends Panel {
                     send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
                 }
             });
-        }
+        });
 
         if (!dynRealmTree.getObject().isEmpty()) {
             RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
@@ -336,7 +323,7 @@ public class RealmChoicePanel extends Panel {
                 }
             });
 
-            for (DynRealmTO dynRealmTO : dynRealmTree.getObject()) {
+            dynRealmTree.getObject().forEach(dynRealmTO -> {
                 final RealmTO realmTO = new RealmTO();
                 realmTO.setKey(dynRealmTO.getKey());
                 realmTO.setName(dynRealmTO.getKey());
@@ -359,7 +346,7 @@ public class RealmChoicePanel extends Panel {
                         send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
                     }
                 });
-            }
+            });
         }
     }
 
