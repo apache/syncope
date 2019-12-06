@@ -141,7 +141,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:5:action:action",
+                + "actions:actions:actionRepeater:6:action:action",
                 IndicatingOnConfirmAjaxLink.class);
     }
 }

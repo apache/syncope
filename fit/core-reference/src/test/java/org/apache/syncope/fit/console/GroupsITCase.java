@@ -128,11 +128,11 @@ public class GroupsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action");
+                + "actions:actions:actionRepeater:10:action:action");
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action"), Constants.ON_CLICK);
+                + "actions:actions:actionRepeater:10:action:action"), Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -217,11 +217,11 @@ public class GroupsITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action"));
+                + "actions:actions:actionRepeater:10:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action"), Constants.ON_CLICK);
+                + "actions:actions:actionRepeater:10:action:action"), Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -239,6 +239,6 @@ public class GroupsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action", IndicatingOnConfirmAjaxLink.class);
+                + "actions:actions:actionRepeater:10:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 }
