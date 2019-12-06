@@ -2670,24 +2670,14 @@ under the License.
     </profile>
 
     <profile>
-      <id>skipLegalFiles</id>
-      <properties>
-        <ianal.skip>true</ianal.skip>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>skipSass</id>
-      <properties>
-        <skip.sass>true</skip.sass>
-      </properties>
-    </profile>
-    
-    <profile>
       <id>skipTests</id>
 
       <properties>
         <skipTests>true</skipTests>
+        <ianal.skip>true</ianal.skip>
+        <modernizer.skip>true</modernizer.skip>
+        <rat.skip>true</rat.skip>
+        <checkstyle.skip>true</checkstyle.skip>
       </properties>
 
       <build>
@@ -2695,33 +2685,11 @@ under the License.
         
         <plugins>
           <plugin>
-            <groupId>org.gaul</groupId>
-            <artifactId>modernizer-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>modernizer-check</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
             <executions>
               <execution>
                 <id>checkstyle-check</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-      
-          <plugin>
-            <groupId>org.apache.rat</groupId>
-            <artifactId>apache-rat-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>rat-check</id>
                 <phase>none</phase>
               </execution>
             </executions>
