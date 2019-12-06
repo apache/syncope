@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -133,16 +132,22 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void groupReadAndSearchYieldsNoAudit() {
+        GroupTO groupTO = createGroup(GroupITCase.getBasicSampleTO("AuditGroupSearch")).getEntity();
+        assertNotNull(groupTO.getKey());
+
+        AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).build();
+        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
+
         PagedResult<GroupTO> groups = groupService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query()).
+                build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
-        for (GroupTO groupTO : groups.getResult()) {
-            assertNotNull(groupService.read(groupTO.getKey()));
-            AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).build();
-            AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, false);
-            assertNull(entry);
-        }
+
+        entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(1, entries.size());
     }
 
     @Test
