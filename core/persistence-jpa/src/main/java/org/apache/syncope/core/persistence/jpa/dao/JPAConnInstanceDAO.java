@@ -36,6 +36,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements ConnInstanceDAO {
@@ -49,11 +50,13 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
     @Autowired
     private ConnectorRegistry connRegistry;
 
+    @Transactional(readOnly = true)
     @Override
     public ConnInstance find(final String key) {
         return entityManager().find(JPAConnInstance.class, key);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ConnInstance authFind(final String key) {
         ConnInstance connInstance = find(key);
