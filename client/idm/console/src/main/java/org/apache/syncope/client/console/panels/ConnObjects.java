@@ -22,12 +22,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.status.ReconTaskPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -83,7 +85,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         };
         connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                connObjects, resource.getKey(), anyTypes.getField().getModelObject(), pageRef));
+                connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
         connObjects.setOutputMarkupId(true);
         add(connObjects);
 
@@ -94,7 +96,7 @@ public class ConnObjects extends Panel implements ModalPanel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                        connObjects, resource.getKey(), anyTypes.getField().getModelObject(), pageRef));
+                        connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
                 target.add(connObjects);
             }
         });
@@ -106,7 +108,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         NextableConnObjectDirectoryPanel(
                 final MultilevelPanel multiLevelPanelRef,
-                final String resource,
+                final ResourceTO resource,
                 final String anyType,
                 final PageReference pageRef) {
 
@@ -122,6 +124,31 @@ public class ConnObjects extends Panel implements ModalPanel {
                     new StringResourceModel("connObject.view", this, new Model<>(connObjectTO)).getObject(),
                     new ConnObjectDetails(connObjectTO),
                     target);
+        }
+
+        @Override
+        protected void pullConnObject(
+                final String connObjectKeyValue,
+                final AjaxRequestTarget target,
+                final String resource,
+                final String anyType,
+                final boolean isOnSyncope,
+                final PageReference pageRef) {
+            anyTypes.setEnabled(false);
+            target.add(anyTypes);
+
+            connObjects.next("PULL " + resource,
+                    new ReconTaskPanel(
+                            resource,
+                            new PullTaskTO(),
+                            anyType,
+                            null,
+                            connObjectKeyValue,
+                            isOnSyncope,
+                            connObjects,
+                            pageRef),
+                    target
+            );
         }
 
     }

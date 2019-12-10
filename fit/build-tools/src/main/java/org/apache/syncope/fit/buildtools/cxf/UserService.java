@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.buildtools.cxf;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.Consumes;
@@ -38,6 +39,11 @@ public interface UserService {
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     List<User> list();
+
+    @GET
+    @Path("changelog")
+    @Produces({ MediaType.APPLICATION_JSON })
+    List<UserMetadata> changelog(@QueryParam("from") Date from);
 
     @GET
     @Path("{key}")

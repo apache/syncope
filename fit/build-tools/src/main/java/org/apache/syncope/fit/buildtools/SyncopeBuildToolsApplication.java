@@ -30,6 +30,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider;
 import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,10 +45,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @SpringBootApplication(scanBasePackages = "org.apache.syncope.fit.buildtools",
-    exclude = {
-        ErrorMvcAutoConfiguration.class,
-        WebMvcAutoConfiguration.class,
-        HttpMessageConvertersAutoConfiguration.class })
+        exclude = {
+            ErrorMvcAutoConfiguration.class,
+            WebMvcAutoConfiguration.class,
+            HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
@@ -98,7 +99,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         restProvisioning.setAddress("/rest");
         restProvisioning.setStaticSubresourceResolution(true);
         restProvisioning.setBasePackages(List.of("org.apache.syncope.fit.buildtools.cxf"));
-        restProvisioning.setProviders(List.of(new JacksonJsonProvider()));
+        restProvisioning.setProviders(List.of(new JacksonJsonProvider(), new DateParamConverterProvider()));
         return restProvisioning.create();
     }
 

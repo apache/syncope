@@ -162,6 +162,5 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
             this.result = SpecialAttr.ASSIGNABLE.toString();
             return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
-
     }
 }

@@ -34,6 +34,8 @@ public abstract class AbstractProducer extends DefaultProducer {
 
     private boolean pull;
 
+    private String executor;
+
     public AbstractProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind) {
         super(endpoint);
         this.anyTypeKind = anyTypeKind;
@@ -65,5 +67,13 @@ public abstract class AbstractProducer extends DefaultProducer {
 
     public void setPull(final boolean pull) {
         this.pull = pull;
+    }
+
+    public String getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(final String executor) {
+        this.executor = executor;
     }
 }

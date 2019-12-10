@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
-import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 import org.apache.syncope.core.flowable.api.DropdownValueProvider;
+import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -618,6 +618,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public UserWorkflowResult<UserUR> submitForm(final UserRequestForm form) {
         Pair<Task, TaskFormData> parsed = parseTask(form.getTaskId());
 

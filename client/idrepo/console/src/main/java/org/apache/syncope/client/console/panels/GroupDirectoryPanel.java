@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -62,6 +63,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -113,7 +115,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
 
                             panel = new UserDirectoryPanel.Builder(
-                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                    AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                     setRealm(SyncopeConstants.ROOT_REALM).
                                     setFiltered(true).
                                     setFiql(query).
@@ -133,7 +135,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
 
                             panel = new AnyObjectDirectoryPanel.Builder(
-                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                    AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                     setRealm(SyncopeConstants.ROOT_REALM).
                                     setFiltered(true).
                                     setFiql(query).
@@ -340,6 +342,27 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 utilityModal.show(true);
             }
         }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
+
+        panel.add(new ActionLink<GroupTO>() {
+
+            private static final long serialVersionUID = -2878723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                IModel<GroupWrapper> formModel = new CompoundPropertyModel<>(
+                        new GroupWrapper(new GroupRestClient().read(model.getObject().getKey())));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                        altDefaultModal,
+                        pageRef,
+                        formModel.getObject().getInnerObject())));
+
+                altDefaultModal.header(new Model<>(
+                        getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                altDefaultModal.show(true);
+            }
+        }, ActionType.VIEW_AUDIT_HISTORY, IdRepoEntitlement.AUDIT_LIST).
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 

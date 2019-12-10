@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 
 public abstract class JPAJSONEntityListener<A extends Any<?>> {
 
-    protected abstract List<? extends JSONPlainAttr<A>> getValues(String plainAttrsJSON);
+    protected abstract List<? extends JSONPlainAttr<A>> getAttrs(String plainAttrsJSON);
 
     @SuppressWarnings("unchecked")
     protected void json2list(final JSONAttributable<A> entity, final boolean clearFirst) {
@@ -36,7 +36,7 @@ public abstract class JPAJSONEntityListener<A extends Any<?>> {
             entity.getPlainAttrList().clear();
         }
         if (entity.getPlainAttrsJSON() != null) {
-            getValues(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).map(attr -> {
+            getAttrs(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).map(attr -> {
                 if (entity instanceof Any) {
                     attr.setOwner((A) entity);
                 } else if (entity instanceof LinkedAccount) {

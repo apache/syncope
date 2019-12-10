@@ -42,6 +42,7 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
@@ -185,6 +186,15 @@ public class SyncopeClient {
      */
     public static AnyObjectFiqlSearchConditionBuilder getAnyObjectSearchConditionBuilder(final String type) {
         return new AnyObjectFiqlSearchConditionBuilder(type);
+    }
+
+    /**
+     * Returns a new instance of {@link ConnObjectTOFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
+     *
+     * @return default instance of {@link ConnObjectTOFiqlSearchConditionBuilder}
+     */
+    public static ConnObjectTOFiqlSearchConditionBuilder getConnObjectTOFiqlSearchConditionBuilder() {
+        return new ConnObjectTOFiqlSearchConditionBuilder();
     }
 
     /**

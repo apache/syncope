@@ -42,8 +42,12 @@ import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import javax.annotation.Resource;
 
 public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisioningManager {
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     @Autowired
     protected AnyObjectWorkflowAdapter awfAdapter;
@@ -81,7 +85,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 created.getPropByRes(),
                 anyObjectCR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
@@ -109,7 +113,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 anyObjectUR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
@@ -138,7 +142,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 propByRes,
                 null,
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         try {
             awfAdapter.delete(key);
@@ -175,7 +179,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
@@ -195,7 +199,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 anyObjectDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }

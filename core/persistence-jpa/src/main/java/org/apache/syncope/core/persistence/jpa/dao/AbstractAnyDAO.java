@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
+
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
@@ -149,6 +151,16 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     protected abstract void securityChecks(A any);
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<A> findByKeys(final List<String> keys) {
+        Class<A> entityClass = anyUtils().anyClass();
+        TypedQuery<A> query = entityManager().createQuery(
+                "SELECT e FROM " + entityClass.getSimpleName() + " e WHERE e.id IN (:keys)", entityClass);
+        query.setParameter("keys", keys);
+        return query.getResultList();
+    }
 
     @Transactional(readOnly = true)
     @Override

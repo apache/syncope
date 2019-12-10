@@ -126,10 +126,11 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         assertNotNull(taskTO.getExecutions());
 
         int preSyncSize = taskTO.getExecutions().size();
-        ExecTO execution = taskService.execute(
-                new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build());
+        ExecuteQuery query = new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build();
+        ExecTO execution = taskService.execute(query);
         assertEquals(initialStatus, execution.getStatus());
-
+        assertNotNull(execution.getExecutor());
+        
         int i = 0;
 
         // wait for completion (executions incremented)

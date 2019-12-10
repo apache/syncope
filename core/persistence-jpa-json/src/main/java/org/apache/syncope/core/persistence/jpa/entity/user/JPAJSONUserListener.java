@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 public class JPAJSONUserListener extends JPAJSONEntityListener<User> {
 
     @Override
-    protected List<? extends JSONPlainAttr<User>> getValues(final String plainAttrsJSON) {
+    protected List<? extends JSONPlainAttr<User>> getAttrs(final String plainAttrsJSON) {
         return POJOHelper.deserialize(plainAttrsJSON, new TypeReference<List<JPAJSONUPlainAttr>>() {
         });
     }

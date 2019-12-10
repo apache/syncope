@@ -20,9 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
@@ -297,27 +296,18 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         return memberKey;
     }
 
+    @SuppressWarnings("unchecked")
     protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
-        List<T> result = new ArrayList<>();
+        List<String> keys = raw.stream().
+                map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
+                collect(Collectors.toList());
 
-        raw.stream().map(anyKey -> anyKey instanceof Object[]
-                ? (String) ((Object[]) anyKey)[0]
-                : ((String) anyKey)).
-                forEachOrdered(actualKey -> {
-                    @SuppressWarnings("unchecked")
-                    T any = kind == AnyTypeKind.USER
-                            ? (T) userDAO.find(actualKey)
-                            : kind == AnyTypeKind.GROUP
-                                    ? (T) groupDAO.find(actualKey)
-                                    : (T) anyObjectDAO.find(actualKey);
-                    if (any == null) {
-                        LOG.error("Could not find {} with id {}, even if returned by native query", kind, actualKey);
-                    } else if (!result.contains(any)) {
-                        result.add(any);
-                    }
-                });
+        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys);
 
-        return result;
+        keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
+                forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
+
+        return (List<T>) anys;
     }
 
     @Override

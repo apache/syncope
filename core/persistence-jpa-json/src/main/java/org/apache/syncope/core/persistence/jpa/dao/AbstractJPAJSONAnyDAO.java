@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
 import org.apache.commons.jexl3.parser.Parser;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -180,7 +182,27 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         return attrValues;
     }
 
-    protected abstract List<Object> findByDerAttrValue(String table, Map<String, List<Object>> clauses);
+    @SuppressWarnings("unchecked")
+    protected List<Object> findByDerAttrValue(
+            final String table,
+            final Map<String, List<Object>> clauses) {
+
+        StringJoiner actualClauses = new StringJoiner(" AND id IN ");
+        List<Object> queryParams = new ArrayList<>();
+
+        clauses.forEach((clause, parameters) -> {
+            actualClauses.add(clause);
+            queryParams.addAll(parameters);
+        });
+
+        Query query = entityManager().createNativeQuery(
+                "SELECT DISTINCT id FROM " + table + " u WHERE id IN " + actualClauses.toString());
+        for (int i = 0; i < queryParams.size(); i++) {
+            query.setParameter(i + 1, queryParams.get(i));
+        }
+
+        return query.getResultList();
+    }
 
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
@@ -296,20 +318,21 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
     @Override
     public <A extends Any<?>> void checkBeforeSave(final String table, final AnyUtils anyUtils, final A any) {
         // check UNIQUE constraints
-        any.getPlainAttrs().stream().
-                filter(attr -> attr.getUniqueValue() != null).
-                map(JSONPlainAttr.class::cast).
-                forEach(attr -> {
-                    PlainSchema schema = attr.getSchema();
-                    List<A> others = findByPlainAttrValue(table, anyUtils, schema, attr.getUniqueValue(), false);
-                    if (others.isEmpty() || (others.size() == 1 && others.get(0).getKey().equals(any.getKey()))) {
-                        LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
-                    } else {
-                        throw new DuplicateException(
-                                "Value " + attr.getUniqueValue().getValueAsString()
-                                + " existing for " + schema.getKey());
-                    }
-                });
+        // cannot move to functional style due to the same issue reported at
+        // https://medium.com/xiumeteo-labs/stream-and-concurrentmodificationexception-2d14ed8ff4b2
+        for (PlainAttr<?> attr : any.getPlainAttrs()) {
+            if (attr.getUniqueValue() != null && attr instanceof JSONPlainAttr) {
+                PlainSchema schema = attr.getSchema();
+                Optional<A> other = findByPlainAttrUniqueValue(table, anyUtils, schema, attr.getUniqueValue(), false);
+                if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
+                    LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
+                } else {
+                    throw new DuplicateException(
+                            "Value " + attr.getUniqueValue().getValueAsString()
+                            + " existing for " + schema.getKey());
+                }
+            }
+        }
 
         // update sysInfo - as org.apache.syncope.core.persistence.jpa.entity.PlainAttrListener is not invoked
         Date now = new Date();

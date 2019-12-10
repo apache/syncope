@@ -36,8 +36,8 @@ public class JPAJSONAttributableValidator extends AbstractValidator<JPAJSONAttri
         entity.getPlainAttrList().forEach(attr -> {
             PlainAttr<?> plainAttr = (PlainAttr<?>) attr;
             isValid.getAndSet(isValid.get() && attrValidator.isValid(plainAttr, context));
-            plainAttr.getValues().forEach(value
-                    -> isValid.getAndSet(isValid.get() && attrValueValidator.isValid(value, context)));
+            plainAttr.getValues().forEach(
+                    value -> isValid.getAndSet(isValid.get() && attrValueValidator.isValid(value, context)));
         });
 
         return isValid.get();

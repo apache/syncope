@@ -27,26 +27,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
-import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -58,7 +51,6 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.apache.syncope.fit.AbstractITCase;
@@ -416,22 +408,22 @@ public class ResourceITCase extends AbstractITCase {
         try {
             // create a new resource
             resource = createResource(resource);
-            assertNull(resource.getProvision("PRINTER").get().getSyncToken());
+            assertNull(resource.getProvision(PRINTER).get().getSyncToken());
 
             // create some object on the new resource
             anyObject = createAnyObject(anyObjectCR).getEntity();
 
             // update sync token
-            resourceService.setLatestSyncToken(resource.getKey(), "PRINTER");
+            resourceService.setLatestSyncToken(resource.getKey(), PRINTER);
 
             resource = resourceService.read(resource.getKey());
-            assertNotNull(resource.getProvision("PRINTER").get().getSyncToken());
+            assertNotNull(resource.getProvision(PRINTER).get().getSyncToken());
 
             // remove sync token
-            resourceService.removeSyncToken(resource.getKey(), "PRINTER");
+            resourceService.removeSyncToken(resource.getKey(), PRINTER);
 
             resource = resourceService.read(resource.getKey());
-            assertNull(resource.getProvision("PRINTER").get().getSyncToken());
+            assertNull(resource.getProvision(PRINTER).get().getSyncToken());
         } finally {
             if (anyObject != null) {
                 anyObjectService.delete(anyObject.getKey());
@@ -515,56 +507,6 @@ public class ResourceITCase extends AbstractITCase {
         assertTrue(provision.isPresent());
         assertFalse(provision.get().getMapping().getItems().isEmpty());
         assertFalse(provision.get().getMapping().getLinkingItems().isEmpty());
-    }
-
-    @Test
-    public void listConnObjects() {
-        List<String> groupKeys = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            GroupCR groupCR = GroupITCase.getSample("group");
-            groupCR.getResources().add(RESOURCE_NAME_LDAP);
-            GroupTO group = createGroup(groupCR).getEntity();
-            groupKeys.add(group.getKey());
-        }
-
-        int totalRead = 0;
-        Set<String> read = new HashSet<>();
-        try {
-            ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().size(10);
-            PagedConnObjectTOResult list;
-            do {
-                list = null;
-
-                boolean succeeded = false;
-                // needed because ApacheDS seems to randomly fail when searching with cookie
-                for (int i = 0; i < 5 && !succeeded; i++) {
-                    try {
-                        list = resourceService.listConnObjects(
-                                RESOURCE_NAME_LDAP,
-                                AnyTypeKind.GROUP.name(),
-                                builder.build());
-                        succeeded = true;
-                    } catch (SyncopeClientException e) {
-                        assertEquals(ClientExceptionType.ConnectorException, e.getType());
-                    }
-                }
-                assertNotNull(list);
-
-                totalRead += list.getResult().size();
-                read.addAll(list.getResult().stream().
-                        map(input -> input.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0)).
-                        collect(Collectors.toList()));
-
-                if (list.getPagedResultsCookie() != null) {
-                    builder.pagedResultsCookie(list.getPagedResultsCookie());
-                }
-            } while (list.getPagedResultsCookie() != null);
-
-            assertEquals(totalRead, read.size());
-            assertTrue(totalRead >= 10);
-        } finally {
-            groupKeys.forEach(key -> groupService.delete(key));
-        }
     }
 
     @Test

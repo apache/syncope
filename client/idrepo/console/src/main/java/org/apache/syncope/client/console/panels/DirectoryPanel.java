@@ -279,7 +279,7 @@ public abstract class DirectoryPanel<
         dataProvider = dataProvider();
 
         final int currentPage = Optional.ofNullable(resultTable)
-            .map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
+                .map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
 
         // take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<T, String>(

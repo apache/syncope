@@ -52,9 +52,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         List<ReportTemplateTO> reportTemplateTOs = reportTemplateService.list();
         assertNotNull(reportTemplateTOs);
         assertFalse(reportTemplateTOs.isEmpty());
-        for (ReportTemplateTO instance : reportTemplateTOs) {
-            assertNotNull(instance);
-        }
+        reportTemplateTOs.forEach(instance -> assertNotNull(instance));
     }
 
     @Test

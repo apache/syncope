@@ -206,8 +206,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
                             names.addAll(anames.getObject().keySet());
                         }
-                        Collections.sort(names);
-                        return names;
+                        return names.stream().sorted().collect(Collectors.toList());
 
                     case GROUP_MEMBERSHIP:
                         final List<String> groups = groupInfo.getLeft().getObject().values().

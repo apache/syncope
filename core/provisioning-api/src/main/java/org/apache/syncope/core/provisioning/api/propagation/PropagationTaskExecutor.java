@@ -45,18 +45,20 @@ public interface PropagationTaskExecutor {
      * Execute the given PropagationTask and returns the generated {@link TaskExec}.
      *
      * @param taskInfo to be executed
+     * @param executor the executor of this task
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTaskInfo taskInfo);
+    TaskExec execute(PropagationTaskInfo taskInfo, String executor);
 
     /**
      * Execute the given PropagationTask and returns the generated {@link TaskExec}.
      *
      * @param taskInfo to be executed
      * @param reporter to report propagation execution status
+     * @param executor the executor of this task
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTaskInfo taskInfo, PropagationReporter reporter);
+    TaskExec execute(PropagationTaskInfo taskInfo, PropagationReporter reporter, String executor);
 
     /**
      * Execute a collection of PropagationTask objects.
@@ -65,7 +67,9 @@ public interface PropagationTaskExecutor {
      *
      * @param taskInfos to be execute, in given order
      * @param nullPriorityAsync asynchronously executes tasks related to resources with no priority
+     * @param executor the executor of this task
      * @return reporter to report propagation execution status
      */
-    PropagationReporter execute(Collection<PropagationTaskInfo> taskInfos, boolean nullPriorityAsync);
+    PropagationReporter execute(Collection<PropagationTaskInfo> taskInfos, boolean nullPriorityAsync,
+                                String executor);
 }

@@ -25,11 +25,19 @@ import org.apache.syncope.common.lib.to.UserTO;
 
 public interface OIDCProviderActions {
 
-    UserCR beforeCreate(UserCR input, OIDCLoginResponseTO loginResponse);
+    default UserCR beforeCreate(UserCR input, OIDCLoginResponseTO loginResponse) {
+        return input;
+    }
 
-    UserTO afterCreate(UserTO input, OIDCLoginResponseTO loginResponse);
+    default UserTO afterCreate(UserTO input, OIDCLoginResponseTO loginResponse) {
+        return input;
+    }
 
-    UserUR beforeUpdate(UserUR input, OIDCLoginResponseTO loginResponse);
+    default UserUR beforeUpdate(UserUR input, OIDCLoginResponseTO loginResponse) {
+        return input;
+    }
 
-    UserTO afterUpdate(UserTO input, OIDCLoginResponseTO loginResponse);
+    default UserTO afterUpdate(UserTO input, OIDCLoginResponseTO loginResponse) {
+        return input;
+    }
 }

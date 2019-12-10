@@ -305,4 +305,11 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     protected Integer getMaxUploadFileSizeMB() {
         return SyncopeWebApplication.get().getMaxUploadFileSizeMB();
     }
+
+    @Override
+    public FieldPanel<String> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        fileUpload.setEnabled(!readOnly);
+        return this;
+    }
 }

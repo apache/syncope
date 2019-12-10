@@ -76,25 +76,23 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
     }
 
     public String getUDynMembershipCond() {
-        if (CollectionUtils.isEmpty(this.uDynClauses)) {
-            return null;
-        } else {
-            return SearchUtils.buildFIQL(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
-        }
+        return CollectionUtils.isEmpty(this.uDynClauses)
+                ? null
+                : SearchUtils.buildFIQL(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
     }
 
     public Map<String, String> getADynMembershipConds() {
-        final Map<String, String> res = new HashMap<>();
+        Map<String, String> res = new HashMap<>();
         if (this.aDynClauses != null && !this.aDynClauses.isEmpty()) {
-            for (Map.Entry<String, List<SearchClause>> entry : this.aDynClauses.entrySet()) {
-                if (CollectionUtils.isNotEmpty(entry.getValue())) {
-                    final String fiql = SearchUtils.buildFIQL(entry.getValue(),
-                            SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey()));
-                    if (fiql != null) {
-                        res.put(entry.getKey(), fiql);
-                    }
-                }
-            }
+            this.aDynClauses.entrySet().stream().
+                    filter(entry -> CollectionUtils.isNotEmpty(entry.getValue())).
+                    forEach(entry -> {
+                        String fiql = SearchUtils.buildFIQL(entry.getValue(),
+                                SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey()));
+                        if (fiql != null) {
+                            res.put(entry.getKey(), fiql);
+                        }
+                    });
         }
 
         return res;

@@ -26,7 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
@@ -55,24 +55,21 @@ public class ResourceRestClient extends BaseRestClient {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
-    public static Pair<String, List<ConnObjectTO>> listConnObjects(
-        final String resource,
-        final String anyTypeKey,
-        final int size,
-        final String pagedResultCookie,
-        final SortParam<String> sort) {
-
-        ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().
-                pagedResultsCookie(pagedResultCookie).
-                size(size).
-                orderBy(toOrderBy(sort));
+    public Pair<String, List<ConnObjectTO>> searchConnObjects(
+            final String resource,
+            final String anyTypeKey,
+            final ConnObjectTOQuery.Builder queryBuilder,
+            final SortParam<String> sortParam) {
 
         final List<ConnObjectTO> result = new ArrayList<>();
         String nextPageResultCookie = null;
 
         PagedConnObjectTOResult list;
         try {
-            list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
+            if (sortParam != null) {
+                queryBuilder.orderBy(toOrderBy(sortParam));
+            }
+            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, queryBuilder.build());
             result.addAll(list.getResult());
             nextPageResultCookie = list.getPagedResultsCookie();
         } catch (Exception e) {

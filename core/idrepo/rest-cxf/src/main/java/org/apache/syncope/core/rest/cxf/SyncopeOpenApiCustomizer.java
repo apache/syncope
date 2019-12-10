@@ -19,11 +19,15 @@
 package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.HeaderParameter;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -35,6 +39,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -43,6 +50,7 @@ import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ErrorTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -116,8 +124,13 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
             parameter.setName(RESTHeaders.DOMAIN);
             parameter.setRequired(true);
 
+            ExternalDocumentation extDoc = new ExternalDocumentation();
+            extDoc.setDescription("Apache Syncope Reference Guide");
+            extDoc.setUrl("http://syncope.apache.org/docs/2.1/reference-guide.html#domains");
+
             Schema<String> schema = new Schema<>();
-            schema.setType("string");
+            schema.setDescription("Domains are built to facilitate multitenancy.");
+            schema.setExternalDocs(extDoc);
             schema.setEnum(domains);
             schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
             parameter.setSchema(schema);
@@ -148,15 +161,31 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
                 new Header().schema(new Schema<>().type("string")).description("Error code"));
         headers.put(
                 RESTHeaders.ERROR_INFO,
-                new Header().schema(new Schema<>().type("string")).description("Error message"));
+                new Header().schema(new Schema<>().type("string")).description("Error message(s)"));
+
+        ErrorTO sampleError = new ErrorTO();
+        sampleError.setStatus(Response.Status.BAD_REQUEST.getStatusCode());
+        sampleError.setType(ClientExceptionType.InvalidEntity);
+        sampleError.getElements().add("error message");
+
+        Schema<ErrorTO> errorSchema = new Schema<>();
+        errorSchema.example(sampleError).
+                addProperties("status", new IntegerSchema().description("HTTP status code")).
+                addProperties("type", new StringSchema().
+                        _enum(Stream.of(ClientExceptionType.values()).map(Enum::name).collect(Collectors.toList())).
+                        description("Error code")).
+                addProperties("elements", new ArraySchema().type("string").description("Error message(s)"));
 
         Content content = new Content();
         content.addMediaType(
-                javax.ws.rs.core.MediaType.APPLICATION_JSON, new MediaType().schema(new Schema<ErrorTO>()));
+                javax.ws.rs.core.MediaType.APPLICATION_JSON,
+                new MediaType().schema(errorSchema));
         content.addMediaType(
-                RESTHeaders.APPLICATION_YAML, new MediaType().schema(new Schema<ErrorTO>()));
+                RESTHeaders.APPLICATION_YAML,
+                new MediaType().schema(errorSchema));
         content.addMediaType(
-                javax.ws.rs.core.MediaType.APPLICATION_XML, new MediaType().schema(new Schema<ErrorTO>()));
+                javax.ws.rs.core.MediaType.APPLICATION_XML,
+                new MediaType().schema(errorSchema));
 
         responses.addApiResponse("400", new ApiResponse().
                 description("An error occurred; HTTP status code can vary depending on the actual error: "

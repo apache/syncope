@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,9 +40,10 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -90,6 +90,9 @@ public class ConnObjectUtils {
     @Autowired
     private MappingManager mappingManager;
 
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
+
     /**
      * Extract password value from passed value (if instance of GuardedString or GuardedByteArray).
      *
@@ -110,17 +113,6 @@ public class ConnObjectUtils {
         }
 
         return result.toString();
-    }
-
-    /**
-     * Builds {@link ConnObjectTO} out of {@link ConnectorObject}.
-     *
-     * @param connObject connector object.
-     * @return transfer object
-     */
-    public static ConnObjectTO getConnObjectTO(final ConnectorObject connObject) {
-        return Optional.ofNullable(connObject)
-                .map(object -> getConnObjectTO(object.getAttributes())).orElseGet(ConnObjectTO::new);
     }
 
     /**
@@ -160,24 +152,26 @@ public class ConnObjectUtils {
      * @param obj connector object
      * @param pullTask pull task
      * @param provision provision information
-     * @param anyUtils utils
-     * @return UserTO for the user to be created
+     * @param generatePasswordIfPossible whether password value shall be generated, in case not found from
+     * connector object and allowed by resource configuration
+     * @param <C> create request type
+     * @return create request
      */
     @Transactional(readOnly = true)
-    public AnyCR getAnyCR(
+    public <C extends AnyCR> C getAnyCR(
             final ConnectorObject obj,
             final PullTask pullTask,
             final Provision provision,
-            final AnyUtils anyUtils) {
+            final boolean generatePasswordIfPossible) {
 
-        AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
-        AnyCR anyCR = anyUtils.newAnyCR();
+        AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, provision);
+        C anyCR = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyCR();
         EntityTOUtils.toAnyCR(anyTO, anyCR);
 
         // (for users) if password was not set above, generate if resource is configured for that
         if (anyCR instanceof UserCR
                 && StringUtils.isBlank(((UserCR) anyCR).getPassword())
-                && provision.getResource().isRandomPwdIfNotProvided()) {
+                && generatePasswordIfPossible && provision.getResource().isRandomPwdIfNotProvided()) {
 
             UserCR userCR = (UserCR) anyCR;
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();
@@ -208,6 +202,15 @@ public class ConnObjectUtils {
         return anyCR;
     }
 
+    public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
+        RealmTO realmTO = new RealmTO();
+
+        MappingUtils.getPullItems(orgUnit.getItems().stream()).forEach(item
+                -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
+
+        return realmTO;
+    }
+
     /**
      * Build {@link AnyUR} out of connector object attributes and schema mapping.
      *
@@ -216,7 +219,6 @@ public class ConnObjectUtils {
      * @param original any object to get diff from
      * @param pullTask pull task
      * @param provision provision information
-     * @param anyUtils utils
      * @param <U> any object
      * @return modifications for the any object to be updated
      */
@@ -227,104 +229,95 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final AnyTO original,
             final PullTask pullTask,
-            final Provision provision,
-            final AnyUtils anyUtils) {
+            final Provision provision) {
 
-        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
+        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision);
         updated.setKey(key);
 
         U anyUR = null;
-        if (null != anyUtils.anyTypeKind()) {
-            switch (anyUtils.anyTypeKind()) {
-                case USER:
-                    UserTO originalUser = (UserTO) original;
-                    UserTO updatedUser = (UserTO) updated;
+        switch (provision.getAnyType().getKind()) {
+            case USER:
+                UserTO originalUser = (UserTO) original;
+                UserTO updatedUser = (UserTO) updated;
 
-                    if (StringUtils.isBlank(updatedUser.getUsername())) {
-                        updatedUser.setUsername(originalUser.getUsername());
-                    }
+                if (StringUtils.isBlank(updatedUser.getUsername())) {
+                    updatedUser.setUsername(originalUser.getUsername());
+                }
 
-                    // update password if and only if password is really changed
-                    User user = userDAO.authFind(key);
-                    if (StringUtils.isBlank(updatedUser.getPassword())
-                            || ENCRYPTOR.verify(updatedUser.getPassword(),
-                                    user.getCipherAlgorithm(), user.getPassword())) {
+                // update password if and only if password is really changed
+                User user = userDAO.authFind(key);
+                if (StringUtils.isBlank(updatedUser.getPassword())
+                        || ENCRYPTOR.verify(updatedUser.getPassword(),
+                                user.getCipherAlgorithm(), user.getPassword())) {
 
-                        updatedUser.setPassword(null);
-                    }
+                    updatedUser.setPassword(null);
+                }
 
-                    updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
+                updatedUser.setSecurityQuestion(originalUser.getSecurityQuestion());
 
-                    if (!mappingManager.hasMustChangePassword(provision)) {
-                        updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
-                    }
+                if (!mappingManager.hasMustChangePassword(provision)) {
+                    updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
+                }
 
-                    anyUR = (U) AnyOperations.diff(updatedUser, originalUser, true);
-                    break;
+                anyUR = (U) AnyOperations.diff(updatedUser, originalUser, true);
+                break;
 
-                case GROUP:
-                    GroupTO originalGroup = (GroupTO) original;
-                    GroupTO updatedGroup = (GroupTO) updated;
+            case GROUP:
+                GroupTO originalGroup = (GroupTO) original;
+                GroupTO updatedGroup = (GroupTO) updated;
 
-                    if (StringUtils.isBlank(updatedGroup.getName())) {
-                        updatedGroup.setName(originalGroup.getName());
-                    }
-                    updatedGroup.setUserOwner(originalGroup.getUserOwner());
-                    updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
-                    updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
-                    updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
-                    updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
+                if (StringUtils.isBlank(updatedGroup.getName())) {
+                    updatedGroup.setName(originalGroup.getName());
+                }
+                updatedGroup.setUserOwner(originalGroup.getUserOwner());
+                updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
+                updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
+                updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
+                updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
 
-                    anyUR = (U) AnyOperations.diff(updatedGroup, originalGroup, true);
-                    break;
+                anyUR = (U) AnyOperations.diff(updatedGroup, originalGroup, true);
+                break;
 
-                case ANY_OBJECT:
-                    AnyObjectTO originalAnyObject = (AnyObjectTO) original;
-                    AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
+            case ANY_OBJECT:
+                AnyObjectTO originalAnyObject = (AnyObjectTO) original;
+                AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
 
-                    if (StringUtils.isBlank(updatedAnyObject.getName())) {
-                        updatedAnyObject.setName(originalAnyObject.getName());
-                    }
+                if (StringUtils.isBlank(updatedAnyObject.getName())) {
+                    updatedAnyObject.setName(originalAnyObject.getName());
+                }
 
-                    anyUR = (U) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
-                    break;
+                anyUR = (U) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
+                break;
 
-                default:
-            }
+            default:
         }
-        // SYNCOPE-1343, remove null or empty values from the patch plain attributes
+
         if (anyUR != null) {
+            // ensure not to include incidental realm changes in the patch
+            anyUR.setRealm(null);
+
+            // SYNCOPE-1343, remove null or empty values from the patch plain attributes
             AnyOperations.cleanEmptyAttrs(updated, anyUR);
         }
         return anyUR;
     }
 
     private <T extends AnyTO> T getAnyTOFromConnObject(
-            final ConnectorObject obj,
-            final PullTask pullTask,
-            final Provision provision,
-            final AnyUtils anyUtils) {
+            final ConnectorObject obj, final PullTask pullTask, final Provision provision) {
 
-        T anyTO = anyUtils.newAnyTO();
+        T anyTO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyTO();
         anyTO.setType(provision.getAnyType().getKey());
+        anyTO.getAuxClasses().addAll(provision.getAuxClasses().stream().
+                map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinationRealm().getFullPath());
-        MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(
+        MappingUtils.getPullItems(provision.getMapping().getItems().stream()).forEach(
                 item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
         // 2. add data from defined template (if any)
         templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
 
         return anyTO;
-    }
-
-    public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
-        RealmTO realmTO = new RealmTO();
-
-        MappingUtils.getPullItems(orgUnit.getItems()).forEach(
-                item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
-
-        return realmTO;
     }
 }

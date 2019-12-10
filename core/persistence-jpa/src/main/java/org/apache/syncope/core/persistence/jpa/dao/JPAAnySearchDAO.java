@@ -64,6 +64,18 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static final String EMPTY_QUERY = "SELECT any_id FROM user_search WHERE 1=2";
 
+    protected String buildAdminRealmsFilter(
+            final Set<String> realmKeys,
+            final SearchSupport svs,
+            final List<Object> parameters) {
+
+        List<String> realmKeyArgs = realmKeys.stream().
+                map(realmKey -> "?" + setParameter(parameters, realmKey)).
+                collect(Collectors.toList());
+        return "u.any_id IN (SELECT any_id FROM " + svs.field().name
+                + " WHERE realm_id IN (" + StringUtils.join(realmKeyArgs, ", ") + "))";
+    }
+
     private Pair<String, Set<String>> getAdminRealmsFilter(
             final Set<String> adminRealms,
             final SearchSupport svs,
@@ -96,24 +108,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     map(Entity::getKey).collect(Collectors.toSet()));
         }
 
-        StringBuilder adminRealmFilter = new StringBuilder("u.any_id IN (").
-                append("SELECT any_id FROM ").append(svs.field().name).
-                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
-
-        boolean firstRealm = true;
-        for (String realmKey : realmKeys) {
-            if (firstRealm) {
-                adminRealmFilter.append(" WHERE");
-                firstRealm = false;
-            } else {
-                adminRealmFilter.append(" OR");
-            }
-            adminRealmFilter.append(" id=?").append(setParameter(parameters, realmKey));
-        }
-
-        adminRealmFilter.append("))");
-
-        return Pair.of(adminRealmFilter.toString(), dynRealmKeys);
+        return Pair.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys);
     }
 
     SearchSupport buildSearchSupport(final AnyTypeKind kind) {

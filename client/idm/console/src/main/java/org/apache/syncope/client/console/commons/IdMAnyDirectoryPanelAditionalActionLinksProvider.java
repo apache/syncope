@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.panels.LinkedAccountModalPanel;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
@@ -105,6 +106,26 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
         manageResources.setOnConfirm(false);
         manageResources.setRealms(realm, modelObject.getDynRealms());
         actions.add(manageResources);
+
+        Action<UserTO> manageAccounts = new Action<>(new ActionLink<UserTO>() {
+
+            private static final long serialVersionUID = 8011039414597736111L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                modal.setFooterVisible(false);
+                target.add(modal.setContent(new LinkedAccountModalPanel(modal, modelObject, pageRef)));
+
+                modal.header(new Model<>(header));
+
+                modal.show(true);
+            }
+        }, ActionLink.ActionType.MANAGE_ACCOUNTS);
+        manageAccounts.setEntitlements(
+                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE));
+        manageAccounts.setOnConfirm(false);
+        manageAccounts.setRealms(realm, modelObject.getDynRealms());
+        actions.add(manageAccounts);
 
         return actions;
     }

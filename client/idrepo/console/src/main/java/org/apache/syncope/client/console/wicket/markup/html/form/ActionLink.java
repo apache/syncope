@@ -97,6 +97,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
         MANAGE_GROUPS("update"),
+        MANAGE_ACCOUNTS("update"),
         PROPAGATION_TASKS("read"),
         NOTIFICATION_TASKS("read"),
         ZOOM_IN("zoomin"),
@@ -105,6 +106,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         VIEW_DETAILS("read"),
         MANAGE_APPROVAL("edit"),
         EDIT_APPROVAL("edit"),
+        VIEW_AUDIT_HISTORY("read"),
         EXTERNAL_EDITOR("externalEditor");
 
         private final String actionId;

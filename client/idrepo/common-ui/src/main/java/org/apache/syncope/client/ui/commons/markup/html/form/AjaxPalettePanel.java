@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -108,7 +110,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             @Override
             protected Recorder<T> newRecorderComponent() {
-                return new Recorder<T>("recorder", this) {
+                Recorder<T> recorder = new Recorder<T>("recorder", this) {
 
                     private static final long serialVersionUID = -9169109967480083523L;
 
@@ -155,6 +157,17 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         return selected;
                     }
                 };
+                recorder.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = -6139318907146065915L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        processInput();
+                    }
+                });
+
+                return recorder;
             }
         };
 
@@ -195,6 +208,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public void reload(final AjaxRequestTarget target) {
         target.add(palette);
+    }
+
+    @Override
+    public AbstractFieldPanel<List<T>> setReadOnly(final boolean readOnly) {
+        palette.setEnabled(!readOnly);
+        return this;
     }
 
     public static class Builder<T extends Serializable> implements Serializable {

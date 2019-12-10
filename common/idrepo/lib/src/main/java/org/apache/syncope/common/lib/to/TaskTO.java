@@ -54,6 +54,8 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
 
     private String latestExecStatus;
 
+    private String lastExecutor;
+
     private final List<ExecTO> executions = new ArrayList<>();
 
     @Schema(name = "@class", required = true)
@@ -85,6 +87,15 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public String getLastExecutor() {
+        return lastExecutor;
+    }
+
+    public void setLastExecutor(final String lastExecutor) {
+        this.lastExecutor = lastExecutor;
+    }
+    
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @XmlElementWrapper(name = "executions")
     @XmlElement(name = "execution")
     @JsonProperty("executions")
@@ -100,6 +111,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
                 append(discriminator).
                 append(executions).
                 append(latestExecStatus).
+                append(lastExecutor).
                 build();
     }
 
@@ -121,6 +133,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
                 append(discriminator, other.discriminator).
                 append(executions, other.executions).
                 append(latestExecStatus, other.latestExecStatus).
+                append(lastExecutor, other.lastExecutor).
                 build();
     }
 }

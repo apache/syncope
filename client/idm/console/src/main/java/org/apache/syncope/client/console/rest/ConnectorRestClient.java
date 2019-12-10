@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.springframework.beans.BeanUtils;
@@ -79,10 +80,10 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public static List<String> getExtAttrNames(
-        final String adminRealm,
-        final String objectClass,
-        final String connectorKey,
-        final Collection<ConnConfProperty> conf) {
+            final String adminRealm,
+            final String objectClass,
+            final String connectorKey,
+            final Collection<ConnConfProperty> conf) {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setAdminRealm(adminRealm);
@@ -94,7 +95,10 @@ public class ConnectorRestClient extends BaseRestClient {
                 filter(object -> object.getType().equalsIgnoreCase(objectClass)).
                 findAny();
 
-        return connIdObjectClass.isPresent() ? connIdObjectClass.get().getAttributes() : new ArrayList<>();
+        return connIdObjectClass.isPresent()
+                ? connIdObjectClass.get().getAttributes().stream().
+                        map(PlainSchemaTO::getKey).collect(Collectors.toList())
+                : List.of();
     }
 
     /**
@@ -180,7 +184,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public static List<ConnIdObjectClassTO> buildObjectClassInfo(
-        final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
+            final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
         List<ConnIdObjectClassTO> result = List.of();
         try {

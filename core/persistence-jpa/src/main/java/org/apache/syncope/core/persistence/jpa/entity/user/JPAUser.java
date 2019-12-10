@@ -421,7 +421,7 @@ public class JPAUser
     @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, JPAAnyTypeClass.class);
-        return auxClasses.contains((JPAAnyTypeClass) auxClass) || this.auxClasses.add((JPAAnyTypeClass) auxClass);
+        return auxClasses.contains((JPAAnyTypeClass) auxClass) || auxClasses.add((JPAAnyTypeClass) auxClass);
     }
 
     @Override

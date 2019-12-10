@@ -82,7 +82,8 @@ public class DeprovisionProducer extends AbstractProducer {
                             propByLinkedAccount,
                             userDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
-                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    propagationReporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
@@ -95,7 +96,8 @@ public class DeprovisionProducer extends AbstractProducer {
                             null,
                             groupDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
-                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    propagationReporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
@@ -108,7 +110,8 @@ public class DeprovisionProducer extends AbstractProducer {
                             null,
                             anyObjectDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
-                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    propagationReporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 

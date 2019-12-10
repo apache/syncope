@@ -127,11 +127,11 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
     @Transactional
     @Override
-    public TaskExec executeSingle(final NotificationTask task) {
+    public TaskExec executeSingle(final NotificationTask task, final String executor) {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
         execution.setStart(new Date());
-
+        execution.setExecutor(executor);
         boolean retryPossible = true;
 
         if (StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
@@ -250,14 +250,14 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
     @Transactional
     @Override
-    public void execute() throws JobExecutionException {
+    public void execute(final String executor) throws JobExecutionException {
         List<NotificationTask> tasks = taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION);
 
         status.set("Sending out " + tasks.size() + " notifications");
 
         for (int i = 0; i < tasks.size() && !interrupt; i++) {
             LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
-            executeSingle(tasks.get(i));
+            executeSingle(tasks.get(i), executor);
             LOG.debug("Notification task {} executed", tasks.get(i));
         }
         if (interrupt) {

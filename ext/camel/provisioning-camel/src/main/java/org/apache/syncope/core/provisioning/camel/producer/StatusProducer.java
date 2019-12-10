@@ -108,7 +108,8 @@ public class StatusProducer extends AbstractProducer {
                     propByLinkedAccount,
                     null,
                     null);
-            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+            PropagationReporter reporter =
+                getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
             exchange.getMessage().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
         }

@@ -99,12 +99,12 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -125,12 +125,12 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -176,7 +176,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     startAt,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
 
             scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {
@@ -194,7 +195,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
-
+        result.setExecutor(AuthContextUtils.getUsername());
         return result;
     }
 
@@ -216,7 +217,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     public static void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
-                                             final ReportExecExportFormat format) {
+            final ReportExecExportFormat format) {
 
         // streaming SAX handler from a compressed byte array stream
         try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
@@ -373,7 +374,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         Report report = reportDAO.find(key);
         return Optional.ofNullable(report)
-            .map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
+                .map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")

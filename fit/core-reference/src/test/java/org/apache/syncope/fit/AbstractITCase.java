@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -84,6 +85,7 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -132,6 +134,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
+
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -194,6 +198,8 @@ public abstract class AbstractITCase {
     protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
 
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
+
+    protected static final String PRINTER = "PRINTER";
 
     protected static String ANONYMOUS_UNAME;
 
@@ -285,6 +291,8 @@ public abstract class AbstractITCase {
 
     protected static SCIMConfService scimConfService;
 
+    protected static AuditService auditService;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = Encryptor.class.getResourceAsStream("/security.properties")) {
@@ -356,6 +364,7 @@ public abstract class AbstractITCase {
         oidcClientService = adminClient.getService(OIDCClientService.class);
         oidcProviderService = adminClient.getService(OIDCProviderService.class);
         scimConfService = adminClient.getService(SCIMConfService.class);
+        auditService = adminClient.getService(AuditService.class);
     }
 
     @Autowired

@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.status.ReconStatusUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 
 public class IdMStatusProvider implements StatusProvider {
@@ -41,7 +40,7 @@ public class IdMStatusProvider implements StatusProvider {
             final AnyTO any, final Collection<String> resources) {
 
         return ReconStatusUtils.getReconStatuses(
-                AnyTypeKind.fromTOClass(any.getClass()), any.getKey(), any.getResources()).stream().
+                any.getType(), any.getKey(), any.getResources()).stream().
                 map(status -> Triple.<ConnObjectTO, ConnObjectWrapper, String>of(
                 status.getRight().getOnSyncope(),
                 new ConnObjectWrapper(any, status.getLeft(), status.getRight().getOnResource()),

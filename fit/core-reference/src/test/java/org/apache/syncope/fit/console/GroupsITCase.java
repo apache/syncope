@@ -141,7 +141,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action"), Constants.ON_CLICK);
+                + "actions:actions:actionRepeater:10:action:action"), Constants.ON_CLICK);
 
         UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
         UTILITY_UI.getTester().cleanupFeedbackMessages();
@@ -233,11 +233,11 @@ public class GroupsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
         UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action"));
+                + "actions:actions:actionRepeater:10:action:action"));
 
         UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action"), Constants.ON_CLICK);
+                + "actions:actions:actionRepeater:10:action:action"), Constants.ON_CLICK);
 
         UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
         UTILITY_UI.getTester().cleanupFeedbackMessages();
@@ -255,6 +255,6 @@ public class GroupsITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         UTILITY_UI.getTester().assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action", IndicatingOnConfirmAjaxLink.class);
+                + "actions:actions:actionRepeater:10:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 }

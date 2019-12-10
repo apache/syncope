@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -85,7 +86,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                 }));
 
                 added.forEach(entitlement -> authorities.add(
-                    new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)));
+                        new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)));
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -160,12 +161,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
     @Override
     public AnyTypeTO getAnyTypeTO(final AnyType anyType) {
         AnyTypeTO anyTypeTO = new AnyTypeTO();
-
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
-        anyType.getClasses().forEach(anyTypeClass -> anyTypeTO.getClasses().add(anyTypeClass.getKey()));
-
+        anyTypeTO.getClasses().addAll(anyType.getClasses().stream().map(Entity::getKey).collect(Collectors.toList()));
         return anyTypeTO;
     }
-
 }

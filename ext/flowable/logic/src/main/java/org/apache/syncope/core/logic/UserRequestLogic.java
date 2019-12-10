@@ -184,7 +184,6 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         UserWorkflowResult<UserUR> wfResult = userRequestHandler.submitForm(form);
-
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)
         if (wfResult.getPropByRes() != null && !wfResult.getPropByRes().isEmpty()) {
@@ -195,7 +194,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                             wfResult.getPropByLinkedAccount(),
                             wfResult.getPerformedTasks()));
 
-            taskExecutor.execute(taskInfos, false);
+            taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
         }
 
         UserTO userTO;

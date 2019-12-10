@@ -34,53 +34,27 @@ notifications:
   email:
     - dev@syncope.apache.org
 stages:
-  - initialize
   - build
   - validate
   - test
   - fit
 jobs:
   include:
-    - stage: initialize
-      script: mvn --quiet --show-version -T 4 enforcer:enforce
-      name: "Verify Platform"
-    - stage: initialize
-      script: mvn -T 4 clean dependency:go-offline dependency:resolve-plugins --quiet -Denforcer.skip=true -U
-      name: "Warm Up Dependencies"
-      #######################################################
     - stage: build
-      script: mvn install --quiet -T 4 -P all,skipTests,skipLegalFiles,docker -Dcheckstyle.skip=true -Dmaven.javadoc.skip=true -Denforcer.skip=true
+      script: mvn -T 1C --quiet -P skipTests,all
       name: "Build"
       #######################################################
     - stage: validate
-      script: mvn checkstyle:check -T 4 -Denforcer.skip=true --quiet
-      name: "Checkstyle Analysis"
-    - stage: validate
-      script: mvn -T 4 --quiet javadoc:javadoc javadoc:test-javadoc -Denforcer.skip=true
-      name: "Javadoc Analysis"
-    - stage: validate
-      script: mvn -T 4 --quiet ianal:verify-legal-files -Denforcer.skip=true
-      name: "Legal Files Analysis"
-    - stage: validate
-      script: mvn -T 4 --quiet modernizer:modernizer
-      name: "Modernizer Legacy API Analysis"
-    - stage: validate
-      script: mvn -T 4 --quiet apache-rat:check
-      name: "Release Audit Tool (RAT) Analysis"
+      script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check --quiet
+      name: "Checkstyle, Legal Files, Modernizer and Release Audit Tool (RAT) Analysis"
       ######################################################
     - stage: test
-      script: mvn clean test -T 4 -P skipLegalFiles,skipSass -T 4 --quiet -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true
+      script: mvn -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dskip.sass=true
       name: "Unit Tests"
       ######################################################
     - stage: fit
-      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
+      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all -T 1C -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       name: "Full Integration Tests via JSON Content-Type"
-    # - stage: fit
-    #   script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -DjaxrsContentType=application/xml -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
-    #   name: "Full Integration Tests via XML Content-Type"
-    # - stage: fit
-    #   script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all,skipLegalFiles,skipSass -T 4 -DjaxrsContentType=application/yaml -Dinvoker.streamLogs=true -Denforcer.skip=true -Dmodernizer.skip=true -Djacoco.skip=true -Drat.skip=true
-    #   name: "Full Integration Tests via YAML Content-Type"
       #####################################################
   after_failure:
     - cat fit/core-reference/target/log/*

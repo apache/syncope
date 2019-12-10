@@ -479,29 +479,36 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision("PRINTER").get();
+        ProvisionTO provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
+
+        ImplementationTO transformer = null;
+        try {
+            transformer = implementationService.read(
+                    IdMImplementationType.ITEM_TRANSFORMER, "PrefixItemTransformer");
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                transformer = new ImplementationTO();
+                transformer.setKey("PrefixItemTransformer");
+                transformer.setEngine(ImplementationEngine.GROOVY);
+                transformer.setType(IdMImplementationType.ITEM_TRANSFORMER);
+                transformer.setBody(IOUtils.toString(
+                        getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
+                Response response = implementationService.create(transformer);
+                transformer = implementationService.read(
+                        transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(transformer.getKey());
+            }
+        }
+        assertNotNull(transformer);
 
         ItemTO mappingItem = provision.getMapping().getItems().stream().
                 filter(object -> "location".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(mappingItem);
-
-        final String prefix = "PREFIX_";
-
-        ImplementationTO transformer = new ImplementationTO();
-        transformer.setKey("PrefixItemTransformer");
-        transformer.setEngine(ImplementationEngine.GROOVY);
-        transformer.setType(IdMImplementationType.ITEM_TRANSFORMER);
-        transformer.setBody(IOUtils.toString(
-                getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
-        Response response = implementationService.create(transformer);
-        transformer = implementationService.read(
-                transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-        assertNotNull(transformer);
-
         mappingItem.getTransformers().clear();
         mappingItem.getTransformers().add(transformer.getKey());
 
+        final String prefix = "PREFIX_";
         try {
             resourceService.update(resource);
             resourceService.removeSyncToken(resource.getKey(), provision.getAnyType());
@@ -530,7 +537,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                            fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                            fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                                     is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
@@ -550,7 +557,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
             matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                             is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
 
@@ -960,7 +967,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // asser for just one match
         assertTrue(executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"),
-            () -> executed.getExecutions().get(0).getMessage().substring(0, 55) + "...");
+                () -> executed.getExecutions().get(0).getMessage().substring(0, 55) + "...");
     }
 
     @Test

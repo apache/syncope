@@ -232,6 +232,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         // save some existing variable values for later processing, after actual update is made 
         UserUR beforeUpdate = engine.getRuntimeService().
                 getVariable(procInstID, FlowableRuntimeUtils.USER_UR, UserUR.class);
+        @SuppressWarnings("unchecked")
         PropagationByResource<String> propByResBeforeUpdate = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
         @SuppressWarnings("unchecked")

@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -438,12 +439,12 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         Assertion assertion = validatorResponse.getOpensamlAssertion();
         NameID nameID = assertion.getSubject().getNameID();
         if (nameID == null) {
-            throw new IllegalArgumentException("NameID not found");
+            throw new IllegalArgumentException(NameID.DEFAULT_ELEMENT_LOCAL_NAME + " not found");
         }
 
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())
-                && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
+                && idp.getConnObjectKeyItem().getExtAttrName().equals(NameID.DEFAULT_ELEMENT_LOCAL_NAME)) {
 
             keyValue = nameID.getValue();
         }
@@ -472,11 +473,11 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
                         }
                     }
 
-                    Attr attrTO = new Attr();
-                    attrTO.setSchema(attrName);
-                    attr.getAttributeValues().stream().
-                            filter(value -> value.getDOM() != null).
-                            forEachOrdered(value -> attrTO.getValues().add(value.getDOM().getTextContent()));
+                    Attr attrTO = new Attr.Builder(attrName).
+                            values(attr.getAttributeValues().stream().
+                                    filter(value -> value.getDOM() != null).
+                                    map(value -> value.getDOM().getTextContent()).
+                                    collect(Collectors.toList())).build();
                     responseTO.getAttrs().add(attrTO);
                 }
             }
@@ -519,8 +520,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             if (idp.isUpdateMatching()) {
                 LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
 
-                username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), ()
-                        -> userManager.update(matchingUsers.get(0), idp, responseTO));
+                username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
+                        () -> userManager.update(matchingUsers.get(0), idp, responseTO));
             } else {
                 username = matchingUsers.get(0);
             }
@@ -539,8 +540,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).
-                    getBytes();
+                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

@@ -57,7 +57,8 @@ public class UpdateProducer extends AbstractProducer {
                 } else {
                     taskInfos = getPropagationManager().getUserUpdateTasks(updated);
                 }
-                PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                PropagationReporter reporter =
+                    getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
                 exchange.getMessage().setBody(Pair.of(updated.getResult().getLeft(), reporter.getStatuses()));
             } else if (actual instanceof AnyUR) {
@@ -73,7 +74,8 @@ public class UpdateProducer extends AbstractProducer {
                         null,
                         ((AnyUR) actual).getVirAttrs(),
                         excludedResources);
-                PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                PropagationReporter reporter =
+                    getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
                 exchange.getMessage().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
             }

@@ -43,7 +43,7 @@ public class ConfirmPasswordResetProducer extends AbstractProducer {
 
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(updated);
 
-            getPropagationTaskExecutor().execute(taskInfos, false);
+            getPropagationTaskExecutor().execute(taskInfos, false, getExecutor());
         }
     }
 }

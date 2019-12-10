@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -552,6 +553,20 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         query.setParameter(2, connObjectKeyValue);
 
         return !query.getResultList().isEmpty();
+    }
+
+    @Override
+    public Optional<? extends LinkedAccount> findLinkedAccount(
+            final ExternalResource resource, final String connObjectKeyValue) {
+
+        TypedQuery<LinkedAccount> query = entityManager().createQuery(
+                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
+                + "WHERE e.resource=:resource AND e.connObjectKeyValue=:connObjectKeyValue", LinkedAccount.class);
+        query.setParameter("resource", resource);
+        query.setParameter("connObjectKeyValue", connObjectKeyValue);
+
+        List<LinkedAccount> result = query.getResultList();
+        return query.getResultList().isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Transactional(readOnly = true)

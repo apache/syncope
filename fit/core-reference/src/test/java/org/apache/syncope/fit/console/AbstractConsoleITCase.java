@@ -25,8 +25,10 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.PreviewUtils;
+import java.util.Locale;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
@@ -93,11 +95,14 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
     @BeforeAll
     public static void setUp() {
+        Locale.setDefault(Locale.ENGLISH);
+
         synchronized (LOG) {
             if (UTILITY_UI == null) {
                 AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
                 ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
                 ctx.register(SyncopeWebApplication.class);
+                ctx.register(SyncopeIdMConsoleContext.class);
                 ctx.refresh();
 
                 UTILITY_UI = new UtilityUIT(new WicketTester(ctx.getBean(SyncopeWebApplication.class)));

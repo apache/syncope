@@ -33,16 +33,14 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class IdRepoImplementationInfoProvider implements ImplementationInfoProvider {
 
     private static final long serialVersionUID = -6620368595630782392L;
 
-    protected final ClassPathScanImplementationLookup lookup;
-
-    public IdRepoImplementationInfoProvider(final ClassPathScanImplementationLookup lookup) {
-        this.lookup = lookup;
-    }
+    @Autowired
+    protected ClassPathScanImplementationLookup lookup;
 
     @Override
     public ViewMode getViewMode(final ImplementationTO implementation) {
@@ -62,7 +60,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
             Optional<JavaImplInfo> javaClasses = SyncopeConsoleSession.get().getPlatformInfo().
                     getJavaImplInfo(implementation.getType());
             classes = javaClasses.map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses()))
-                .orElseGet(ArrayList::new);
+                    .orElseGet(ArrayList::new);
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdRepoImplementationType.REPORTLET:

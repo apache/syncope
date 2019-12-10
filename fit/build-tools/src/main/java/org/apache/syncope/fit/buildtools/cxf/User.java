@@ -25,6 +25,12 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = -7906946710921162676L;
 
+    public enum Status {
+        ACTIVE,
+        INACTIVE;
+
+    }
+
     private UUID key;
 
     private String username;
@@ -36,6 +42,8 @@ public class User implements Serializable {
     private String surname;
 
     private String email;
+
+    private Status status;
 
     public UUID getKey() {
         return key;
@@ -85,4 +93,11 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(final Status status) {
+        this.status = status;
+    }
 }

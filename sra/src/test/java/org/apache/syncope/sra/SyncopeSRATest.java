@@ -184,12 +184,12 @@ public class SyncopeSRATest {
         routeRefresher.refresh();
 
         webClient.post().uri("/custom").
-                body(BodyInserters.fromObject(MAPPER.createObjectNode().put("other", true))).
+                body(BodyInserters.fromValue(MAPPER.createObjectNode().put("other", true))).
                 exchange().
                 expectStatus().isNotFound();
 
         webClient.post().uri("/custom").
-                body(BodyInserters.fromObject(MAPPER.createObjectNode().put("cool", true))).
+                body(BodyInserters.fromValue(MAPPER.createObjectNode().put("cool", true))).
                 exchange().
                 expectStatus().isOk().
                 expectHeader().valueEquals("Custom", "matched").

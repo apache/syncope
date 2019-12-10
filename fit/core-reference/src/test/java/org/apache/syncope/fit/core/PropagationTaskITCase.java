@@ -187,7 +187,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision("PRINTER").get();
+        ProvisionTO provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
         Optional<ItemTO> mappingItem = provision.getMapping().getItems().stream().

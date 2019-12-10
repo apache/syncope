@@ -104,19 +104,6 @@ public class ProvisioningReport {
         this.uidValue = uidValue;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this).
-                append(message).
-                append(status).
-                append(anyType).
-                append(operation).
-                append(key).
-                append(name).
-                append(uidValue).
-                build();
-    }
-
     /**
      * Human readable report string, using the given trace level.
      *
@@ -148,9 +135,22 @@ public class ProvisioningReport {
      */
     public static String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
         StringBuilder sb = new StringBuilder();
-        for (ProvisioningReport result : results) {
+        results.forEach(result -> {
             sb.append(result.getReportString(level)).append('\n');
-        }
+        });
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
+                append(message).
+                append(status).
+                append(anyType).
+                append(operation).
+                append(key).
+                append(name).
+                append(uidValue).
+                build();
     }
 }

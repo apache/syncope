@@ -161,11 +161,11 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         int count = searchDAO.count(
                 RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-            Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()), AnyTypeKind.GROUP);
+                Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()), AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
                 RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-            Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()),
+                Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()),
                 page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).collect(Collectors.toList());
@@ -413,7 +413,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             Map<String, Object> jobDataMap = jobManager.register(
                     task,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
 
             jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);

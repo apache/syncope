@@ -23,8 +23,17 @@ import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public interface VirAttrHandler {
+
+    /**
+     * Updates cache with values from external resource.
+     *
+     * @param any any object
+     * @param connObj connector object from external resource
+     */
+    void setValues(Any<?> any, ConnectorObject connObj);
 
     /**
      * Query external resource (or cache, if configured) associated to the given any for values associated to the given
