@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +29,8 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.status.ReconStatusPanel;
+import org.apache.syncope.client.console.status.ReconTaskPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
@@ -40,6 +41,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.LinkedAccountPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -47,10 +50,12 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
+public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -4603032036433309900L;
 
@@ -60,27 +65,29 @@ public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
 
     private final AjaxLink<LinkedAccountTO> addAjaxLink;
 
-    protected ActionLinksTogglePanel<LinkedAccountTO> actionTogglePanel;
+    private ActionLinksTogglePanel<LinkedAccountTO> actionTogglePanel;
 
     private UserRestClient userRestClient = new UserRestClient();
 
     private final List<LinkedAccountTO> linkedAccountTOs;
 
     public LinkedAccountModalPanel(
-            final BaseModal<Serializable> modal,
-            final UserTO userTO,
-            final PageReference pageRef) {
+            final BaseModal<?> baseModal,
+            final IModel<UserTO> model,
+            final PageReference pageRef,
+            final boolean recounciliationOnly) {
 
-        super(modal, pageRef);
+        super(BaseModal.getContentId(), model);
 
-        UserTO readUserTO = userRestClient.read(userTO.getKey());
+        final MultilevelPanel mlp = new MultilevelPanel("mlpContainer");
+        mlp.setOutputMarkupId(true);
 
         setOutputMarkupId(true);
 
         actionTogglePanel = new ActionLinksTogglePanel<>("toggle", pageRef);
         add(actionTogglePanel);
 
-        wizard = new LinkedAccountWizardBuilder(readUserTO.getKey(), pageRef);
+        wizard = new LinkedAccountWizardBuilder(model, pageRef);
 
         final ListViewPanel.Builder<LinkedAccountTO> builder = new ListViewPanel.Builder<LinkedAccountTO>(
                 LinkedAccountTO.class, pageRef) {
@@ -117,9 +124,8 @@ public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
                 checkAddButton();
 
                 linkedAccountTOs.clear();
-                linkedAccountTOs.addAll(userRestClient.read(userTO.getKey()).getLinkedAccounts());
+                linkedAccountTOs.addAll(model.getObject().getLinkedAccounts());
                 sortLinkedAccounts();
-
                 ListViewPanel.class.cast(list).refreshList(linkedAccountTOs);
 
                 // change modal footer visibility
@@ -132,7 +138,7 @@ public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
             }
         };
 
-        linkedAccountTOs = new ArrayList<>(readUserTO.getLinkedAccounts());
+        linkedAccountTOs = new ArrayList<>(model.getObject().getLinkedAccounts());
         sortLinkedAccounts();
 
         builder.setItems(linkedAccountTOs);
@@ -146,57 +152,131 @@ public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
-                try {
-                    send(LinkedAccountModalPanel.this, Broadcast.DEPTH,
-                            new AjaxWizard.NewItemActionEvent<>(linkedAccountTO, 1, target).setResourceModel(
-                                    new StringResourceModel("inner.edit.linkedAccount",
-                                            LinkedAccountModalPanel.this,
-                                            Model.of(linkedAccountTO))));
-                } catch (SyncopeClientException e) {
-                    LOG.error("While contacting linked account", e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                }
+                mlp.next(linkedAccountTO.getResource(),
+                        new ReconStatusPanel(
+                                linkedAccountTO.getResource(),
+                                model.getObject().getType(),
+                                model.getObject().getKey()),
+                        target);
+                target.add(mlp);
 
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
                         new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
             }
-        }, ActionLink.ActionType.EDIT, StandardEntitlement.USER_READ).
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.USER_READ);
+
+        if (!recounciliationOnly) {
+            builder.addAction(new ActionLink<LinkedAccountTO>() {
+
+                private static final long serialVersionUID = 2555747430358755813L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                    try {
+                        send(LinkedAccountModalPanel.this, Broadcast.DEPTH,
+                                new AjaxWizard.NewItemActionEvent<>(linkedAccountTO, 1, target).
+                                        setResourceModel(new StringResourceModel("inner.edit.linkedAccount",
+                                                LinkedAccountModalPanel.this,
+                                                Model.of(linkedAccountTO))));
+
+                    } catch (SyncopeClientException e) {
+                        LOG.error("While contacting linked account", e);
+                        SyncopeConsoleSession.get().error(
+                                StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+
+                    send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
+                            new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                }
+            }, ActionLink.ActionType.EDIT, StandardEntitlement.USER_READ);
+        }
+
+        builder.addAction(new ActionLink<LinkedAccountTO>() {
+
+            private static final long serialVersionUID = 2555747430358755813L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                mlp.next("PUSH " + linkedAccountTO.getResource(),
+                        new ReconTaskPanel(
+                                linkedAccountTO.getResource(),
+                                new PushTaskTO(),
+                                model.getObject().getType(),
+                                null,
+                                linkedAccountTO.getConnObjectKeyValue(),
+                                true,
+                                mlp,
+                                pageRef),
+                        target);
+                target.add(mlp);
+
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+            }
+        }, ActionLink.ActionType.RECONCILIATION_PUSH, StandardEntitlement.USER_READ).
                 addAction(new ActionLink<LinkedAccountTO>() {
 
                     private static final long serialVersionUID = 2555747430358755813L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
-                        try {
-                            LinkedAccountPatch linkedAccountPatch =
-                                    new LinkedAccountPatch.Builder().
-                                            operation(PatchOperation.DELETE).
-                                            linkedAccountTO(linkedAccountTO).build();
-                            linkedAccountPatch.setLinkedAccountTO(linkedAccountTO);
-                            UserPatch patch = new UserPatch();
-                            patch.setKey(readUserTO.getKey());
-                            patch.getLinkedAccounts().add(linkedAccountPatch);
-                            userRestClient.update(userRestClient.read(userTO.getKey()).getETagValue(), patch);
-                            linkedAccountTOs.remove(linkedAccountTO);
+                        mlp.next("PULL " + linkedAccountTO.getResource(),
+                                new ReconTaskPanel(
+                                        linkedAccountTO.getResource(),
+                                        new PullTaskTO(),
+                                        model.getObject().getType(),
+                                        null,
+                                        linkedAccountTO.getConnObjectKeyValue(),
+                                        true,
+                                        mlp,
+                                        pageRef),
+                                target);
+                        target.add(mlp);
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (Exception e) {
-                            LOG.error("While removing linked account {}", linkedAccountTO.getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
-                        }
-
-                        checkAddButton();
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                        send(LinkedAccountModalPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload<>(target));
+                        send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
+                                new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.USER_UPDATE, true);
+                }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.USER_READ);
+
+        if (!recounciliationOnly) {
+            builder.addAction(new ActionLink<LinkedAccountTO>() {
+
+                private static final long serialVersionUID = 2555747430358755813L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                    try {
+                        LinkedAccountPatch linkedAccountPatch = new LinkedAccountPatch.Builder().
+                                operation(PatchOperation.DELETE).
+                                linkedAccountTO(linkedAccountTO).build();
+                        linkedAccountPatch.setLinkedAccountTO(linkedAccountTO);
+                        UserPatch patch = new UserPatch();
+                        patch.setKey(model.getObject().getKey());
+                        patch.getLinkedAccounts().add(linkedAccountPatch);
+                        model.setObject(userRestClient.update(model.getObject().getETagValue(), patch).getEntity());
+                        linkedAccountTOs.remove(linkedAccountTO);
+
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    } catch (Exception e) {
+                        LOG.error("While removing linked account {}", linkedAccountTO.getKey(), e);
+                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                ? e.getClass().getName() : e.getMessage());
+                    }
+
+                    checkAddButton();
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    send(LinkedAccountModalPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload<>(target));
+                }
+            }, ActionLink.ActionType.DELETE, StandardEntitlement.USER_UPDATE, true);
+        }
 
         builder.addNewItemPanelBuilder(wizard);
 
-        list = builder.build("linkedAccountsList");
+        list = builder.build(MultilevelPanel.FIRST_LEVEL_ID);
         list.setOutputMarkupId(true);
         list.setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.USER_UPDATE));
 
@@ -215,8 +295,9 @@ public class LinkedAccountModalPanel extends AbstractModalPanel<Serializable> {
                                 LinkedAccountModalPanel.this)));
             }
         };
-        list.addOrReplaceInnerObject(addAjaxLink);
-        add(list);
+        list.addOrReplaceInnerObject(addAjaxLink.setEnabled(!recounciliationOnly).setVisible(!recounciliationOnly));
+
+        add(mlp.setFirstLevel(list));
     }
 
     private void sortLinkedAccounts() {

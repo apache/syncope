@@ -266,7 +266,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                         match.getLinkedAccount(),
                                         pushTask);
                                 if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
-                                    sce.getElements().add(results.get(0).getMessage());
+                                    sce.getElements().add(result.getMessage());
                                 } else {
                                     results.add(result);
                                 }

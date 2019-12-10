@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
+import org.apache.syncope.client.console.panels.LinkedAccountsStatusModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -63,6 +64,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 public class AnyStatusDirectoryPanel
@@ -242,6 +244,33 @@ public class AnyStatusDirectoryPanel
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
                 }
             }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.TASK_EXECUTE);
+        }
+
+        if (anyTO instanceof UserTO && !UserTO.class.cast(anyTO).getLinkedAccounts().isEmpty()) {
+            UserTO userTO = UserTO.class.cast(anyTO);
+
+            if (!userTO.getLinkedAccounts().isEmpty()
+                    && userTO.getLinkedAccounts().stream().anyMatch(linkedAccountTO -> {
+                        return linkedAccountTO.getResource().equals(model.getObject().getResource());
+                    })) {
+
+                panel.add(new ActionLink<StatusBean>() {
+
+                    private static final long serialVersionUID = 5168094747477174155L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                        multiLevelPanelRef.next("ACCOUNTS",
+                                new LinkedAccountsStatusModalPanel(
+                                        baseModal, Model.of(UserTO.class.cast(anyTO)), pageRef),
+                                target);
+                        target.add(multiLevelPanelRef);
+                        AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+                    }
+                }, ActionLink.ActionType.MANAGE_ACCOUNTS,
+                        String.format("%s,%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE,
+                                StandardEntitlement.RESOURCE_GET_CONNOBJECT));
+            }
         }
 
         return panel;

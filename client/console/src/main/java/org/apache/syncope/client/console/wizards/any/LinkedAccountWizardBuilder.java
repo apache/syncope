@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.model.IModel;
 
 /**
  * Accounts wizard builder.
@@ -44,19 +45,15 @@ public class LinkedAccountWizardBuilder extends AjaxWizardBuilder<LinkedAccountT
 
     private final UserRestClient userRestClient = new UserRestClient();
 
-    private UserTO userTO;
+    private final IModel<UserTO> model;
 
-    private final String userKey;
-
-    public LinkedAccountWizardBuilder(final String userKey, final PageReference pageRef) {
+    public LinkedAccountWizardBuilder(final IModel<UserTO> model, final PageReference pageRef) {
         super(new LinkedAccountTO(), pageRef);
-        this.userKey = userKey;
-        this.userTO = userRestClient.read(userKey);
+        this.model = model;
     }
 
     @Override
     public AjaxWizard<LinkedAccountTO> build(final String id, final AjaxWizard.Mode mode) {
-        this.userTO = userRestClient.read(userKey);
         return super.build(id, mode);
     }
 
@@ -64,7 +61,7 @@ public class LinkedAccountWizardBuilder extends AjaxWizardBuilder<LinkedAccountT
     protected WizardModel buildModelSteps(final LinkedAccountTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new LinkedAccountDetailsPanel(modelObject));
         wizardModel.add(new LinkedAccountCredentialsPanel(modelObject));
-        wizardModel.add(new LinkedAccountPlainAttrsPanel(new EntityWrapper<>(modelObject), userTO));
+        wizardModel.add(new LinkedAccountPlainAttrsPanel(new EntityWrapper<>(modelObject), model.getObject()));
         wizardModel.add(new LinkedAccountPrivilegesPanel(modelObject));
         return wizardModel;
     }
@@ -76,9 +73,9 @@ public class LinkedAccountWizardBuilder extends AjaxWizardBuilder<LinkedAccountT
         LinkedAccountPatch linkedAccountPatch = new LinkedAccountPatch.Builder().linkedAccountTO(modelObject).build();
         linkedAccountPatch.setLinkedAccountTO(modelObject);
         UserPatch patch = new UserPatch();
-        patch.setKey(userTO.getKey());
+        patch.setKey(model.getObject().getKey());
         patch.getLinkedAccounts().add(linkedAccountPatch);
-        userRestClient.update(userTO.getETagValue(), patch);
+        model.setObject(userRestClient.update(model.getObject().getETagValue(), patch).getEntity());
 
         return modelObject;
     }
@@ -96,7 +93,7 @@ public class LinkedAccountWizardBuilder extends AjaxWizardBuilder<LinkedAccountT
         LinkedAccountTO linkedAccountTO = LinkedAccountTO.class.cast(afterObject);
         return new CreateEvent(
                 linkedAccountTO.getConnObjectKeyValue(),
-                userTO,
+                model.getObject(),
                 target);
     }
 

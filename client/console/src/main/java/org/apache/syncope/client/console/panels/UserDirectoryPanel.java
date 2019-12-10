@@ -69,7 +69,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
         @Override
         protected void onConfigure() {
             super.onConfigure();
-            setFooterVisible(false);
         }
 
     };
@@ -84,6 +83,17 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
         altDefaultModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                updateResultTable(target);
+                modal.show(false);
+            }
+        });
+
+        wizardWrapperModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = -6109847349558471532L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
@@ -154,7 +164,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 send(UserDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
+                                new UserWrapper(UserRestClient.class.cast(restClient).read(model.getObject().getKey())),
                                 target));
             }
         }, ActionType.EDIT,
@@ -285,6 +295,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                    model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
                     IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
                             new AnyWrapper<>(model.getObject()));
                     altDefaultModal.setFormModel(formModel);
@@ -340,13 +351,15 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                    model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
                     target.add(wizardWrapperModal.setContent(
-                            new LinkedAccountModalPanel(wizardWrapperModal, model.getObject(), pageRef)));
+                            new LinkedAccountModalPanel(wizardWrapperModal, model, pageRef, false)));
                     wizardWrapperModal.header(new ResourceModel("linkedAccounts.title"));
                     wizardWrapperModal.show(true);
                 }
             }, ActionType.MANAGE_ACCOUNTS,
-                    String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE));
+                    String.format("%s,%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE,
+                            StandardEntitlement.RESOURCE_GET_CONNOBJECT));
         }
 
         panel.add(new ActionLink<UserTO>() {
