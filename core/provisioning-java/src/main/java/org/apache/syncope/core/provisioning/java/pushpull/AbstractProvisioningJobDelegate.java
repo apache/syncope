@@ -48,8 +48,6 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
     private static final String GROUP = "GROUP";
 
-    private static final String ANY_OBJECT = "ANY_OBJECT";
-
     private static final String LINKED_ACCOUNT = "LINKED_ACCOUNT";
 
     @Resource(name = "adminUser")
