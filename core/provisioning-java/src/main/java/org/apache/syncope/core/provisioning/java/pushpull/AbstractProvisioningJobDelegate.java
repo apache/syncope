@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -44,6 +44,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask> extends AbstractSchedTaskJobDelegate {
 
+    private static final String USER = "USER";
+
+    private static final String GROUP = "GROUP";
+
+    private static final String ANY_OBJECT = "ANY_OBJECT";
+
+    private static final String LINKED_ACCOUNT = "LINKED_ACCOUNT";
+
     @Resource(name = "adminUser")
     protected String adminUser;
 
@@ -53,6 +61,9 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     @Autowired
     protected ConnectorFactory connFactory;
 
+    /**
+     * AnyTypeDAO DAO
+     */
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
 
@@ -127,27 +138,36 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         List<ProvisioningReport> aFailDelete = new ArrayList<>();
         List<ProvisioningReport> aSuccNone = new ArrayList<>();
         List<ProvisioningReport> aIgnore = new ArrayList<>();
+        List<ProvisioningReport> laSuccCreate = new ArrayList<>();
+        List<ProvisioningReport> laFailCreate = new ArrayList<>();
+        List<ProvisioningReport> laSuccUpdate = new ArrayList<>();
+        List<ProvisioningReport> laFailUpdate = new ArrayList<>();
+        List<ProvisioningReport> laSuccDelete = new ArrayList<>();
+        List<ProvisioningReport> laFailDelete = new ArrayList<>();
+        List<ProvisioningReport> laSuccNone = new ArrayList<>();
+        List<ProvisioningReport> laIgnore = new ArrayList<>();
 
         for (ProvisioningReport provResult : provResults) {
-            AnyType anyType = anyTypeDAO.find(provResult.getAnyType());
-
             switch (provResult.getStatus()) {
                 case SUCCESS:
                     switch (provResult.getOperation()) {
                         case CREATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccCreate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccCreate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccCreate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccCreate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccCreate.add(provResult);
                                 }
@@ -155,19 +175,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case UPDATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccUpdate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccUpdate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccUpdate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccUpdate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccUpdate.add(provResult);
                                 }
@@ -175,19 +198,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case DELETE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccDelete.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccDelete.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccDelete.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccDelete.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccDelete.add(provResult);
                                 }
@@ -195,19 +221,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case NONE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccNone.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccNone.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccNone.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccNone.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccNone.add(provResult);
                                 }
@@ -221,19 +250,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 case FAILURE:
                     switch (provResult.getOperation()) {
                         case CREATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailCreate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uFailCreate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laFailCreate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gFailCreate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aFailCreate.add(provResult);
                                 }
@@ -241,19 +273,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case UPDATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailUpdate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uFailUpdate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laFailUpdate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gFailUpdate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aFailUpdate.add(provResult);
                                 }
@@ -261,19 +296,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case DELETE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailDelete.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uFailDelete.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laFailDelete.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gFailDelete.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aFailDelete.add(provResult);
                                 }
@@ -285,19 +323,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                     break;
 
                 case IGNORE:
-                    if (anyType == null) {
+                    if (StringUtils.isBlank(provResult.getAnyType())) {
                         rIgnore.add(provResult);
                     } else {
-                        switch (anyType.getKind()) {
+                        switch (provResult.getAnyType()) {
                             case USER:
                                 uIgnore.add(provResult);
+                                break;
+
+                            case LINKED_ACCOUNT:
+                                laIgnore.add(provResult);
                                 break;
 
                             case GROUP:
                                 gIgnore.add(provResult);
                                 break;
 
-                            case ANY_OBJECT:
                             default:
                                 aIgnore.add(provResult);
                         }
@@ -324,6 +365,16 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                     append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
                     append(' ').
                     append("[no operation/ignored]: ").append(uSuccNone.size()).append('/').append(uIgnore.size()).
+                    append('\n');
+
+            report.append("Accounts ").
+                    append("[created/failures]: ").append(laSuccCreate.size()).append('/').append(laFailCreate.size()).
+                    append(' ').
+                    append("[updated/failures]: ").append(laSuccUpdate.size()).append('/').append(laFailUpdate.size()).
+                    append(' ').
+                    append("[deleted/failures]: ").append(laSuccDelete.size()).append('/').append(laFailDelete.size()).
+                    append(' ').
+                    append("[no operation/ignored]: ").append(laSuccNone.size()).append('/').append(laIgnore.size()).
                     append('\n');
         }
         if (includeGroup) {
@@ -372,6 +423,19 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 if (!uFailDelete.isEmpty()) {
                     report.append("\nUsers failed to delete: ");
                     report.append(ProvisioningReport.generate(uFailDelete, traceLevel));
+                }
+
+                if (!laFailCreate.isEmpty()) {
+                    report.append("\n\nAccounts failed to create: ");
+                    report.append(ProvisioningReport.generate(laFailCreate, traceLevel));
+                }
+                if (!laFailUpdate.isEmpty()) {
+                    report.append("\nAccounts failed to update: ");
+                    report.append(ProvisioningReport.generate(laFailUpdate, traceLevel));
+                }
+                if (!laFailDelete.isEmpty()) {
+                    report.append("\nAccounts failed to delete: ");
+                    report.append(ProvisioningReport.generate(laFailDelete, traceLevel));
                 }
             }
 
@@ -441,6 +505,27 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 if (!uIgnore.isEmpty()) {
                     report.append("\nUsers ignored:\n").
                             append(ProvisioningReport.generate(uIgnore, traceLevel));
+                }
+
+                if (!laSuccCreate.isEmpty()) {
+                    report.append("\n\nAccounts created:\n").
+                            append(ProvisioningReport.generate(laSuccCreate, traceLevel));
+                }
+                if (!laSuccUpdate.isEmpty()) {
+                    report.append("\nAccounts updated:\n").
+                            append(ProvisioningReport.generate(laSuccUpdate, traceLevel));
+                }
+                if (!laSuccDelete.isEmpty()) {
+                    report.append("\nAccounts deleted:\n").
+                            append(ProvisioningReport.generate(laSuccDelete, traceLevel));
+                }
+                if (!laSuccNone.isEmpty()) {
+                    report.append("\nAccounts no operation:\n").
+                            append(ProvisioningReport.generate(laSuccNone, traceLevel));
+                }
+                if (!laIgnore.isEmpty()) {
+                    report.append("\nAccounts ignored:\n").
+                            append(ProvisioningReport.generate(laIgnore, traceLevel));
                 }
             }
             if (includeGroup) {
