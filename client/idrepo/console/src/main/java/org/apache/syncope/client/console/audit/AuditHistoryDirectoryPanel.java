@@ -47,7 +47,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -59,7 +58,6 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -78,7 +76,7 @@ public class AuditHistoryDirectoryPanel extends
 
     private static final int TOTAL_AUDIT_HISTORY_COMPARISONS = 25;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final BaseModal<?> baseModal;
 
@@ -100,60 +98,46 @@ public class AuditHistoryDirectoryPanel extends
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.anyTO = anyTO;
+        this.anyTypeKind = AnyTypeKind.fromTOClass(anyTO.getClass());
 
-        anyTypeKind = AnyTypeKind.fromTOClass(anyTO.getClass());
+        this.restClient = new AuditHistoryRestClient();
         initResultTable();
     }
 
     /**
-     * Restore an object based on the audit record.
+     * Restore an object based on the audit record.Note that for user objects, the original audit record masks
+     * the password and the security answer; so we cannot use the audit record to resurrect the entry based on mask
+     * data.
      *
-     * Note that for user objects, the original audit record masks
-     * the password and the security answer; so we cannot use the audit
-     * record to resurrect the entry based on mask data. The method behavior
-     * below will reset the audit record such that the current security answer
-     * and the password for the object are always maintained, and such properties
-     * for the user cannot be restored using audit records.
+     * The method behavior below will reset the audit record such that the current security answer and the password for
+     * the object are always maintained, and such properties for the user cannot be restored using audit records.
      *
-     * @param entryBean the entry bean
+     * @param json the object from audit
      * @param anyTO the any to
      * @return the response
+     * @throws JsonProcessingException if json value cannot be parsed
      */
-    private static ProvisioningResult<? extends AnyTO> restore(final AuditEntryTO entryBean,
-            final AnyTO anyTO) {
-        try {
-            String json = getJSONFromAuditEntry(entryBean);
-            if (anyTO instanceof UserTO) {
-                UserTO userTO = MAPPER.readValue(json, UserTO.class);
-                UserUR req = AnyOperations.diff(userTO, anyTO, false);
-                req.setPassword(null);
-                req.setSecurityAnswer(null);
-                return new UserRestClient().update(anyTO.getETagValue(), req);
-            }
-            if (anyTO instanceof GroupTO) {
-                GroupTO groupTO = MAPPER.readValue(json, GroupTO.class);
-                GroupUR req = AnyOperations.diff(groupTO, anyTO, false);
-                return new GroupRestClient().update(anyTO.getETagValue(), req);
-            }
-            if (anyTO instanceof AnyObjectTO) {
-                AnyObjectTO anyObjectTO = MAPPER.readValue(json, AnyObjectTO.class);
-                AnyObjectUR req = AnyOperations.diff(anyObjectTO, anyTO, false);
-                return new AnyObjectRestClient().update(anyTO.getETagValue(), req);
-            }
-        } catch (final Exception e) {
-            LOG.error("Could not restore object for {}", anyTO, e);
-        }
-        throw SyncopeClientException.build(ClientExceptionType.InvalidAnyObject);
-    }
+    protected ProvisioningResult<? extends AnyTO> restore(final String json, final AnyTO anyTO)
+            throws JsonProcessingException {
 
-    private static String getJSONFromAuditEntry(final AuditEntryTO entryBean) throws JsonProcessingException {
-        final String json;
-        if (entryBean.getBefore() == null) {
-            json = MAPPER.readTree(entryBean.getOutput()).get("entity").toPrettyString();
-        } else {
-            json = entryBean.getBefore();
+        if (anyTO instanceof UserTO) {
+            UserTO userTO = MAPPER.readValue(json, UserTO.class);
+            UserUR req = AnyOperations.diff(userTO, anyTO, false);
+            req.setPassword(null);
+            req.setSecurityAnswer(null);
+            return new UserRestClient().update(anyTO.getETagValue(), req);
         }
-        return json;
+        if (anyTO instanceof GroupTO) {
+            GroupTO groupTO = MAPPER.readValue(json, GroupTO.class);
+            GroupUR req = AnyOperations.diff(groupTO, anyTO, false);
+            return new GroupRestClient().update(anyTO.getETagValue(), req);
+        }
+        if (anyTO instanceof AnyObjectTO) {
+            AnyObjectTO anyObjectTO = MAPPER.readValue(json, AnyObjectTO.class);
+            AnyObjectUR req = AnyOperations.diff(anyObjectTO, anyTO, false);
+            return new AnyObjectRestClient().update(anyTO.getETagValue(), req);
+        }
+        throw new UnsupportedOperationException("Restore not supported for " + anyTO.getClass().getName());
     }
 
     private static SortParam<String> getSortParam() {
@@ -231,11 +215,16 @@ public class AuditHistoryDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final AuditEntryTO modelObject) {
                 try {
                     AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
-                    ProvisioningResult<? extends AnyTO> result = restore(modelObject, anyTO);
+
+                    String json = modelObject.getBefore() == null
+                            ? MAPPER.readTree(modelObject.getOutput()).get("entity").toPrettyString()
+                            : modelObject.getBefore();
+                    ProvisioningResult<? extends AnyTO> result = restore(json, anyTO);
                     anyTO.setLastChangeDate(new Date(Long.parseLong(result.getEntity().getETagValue())));
+
                     target.add(container);
-                } catch (SyncopeClientException e) {
-                    LOG.error("While restoring {}", anyTypeKind, e);
+                } catch (Exception e) {
+                    LOG.error("While restoring {}", anyTO.getClass().getName(), e);
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                             ? e.getClass().getName() : e.getMessage());
                 }
@@ -262,7 +251,7 @@ public class AuditHistoryDirectoryPanel extends
         multiLevelPanelRef.next(
                 new StringResourceModel("audit.diff.view", this).getObject(),
                 new HistoryAuditDetails(modal, auditEntryBean,
-                        getPage().getPageReference(), toAuditEntryTOs(search), anyTO, anyTypeKind), target);
+                        getPage().getPageReference(), toAuditEntryTOs(search), anyTO), target);
     }
 
     private List<AuditEntryTO> toAuditEntryTOs(final List<AuditEntryTO> search) {
