@@ -26,14 +26,15 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPanel {
+
     private static final long serialVersionUID = 1066124171682570080L;
 
     protected final AuditHistoryDirectoryPanel directoryPanel;
 
     public AuditHistoryModal(
-        final BaseModal<?> baseModal,
-        final PageReference pageReference,
-        final T entity) {
+            final BaseModal<?> baseModal,
+            final PageReference pageReference,
+            final T entity) {
 
         super(BaseModal.CONTENT_ID);
 
@@ -44,10 +45,10 @@ public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPa
     }
 
     protected AuditHistoryDirectoryPanel getDirectoryPanel(
-        final MultilevelPanel mlp,
-        final BaseModal<?> baseModal,
-        final PageReference pageReference,
-        final T entity) {
+            final MultilevelPanel mlp,
+            final BaseModal<?> baseModal,
+            final PageReference pageReference,
+            final T entity) {
 
         return new AuditHistoryDirectoryPanel(baseModal, mlp, pageReference, entity);
     }

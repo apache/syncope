@@ -20,8 +20,17 @@ package org.apache.syncope.client.console.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryDirectoryPanel.AuditHistoryProvider;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -38,7 +47,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -50,7 +58,6 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -61,25 +68,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class AuditHistoryDirectoryPanel extends
-    DirectoryPanel<AuditEntryTO, AuditEntryTO,
-        AuditHistoryDirectoryPanel.AuditHistoryProvider, AuditHistoryRestClient>
-    implements ModalPanel {
+        DirectoryPanel<AuditEntryTO, AuditEntryTO, AuditHistoryProvider, AuditHistoryRestClient>
+        implements ModalPanel {
 
     private static final long serialVersionUID = -8248734710505211261L;
 
     private static final int TOTAL_AUDIT_HISTORY_COMPARISONS = 25;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final BaseModal<?> baseModal;
 
@@ -90,10 +87,10 @@ public class AuditHistoryDirectoryPanel extends
     private final AnyTypeKind anyTypeKind;
 
     public AuditHistoryDirectoryPanel(
-        final BaseModal<?> baseModal,
-        final MultilevelPanel multiLevelPanelRef,
-        final PageReference pageRef,
-        final AnyTO anyTO) {
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final PageReference pageRef,
+            final AnyTO anyTO) {
 
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
         disableCheckBoxes();
@@ -101,61 +98,46 @@ public class AuditHistoryDirectoryPanel extends
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.anyTO = anyTO;
+        this.anyTypeKind = AnyTypeKind.fromTOClass(anyTO.getClass());
 
-        anyTypeKind = AnyTypeKind.fromTOClass(anyTO.getClass());
         this.restClient = new AuditHistoryRestClient();
         initResultTable();
     }
 
     /**
-     * Restore an object based on the audit record.
-     * <p>
-     * Note that for user objects, the original audit record masks
-     * the password and the security answer; so we cannot use the audit
-     * record to resurrect the entry based on mask data. The method behavior
-     * below will reset the audit record such that the current security answer
-     * and the password for the object are always maintained, and such properties
-     * for the user cannot be restored using audit records.
+     * Restore an object based on the audit record.Note that for user objects, the original audit record masks
+     * the password and the security answer; so we cannot use the audit record to resurrect the entry based on mask
+     * data.
      *
-     * @param entryBean the entry bean
-     * @param anyTO     the any to
+     * The method behavior below will reset the audit record such that the current security answer and the password for
+     * the object are always maintained, and such properties for the user cannot be restored using audit records.
+     *
+     * @param json the object from audit
+     * @param anyTO the any to
      * @return the response
+     * @throws JsonProcessingException if json value cannot be parsed
      */
-    private static ProvisioningResult<? extends AnyTO> restore(final AuditEntryTO entryBean,
-                                                               final AnyTO anyTO) {
-        try {
-            String json = getJSONFromAuditEntry(entryBean);
-            if (anyTO instanceof UserTO) {
-                UserTO userTO = MAPPER.readValue(json, UserTO.class);
-                UserPatch userPatch = AnyOperations.diff(userTO, anyTO, false);
-                userPatch.setPassword(null);
-                userPatch.setSecurityAnswer(null);
-                return new UserRestClient().update(anyTO.getETagValue(), userPatch);
-            }
-            if (anyTO instanceof GroupTO) {
-                GroupTO groupTO = MAPPER.readValue(json, GroupTO.class);
-                GroupPatch groupPatch = AnyOperations.diff(groupTO, anyTO, false);
-                return new GroupRestClient().update(anyTO.getETagValue(), groupPatch);
-            }
-            if (anyTO instanceof AnyObjectTO) {
-                AnyObjectTO anyObjectTO = MAPPER.readValue(json, AnyObjectTO.class);
-                AnyObjectPatch anyObjectPatch = AnyOperations.diff(anyObjectTO, anyTO, false);
-                return new AnyObjectRestClient().update(anyTO.getETagValue(), anyObjectPatch);
-            }
-        } catch (final Exception e) {
-            LOG.error("Could not restore object for {}", anyTO, e);
-        }
-        throw SyncopeClientException.build(ClientExceptionType.InvalidAnyObject);
-    }
+    protected ProvisioningResult<? extends AnyTO> restore(final String json, final AnyTO anyTO)
+            throws JsonProcessingException {
 
-    private static String getJSONFromAuditEntry(final AuditEntryTO entryBean) throws JsonProcessingException {
-        final String json;
-        if (entryBean.getBefore() == null) {
-            json = MAPPER.readTree(entryBean.getOutput()).get("entity").toPrettyString();
-        } else {
-            json = entryBean.getBefore();
+        if (anyTO instanceof UserTO) {
+            UserTO userTO = MAPPER.readValue(json, UserTO.class);
+            UserPatch userPatch = AnyOperations.diff(userTO, anyTO, false);
+            userPatch.setPassword(null);
+            userPatch.setSecurityAnswer(null);
+            return new UserRestClient().update(anyTO.getETagValue(), userPatch);
         }
-        return json;
+        if (anyTO instanceof GroupTO) {
+            GroupTO groupTO = MAPPER.readValue(json, GroupTO.class);
+            GroupPatch groupPatch = AnyOperations.diff(groupTO, anyTO, false);
+            return new GroupRestClient().update(anyTO.getETagValue(), groupPatch);
+        }
+        if (anyTO instanceof AnyObjectTO) {
+            AnyObjectTO anyObjectTO = MAPPER.readValue(json, AnyObjectTO.class);
+            AnyObjectPatch anyObjectPatch = AnyOperations.diff(anyObjectTO, anyTO, false);
+            return new AnyObjectRestClient().update(anyTO.getETagValue(), anyObjectPatch);
+        }
+        throw new UnsupportedOperationException("Restore not supported for " + anyTO.getClass().getName());
     }
 
     private static SortParam<String> getSortParam() {
@@ -184,24 +166,24 @@ public class AuditHistoryDirectoryPanel extends
     protected List<IColumn<AuditEntryTO, String>> getColumns() {
         final List<IColumn<AuditEntryTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(
-            new StringResourceModel("who", this), "who"));
+                new StringResourceModel("who", this), "who"));
         columns.add(new DatePropertyColumn<>(
-            new StringResourceModel("date", this), null, "date"));
+                new StringResourceModel("date", this), null, "date"));
         return columns;
     }
 
     @Override
     protected void resultTableCustomChanges(
-        final AjaxDataTablePanel.Builder<AuditEntryTO, String> resultTableBuilder) {
+            final AjaxDataTablePanel.Builder<AuditEntryTO, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
     @Override
     protected ActionsPanel<AuditEntryTO> getActions(final IModel<AuditEntryTO> model) {
         final ActionsPanel<AuditEntryTO> panel = super.getActions(model);
-        final AuditEntryTO auditEntryTO = model.getObject();
 
         panel.add(new ActionLink<AuditEntryTO>() {
+
             private static final long serialVersionUID = -6745431735457245600L;
 
             @Override
@@ -233,13 +215,18 @@ public class AuditHistoryDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final AuditEntryTO modelObject) {
                 try {
                     AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
-                    ProvisioningResult<? extends AnyTO> result = restore(modelObject, anyTO);
+
+                    String json = modelObject.getBefore() == null
+                            ? MAPPER.readTree(modelObject.getOutput()).get("entity").toPrettyString()
+                            : modelObject.getBefore();
+                    ProvisioningResult<? extends AnyTO> result = restore(json, anyTO);
                     anyTO.setLastChangeDate(new Date(Long.parseLong(result.getEntity().getETagValue())));
+
                     target.add(container);
-                } catch (SyncopeClientException e) {
-                    LOG.error("While restoring {}", anyTypeKind, e);
+                } catch (Exception e) {
+                    LOG.error("While restoring {}", anyTO.getClass().getName(), e);
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.getMessage());
+                            ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -255,40 +242,41 @@ public class AuditHistoryDirectoryPanel extends
 
     private void viewAuditHistory(final AuditEntryTO auditEntryBean, final AjaxRequestTarget target) {
         List<AuditEntryTO> search = restClient.search(anyTO.getKey(),
-            0,
-            TOTAL_AUDIT_HISTORY_COMPARISONS,
-            getSortParam(),
-            getQueryableAuditEvents(),
-            getQueryableAuditResult());
+                0,
+                TOTAL_AUDIT_HISTORY_COMPARISONS,
+                getSortParam(),
+                getQueryableAuditEvents(),
+                getQueryableAuditResult());
 
         multiLevelPanelRef.next(
-            new StringResourceModel("audit.diff.view", this).getObject(),
-            new HistoryAuditDetails(modal, auditEntryBean,
-                getPage().getPageReference(), toAuditEntryTOs(search), anyTO, anyTypeKind), target);
+                new StringResourceModel("audit.diff.view", this).getObject(),
+                new HistoryAuditDetails(modal, auditEntryBean,
+                        getPage().getPageReference(), toAuditEntryTOs(search), anyTO), target);
     }
 
     private List<AuditEntryTO> toAuditEntryTOs(final List<AuditEntryTO> search) {
         return search
-            .stream()
-            .map(entry -> {
-                AuditEntryTO bean = new AuditEntryTO();
-                bean.setKey(anyTO.getKey());
-                bean.setBefore(entry.getBefore());
-                bean.setDate(entry.getDate());
-                bean.setEvent(entry.getEvent());
-                bean.getInputs().addAll(entry.getInputs());
-                bean.setLoggerName(entry.getLoggerName());
-                bean.setOutput(entry.getOutput());
-                bean.setResult(entry.getResult());
-                bean.setSubCategory(entry.getSubCategory());
-                bean.setThrowable(entry.getThrowable());
-                bean.setWho(entry.getWho());
-                return bean;
-            })
-            .collect(Collectors.toList());
+                .stream()
+                .map(entry -> {
+                    AuditEntryTO bean = new AuditEntryTO();
+                    bean.setKey(anyTO.getKey());
+                    bean.setBefore(entry.getBefore());
+                    bean.setDate(entry.getDate());
+                    bean.setEvent(entry.getEvent());
+                    bean.getInputs().addAll(entry.getInputs());
+                    bean.setLoggerName(entry.getLoggerName());
+                    bean.setOutput(entry.getOutput());
+                    bean.setResult(entry.getResult());
+                    bean.setSubCategory(entry.getSubCategory());
+                    bean.setThrowable(entry.getThrowable());
+                    bean.setWho(entry.getWho());
+                    return bean;
+                })
+                .collect(Collectors.toList());
     }
 
     protected class AuditHistoryProvider extends DirectoryDataProvider<AuditEntryTO> {
+
         private static final long serialVersionUID = 415113175628260864L;
 
         AuditHistoryProvider(final int paginatorRows) {
@@ -313,11 +301,11 @@ public class AuditHistoryDirectoryPanel extends
         private List<AuditEntryTO> getAuditEntryBeans(final long first, final long count) {
             int page = (int) first / paginatorRows;
             return restClient.search(anyTO.getKey(),
-                Math.max(page, 0) + 1,
-                Long.valueOf(count).intValue(),
-                getSortParam(),
-                getQueryableAuditEvents(),
-                getQueryableAuditResult());
+                    Math.max(page, 0) + 1,
+                    Long.valueOf(count).intValue(),
+                    getSortParam(),
+                    getQueryableAuditEvents(),
+                    getQueryableAuditResult());
         }
     }
 }
