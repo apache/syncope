@@ -239,7 +239,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }
 
             SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
-                    model.getObject(),
+                    model,
                     realm,
                     altDefaultModal,
                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),

@@ -27,11 +27,12 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.model.IModel;
 
 public interface AnyDirectoryPanelAditionalActionLinksProvider extends Serializable {
 
     List<Action<UserTO>> get(
-            UserTO modelObject,
+            IModel<UserTO> model,
             String realm,
             BaseModal<AnyWrapper<UserTO>> modal,
             String header,

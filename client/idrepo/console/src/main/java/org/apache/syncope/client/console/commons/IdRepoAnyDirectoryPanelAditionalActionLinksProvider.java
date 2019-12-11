@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.model.IModel;
 
 public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
         implements AnyDirectoryPanelAditionalActionLinksProvider {
@@ -34,7 +35,7 @@ public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
 
     @Override
     public List<Action<UserTO>> get(
-            final UserTO modelObject,
+            final IModel<UserTO> model,
             final String realm,
             final BaseModal<AnyWrapper<UserTO>> modal,
             final String header,

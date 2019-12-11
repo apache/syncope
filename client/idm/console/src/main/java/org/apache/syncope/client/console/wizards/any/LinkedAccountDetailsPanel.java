@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,6 +46,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LinkedAccountDetailsPanel extends WizardStep {
 
@@ -60,7 +58,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
-    private ArrayList<String> connObjectKeyFieldValues;
+    private List<String> connObjectKeyFieldValues;
 
     public LinkedAccountDetailsPanel(final LinkedAccountTO linkedAccountTO) {
         super();
@@ -157,11 +155,10 @@ public class LinkedAccountDetailsPanel extends WizardStep {
             final String resource,
             final String searchTerm) {
 
-        Set<String> choices = new HashSet<>();
-        String resourceRemoteKey = ConnIdSpecialName.NAME;
+        AtomicReference<String> resourceRemoteKey = new AtomicReference<>(ConnIdSpecialName.NAME);
         try {
-            resourceRemoteKey = resourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
-                    getMapping().getConnObjectKeyItem().getExtAttrName();
+            resourceRemoteKey.set(resourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
+                    getMapping().getConnObjectKeyItem().getExtAttrName());
         } catch (Exception ex) {
             LOG.error("While reading mapping for resource {}", resource, ex);
         }
@@ -169,19 +166,16 @@ public class LinkedAccountDetailsPanel extends WizardStep {
         ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(SEARCH_SIZE);
         if (StringUtils.isNotBlank(searchTerm)) {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
-                    is(resourceRemoteKey).equalTo(searchTerm + "*").query()).build();
+                    is(resourceRemoteKey.get()).equalTo(searchTerm + "*").query()).build();
         }
         Pair<String, List<ConnObjectTO>> items = resourceRestClient.searchConnObjects(resource,
                 AnyTypeKind.USER.name(),
                 builder,
-                new SortParam<>(resourceRemoteKey, true));
+                new SortParam<>(resourceRemoteKey.get(), true));
 
-        choices.addAll(items.getRight().stream().map(item -> {
-            return item.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);
-        }).collect(Collectors.toSet()));
-
-        connObjectKeyFieldValues = new ArrayList<>(choices);
-        Collections.sort(connObjectKeyFieldValues);
+        connObjectKeyFieldValues = items.getRight().stream().
+                map(item -> item.getAttr(resourceRemoteKey.get()).get().getValues().get(0)).
+                collect(Collectors.toList());
         ajaxTextFieldPanel.setChoices(connObjectKeyFieldValues);
     }
 

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.commons;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.panels.LinkedAccountModalPanel;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
@@ -44,7 +45,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
 
     @Override
     public List<Action<UserTO>> get(
-            final UserTO modelObject,
+            final IModel<UserTO> model,
             final String realm,
             final BaseModal<AnyWrapper<UserTO>> modal,
             final String header,
@@ -59,7 +60,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(modelObject));
+                        new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
@@ -76,7 +77,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
         }, ActionLink.ActionType.ENABLE);
         enable.setEntitlements(IdRepoEntitlement.USER_UPDATE);
         enable.setOnConfirm(false);
-        enable.setRealms(realm, modelObject.getDynRealms());
+        enable.setRealms(realm, model.getObject().getDynRealms());
         actions.add(enable);
 
         Action<UserTO> manageResources = new Action<>(new ActionLink<UserTO>() {
@@ -85,8 +86,9 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(modelObject));
+                        new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
@@ -104,7 +106,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
         manageResources.setEntitlements(
                 String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE));
         manageResources.setOnConfirm(false);
-        manageResources.setRealms(realm, modelObject.getDynRealms());
+        manageResources.setRealms(realm, model.getObject().getDynRealms());
         actions.add(manageResources);
 
         Action<UserTO> manageAccounts = new Action<>(new ActionLink<UserTO>() {
@@ -113,8 +115,9 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 modal.setFooterVisible(false);
-                target.add(modal.setContent(new LinkedAccountModalPanel(modal, modelObject, pageRef)));
+                target.add(modal.setContent(new LinkedAccountModalPanel(modal, model, pageRef, false)));
 
                 modal.header(new Model<>(header));
 
@@ -124,7 +127,7 @@ public class IdMAnyDirectoryPanelAditionalActionLinksProvider
         manageAccounts.setEntitlements(
                 String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE));
         manageAccounts.setOnConfirm(false);
-        manageAccounts.setRealms(realm, modelObject.getDynRealms());
+        manageAccounts.setRealms(realm, model.getObject().getDynRealms());
         actions.add(manageAccounts);
 
         return actions;
