@@ -41,7 +41,7 @@ image::http://syncope.apache.org/images/apache-syncope-logo-small.jpg[Apache Syn
 [NOTE]
 .This document is under active development and discussion!
 If you find errors or omissions in this document, please don’t hesitate to 
-http://syncope.apache.org/issue-tracking.html[submit an issue] or 
+http://syncope.apache.org/issue-management.html[submit an issue] or 
 https://github.com/apache/syncope/pulls[open a pull request] with 
 a fix. We also encourage you to ask questions and discuss any aspects of the project on the 
 http://syncope.apache.org/mailing-lists.html[mailing lists or IRC]. 
