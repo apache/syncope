@@ -45,8 +45,8 @@ used
 [[jws-rsa]]
 ===== RSA Public-Key Cryptography
 
-This configuration requires to specify a key pair: the former key value, said _private_, must be shared with clients,
-while the latter key value, said _public_, must be kept secret for internal Core usage.
+This configuration requires to specify a key pair: the former key value, said _private_, must be kept secret for internal
+Core usage while the latter key value, said _public_, is to be shared with clients.
 
 The commands below will generate the required key pair via OpenSSL and format their values for usage with
 `security.properties`:
