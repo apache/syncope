@@ -18,9 +18,10 @@
  */
 
 'use strict';
-angular.module("login").controller("SAML2SPController", function ($scope, $rootScope, $state, userAttrs) {
+angular.module("login").controller("SAML2SPController", function ($scope, $rootScope, $location, userAttrs) {
   $scope.selfCreate = function () {
-    $state.go("create" + $rootScope.getWizardFirstStep());
+    // use $location instead of $state because Angular routes may not have been initialized, yet
+    $location.path("/self/create" + $rootScope.getWizardFirstStep().replace('.', '/'));
   };
 
   $rootScope.saml2idps.userAttrs = userAttrs;
