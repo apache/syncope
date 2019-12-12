@@ -2037,7 +2037,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.8</version>
+          <version>1.7.9</version>
           <configuration>
             <configuration>
               <type>standalone</type>
