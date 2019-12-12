@@ -2137,7 +2137,7 @@ under the License.
         <plugin>
           <groupId>nl.geodienstencentrum.maven</groupId>
           <artifactId>sass-maven-plugin</artifactId>
-          <version>3.7.1</version>
+          <version>3.7.2</version>
         </plugin>
       </plugins>
     </pluginManagement>
