@@ -517,7 +517,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.29</tomcat.version>
+    <tomcat.version>9.0.30</tomcat.version>
     <payara.version>5.194</payara.version>
     <javax.faces.version>2.4.0</javax.faces.version>
 
