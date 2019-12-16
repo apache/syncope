@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -64,7 +63,6 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public abstract class AbstractTest {
 
@@ -87,16 +85,12 @@ public abstract class AbstractTest {
         try (InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
             PROPS.load(is);
         }
+        login();
     }
 
-    @Test
-    public void securityHeaders() throws IOException {
-        Map<String, String> securityHeaders = getConfiguredSecurityHeaders();
-        assertEquals(4, securityHeaders.size());
-
+    private static void login() throws IOException {
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
-        securityHeaders.forEach((key, value) -> assertEquals(value, TESTER.getLastResponse().getHeader(key)));
 
         FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", "username");
@@ -104,7 +98,6 @@ public abstract class AbstractTest {
         formTester.submit("submit");
 
         TESTER.assertRenderedPage(Dashboard.class);
-        securityHeaders.forEach((key, value) -> assertEquals(value, TESTER.getLastResponse().getHeader(key)));
     }
 
     protected Map<String, String> getConfiguredSecurityHeaders() throws IOException {
