@@ -24,6 +24,8 @@ import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -33,6 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
     "classpath:workflowContext.xml",
     "classpath:provisioningTest.xml"
 })
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractTest {
 
     protected EntityManager entityManager() {
