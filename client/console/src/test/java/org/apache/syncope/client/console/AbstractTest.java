@@ -178,8 +178,8 @@ public abstract class AbstractTest {
 
         private TaskService getControlTaskService() {
             TaskService taskService = mock(TaskService.class);
-            ArrayList<JobTO> taskJobTOs = new ArrayList<>();
-            ArrayList<ExecTO> taskExecTOs = new ArrayList<>();
+            List<JobTO> taskJobTOs = new ArrayList<>();
+            List<ExecTO> taskExecTOs = new ArrayList<>();
             JobTO taskJobTO = new JobTO();
             ExecTO taskExecTO = new ExecTO();
 
@@ -209,8 +209,8 @@ public abstract class AbstractTest {
 
         private ReportService getControlRepoService() {
             ReportService reportService = mock(ReportService.class);
-            ArrayList<JobTO> repoJobTOs = new ArrayList<>();
-            ArrayList<ExecTO> repoExecTOs = new ArrayList<>();
+            List<JobTO> repoJobTOs = new ArrayList<>();
+            List<ExecTO> repoExecTOs = new ArrayList<>();
             JobTO repoJobTO = new JobTO();
             ExecTO repoExecTO = new ExecTO();
 
