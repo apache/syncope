@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.apache.syncope.client.console.AbstractTest;
 import org.apache.syncope.client.console.commons.Constants;
 import org.junit.jupiter.api.Test;
@@ -29,14 +27,8 @@ public class DashboardAccessTokensPanelTest extends AbstractTest {
     @Test
     public void accessTokensTest() {
 
-
-//        TESTER.assertComponent("body:content:tabbedPanel", AjaxBootstrapTabbedPanel.class);
-//        TESTER.assertComponent("body:content:tabbedPanel:panel", DashboardAccessTokensPanel.class);
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.executeAjaxEvent("body:content:tabbedPanel:tabs-container:tabs:1:link", Constants.ON_CLICK);
-//        assertNotNull(TESTER.getComponentFromLastRenderedPage("body:content:tabbedPanel:panel:accessTokens"));
-
-        System.out.println(TESTER.getLastResponse().getDocument());
 
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accessTokens:container:content:searchContainer:"
                 + "tablehandling:actionRepeater:0:action:action", Constants.ON_CLICK);
@@ -45,12 +37,7 @@ public class DashboardAccessTokensPanelTest extends AbstractTest {
         TESTER.assertComponent("body:content:tabbedPanel:panel:accessTokens:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm.checkgroup:dataTable", DashboardAccessTokensPanel.class);
 
-//        String ciao = "body:content:tabbedPanel:panel:accessTokens:container:content:searchContainer:resultTable:tablePanel:groupForm.checkgroup:dataTable";
-//        Component componentUsers = TESTER.getComponentFromLastRenderedPage(ciao);
-//        assertNotNull(componentUsers);
         TESTER.assertComponent("body:content:tabbedPanel:panel:accessTokens", AccessTokenDirectoryPanel.class);
 
-//        TESTER.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
-//                AjaxFallbackDataTable.class);
     }
 }

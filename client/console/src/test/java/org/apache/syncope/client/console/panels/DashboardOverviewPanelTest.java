@@ -28,41 +28,35 @@ import org.junit.jupiter.api.Test;
 
 public class DashboardOverviewPanelTest extends AbstractTest {
 
-    
     @Test
     public void overviewTest() {
 
         SystemInfo systemInfo = new SystemInfo();
-        systemInfo.setHostname("ciao");
-        systemInfo.setJvm("dfg");
-        systemInfo.setOs("boooo");
+        systemInfo.setHostname("testHostname");
+        systemInfo.setJvm("testJvm");
+        systemInfo.setOs("testOs");
         systemInfo.setStartTime(10);
         systemInfo.setAvailableProcessors(20);
 
-//        TESTER.startPage(Dashboard.class);
-//        TESTER.assertRenderedPage(Dashboard.class);
-        
         String searchPathUsers = "body:content:tabbedPanel:panel:container:totalUsers:box:number";
         String searchPathGroups = "body:content:tabbedPanel:panel:container:totalGroups:box:number";
         String searchPathAny = "body:content:tabbedPanel:panel:container:totalAny1OrRoles:box:number";
         String searchPathResources = "body:content:tabbedPanel:panel:container:totalAny2OrResources:box:number";
-        
-                Component componentUsers = TESTER.getComponentFromLastRenderedPage(searchPathUsers);
+
+        Component componentUsers = TESTER.getComponentFromLastRenderedPage(searchPathUsers);
         assertNotNull(componentUsers);
-                Component componentGroups = TESTER.getComponentFromLastRenderedPage(searchPathGroups);
+        Component componentGroups = TESTER.getComponentFromLastRenderedPage(searchPathGroups);
         assertNotNull(componentUsers);
-                Component componentAny = TESTER.getComponentFromLastRenderedPage(searchPathAny);
+        Component componentAny = TESTER.getComponentFromLastRenderedPage(searchPathAny);
         assertNotNull(componentUsers);
-                Component componentResources = TESTER.getComponentFromLastRenderedPage(searchPathResources);
+        Component componentResources = TESTER.getComponentFromLastRenderedPage(searchPathResources);
         assertNotNull(componentUsers);
-        
-        assertEquals( "4", componentUsers.getDefaultModelObjectAsString());
-        assertEquals( "16", componentGroups.getDefaultModelObjectAsString());
-        assertEquals( "6", componentAny.getDefaultModelObjectAsString());
-        assertEquals( "21", componentResources.getDefaultModelObjectAsString());
-                
+
+        assertEquals("4", componentUsers.getDefaultModelObjectAsString());
+        assertEquals("16", componentGroups.getDefaultModelObjectAsString());
+        assertEquals("6", componentAny.getDefaultModelObjectAsString());
+        assertEquals("21", componentResources.getDefaultModelObjectAsString());
 
     }
-
 
 }

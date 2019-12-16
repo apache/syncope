@@ -29,18 +29,15 @@ import org.junit.jupiter.api.Test;
 
 public class SyncopeConsoleApplicationTest extends AbstractTest {
 
-
     @Test
     public void securityHeaders() throws IOException {
         Map<String, String> securityHeaders = getConfiguredSecurityHeaders();
         assertEquals(4, securityHeaders.size());
 
-        // 1. anonymous
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
         securityHeaders.forEach((key, value) -> assertEquals(value, TESTER.getLastResponse().getHeader(key)));
 
-        // 2. authenticated
         FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", "username");
         formTester.setValue("password", "password");

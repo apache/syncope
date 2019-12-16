@@ -18,33 +18,20 @@
  */
 package org.apache.syncope.client.console.panels;
 
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.apache.syncope.client.console.AbstractTest;
-import org.apache.wicket.Component;
+import org.apache.syncope.client.console.widgets.JobWidget;
 import org.junit.jupiter.api.Test;
 
+public class DashboardControlPanelTest extends AbstractTest {
 
-
-public class DashboardControlPanelTest extends AbstractTest{
-    
-    
     @Test
-    public void dashboardControlTest(){
-    
-    
-    TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
-    
-    TESTER.assertComponent("body:content:tabbedPanel:panel", DashboardControlPanel.class);
-    
-//    TESTER.assertComponent("body:content:tabbedPanel:panel:job:jobContainer", DashboardControlPanel.class);
-//    TESTER.clickLink("body:content:tabbedPanel:panel:job:jobContainer:tabbedPanel:tabs-container:tabs:0:link");
-//    TESTER.assertComponent("body:content:tabbedPanel:panel", DashboardControlPanel.class);
-    
-    String jobsPath = "body:content:tabbedPanel:panel:job:jobContainer:tabbedPanel:panel";
-        Component componentJobs = TESTER.getComponentFromLastRenderedPage(jobsPath);
-        assertNotNull(componentJobs);
-    
+    public void dashboardControlTest() {
+
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+
+        TESTER.assertComponent("body:content:tabbedPanel:panel", DashboardControlPanel.class);
+
+        TESTER.assertComponent("body:content:tabbedPanel:panel:job:jobContainer", JobWidget.class);
+
     }
 }

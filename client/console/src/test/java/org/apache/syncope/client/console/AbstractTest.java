@@ -44,7 +44,6 @@ import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
-import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -72,8 +71,11 @@ public abstract class AbstractTest {
     protected static Properties PROPS;
 
     protected static SyncopeServiceClient service;
+
     protected static TaskService taskService;
+
     protected static ReportService reportService;
+
     protected static NotificationService notificationService;
 
     public interface SyncopeServiceClient extends SyncopeService, Client {
@@ -82,7 +84,7 @@ public abstract class AbstractTest {
     @BeforeAll
     public static void loadProps() throws IOException {
         PROPS = new Properties();
-        try ( InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
+        try (InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
             PROPS.load(is);
         }
     }
@@ -92,12 +94,10 @@ public abstract class AbstractTest {
         Map<String, String> securityHeaders = getConfiguredSecurityHeaders();
         assertEquals(4, securityHeaders.size());
 
-        // 1. anonymous
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
         securityHeaders.forEach((key, value) -> assertEquals(value, TESTER.getLastResponse().getHeader(key)));
 
-        // 2. authenticated
         FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", "username");
         formTester.setValue("password", "password");
@@ -176,26 +176,13 @@ public abstract class AbstractTest {
             return domainService;
         }
 
-//        private AccessTokenService getAccessTokenService() {
-//            AccessTokenService accessTokenService = mock(AccessTokenService.class);
-//            AccessTokenTO accessTokenTO = new AccessTokenTO();
-//            accessTokenTO.setKey("da7383c7-1981-401d-b7d6-a4aac6825f30");
-//            accessTokenTO.setOwner("username");
-//            accessTokenTO.setBody("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiI1ZTkyYmZkYy04ZWQ4LTQ4MzgtOTJiZi1kYzhlZDgyODM4YjciLCJzdWIiOiJhZG1pbiIsImlhdCI6MTU3NjE2ODE4MSwiaXNzIjoiQXBhY2hlU3luY29wZSIsImV4cCI6MTU3NjE3NTM4MSwibmJmIjoxNTc2MTY4MTgxfQ.JTx-ekIRmM5QlqTbETrZ8ISHTBprF98C6HF9P7H7H3AxBz8Yu8LZusuR7n5sZg1L4xJjpSsOAdWLjUKUhE_cPQ");
-//            when(accessTokenService.list(
-//                    new AccessTokenQuery.Builder().page(1).size(1).build()).getResult()).
-//                    thenReturn(Collections.singletonList(accessTokenTO));
-//            return accessTokenService;
-//        }
-        
-        
         private TaskService getControlTaskService() {
             TaskService taskService = mock(TaskService.class);
             ArrayList<JobTO> taskJobTOs = new ArrayList<>();
             ArrayList<ExecTO> taskExecTOs = new ArrayList<>();
             JobTO taskJobTO = new JobTO();
             ExecTO taskExecTO = new ExecTO();
-            
+
             taskJobTO.setType(JobType.TASK);
             taskJobTO.setRefKey("e074dde4-1652-4846-970a-6ba9878ce985");
             taskJobTO.setRefDesc("PUSH Task e074dde4-1652-4846-970a-6ba9878ce985 Export on resource-testdb2");
@@ -204,7 +191,7 @@ public abstract class AbstractTest {
             taskJobTO.setStart(null);
             taskJobTO.setStatus("UNKNOWN");
             taskJobTOs.add(taskJobTO);
-            
+
             taskExecTO.setStart(new Date());
             taskExecTO.setEnd(new Date());
             taskExecTO.setKey("18342501-3345-4125-92a5-a4241aca22b6");
@@ -214,19 +201,19 @@ public abstract class AbstractTest {
             taskExecTO.setStatus("SUCCESS");
             taskExecTO.setMessage(null);
             taskExecTOs.add(taskExecTO);
-            
+
             when(taskService.listJobs()).thenReturn(taskJobTOs);
             when(taskService.listRecentExecutions(10)).thenReturn(taskExecTOs);
             return taskService;
         }
-        
+
         private ReportService getControlRepoService() {
             ReportService reportService = mock(ReportService.class);
             ArrayList<JobTO> repoJobTOs = new ArrayList<>();
             ArrayList<ExecTO> repoExecTOs = new ArrayList<>();
             JobTO repoJobTO = new JobTO();
             ExecTO repoExecTO = new ExecTO();
-            
+
             repoJobTO.setType(JobType.TASK);
             repoJobTO.setRefKey("0b1511e2-73cb-42c5-86ce-8d6b1e7917d2");
             repoJobTO.setRefDesc("Report 0b1511e2-73cb-42c5-86ce-8d6b1e7917d2 reconciliation");
@@ -235,7 +222,7 @@ public abstract class AbstractTest {
             repoJobTO.setStart(null);
             repoJobTO.setStatus("UNKNOWN");
             repoJobTOs.add(repoJobTO);
-            
+
             repoExecTO.setStart(new Date());
             repoExecTO.setEnd(new Date());
             repoExecTO.setKey("29cad031-74b9-4588-8ba7-2ae2034cbd1c");
@@ -245,15 +232,16 @@ public abstract class AbstractTest {
             repoExecTO.setStatus("SUCCESS");
             repoExecTO.setMessage(null);
             repoExecTOs.add(repoExecTO);
-            
+
+            when(reportService.listJobs()).thenReturn(repoJobTOs);
             when(reportService.listRecentExecutions(10)).thenReturn(repoExecTOs);
             return reportService;
         }
-        
+
         private NotificationService getControlNotificationService() {
             NotificationService notificationService = mock(NotificationService.class);
             JobTO notificationJobTO = new JobTO();
-            
+
             notificationJobTO.setType(JobType.TASK);
             notificationJobTO.setRefKey("0b1511e2-73cb-42c5-86ce-8d6b1e7917d2");
             notificationJobTO.setRefDesc("Report 0b1511e2-73cb-42c5-86ce-8d6b1e7917d2 reconciliation");
@@ -261,12 +249,11 @@ public abstract class AbstractTest {
             notificationJobTO.setScheduled(false);
             notificationJobTO.setStart(null);
             notificationJobTO.setStatus("UNKNOWN");
-            
+
             when(notificationService.getJob()).thenReturn(notificationJobTO);
             return notificationService;
         }
 
-        
         @SuppressWarnings("unchecked")
         @Override
         public SyncopeClientFactoryBean newClientFactory() {
@@ -279,18 +266,15 @@ public abstract class AbstractTest {
 
             DomainService domainService = getDomainService();
             when(client.getService(DomainService.class)).thenReturn(domainService);
-            
+
             TaskService taskService = getControlTaskService();
             when(client.getService(TaskService.class)).thenReturn(taskService);
-            
+
             ReportService repoService = getControlRepoService();
             when(client.getService(ReportService.class)).thenReturn(repoService);
-            
+
             NotificationService notificationService = getControlNotificationService();
             when(client.getService(NotificationService.class)).thenReturn(notificationService);
-
-//            AccessTokenService accessTokenService = getAccessTokenService();
-//            when(client.getService(AccessTokenService.class)).thenReturn(accessTokenService);
 
             SyncopeClientFactoryBean clientFactory = mock(SyncopeClientFactoryBean.class);
             when(clientFactory.setDomain(any())).thenReturn(clientFactory);
