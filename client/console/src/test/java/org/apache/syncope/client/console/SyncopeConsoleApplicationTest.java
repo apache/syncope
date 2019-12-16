@@ -21,10 +21,7 @@ package org.apache.syncope.client.console;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.wicket.util.tester.FormTester;
@@ -32,20 +29,6 @@ import org.junit.jupiter.api.Test;
 
 public class SyncopeConsoleApplicationTest extends AbstractTest {
 
-    private Map<String, String> getConfiguredSecurityHeaders() throws IOException {
-        Map<String, String> securityHeaders = new HashMap<>();
-
-        @SuppressWarnings("unchecked")
-        Enumeration<String> propNames = (Enumeration<String>) PROPS.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("security.headers.")) {
-                securityHeaders.put(StringUtils.substringAfter(name, "security.headers."), PROPS.getProperty(name));
-            }
-        }
-
-        return securityHeaders;
-    }
 
     @Test
     public void securityHeaders() throws IOException {
