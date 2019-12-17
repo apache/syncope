@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -49,9 +50,10 @@ public interface UserRequestHandler {
      *
      * @param bpmnProcess BPMN process
      * @param user user
+     * @param inputVariables variables
      * @return data about the started request service, including execution id
      */
-    UserRequest start(String bpmnProcess, User user);
+    UserRequest start(String bpmnProcess, User user, WorkflowTaskExecInput inputVariables);
 
     /**
      * Parses the given execution id to find matching user request and owner.

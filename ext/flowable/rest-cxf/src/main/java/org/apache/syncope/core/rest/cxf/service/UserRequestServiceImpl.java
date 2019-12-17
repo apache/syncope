@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.core.logic.UserRequestLogic;
@@ -53,10 +54,10 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
-    public UserRequest start(final String bpmnProcess, final String user) {
+    public UserRequest start(final String bpmnProcess, final String user, final WorkflowTaskExecInput inputVariables) {
         return user == null
-                ? logic.start(bpmnProcess)
-                : logic.start(bpmnProcess, getActualKey(userDAO, user));
+                ? logic.start(bpmnProcess, inputVariables)
+                : logic.start(bpmnProcess, getActualKey(userDAO, user), inputVariables);
     }
 
     @Override

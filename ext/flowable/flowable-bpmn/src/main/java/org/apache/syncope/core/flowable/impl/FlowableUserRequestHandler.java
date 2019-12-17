@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
@@ -195,12 +196,14 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
-    public UserRequest start(final String bpmnProcess, final User user) {
+    public UserRequest start(final String bpmnProcess, final User user, final WorkflowTaskExecInput inputVariables) {
         Map<String, Object> variables = new HashMap<>();
         variables.put(FlowableRuntimeUtils.WF_EXECUTOR, AuthContextUtils.getUsername());
         variables.put(FlowableRuntimeUtils.USER, lazyLoad(user));
         variables.put(FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
-
+        if (inputVariables != null) {
+            variables.putAll(inputVariables.getVariables());
+        }
         ProcessInstance procInst = null;
         try {
             procInst = engine.getRuntimeService().startProcessInstanceByKey(bpmnProcess, variables);

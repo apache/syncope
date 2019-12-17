@@ -82,7 +82,7 @@ public class UserRequestRestClient extends BaseRestClient {
     }
 
     public static void start(final String bpmnProcess, final String user) {
-        getService(UserRequestService.class).start(bpmnProcess, user);
+        getService(UserRequestService.class).start(bpmnProcess, user, null);
     }
 
     public static UserRequestForm claimForm(final String taskKey) {
