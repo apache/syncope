@@ -21,10 +21,11 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -50,17 +51,16 @@ public final class SearchUtils implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchUtils.class);
 
+    public static final Function<SearchClause, CompleteCondition> NO_CUSTOM_CONDITION = clause -> null;
+
     private static Pattern getTypeConditionPattern(final String type) {
         return Pattern.compile(String.format(";\\$type==%s|\\$type==%s;", type, type));
     }
 
     public static Map<String, List<SearchClause>> getSearchClauses(final Map<String, String> fiql) {
-        Map<String, List<SearchClause>> clauses = new HashMap<>();
-        for (Map.Entry<String, String> entry : fiql.entrySet()) {
-            clauses.put(entry.getKey(), getSearchClauses(
-                    entry.getValue().replaceAll(getTypeConditionPattern(entry.getKey()).pattern(), "")));
-        }
-        return clauses;
+        return fiql.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> getSearchClauses(e.getValue().replaceAll(getTypeConditionPattern(e.getKey()).pattern(), ""))));
     }
 
     public static List<SearchClause> getSearchClauses(final String fiql) {
@@ -92,7 +92,7 @@ public final class SearchUtils implements Serializable {
     private static List<SearchClause> getCompoundSearchClauses(final SearchCondition<SearchBean> sc) {
         List<SearchClause> clauses = new ArrayList<>();
 
-        for (SearchCondition<SearchBean> searchCondition : sc.getSearchConditions()) {
+        sc.getSearchConditions().forEach(searchCondition -> {
             if (searchCondition.getStatement() == null) {
                 clauses.addAll(getCompoundSearchClauses(searchCondition));
             } else {
@@ -105,7 +105,7 @@ public final class SearchUtils implements Serializable {
                 }
                 clauses.add(clause);
             }
-        }
+        });
 
         return clauses;
     }
@@ -140,6 +140,9 @@ public final class SearchUtils implements Serializable {
             clause.setProperty(value);
         } else if (SpecialAttr.MEMBER.toString().equals(property)) {
             clause.setType(SearchClause.Type.GROUP_MEMBER);
+            clause.setProperty(value);
+        } else if (property.startsWith("$")) {
+            clause.setType(SearchClause.Type.CUSTOM);
             clause.setProperty(value);
         } else {
             clause.setType(SearchClause.Type.ATTRIBUTE);
@@ -199,14 +202,16 @@ public final class SearchUtils implements Serializable {
     }
 
     public static String buildFIQL(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder builder) {
-        return buildFIQL(clauses, builder, Collections.<String, PlainSchemaTO>emptyMap());
+        return buildFIQL(clauses, builder, Collections.emptyMap(), NO_CUSTOM_CONDITION);
     }
 
     public static String buildFIQL(
             final List<SearchClause> clauses,
             final AbstractFiqlSearchConditionBuilder builder,
-            final Map<String, PlainSchemaTO> availableSchemaTypes) {
-        LOG.debug("Generating FIQL from List<SearchClause>: {}", clauses);
+            final Map<String, PlainSchemaTO> availableSchemaTypes,
+            final Function<SearchClause, CompleteCondition> customCondition) {
+
+        LOG.debug("Generating FIQL from {}", clauses);
 
         CompleteCondition prevCondition;
         CompleteCondition condition = null;
@@ -223,16 +228,18 @@ public final class SearchUtils implements Serializable {
 
                 switch (clause.getType()) {
                     case GROUP_MEMBER:
-                        switch (clause.getComparator()) {
-                            case EQUALS:
-                                condition = ((GroupFiqlSearchConditionBuilder) builder).withMembers(value);
-                                break;
+                        if (builder instanceof GroupFiqlSearchConditionBuilder) {
+                            switch (clause.getComparator()) {
+                                case EQUALS:
+                                    condition = ((GroupFiqlSearchConditionBuilder) builder).withMembers(value);
+                                    break;
 
-                            case NOT_EQUALS:
-                                condition = ((GroupFiqlSearchConditionBuilder) builder).withoutMembers(value);
-                                break;
+                                case NOT_EQUALS:
+                                    condition = ((GroupFiqlSearchConditionBuilder) builder).withoutMembers(value);
+                                    break;
 
-                            default:
+                                default:
+                            }
                         }
                         break;
 
@@ -355,7 +362,9 @@ public final class SearchUtils implements Serializable {
                         break;
 
                     case ROLE_MEMBERSHIP:
-                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                        if (StringUtils.isNotBlank(clause.getProperty())
+                                && builder instanceof UserFiqlSearchConditionBuilder) {
+
                             switch (clause.getComparator()) {
                                 case EQUALS:
                                     condition = ((UserFiqlSearchConditionBuilder) builder).
@@ -372,7 +381,9 @@ public final class SearchUtils implements Serializable {
                         break;
 
                     case PRIVILEGE:
-                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                        if (StringUtils.isNotBlank(clause.getProperty())
+                                && builder instanceof UserFiqlSearchConditionBuilder) {
+
                             switch (clause.getComparator()) {
                                 case EQUALS:
                                     condition = ((UserFiqlSearchConditionBuilder) builder).
@@ -436,6 +447,10 @@ public final class SearchUtils implements Serializable {
                         }
                         break;
 
+                    case CUSTOM:
+                        condition = customCondition.apply(clause);
+                        break;
+
                     default:
                         break;
                 }
@@ -462,5 +477,4 @@ public final class SearchUtils implements Serializable {
     private SearchUtils() {
         // private constructor for static utility class
     }
-
 }

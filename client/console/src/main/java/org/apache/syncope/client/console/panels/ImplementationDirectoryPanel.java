@@ -129,7 +129,9 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<ImplementationTO, String>> getColumns() {
         List<IColumn<ImplementationTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this),
+                Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new StringResourceModel("engine", this), "engine", "engine"));
 
         return columns;
@@ -198,7 +200,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
         public ImplementationProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

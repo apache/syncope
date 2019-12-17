@@ -37,16 +37,16 @@ public final class SearchCondConverter {
     /**
      * Parses a FIQL expression into Syncope's {@link SearchCond}, using {@link SyncopeFiqlParser}.
      *
+     * @param visitor visitor instance
      * @param fiql FIQL string
      * @param realms optional realm to provide to {@link SearchCondVisitor}
      * @return {@link SearchCond} instance for given FIQL expression
      */
-    public static SearchCond convert(final String fiql, final String... realms) {
+    public static SearchCond convert(final SearchCondVisitor visitor, final String fiql, final String... realms) {
         SyncopeFiqlParser<SearchBean> parser = new SyncopeFiqlParser<>(
                 SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
 
         try {
-            SearchCondVisitor visitor = new SearchCondVisitor();
             if (realms != null && realms.length > 0) {
                 visitor.setRealm(realms[0]);
             }

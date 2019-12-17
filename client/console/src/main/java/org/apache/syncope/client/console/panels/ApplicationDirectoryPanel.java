@@ -131,7 +131,8 @@ public class ApplicationDirectoryPanel extends
     protected List<IColumn<ApplicationTO, String>> getColumns() {
         final List<IColumn<ApplicationTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
         columns.add(new AbstractColumn<ApplicationTO, String>(new ResourceModel("privileges")) {
 

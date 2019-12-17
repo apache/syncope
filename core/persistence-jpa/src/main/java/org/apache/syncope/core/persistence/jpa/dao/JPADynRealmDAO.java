@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 
 @Repository
 public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO {
@@ -61,6 +62,9 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
 
     @Autowired
     private AnyMatchDAO anyMatchDAO;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     @Override
     public DynRealm find(final String key) {
@@ -121,7 +125,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
         List<String> cleared = clearDynMembers(merged);
 
         merged.getDynMemberships().stream().map(memb -> searchDAO.search(
-                SearchCondConverter.convert(memb.getFIQLCond()), memb.getAnyType().getKind())).
+                SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()), memb.getAnyType().getKind())).
                 forEach(matching -> matching.forEach(any -> {
 
             Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
@@ -154,7 +158,8 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
     @Override
     public void refreshDynMemberships(final Any<?> any) {
         findAll().forEach(dynRealm -> dynRealm.getDynMembership(any.getType()).ifPresent(memb -> {
-            boolean matches = anyMatchDAO.matches(any, SearchCondConverter.convert(memb.getFIQLCond()));
+            boolean matches = anyMatchDAO.matches(
+                    any, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
 
             Query find = entityManager().createNativeQuery(
                     "SELECT dynRealm_id FROM " + DYNMEMB_TABLE + " WHERE any_id=?");

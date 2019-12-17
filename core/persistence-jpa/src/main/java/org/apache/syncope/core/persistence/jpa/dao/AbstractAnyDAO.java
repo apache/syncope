@@ -45,7 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -457,9 +457,9 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     public SearchCond getAllMatchingCond() {
-        AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         idCond.setSchema("id");
-        return SearchCond.getLeafCond(idCond);
+        return SearchCond.getLeaf(idCond);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

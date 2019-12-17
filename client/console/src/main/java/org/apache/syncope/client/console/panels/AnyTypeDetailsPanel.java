@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -50,8 +51,10 @@ public class AnyTypeDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(anyTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(anyTypeTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                Constants.KEY_FIELD_NAME,
+                getString(Constants.KEY_FIELD_NAME),
+                new PropertyModel<>(anyTypeTO, Constants.KEY_FIELD_NAME));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
@@ -67,7 +70,7 @@ public class AnyTypeDetailsPanel extends Panel {
         form.add(kind);
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("classes",
-                new PropertyModel<List<String>>(anyTypeTO, "classes"),
+                new PropertyModel<>(anyTypeTO, "classes"),
                 new ListModel<>(getAvailableAnyTypeClasses())).hideLabel().setOutputMarkupId(true));
     }
 

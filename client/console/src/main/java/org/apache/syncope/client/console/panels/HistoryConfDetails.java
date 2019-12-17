@@ -170,7 +170,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
         final AjaxDropDownChoicePanel<String> dropdownElem = new AjaxDropDownChoicePanel<>(
                 "compareDropdown",
                 getString("compare"),
-                new PropertyModel<>(selectedHistoryConfTO, "key"),
+                new PropertyModel<>(selectedHistoryConfTO, Constants.KEY_FIELD_NAME),
                 false);
         dropdownElem.setChoices(keys);
         dropdownElem.setChoiceRenderer(new IChoiceRenderer<String>() {

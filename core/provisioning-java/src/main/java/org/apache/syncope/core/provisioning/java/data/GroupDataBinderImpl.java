@@ -52,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,8 +64,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     @Autowired
     private AnyTypeDAO anyTypeDAO;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     private void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
             sce.getElements().add(dynMembershipFIQL);

@@ -19,18 +19,18 @@
 package org.apache.syncope.client.console.layout;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 
-public class ConsoleLayoutInfo implements Serializable {
+public class AnyLayoutWrapper implements Serializable {
 
     private static final long serialVersionUID = 961267717148831831L;
 
     private final String key;
 
-    private String content;
+    private final String content;
 
-    public ConsoleLayoutInfo(final String key) {
+    public AnyLayoutWrapper(final String key, final String content) {
         this.key = key;
+        this.content = content;
     }
 
     public String getKey() {
@@ -39,9 +39,5 @@ public class ConsoleLayoutInfo implements Serializable {
 
     public String getContent() {
         return content;
-    }
-
-    public void setContent(final String content) {
-        this.content = FormLayoutInfoUtils.defaultConsoleLayoutInfoIfEmpty(content, new AnyTypeRestClient().list());
     }
 }

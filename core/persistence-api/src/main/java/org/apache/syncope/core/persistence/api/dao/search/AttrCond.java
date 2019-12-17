@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 /**
  * Search condition to be applied when comparing attribute values.
  */
-public class AttributeCond extends AbstractSearchCond {
+public class AttrCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 3275277728404021417L;
 
@@ -50,11 +50,11 @@ public class AttributeCond extends AbstractSearchCond {
 
     private String expression;
 
-    public AttributeCond() {
+    public AttrCond() {
         super();
     }
 
-    public AttributeCond(final Type conditionType) {
+    public AttrCond(final Type conditionType) {
         super();
         this.type = conditionType;
     }
@@ -108,7 +108,7 @@ public class AttributeCond extends AbstractSearchCond {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final AttributeCond other = (AttributeCond) obj;
+        final AttrCond other = (AttrCond) obj;
         return new EqualsBuilder().
                 append(type, other.type).
                 append(schema, other.schema).

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -34,7 +35,10 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
     public AbstractSchemaDetailsPanel(final String id, final SchemaTO schemaTO) {
         super(id);
 
-        AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(schemaTO, "key"));
+        AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                Constants.KEY_FIELD_NAME,
+                getString(Constants.KEY_FIELD_NAME),
+                new PropertyModel<>(schemaTO, Constants.KEY_FIELD_NAME));
         key.addRequiredLabel();
         key.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
         add(key);

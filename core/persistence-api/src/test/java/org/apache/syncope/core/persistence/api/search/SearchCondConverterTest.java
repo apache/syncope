@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
@@ -33,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
@@ -42,17 +42,19 @@ import org.junit.jupiter.api.Test;
 
 public class SearchCondConverterTest {
 
+    private static final SearchCondVisitor VISITOR = new SearchCondVisitor();
+
     @Test
     public void eq() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalTo("rossini").query();
         assertEquals("username==rossini", fiql);
 
-        AnyCond attrCond = new AnyCond(AttributeCond.Type.EQ);
+        AnyCond attrCond = new AnyCond(AttrCond.Type.EQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
-        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -60,12 +62,12 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("rossini").query();
         assertEquals("username=~rossini", fiql);
 
-        AnyCond attrCond = new AnyCond(AttributeCond.Type.IEQ);
+        AnyCond attrCond = new AnyCond(AttrCond.Type.IEQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
-        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -73,12 +75,12 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("rossini").query();
         assertEquals("username!~rossini", fiql);
 
-        AnyCond attrCond = new AnyCond(AttributeCond.Type.IEQ);
-        attrCond.setSchema("username");
-        attrCond.setExpression("rossini");
-        SearchCond simpleCond = SearchCond.getNotLeafCond(attrCond);
+        AnyCond anyCond = new AnyCond(AttrCond.Type.IEQ);
+        anyCond.setSchema("username");
+        anyCond.setExpression("rossini");
+        SearchCond leaf = SearchCond.getNotLeaf(anyCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -86,12 +88,12 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiql);
 
-        AttributeCond attrCond = new AnyCond(AttributeCond.Type.LIKE);
+        AttrCond attrCond = new AnyCond(AttrCond.Type.LIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
-        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -99,12 +101,12 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros*").query();
         assertEquals("username=~ros*", fiql);
 
-        AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
+        AttrCond attrCond = new AnyCond(AttrCond.Type.ILIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
-        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -112,12 +114,12 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").query();
         assertEquals("username!~ros*", fiql);
 
-        AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
+        AttrCond attrCond = new AnyCond(AttrCond.Type.ILIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
-        SearchCond simpleCond = SearchCond.getNotLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getNotLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -125,11 +127,11 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("loginDate").nullValue().query();
         assertEquals("loginDate==" + SpecialAttr.NULL, fiql);
 
-        AttributeCond attrCond = new AttributeCond(AttributeCond.Type.ISNULL);
+        AttrCond attrCond = new AttrCond(AttrCond.Type.ISNULL);
         attrCond.setSchema("loginDate");
-        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -137,11 +139,11 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("loginDate").notNullValue().query();
         assertEquals("loginDate!=" + SpecialAttr.NULL, fiql);
 
-        AttributeCond attrCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
+        AttrCond attrCond = new AttrCond(AttrCond.Type.ISNOTNULL);
         attrCond.setSchema("loginDate");
-        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -152,9 +154,9 @@ public class SearchCondConverterTest {
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("ca20ffca-1305-442f-be9a-3723a0cd88ca");
-        SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
+        SearchCond leaf = SearchCond.getLeaf(relationshipCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -164,9 +166,9 @@ public class SearchCondConverterTest {
 
         RelationshipTypeCond relationshipCond = new RelationshipTypeCond();
         relationshipCond.setRelationshipTypeKey("type1");
-        SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
+        SearchCond leaf = SearchCond.getLeaf(relationshipCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
 
         fiql = new AnyObjectFiqlSearchConditionBuilder("PRINTER").inRelationshipTypes("neighborhood").query();
         assertEquals(
@@ -182,9 +184,9 @@ public class SearchCondConverterTest {
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed");
-        SearchCond simpleCond = SearchCond.getLeafCond(groupCond);
+        SearchCond leaf = SearchCond.getLeaf(groupCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -194,9 +196,9 @@ public class SearchCondConverterTest {
 
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("User reviewer");
-        SearchCond simpleCond = SearchCond.getLeafCond(roleCond);
+        SearchCond leaf = SearchCond.getLeaf(roleCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -206,9 +208,9 @@ public class SearchCondConverterTest {
 
         PrivilegeCond privilegeCond = new PrivilegeCond();
         privilegeCond.setPrivilege("postMighty");
-        SearchCond simpleCond = SearchCond.getLeafCond(privilegeCond);
+        SearchCond leaf = SearchCond.getLeaf(privilegeCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -219,9 +221,9 @@ public class SearchCondConverterTest {
 
         DynRealmCond dynRealmCond = new DynRealmCond();
         dynRealmCond.setDynRealm(dynRealm);
-        SearchCond simpleCond = SearchCond.getLeafCond(dynRealmCond);
+        SearchCond leaf = SearchCond.getLeaf(dynRealmCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -231,9 +233,9 @@ public class SearchCondConverterTest {
 
         ResourceCond resCond = new ResourceCond();
         resCond.setResourceKey("resource-ldap");
-        SearchCond simpleCond = SearchCond.getLeafCond(resCond);
+        SearchCond leaf = SearchCond.getLeaf(resCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -243,9 +245,9 @@ public class SearchCondConverterTest {
 
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath("/even/two");
-        SearchCond simpleCond = SearchCond.getLeafCond(assignableCond);
+        SearchCond leaf = SearchCond.getLeaf(assignableCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql, "/even/two"));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql, "/even/two"));
     }
 
     @Test
@@ -255,9 +257,9 @@ public class SearchCondConverterTest {
 
         AnyTypeCond acond = new AnyTypeCond();
         acond.setAnyTypeKey("PRINTER");
-        SearchCond simpleCond = SearchCond.getLeafCond(acond);
+        SearchCond leaf = SearchCond.getLeaf(acond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -267,9 +269,9 @@ public class SearchCondConverterTest {
 
         MemberCond mcond = new MemberCond();
         mcond.setMember("rossini");
-        SearchCond simpleCond = SearchCond.getLeafCond(mcond);
+        SearchCond leaf = SearchCond.getLeaf(mcond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -278,17 +280,17 @@ public class SearchCondConverterTest {
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query();
         assertEquals("fullname==*o*;fullname==*i*", fiql);
 
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
+        AttrCond fullnameLeafCond1 = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
         fullnameLeafCond1.setExpression("%o%");
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
+        AttrCond fullnameLeafCond2 = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        SearchCond andCond = SearchCond.getAndCond(
-                SearchCond.getLeafCond(fullnameLeafCond1),
-                SearchCond.getLeafCond(fullnameLeafCond2));
+        SearchCond andCond = SearchCond.getAnd(
+                SearchCond.getLeaf(fullnameLeafCond1),
+                SearchCond.getLeaf(fullnameLeafCond2));
 
-        assertEquals(andCond, SearchCondConverter.convert(fiql));
+        assertEquals(andCond, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
@@ -300,33 +302,32 @@ public class SearchCondConverterTest {
                 is("fullname").equalTo("*o*").or("fullname").equalTo("*i*").or("fullname").equalTo("*ini").query();
         assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiql);
 
-        AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
+        AttrCond fullnameLeafCond1 = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
         fullnameLeafCond1.setExpression("%o%");
-        AttributeCond fullnameLeafCond2 = new AttributeCond(AttributeCond.Type.LIKE);
+        AttrCond fullnameLeafCond2 = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond2.setSchema("fullname");
         fullnameLeafCond2.setExpression("%i%");
-        AttributeCond fullnameLeafCond3 = new AttributeCond(AttributeCond.Type.LIKE);
+        AttrCond fullnameLeafCond3 = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond3.setSchema("fullname");
         fullnameLeafCond3.setExpression("%ini");
-        SearchCond orCond = SearchCond.getOrCond(
-                SearchCond.getLeafCond(fullnameLeafCond1),
-                SearchCond.getOrCond(
-                        SearchCond.getLeafCond(fullnameLeafCond2),
-                        SearchCond.getLeafCond(fullnameLeafCond3)));
+        SearchCond orCond = SearchCond.getOr(SearchCond.getLeaf(fullnameLeafCond1),
+                SearchCond.getOr(
+                        SearchCond.getLeaf(fullnameLeafCond2),
+                        SearchCond.getLeaf(fullnameLeafCond3)));
 
-        assertEquals(orCond, SearchCondConverter.convert(fiql));
+        assertEquals(orCond, SearchCondConverter.convert(VISITOR, fiql));
     }
 
     @Test
     public void issueSYNCOPE1223() {
         String fiql = new UserFiqlSearchConditionBuilder().is("ctype").equalTo("ou=sample%252Co=isp").query();
 
-        AttributeCond cond = new AttributeCond(AttributeCond.Type.EQ);
+        AttrCond cond = new AttrCond(AttrCond.Type.EQ);
         cond.setSchema("ctype");
         cond.setExpression("ou=sample,o=isp");
 
-        assertEquals(SearchCond.getLeafCond(cond), SearchCondConverter.convert(fiql));
+        assertEquals(SearchCond.getLeaf(cond), SearchCondConverter.convert(VISITOR, fiql));
     }
 
 }

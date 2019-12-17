@@ -920,7 +920,7 @@ under the License.
     <table name="SyncopeRole">
       <pk column="id"/>
       <column name="id" type="varchar" not-null="true" size="255"/>
-      <column name="consoleLayoutInfo" type="clob" size="-1"/>
+      <column name="anyLayout" type="clob" size="-1"/>
     </table>
     <table name="SyncopeRole_DynRealm">
       <column name="role_id" type="varchar" size="255"/>

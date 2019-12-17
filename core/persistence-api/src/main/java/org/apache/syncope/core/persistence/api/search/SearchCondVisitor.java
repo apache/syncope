@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
@@ -53,33 +53,29 @@ import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
  */
 public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
-    private static final Pattern TIMEZONE = Pattern.compile(".* [0-9]{4}$");
+    protected static final Pattern TIMEZONE = Pattern.compile(".* [0-9]{4}$");
 
-    private String realm;
+    protected static final ThreadLocal<String> REALM = new ThreadLocal<>();
 
-    private SearchCond searchCond;
+    protected static final ThreadLocal<SearchCond> SEARCH_COND = new ThreadLocal<>();
 
     public SearchCondVisitor() {
         super(null);
     }
 
     public void setRealm(final String realm) {
-        this.realm = realm;
+        REALM.set(realm);
     }
 
-    private AttributeCond createAttributeCond(final String schema) {
-        AttributeCond attributeCond = SearchableFields.contains(schema)
+    protected AttrCond createAttrCond(final String schema) {
+        AttrCond attrCond = SearchableFields.contains(schema)
                 ? new AnyCond()
-                : new AttributeCond();
-        attributeCond.setSchema(schema);
-        return attributeCond;
+                : new AttrCond();
+        attrCond.setSchema(schema);
+        return attrCond;
     }
 
-    @SuppressWarnings("ConvertToStringSwitch")
-    private SearchCond visitPrimitive(final SearchCondition<SearchBean> sc) {
-        String name = getRealPropertyName(sc.getStatement().getProperty());
-        Optional<SpecialAttr> specialAttrName = SpecialAttr.fromString(name);
-
+    protected String getValue(final SearchCondition<SearchBean> sc) {
         String value = null;
         try {
             value = SearchUtils.toSqlWildcardString(
@@ -95,11 +91,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("While decoding " + sc.getStatement().getValue(), e);
         }
-        Optional<SpecialAttr> specialAttrValue = SpecialAttr.fromString(value);
 
-        AttributeCond attributeCond = createAttributeCond(name);
-        attributeCond.setExpression(value);
+        return value;
+    }
 
+    protected ConditionType getConditionType(final SearchCondition<SearchBean> sc) {
         ConditionType ct = sc.getConditionType();
         if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
             SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
@@ -118,85 +114,101 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
             }
         }
 
+        return ct;
+    }
+
+    @SuppressWarnings("ConvertToStringSwitch")
+    protected SearchCond visitPrimitive(final SearchCondition<SearchBean> sc) {
+        String name = getRealPropertyName(sc.getStatement().getProperty());
+        Optional<SpecialAttr> specialAttrName = SpecialAttr.fromString(name);
+
+        String value = getValue(sc);
+        Optional<SpecialAttr> specialAttrValue = SpecialAttr.fromString(value);
+
+        AttrCond attrCond = createAttrCond(name);
+        attrCond.setExpression(value);
+
+        ConditionType ct = getConditionType(sc);
+
         SearchCond leaf;
         switch (ct) {
             case EQUALS:
             case NOT_EQUALS:
                 if (!specialAttrName.isPresent()) {
                     if (specialAttrValue.isPresent() && specialAttrValue.get() == SpecialAttr.NULL) {
-                        attributeCond.setType(AttributeCond.Type.ISNULL);
-                        attributeCond.setExpression(null);
+                        attrCond.setType(AttrCond.Type.ISNULL);
+                        attrCond.setExpression(null);
                     } else if (value.indexOf('%') == -1) {
-                        attributeCond.setType(sc.getConditionType() == ConditionType.CUSTOM
-                                ? AttributeCond.Type.IEQ
-                                : AttributeCond.Type.EQ);
+                        attrCond.setType(sc.getConditionType() == ConditionType.CUSTOM
+                                ? AttrCond.Type.IEQ
+                                : AttrCond.Type.EQ);
                     } else {
-                        attributeCond.setType(sc.getConditionType() == ConditionType.CUSTOM
-                                ? AttributeCond.Type.ILIKE
-                                : AttributeCond.Type.LIKE);
+                        attrCond.setType(sc.getConditionType() == ConditionType.CUSTOM
+                                ? AttrCond.Type.ILIKE
+                                : AttrCond.Type.LIKE);
                     }
 
-                    leaf = SearchCond.getLeafCond(attributeCond);
+                    leaf = SearchCond.getLeaf(attrCond);
                 } else {
                     switch (specialAttrName.get()) {
                         case TYPE:
                             AnyTypeCond typeCond = new AnyTypeCond();
                             typeCond.setAnyTypeKey(value);
-                            leaf = SearchCond.getLeafCond(typeCond);
+                            leaf = SearchCond.getLeaf(typeCond);
                             break;
 
                         case RESOURCES:
                             ResourceCond resourceCond = new ResourceCond();
                             resourceCond.setResourceKey(value);
-                            leaf = SearchCond.getLeafCond(resourceCond);
+                            leaf = SearchCond.getLeaf(resourceCond);
                             break;
 
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
                             groupCond.setGroup(value);
-                            leaf = SearchCond.getLeafCond(groupCond);
+                            leaf = SearchCond.getLeaf(groupCond);
                             break;
 
                         case RELATIONSHIPS:
                             RelationshipCond relationshipCond = new RelationshipCond();
                             relationshipCond.setAnyObject(value);
-                            leaf = SearchCond.getLeafCond(relationshipCond);
+                            leaf = SearchCond.getLeaf(relationshipCond);
                             break;
 
                         case RELATIONSHIP_TYPES:
                             RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
                             relationshipTypeCond.setRelationshipTypeKey(value);
-                            leaf = SearchCond.getLeafCond(relationshipTypeCond);
+                            leaf = SearchCond.getLeaf(relationshipTypeCond);
                             break;
 
                         case ROLES:
                             RoleCond roleCond = new RoleCond();
                             roleCond.setRole(value);
-                            leaf = SearchCond.getLeafCond(roleCond);
+                            leaf = SearchCond.getLeaf(roleCond);
                             break;
 
                         case PRIVILEGES:
                             PrivilegeCond privilegeCond = new PrivilegeCond();
                             privilegeCond.setPrivilege(value);
-                            leaf = SearchCond.getLeafCond(privilegeCond);
+                            leaf = SearchCond.getLeaf(privilegeCond);
                             break;
 
                         case DYNREALMS:
                             DynRealmCond dynRealmCond = new DynRealmCond();
                             dynRealmCond.setDynRealm(value);
-                            leaf = SearchCond.getLeafCond(dynRealmCond);
+                            leaf = SearchCond.getLeaf(dynRealmCond);
                             break;
 
                         case ASSIGNABLE:
                             AssignableCond assignableCond = new AssignableCond();
-                            assignableCond.setRealmFullPath(realm);
-                            leaf = SearchCond.getLeafCond(assignableCond);
+                            assignableCond.setRealmFullPath(REALM.get());
+                            leaf = SearchCond.getLeaf(assignableCond);
                             break;
 
                         case MEMBER:
                             MemberCond memberCond = new MemberCond();
                             memberCond.setMember(value);
-                            leaf = SearchCond.getLeafCond(memberCond);
+                            leaf = SearchCond.getLeaf(memberCond);
                             break;
 
                         default:
@@ -205,38 +217,33 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     }
                 }
                 if (ct == ConditionType.NOT_EQUALS) {
-                    if (leaf.getAttributeCond() != null
-                            && leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
-
-                        leaf.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-                    } else if (leaf.getAnyCond() != null
-                            && leaf.getAnyCond().getType() == AttributeCond.Type.ISNULL) {
-
-                        leaf.getAnyCond().setType(AttributeCond.Type.ISNOTNULL);
+                    Optional<AttrCond> notEquals = leaf.getLeaf(AttrCond.class);
+                    if (notEquals.isPresent() && notEquals.get().getType() == AttrCond.Type.ISNULL) {
+                        notEquals.get().setType(AttrCond.Type.ISNOTNULL);
                     } else {
-                        leaf = SearchCond.getNotLeafCond(leaf);
+                        leaf = SearchCond.getNotLeaf(leaf);
                     }
                 }
                 break;
 
             case GREATER_OR_EQUALS:
-                attributeCond.setType(AttributeCond.Type.GE);
-                leaf = SearchCond.getLeafCond(attributeCond);
+                attrCond.setType(AttrCond.Type.GE);
+                leaf = SearchCond.getLeaf(attrCond);
                 break;
 
             case GREATER_THAN:
-                attributeCond.setType(AttributeCond.Type.GT);
-                leaf = SearchCond.getLeafCond(attributeCond);
+                attrCond.setType(AttrCond.Type.GT);
+                leaf = SearchCond.getLeaf(attrCond);
                 break;
 
             case LESS_OR_EQUALS:
-                attributeCond.setType(AttributeCond.Type.LE);
-                leaf = SearchCond.getLeafCond(attributeCond);
+                attrCond.setType(AttrCond.Type.LE);
+                leaf = SearchCond.getLeaf(attrCond);
                 break;
 
             case LESS_THAN:
-                attributeCond.setType(AttributeCond.Type.LT);
-                leaf = SearchCond.getLeafCond(attributeCond);
+                attrCond.setType(AttrCond.Type.LT);
+                leaf = SearchCond.getLeaf(attrCond);
                 break;
 
             default:
@@ -244,23 +251,22 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         }
 
         // SYNCOPE-1293: explicitly re-process to allow 'token==$null' or 'token!=$null'
-        if (leaf.getAttributeCond() != null
-                && "token".equals(leaf.getAttributeCond().getSchema())
-                && (leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL
-                || leaf.getAttributeCond().getType() == AttributeCond.Type.ISNOTNULL)
-                && leaf.getAttributeCond().getExpression() == null) {
-
+        Optional<AttrCond> reprocess = leaf.getLeaf(AttrCond.class).
+                filter(cond -> "token".equals(cond.getSchema())
+                && (cond.getType() == AttrCond.Type.ISNULL || cond.getType() == AttrCond.Type.ISNOTNULL)
+                && cond.getExpression() == null);
+        if (reprocess.isPresent()) {
             AnyCond tokenCond = new AnyCond();
-            tokenCond.setSchema(leaf.getAttributeCond().getSchema());
-            tokenCond.setType(leaf.getAttributeCond().getType());
+            tokenCond.setSchema(reprocess.get().getSchema());
+            tokenCond.setType(reprocess.get().getType());
             tokenCond.setExpression(null);
-            leaf = SearchCond.getLeafCond(tokenCond);
+            leaf = SearchCond.getLeaf(tokenCond);
         }
 
         return leaf;
     }
 
-    private SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
+    protected SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
         List<SearchCond> searchConds = new ArrayList<>();
         sc.getSearchConditions().forEach(searchCond -> {
             searchConds.add(searchCond.getStatement() == null
@@ -271,11 +277,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         SearchCond compound;
         switch (sc.getConditionType()) {
             case AND:
-                compound = SearchCond.getAndCond(searchConds);
+                compound = SearchCond.getAnd(searchConds);
                 break;
 
             case OR:
-                compound = SearchCond.getOrCond(searchConds);
+                compound = SearchCond.getOr(searchConds);
                 break;
 
             default:
@@ -288,14 +294,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     @Override
     public void visit(final SearchCondition<SearchBean> sc) {
-        searchCond = sc.getStatement() == null
-                ? visitCompount(sc)
-                : visitPrimitive(sc);
+        SEARCH_COND.set(sc.getStatement() == null ? visitCompount(sc) : visitPrimitive(sc));
     }
 
     @Override
     public SearchCond getQuery() {
-        return searchCond;
+        return SEARCH_COND.get();
     }
-
 }

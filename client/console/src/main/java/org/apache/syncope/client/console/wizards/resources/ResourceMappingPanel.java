@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -124,7 +125,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
         Set<String> choices = new HashSet<>();
         if (SyncopeConstants.REALM_ANYTYPE.equals(provision.getAnyType())) {
-            choices.add("key");
+            choices.add(Constants.KEY_FIELD_NAME);
             choices.add("name");
             choices.add("fullpath");
         } else {

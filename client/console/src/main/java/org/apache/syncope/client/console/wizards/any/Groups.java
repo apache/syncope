@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
@@ -259,8 +260,8 @@ public class Groups extends WizardStep implements ICondition {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
             List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getMemberships().
-                    stream().map(membership
-                            -> searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap()).
+                    stream().map(membership -> searchConditionBuilder.is(Constants.KEY_FIELD_NAME).
+                    equalTo(membership.getGroupKey()).wrap()).
                     collect(Collectors.toList());
 
             Map<String, GroupTO> assignedGroups = new HashMap<>();
@@ -300,8 +301,8 @@ public class Groups extends WizardStep implements ICondition {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
             List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
-                    stream().map(membership
-                            -> searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap()).
+                    stream().map(membership -> searchConditionBuilder.is(Constants.KEY_FIELD_NAME).
+                    equalTo(membership.getGroupKey()).wrap()).
                     collect(Collectors.toList());
 
             dynMemberships = new ArrayList<>();

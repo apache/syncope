@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
@@ -105,7 +106,9 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
         public Details(final RoleWrapper modelObject) {
             add(new AjaxTextFieldPanel(
-                    "key", "key", new PropertyModel<>(modelObject.getInnerObject(), "key"), false).
+                    Constants.KEY_FIELD_NAME,
+                    Constants.KEY_FIELD_NAME,
+                    new PropertyModel<>(modelObject.getInnerObject(), Constants.KEY_FIELD_NAME), false).
                     setEnabled(StringUtils.isEmpty(modelObject.getInnerObject().getKey())));
 
             // ------------------------
@@ -195,5 +198,4 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
                     hideLabel().setOutputMarkupId(true));
         }
     }
-
 }

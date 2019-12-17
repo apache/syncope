@@ -94,7 +94,9 @@ public abstract class ExecutionsDirectoryPanel
     protected List<IColumn<ExecTO, String>> getColumns() {
         final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this),
+                Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
 
         columns.add(new DatePropertyColumn<>(new StringResourceModel("start", this), "start", "start"));
 

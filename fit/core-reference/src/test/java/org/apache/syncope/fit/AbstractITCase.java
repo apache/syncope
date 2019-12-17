@@ -110,15 +110,15 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.common.rest.api.service.UserRequestService;
+import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.apache.syncope.common.rest.api.service.UserRequestService;
-import org.apache.syncope.common.rest.api.service.BpmnProcessService;
-import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 
 public abstract class AbstractITCase {
 

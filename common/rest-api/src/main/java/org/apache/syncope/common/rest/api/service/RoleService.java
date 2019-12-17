@@ -128,23 +128,23 @@ public interface RoleService extends JAXRSService {
      * @return console layout information as JSON string for the role with the given key, if available
      */
     @GET
-    @Path("{key}/consoleLayout")
+    @Path("{key}/anyLayout")
     @Produces({ MediaType.APPLICATION_JSON })
-    Response getConsoleLayoutInfo(@NotNull @PathParam("key") String key);
+    Response getAnyLayout(@NotNull @PathParam("key") String key);
 
     /**
      * Sets the console layout information as JSON string for the role with the given key, if available.
      *
      * @param key role key
-     * @param consoleLayoutInfoIn console layout information to be set
+     * @param anyLayoutIn console layout information to be set
      */
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
-    @Path("{key}/consoleLayout")
+    @Path("{key}/anyLayout")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
+    void setAnyLayout(@NotNull @PathParam("key") String key, InputStream anyLayoutIn);
 
     /**
      * Removes the console layout information for the role with the given key, if available.
@@ -154,7 +154,7 @@ public interface RoleService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
-    @Path("{key}/consoleLayout")
+    @Path("{key}/anyLayout")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
+    void removeAnyLayout(@NotNull @PathParam("key") String key);
 }

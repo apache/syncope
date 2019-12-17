@@ -411,6 +411,10 @@ public final class GenerateUpgradeSQL {
         }
         OUT.write("UPDATE Notification SET recipientsProvider_id=recipientsProviderClassName;\n");
         OUT.write("ALTER TABLE Notification DROP COLUMN recipientsProviderClassName;\n");
+
+        // Role
+        OUT.write("UPDATE SyncopeRole SET anyLayout=consoleLayoutInfo;\n");
+        OUT.write("ALTER TABLE SyncopeRole DROP COLUMN consoleLayoutInfo;\n");
     }
 
     private static void upgradeFlowableTo212(final Connection conn) throws IOException, SQLException {

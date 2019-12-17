@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
-import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.service.GroupService;
@@ -57,7 +56,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         ProvisioningResult<GroupTO> result = groupLogic().create(binder().toGroupTO(group), false);
 
         // then assign members
-        for (Member member : group.getMembers()) {
+        group.getMembers().forEach(member -> {
             UserPatch patch = new UserPatch();
             patch.setKey(member.getValue());
             patch.getMemberships().add(new MembershipPatch.Builder().
@@ -68,7 +67,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
             } catch (Exception e) {
                 LOG.error("While setting membership of {} to {}", result.getEntity().getKey(), member.getValue(), e);
             }
-        }
+        });
 
         return createResponse(
                 result.getEntity().getKey(),
@@ -112,7 +111,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(id);
-        SearchCond searchCond = SearchCond.getLeafCond(membCond);
+        SearchCond searchCond = SearchCond.getLeaf(membCond);
         int count = userLogic().search(searchCond,
                 1, 1, Collections.<OrderByClause>emptyList(),
                 SyncopeConstants.ROOT_REALM, false).getLeft();

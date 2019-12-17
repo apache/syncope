@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
@@ -36,7 +37,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -448,6 +449,16 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return obs;
     }
 
+    protected void getQueryForCustomConds(
+            final SearchCond cond,
+            final List<Object> parameters,
+            final SearchSupport svs,
+            final boolean not,
+            final StringBuilder query) {
+
+        // do nothing by default, leave it open for subclasses
+    }
+
     private Pair<StringBuilder, Set<String>> getQuery(
             final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
 
@@ -459,49 +470,66 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         switch (cond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                if (cond.getAnyTypeCond() != null && AnyTypeKind.ANY_OBJECT == svs.anyTypeKind) {
-                    query.append(getQuery(cond.getAnyTypeCond(), not, parameters, svs));
-                } else if (cond.getRelationshipTypeCond() != null
-                        && (AnyTypeKind.USER == svs.anyTypeKind || AnyTypeKind.ANY_OBJECT == svs.anyTypeKind)) {
+                cond.getLeaf(AnyTypeCond.class).
+                        filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
 
-                    query.append(getQuery(cond.getRelationshipTypeCond(), not, parameters, svs));
-                } else if (cond.getRelationshipCond() != null
-                        && (AnyTypeKind.USER == svs.anyTypeKind || AnyTypeKind.ANY_OBJECT == svs.anyTypeKind)) {
+                cond.getLeaf(RelationshipTypeCond.class).
+                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
 
-                    query.append(getQuery(cond.getRelationshipCond(), not, parameters, svs));
-                } else if (cond.getMembershipCond() != null
-                        && (AnyTypeKind.USER == svs.anyTypeKind || AnyTypeKind.ANY_OBJECT == svs.anyTypeKind)) {
+                cond.getLeaf(RelationshipCond.class).
+                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
 
-                    query.append(getQuery(cond.getMembershipCond(), not, parameters, svs));
-                } else if (cond.getAssignableCond() != null) {
-                    query.append(getQuery(cond.getAssignableCond(), parameters, svs));
-                } else if (cond.getRoleCond() != null && AnyTypeKind.USER == svs.anyTypeKind) {
-                    query.append(getQuery(cond.getRoleCond(), not, parameters, svs));
-                } else if (cond.getPrivilegeCond() != null && AnyTypeKind.USER == svs.anyTypeKind) {
-                    query.append(getQuery(cond.getPrivilegeCond(), not, parameters, svs));
-                } else if (cond.getDynRealmCond() != null) {
-                    query.append(getQuery(cond.getDynRealmCond(), not, parameters, svs));
-                } else if (cond.getMemberCond() != null && AnyTypeKind.GROUP == svs.anyTypeKind) {
-                    query.append(getQuery(cond.getMemberCond(), not, parameters, svs));
-                } else if (cond.getResourceCond() != null) {
-                    query.append(getQuery(cond.getResourceCond(), not, parameters, svs));
-                } else if (cond.getAttributeCond() != null) {
-                    query.append(getQuery(cond.getAttributeCond(), not, parameters, svs));
-                    try {
-                        involvedPlainAttrs.add(check(cond.getAttributeCond(), svs.anyTypeKind).getLeft().getKey());
-                    } catch (IllegalArgumentException e) {
-                        // ignore
-                    }
-                } else if (cond.getAnyCond() != null) {
-                    query.append(getQuery(cond.getAnyCond(), not, parameters, svs));
+                cond.getLeaf(MembershipCond.class).
+                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
+                cond.getLeaf(MemberCond.class).
+                        filter(leaf -> AnyTypeKind.GROUP == svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
+                cond.getLeaf(AssignableCond.class).
+                        ifPresent(leaf -> query.append(getQuery(leaf, parameters, svs)));
+
+                cond.getLeaf(RoleCond.class).
+                        filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
+                cond.getLeaf(PrivilegeCond.class).
+                        filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
+                cond.getLeaf(DynRealmCond.class).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
+                cond.getLeaf(ResourceCond.class).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
+                Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
+                if (anyCond.isPresent()) {
+                    query.append(getQuery(anyCond.get(), not, parameters, svs));
+                } else {
+                    cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
+                        query.append(getQuery(leaf, not, parameters, svs));
+                        try {
+                            involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
+                        } catch (IllegalArgumentException e) {
+                            // ignore
+                        }
+                    });
                 }
+
+                // allow for additional search conditions
+                getQueryForCustomConds(cond, parameters, svs, not, query);
                 break;
 
             case AND:
-                Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
+                Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeft(), parameters, svs);
                 involvedPlainAttrs.addAll(leftAndInfo.getRight());
 
-                Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
+                Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRight(), parameters, svs);
                 involvedPlainAttrs.addAll(rigthAndInfo.getRight());
 
                 String andSubQuery = leftAndInfo.getKey().toString();
@@ -514,10 +542,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             case OR:
-                Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeftSearchCond(), parameters, svs);
+                Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeft(), parameters, svs);
                 involvedPlainAttrs.addAll(leftOrInfo.getRight());
 
-                Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRightSearchCond(), parameters, svs);
+                Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRight(), parameters, svs);
                 involvedPlainAttrs.addAll(rigthOrInfo.getRight());
 
                 String orSubQuery = leftOrInfo.getKey().toString();
@@ -850,7 +878,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final StringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
-            final AttributeCond cond,
+            final AttrCond cond,
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
@@ -858,7 +886,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
         if (not && schema.isMultivalue()
                 && !(cond instanceof AnyCond)
-                && cond.getType() != AttributeCond.Type.ISNULL && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+                && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
             query.append("any_id NOT IN (SELECT DISTINCT any_id FROM ");
             if (schema.isUniqueConstraint()) {
@@ -871,7 +899,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             query.append(")");
         } else {
             // activate ignoreCase only for EQ and LIKE operators
-            boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
+            boolean ignoreCase = AttrCond.Type.ILIKE == cond.getType() || AttrCond.Type.IEQ == cond.getType();
 
             String column = (cond instanceof AnyCond) ? cond.getSchema() : key(schema.getType());
             if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
@@ -979,7 +1007,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected String getQuery(
-            final AttributeCond cond,
+            final AttrCond cond,
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {

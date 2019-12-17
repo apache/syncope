@@ -27,7 +27,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.console.layout.AnyLayout;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -48,7 +49,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -96,72 +96,70 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected Serializable onApplyInternal(
                     final GroupTO groupTO, final String type, final AjaxRequestTarget target) {
 
-                AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
+                AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
                 AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
 
-                AnyTypeTO anyTypeTO = typeRestClient.read(type);
+                AnyLayout layout = AnyLayoutUtils.fetch(anyTypeRestClient.list());
+                ModalPanel anyPanel = AnyLayoutUtils.newAnyPanel(
+                        layout.getAnyPanelClass(),
+                        BaseModal.CONTENT_ID, anyTypeRestClient.read(type), null, layout, false,
+                        (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
+                            final Panel panel;
+                            if (AnyTypeKind.USER.name().equals(type)) {
+                                String query = SyncopeClient.getUserSearchConditionBuilder().and(
+                                        SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
+                                        SyncopeClient.getUserSearchConditionBuilder().
+                                                is(Constants.KEY_FIELD_NAME).notNullValue()).query();
 
-                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
+                                panel = new UserDirectoryPanel.Builder(
+                                        classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                        setRealm(SyncopeConstants.ROOT_REALM).
+                                        setFiltered(true).
+                                        setFiql(query).
+                                        disableCheckBoxes().
+                                        addNewItemPanelBuilder(
+                                                AnyLayoutUtils.newLayoutInfo(
+                                                        new UserTO(),
+                                                        anyTypeTO.getClasses(),
+                                                        anyLayout.getUser(),
+                                                        pageRef), false).
+                                        setWizardInModal(false).build(id);
 
-                    private static final long serialVersionUID = 7980820232811890502L;
+                                MetaDataRoleAuthorizationStrategy.authorize(
+                                        panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
+                            } else {
+                                String query = SyncopeClient.getAnyObjectSearchConditionBuilder(type).and(
+                                        SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
+                                        SyncopeClient.getUserSearchConditionBuilder().
+                                                is(Constants.KEY_FIELD_NAME).notNullValue()).query();
 
-                    @Override
-                    protected Panel getDirectoryPanel(final String id) {
+                                panel = new AnyObjectDirectoryPanel.Builder(
+                                        classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                        setRealm(SyncopeConstants.ROOT_REALM).
+                                        setFiltered(true).
+                                        setFiql(query).
+                                        disableCheckBoxes().
+                                        addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
+                                                new AnyObjectTO(),
+                                                anyTypeTO.getClasses(),
+                                                layout.getAnyObjects().get(type),
+                                                pageRef), false).
+                                        setWizardInModal(false).build(id);
 
-                        final Panel panel;
+                                MetaDataRoleAuthorizationStrategy.authorize(
+                                        panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyTypeTO.getKey()));
+                            }
 
-                        if (AnyTypeKind.USER.name().equals(type)) {
-                            String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                                    SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
-                                    SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
-
-                            panel = new UserDirectoryPanel.Builder(
-                                    classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                    setRealm(SyncopeConstants.ROOT_REALM).
-                                    setFiltered(true).
-                                    setFiql(query).
-                                    disableCheckBoxes().
-                                    addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
-                                            new UserTO(),
-                                            anyTypeTO.getClasses(),
-                                            FormLayoutInfoUtils.fetch(typeRestClient.list()).getLeft(),
-                                            pageRef), false).
-                                    setWizardInModal(false).build(id);
-
-                            MetaDataRoleAuthorizationStrategy.authorize(
-                                    panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
-                        } else {
-                            String query = SyncopeClient.getAnyObjectSearchConditionBuilder(type).and(
-                                    SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
-                                    SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
-
-                            panel = new AnyObjectDirectoryPanel.Builder(
-                                    classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                    setRealm(SyncopeConstants.ROOT_REALM).
-                                    setFiltered(true).
-                                    setFiql(query).
-                                    disableCheckBoxes().
-                                    addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
-                                            new AnyObjectTO(),
-                                            anyTypeTO.getClasses(),
-                                            FormLayoutInfoUtils.fetch(typeRestClient.list()).getRight().get(type),
-                                            pageRef), false).
-                                    setWizardInModal(false).build(id);
-
-                            MetaDataRoleAuthorizationStrategy.authorize(
-                                    panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyTypeTO.getKey()));
-                        }
-
-                        return panel;
-                    }
-                };
+                            return panel;
+                        },
+                        pageRef);
 
                 membersModal.header(new StringResourceModel(
                         "group.members",
                         GroupDirectoryPanel.this,
                         Model.of(Pair.of(groupTO, type))));
 
-                membersModal.setContent(panel);
+                membersModal.setContent(anyPanel);
                 membersModal.show(true);
                 target.add(membersModal);
 
@@ -364,24 +362,25 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
         }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
 
         panel.add(new ActionLink<GroupTO>() {
+
             private static final long serialVersionUID = -2878723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 IModel<GroupWrapper> formModel = new CompoundPropertyModel<>(
-                    new GroupWrapper(new GroupRestClient().read(model.getObject().getKey())));
+                        new GroupWrapper(new GroupRestClient().read(model.getObject().getKey())));
                 target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                    altDefaultModal,
-                    pageRef,
-                    formModel.getObject().getInnerObject())));
+                        altDefaultModal,
+                        pageRef,
+                        formModel.getObject().getInnerObject())));
 
                 altDefaultModal.header(new Model<>(
-                    getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                        getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                 altDefaultModal.show(true);
             }
         }, ActionType.VIEW_AUDIT_HISTORY, StandardEntitlement.AUDIT_LIST).
-            setRealms(realm, model.getObject().getDynRealms());
+                setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<GroupTO>() {
 

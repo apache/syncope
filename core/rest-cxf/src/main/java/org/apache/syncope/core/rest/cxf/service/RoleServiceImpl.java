@@ -71,8 +71,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public Response getConsoleLayoutInfo(final String key) {
-        String template = logic.getConsoleLayoutInfo(key);
+    public Response getAnyLayout(final String key) {
+        String template = logic.getAnyLayout(key);
         StreamingOutput sout = (os) -> os.write(template.getBytes());
 
         return Response.ok(sout).
@@ -81,9 +81,9 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void setConsoleLayoutInfo(final String key, final InputStream consoleLayoutIn) {
+    public void setAnyLayout(final String key, final InputStream anyLayoutIn) {
         try {
-            logic.setConsoleLayoutInfo(key, IOUtils.toString(consoleLayoutIn, StandardCharsets.UTF_8.name()));
+            logic.setAnyLayout(key, IOUtils.toString(anyLayoutIn, StandardCharsets.UTF_8.name()));
         } catch (final IOException e) {
             LOG.error("While setting console layout info for role {}", key, e);
             throw new InternalServerErrorException("Could not read entity", e);
@@ -91,8 +91,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void removeConsoleLayoutInfo(final String key) {
-        logic.setConsoleLayoutInfo(key, null);
+    public void removeAnyLayout(final String key) {
+        logic.setAnyLayout(key, null);
     }
-
 }

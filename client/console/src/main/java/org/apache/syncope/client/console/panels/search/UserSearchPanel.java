@@ -28,13 +28,13 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
-public final class UserSearchPanel extends AnyObjectSearchPanel {
+public class UserSearchPanel extends AnyObjectSearchPanel {
 
     private static final long serialVersionUID = -1769527800450203738L;
 
-    private final RoleRestClient roleRestClient = new RoleRestClient();
+    protected final RoleRestClient roleRestClient = new RoleRestClient();
 
-    private final ApplicationRestClient applicationRestClient = new ApplicationRestClient();
+    protected final ApplicationRestClient applicationRestClient = new ApplicationRestClient();
 
     public static class Builder extends AnyObjectSearchPanel.Builder {
 
@@ -50,7 +50,7 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
         }
     }
 
-    private UserSearchPanel(final String id, final Builder builder) {
+    protected UserSearchPanel(final String id, final Builder builder) {
         super(id, AnyTypeKind.USER, builder);
     }
 

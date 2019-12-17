@@ -253,7 +253,7 @@ public class ResourceStatusDirectoryPanel
                         bld = SyncopeClient.getAnyObjectSearchConditionBuilder(type);
                         restClient = new AnyObjectRestClient();
                 }
-                fiql = bld.isNotNull("key").query();
+                fiql = bld.isNotNull(Constants.KEY_FIELD_NAME).query();
             }
         }
 

@@ -31,8 +31,9 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.layout.ConsoleLayoutInfo;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.console.layout.AnyLayout;
+import org.apache.syncope.client.console.layout.AnyLayoutWrapper;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel.RoleDataProvider;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -70,6 +71,8 @@ import org.apache.wicket.model.StringResourceModel;
 public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, RoleDataProvider, RoleRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
+
+    protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
 
@@ -110,7 +113,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         final List<IColumn<RoleTO, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
-                new ResourceModel("key"), "key", "key"));
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new ResourceModel("entitlements", "Entitlements"), null, "entitlements"));
         columns.add(new PropertyColumn<>(
@@ -159,45 +162,44 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                        SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
-                        SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
-
-                AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
                 AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
+                AnyTypeTO userType = anyTypeRestClient.read(AnyTypeKind.USER.name());
 
-                AnyTypeTO anyTypeTO = typeRestClient.read(AnyTypeKind.USER.name());
+                AnyLayout layout = AnyLayoutUtils.fetch(anyTypeRestClient.list());
+                ModalPanel anyPanel = AnyLayoutUtils.newAnyPanel(
+                        layout.getAnyPanelClass(),
+                        BaseModal.CONTENT_ID, userType, null, layout, false,
+                        (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
+                            String query = SyncopeClient.getUserSearchConditionBuilder().and(
+                                    SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
+                                    SyncopeClient.getUserSearchConditionBuilder().
+                                            is(Constants.KEY_FIELD_NAME).notNullValue()).
+                                    query();
 
-                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
+                            Panel panel = new UserDirectoryPanel.Builder(
+                                    classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                    setRealm(SyncopeConstants.ROOT_REALM).
+                                    setFiltered(true).
+                                    setFiql(query).
+                                    disableCheckBoxes().
+                                    addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
+                                            new UserTO(),
+                                            anyTypeTO.getClasses(),
+                                            anyLayout.getUser(),
+                                            pageRef), false).
+                                    setWizardInModal(false).build(id);
 
-                    private static final long serialVersionUID = -7514498203393023415L;
+                            MetaDataRoleAuthorizationStrategy.authorize(
+                                    panel,
+                                    WebPage.RENDER,
+                                    StandardEntitlement.USER_SEARCH);
 
-                    @Override
-                    protected Panel getDirectoryPanel(final String id) {
-                        Panel panel = new UserDirectoryPanel.Builder(
-                                classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                setRealm(SyncopeConstants.ROOT_REALM).
-                                setFiltered(true).
-                                setFiql(query).
-                                disableCheckBoxes().
-                                addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
-                                        new UserTO(),
-                                        anyTypeTO.getClasses(),
-                                        FormLayoutInfoUtils.fetch(typeRestClient.list()).getLeft(),
-                                        pageRef), false).
-                                setWizardInModal(false).build(id);
-
-                        MetaDataRoleAuthorizationStrategy.authorize(
-                                panel,
-                                WebPage.RENDER,
-                                StandardEntitlement.USER_SEARCH);
-
-                        return panel;
-                    }
-                };
+                            return panel;
+                        },
+                        pageRef);
 
                 membersModal.header(new StringResourceModel("role.members", RoleDirectoryPanel.this, model));
-                membersModal.setContent(panel);
+                membersModal.setContent(anyPanel);
                 membersModal.show(true);
                 target.add(membersModal);
             }
@@ -209,24 +211,26 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                ConsoleLayoutInfo info = new ConsoleLayoutInfo(model.getObject().getKey());
-                info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
+                AnyLayoutWrapper wrapper = new AnyLayoutWrapper(
+                        model.getObject().getKey(),
+                        AnyLayoutUtils.defaultIfEmpty(
+                                restClient.readAnyLayout(model.getObject().getKey()), anyTypeRestClient.list()));
 
                 utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
                 utilityModal.setContent(new JsonEditorPanel(
-                        utilityModal, new PropertyModel<String>(info, "content"), false, pageRef) {
+                        utilityModal, new PropertyModel<String>(wrapper, "content"), false, pageRef) {
 
                     private static final long serialVersionUID = -8927036362466990179L;
 
                     @Override
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            restClient.setConsoleLayoutInfo(info.getKey(), info.getContent());
+                            restClient.setAnyLayout(wrapper.getKey(), wrapper.getContent());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);
                             modal.close(target);
                         } catch (Exception e) {
-                            LOG.error("While updating console layout info for role {}", info.getKey(), e);
+                            LOG.error("While updating console layout for role {}", wrapper.getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                     ? e.getClass().getName() : e.getMessage());
                         }

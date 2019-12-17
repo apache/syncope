@@ -69,12 +69,12 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] {
-                "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] {
-                "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
-                "key", "resource", "anyType", "extAttrName", "readonly" }));
+            put(SchemaType.PLAIN, Arrays.asList(
+                    Constants.KEY_FIELD_NAME,
+                    "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"));
+            put(SchemaType.DERIVED, Arrays.asList(Constants.KEY_FIELD_NAME, "expression"));
+            put(SchemaType.VIRTUAL, Arrays.asList(
+                    Constants.KEY_FIELD_NAME, "resource", "anyType", "extAttrName", "readonly"));
         }
     };
 
@@ -143,7 +143,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(field)) {
+                            if (Constants.KEY_FIELD_NAME.equals(field)) {
                                 css = StringUtils.isBlank(css)
                                         ? "col-xs-1"
                                         : css + " col-xs-1";
@@ -221,7 +221,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             super(paginatorRows);
 
             this.schemaType = schemaType;
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

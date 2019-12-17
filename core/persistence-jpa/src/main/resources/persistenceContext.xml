@@ -30,16 +30,17 @@ under the License.
   <context:annotation-config/>
   
   <context:component-scan base-package="org.apache.syncope.core.persistence.jpa"/>
-  <bean class="${entity.factory}"/>
-  <bean class="${plainSchema.dao}"/>
-  <bean class="${plainAttr.dao}"/>
-  <bean class="${plainAttrValue.dao}"/>
-  <bean class="${any.search.dao}"/>
-  <bean class="${user.dao}"/>
-  <bean class="${group.dao}"/>
-  <bean class="${anyObject.dao}"/>
-  <bean class="${conf.dao}"/>
-  <bean class="${audit.dao}"/>
+  <bean class="${entity.factory:org.apache.syncope.core.persistence.jpa.entity.JPAEntityFactory}"/>
+  <bean class="${plainSchema.dao:org.apache.syncope.core.persistence.jpa.dao.JPAPlainSchemaDAO}"/>
+  <bean class="${plainAttr.dao:org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO}"/>
+  <bean class="${plainAttrValue.dao:org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO}"/>
+  <bean class="${any.search.dao:org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO}"/>
+  <bean class="${any.search.visitor:org.apache.syncope.core.persistence.api.search.SearchCondVisitor}"/>
+  <bean class="${user.dao:org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO}"/>
+  <bean class="${group.dao:org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO}"/>
+  <bean class="${anyObject.dao:org.apache.syncope.core.persistence.jpa.dao.JPAAnyObjectDAO}"/>
+  <bean class="${conf.dao:org.apache.syncope.core.persistence.jpa.dao.JPAConfDAO}"/>
+  <bean class="${audit.dao:org.apache.syncope.core.persistence.jpa.dao.JPAAuditDAO}"/>
 
   <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
