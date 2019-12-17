@@ -221,6 +221,13 @@ under the License.
       <artifactId>bcpkix-jdk15on</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- required by wicket tester -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -263,7 +270,6 @@ under the License.
         </executions>
       </plugin>
 
-      <!-- By default, only core IT cases are run, use the 'full-it' profile for running all IT cases -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -271,10 +277,8 @@ under the License.
         <configuration>
           <systemPropertyVariables>
             <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
+            <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
           </systemPropertyVariables>
-          <includes>
-            <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
-          </includes>
         </configuration>
         <executions>
           <execution>
@@ -433,47 +437,6 @@ under the License.
   </build>
   
   <profiles>
-    <profile>
-      <id>full-it</id>
-
-      <dependencies>
-        <!-- required by wicket tester -->
-        <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>4.12</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <systemPropertyVariables>
-                <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
-                <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
-              </systemPropertyVariables>
-              <includes>
-                <include>**/*ITCase.java</include>
-              </includes>
-            </configuration>
-            <executions>
-              <execution>
-                <id>verify</id>
-                <goals>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  
     <profile>
       <id>elasticsearch-it</id>
       
