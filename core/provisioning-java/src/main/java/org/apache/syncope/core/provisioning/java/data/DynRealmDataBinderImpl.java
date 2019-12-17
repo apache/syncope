@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,8 +51,11 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     private void setDynMembership(final DynRealm dynRealm, final AnyType anyType, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
             sce.getElements().add(dynMembershipFIQL);

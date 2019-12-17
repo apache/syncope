@@ -63,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
@@ -154,6 +155,9 @@ public class DefaultNotificationManager implements NotificationManager {
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
@@ -181,7 +185,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
         if (notification.getRecipientsFIQL() != null) {
             recipients.addAll(searchDAO.<User>search(
-                    SearchCondConverter.convert(notification.getRecipientsFIQL()),
+                    SearchCondConverter.convert(searchCondVisitor, notification.getRecipientsFIQL()),
                     List.of(), AnyTypeKind.USER));
         }
 
@@ -338,9 +342,9 @@ public class DefaultNotificationManager implements NotificationManager {
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
-                        || notification.getAbout(anyType).isEmpty()
-                        || anyMatchDAO.matches(
-                                any, SearchCondConverter.convert(notification.getAbout(anyType).get().get()))) {
+                        || !notification.getAbout(anyType).isPresent()
+                        || anyMatchDAO.matches(any, SearchCondConverter.convert(
+                                searchCondVisitor, notification.getAbout(anyType).get().get()))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 

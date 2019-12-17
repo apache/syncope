@@ -33,6 +33,6 @@ public abstract class DirectoryDataProvider<T extends Serializable> extends Sort
         this.paginatorRows = paginatorRows;
 
         // default sorting
-        setSort("key", SortOrder.ASCENDING);
+        setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
     }
 }

@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 
 abstract class AbstractJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
@@ -28,7 +28,7 @@ abstract class AbstractJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         return new SearchSupport(kind);
     }
 
-    protected void appendOp(final StringBuilder query, final AttributeCond.Type condType, final boolean not) {
+    protected void appendOp(final StringBuilder query, final AttrCond.Type condType, final boolean not) {
         switch (condType) {
             case LIKE:
             case ILIKE:

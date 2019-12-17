@@ -84,7 +84,8 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<PrivilegeTO, String>> getColumns() {
         final List<IColumn<PrivilegeTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
 
         return columns;

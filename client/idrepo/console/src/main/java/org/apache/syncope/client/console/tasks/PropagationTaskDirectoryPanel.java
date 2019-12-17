@@ -72,7 +72,7 @@ public abstract class PropagationTaskDirectoryPanel
         final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("operation", this), "operation", "operation"));

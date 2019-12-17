@@ -324,7 +324,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                             ? AnyTypeKind.GROUP
                             : AnyTypeKind.ANY_OBJECT).stream().map(EntityTO::getKey).
                             collect(Collectors.toList());
-            choices.add("key");
+            choices.add(Constants.KEY_FIELD_NAME);
             choices.add(rule.getAnyType().equals(AnyTypeKind.USER.name()) ? "username" : "name");
             Collections.sort(choices);
             return choices;

@@ -132,7 +132,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("name", this), "name", "name"));

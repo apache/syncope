@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.commons;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -32,7 +33,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
     private static final long serialVersionUID = 1775967163571699258L;
 
     private static final Set<String> INLINE_PROPS = Set.of(
-            new String[] { "key", "status", "token", "username", "name" });
+            Constants.KEY_FIELD_NAME, "status", "token", "username", "name");
 
     public SortableAnyProviderComparator(final SortableDataProvider<T, String> provider) {
         super(provider);

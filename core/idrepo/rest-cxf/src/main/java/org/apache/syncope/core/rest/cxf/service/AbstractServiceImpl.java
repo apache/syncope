@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 abstract class AbstractServiceImpl implements JAXRSService {
 
@@ -63,6 +64,9 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     @Context
     protected SearchContext searchContext;
+
+    @Autowired
+    protected SearchCondVisitor searchCondVisitor;
 
     protected String getActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
@@ -161,12 +165,11 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     protected SearchCond getSearchCond(final String fiql, final String realm) {
         try {
-            SearchCondVisitor visitor = new SearchCondVisitor();
-            visitor.setRealm(realm);
+            searchCondVisitor.setRealm(realm);
             SearchCondition<SearchBean> sc = searchContext.getCondition(fiql, SearchBean.class);
-            sc.accept(visitor);
+            sc.accept(searchCondVisitor);
 
-            return visitor.getQuery();
+            return searchCondVisitor.getQuery();
         } catch (Exception e) {
             LOG.error("Invalid FIQL expression: {}", fiql, e);
 

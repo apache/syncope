@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,17 +59,14 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private static final Map<SchemaType, List<String>> COL_NAMES = new HashMap<SchemaType, List<String>>() {
-
-        private static final long serialVersionUID = 3109256773218160485L;
-
-        {
-            put(SchemaType.PLAIN,
-                List.of("key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"));
-            put(SchemaType.DERIVED, List.of("key", "expression"));
-            put(SchemaType.VIRTUAL, List.of("key", "resource", "anyType", "extAttrName", "readonly"));
-        }
-    };
+    private static final Map<SchemaType, List<String>> COL_NAMES = Map.of(
+            SchemaType.PLAIN,
+            List.of(Constants.KEY_FIELD_NAME,
+                    "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"),
+            SchemaType.DERIVED,
+            List.of(Constants.KEY_FIELD_NAME, "expression"),
+            SchemaType.VIRTUAL,
+            List.of(Constants.KEY_FIELD_NAME, "resource", "anyType", "extAttrName", "readonly"));
 
     private final SchemaType schemaType;
 
@@ -137,7 +133,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(field)) {
+                            if (Constants.KEY_FIELD_NAME.equals(field)) {
                                 css = StringUtils.isBlank(css)
                                         ? "col-xs-1"
                                         : css + " col-xs-1";
@@ -213,7 +209,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             super(paginatorRows);
 
             this.schemaType = schemaType;
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -104,7 +105,9 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
         public Details(final RoleWrapper modelObject) {
             add(new AjaxTextFieldPanel(
-                    "key", "key", new PropertyModel<>(modelObject.getInnerObject(), "key"), false).
+                    Constants.KEY_FIELD_NAME,
+                    Constants.KEY_FIELD_NAME,
+                    new PropertyModel<>(modelObject.getInnerObject(), Constants.KEY_FIELD_NAME), false).
                     setEnabled(StringUtils.isEmpty(modelObject.getInnerObject().getKey())));
 
             // ------------------------
@@ -194,5 +197,4 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     hideLabel().setOutputMarkupId(true));
         }
     }
-
 }

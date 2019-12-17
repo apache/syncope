@@ -51,7 +51,9 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
         modal.setFormModel(application);
 
         AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<>(application, "key"), false);
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME,
+                new PropertyModel<>(application, Constants.KEY_FIELD_NAME), false);
         key.setReadOnly(!create);
         key.setRequired(true);
         add(key);

@@ -23,20 +23,16 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
-import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
-import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
-import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.console.layout.AnyLayout;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -168,18 +164,17 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(anyTypes.stream().map(EntityTO::getKey).collect(Collectors.toList()));
-
-        for (final AnyTypeTO anyType : anyTypes) {
-            tabs.add(new ITabComponent(
-                    new Model<>(anyType.getKey()), String.format("%s_SEARCH", anyType.getKey())) {
+        AnyLayout anyLayout = AnyLayoutUtils.fetch(
+                anyTypes.stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        for (AnyTypeTO anyType : anyTypes) {
+            tabs.add(new ITabComponent(new Model<>(anyType.getKey()), String.format("%s_SEARCH", anyType.getKey())) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
                 @Override
                 public WebMarkupContainer getPanel(final String panelId) {
-                    return new AnyPanel(panelId, anyType, realmTO, formLayoutInfo, true, pageRef);
+                    return AnyLayoutUtils.newAnyPanel(
+                            anyLayout.getAnyPanelClass(), panelId, anyType, realmTO, anyLayout, true, pageRef);
                 }
 
                 @Override

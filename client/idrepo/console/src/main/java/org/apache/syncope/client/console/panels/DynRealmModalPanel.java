@@ -66,7 +66,9 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         modal.setFormModel(dynRealmWrapper);
 
         AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<>(dynRealmWrapper.getInnerObject(), "key"), false);
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME,
+                new PropertyModel<>(dynRealmWrapper.getInnerObject(), Constants.KEY_FIELD_NAME), false);
         key.setReadOnly(!create);
         key.setRequired(true);
         add(key);

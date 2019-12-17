@@ -205,7 +205,7 @@ abstract class AbstractService<R extends SCIMResource> {
             sort = List.of();
         } else {
             OrderByClause clause = new OrderByClause();
-            clause.setField(visitor.createAttributeCond(request.getSortBy()).getSchema());
+            clause.setField(visitor.createAttrCond(request.getSortBy()).getSchema());
             clause.setDirection(request.getSortOrder() == null || request.getSortOrder() == SortOrder.ascending
                     ? OrderByClause.Direction.ASC
                     : OrderByClause.Direction.DESC);

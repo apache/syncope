@@ -72,7 +72,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -444,7 +444,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
         SearchCond searchCond;
         if (StringUtils.isNotBlank(term)) {
-            AnyCond termCond = new AnyCond(AttributeCond.Type.ILIKE);
+            AnyCond termCond = new AnyCond(AttrCond.Type.ILIKE);
             termCond.setSchema("name");
 
             String termSearchableValue = (term.startsWith("*") && !term.endsWith("*"))
@@ -455,11 +455,11 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                     ? term : '%' + term + '%');
             termCond.setExpression(termSearchableValue);
 
-            searchCond = SearchCond.getAndCond(
-                    SearchCond.getLeafCond(assignableCond),
-                    SearchCond.getLeafCond(termCond));
+            searchCond = SearchCond.getAnd(
+                    SearchCond.getLeaf(assignableCond),
+                    SearchCond.getLeaf(termCond));
         } else {
-            searchCond = SearchCond.getLeafCond(assignableCond);
+            searchCond = SearchCond.getLeaf(assignableCond);
         }
 
         int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);

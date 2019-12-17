@@ -111,7 +111,8 @@ public class DynRealmDirectoryPanel extends
     protected List<IColumn<DynRealmTO, String>> getColumns() {
         final List<IColumn<DynRealmTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
 
         return columns;
     }

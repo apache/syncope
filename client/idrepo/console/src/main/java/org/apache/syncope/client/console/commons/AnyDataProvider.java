@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -82,7 +83,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
                 break;
 
             default:
-                setSort("key", SortOrder.ASCENDING);
+                setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
         }
 
         this.comparator = new SortableAnyProviderComparator<>(this);

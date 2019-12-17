@@ -102,7 +102,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
 
         builder.setItems(loggerTOs).
                 setModel(new ListModel<>(loggerTOs)).
-                includes("key", "level").
+                includes(Constants.KEY_FIELD_NAME, "level").
                 withChecks(ListViewPanel.CheckAvailability.NONE).
                 setReuseItem(false);
 

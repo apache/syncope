@@ -68,7 +68,9 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
         this.create = implementation.getKey() == null;
 
         add(new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<>(implementation, "key"), false).
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME,
+                new PropertyModel<>(implementation, Constants.KEY_FIELD_NAME), false).
                 addRequiredLabel().setEnabled(create));
 
         List<String> classes = SyncopeWebApplication.get().getImplementationInfoProvider().

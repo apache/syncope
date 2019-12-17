@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
@@ -71,6 +72,9 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
+
+    @Autowired
+    protected SearchCondVisitor searchCondVisitor;
 
     protected ProvisioningProfile<PushTask, PushActions> profile;
 
@@ -224,7 +228,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
                 SearchCond cond = StringUtils.isBlank(filter)
                         ? anyDAO.getAllMatchingCond()
-                        : SearchCondConverter.convert(filter);
+                        : SearchCondConverter.convert(searchCondVisitor, filter);
                 int count = searchDAO.count(
                         Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,

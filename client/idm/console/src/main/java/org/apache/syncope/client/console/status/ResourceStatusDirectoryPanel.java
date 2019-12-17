@@ -40,6 +40,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
@@ -255,7 +256,7 @@ public class ResourceStatusDirectoryPanel
                         bld = SyncopeClient.getAnyObjectSearchConditionBuilder(type);
                         restClient = new AnyObjectRestClient();
                 }
-                fiql = bld.isNotNull("key").query();
+                fiql = bld.isNotNull(Constants.KEY_FIELD_NAME).query();
             }
         }
 

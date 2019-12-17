@@ -34,7 +34,7 @@ import org.apache.wicket.PageReference;
 /**
  * Utility methods for dealing with form layout information.
  */
-public final class FormLayoutInfoUtils {
+public final class AnyLayoutUtils {
 
     private static final ObjectMapper MAPPER;
 
@@ -88,28 +88,29 @@ public final class FormLayoutInfoUtils {
         return result;
     }
 
-    public static ModalPanelBuilder<AnyWrapper<UserTO>> instantiate(
+    public static ModalPanelBuilder<AnyWrapper<UserTO>> newUserWizardBuilder(
             final UserTO userTO,
             final List<String> anyTypeClasses,
-            final UserFormLayoutInfo anyFormLayout,
+            final UserFormLayoutInfo userFormLayoutInfo,
             final PageReference pageRef) {
 
         try {
-            return anyFormLayout.getFormClass().getConstructor(
+            return userFormLayoutInfo.getFormClass().getConstructor(
                     userTO.getClass(), // previous
                     userTO.getClass(), // actual
                     List.class,
-                    anyFormLayout.getClass(),
+                    userFormLayoutInfo.getClass(),
                     pageRef.getClass()).
-                    newInstance(null, userTO, anyTypeClasses, anyFormLayout, pageRef);
+                    newInstance(null, userTO, anyTypeClasses, userFormLayoutInfo, pageRef);
 
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException e) {
-            throw new IllegalArgumentException("Could not instantiate " + anyFormLayout.getFormClass().getName(), e);
+            throw new IllegalArgumentException(
+                    "Could not instantiate " + userFormLayoutInfo.getFormClass().getName(), e);
         }
     }
 
-    private FormLayoutInfoUtils() {
+    private AnyLayoutUtils() {
         // private constructor for static utility class
     }
 }

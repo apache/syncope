@@ -110,7 +110,7 @@ public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
         protected List<IColumn<Misaligned, String>> getColumns() {
             List<IColumn<Misaligned, String>> columns = new ArrayList<>();
 
-            columns.add(new PropertyColumn<>(new ResourceModel("key"), "name", "name"));
+            columns.add(new PropertyColumn<>(new ResourceModel(Constants.KEY_FIELD_NAME), "name", "name"));
 
             columns.add(new AbstractColumn<Misaligned, String>(Model.of(Constants.SYNCOPE)) {
 

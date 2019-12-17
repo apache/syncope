@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -74,7 +75,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         public TasksProvider(final int paginatorRows, final TaskType id) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             this.id = id;
         }
 

@@ -319,6 +319,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         return SearchUtils.buildFIQL(
                 searchPanel.getModel().getObject(),
                 SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder(),
-                searchPanel.getAvailableSchemaTypes());
+                searchPanel.getAvailableSchemaTypes(),
+                SearchUtils.NO_CUSTOM_CONDITION);
     }
 }

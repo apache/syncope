@@ -84,7 +84,8 @@ public class NotificationDirectoryPanel
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
         List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("sender", this), "sender", "sender"));
         columns.add(new PropertyColumn<>(
@@ -175,7 +176,7 @@ public class NotificationDirectoryPanel
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

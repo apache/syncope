@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainTransactionInterceptorInjector;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
@@ -143,6 +144,15 @@ public class PersistenceContext implements EnvironmentAware {
             IllegalArgumentException, InvocationTargetException {
 
         return (AnySearchDAO) Class.forName(env.getProperty("any.search.dao")).getConstructor().newInstance();
+    }
+
+    @ConditionalOnMissingBean(name = "anySearchVisitor")
+    @Bean
+    public SearchCondVisitor anySearchVisitor()
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
+            IllegalArgumentException, InvocationTargetException {
+
+        return (SearchCondVisitor) Class.forName(env.getProperty("any.search.visitor")).getConstructor().newInstance();
     }
 
     @ConditionalOnMissingBean(name = "userDAO")

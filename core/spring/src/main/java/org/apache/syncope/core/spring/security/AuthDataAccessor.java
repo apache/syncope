@@ -43,7 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -168,10 +168,10 @@ public class AuthDataAccessor {
             if ("username".equals(authAttrValues.get(i))) {
                 user = userDAO.findByUsername(authentication.getName());
             } else {
-                AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
+                AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
                 attrCond.setSchema(authAttrValues.get(i));
                 attrCond.setExpression(authentication.getName());
-                List<User> users = searchDAO.search(SearchCond.getLeafCond(attrCond), AnyTypeKind.USER);
+                List<User> users = searchDAO.search(SearchCond.getLeaf(attrCond), AnyTypeKind.USER);
                 if (users.size() == 1) {
                     user = users.get(0);
                 } else {

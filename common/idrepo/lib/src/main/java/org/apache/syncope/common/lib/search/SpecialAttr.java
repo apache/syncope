@@ -82,5 +82,4 @@ public enum SpecialAttr {
     public static Optional<SpecialAttr> fromString(final String value) {
         return Arrays.stream(values()).filter(specialAttr -> specialAttr.literal.equals(value)).findFirst();
     }
-
 }

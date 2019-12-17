@@ -119,7 +119,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("description", this), "description", "description"));
         columns.add(new CollectionPropertyColumn<>(

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao.search;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -38,232 +39,78 @@ public class SearchCond extends AbstractSearchCond {
 
     private Type type;
 
-    private AnyTypeCond anyTypeCond;
+    private AbstractSearchCond leaf;
 
-    private AnyCond anyCond;
+    private SearchCond left;
 
-    private AttributeCond attributeCond;
+    private SearchCond right;
 
-    private RelationshipCond relationshipCond;
-
-    private RelationshipTypeCond relationshipTypeCond;
-
-    private MembershipCond membershipCond;
-
-    private RoleCond roleCond;
-
-    private PrivilegeCond privilegeCond;
-
-    private DynRealmCond dynRealmCond;
-
-    private ResourceCond resourceCond;
-
-    private AssignableCond assignableCond;
-
-    private MemberCond memberCond;
-
-    private SearchCond leftSearchCond;
-
-    private SearchCond rightSearchCond;
-
-    public static SearchCond getLeafCond(final AnyTypeCond anyTypeCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.anyTypeCond = anyTypeCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final AttributeCond attributeCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        if (attributeCond instanceof AnyCond) {
-            nodeCond.anyCond = (AnyCond) attributeCond;
+    public static SearchCond getLeaf(final AbstractSearchCond leaf) {
+        SearchCond cond;
+        if (leaf instanceof SearchCond) {
+            cond = (SearchCond) leaf;
         } else {
-            nodeCond.attributeCond = attributeCond;
+            cond = new SearchCond();
+            cond.leaf = leaf;
         }
 
-        return nodeCond;
+        cond.type = Type.LEAF;
+
+        return cond;
     }
 
-    public static SearchCond getLeafCond(final RelationshipCond relationshipCond) {
-        SearchCond nodeCond = new SearchCond();
+    public static SearchCond getNotLeaf(final AbstractSearchCond leaf) {
+        SearchCond cond = getLeaf(leaf);
 
-        nodeCond.type = Type.LEAF;
-        nodeCond.relationshipCond = relationshipCond;
+        cond.type = Type.NOT_LEAF;
 
-        return nodeCond;
+        return cond;
     }
 
-    public static SearchCond getLeafCond(final RelationshipTypeCond relationshipTypeCond) {
-        SearchCond nodeCond = new SearchCond();
+    public static SearchCond getAnd(final SearchCond left, final SearchCond right) {
+        SearchCond cond = new SearchCond();
 
-        nodeCond.type = Type.LEAF;
-        nodeCond.relationshipTypeCond = relationshipTypeCond;
+        cond.type = Type.AND;
+        cond.left = left;
+        cond.right = right;
 
-        return nodeCond;
+        return cond;
     }
 
-    public static SearchCond getLeafCond(final MembershipCond membershipCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.membershipCond = membershipCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final RoleCond roleCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.roleCond = roleCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final PrivilegeCond privilegeCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.privilegeCond = privilegeCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final DynRealmCond dynRealmCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.dynRealmCond = dynRealmCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final ResourceCond resourceCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.resourceCond = resourceCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final AssignableCond assignableCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.assignableCond = assignableCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getLeafCond(final MemberCond memberCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.memberCond = memberCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final AttributeCond attributeCond) {
-        SearchCond nodeCond = getLeafCond(attributeCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final RelationshipCond relationshipCond) {
-        SearchCond nodeCond = getLeafCond(relationshipCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final MembershipCond membershipCond) {
-        SearchCond nodeCond = getLeafCond(membershipCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final RoleCond roleCond) {
-        SearchCond nodeCond = getLeafCond(roleCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final PrivilegeCond privilegeCond) {
-        SearchCond nodeCond = getLeafCond(privilegeCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final ResourceCond resourceCond) {
-        SearchCond nodeCond = getLeafCond(resourceCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final MemberCond memberCond) {
-        SearchCond nodeCond = getLeafCond(memberCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final SearchCond nodeCond) {
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getAndCond(final SearchCond leftCond, final SearchCond rightCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.AND;
-        nodeCond.leftSearchCond = leftCond;
-        nodeCond.rightSearchCond = rightCond;
-
-        return nodeCond;
-    }
-
-    public static SearchCond getAndCond(final List<SearchCond> conditions) {
+    public static SearchCond getAnd(final List<SearchCond> conditions) {
         if (conditions.size() == 1) {
             return conditions.get(0);
         } else if (conditions.size() > 2) {
             SearchCond removed = conditions.remove(0);
-            return getAndCond(removed, getAndCond(conditions));
+            return getAnd(removed, getAnd(conditions));
         } else {
-            return getAndCond(conditions.get(0), conditions.get(1));
+            return getAnd(conditions.get(0), conditions.get(1));
         }
     }
 
-    public static SearchCond getOrCond(final SearchCond leftCond, final SearchCond rightCond) {
-        SearchCond nodeCond = new SearchCond();
+    public static SearchCond getOr(final SearchCond left, final SearchCond right) {
+        SearchCond cond = new SearchCond();
 
-        nodeCond.type = Type.OR;
-        nodeCond.leftSearchCond = leftCond;
-        nodeCond.rightSearchCond = rightCond;
+        cond.type = Type.OR;
+        cond.left = left;
+        cond.right = right;
 
-        return nodeCond;
+        return cond;
     }
 
-    public static SearchCond getOrCond(final List<SearchCond> conditions) {
+    public static SearchCond getOr(final List<SearchCond> conditions) {
         if (conditions.size() == 1) {
             return conditions.get(0);
         } else if (conditions.size() > 2) {
             SearchCond removed = conditions.remove(0);
-            return getOrCond(removed, getOrCond(conditions));
+            return getOr(removed, getOr(conditions));
         } else {
-            return getOrCond(conditions.get(0), conditions.get(1));
+            return getOr(conditions.get(0), conditions.get(1));
         }
     }
 
-    public AnyTypeCond getAnyTypeCond() {
-        return anyTypeCond;
-    }
-
-    public void setAnyTypeCond(final AnyTypeCond anyTypeCond) {
-        this.anyTypeCond = anyTypeCond;
+    public Optional<AnyTypeCond> getAnyTypeCond() {
+        return Optional.ofNullable(leaf instanceof AnyTypeCond ? (AnyTypeCond) leaf : null);
     }
 
     /**
@@ -281,18 +128,18 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                if (anyTypeCond != null) {
-                    anyTypeName = anyTypeCond.getAnyTypeKey();
+                if (leaf instanceof AnyTypeCond) {
+                    anyTypeName = ((AnyTypeCond) leaf).getAnyTypeKey();
                 }
                 break;
 
             case AND:
             case OR:
-                if (leftSearchCond != null) {
-                    anyTypeName = leftSearchCond.hasAnyTypeCond();
+                if (left != null) {
+                    anyTypeName = left.hasAnyTypeCond();
                 }
-                if (anyTypeName == null && rightSearchCond != null) {
-                    anyTypeName = rightSearchCond.hasAnyTypeCond();
+                if (anyTypeName == null && right != null) {
+                    anyTypeName = right.hasAnyTypeCond();
                 }
                 break;
 
@@ -302,56 +149,17 @@ public class SearchCond extends AbstractSearchCond {
         return anyTypeName;
     }
 
-    public AnyCond getAnyCond() {
-        return anyCond;
+    @SuppressWarnings("unchecked")
+    public <T extends AbstractSearchCond> Optional<T> getLeaf(final Class<T> clazz) {
+        return Optional.ofNullable((T) (clazz.isInstance(leaf) ? leaf : null));
     }
 
-    public AttributeCond getAttributeCond() {
-        return attributeCond;
+    public SearchCond getLeft() {
+        return left;
     }
 
-    public RelationshipCond getRelationshipCond() {
-        return relationshipCond;
-    }
-
-    public RelationshipTypeCond getRelationshipTypeCond() {
-        return relationshipTypeCond;
-    }
-
-    public MembershipCond getMembershipCond() {
-        return membershipCond;
-    }
-
-    public RoleCond getRoleCond() {
-        return roleCond;
-    }
-
-    public PrivilegeCond getPrivilegeCond() {
-        return privilegeCond;
-    }
-
-    public DynRealmCond getDynRealmCond() {
-        return dynRealmCond;
-    }
-
-    public ResourceCond getResourceCond() {
-        return resourceCond;
-    }
-
-    public AssignableCond getAssignableCond() {
-        return assignableCond;
-    }
-
-    public MemberCond getMemberCond() {
-        return memberCond;
-    }
-
-    public SearchCond getLeftSearchCond() {
-        return leftSearchCond;
-    }
-
-    public SearchCond getRightSearchCond() {
-        return rightSearchCond;
+    public SearchCond getRight() {
+        return right;
     }
 
     public Type getType() {
@@ -369,25 +177,13 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                isValid = (anyTypeCond != null || anyCond != null || attributeCond != null || dynRealmCond != null
-                        || relationshipCond != null || relationshipTypeCond != null || membershipCond != null
-                        || roleCond != null || privilegeCond != null || resourceCond != null
-                        || assignableCond != null || memberCond != null)
-                        && (anyTypeCond == null || anyTypeCond.isValid())
-                        && (anyCond == null || anyCond.isValid())
-                        && (attributeCond == null || attributeCond.isValid())
-                        && (membershipCond == null || membershipCond.isValid())
-                        && (roleCond == null || roleCond.isValid())
-                        && (privilegeCond == null || privilegeCond.isValid())
-                        && (resourceCond == null || resourceCond.isValid())
-                        && (memberCond == null || memberCond.isValid());
+                isValid = leaf != null && leaf.isValid();
                 break;
 
             case AND:
             case OR:
-                isValid = (leftSearchCond == null || rightSearchCond == null)
-                        ? false
-                        : leftSearchCond.isValid() && rightSearchCond.isValid();
+                isValid = left != null && right != null
+                        && left.isValid() && right.isValid();
                 break;
 
             default:
@@ -400,20 +196,9 @@ public class SearchCond extends AbstractSearchCond {
     public int hashCode() {
         return new HashCodeBuilder().
                 append(type).
-                append(anyTypeCond).
-                append(anyCond).
-                append(attributeCond).
-                append(relationshipCond).
-                append(relationshipTypeCond).
-                append(membershipCond).
-                append(roleCond).
-                append(privilegeCond).
-                append(dynRealmCond).
-                append(resourceCond).
-                append(assignableCond).
-                append(memberCond).
-                append(leftSearchCond).
-                append(rightSearchCond).
+                append(leaf).
+                append(left).
+                append(right).
                 build();
     }
 
@@ -431,20 +216,9 @@ public class SearchCond extends AbstractSearchCond {
         final SearchCond other = (SearchCond) obj;
         return new EqualsBuilder().
                 append(type, other.type).
-                append(anyTypeCond, other.anyTypeCond).
-                append(anyCond, other.anyCond).
-                append(attributeCond, other.attributeCond).
-                append(relationshipCond, other.relationshipCond).
-                append(relationshipTypeCond, other.relationshipTypeCond).
-                append(membershipCond, other.membershipCond).
-                append(roleCond, other.roleCond).
-                append(privilegeCond, other.privilegeCond).
-                append(dynRealmCond, other.dynRealmCond).
-                append(resourceCond, other.resourceCond).
-                append(assignableCond, other.assignableCond).
-                append(memberCond, other.memberCond).
-                append(leftSearchCond, other.leftSearchCond).
-                append(rightSearchCond, other.rightSearchCond).
+                append(leaf, other.leaf).
+                append(left, other.left).
+                append(right, other.right).
                 build();
     }
 
@@ -452,20 +226,9 @@ public class SearchCond extends AbstractSearchCond {
     public String toString() {
         return new ToStringBuilder(this).
                 append(type).
-                append(anyTypeCond).
-                append(anyCond).
-                append(attributeCond).
-                append(relationshipCond).
-                append(relationshipTypeCond).
-                append(membershipCond).
-                append(roleCond).
-                append(privilegeCond).
-                append(dynRealmCond).
-                append(resourceCond).
-                append(assignableCond).
-                append(memberCond).
-                append(leftSearchCond).
-                append(rightSearchCond).
+                append(leaf).
+                append(left).
+                append(right).
                 build();
     }
 }

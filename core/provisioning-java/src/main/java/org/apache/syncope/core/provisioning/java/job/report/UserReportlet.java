@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -68,6 +69,9 @@ public class UserReportlet extends AbstractReportlet {
 
     @Autowired
     private AnyObjectDataBinder anyObjectDataBinder;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     private UserReportletConf conf;
 
@@ -345,7 +349,7 @@ public class UserReportlet extends AbstractReportlet {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? userDAO.count()
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
+                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()), AnyTypeKind.USER);
     }
 
     @Override
@@ -377,7 +381,7 @@ public class UserReportlet extends AbstractReportlet {
             } else {
                 users = searchDAO.search(
                         SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(this.conf.getMatchingCond()),
+                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
                         List.of(),

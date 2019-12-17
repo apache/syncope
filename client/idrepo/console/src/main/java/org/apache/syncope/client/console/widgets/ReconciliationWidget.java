@@ -356,7 +356,7 @@ public class ReconciliationWidget extends BaseWidget {
         protected List<IColumn<Any, String>> getColumns() {
             List<IColumn<Any, String>> columns = new ArrayList<>();
 
-            columns.add(new AbstractColumn<Any, String>(new ResourceModel("reference"), "key") {
+            columns.add(new AbstractColumn<Any, String>(new ResourceModel("reference"), Constants.KEY_FIELD_NAME) {
 
                 private static final long serialVersionUID = -1822504503325964706L;
 
@@ -452,7 +452,7 @@ public class ReconciliationWidget extends BaseWidget {
         private AnysReconciliationProvider(final Anys anys) {
             super(ROWS);
             this.anys = anys;
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

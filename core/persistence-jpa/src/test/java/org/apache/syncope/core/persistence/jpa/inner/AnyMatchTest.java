@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -64,10 +64,10 @@ public class AnyMatchTest extends AbstractTest {
 
         ResourceCond resourceCond = new ResourceCond();
         resourceCond.setResourceKey("resource-testdb2");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeafCond(resourceCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
 
         resourceCond.setResourceKey("ws-target-resource-delete");
-        assertFalse(anyMatcher.matches(user, SearchCond.getLeafCond(resourceCond)));
+        assertFalse(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
     }
 
     @Test
@@ -77,11 +77,11 @@ public class AnyMatchTest extends AbstractTest {
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("Canon MF 8030cn");
-        assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeafCond(relationshipCond)));
+        assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeaf(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipTypeKey("neighborhood");
-        assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeafCond(relationshipTypeCond)));
+        assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeaf(relationshipTypeCond)));
     }
 
     @Test
@@ -91,25 +91,25 @@ public class AnyMatchTest extends AbstractTest {
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("secretary");
-        assertFalse(anyMatcher.matches(user, SearchCond.getLeafCond(groupCond)));
+        assertFalse(anyMatcher.matches(user, SearchCond.getLeaf(groupCond)));
 
         groupCond.setGroup("root");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeafCond(groupCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(groupCond)));
 
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("Other");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeafCond(roleCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(roleCond)));
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeafCond(relationshipCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipTypeKey("neighborhood");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeafCond(relationshipTypeCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(relationshipTypeCond)));
     }
 
     @Test
@@ -120,12 +120,12 @@ public class AnyMatchTest extends AbstractTest {
         AnyCond anyCond = new AnyCond();
         anyCond.setSchema("name");
         anyCond.setExpression("root");
-        anyCond.setType(AttributeCond.Type.EQ);
-        assertTrue(anyMatcher.matches(group, SearchCond.getLeafCond(anyCond)));
+        anyCond.setType(AttrCond.Type.EQ);
+        assertTrue(anyMatcher.matches(group, SearchCond.getLeaf(anyCond)));
 
-        AttributeCond attrCond = new AttributeCond();
+        AttrCond attrCond = new AttrCond();
         attrCond.setSchema("show");
-        attrCond.setType(AttributeCond.Type.ISNOTNULL);
-        assertTrue(anyMatcher.matches(group, SearchCond.getLeafCond(attrCond)));
+        attrCond.setType(AttrCond.Type.ISNOTNULL);
+        assertTrue(anyMatcher.matches(group, SearchCond.getLeaf(attrCond)));
     }
 }

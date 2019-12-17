@@ -109,7 +109,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(id);
-        SearchCond searchCond = SearchCond.getLeafCond(membCond);
+        SearchCond searchCond = SearchCond.getLeaf(membCond);
         int count = userLogic().search(searchCond,
                 1, 1, List.of(),
                 SyncopeConstants.ROOT_REALM, false).getLeft();

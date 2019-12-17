@@ -38,9 +38,9 @@ public interface Role extends ProvidedKeyEntity {
 
     void setDynMembership(DynRoleMembership dynMembership);
 
-    String getConsoleLayoutInfo();
+    String getAnyLayout();
 
-    void setConsoleLayoutInfo(String consoleLayoutInfo);
+    void setAnyLayout(String anyLayout);
 
     boolean add(Privilege privilege);
 

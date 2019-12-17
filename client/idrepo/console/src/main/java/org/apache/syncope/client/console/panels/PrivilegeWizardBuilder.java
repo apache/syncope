@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -72,7 +73,8 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
                     : new StringResourceModel("privilege.edit", Model.of(privilege)));
 
             AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                    "key", "key", new PropertyModel<>(privilege, "key"), false);
+                    Constants.KEY_FIELD_NAME,
+                    Constants.KEY_FIELD_NAME, new PropertyModel<>(privilege, Constants.KEY_FIELD_NAME), false);
             key.setReadOnly(privilege.getKey() != null);
             key.setRequired(true);
             add(key);

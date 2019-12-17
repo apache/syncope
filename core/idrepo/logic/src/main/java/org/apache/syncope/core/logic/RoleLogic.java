@@ -93,7 +93,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public String getConsoleLayoutInfo(final String key) {
+    public String getAnyLayout(final String key) {
         Role role = roleDAO.find(key);
         if (role == null) {
             LOG.error("Could not find role '" + key + '\'');
@@ -101,7 +101,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
             throw new NotFoundException(key);
         }
 
-        String consoleLayout = role.getConsoleLayoutInfo();
+        String consoleLayout = role.getAnyLayout();
         if (StringUtils.isBlank(consoleLayout)) {
             LOG.error("Could not find console layout for Role '" + key + '\'');
 
@@ -112,7 +112,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_UPDATE + "')")
-    public void setConsoleLayoutInfo(final String key, final String consoleLayout) {
+    public void setAnyLayout(final String key, final String consoleLayout) {
         Role role = roleDAO.find(key);
         if (role == null) {
             LOG.error("Could not find role '" + key + '\'');
@@ -120,7 +120,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
             throw new NotFoundException(key);
         }
 
-        role.setConsoleLayoutInfo(consoleLayout);
+        role.setAnyLayout(consoleLayout);
         roleDAO.save(role);
     }
 

@@ -165,7 +165,7 @@ public class HistoryAuditDetails extends MultilevelPanel.SecondLevel {
         final AjaxDropDownChoicePanel<String> dropdownElem = new AjaxDropDownChoicePanel<>(
                 "compareDropdown",
                 getString("compare"),
-                new PropertyModel<>(selected, "key"),
+                new PropertyModel<>(selected, Constants.KEY_FIELD_NAME),
                 false);
         dropdownElem.setChoices(keys);
         dropdownElem.setChoiceRenderer(new IChoiceRenderer<String>() {

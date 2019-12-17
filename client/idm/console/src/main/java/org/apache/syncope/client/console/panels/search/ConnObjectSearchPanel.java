@@ -34,7 +34,7 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
     private static final long serialVersionUID = 21020550706646L;
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+    protected final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     protected final ResourceTO resource;
 
@@ -42,14 +42,18 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        protected final ResourceTO resource;
+        private final ResourceTO resource;
 
         private final AnyTypeKind anyType;
 
         private final String typeName;
 
-        public Builder(final ResourceTO resource, final AnyTypeKind anyType, final String type,
+        public Builder(
+                final ResourceTO resource,
+                final AnyTypeKind anyType,
+                final String type,
                 final IModel<List<SearchClause>> model) {
+
             super(model);
             this.resource = resource;
             this.anyType = anyType;

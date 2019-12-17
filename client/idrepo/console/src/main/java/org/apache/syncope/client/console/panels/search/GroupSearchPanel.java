@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
-public final class GroupSearchPanel extends AbstractSearchPanel {
+public class GroupSearchPanel extends AbstractSearchPanel {
 
     private static final long serialVersionUID = 5757183539269316263L;
 
@@ -50,7 +50,7 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
         }
     }
 
-    private GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
+    protected GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
         super(id, AnyTypeKind.GROUP, builder);
     }
 

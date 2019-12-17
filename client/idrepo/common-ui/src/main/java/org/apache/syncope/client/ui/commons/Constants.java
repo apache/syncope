@@ -105,6 +105,8 @@ public final class Constants {
 
     public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";
 
+    public static final String ENDUSER_ANYLAYOUT = "enduser.anylayout";
+
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
         return getJEXLPopover(caller, placement, caller.getString("jexl_ex1"), caller.getString("jexl_ex2"));
     }

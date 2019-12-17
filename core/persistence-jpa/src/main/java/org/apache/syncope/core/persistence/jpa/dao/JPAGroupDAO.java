@@ -56,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -90,6 +91,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     @Override
     protected AnyUtils init() {
@@ -232,12 +236,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
     }
 
-    private static SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
+    private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
         AssignableCond cond = new AssignableCond();
         cond.setRealmFullPath(groupRealm.getFullPath());
         cond.setFromGroup(true);
 
-        return SearchCond.getAndCond(SearchCond.getLeafCond(cond), SearchCondConverter.convert(baseCondFIQL));
+        return SearchCond.getAnd(
+                SearchCond.getLeaf(cond),
+                SearchCondConverter.convert(searchCondVisitor, baseCondFIQL));
     }
 
     @Override

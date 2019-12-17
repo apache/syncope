@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
@@ -65,10 +66,9 @@ public class ResourceDetailsPanel extends WizardStep {
         add(container);
 
         container.add(new AjaxTextFieldPanel(
-                "key",
-                new ResourceModel("key", "key").
-                        getObject(),
-                new PropertyModel<>(resourceTO, "key"),
+                Constants.KEY_FIELD_NAME,
+                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME).getObject(),
+                new PropertyModel<>(resourceTO, Constants.KEY_FIELD_NAME),
                 false).addRequiredLabel().setEnabled(createFlag));
 
         container.add(new AjaxCheckBoxPanel(
@@ -81,7 +81,7 @@ public class ResourceDetailsPanel extends WizardStep {
                 "propagationPriority",
                 "propagationPriority",
                 Integer.class,
-                new PropertyModel<Integer>(resourceTO, "propagationPriority")));
+                new PropertyModel<>(resourceTO, "propagationPriority")));
 
         container.add(new AjaxCheckBoxPanel("randomPwdIfNotProvided",
                 new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
@@ -91,7 +91,7 @@ public class ResourceDetailsPanel extends WizardStep {
         container.add(new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).
                 build("propagationActions",
-                        new PropertyModel<List<String>>(resourceTO, "propagationActions"),
+                        new PropertyModel<>(resourceTO, "propagationActions"),
                         new ListModel<>(propagationActions.getObject())).
                 setOutputMarkupId(true));
 

@@ -84,6 +84,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
         protected boolean enableSearch = false;
 
+        protected SearchClausePanel.Customizer customizer = new SearchClausePanel.Customizer() {
+        };
+
         protected IEventSink resultContainer;
 
         public Builder(final IModel<List<SearchClause>> model) {
@@ -97,6 +100,11 @@ public abstract class AbstractSearchPanel extends Panel {
 
         public Builder<T> enableSearch() {
             this.enableSearch = true;
+            return this;
+        }
+
+        public Builder<T> customizer(final SearchClausePanel.Customizer customizer) {
+            this.customizer = customizer;
             return this;
         }
 
@@ -134,10 +142,12 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
 
-        final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
+        SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 required,
-                types, anames, dnames, groupInfo, roleNames, privilegeNames, resourceNames);
+                types,
+                builder.customizer,
+                anames, dnames, groupInfo, roleNames, privilegeNames, resourceNames);
 
         if (enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);

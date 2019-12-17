@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
@@ -56,6 +57,9 @@ public class GroupReportlet extends AbstractReportlet {
 
     @Autowired
     private GroupDataBinder groupDataBinder;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     private GroupReportletConf conf;
 
@@ -284,7 +288,7 @@ public class GroupReportlet extends AbstractReportlet {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? groupDAO.count()
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.GROUP);
+                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()), AnyTypeKind.GROUP);
     }
 
     @Override
@@ -316,7 +320,7 @@ public class GroupReportlet extends AbstractReportlet {
             } else {
                 groups = searchDAO.search(
                         SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(this.conf.getMatchingCond()),
+                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
                         List.of(),

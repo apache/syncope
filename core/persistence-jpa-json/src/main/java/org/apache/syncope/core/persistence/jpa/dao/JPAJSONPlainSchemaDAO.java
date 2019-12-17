@@ -33,7 +33,7 @@ public class JPAJSONPlainSchemaDAO extends JPAPlainSchemaDAO {
     @Override
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> plainAttrTable) {
         // not possible
-        return false;
+        return true;
     }
 
     @Override

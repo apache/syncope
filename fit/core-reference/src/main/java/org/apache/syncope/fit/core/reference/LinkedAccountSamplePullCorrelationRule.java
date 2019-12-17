@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -44,18 +44,18 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
 
     @Override
     public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
-        AttributeCond cond = new AttributeCond();
+        AttrCond cond = new AttrCond();
 
         Attribute email = syncDelta.getObject().getAttributeByName("email");
         if (email != null && !CollectionUtils.isEmpty(email.getValue())) {
             cond.setSchema("email");
-            cond.setType(AttributeCond.Type.EQ);
+            cond.setType(AttrCond.Type.EQ);
             cond.setExpression(email.getValue().get(0).toString());
         } else {
             cond.setSchema("");
         }
 
-        return SearchCond.getLeafCond(cond);
+        return SearchCond.getLeaf(cond);
     }
 
     @Transactional(readOnly = true)

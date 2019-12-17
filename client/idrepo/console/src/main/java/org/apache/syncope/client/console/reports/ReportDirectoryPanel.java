@@ -106,7 +106,8 @@ public abstract class ReportDirectoryPanel
     protected List<IColumn<ReportTO, String>> getColumns() {
         final List<IColumn<ReportTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
 
         columns.add(new DatePropertyColumn<>(

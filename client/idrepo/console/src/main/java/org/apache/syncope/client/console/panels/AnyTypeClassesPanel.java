@@ -140,7 +140,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
+                            if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "col-xs-1"
                                         : css + " col-xs-1";

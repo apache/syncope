@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
@@ -63,11 +64,11 @@ public class Groups extends AbstractGroups {
 
     private final List<DynRealmTO> allDynRealms = new ArrayList<>();
 
+    private final boolean templateMode;
+
     protected WebMarkupContainer dyngroupsContainer;
 
     protected WebMarkupContainer dynrealmsContainer;
-
-    private boolean templateMode;
 
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super(modelObject);
@@ -242,8 +243,8 @@ public class Groups extends AbstractGroups {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
             List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getMemberships().
-                    stream().map(membership
-                            -> searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap()).
+                    stream().map(membership -> searchConditionBuilder.is(Constants.KEY_FIELD_NAME).
+                    equalTo(membership.getGroupKey()).wrap()).
                     collect(Collectors.toList());
 
             Map<String, GroupTO> assignedGroups = new HashMap<>();
@@ -285,8 +286,8 @@ public class Groups extends AbstractGroups {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
             List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
-                    stream().map(membership
-                            -> searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap()).
+                    stream().map(membership -> searchConditionBuilder.is(Constants.KEY_FIELD_NAME).
+                    equalTo(membership.getGroupKey()).wrap()).
                     collect(Collectors.toList());
 
             dynMemberships = new ArrayList<>();

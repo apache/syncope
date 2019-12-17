@@ -52,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -95,6 +96,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     private ReconciliationReportletConf conf;
 
@@ -382,7 +386,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 doExtract(handler, userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
         } else {
-            SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
+            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, this.conf.getUserMatchingCond());
 
             int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
@@ -422,7 +426,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 doExtract(handler, groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
         } else {
-            SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
+            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, this.conf.getUserMatchingCond());
 
             int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.GROUP);
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
@@ -451,10 +455,10 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 AnyTypeCond anyTypeCond = new AnyTypeCond();
                 anyTypeCond.setAnyTypeKey(anyType.getKey());
                 SearchCond cond = StringUtils.isBlank(this.conf.getAnyObjectMatchingCond())
-                        ? SearchCond.getLeafCond(anyTypeCond)
-                        : SearchCond.getAndCond(
-                                SearchCond.getLeafCond(anyTypeCond),
-                                SearchCondConverter.convert(this.conf.getAnyObjectMatchingCond()));
+                        ? SearchCond.getLeaf(anyTypeCond)
+                        : SearchCond.getAnd(
+                                SearchCond.getLeaf(anyTypeCond),
+                                SearchCondConverter.convert(searchCondVisitor, this.conf.getAnyObjectMatchingCond()));
 
                 int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.ANY_OBJECT);
                 int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;

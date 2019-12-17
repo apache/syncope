@@ -30,7 +30,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -248,7 +248,7 @@ public class UserRequestFormDirectoryPanel
                         previousUserTO,
                         newUserTO,
                         AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
-                        FormLayoutInfoUtils.fetch(List.of(AnyTypeKind.USER.name())).getLeft(),
+                        AnyLayoutUtils.fetch(List.of(AnyTypeKind.USER.name())).getUser(),
                         pageRef
                 ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
 
