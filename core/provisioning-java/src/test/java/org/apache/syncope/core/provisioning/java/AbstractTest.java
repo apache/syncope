@@ -24,7 +24,9 @@ import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -37,6 +39,11 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 })
 @ExtendWith(MockitoExtension.class)
 public abstract class AbstractTest {
+
+    @BeforeEach 
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     protected EntityManager entityManager() {
         EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(

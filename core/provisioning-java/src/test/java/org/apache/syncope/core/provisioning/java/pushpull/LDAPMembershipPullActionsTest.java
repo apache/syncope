@@ -18,99 +18,109 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.quartz.JobExecutionException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class LDAPMembershipPullActionsTest extends AbstractTest {
 
+    @Mock
+    private AnyTypeDAO anyTypeDAO;
+
+    @Mock
+    private GroupDAO groupDAO;
+
+    @Mock
+    private InboundMatcher inboundMatcher;
+
+    @InjectMocks
     private LDAPMembershipPullActions ldapMembershipPullActions;
-
-    @Mock
-    protected AnyTypeDAO anyTypeDAO;
-
-    @Mock
-    protected GroupDAO groupDAO;
 
     @Mock
     private ProvisioningProfile<?, ?> profile;
 
     @Mock
-    private EntityTO entity;
-
-    @Mock
-    private GroupTO groupEntity;
-
-    @Mock
-    private AnyPatch anyPatch;
-
-    @Mock
     private SyncDelta syncDelta;
 
-    @Mock
+    private EntityTO entity;
+
+    private AnyPatch anyPatch;
+
     private Map<String, Set<String>> membershipsBefore;
 
-    @Mock
-    private UMembership uMembership;
-
-    @Mock
     private User user;
 
     @BeforeEach
     public void before() {
-        ldapMembershipPullActions = new LDAPMembershipPullActions();
-
         List<UMembership> uMembList = new ArrayList<>();
+        UMembership uMembership = new JPAUMembership();
+        user = new JPAUser();
+        uMembership.setLeftEnd(user);
+        ReflectionTestUtils.setField(user, "id", UUID.randomUUID().toString());
         uMembList.add(uMembership);
 
-        Mockito.when(groupDAO.findUMemberships(groupDAO.find(entity.getKey()))).thenReturn(uMembList);
-        Mockito.when(uMembership.getLeftEnd()).thenReturn(user);
-        Mockito.when(user.getKey()).thenReturn("userTestKey");
-
-        ReflectionTestUtils.setField(ldapMembershipPullActions, "groupDAO", groupDAO);
+        anyPatch = new UserPatch();
+        membershipsBefore = new HashMap<>();
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsBefore", membershipsBefore);
+
+        when(groupDAO.findUMemberships(groupDAO.find(anyString()))).thenReturn(uMembList);
     }
 
     @Test
     public void testBeforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
-        Set<String> memb = new HashSet<>();
+        entity = new GroupTO();
+        entity.setKey(UUID.randomUUID().toString());
+        Set<String> expected = new HashSet<>();
+        expected.add(entity.getKey());
 
-        Mockito.when(membershipsBefore.get(uMembership.getLeftEnd().getKey())).thenReturn(memb);
-        ldapMembershipPullActions.beforeUpdate(profile, syncDelta, groupEntity, anyPatch);
+        ldapMembershipPullActions.beforeUpdate(profile, syncDelta, entity, anyPatch);
 
-        Assertions.assertTrue(groupEntity instanceof GroupTO);
-        Assertions.assertEquals(1, memb.size());
+        assertTrue(entity instanceof GroupTO);
+        assertEquals(1, membershipsBefore.get(user.getKey()).size());
+        assertEquals(expected, membershipsBefore.get(user.getKey()));
     }
 
     @Test
     public void testBeforeUpdate() throws JobExecutionException {
+        entity = new UserTO();
+        entity.setKey(UUID.randomUUID().toString());
         Set<String> memb = new HashSet<>();
-        memb.add("testMemb");
+        memb.add(entity.getKey());
+        membershipsBefore.put(user.getKey(), memb);
 
-        Mockito.when(membershipsBefore.get(uMembership.getLeftEnd().getKey())).thenReturn(memb);
         ldapMembershipPullActions.beforeUpdate(profile, syncDelta, entity, anyPatch);
 
-        Assertions.assertTrue(!(entity instanceof GroupTO));
-        Assertions.assertEquals(2, memb.size());
+        assertTrue(!(entity instanceof GroupTO));
+        assertEquals(1, membershipsBefore.get(user.getKey()).size());
     }
 
 }
