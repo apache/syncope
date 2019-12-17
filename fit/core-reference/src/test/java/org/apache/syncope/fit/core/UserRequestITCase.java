@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -54,6 +55,8 @@ public class UserRequestITCase extends AbstractITCase {
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/directorGroupRequest.bpmn20.xml")));
         bpmnProcessService.set("assignPrinterRequest",
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/assignPrinterRequest.bpmn20.xml")));
+        bpmnProcessService.set("verifyAddedVariables",
+                IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml")));
     }
 
     @Test
@@ -65,7 +68,7 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request
-        UserRequest req = userRequestService.start("directorGroupRequest", user.getKey());
+        UserRequest req = userRequestService.start("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
         assertEquals("directorGroupRequest", req.getBpmnProcess());
         assertNotNull(req.getExecutionId());
@@ -91,7 +94,7 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(userService.read(user.getKey()).getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request again
-        req = userRequestService.start("directorGroupRequest", user.getKey());
+        req = userRequestService.start("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
 
         // 1st approval -> accept
@@ -114,7 +117,7 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(userService.read(user.getKey()).getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request again
-        req = userRequestService.start("directorGroupRequest", user.getKey());
+        req = userRequestService.start("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
 
         // 1st approval -> accept
@@ -149,7 +152,7 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request
-        UserRequest req = userRequestService.start("directorGroupRequest", user.getKey());
+        UserRequest req = userRequestService.start("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
 
         // check that form was generated
@@ -186,7 +189,7 @@ public class UserRequestITCase extends AbstractITCase {
         SyncopeClient client = clientFactory.create(user.getUsername(), "password123");
 
         // start request as user
-        UserRequest req = client.getService(UserRequestService.class).start("assignPrinterRequest", null);
+        UserRequest req = client.getService(UserRequestService.class).start("assignPrinterRequest", null, null);
         assertNotNull(req);
 
         // check (as admin) that a new form is available
@@ -243,5 +246,49 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(relationships.isEmpty());
         assertTrue(relationships.stream().
                 anyMatch(relationship -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(relationship.getOtherEndKey())));
+    }
+    
+    @Test
+    public void addVariablesToUserRequestAtStart() {
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
+        PagedResult<UserRequestForm> forms =
+                userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        int preForms = forms.getTotalCount();
+
+        UserTO user = createUser(UserITCase.getUniqueSampleTO("addVariables@tirasa.net")).getEntity();
+        assertNotNull(user);
+
+        SyncopeClient client = clientFactory.create(user.getUsername(), "password123");
+
+        WorkflowTaskExecInput testInput = new WorkflowTaskExecInput();
+        testInput.getVariables().put("providedVariable", "test");
+        
+        // start request as user
+        UserRequest req = client.getService(UserRequestService.class).start("verifyAddedVariables", null, testInput);
+        assertNotNull(req);
+
+        // check that a new form is available
+        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        assertEquals(preForms + 1, forms.getTotalCount());
+
+        // get the form and verify the property value
+        PagedResult<UserRequestForm> userForms = userRequestService.
+                getForms(new UserRequestFormQuery.Builder().user(user.getKey()).build());
+        assertEquals(1, userForms.getTotalCount());
+
+        UserRequestForm form = userForms.getResult().get(0);
+        form = userRequestService.claimForm(form.getTaskId());
+        assertEquals(form.getProperty("providedVariable").get().getValue(), "test");
+        
+        // cancel request
+        userRequestService.cancel(req.getExecutionId(), "nothing in particular");
+       
+        // no more forms available
+        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        assertEquals(preForms, forms.getTotalCount());
+
+        assertTrue(client.getService(UserRequestService.class).
+                list(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
     }
 }
