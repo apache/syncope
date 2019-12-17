@@ -86,7 +86,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
     public static final List<Locale> SUPPORTED_LOCALES = List.of(
-            Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
+            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
+            new Locale("ru"));
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
