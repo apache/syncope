@@ -53,7 +53,7 @@ jobs:
       name: "Unit Tests"
       ######################################################
     - stage: fit
-      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P full-it,all -T 1C -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P all -T 1C -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       name: "Full Integration Tests via JSON Content-Type"
       #####################################################
   after_failure:
