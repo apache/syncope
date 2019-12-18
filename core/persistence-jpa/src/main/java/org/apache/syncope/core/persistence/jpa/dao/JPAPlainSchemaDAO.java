@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,7 +164,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
             return JPAAPlainAttr.TABLE;
         }
         if (CPlainAttr.class.isAssignableFrom(plainAttrClass)) {
-            return JPAAPlainAttr.TABLE;
+            return JPACPlainAttr.TABLE;
         }
         return JPAUPlainAttr.TABLE;
     }
