@@ -83,7 +83,7 @@ In `persistence.properties`, replace as follows:
 
 ....
 entity.factory=org.apache.syncope.core.persistence.jpa.entity.PGJPAJSONEntityFactory
-plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainSchemaDAO
+plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONPlainSchemaDAO
 plainAttr.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrDAO
 plainAttrValue.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrValueDAO
 any.search.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO
@@ -217,7 +217,7 @@ In `persistence.properties`, replace as follows:
 
 ....
 entity.factory=org.apache.syncope.core.persistence.jpa.entity.MyJPAJSONEntityFactory
-plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainSchemaDAO
+plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONPlainSchemaDAO
 plainAttr.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrDAO
 plainAttrValue.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrValueDAO
 any.search.dao=org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAnySearchDAO
