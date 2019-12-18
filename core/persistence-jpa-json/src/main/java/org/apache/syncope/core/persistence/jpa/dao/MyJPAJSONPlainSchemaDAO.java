@@ -18,26 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.List;
+import javax.persistence.Query;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
-public class JPAJSONPlainSchemaDAO extends JPAPlainSchemaDAO {
+public class MyJPAJSONPlainSchemaDAO extends AbstractJPAJSONPlainSchemaDAO {
 
     @Override
-    public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
-        // not possible
-        return List.of();
-    }
+    public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(id) FROM " + new SearchSupport(getAnyTypeKind(reference)).field().name
+                + " WHERE JSON_CONTAINS(plainAttrs, '[{\"schema\":\"" + schema.getKey() + "\"}]')");
 
-    @Override
-    public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> plainAttrTable) {
-        // not possible
-        return true;
-    }
-
-    @Override
-    protected void deleteAttrs(final PlainSchema schema) {
-        // nothing to do
+        return (long) query.getSingleResult() > 0;
     }
 }

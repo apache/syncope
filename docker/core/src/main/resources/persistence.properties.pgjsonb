@@ -16,7 +16,7 @@
 # under the License.
 content.directory=${conf.directory}
 entity.factory=org.apache.syncope.core.persistence.jpa.entity.PGJPAJSONEntityFactory
-plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainSchemaDAO
+plainSchema.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONPlainSchemaDAO
 plainAttr.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrDAO
 plainAttrValue.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrValueDAO
 any.search.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO
