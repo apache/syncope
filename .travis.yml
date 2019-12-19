@@ -17,6 +17,8 @@ sudo: false
 language: java
 jdk:
   - openjdk11
+  - openjdk13
+  - openjdk-ea
 cache:
   bundler: false
   cargo: false
