@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -41,8 +43,10 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -57,9 +61,11 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
+import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -96,10 +102,30 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     private Map<String, Set<String>> membershipsBefore;
 
+    @Mock
+    private Map<String, Set<String>> membershipsAfter;
+
     private User user;
 
+    Set<ConnConfProperty> connConfProperties;
+
+    @Mock
+    private ProvisioningTask provisioningTask;
+
+    @Mock
+    private ExternalResource externalResource;
+
+    @Mock
+    private Connector connector;
+
+    @Mock
+    private ConnectorObject connectorObj;
+
+    @Mock
+    private ConnInstance connInstance;
+
     @BeforeEach
-    public void before() {
+    public void init() {
         List<UMembership> uMembList = new ArrayList<>();
         UMembership uMembership = new JPAUMembership();
         user = new JPAUser();
@@ -110,12 +136,29 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         anyPatch = new UserPatch();
         membershipsBefore = new HashMap<>();
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsBefore", membershipsBefore);
+        ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsAfter", membershipsAfter);
 
         lenient().when(groupDAO.findUMemberships(groupDAO.find(anyString()))).thenReturn(uMembList);
+
+        ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
+        connConfPropSchema.setName("testSchemaName");
+        ConnConfProperty connConfProperty = new ConnConfProperty();
+        connConfProperty.setSchema(connConfPropSchema);
+        connConfProperties = new HashSet<>();
+        connConfProperties.add(connConfProperty);
+
+        lenient().when(profile.getTask()).thenReturn(provisioningTask);
+        lenient().when(provisioningTask.getResource()).thenReturn(externalResource);
+        lenient().when(anyTypeDAO.findUser()).thenReturn(new JPAAnyType());
+
+        lenient().when(profile.getConnector()).thenReturn(connector);
+        lenient().when(syncDelta.getObject()).thenReturn(connectorObj);
+        lenient().when(connector.getConnInstance()).thenReturn(connInstance);
+        lenient().when(connInstance.getConf()).thenReturn(connConfProperties);
     }
 
     @Test
-    public void testBeforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
+    public void beforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
         entity = new GroupTO();
         entity.setKey(UUID.randomUUID().toString());
         Set<String> expected = new HashSet<>();
@@ -129,7 +172,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void testBeforeUpdate() throws JobExecutionException {
+    public void beforeUpdate() throws JobExecutionException {
         entity = new UserTO();
         entity.setKey(UUID.randomUUID().toString());
         Set<String> memb = new HashSet<>();
@@ -143,35 +186,43 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void testAfterWithEmptyAttributes(@Mock Attribute attribute, @Mock Connector connector,
-            @Mock ConnectorObject connectorObj, @Mock ConnInstance connInstance,
-            @Mock ExternalResource externalResource,
-            @Mock ProvisioningTask provisioningTask) throws JobExecutionException {
-        ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
-        connConfPropSchema.setName("testSchemaName");
-        ConnConfProperty connConfProperty = new ConnConfProperty();
-        connConfProperty.setSchema(connConfPropSchema);
-        Set<ConnConfProperty> connConfProperties = new HashSet<>();
-        connConfProperties.add(connConfProperty);
+    public void afterWithEmptyAttributes(@Mock Attribute attribute) throws JobExecutionException {
         entity = new GroupTO();
         Optional provision = Optional.of(new JPAProvision());
 
-        when(profile.getTask()).thenReturn(provisioningTask);
-        when(provisioningTask.getResource()).thenReturn(externalResource);
-        when(anyTypeDAO.findUser()).thenReturn(new JPAAnyType());
-        when(externalResource.getProvision(any(AnyType.class))).thenReturn(provision);
-
-        when(profile.getConnector()).thenReturn(connector);
-        when(syncDelta.getObject()).thenReturn(connectorObj);
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(connector.getConnInstance()).thenReturn(connInstance);
-        when(connInstance.getConf()).thenReturn(connConfProperties);
+        when(externalResource.getProvision(any(AnyType.class))).thenReturn(provision);
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
         assertTrue(entity instanceof GroupTO);
         assertTrue(provision.isPresent());
         assertEquals(new LinkedList<>(), attribute.getValue());
+    }
+
+    @Test
+    public void after() throws JobExecutionException {
+        entity = new UserTO();
+        Optional provision = Optional.empty();
+        Optional match = Optional.of(new PullMatch(MatchType.ANY, user));
+        String expectedUid = UUID.randomUUID().toString();
+        Attribute attribute = new Uid(expectedUid);
+        List<Object> expected = new LinkedList<>();
+        expected.add(expectedUid);
+
+        when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
+        when(externalResource.getProvision(any(AnyType.class))).thenReturn(provision);
+        when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
+                thenReturn(match);
+
+        ldapMembershipPullActions.after(profile, syncDelta, entity, result);
+
+        verify(membershipsAfter).get(anyString());
+        verify(membershipsAfter).put(anyString(), any());
+        assertTrue(!(entity instanceof GroupTO));
+        assertTrue(!provision.isPresent());
+        assertEquals(expected, attribute.getValue());
+        assertTrue(match.isPresent());
     }
 
 }
