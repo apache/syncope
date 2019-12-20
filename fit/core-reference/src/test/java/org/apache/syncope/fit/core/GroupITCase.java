@@ -964,7 +964,6 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(exec.getRefKey());
 
             int i = 0;
-            int maxit = 50;
 
             // wait for task exec completion (executions incremented)
             SchedTaskTO taskTO;
@@ -976,7 +975,7 @@ public class GroupITCase extends AbstractITCase {
                 assertNotNull(taskTO);
                 assertNotNull(taskTO.getExecutions());
                 i++;
-            } while (taskTO.getExecutions().isEmpty() && i < maxit);
+            } while (taskTO.getExecutions().isEmpty() && i < MAX_WAIT_SECONDS);
             assertFalse(taskTO.getExecutions().isEmpty());
 
             assertEquals(TaskJob.Status.SUCCESS.name(), taskTO.getExecutions().get(0).getStatus());

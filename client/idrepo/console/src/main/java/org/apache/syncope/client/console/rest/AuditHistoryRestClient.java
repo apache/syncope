@@ -29,26 +29,41 @@ public class AuditHistoryRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -381814125643246243L;
 
-    public static List<AuditEntryTO> search(
+    public List<AuditEntryTO> search(
             final String key,
             final int page,
             final int size,
-            final SortParam<String> sort,
+            final AuditElements.EventCategoryType type,
+            final String category,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final SortParam<String> sort) {
 
         AuditQuery query = new AuditQuery.Builder(key).
-                page(page).
                 size(size).
+                page(page).
+                type(type).
+                category(category).
                 events(events).
                 result(result).
                 orderBy(toOrderBy(sort)).
                 build();
+
         return getService(AuditService.class).search(query).getResult();
     }
 
-    public static int count(final String key, final List<String> events, final AuditElements.Result result) {
+    public int count(
+            final String key,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final List<String> events,
+            final AuditElements.Result result) {
+
         AuditQuery query = new AuditQuery.Builder(key).
+                page(1).
+                size(1).
+                type(type).
+                category(category).
                 events(events).
                 result(result).
                 build();

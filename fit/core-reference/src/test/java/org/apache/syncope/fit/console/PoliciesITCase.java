@@ -780,7 +780,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         UTILITY_UI.getTester().clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:"
+                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:9:"
                 + "action:action");
 
         UTILITY_UI.getTester().assertComponent(

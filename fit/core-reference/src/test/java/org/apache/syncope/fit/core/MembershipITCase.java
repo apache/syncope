@@ -250,7 +250,7 @@ public class MembershipITCase extends AbstractITCase {
             // 2. verify that user was found on resource
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
             String idOnResource = queryForObject(
-                    jdbcTemplate, 50, "SELECT id FROM testpull WHERE id=?", String.class, "5432");
+                    jdbcTemplate, MAX_WAIT_SECONDS, "SELECT id FROM testpull WHERE id=?", String.class, "5432");
             assertEquals("5432", idOnResource);
 
             // 3. unlink user from resource, then remove it
@@ -272,7 +272,7 @@ public class MembershipITCase extends AbstractITCase {
             assertNotNull(newTask);
 
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(
-                    taskService, TaskType.PULL, newTask.getKey(), 50, false);
+                    taskService, TaskType.PULL, newTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has

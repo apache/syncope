@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
-import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -40,9 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements ConnInstanceDAO {
-
-    @Autowired
-    private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
 
     @Autowired
     @Lazy
@@ -119,8 +115,6 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
         connInstance.getResources().stream().
                 map(Entity::getKey).collect(Collectors.toList()).
                 forEach(resource -> resourceDAO.delete(resource));
-
-        connInstanceHistoryConfDAO.deleteByEntity(connInstance);
 
         entityManager().remove(connInstance);
 

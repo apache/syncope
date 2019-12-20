@@ -72,7 +72,6 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(exec.getExecutor());
 
         int i = 0;
-        int maxit = 50;
 
         // wait for completion (executions incremented)
         do {
@@ -87,8 +86,8 @@ public class ReportITCase extends AbstractITCase {
             assertNotNull(reportTO.getExecutions());
 
             i++;
-        } while (preExecSize == reportTO.getExecutions().size() && i < maxit);
-        if (i == maxit) {
+        } while (preExecSize == reportTO.getExecutions().size() && i < MAX_WAIT_SECONDS);
+        if (i == MAX_WAIT_SECONDS) {
             fail("Timeout when executing report " + reportKey);
         }
         exec = reportTO.getExecutions().get(reportTO.getExecutions().size() - 1);
@@ -361,7 +360,7 @@ public class ReportITCase extends AbstractITCase {
         ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
         assertNotNull(execution);
 
-        int maxit = 50;
+        int maxit = MAX_WAIT_SECONDS;
         do {
             try {
                 Thread.sleep(1000);
@@ -392,7 +391,7 @@ public class ReportITCase extends AbstractITCase {
         }
 
         // Wait for one execution
-        int maxit = 50;
+        int maxit = MAX_WAIT_SECONDS;
         do {
             try {
                 Thread.sleep(1000);

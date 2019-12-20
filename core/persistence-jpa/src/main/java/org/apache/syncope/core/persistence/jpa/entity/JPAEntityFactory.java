@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
@@ -126,10 +125,8 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
@@ -210,16 +207,12 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPANotification();
         } else if (reference.equals(ExternalResource.class)) {
             result = (E) new JPAExternalResource();
-        } else if (reference.equals(ExternalResourceHistoryConf.class)) {
-            result = (E) new JPAExternalResourceHistoryConf();
         } else if (reference.equals(Provision.class)) {
             result = (E) new JPAProvision();
         } else if (reference.equals(OrgUnit.class)) {
             result = (E) new JPAOrgUnit();
         } else if (reference.equals(ConnInstance.class)) {
             result = (E) new JPAConnInstance();
-        } else if (reference.equals(ConnInstanceHistoryConf.class)) {
-            result = (E) new JPAConnInstanceHistoryConf();
         } else if (reference.equals(SchemaLabel.class)) {
             result = (E) new JPASchemaLabel();
         } else if (reference.equals(PlainSchema.class)) {

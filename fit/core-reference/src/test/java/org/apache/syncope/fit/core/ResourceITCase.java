@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -41,7 +39,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -507,44 +504,6 @@ public class ResourceITCase extends AbstractITCase {
         assertTrue(provision.isPresent());
         assertFalse(provision.get().getMapping().getItems().isEmpty());
         assertFalse(provision.get().getMapping().getLinkingItems().isEmpty());
-    }
-
-    @Test
-    public void history() {
-        List<ResourceHistoryConfTO> history = resourceHistoryService.list(RESOURCE_NAME_LDAP);
-        assertNotNull(history);
-        int pre = history.size();
-
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        TraceLevel originalTraceLevel = SerializationUtils.clone(ldap.getUpdateTraceLevel());
-        assertEquals(TraceLevel.ALL, originalTraceLevel);
-        ProvisionTO originalProvision = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).get());
-        assertEquals(ObjectClass.ACCOUNT_NAME, originalProvision.getObjectClass());
-        boolean originalFlag = ldap.isRandomPwdIfNotProvided();
-        assertTrue(originalFlag);
-
-        ldap.setUpdateTraceLevel(TraceLevel.FAILURES);
-        ldap.getProvision(AnyTypeKind.USER.name()).get().setObjectClass("ANOTHER");
-        ldap.setRandomPwdIfNotProvided(false);
-        resourceService.update(ldap);
-
-        ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        assertNotEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
-        assertNotEquals(
-                originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).get().getObjectClass());
-        assertNotEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
-
-        history = resourceHistoryService.list(RESOURCE_NAME_LDAP);
-        assertEquals(pre + 1, history.size());
-
-        resourceHistoryService.restore(history.get(0).getKey());
-
-        ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        assertEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
-        assertEquals(
-                originalProvision.getObjectClass(),
-                ldap.getProvision(AnyTypeKind.USER.name()).get().getObjectClass());
-        assertEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
     }
 
     @Test

@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -66,7 +67,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                 reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
                 ImplementationRestClient.update(reportlet);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new WicketRuntimeException(e);
             }
         }
 

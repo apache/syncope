@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,14 +38,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
-import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -474,41 +471,6 @@ public class ConnectorITCase extends AbstractITCase {
                 map(ConnIdObjectClassTO::getType).collect(Collectors.toSet());
         assertTrue(objectClasses.contains(ObjectClass.ACCOUNT_NAME));
         assertTrue(objectClasses.contains(ObjectClass.GROUP_NAME));
-    }
-
-    @Test
-    public void history() {
-        List<ConnInstanceHistoryConfTO> history = connectorHistoryService.list("74141a3b-0762-4720-a4aa-fc3e374ef3ef");
-        assertNotNull(history);
-        int pre = history.size();
-
-        ConnInstanceTO ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
-        String originalDisplayName = ldapConn.getDisplayName();
-        Set<ConnectorCapability> originalCapabilities = new HashSet<>(ldapConn.getCapabilities());
-        ConnConfProperty originalConfProp = SerializationUtils.clone(
-                ldapConn.getConf("maintainPosixGroupMembership").get());
-        assertEquals(1, originalConfProp.getValues().size());
-        assertEquals("false", originalConfProp.getValues().get(0));
-
-        ldapConn.setDisplayName(originalDisplayName + " modified");
-        ldapConn.getCapabilities().clear();
-        ldapConn.getConf("maintainPosixGroupMembership").get().getValues().set(0, "true");
-        connectorService.update(ldapConn);
-
-        ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
-        assertNotEquals(originalDisplayName, ldapConn.getDisplayName());
-        assertNotEquals(originalCapabilities, ldapConn.getCapabilities());
-        assertNotEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership"));
-
-        history = connectorHistoryService.list("74141a3b-0762-4720-a4aa-fc3e374ef3ef");
-        assertEquals(pre + 1, history.size());
-
-        connectorHistoryService.restore(history.get(0).getKey());
-
-        ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
-        assertEquals(originalDisplayName, ldapConn.getDisplayName());
-        assertEquals(originalCapabilities, ldapConn.getCapabilities());
-        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership").get());
     }
 
     @Test

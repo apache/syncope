@@ -258,7 +258,8 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertNotNull(sendUser);
 
             // 5. execute PushTask
-            AbstractTaskITCase.execProvisioningTask(taskService, TaskType.PUSH, sendUser.getKey(), 50, false);
+            AbstractTaskITCase.execProvisioningTask(
+                    taskService, TaskType.PUSH, sendUser.getKey(), MAX_WAIT_SECONDS, false);
 
             TaskTO task = taskService.read(TaskType.PUSH, sendUser.getKey(), true);
             assertEquals(1, task.getExecutions().size());
@@ -401,7 +402,8 @@ public class LinkedAccountITCase extends AbstractITCase {
             List<LinkedAccountTO> accounts = userService.read("vivaldi").getLinkedAccounts();
             assertTrue(accounts.isEmpty());
 
-            ExecTO exec = AbstractTaskITCase.execProvisioningTask(taskService, TaskType.PULL, pullTaskKey, 50, false);
+            ExecTO exec = AbstractTaskITCase.execProvisioningTask(
+                    taskService, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
             assertTrue(exec.getMessage().contains("Accounts created"));
 
@@ -450,7 +452,8 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
             // 4. execute pull task again and verify linked accounts were pulled
-            exec = AbstractTaskITCase.execProvisioningTask(taskService, TaskType.PULL, pullTaskKey, 50, false);
+            exec = AbstractTaskITCase.execProvisioningTask(
+                    taskService, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
             assertTrue(exec.getMessage().contains("Accounts updated"));
             assertTrue(exec.getMessage().contains("Accounts deleted"));

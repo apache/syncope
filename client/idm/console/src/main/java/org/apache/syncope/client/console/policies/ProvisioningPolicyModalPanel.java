@@ -55,6 +55,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -154,12 +155,12 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     try {
                         ImplementationRestClient.update(rule.getImpl());
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new WicketRuntimeException(e);
                     }
                 }
             });
             PolicyRestClient.updatePolicy(getItem() instanceof PullPolicyTO
-                ? PolicyType.PULL : PolicyType.PUSH, getItem());
+                    ? PolicyType.PULL : PolicyType.PUSH, getItem());
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

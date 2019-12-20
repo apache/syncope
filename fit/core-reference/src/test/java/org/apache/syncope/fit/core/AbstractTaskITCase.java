@@ -173,14 +173,14 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
         List<Future<ExecTO>> futures = new ArrayList<>();
 
-        for (String key : taskKeys) {
+        taskKeys.forEach(key -> {
             futures.add(service.submit(new ThreadExec(taskService, type, key, maxWaitSeconds, dryRun)));
             // avoid flooding the test server
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
             }
-        }
+        });
 
         for (Future<ExecTO> future : futures) {
             future.get(100, TimeUnit.SECONDS);

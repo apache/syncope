@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -54,7 +52,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -66,7 +63,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
@@ -74,7 +70,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,9 +97,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
-    private ExternalResourceHistoryConfDAO resourceHistoryConfDAO;
-
-    @Autowired
     private ConfParamOps confParamOps;
 
     @Autowired
@@ -126,31 +118,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Override
     public ExternalResource update(final ExternalResource resource, final ResourceTO resourceTO) {
-        if (resource.getKey() != null) {
-            ResourceTO current = getResourceTO(resource);
-            if (!current.equals(resourceTO)) {
-                // 1. save the current configuration, before update
-                ExternalResourceHistoryConf resourceHistoryConf =
-                        entityFactory.newEntity(ExternalResourceHistoryConf.class);
-                resourceHistoryConf.setCreator(AuthContextUtils.getUsername());
-                resourceHistoryConf.setCreation(new Date());
-                resourceHistoryConf.setEntity(resource);
-                resourceHistoryConf.setConf(current);
-                resourceHistoryConfDAO.save(resourceHistoryConf);
-
-                // 2. ensure the maximum history size is not exceeded
-                List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
-                long maxHistorySize = confParamOps.get(
-                        AuthContextUtils.getDomain(), "resource.conf.history.size", 10L, Long.class);
-                if (maxHistorySize < history.size()) {
-                    // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
-                    for (int i = 0; i < history.size() - maxHistorySize; i++) {
-                        resourceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
-                    }
-                }
-            }
-        }
-
         resource.setKey(resourceTO.getKey());
 
         if (resourceTO.getConnector() != null) {
@@ -718,16 +685,5 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 resource.getPropagationActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         return resourceTO;
-    }
-
-    @Override
-    public ResourceHistoryConfTO getResourceHistoryConfTO(final ExternalResourceHistoryConf history) {
-        ResourceHistoryConfTO historyTO = new ResourceHistoryConfTO();
-        historyTO.setKey(history.getKey());
-        historyTO.setCreator(history.getCreator());
-        historyTO.setCreation(history.getCreation());
-        historyTO.setResourceTO(history.getConf());
-
-        return historyTO;
     }
 }

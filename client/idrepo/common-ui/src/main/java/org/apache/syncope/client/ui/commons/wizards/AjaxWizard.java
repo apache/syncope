@@ -51,6 +51,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -385,8 +386,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     private Serializable onApply(final AjaxRequestTarget target) throws TimeoutException {
         try {
-            Future<Pair<Serializable, Serializable>> executor =
-                    execute(new ApplyFuture(target));
+            Future<Pair<Serializable, Serializable>> executor = execute(new ApplyFuture(target));
 
             Pair<Serializable, Serializable> res =
                     executor.get(getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
@@ -400,7 +400,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             if (e.getCause() instanceof CaptchaNotMatchingException) {
                 throw (CaptchaNotMatchingException) e.getCause();
             }
-            throw new RuntimeException(e);
+            throw new WicketRuntimeException(e);
         }
     }
 

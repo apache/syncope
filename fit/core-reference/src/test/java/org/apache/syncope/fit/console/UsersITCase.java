@@ -76,9 +76,9 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        UTILITY_UI.getTester().clickLink(TAB_PANEL 
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:2:action:action");
+                + "actions:actions:actionRepeater:1:action:action");
 
         UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
     }
@@ -93,9 +93,9 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        UTILITY_UI.getTester().clickLink(TAB_PANEL 
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:1:action:action");
+                + "actions:actions:actionRepeater:9:action:action");
 
         UTILITY_UI.getTester().assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
@@ -695,7 +695,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         UTILITY_UI.getTester().clickLink(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:3:action:action");
+                + "actions:actions:actionRepeater:2:action:action");
 
         UTILITY_UI.getTester().assertLabel(TAB_PANEL + "outerObjectsRepeater:3:outer:form:content:status:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");
@@ -719,9 +719,9 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        UTILITY_UI.getTester().clickLink(TAB_PANEL 
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:3:action:action");
+                + "actions:actions:actionRepeater:2:action:action");
 
         UTILITY_UI.getTester().assertLabel(TAB_PANEL + "outerObjectsRepeater:3:outer:form:content:status:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");

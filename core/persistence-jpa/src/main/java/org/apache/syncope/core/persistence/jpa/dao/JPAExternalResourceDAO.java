@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -84,9 +83,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Autowired
     private RealmDAO realmDAO;
-
-    @Autowired
-    private ExternalResourceHistoryConfDAO externalResourceHistoryConfDAO;
 
     @Override
     public int count() {
@@ -265,8 +261,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 }).
                 forEach(provision -> virSchemaDAO.findByProvision(provision).
                 forEach(schema -> virSchemaDAO.delete(schema.getKey())));
-
-        externalResourceHistoryConfDAO.deleteByEntity(resource);
 
         if (resource.getConnector() != null && resource.getConnector().getResources() != null
                 && !resource.getConnector().getResources().isEmpty()) {

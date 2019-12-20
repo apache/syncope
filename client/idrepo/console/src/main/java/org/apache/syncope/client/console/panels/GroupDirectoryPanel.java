@@ -47,14 +47,18 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.wicket.PageReference;
@@ -63,7 +67,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -225,24 +228,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                GroupTO clone = SerializationUtils.clone(model.getObject());
-                clone.setKey(null);
-                send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
-            }
-
-            @Override
-            protected boolean statusCondition(final GroupTO modelObject) {
-                return realm.startsWith(SyncopeConstants.ROOT_REALM);
-            }
-        }, ActionType.CLONE, IdRepoEntitlement.GROUP_CREATE).setRealm(realm);
-
-        panel.add(new ActionLink<GroupTO>() {
-
-            private static final long serialVersionUID = 6242834621660352855L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 target.add(typeExtensionsModal.setContent(new TypeExtensionDirectoryPanel(
                         typeExtensionsModal, model.getObject(), pageRef)));
                 typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
@@ -350,20 +335,63 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                IModel<GroupWrapper> formModel = new CompoundPropertyModel<>(
-                        new GroupWrapper(new GroupRestClient().read(model.getObject().getKey())));
-                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                model.setObject(restClient.read(model.getObject().getKey()));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<GroupTO>(
                         altDefaultModal,
-                        pageRef,
-                        formModel.getObject().getInnerObject())));
+                        AuditElements.EventCategoryType.LOGIC,
+                        "GroupLogic",
+                        model.getObject(),
+                        IdRepoEntitlement.GROUP_UPDATE,
+                        pageRef) {
+
+                    private static final long serialVersionUID = -5819724478921691835L;
+
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        GroupTO original = model.getObject();
+                        try {
+                            GroupTO updated = MAPPER.readValue(json, GroupTO.class);
+                            GroupUR updateReq = AnyOperations.diff(updated, original, false);
+                            ProvisioningResult<GroupTO> result = restClient.update(original.getETagValue(), updateReq);
+                            model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (Exception e) {
+                            LOG.error("While restoring group {}", model.getObject().getKey(), e);
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
 
                 altDefaultModal.header(new Model<>(
                         getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                 altDefaultModal.show(true);
             }
-        }, ActionType.VIEW_AUDIT_HISTORY, IdRepoEntitlement.AUDIT_LIST).
+        }, ActionType.VIEW_AUDIT_HISTORY,
+                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
                 setRealms(realm, model.getObject().getDynRealms());
+
+        panel.add(new ActionLink<GroupTO>() {
+
+            private static final long serialVersionUID = 6242834621660352855L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                GroupTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(GroupDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
+            }
+
+            @Override
+            protected boolean statusCondition(final GroupTO modelObject) {
+                return realm.startsWith(SyncopeConstants.ROOT_REALM);
+            }
+        }, ActionType.CLONE, IdRepoEntitlement.GROUP_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -376,7 +404,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    LOG.error("While deleting group {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                             ? e.getClass().getName() : e.getMessage());
                 }

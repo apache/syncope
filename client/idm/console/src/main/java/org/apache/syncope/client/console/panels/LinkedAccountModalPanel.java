@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.DirectoryPanel.LOG;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,10 +53,14 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -4603032036433309900L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountModalPanel.class);
 
     private final LinkedAccountWizardBuilder wizard;
 

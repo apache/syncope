@@ -71,9 +71,9 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        UTILITY_UI.getTester().clickLink(TAB_PANEL 
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:1:action:action");
+                + "actions:actions:actionRepeater:5:action:action");
 
         FormTester formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form");

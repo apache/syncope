@@ -153,7 +153,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String username = queryForObject(
-                jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
         assertEquals(userTO.getUsername(), username);
 
         UserUR userUR = new UserUR();

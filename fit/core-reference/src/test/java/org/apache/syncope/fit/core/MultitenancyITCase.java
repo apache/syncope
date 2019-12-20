@@ -208,7 +208,7 @@ public class MultitenancyITCase extends AbstractITCase {
 
             // pull
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(
-                    adminClient.getService(TaskService.class), TaskType.PULL, task.getKey(), 50, false);
+                    adminClient.getService(TaskService.class), TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
             // verify execution status
             String status = execution.getStatus();

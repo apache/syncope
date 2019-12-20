@@ -79,7 +79,6 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         EXPORT_PDF("read"),
         EXPORT_RTF("read"),
         EXPORT_XML("read"),
-        RESTORE("import"),
         SUSPEND("update"),
         REACTIVATE("update"),
         RELOAD("import"),
@@ -95,9 +94,9 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         RECONCILIATION_PUSH("update"),
         RECONCILIATION_PULL("update"),
         MANAGE_RESOURCES("update"),
+        MANAGE_ACCOUNTS("update"),
         MANAGE_USERS("update"),
         MANAGE_GROUPS("update"),
-        MANAGE_ACCOUNTS("update"),
         PROPAGATION_TASKS("read"),
         NOTIFICATION_TASKS("read"),
         ZOOM_IN("zoomin"),
@@ -163,3 +162,4 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         return true;
     }
 }
+

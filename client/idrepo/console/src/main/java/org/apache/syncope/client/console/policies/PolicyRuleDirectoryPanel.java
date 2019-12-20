@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.policies;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -76,8 +75,6 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final BaseModal<T> baseModal;
 

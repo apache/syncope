@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -85,12 +86,12 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
             ImplementationTO rule = ImplementationRestClient.read(implementationType,
-                modelObject.getImplementationKey());
+                    modelObject.getImplementationKey());
             try {
                 rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
                 ImplementationRestClient.update(rule);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new WicketRuntimeException(e);
             }
         }
 
