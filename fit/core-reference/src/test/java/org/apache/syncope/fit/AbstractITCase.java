@@ -80,7 +80,6 @@ import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
@@ -99,7 +98,6 @@ import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
-import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
@@ -190,6 +188,8 @@ public abstract class AbstractITCase {
 
     protected static final String PRINTER = "PRINTER";
 
+    protected static final int MAX_WAIT_SECONDS = 50;
+
     protected static String ANONYMOUS_UNAME;
 
     protected static String ANONYMOUS_KEY;
@@ -236,13 +236,9 @@ public abstract class AbstractITCase {
 
     protected static ResourceService resourceService;
 
-    protected static ResourceHistoryService resourceHistoryService;
-
     protected static ConfigurationService configurationService;
 
     protected static ConnectorService connectorService;
-
-    protected static ConnectorHistoryService connectorHistoryService;
 
     protected static LoggerService loggerService;
 
@@ -333,10 +329,8 @@ public abstract class AbstractITCase {
         userWorkflowTaskService = adminClient.getService(UserWorkflowTaskService.class);
         groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
-        resourceHistoryService = adminClient.getService(ResourceHistoryService.class);
         configurationService = adminClient.getService(ConfigurationService.class);
         connectorService = adminClient.getService(ConnectorService.class);
-        connectorHistoryService = adminClient.getService(ConnectorHistoryService.class);
         loggerService = adminClient.getService(LoggerService.class);
         reportTemplateService = adminClient.getService(ReportTemplateService.class);
         reportService = adminClient.getService(ReportService.class);

@@ -36,14 +36,19 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -114,24 +119,6 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<AnyObjectTO>() {
-
-            private static final long serialVersionUID = -7978723352517770645L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
-                clone.setKey(null);
-                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
-            }
-
-            @Override
-            protected boolean statusCondition(final AnyObjectTO modelObject) {
-                return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
-            }
-        }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).setRealm(realm);
-
         if (wizardInModal) {
             panel.add(new ActionLink<AnyObjectTO>() {
 
@@ -190,26 +177,69 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
         }
         panel.add(new ActionLink<AnyObjectTO>() {
+
             private static final long serialVersionUID = -2878723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
-                    new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())));
-                altDefaultModal.setFormModel(formModel);
+                model.setObject(restClient.read(model.getObject().getKey()));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<AnyObjectTO>(
+                        altDefaultModal,
+                        AuditElements.EventCategoryType.LOGIC,
+                        "AnyObjectLogic",
+                        model.getObject(),
+                        AnyEntitlement.UPDATE.getFor(type),
+                        pageRef) {
 
-                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                    altDefaultModal,
-                    pageRef,
-                    formModel.getObject().getInnerObject())));
+                    private static final long serialVersionUID = -7440902560249531201L;
+
+                    @Override
+                    protected void restore(final AnyObjectTO updated, final AjaxRequestTarget target) {
+                        AnyObjectTO original = model.getObject();
+                        try {
+                            AnyObjectPatch anyObjectPatch = AnyOperations.diff(updated, original, false);
+                            ProvisioningResult<AnyObjectTO> result =
+                                    restClient.update(original.getETagValue(), anyObjectPatch);
+                            model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (Exception e) {
+                            LOG.error("While restoring any object {}", model.getObject().getKey(), e);
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
+                            throw new WicketRuntimeException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
 
                 altDefaultModal.header(new StringResourceModel("auditHistory.title", model));
 
                 altDefaultModal.show(true);
             }
-        }, ActionType.VIEW_AUDIT_HISTORY, StandardEntitlement.AUDIT_LIST).
-            setRealms(realm, model.getObject().getDynRealms());
-        
+        }, ActionType.VIEW_AUDIT_HISTORY,
+                String.format("%s,%s", AnyEntitlement.READ.getFor(type), StandardEntitlement.AUDIT_LIST)).
+                setRealms(realm, model.getObject().getDynRealms());
+
+        panel.add(new ActionLink<AnyObjectTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
+            }
+
+            @Override
+            protected boolean statusCondition(final AnyObjectTO modelObject) {
+                return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
+            }
+        }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).setRealm(realm);
+
         panel.add(new ActionLink<AnyObjectTO>() {
 
             private static final long serialVersionUID = -7978723352517770646L;
@@ -218,10 +248,11 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 try {
                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    LOG.error("While deleting any object {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                             ? e.getClass().getName() : e.getMessage());
                 }
@@ -233,7 +264,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
         }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type), true).setRealm(realm);
-        
+
         return panel;
     }
 

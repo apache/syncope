@@ -18,6 +18,14 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <span wicket:id="history">[HISTORY]</span>
+
+    <div style="padding-left: 1%;padding-right: 1%;text-align: center;">
+      <div class="pull-left"><strong><span wicket:id="current"/></strong></div>
+      <a href="#" wicket:id="restore" wicket:message="title:restore"><i class="fa fa-history fa-2x"></i></a>
+      <div class="pull-right"><strong><span wicket:id="previous"/></strong></div>
+    </div>
+
+    <div wicket:id="content"></div>
+
   </wicket:panel>
 </html>

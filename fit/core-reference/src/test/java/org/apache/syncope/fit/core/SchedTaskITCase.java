@@ -108,7 +108,6 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).startAt(later).build());
 
         int i = 0;
-        int maxit = 50;
 
         // wait for completion (executions incremented)
         do {
@@ -123,7 +122,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
             assertNotNull(task.getExecutions());
 
             i++;
-        } while (task.getExecutions().isEmpty() && i < maxit);
+        } while (task.getExecutions().isEmpty() && i < MAX_WAIT_SECONDS);
 
         PagedResult<ExecTO> execs =
                 taskService.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
@@ -187,7 +186,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
         taskService.actionJob(task.getKey(), JobAction.START);
 
-        int i = 0, maxit = 50;
+        int i = 0;
 
         do {
             try {
@@ -196,9 +195,9 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs().stream().filter(job -> job.isRunning()).collect(Collectors.toList());
+            jobs = taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList());
             i++;
-        } while (jobs.size() < 1 && i < maxit);
+        } while (jobs.size() < 1 && i < MAX_WAIT_SECONDS);
 
         assertEquals(1, jobs.size());
         assertEquals(task.getKey(), jobs.get(0).getRefKey());
@@ -216,7 +215,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
             jobs = taskService.listJobs().stream().filter(job -> job.isRunning()).collect(Collectors.toList());
             i++;
-        } while (jobs.size() >= 1 && i < maxit);
+        } while (jobs.size() >= 1 && i < MAX_WAIT_SECONDS);
 
         assertTrue(jobs.isEmpty());
     }

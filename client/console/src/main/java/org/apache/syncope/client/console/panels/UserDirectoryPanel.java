@@ -42,13 +42,18 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -155,7 +160,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     @Override
     public ActionsPanel<UserTO> getActions(final IModel<UserTO> model) {
         final ActionsPanel<UserTO> panel = super.getActions(model);
-         
+
         panel.add(new ActionLink<UserTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -164,7 +169,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 send(UserDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new UserWrapper(UserRestClient.class.cast(restClient).read(model.getObject().getKey())),
+                                new UserWrapper(restClient.read(model.getObject().getKey())),
                                 target));
             }
         }, ActionType.EDIT,
@@ -177,27 +182,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                UserTO clone = SerializationUtils.clone(model.getObject());
-                clone.setKey(null);
-                clone.setUsername(model.getObject().getUsername() + "_clone");
-                send(UserDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
-            }
-
-            @Override
-            protected boolean statusCondition(final UserTO modelObject) {
-                return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
-            }
-        }, ActionType.CLONE, StandardEntitlement.USER_CREATE).setRealm(realm);
-
-        panel.add(new ActionLink<UserTO>() {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 try {
-                    UserRestClient.class.cast(restClient).mustChangePassword(
+                    restClient.mustChangePassword(
                             model.getObject().getETagValue(),
                             !model.getObject().isMustChangePassword(),
                             model.getObject().getKey());
@@ -295,7 +281,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                    model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
+                    model.setObject(restClient.read(model.getObject().getKey()));
                     IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
                             new AnyWrapper<>(model.getObject()));
                     altDefaultModal.setFormModel(formModel);
@@ -351,7 +337,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                    model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
+                    model.setObject(restClient.read(model.getObject().getKey()));
                     target.add(wizardWrapperModal.setContent(
                             new LinkedAccountModalPanel(wizardWrapperModal, model, pageRef, false)));
                     wizardWrapperModal.header(new ResourceModel("linkedAccounts.title"));
@@ -368,20 +354,72 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                IModel<UserWrapper> formModel = new CompoundPropertyModel<>(
-                    new UserWrapper(new UserRestClient().read(model.getObject().getKey())));
-                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                    altDefaultModal,
-                    pageRef,
-                    formModel.getObject().getInnerObject())));
+                model.setObject(restClient.read(model.getObject().getKey()));
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<UserTO>(
+                        altDefaultModal,
+                        AuditElements.EventCategoryType.LOGIC,
+                        "UserLogic",
+                        model.getObject(),
+                        StandardEntitlement.USER_UPDATE,
+                        pageRef) {
+
+                    private static final long serialVersionUID = 959378158400669867L;
+
+                    @Override
+                    protected void restore(final UserTO updated, final AjaxRequestTarget target) {
+                        // The original audit record masks the password and the security
+                        // answer; so we cannot use the audit record to resurrect the entry based on mask data.
+                        //
+                        // The method behavior below will reset the audit record such that the current security
+                        // answer and the password for the object are always maintained, and such properties for the
+                        // user cannot be restored using audit records.
+                        UserTO original = model.getObject();
+                        try {
+                            UserPatch userPatch = AnyOperations.diff(updated, original, false);
+                            userPatch.setPassword(null);
+                            userPatch.setSecurityAnswer(null);
+                            ProvisioningResult<UserTO> result = restClient.update(original.getETagValue(), userPatch);
+                            model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (Exception e) {
+                            LOG.error("While restoring user {}", model.getObject().getKey(), e);
+                            SyncopeConsoleSession.get().error(
+                                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            throw new WicketRuntimeException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
 
                 altDefaultModal.header(new Model<>(
-                    getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                        getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                 altDefaultModal.show(true);
             }
-        }, ActionType.VIEW_AUDIT_HISTORY, StandardEntitlement.AUDIT_LIST).
-            setRealms(realm, model.getObject().getDynRealms());
+        }, ActionType.VIEW_AUDIT_HISTORY,
+                String.format("%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.AUDIT_LIST)).
+                setRealms(realm, model.getObject().getDynRealms());
+
+        panel.add(new ActionLink<UserTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                UserTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                clone.setUsername(model.getObject().getUsername() + "_clone");
+                send(UserDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
+            }
+
+            @Override
+            protected boolean statusCondition(final UserTO modelObject) {
+                return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
+            }
+        }, ActionType.CLONE, StandardEntitlement.USER_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<UserTO>() {
 
@@ -395,7 +433,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    LOG.error("While deleting user {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().error(
                             StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                 }

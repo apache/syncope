@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
@@ -49,10 +48,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
     private final List<String> availableDerSchemas = schemaRestClient.getDerSchemaNames();
 
     private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
-
-    private static final List<String> LAYOUT_PARAMETERS =
-            Arrays.asList(new String[] { "admin.user.layout", "self.user.layout",
-        "admin.group.layout", "self.group.layout", "admin.membership.layout", "self.membership.layout" });
 
     public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
         super(id);
@@ -109,7 +104,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
     }
 
     private void buildAvailableSchemas(final String key) {
-
         List<String> configurationSchemas = new ConfRestClient().list().stream().
                 map(AttrTO::getSchema).collect(Collectors.toList());
 
@@ -122,6 +116,5 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 });
 
         availablePlainSchemas.removeAll(configurationSchemas);
-        availablePlainSchemas.removeAll(LAYOUT_PARAMETERS);
     }
 }

@@ -77,7 +77,6 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         EXPORT_PDF("read"),
         EXPORT_RTF("read"),
         EXPORT_XML("read"),
-        RESTORE("import"),
         SUSPEND("update"),
         REACTIVATE("update"),
         RELOAD("import"),

@@ -131,7 +131,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertFalse(groupService.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
 
-        execProvisioningTask(taskService, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", 50, false);
+        execProvisioningTask(
+                taskService, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", MAX_WAIT_SECONDS, false);
 
         assertNotNull(resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
@@ -156,7 +157,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Unmatching --> Assign --> dryRuyn
         // ------------------------------------------
-        execProvisioningTask(taskService, TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1", 50, true);
+        execProvisioningTask(
+                taskService, TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1", MAX_WAIT_SECONDS, true);
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='vivaldi'").size());
         assertFalse(userService.read("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -167,7 +169,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTaskKeys.add("97f327b6-2eff-4d35-85e8-d581baaab855");
         pushTaskKeys.add("03aa2a04-4881-4573-9117-753f81b04865");
         pushTaskKeys.add("5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
-        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, 50, false);
+        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, MAX_WAIT_SECONDS, false);
 
         // ------------------------------------------
         // Unatching --> Ignore
@@ -218,7 +220,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Deprovision --> dryRuyn
         // ------------------------------------------
-        execProvisioningTask(taskService, TaskType.PUSH, "c46edc3a-a18b-4af2-b707-f4a415507496", 50, true);
+        execProvisioningTask(
+                taskService, TaskType.PUSH, "c46edc3a-a18b-4af2-b707-f4a415507496", MAX_WAIT_SECONDS, true);
         assertTrue(userService.read("1417acbe-cbf6-4277-9372-e75e04f97000").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
@@ -229,7 +232,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTaskKeys.add("c46edc3a-a18b-4af2-b707-f4a415507496");
         pushTaskKeys.add("5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
 
-        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, 50, false);
+        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, MAX_WAIT_SECONDS, false);
 
         // ------------------------------------------
         // Matching --> Deprovision && Ignore
@@ -252,7 +255,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Link
         // ------------------------------------------
-        execProvisioningTask(taskService, TaskType.PUSH, "51318433-cce4-4f71-8f45-9534b6c9c819", 50, false);
+        execProvisioningTask(
+                taskService, TaskType.PUSH, "51318433-cce4-4f71-8f45-9534b6c9c819", MAX_WAIT_SECONDS, false);
         assertTrue(userService.read("74cd8ece-715a-44a4-a736-e17b46c4e7e6").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
@@ -262,7 +266,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTaskKeys.add("24b1be9c-7e3b-443a-86c9-798ebce5eaf2");
         pushTaskKeys.add("375c7b7f-9e3a-4833-88c9-b7787b0a69f2");
 
-        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, 50, false);
+        execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, MAX_WAIT_SECONDS, false);
 
         // ------------------------------------------
         // Matching --> Unlink && Update
@@ -300,7 +304,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(sendVivaldi);
 
             // 3. execute push: vivaldi is found on ldap
-            execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
+            execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), MAX_WAIT_SECONDS, false);
 
             ReconStatus status = reconciliationService.status(
                     new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
@@ -318,7 +322,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             // 5. execute push again: propagation task for CREATE will be generated, but that will fail
             // as task executor is not able any more to identify the entry to UPDATE
-            execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), 50, false);
+            execProvisioningTask(taskService, TaskType.PUSH, sendVivaldi.getKey(), MAX_WAIT_SECONDS, false);
 
             status = reconciliationService.status(
                     new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
@@ -349,7 +353,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         PushTaskTO pushTask = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(pushTask);
 
-        ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, pushTask.getKey(), 50, false);
+        ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, pushTask.getKey(), MAX_WAIT_SECONDS, false);
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
         // 2. check
@@ -437,7 +441,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(push);
 
             // execute the new task
-            ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, push.getKey(), 50, false);
+            ExecTO exec = execProvisioningTask(taskService, TaskType.PUSH, push.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
@@ -486,7 +490,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         notification = getObject(responseNotification.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
-        execProvisioningTask(taskService, TaskType.PUSH, actual.getKey(), 50, false);
+        execProvisioningTask(taskService, TaskType.PUSH, actual.getKey(), MAX_WAIT_SECONDS, false);
 
         NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
         assertNotNull(taskTO);
