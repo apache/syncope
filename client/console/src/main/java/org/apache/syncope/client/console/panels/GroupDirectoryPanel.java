@@ -365,9 +365,10 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                     private static final long serialVersionUID = -5819724478921691835L;
 
                     @Override
-                    protected void restore(final GroupTO updated, final AjaxRequestTarget target) {
+                    protected void restore(final String json, final AjaxRequestTarget target) {
                         GroupTO original = model.getObject();
                         try {
+                            GroupTO updated = MAPPER.readValue(json, GroupTO.class);
                             GroupPatch groupPatch = AnyOperations.diff(updated, original, false);
                             ProvisioningResult<GroupTO> result = restClient.update(original.getETagValue(), groupPatch);
                             model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());

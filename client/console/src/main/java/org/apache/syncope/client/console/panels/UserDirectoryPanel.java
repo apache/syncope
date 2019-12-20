@@ -366,7 +366,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     private static final long serialVersionUID = 959378158400669867L;
 
                     @Override
-                    protected void restore(final UserTO updated, final AjaxRequestTarget target) {
+                    protected void restore(final String json, final AjaxRequestTarget target) {
                         // The original audit record masks the password and the security
                         // answer; so we cannot use the audit record to resurrect the entry based on mask data.
                         //
@@ -375,6 +375,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         // user cannot be restored using audit records.
                         UserTO original = model.getObject();
                         try {
+                            UserTO updated = MAPPER.readValue(json, UserTO.class);
                             UserPatch userPatch = AnyOperations.diff(updated, original, false);
                             userPatch.setPassword(null);
                             userPatch.setSecurityAnswer(null);

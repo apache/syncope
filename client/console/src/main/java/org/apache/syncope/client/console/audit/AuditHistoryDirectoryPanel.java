@@ -118,7 +118,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
         resultTableBuilder.setMultiLevelPanel(baseModal, mlp);
     }
 
-    protected abstract void restore(T entity, AjaxRequestTarget target);
+    protected abstract void restore(String json, AjaxRequestTarget target);
 
     @Override
     protected ActionsPanel<AuditEntryTO> getActions(final IModel<AuditEntryTO> model) {
@@ -144,8 +144,8 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
                     private static final long serialVersionUID = -5311898419151367494L;
 
                     @Override
-                    protected void restore(final T entity, final AjaxRequestTarget target) {
-                        AuditHistoryDirectoryPanel.this.restore(entity, target);
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        AuditHistoryDirectoryPanel.this.restore(json, target);
                     }
                 }, target);
 

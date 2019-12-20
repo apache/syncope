@@ -94,16 +94,23 @@ public abstract class AuditHistoryDetails<T extends EntityTO> extends Multilevel
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                restore(currentEntity, target);
+                try {
+                    String json = selected.getBefore() == null
+                            ? MAPPER.readTree(selected.getOutput()).get("entity").toPrettyString()
+                            : selected.getBefore();
+                    restore(json, target);
 
-                mlp.prev(target);
+                    mlp.prev(target);
+                } catch (JsonProcessingException e) {
+                    throw new WicketRuntimeException(e);
+                }
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(restore, RENDER, auditRestoreEntitlement);
+        MetaDataRoleAuthorizationStrategy.authorize(restore, ENABLE, auditRestoreEntitlement);
         add(restore);
     }
 
-    protected abstract void restore(T entity, AjaxRequestTarget target);
+    protected abstract void restore(String json, AjaxRequestTarget target);
 
     private Model<String> toJSON(final AuditEntryTO auditEntry, final Class<T> reference) {
         try {

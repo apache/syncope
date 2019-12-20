@@ -350,8 +350,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     private static final long serialVersionUID = -3225348282675513648L;
 
                     @Override
-                    protected void restore(final ConnInstanceTO updated, final AjaxRequestTarget target) {
+                    protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
+                            ConnInstanceTO updated = MAPPER.readValue(json, ConnInstanceTO.class);
                             connectorRestClient.update(updated);
 
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -604,8 +605,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     private static final long serialVersionUID = -3712506022627033811L;
 
                     @Override
-                    protected void restore(final ResourceTO updated, final AjaxRequestTarget target) {
+                    protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
+                            ResourceTO updated = MAPPER.readValue(json, ResourceTO.class);
                             resourceRestClient.update(updated);
 
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));

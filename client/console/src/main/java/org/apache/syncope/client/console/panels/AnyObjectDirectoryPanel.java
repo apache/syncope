@@ -194,9 +194,10 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     private static final long serialVersionUID = -7440902560249531201L;
 
                     @Override
-                    protected void restore(final AnyObjectTO updated, final AjaxRequestTarget target) {
+                    protected void restore(final String json, final AjaxRequestTarget target) {
                         AnyObjectTO original = model.getObject();
                         try {
+                            AnyObjectTO updated = MAPPER.readValue(json, AnyObjectTO.class);
                             AnyObjectPatch anyObjectPatch = AnyOperations.diff(updated, original, false);
                             ProvisioningResult<AnyObjectTO> result =
                                     restClient.update(original.getETagValue(), anyObjectPatch);

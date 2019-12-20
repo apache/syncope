@@ -55,11 +55,11 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
             private static final long serialVersionUID = 1952220682903768286L;
 
             @Override
-            protected void restore(final T entity, final AjaxRequestTarget target) {
-                AuditHistoryModal.this.restore(entity, target);
+            protected void restore(final String json, final AjaxRequestTarget target) {
+                AuditHistoryModal.this.restore(json, target);
             }
         }));
     }
 
-    protected abstract void restore(T entity, AjaxRequestTarget target);
+    protected abstract void restore(String json, AjaxRequestTarget target);
 }
