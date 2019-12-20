@@ -67,6 +67,8 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyPanel.class);
 
+    protected static final String DIRECTORY_PANEL_ID = "searchResult";
+
     @FunctionalInterface
     public interface DirectoryPanelSupplier {
 
@@ -77,6 +79,93 @@ public class AnyPanel extends Panel implements ModalPanel {
                 AnyLayout anyLayout,
                 PageReference pageRef);
     }
+
+    protected static DirectoryPanelSupplier DEFAULT_DIRECTORYPANEL_SUPPLIER =
+            (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
+
+                AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
+
+                final Panel panel;
+                String fiql;
+
+                final String realm;
+                final String dynRealm;
+                if (realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)) {
+                    realm = realmTO.getFullPath();
+                    dynRealm = null;
+                } else {
+                    realm = SyncopeConstants.ROOT_REALM;
+                    dynRealm = realmTO.getKey();
+                }
+
+                switch (anyTypeTO.getKind()) {
+                    case USER:
+                        fiql = dynRealm == null
+                                ? SyncopeClient.getUserSearchConditionBuilder().
+                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()
+                                : SyncopeClient.getUserSearchConditionBuilder().
+                                        inDynRealms(dynRealm).query();
+
+                        UserTO userTO = new UserTO();
+                        userTO.setRealm(realmTO.getFullPath());
+                        panel = new UserDirectoryPanel.Builder(
+                                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyTypeTO.getKey(),
+                                pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
+                                setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
+                                AnyLayoutUtils.newLayoutInfo(
+                                        userTO, anyTypeTO.getClasses(), anyLayout.getUser(), pageRef)).
+                                build(id);
+                        MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
+                                StandardEntitlement.USER_SEARCH);
+                        break;
+
+                    case GROUP:
+                        fiql = dynRealm == null
+                                ? SyncopeClient.getGroupSearchConditionBuilder().
+                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()
+                                : SyncopeClient.getGroupSearchConditionBuilder().inDynRealms(dynRealm).query();
+
+                        GroupTO groupTO = new GroupTO();
+                        groupTO.setRealm(realmTO.getFullPath());
+                        panel = new GroupDirectoryPanel.Builder(
+                                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyTypeTO.getKey(),
+                                pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
+                                setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
+                                AnyLayoutUtils.newLayoutInfo(
+                                        groupTO, anyTypeTO.getClasses(), anyLayout.getGroup(), pageRef)).
+                                build(id);
+                        // list of group is available to all authenticated users
+                        break;
+
+                    case ANY_OBJECT:
+                        fiql = dynRealm == null
+                                ? SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()).
+                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()
+                                : SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()).
+                                        inDynRealms(dynRealm).query();
+
+                        AnyObjectTO anyObjectTO = new AnyObjectTO();
+                        anyObjectTO.setRealm(realmTO.getFullPath());
+                        anyObjectTO.setType(anyTypeTO.getKey());
+                        panel = new AnyObjectDirectoryPanel.Builder(
+                                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyTypeTO.getKey(),
+                                pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
+                                setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
+                                AnyLayoutUtils.newLayoutInfo(anyObjectTO, anyTypeTO.getClasses(),
+                                        anyLayout.getAnyObjects().get(anyTypeTO.getKey()), pageRef)).
+                                build(id);
+                        MetaDataRoleAuthorizationStrategy.authorize(
+                                panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyTypeTO.getKey()));
+                        break;
+
+                    default:
+                        panel = new LabelPanel(id, null);
+                }
+                return panel;
+            };
 
     protected final AnyTypeTO anyTypeTO;
 
@@ -157,9 +246,19 @@ public class AnyPanel extends Panel implements ModalPanel {
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(enableSearch).setVisible(enableSearch));
 
-        directoryPanel = directoryPanelSupplier.supply("searchResult", anyTypeTO, realmTO, anyLayout, pageRef);
+        directoryPanel = createDirectoryPanel(anyTypeTO, realmTO, anyLayout, enableSearch, directoryPanelSupplier);
         add(directoryPanel);
         // ------------------------
+    }
+
+    protected Panel createDirectoryPanel(
+            final AnyTypeTO anyTypeTO,
+            final RealmTO realmTO,
+            final AnyLayout anyLayout,
+            final boolean enableSearch,
+            final DirectoryPanelSupplier directoryPanelSupplier) {
+
+        return directoryPanelSupplier.supply(DIRECTORY_PANEL_ID, anyTypeTO, realmTO, anyLayout, pageRef);
     }
 
     @Override
@@ -249,92 +348,4 @@ public class AnyPanel extends Panel implements ModalPanel {
 
         return panel;
     }
-
-    protected static DirectoryPanelSupplier DEFAULT_DIRECTORYPANEL_SUPPLIER =
-            (id, anyType, realmTO, anyLayout, pageRef) -> {
-
-                AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-                final Panel panel;
-                String fiql;
-
-                final String realm;
-                final String dynRealm;
-                if (realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)) {
-                    realm = realmTO.getFullPath();
-                    dynRealm = null;
-                } else {
-                    realm = SyncopeConstants.ROOT_REALM;
-                    dynRealm = realmTO.getKey();
-                }
-
-                switch (anyType.getKind()) {
-                    case USER:
-                        fiql = dynRealm == null
-                                ? SyncopeClient.getUserSearchConditionBuilder().
-                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()
-                                : SyncopeClient.getUserSearchConditionBuilder().
-                                        inDynRealms(dynRealm).query();
-
-                        UserTO userTO = new UserTO();
-                        userTO.setRealm(realmTO.getFullPath());
-                        panel = new UserDirectoryPanel.Builder(
-                                anyTypeClassRestClient.list(anyType.getClasses()),
-                                anyType.getKey(),
-                                pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
-                                setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
-                                AnyLayoutUtils.newLayoutInfo(
-                                        userTO, anyType.getClasses(), anyLayout.getUser(), pageRef)).
-                                build(id);
-                        MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
-                                StandardEntitlement.USER_SEARCH);
-                        break;
-
-                    case GROUP:
-                        fiql = dynRealm == null
-                                ? SyncopeClient.getGroupSearchConditionBuilder().
-                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()
-                                : SyncopeClient.getGroupSearchConditionBuilder().inDynRealms(dynRealm).query();
-
-                        GroupTO groupTO = new GroupTO();
-                        groupTO.setRealm(realmTO.getFullPath());
-                        panel = new GroupDirectoryPanel.Builder(
-                                anyTypeClassRestClient.list(anyType.getClasses()),
-                                anyType.getKey(),
-                                pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
-                                setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
-                                AnyLayoutUtils.newLayoutInfo(
-                                        groupTO, anyType.getClasses(), anyLayout.getGroup(), pageRef)).
-                                build(id);
-                        // list of group is available to all authenticated users
-                        break;
-
-                    case ANY_OBJECT:
-                        fiql = dynRealm == null
-                                ? SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()
-                                : SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                        inDynRealms(dynRealm).query();
-
-                        AnyObjectTO anyObjectTO = new AnyObjectTO();
-                        anyObjectTO.setRealm(realmTO.getFullPath());
-                        anyObjectTO.setType(anyType.getKey());
-                        panel = new AnyObjectDirectoryPanel.Builder(
-                                anyTypeClassRestClient.list(anyType.getClasses()),
-                                anyType.getKey(),
-                                pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
-                                setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
-                                AnyLayoutUtils.newLayoutInfo(anyObjectTO, anyType.getClasses(),
-                                        anyLayout.getAnyObjects().get(anyType.getKey()), pageRef)).
-                                build(id);
-                        MetaDataRoleAuthorizationStrategy.authorize(
-                                panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyType.getKey()));
-                        break;
-
-                    default:
-                        panel = new LabelPanel(id, null);
-                }
-                return panel;
-            };
-
 }

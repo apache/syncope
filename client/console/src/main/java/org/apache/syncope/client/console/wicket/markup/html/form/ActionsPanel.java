@@ -77,6 +77,10 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
         return action;
     }
 
+    public List<Action<T>> getActions() {
+        return actions;
+    }
+
     public ActionsPanel<T> clone(final String componentId, final IModel<T> model) {
         ActionsPanel<T> panel = new ActionsPanel<>(componentId, model);
         panel.actions.addAll(actions);
