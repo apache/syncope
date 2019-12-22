@@ -22,6 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
@@ -349,8 +350,10 @@ public class RouteProvider {
                 break;
 
             case METHOD:
+                String[] methodArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(MethodRoutePredicateFactory.class).
-                        applyAsync(c -> c.setMethod(HttpMethod.resolve(gwpredicate.getArgs().trim())));
+                        applyAsync(c -> c.setMethods(
+                        Stream.of(methodArgs).map(arg -> HttpMethod.resolve(arg.trim())).toArray(HttpMethod[]::new)));
                 break;
 
             case PATH:
