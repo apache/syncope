@@ -70,7 +70,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:1:action:action");
+                + "actions:actions:actionRepeater:5:action:action");
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);

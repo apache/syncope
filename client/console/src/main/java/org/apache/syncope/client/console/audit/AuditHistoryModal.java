@@ -21,35 +21,45 @@ package org.apache.syncope.client.console.audit;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public class AuditHistoryModal<T extends AnyTO> extends Panel implements ModalPanel {
+public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = 1066124171682570080L;
 
-    protected final AuditHistoryDirectoryPanel directoryPanel;
-
     public AuditHistoryModal(
             final BaseModal<?> baseModal,
-            final PageReference pageReference,
-            final T entity) {
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final T entity,
+            final String auditRestoreEntitlement,
+            final PageReference pageRef) {
 
         super(BaseModal.CONTENT_ID);
 
-        final MultilevelPanel mlp = new MultilevelPanel("history");
+        MultilevelPanel mlp = new MultilevelPanel("history");
         mlp.setOutputMarkupId(true);
-        this.directoryPanel = getDirectoryPanel(mlp, baseModal, pageReference, entity);
-        add(mlp.setFirstLevel(this.directoryPanel));
+        add(mlp.setFirstLevel(new AuditHistoryDirectoryPanel<T>(
+                baseModal,
+                mlp,
+                type,
+                category,
+                entity,
+                auditRestoreEntitlement,
+                pageRef) {
+
+            private static final long serialVersionUID = 1952220682903768286L;
+
+            @Override
+            protected void restore(final String json, final AjaxRequestTarget target) {
+                AuditHistoryModal.this.restore(json, target);
+            }
+        }));
     }
 
-    protected AuditHistoryDirectoryPanel getDirectoryPanel(
-            final MultilevelPanel mlp,
-            final BaseModal<?> baseModal,
-            final PageReference pageReference,
-            final T entity) {
-
-        return new AuditHistoryDirectoryPanel(baseModal, mlp, pageReference, entity);
-    }
+    protected abstract void restore(String json, AjaxRequestTarget target);
 }

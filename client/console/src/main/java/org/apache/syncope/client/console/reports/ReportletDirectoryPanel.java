@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,8 +71,6 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final BaseModal<ReportTO> baseModal;
 

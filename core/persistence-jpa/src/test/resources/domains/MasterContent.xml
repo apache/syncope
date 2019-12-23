@@ -135,23 +135,6 @@ under the License.
   <CPlainAttrValue id="447e2456-3ff5-41bc-8ff1-cbb0567546cb"
                    attribute_id="cfec3140-562d-459c-ac6a-e3e10758661d" longValue="120"/>
     
-  <!--  Connector and Resource configuration history -->                   
-  <SyncopeSchema id="connector.conf.history.size"/>
-  <PlainSchema id="connector.conf.history.size" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="ae36c6ab-0f39-40d7-b6e6-3b8394547c9c"
-              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="connector.conf.history.size"/>
-  <CPlainAttrValue id="4989ce5d-7b42-4a5c-b725-54286888df10"
-                   attribute_id="ae36c6ab-0f39-40d7-b6e6-3b8394547c9c" longValue="10"/>
-  
-  <SyncopeSchema id="resource.conf.history.size"/>
-  <PlainSchema id="resource.conf.history.size" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="ae7ae53a-74cf-48b0-9a57-6d2c94928e60"
-              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="resource.conf.history.size"/>
-  <CPlainAttrValue id="059ac3e1-687f-4dd9-a28b-a23f8b436f31"
-                   attribute_id="ae7ae53a-74cf-48b0-9a57-6d2c94928e60" longValue="10"/>
-  
   <!-- sample policies -->
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
                   historyLength="1" allowNullPassword="1"/>
@@ -2560,20 +2543,23 @@ $$ }&#10;
   
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
 
-  <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[delete]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfDelete]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfRead]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" logLevel="DEBUG"/>
@@ -2583,12 +2569,8 @@ $$ }&#10;
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[delete]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[own]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>

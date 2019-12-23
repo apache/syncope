@@ -75,17 +75,8 @@ under the License.
   <PlainSchema id="jwt.lifetime.minutes" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
     
-  <!--  Connector and Resource configuration history -->                   
-  <SyncopeSchema id="connector.conf.history.size"/>
-  <PlainSchema id="connector.conf.history.size" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  
-  <SyncopeSchema id="resource.conf.history.size"/>
-  <PlainSchema id="resource.conf.history.size" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  
   <SyncopeConf id="cd64d66f-6fff-4008-b966-a06b1cc1436d"
-               plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;SHA1&quot;}],&quot;schema&quot;:&quot;password.cipher.algorithm&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;0/20 * * * * ?&quot;}],&quot;schema&quot;:&quot;notificationjob.cronExpression&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:3}],&quot;schema&quot;:&quot;notification.maxRetries&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:256}],&quot;schema&quot;:&quot;token.length&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:60}],&quot;schema&quot;:&quot;token.expireTime&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;selfRegistration.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.securityQuestion&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;username&quot;},{&quot;stringValue&quot;:&quot;userId&quot;}],&quot;schema&quot;:&quot;authentication.attributes&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;created&quot;},{&quot;stringValue&quot;:&quot;active&quot;}],&quot;schema&quot;:&quot;authentication.statuses&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;log.lastlogindate&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:false}],&quot;schema&quot;:&quot;return.password.value&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:120}],&quot;schema&quot;:&quot;jwt.lifetime.minutes&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}],&quot;schema&quot;:&quot;connector.conf.history.size&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}],&quot;schema&quot;:&quot;resource.conf.history.size&quot;}]"/>
+               plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;SHA1&quot;}],&quot;schema&quot;:&quot;password.cipher.algorithm&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;0/20 * * * * ?&quot;}],&quot;schema&quot;:&quot;notificationjob.cronExpression&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:3}],&quot;schema&quot;:&quot;notification.maxRetries&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:256}],&quot;schema&quot;:&quot;token.length&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:60}],&quot;schema&quot;:&quot;token.expireTime&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;selfRegistration.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.securityQuestion&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;username&quot;},{&quot;stringValue&quot;:&quot;userId&quot;}],&quot;schema&quot;:&quot;authentication.attributes&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;created&quot;},{&quot;stringValue&quot;:&quot;active&quot;}],&quot;schema&quot;:&quot;authentication.statuses&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;log.lastlogindate&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:false}],&quot;schema&quot;:&quot;return.password.value&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:120}],&quot;schema&quot;:&quot;jwt.lifetime.minutes&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}]}]"/>
 
   <!-- sample policies -->
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
@@ -2408,20 +2399,23 @@ $$ }&#10;
   
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
 
-  <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[delete]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfDelete]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfRead]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" logLevel="DEBUG"/>
@@ -2431,12 +2425,8 @@ $$ }&#10;
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[delete]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[own]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>

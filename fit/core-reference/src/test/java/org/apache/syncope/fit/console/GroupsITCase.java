@@ -53,7 +53,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:3:action:action");
+                + "actions:actions:actionRepeater:2:action:action");
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL
                 + "outerObjectsRepeater:7:outer:container:content:togglePanelContainer:membersForm");
@@ -97,7 +97,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:1:action:action");
+                + "actions:actions:actionRepeater:9:action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:name:textField",
                 TextField.class);

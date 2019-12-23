@@ -38,5 +38,4 @@ public class AnyObjectWrapper extends AnyWrapper<AnyObjectTO> {
     public AnyObjectTO getPreviousAnyObjectTO() {
         return previousAnyObjectTO;
     }
-
 }

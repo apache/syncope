@@ -22,25 +22,31 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
-    private static final int MAX_WAIT_SECONDS = 50;
 
     private static AuditEntryTO query(final AuditQuery query, final int maxWaitSeconds, final boolean failIfEmpty) {
         List<AuditEntryTO> results = query(query, maxWaitSeconds);
@@ -77,9 +83,10 @@ public class AuditITCase extends AbstractITCase {
         assertEquals(1, entries.size());
 
         PagedResult<UserTO> usersTOs = userService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(userTO.getUsername()).query()).
-                build());
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("username").equalTo(userTO.getUsername()).query()).
+                        build());
         assertNotNull(usersTOs);
         assertFalse(usersTOs.getResult().isEmpty());
 
@@ -140,9 +147,10 @@ public class AuditITCase extends AbstractITCase {
         assertEquals(1, entries.size());
 
         PagedResult<GroupTO> groups = groupService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query()).
-                build());
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getGroupSearchConditionBuilder().
+                                is("name").equalTo(groupTO.getName()).query()).
+                        build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
 
@@ -155,7 +163,7 @@ public class AuditITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSampleTO("Italy")).getEntity();
         assertNotNull(anyObjectTO.getKey());
         AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).orderBy("event_date desc").
-            page(1).size(1).build();
+                page(1).size(1).build();
         AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, true);
         assertEquals(anyObjectTO.getKey(), entry.getKey());
         anyObjectService.delete(anyObjectTO.getKey());
@@ -172,13 +180,57 @@ public class AuditITCase extends AbstractITCase {
         assertEquals(1, entries.size());
 
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
-            new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectTO.getType()).query()).
-                build());
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectTO.getType()).query()).
+                        build());
         assertNotNull(anyObjects);
         assertFalse(anyObjects.getResult().isEmpty());
-        
+
         entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
+    }
+
+    @Test
+    public void findByConnector() throws JsonProcessingException {
+        String connectorKey = "74141a3b-0762-4720-a4aa-fc3e374ef3ef";
+
+        AuditQuery query = new AuditQuery.Builder(connectorKey).
+                orderBy("event_date desc").
+                type(AuditElements.EventCategoryType.LOGIC).
+                category("ConnectorLogic").
+                event("update").
+                result(AuditElements.Result.SUCCESS).
+                build();
+        List<AuditEntryTO> entries = query(query, 0);
+        int pre = entries.size();
+
+        ConnInstanceTO ldapConn = connectorService.read(connectorKey, null);
+        String originalDisplayName = ldapConn.getDisplayName();
+        Set<ConnectorCapability> originalCapabilities = new HashSet<>(ldapConn.getCapabilities());
+        ConnConfProperty originalConfProp = SerializationUtils.clone(
+                ldapConn.getConf("maintainPosixGroupMembership").get());
+        assertEquals(1, originalConfProp.getValues().size());
+        assertEquals("false", originalConfProp.getValues().get(0));
+
+        ldapConn.setDisplayName(originalDisplayName + " modified");
+        ldapConn.getCapabilities().clear();
+        ldapConn.getConf("maintainPosixGroupMembership").get().getValues().set(0, "true");
+        connectorService.update(ldapConn);
+
+        ldapConn = connectorService.read(connectorKey, null);
+        assertNotEquals(originalDisplayName, ldapConn.getDisplayName());
+        assertNotEquals(originalCapabilities, ldapConn.getCapabilities());
+        assertNotEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership"));
+
+        entries = query(query, MAX_WAIT_SECONDS);
+        assertEquals(pre + 1, entries.size());
+
+        ConnInstanceTO restore = MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
+        connectorService.update(restore);
+
+        ldapConn = connectorService.read(connectorKey, null);
+        assertEquals(originalDisplayName, ldapConn.getDisplayName());
+        assertEquals(originalCapabilities, ldapConn.getCapabilities());
+        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership").get());
     }
 }

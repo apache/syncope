@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.Collection;
@@ -57,6 +58,8 @@ public abstract class DirectoryPanel<
 
     protected static final Logger LOG = LoggerFactory.getLogger(DirectoryPanel.class);
 
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
+
     /**
      * Application preferences.
      */
@@ -87,7 +90,7 @@ public abstract class DirectoryPanel<
     /**
      * Result table.
      */
-    private AjaxDataTablePanel<T, String> resultTable;
+    protected AjaxDataTablePanel<T, String> resultTable;
 
     /**
      * Data provider used to search for entities.

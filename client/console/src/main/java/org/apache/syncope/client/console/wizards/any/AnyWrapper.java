@@ -34,5 +34,4 @@ public class AnyWrapper<T extends AnyTO> implements Serializable {
     public T getInnerObject() {
         return anyTO;
     }
-
 }
