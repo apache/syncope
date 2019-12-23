@@ -37,15 +37,15 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
     public void read() {
         browsingToAnyTypeClasses();
 
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, "csv");
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, "csv");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
 
         // click edit
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 BaseModal.class);
     }
 
@@ -54,34 +54,34 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         browsingToAnyTypeClasses();
         final String anyTypeClassTest = "anyTypeClassTest";
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", anyTypeClassTest);
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:derSchemas:paletteField:recorder", "mderiveddata");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clearFeedbackMessages();
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clearFeedbackMessages();
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
 
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
-        Component result = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassTest);
+        Component result = findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassTest);
 
-        UTILITY_UI.getTester().assertLabel(result.getPageRelativePath() + ":cells:3:cell", "[mderiveddata]");
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:3:cell", "[mderiveddata]");
     }
 
     @Test
@@ -92,43 +92,43 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         createPlainSchema(plainSchema);
         browsingToAnyTypeClasses();
 
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, name);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
 
         // click edit
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:anyTypeClassDetailsPanel:form:container:plainSchemas:paletteField:recorder", plainSchema);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
+        component = findComponentByProp(KEY, DATATABLE_PATH, name);
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
 
         // click delete
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
+        component = findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNull(component);
     }
@@ -138,28 +138,28 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         final String anyTypeClassName = "zStringDelete";
         createAnyTypeClassWithoutSchema(anyTypeClassName);
         browsingToAnyTypeClasses();
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassName);
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassName);
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
 
         // click delete
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassName);
+        TESTER.cleanupFeedbackMessages();
+        component = findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassName);
 
         assertNull(component);
     }

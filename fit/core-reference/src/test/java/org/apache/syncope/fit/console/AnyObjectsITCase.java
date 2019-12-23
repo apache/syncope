@@ -42,19 +42,19 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms");
 
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
                 + "content:searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panelPlus:add",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:"
                 + "searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:value:"
                 + "textField", TextField.class);
@@ -62,20 +62,20 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void clickToClonePrinter() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
+        Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(TAB_PANEL 
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL 
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:5:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
@@ -84,52 +84,52 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void editPrinter() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
+        Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
 
-        formTester = UTILITY_UI.getTester().newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL
+        TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", Label.class);
 
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
-        component = UTILITY_UI.findComponentByProp("key", CONTAINER
+        component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
@@ -137,16 +137,16 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeletePrinterLink() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
+        Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:6:action:action",
                 IndicatingOnConfirmAjaxLink.class);

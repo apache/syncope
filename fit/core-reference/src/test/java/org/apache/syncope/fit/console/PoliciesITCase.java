@@ -37,243 +37,243 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:policiesLI:policies");
-        UTILITY_UI.getTester().assertRenderedPage(Policies.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.assertRenderedPage(Policies.class);
     }
 
     private static void createAccountPolicy(final String description) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description);
         formTester.setValue("content:fields:1:field:spinner", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
         formTester.setValue("content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:container:content:"
+        TESTER.assertComponent("body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", WebMarkupContainer.class);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", description);
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:1:field:spinner", 1);
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        component = UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
         assertNotNull(component);
     }
 
     private static void createPasswordPolicy(final String description) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description);
         formTester.setValue("content:fields:1:field:spinner", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", description);
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:1:field:spinner", 1);
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
     private static void createPullPolicy(final String description) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", description);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
     private static void deleteAccountPolicy(final String description) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        Component component = UTILITY_UI.findComponentByProp("description",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
     private static void deletePasswordPolicy(final String description) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        Component component = UTILITY_UI.findComponentByProp("description",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
     private static void deletePullPolicy(final String description) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
-        Component component = UTILITY_UI.findComponentByProp("description",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
     @Test
     public void read() {
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "an account policy"));
     }
 
@@ -289,40 +289,40 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "My Test Account Policy to be cloned";
         createAccountPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description + '2');
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
 
         deleteAccountPolicy(description);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2'));
 
         deleteAccountPolicy(description + '2');
@@ -340,40 +340,40 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "My Test Password Policy to be cloned";
         createPasswordPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description + '2');
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
 
         deletePasswordPolicy(description);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2'));
 
         deletePasswordPolicy(description + '2');
@@ -391,40 +391,40 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "My Test Pull Policy to be cloned";
         createPullPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description + '2');
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
 
         deletePullPolicy(description);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2'));
 
         deletePullPolicy(description + '2');
@@ -435,50 +435,50 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "Account Policy To Be Updated";
         createAccountPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:1:field:spinner", "2");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        component = UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:1:field:spinner", 2);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
@@ -486,42 +486,42 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void composeDefaultAccountPolicy(final String policyDescription) {
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", policyDescription);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:add");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.setValue("view:rule:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:utility");
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
     }
 
     @Test
@@ -537,50 +537,50 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "Password Policy To Be Updated";
         createPasswordPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:1:field:spinner", "2");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        component = UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:1:field:spinner", 2);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
@@ -592,42 +592,42 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "Password Policy To Be Composed";
         createPasswordPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:add");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.setValue("view:rule:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:container:content:utility");
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
         deletePasswordPolicy(description);
     }
@@ -637,50 +637,50 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "Pull Policy To Be Updated";
         createPullPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", description + '2');
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
-        component = UTILITY_UI.findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+        component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description + '2');
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", description + '2');
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
@@ -692,46 +692,46 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         final String description = "Pull Policy To Be Composed";
         createPullPolicy(description);
 
-        Component component = UTILITY_UI.findComponentByProp("description",
+        Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer",
                 Modal.class);
 
-        Component modal = UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:content:"
                 + "correlationRules:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
 
-        component = UTILITY_UI.findComponentById(
+        component = findComponentById(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:form:content:"
                 + "correlationRules:multiValueContainer:innerForm:content:view:0:panel:rule",
                 "dropDownChoiceField");
         assertNotNull(component);
 
         formTester.setValue(component, "0");
-        UTILITY_UI.getTester().executeAjaxEvent(component, Constants.ON_CHANGE);
+        TESTER.executeAjaxEvent(component, Constants.ON_CHANGE);
         formTester.setValue(component, "0");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.closeCallBack(modal);
+        closeCallBack(modal);
 
         deletePullPolicy(description);
     }
@@ -744,69 +744,69 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         composeDefaultAccountPolicy(description);
 
         // goto realms
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
 
         // edit root realm
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
-        UTILITY_UI.getTester().assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         // set new account policy
-        UTILITY_UI.getTester().assertLabel(
+        TESTER.assertLabel(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:container:"
                 + "accountPolicy:field-label", "Account Policy");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
         formTester.select("view:details:container:accountPolicy:dropDownChoiceField", 0);
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action",
                 Constants.ON_CLICK);
 
         // create user with a valid account name
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = UTILITY_UI.findComponentByProp("username",
+        Component component = findComponentByProp("username",
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
                 + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:9:"
                 + "action:action");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
                 TextField.class);
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -815,42 +815,42 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apace.org");
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:"
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
-        component = UTILITY_UI.findComponentByProp("username",
+        component = findComponentByProp("username",
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini_clone");
         assertNotNull(component);
 
         // delete the new user
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
                 + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:8:"
                 + "action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
                 + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:10:"
                 + "action:action"), Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        component = UTILITY_UI.findComponentByProp("username",
+        component = findComponentByProp("username",
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini_clone");
         assertNull(component);
 
         // delete default policy
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:policiesLI:policies");
-        UTILITY_UI.getTester().assertRenderedPage(Policies.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.assertRenderedPage(Policies.class);
         deleteAccountPolicy(description);
     }
 }

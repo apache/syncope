@@ -52,78 +52,78 @@ public class EnduserITCase extends AbstractEnduserITCase {
     public void selfCreate() {
         String username = "testUser";
 
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        UTILITY_UI.getTester().clickLink("self-registration");
+        TESTER.clickLink("self-registration");
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
+        TESTER.assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
+        FormTester formTester = TESTER.newFormTester(WIZARD_FORM);
         assertNotNull(formTester);
         formTester.setValue("view:username:textField", username);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
         // check required field is correctly set
-        UTILITY_UI.getTester().assertNoInfoMessage();
-        UTILITY_UI.getTester().assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField",
+        TESTER.assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField",
                 TextField.class);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "fullname").getPageRelativePath()
                 + ":textField",
                 TextField.class);
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "surname").getPageRelativePath()
                 + ":textField",
                 TextField.class);
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "userId").getPageRelativePath()
                 + ":textField",
                 TextField.class);
 
-        formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
+        formTester = TESTER.newFormTester(WIZARD_FORM);
         assertNotNull(formTester);
-        formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
+        formTester.setValue(findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
                 "fullname").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 "User fullname");
-        formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
+        formTester.setValue(findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
                 "surname").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 "User surname");
-        formTester.setValue(UTILITY_UI.
+        formTester.setValue(
                 findComponentByMarkupId(WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "userId").
-                getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
+                        getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 "test@email.com");
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
         // check required fields were correctly set
-        UTILITY_UI.getTester().assertNoInfoMessage();
-        UTILITY_UI.getTester().assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+        TESTER.assertComponent(WIZARD_FORM
                 + ":view:derSchemas:tabs:0:body:content:schemas:0:panel:textField",
                 TextField.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
                 + "multiValueContainer:innerForm:content:field-label",
                 Label.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
-        UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
+        TESTER.assertRenderedPage(Login.class);
+        TESTER.assertComponent("login:username", TextField.class);
 
         assertFalse(userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(username).query()).
@@ -131,7 +131,7 @@ public class EnduserITCase extends AbstractEnduserITCase {
 
         assertNotNull(userService.read(username));
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
 
         // cleanup
         userService.delete(username);
@@ -153,48 +153,48 @@ public class EnduserITCase extends AbstractEnduserITCase {
                 .build());
 
         final String pwdResetForm = "body:content:selfPwdResetForm";
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        UTILITY_UI.getTester().clickLink("self-pwd-reset");
+        TESTER.clickLink("self-pwd-reset");
 
-        UTILITY_UI.getTester().assertRenderedPage(SelfPasswordReset.class);
+        TESTER.assertRenderedPage(SelfPasswordReset.class);
 
-        UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:username", TextField.class);
-        UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:securityQuestion", TextField.class);
+        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:username", TextField.class);
+        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:securityQuestion", TextField.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(pwdResetForm);
+        FormTester formTester = TESTER.newFormTester(pwdResetForm);
         assertNotNull(formTester);
         // 1. set username to selfpwdreset
-        formTester.setValue(UTILITY_UI.findComponentById(pwdResetForm + ":selfPwdResetPanel", "username"),
+        formTester.setValue(findComponentById(pwdResetForm + ":selfPwdResetPanel", "username"),
                 "selfpwdreset");
         // 2. check that the question has been populated
-        UTILITY_UI.getTester().executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:username", Constants.ON_BLUR);
-        UTILITY_UI.getTester().assertModelValue(pwdResetForm + ":selfPwdResetPanel:securityQuestion", question.
+        TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:username", Constants.ON_BLUR);
+        TESTER.assertModelValue(pwdResetForm + ":selfPwdResetPanel:securityQuestion", question.
                 getContent());
         // 3. submit form and receive an error
-        formTester = UTILITY_UI.getTester().newFormTester(pwdResetForm);
+        formTester = TESTER.newFormTester(pwdResetForm);
         assertNotNull(formTester);
-        UTILITY_UI.getTester().executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:submit", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertErrorMessages("InvalidSecurityAnswer []");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:submit", Constants.ON_CLICK);
+        TESTER.assertErrorMessages("InvalidSecurityAnswer []");
+        TESTER.cleanupFeedbackMessages();
         // 3.1 set the correct answer
-        formTester = UTILITY_UI.getTester().newFormTester(pwdResetForm);
+        formTester = TESTER.newFormTester(pwdResetForm);
         assertNotNull(formTester);
-        UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", TextField.class);
+        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", TextField.class);
         formTester.setValue("selfPwdResetPanel:securityAnswer", "ananswer");
-        UTILITY_UI.getTester().executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", Constants.ON_CHANGE);
-        UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer",
+        TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", Constants.ON_CHANGE);
+        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer",
                 TextField.class);
         // 4. submit form
-        UTILITY_UI.getTester().assertNoFeedbackMessage(0);
-        UTILITY_UI.getTester().assertNoErrorMessage();
-        UTILITY_UI.getTester().assertComponent(pwdResetForm + ":selfPwdResetPanel:submit", Button.class);
-        UTILITY_UI.getTester().executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:submit", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
-        UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
+        TESTER.assertNoFeedbackMessage(0);
+        TESTER.assertNoErrorMessage();
+        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:submit", Button.class);
+        TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:submit", Constants.ON_CLICK);
+        TESTER.assertRenderedPage(Login.class);
+        TESTER.assertComponent("login:username", TextField.class);
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
@@ -205,36 +205,36 @@ public class EnduserITCase extends AbstractEnduserITCase {
                         .operation(PatchOperation.ADD_REPLACE)
                         .value(Boolean.TRUE).build()).build());
 
-        UTILITY_UI.getTester().startPage(Login.class);
+        TESTER.startPage(Login.class);
         doLogin("mustchangepassword", "password123");
 
-        UTILITY_UI.getTester().assertRenderedPage(MustChangePassword.class);
+        TESTER.assertRenderedPage(MustChangePassword.class);
 
         final String changePwdForm = "changePassword";
-        UTILITY_UI.getTester().assertComponent(changePwdForm + ":username", TextField.class);
-        UTILITY_UI.getTester().assertComponent(changePwdForm + ":password:passwordField", PasswordTextField.class);
-        UTILITY_UI.getTester().
+        TESTER.assertComponent(changePwdForm + ":username", TextField.class);
+        TESTER.assertComponent(changePwdForm + ":password:passwordField", PasswordTextField.class);
+        TESTER.
                 assertComponent(changePwdForm + ":confirmPassword:passwordField", PasswordTextField.class);
-        UTILITY_UI.getTester().assertModelValue(changePwdForm + ":username", "mustchangepassword");
+        TESTER.assertModelValue(changePwdForm + ":username", "mustchangepassword");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(changePwdForm);
+        FormTester formTester = TESTER.newFormTester(changePwdForm);
 
         assertNotNull(formTester);
         // 1. set new password
-        formTester.setValue(UTILITY_UI.findComponentById(changePwdForm + ":password", "passwordField"), "password124");
+        formTester.setValue(findComponentById(changePwdForm + ":password", "passwordField"), "password124");
         // 2. confirm password
-        formTester.setValue(UTILITY_UI.findComponentById(changePwdForm + ":confirmPassword", "passwordField"),
+        formTester.setValue(findComponentById(changePwdForm + ":confirmPassword", "passwordField"),
                 "password124");
         // 3. submit form
-        UTILITY_UI.getTester().executeAjaxEvent(changePwdForm + ":submit", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(changePwdForm + ":submit", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
-        UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
+        TESTER.assertRenderedPage(Login.class);
+        TESTER.assertComponent("login:username", TextField.class);
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
 
         doLogin("mustchangepassword", "password124");
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
+        TESTER.assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
     }
 
     @Test
@@ -242,69 +242,68 @@ public class EnduserITCase extends AbstractEnduserITCase {
         String username = "selfupdate";
         String newEmail = "selfupdate@email.com";
 
-        UTILITY_UI.getTester().startPage(Login.class);
+        TESTER.startPage(Login.class);
         doLogin(username, "password123");
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:username:textField", TextField.class);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:auxClasses:paletteField:choices", Choices.class);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField",
+        TESTER.assertComponent(WIZARD_FORM + ":view:groupsContainer:groups:form:filter:textField",
                 TextField.class);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "fullname").getPageRelativePath()
                 + ":textField",
                 TextField.class);
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "surname").getPageRelativePath()
                 + ":textField",
                 TextField.class);
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "userId").getPageRelativePath()
                 + ":textField",
                 TextField.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(WIZARD_FORM);
+        FormTester formTester = TESTER.newFormTester(WIZARD_FORM);
         assertNotNull(formTester);
-        UTILITY_UI.getTester().assertComponent(UTILITY_UI.findComponentByMarkupId(
+        TESTER.assertComponent(findComponentByMarkupId(
                 WIZARD_FORM + ":view:plainSchemas:tabs:0:body:content:schemas", "email").getPageRelativePath()
                 + ":textField",
                 TextField.class);
-        formTester.setValue(UTILITY_UI.findComponentByMarkupId(WIZARD_FORM
+        formTester.setValue(findComponentByMarkupId(WIZARD_FORM
                 + ":view:plainSchemas:tabs:0:body:content:schemas",
                 "email").getPageRelativePath().replace(WIZARD_FORM + ':', StringUtils.EMPTY) + ":textField",
                 newEmail);
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
 
         // check required fields were correctly set
-        UTILITY_UI.getTester().assertNoInfoMessage();
-        UTILITY_UI.getTester().assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
 
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM
+        TESTER.assertComponent(WIZARD_FORM
                 + ":view:derSchemas:tabs:0:body:content:schemas:0:panel:textField",
                 TextField.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:virSchemas:tabs:0:body:content:schemas:0:panel:"
                 + "multiValueContainer:innerForm:content:field-label",
                 Label.class);
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:next", Constants.ON_CLICK);
+        TESTER.assertComponent(WIZARD_FORM + ":view:resources:paletteField:choices", Choices.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(WIZARD_FORM + ":buttons:finish", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
-        UTILITY_UI.getTester().assertComponent("login:username", TextField.class);
+        TESTER.assertRenderedPage(Login.class);
+        TESTER.assertComponent("login:username", TextField.class);
 
         assertEquals("active", userService.read(username).getStatus());
         assertEquals(newEmail, userService.read(username).getPlainAttr("email").get().getValues().get(0));
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
     }
-
 }

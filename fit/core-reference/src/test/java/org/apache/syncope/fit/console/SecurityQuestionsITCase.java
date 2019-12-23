@@ -37,44 +37,44 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:securityLI:security");
-        UTILITY_UI.getTester().assertRenderedPage(Security.class);
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.assertRenderedPage(Security.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
     private static void createSecurityQuestion(final String name) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 name);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:securityLI:security");
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
     @Test
     public void read() {
-        Label label = (Label) UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        Label label = (Label) TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:2:cell");
         assertTrue(label.getDefaultModelObjectAsString().startsWith("What&#039;s your "));
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action",
                 IndicatingAjaxLink.class);
@@ -88,27 +88,27 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
     @Test
     public void update() {
         createSecurityQuestion("What's your preferred color?");
-        Component result = UTILITY_UI.findComponentByProp("content", "body:content:tabbedPanel:panel:container:content:"
+        Component result = findComponentByProp("content", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "What's your preferred color?");
 
         assertNotNull(result);
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 "What's your preferred car?");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
@@ -116,25 +116,25 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         String name = "What's your preferred color?";
         createSecurityQuestion(name);
 
-        Component result = UTILITY_UI.findComponentByProp("content", "body:content:tabbedPanel:panel:container:content:"
+        Component result = findComponentByProp("content", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 name);
         assertNotNull(result);
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), "onclick");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp("content",
+        assertNull(findComponentByProp("content",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable", name));

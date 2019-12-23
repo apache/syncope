@@ -37,21 +37,21 @@ public class AnyTypesITCase extends AbstractTypesITCase {
     @Test
     public void read() {
         browsingToAnyTypes();
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:"
                 + "checkgroup:dataTable:body:rows:1:cells:1:cell", Label.class);
 
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, "GROUP");
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, "GROUP");
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
 
         // click edit
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 BaseModal.class);
     }
 
@@ -60,36 +60,36 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         browsingToAnyTypes();
         final String anyTypeTest = "anyTypeTest2";
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", anyTypeTest);
         formTester.setValue("content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", "csv");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clearFeedbackMessages();
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clearFeedbackMessages();
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, anyTypeTest);
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, anyTypeTest);
 
-        UTILITY_UI.getTester().assertLabel(component.getPageRelativePath() + ":cells:1:cell", anyTypeTest);
-        UTILITY_UI.getTester().assertLabel(component.getPageRelativePath() + ":cells:3:cell", "[csv]");
+        TESTER.assertLabel(component.getPageRelativePath() + ":cells:1:cell", anyTypeTest);
+        TESTER.assertLabel(component.getPageRelativePath() + ":cells:3:cell", "[csv]");
 
         // issue SYNCOPE-1111
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().assertRenderedPage(Realms.class);
-        UTILITY_UI.getTester().assertLabel(
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
+        TESTER.assertLabel(
                 "body:content:body:container:content:tabbedPanel:tabs-container:tabs:4:link:title",
                 anyTypeTest);
     }
@@ -100,25 +100,25 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         createAnyTypeClassWithoutSchema(name);
         browsingToAnyTypes();
 
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, "GROUP");
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, "GROUP");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
 
         // click edit
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        final FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", name + ",minimal group");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clearFeedbackMessages();
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     @Test
@@ -127,28 +127,28 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         createAnyType(name);
         browsingToAnyTypes();
 
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
-        Component component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        Component component = findComponentByProp(KEY, DATATABLE_PATH, name);
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
+        TESTER.getRequest().addParameter("confirm", "true");
 
         // click delete
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        component = UTILITY_UI.findComponentByProp(KEY, DATATABLE_PATH, name);
+        TESTER.cleanupFeedbackMessages();
+        component = findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNull(component);
     }

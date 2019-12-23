@@ -23,7 +23,6 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +48,6 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
-import org.apache.syncope.fit.ui.UtilityUIT;
 import org.apache.wicket.util.tester.FormTester;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
@@ -63,8 +61,6 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
     protected static UserService userService;
 
     protected static SecurityQuestionService securityQuestionService;
-
-    protected static UtilityUIT UTILITY_UI;
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class })
     @Configuration
@@ -112,22 +108,16 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     @BeforeAll
     public static void setUp() {
-        synchronized (LOG) {
-            if (UTILITY_UI == null) {
-                AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-                ctx.register(SyncopeEnduserWebApplicationTestConfig.class);
-                ctx.register(SyncopeWebApplication.class);
-                ctx.refresh();
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(SyncopeEnduserWebApplicationTestConfig.class);
+        ctx.register(SyncopeWebApplication.class);
+        ctx.refresh();
 
-                UTILITY_UI = new UtilityUIT(new WicketTester(ctx.getBean(SyncopeWebApplication.class)));
-            }
+        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
 
-            if (SYNCOPE_SERVICE == null) {
-                SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
-                        setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
-                        getService(SyncopeService.class);
-            }
-        }
+        SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
+                setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
+                getService(SyncopeService.class);
     }
 
     @BeforeAll
@@ -179,10 +169,10 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
     }
 
     protected void doLogin(final String user, final String passwd) {
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("login");
+        FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");

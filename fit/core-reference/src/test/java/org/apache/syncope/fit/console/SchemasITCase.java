@@ -35,20 +35,20 @@ public class SchemasITCase extends AbstractTypesITCase {
     @Test
     public void readPlainSchema() {
         browsingToPlainSchemas();
-        UTILITY_UI.getTester().assertLabel(
+        TESTER.assertLabel(
                 PLAIN_DATATABLE_PATH
                 + ":tablePanel:groupForm:"
                 + "checkgroup:dataTable:body:rows:1:cells:1:cell", "aLong");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 PLAIN_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:"
                 + "panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:"
                 + "form:content:form:view:kind:dropDownChoiceField", DropDownChoice.class);
@@ -57,61 +57,61 @@ public class SchemasITCase extends AbstractTypesITCase {
     @Test
     public void createPlainSchema() {
         browsingToPlainSchemas();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:details:key:textField", "zBoolean");
         formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.cleanupFeedbackMessages();
+        TESTER.assertRenderedPage(Types.class);
     }
 
     @Test
     public void updatePlainSchema() {
         browsingToPlainSchemas();
 
-        Component result = UTILITY_UI.findComponentByProp(KEY, PLAIN_DATATABLE_PATH, "ctype");
+        Component result = findComponentByProp(KEY, PLAIN_DATATABLE_PATH, "ctype");
 
-        UTILITY_UI.getTester().assertLabel(result.getPageRelativePath() + ":cells:1:cell", "ctype");
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:1:cell", "ctype");
         assertNotNull(result);
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:"
                 + "panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:"
                 + "form:content:form:view:kind:dropDownChoiceField", DropDownChoice.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:details:multivalue:checkboxField", "true");
 
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     @Test
@@ -119,71 +119,71 @@ public class SchemasITCase extends AbstractTypesITCase {
         browsingToPlainSchemas();
         //create new Plain Schema
         final String schemaName = "zStringDelete";
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:details:key:textField", schemaName);
         formTester.setValue("content:form:view:details:type:dropDownChoiceField", "0");
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");;
+        TESTER.assertInfoMessages("Operation successfully executed");;
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
 
         //delete plain schema
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 PLAIN_DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:bottomToolbars:toolbars:3:span:navigator:last");
 
-        UTILITY_UI.getTester().assertComponent(PLAIN_DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.assertComponent(PLAIN_DATATABLE_PATH, AjaxDataTablePanel.class);
 
-        Component result = UTILITY_UI.findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName);
+        Component result = findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName);
         assertNotNull(result);
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName));
+        assertNull(findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName));
     }
 
     @Test
     public void createVirtualSchema() {
         browsingToVirtualSchemas();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form");
 
         formTester.setValue("content:form:view:details:resource:dropDownChoiceField", "0");
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form:"
                 + "content:form:view:details:resource:dropDownChoiceField", Constants.ON_CHANGE);
 
@@ -192,33 +192,33 @@ public class SchemasITCase extends AbstractTypesITCase {
         formTester.setValue("content:form:view:details:anyType:dropDownChoiceField", "0");
         formTester.setValue("content:form:view:details:extAttrName:textField", "virattr");
 
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:2:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:2:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
+        TESTER.assertRenderedPage(Types.class);
 
-        Component result = UTILITY_UI.findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir");
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        Component result = findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir");
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation successfully executed");
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir"));
+        assertNull(findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir"));
     }
 }

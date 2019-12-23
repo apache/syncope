@@ -42,131 +42,131 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToRelationshipType() {
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToAnyTypes() {
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToAnyTypeClasses() {
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
-        UTILITY_UI.getTester().assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.assertComponent(DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToPlainSchemas() {
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
-        UTILITY_UI.getTester().assertComponent(PLAIN_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.assertComponent(PLAIN_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void browsingToVirtualSchemas() {
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
-        UTILITY_UI.getTester().assertComponent(VIRTUAL_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.assertComponent(VIRTUAL_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 
     protected void createPlainSchema(final String key) {
         browsingToPlainSchemas();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:details:key:textField", key);
         formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:content:tabbedPanel:panel:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
                 + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
     }
 
     protected void createAnyTypeClassWithoutSchema(final String name) {
         browsingToAnyTypeClasses();
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", name);
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clearFeedbackMessages();
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
+        TESTER.clearFeedbackMessages();
     }
 
     protected void createAnyType(final String name) {
         browsingToAnyTypes();
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", name);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
+        TESTER.clearFeedbackMessages();
     }
 
     protected void createRelationshipType(final String name) {
         browsingToRelationshipType();
 
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        final FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:relationshipTypeDetails:container:form:key:textField", name);
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "test relationshipType");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
 
-        UTILITY_UI.getTester().clearFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clearFeedbackMessages();
+        TESTER.assertRenderedPage(Types.class);
     }
 }

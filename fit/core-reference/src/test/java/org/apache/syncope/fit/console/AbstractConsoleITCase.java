@@ -36,7 +36,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
-import org.apache.syncope.fit.ui.UtilityUIT;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,8 +45,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 public abstract class AbstractConsoleITCase extends AbstractUITCase {
-
-    protected static UtilityUIT UTILITY_UI;
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class })
     @Configuration
@@ -97,30 +94,24 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
     public static void setUp() {
         Locale.setDefault(Locale.ENGLISH);
 
-        synchronized (LOG) {
-            if (UTILITY_UI == null) {
-                AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-                ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
-                ctx.register(SyncopeWebApplication.class);
-                ctx.register(SyncopeIdMConsoleContext.class);
-                ctx.refresh();
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
+        ctx.register(SyncopeWebApplication.class);
+        ctx.register(SyncopeIdMConsoleContext.class);
+        ctx.refresh();
 
-                UTILITY_UI = new UtilityUIT(new WicketTester(ctx.getBean(SyncopeWebApplication.class)));
-            }
+        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
 
-            if (SYNCOPE_SERVICE == null) {
-                SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
-                        setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
-                        getService(SyncopeService.class);
-            }
-        }
+        SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
+                setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
+                getService(SyncopeService.class);
     }
 
     protected void doLogin(final String user, final String passwd) {
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("login");
+        FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");

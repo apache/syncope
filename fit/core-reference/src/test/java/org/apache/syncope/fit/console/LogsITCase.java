@@ -41,64 +41,64 @@ public class LogsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:logsLI:logs");
-        UTILITY_UI.getTester().assertRenderedPage(Logs.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        TESTER.assertRenderedPage(Logs.class);
     }
 
     @Test
     public void readCoreLogs() {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        UTILITY_UI.getTester().assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         assertNotNull(searchLog(KEY, CONTAINER_PATH, "io.swagger"));
     }
 
     @Test
     public void updateCoreLogs() {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        UTILITY_UI.getTester().assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         Component result = searchLog(KEY, CONTAINER_PATH, "io.swagger");
         assertNotNull(result);
 
-        UTILITY_UI.getTester().getRequest().addParameter(
+        TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     @Test
     public void readConsoleLogs() {
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link",
+        TESTER.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link",
                 AjaxFallbackLink.class);
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        UTILITY_UI.getTester().assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.wicket"));
     }
 
     @Test
     public void updateConsoleLogs() {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        UTILITY_UI.getTester().assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.wicket");
         assertNotNull(result);
 
-        UTILITY_UI.getTester().getRequest().addParameter(
+        TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertInfoMessages("Operation successfully executed");
     }
 
     private static Component searchLog(final String property, final String searchPath, final String key) {
-        Component component = UTILITY_UI.getTester().getComponentFromLastRenderedPage(searchPath);
+        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().
                 visitChildren(ListItem.class, (final ListItem<LoggerTO> object, final IVisit<Component> visit) -> {
