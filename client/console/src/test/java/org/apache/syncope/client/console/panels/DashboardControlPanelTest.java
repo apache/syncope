@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.syncope.client.console.AbstractTest;
-import org.apache.syncope.client.console.widgets.JobWidget;
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.junit.jupiter.api.Test;
 
 public class DashboardControlPanelTest extends AbstractTest {
@@ -28,10 +31,20 @@ public class DashboardControlPanelTest extends AbstractTest {
     public void dashboardControlTest() {
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
-
         TESTER.assertComponent("body:content:tabbedPanel:panel", DashboardControlPanel.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:job:jobContainer", WebMarkupContainer.class);
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:job:jobContainer", JobWidget.class);
+        String pathJobsAvailable = "body:content:tabbedPanel:panel:job:jobContainer:tabbedPanel:panel";
+
+        Component componentJobsAvailable = TESTER.getComponentFromLastRenderedPage(pathJobsAvailable);
+        assertNotNull(componentJobsAvailable);
+
+        TESTER.clickLink("body:content:tabbedPanel:panel:job:jobContainer:tabbedPanel:tabs-container:tabs:1:link");
+
+        String pathJobsRecent = "body:content:tabbedPanel:panel:job:jobContainer:tabbedPanel:panel";
+
+        Component componentJobsRecent = TESTER.getComponentFromLastRenderedPage(pathJobsRecent);
+        assertNotNull(componentJobsRecent);
 
     }
 }

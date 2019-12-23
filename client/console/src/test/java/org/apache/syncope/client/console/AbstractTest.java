@@ -30,9 +30,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.servlet.ServletContext;
 import org.apache.commons.lang3.StringUtils;
@@ -50,11 +52,16 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.JobType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ReportService;
@@ -70,13 +77,27 @@ public abstract class AbstractTest {
 
     protected static SyncopeServiceClient service;
 
-    protected static TaskService taskService;
+    protected static AccessTokenServiceClient accessTokenService;
 
-    protected static ReportService reportService;
+    protected static TaskServiceClient taskService;
 
-    protected static NotificationService notificationService;
+    protected static ReportServiceClient reportService;
+
+    protected static NotificationServiceClient notificationService;
 
     public interface SyncopeServiceClient extends SyncopeService, Client {
+    }
+
+    public interface AccessTokenServiceClient extends AccessTokenService, Client {
+    }
+
+    public interface NotificationServiceClient extends NotificationService, Client {
+    }
+
+    public interface TaskServiceClient extends TaskService, Client {
+    }
+
+    public interface ReportServiceClient extends ReportService, Client {
     }
 
     @BeforeAll
@@ -93,7 +114,7 @@ public abstract class AbstractTest {
         TESTER.assertRenderedPage(Login.class);
 
         FormTester formTester = TESTER.newFormTester("login");
-        formTester.setValue("username", "username");
+        formTester.setValue("username", "admin");
         formTester.setValue("password", "password");
         formTester.submit("submit");
 
@@ -157,7 +178,7 @@ public abstract class AbstractTest {
 
         private UserTO getUserTO() {
             UserTO userTO = new UserTO();
-            userTO.setUsername("username");
+            userTO.setUsername("admin");
             return userTO;
         }
 
@@ -169,8 +190,34 @@ public abstract class AbstractTest {
             return domainService;
         }
 
+        private AccessTokenService getAccessTokenService() {
+            accessTokenService = mock(AccessTokenServiceClient.class);
+            when(accessTokenService.type(anyString())).thenReturn(accessTokenService);
+            when(accessTokenService.accept(anyString())).thenReturn(accessTokenService);
+            AccessTokenTO accessTokenTO = new AccessTokenTO();
+            accessTokenTO.setKey("da7383c7-1981-401d-b7d6-a4aac6825f30");
+            accessTokenTO.setOwner("admin");
+            accessTokenTO.setBody(
+                    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJqdGkiOiI2ZmIxZWE5OS0zN2Y0LTRmZWItYjFlYS05OTM3ZjQ4ZmViNGQiLCJzdWIiOiJhZG1pbiIsImlhdCI6MTU"
+                    + "3Njc1MzEwNiwiaXNzIjoiQXBhY2hlU3luY29wZSIsImV4cCI6MTU3Njc2MDMwNiwibmJmIjoxNTc2NzUzMTA2fQ.aUIHLI9Ec8pZsFLOctFCdnUfQC7wt1HLUC5OVPWQ"
+                    + "GZdePNnFGBvjEqf3Zui807GadbkO5RSl4-wJT5cLaqgOgA");
+            PagedResult<AccessTokenTO> pagedResult = new PagedResult<>();
+            pagedResult.setPage(1);
+            pagedResult.setSize(1);
+            pagedResult.setTotalCount(1);
+            pagedResult.getResult().add(accessTokenTO);
+            when(accessTokenService.list(any(AccessTokenQuery.class))).
+                    thenReturn(pagedResult);
+            pagedResult.setSize(10);
+            when(accessTokenService.list(any(AccessTokenQuery.class))).
+                    thenReturn(pagedResult);
+            return accessTokenService;
+        }
+
         private TaskService getControlTaskService() {
-            TaskService taskService = mock(TaskService.class);
+            taskService = mock(TaskServiceClient.class);
+            when(taskService.type(anyString())).thenReturn(taskService);
+            when(taskService.accept(anyString())).thenReturn(taskService);
             List<JobTO> taskJobTOs = new ArrayList<>();
             List<ExecTO> taskExecTOs = new ArrayList<>();
             JobTO taskJobTO = new JobTO();
@@ -201,7 +248,9 @@ public abstract class AbstractTest {
         }
 
         private ReportService getControlRepoService() {
-            ReportService reportService = mock(ReportService.class);
+            reportService = mock(ReportServiceClient.class);
+            when(reportService.type(anyString())).thenReturn(reportService);
+            when(reportService.accept(anyString())).thenReturn(reportService);
             List<JobTO> repoJobTOs = new ArrayList<>();
             List<ExecTO> repoExecTOs = new ArrayList<>();
             JobTO repoJobTO = new JobTO();
@@ -232,15 +281,17 @@ public abstract class AbstractTest {
         }
 
         private NotificationService getControlNotificationService() {
-            NotificationService notificationService = mock(NotificationService.class);
+            notificationService = mock(NotificationServiceClient.class);
+            when(notificationService.type(anyString())).thenReturn(notificationService);
+            when(notificationService.accept(anyString())).thenReturn(notificationService);
             JobTO notificationJobTO = new JobTO();
 
-            notificationJobTO.setType(JobType.TASK);
-            notificationJobTO.setRefKey("0b1511e2-73cb-42c5-86ce-8d6b1e7917d2");
-            notificationJobTO.setRefDesc("Report 0b1511e2-73cb-42c5-86ce-8d6b1e7917d2 reconciliation");
+            notificationJobTO.setType(JobType.NOTIFICATION);
+            notificationJobTO.setRefKey(null);
+            notificationJobTO.setRefDesc("NotificationJob");
             notificationJobTO.setRunning(false);
-            notificationJobTO.setScheduled(false);
-            notificationJobTO.setStart(null);
+            notificationJobTO.setScheduled(true);
+            notificationJobTO.setStart(new Date());
             notificationJobTO.setStatus("UNKNOWN");
 
             when(notificationService.getJob()).thenReturn(notificationJobTO);
@@ -252,13 +303,28 @@ public abstract class AbstractTest {
         public SyncopeClientFactoryBean newClientFactory() {
             SyncopeClient client = mock(SyncopeClient.class);
 
-            when(client.self()).thenReturn(Pair.of(new HashMap<>(), getUserTO()));
+            Map<String, Set<String>> entitlements = new HashMap<>();
+            Set<String> strings = new HashSet<>();
+            strings.add("/");
+
+            entitlements.put(StandardEntitlement.NOTIFICATION_LIST, strings);
+            entitlements.put(StandardEntitlement.TASK_LIST, strings);
+            entitlements.put(StandardEntitlement.REPORT_LIST, strings);
+            entitlements.put(StandardEntitlement.ACCESS_TOKEN_LIST, strings);
+            entitlements.put(StandardEntitlement.REPORT_EXECUTE, strings);
+            entitlements.put(StandardEntitlement.REPORT_READ, strings);
+            entitlements.put(StandardEntitlement.ACCESS_TOKEN_LIST, strings);
+
+            when(client.self()).thenReturn(Pair.of(entitlements, getUserTO()));
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);
 
             DomainService domainService = getDomainService();
             when(client.getService(DomainService.class)).thenReturn(domainService);
+
+            AccessTokenService accessTokenService = getAccessTokenService();
+            when(client.getService(AccessTokenService.class)).thenReturn(accessTokenService);
 
             TaskService taskService = getControlTaskService();
             when(client.getService(TaskService.class)).thenReturn(taskService);

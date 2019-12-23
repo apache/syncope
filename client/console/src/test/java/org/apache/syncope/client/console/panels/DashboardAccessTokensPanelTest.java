@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.apache.syncope.client.console.AbstractTest;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.junit.jupiter.api.Test;
 
 public class DashboardAccessTokensPanelTest extends AbstractTest {
@@ -28,16 +31,15 @@ public class DashboardAccessTokensPanelTest extends AbstractTest {
     public void accessTokensTest() {
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        TESTER.executeAjaxEvent("body:content:tabbedPanel:tabs-container:tabs:1:link", Constants.ON_CLICK);
-
-        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accessTokens:container:content:searchContainer:"
-                + "tablehandling:actionRepeater:0:action:action", Constants.ON_CLICK);
 
         TESTER.assertComponent("body:content:tabbedPanel:panel", DashboardAccessTokensPanel.class);
-        TESTER.assertComponent("body:content:tabbedPanel:panel:accessTokens:container:content:searchContainer:"
-                + "resultTable:tablePanel:groupForm.checkgroup:dataTable", DashboardAccessTokensPanel.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:accessTokens", WebMarkupContainer.class);
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:accessTokens", AccessTokenDirectoryPanel.class);
+        String pathAccessToken =
+                "body:content:tabbedPanel:panel:accessTokens:container:content:searchContainer:resultTable:tablePanel:groupForm";
+
+        Component componentAccessToken = TESTER.getComponentFromLastRenderedPage(pathAccessToken);
+        assertNotNull(componentAccessToken);
 
     }
 }
