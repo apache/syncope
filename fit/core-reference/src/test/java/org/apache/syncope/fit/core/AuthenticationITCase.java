@@ -535,9 +535,9 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 4. check that the db resource has still the initial password value
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = queryForObject(
-                jdbcTemplate, 50, "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String value = queryForObject(jdbcTemplate, MAX_WAIT_SECONDS,
+                "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values

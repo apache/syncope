@@ -18,41 +18,55 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.List;
 import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
-import java.util.List;
-
 public class AuditHistoryRestClient extends BaseRestClient {
+
     private static final long serialVersionUID = -381814125643246243L;
 
-    public List<AuditEntryTO> search(final String key,
-                                     final int page,
-                                     final int size,
-                                     final SortParam<String> sort,
-                                     final List<String> events,
-                                     final AuditElements.Result result) {
-        AuditQuery query = new AuditQuery.Builder(key)
-            .size(size)
-            .page(page)
-            .events(events)
-            .result(result)
-            .orderBy(toOrderBy(sort))
-            .build();
+    public List<AuditEntryTO> search(
+            final String key,
+            final int page,
+            final int size,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final List<String> events,
+            final AuditElements.Result result,
+            final SortParam<String> sort) {
+
+        AuditQuery query = new AuditQuery.Builder(key).
+                size(size).
+                page(page).
+                type(type).
+                category(category).
+                events(events).
+                result(result).
+                orderBy(toOrderBy(sort)).
+                build();
+
         return getService(AuditService.class).search(query).getResult();
     }
 
-    public int count(final String key,
-                     final List<String> events,
-                     final AuditElements.Result result) {
-        AuditQuery query = new AuditQuery.Builder(key)
-            .events(events)
-            .result(result)
-            .build();
+    public int count(
+            final String key,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final List<String> events,
+            final AuditElements.Result result) {
+
+        AuditQuery query = new AuditQuery.Builder(key).
+                page(1).
+                size(1).
+                type(type).
+                category(category).
+                events(events).
+                result(result).
+                build();
         return getService(AuditService.class).search(query).getTotalCount();
     }
 }
-

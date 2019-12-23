@@ -32,8 +32,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,10 +112,10 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     @Override
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
         String plainAttrTable = getPlainAttrTable(reference);
-        Query query = entityManager()
-                .createNativeQuery("SELECT COUNT(" + plainAttrTable + ".id) FROM " + JPAPlainSchema.TABLE
-                        + " JOIN " + plainAttrTable + " ON " + JPAPlainSchema.TABLE + ".id = " + plainAttrTable
-                        + ".schema_id WHERE " + JPAPlainSchema.TABLE + ".id = ?1");
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(" + plainAttrTable + ".id) FROM " + JPAPlainSchema.TABLE
+                + " JOIN " + plainAttrTable + " ON " + JPAPlainSchema.TABLE + ".id = " + plainAttrTable
+                + ".schema_id WHERE " + JPAPlainSchema.TABLE + ".id = ?1");
         query.setParameter(1, schema.getKey());
 
         return (long) query.getSingleResult() > 0;
@@ -153,14 +157,14 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     }
 
     private <T extends PlainAttr<?>> String getPlainAttrTable(final Class<T> plainAttrClass) {
-        if (plainAttrClass.equals(JPAGPlainAttr.class)) {
+        if (GPlainAttr.class.isAssignableFrom(plainAttrClass)) {
             return JPAGPlainAttr.TABLE;
         }
-        if (plainAttrClass.equals(JPAAPlainAttr.class)) {
+        if (APlainAttr.class.isAssignableFrom(plainAttrClass)) {
             return JPAAPlainAttr.TABLE;
         }
-        if (plainAttrClass.equals(JPAUPlainAttr.class)) {
-            return JPAUPlainAttr.TABLE;
+        if (CPlainAttr.class.isAssignableFrom(plainAttrClass)) {
+            return JPACPlainAttr.TABLE;
         }
         return JPAUPlainAttr.TABLE;
     }

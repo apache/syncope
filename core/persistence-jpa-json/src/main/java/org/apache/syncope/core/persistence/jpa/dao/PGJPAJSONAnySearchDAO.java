@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -113,7 +113,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final StringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
-            final AttributeCond cond,
+            final AttrCond cond,
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
@@ -121,14 +121,14 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
         if (not && schema.isMultivalue()
                 && !(cond instanceof AnyCond)
-                && cond.getType() != AttributeCond.Type.ISNULL && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+                && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
             query.append(svs.field().name).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
             query.append(")");
         } else {
-            if (!not && cond.getType() == AttributeCond.Type.EQ) {
+            if (!not && cond.getType() == AttrCond.Type.EQ) {
                 PlainAttr<?> container = anyUtils.newPlainAttr();
                 container.setSchema(schema);
                 if (attrValue instanceof PlainAttrUniqueValue) {
@@ -143,7 +143,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             } else {
                 String key = key(schema.getType());
                 boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
-                        && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
+                        && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
                 query.append("attrs ->> 'schema' = ?").append(setParameter(parameters, cond.getSchema())).
                         append(" AND ").
@@ -172,7 +172,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
     @Override
     protected String getQuery(
-            final AttributeCond cond,
+            final AttrCond cond,
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
@@ -186,10 +186,10 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         // normalize NULL / NOT NULL checks
         if (not) {
-            if (cond.getType() == AttributeCond.Type.ISNULL) {
-                cond.setType(AttributeCond.Type.ISNOTNULL);
-            } else if (cond.getType() == AttributeCond.Type.ISNOTNULL) {
-                cond.setType(AttributeCond.Type.ISNULL);
+            if (cond.getType() == AttrCond.Type.ISNULL) {
+                cond.setType(AttrCond.Type.ISNOTNULL);
+            } else if (cond.getType() == AttrCond.Type.ISNOTNULL) {
+                cond.setType(AttrCond.Type.ISNULL);
             }
         }
 

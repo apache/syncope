@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -240,10 +240,10 @@ public class InboundMatcher {
 
                 case "username":
                     if (anyTypeKind == AnyTypeKind.USER && ignoreCaseMatch) {
-                        AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
+                        AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("username");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.USER));
+                        anys.addAll(searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
                     } else {
                         Optional.ofNullable(userDAO.findByUsername(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
@@ -251,19 +251,19 @@ public class InboundMatcher {
 
                 case "name":
                     if (anyTypeKind == AnyTypeKind.GROUP && ignoreCaseMatch) {
-                        AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
+                        AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.GROUP));
+                        anys.addAll(searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.GROUP));
                     } else {
                         Optional.ofNullable(groupDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
 
                     if (anyTypeKind == AnyTypeKind.ANY_OBJECT && ignoreCaseMatch) {
-                        AnyCond cond = new AnyCond(AttributeCond.Type.IEQ);
+                        AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(searchDAO.search(SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT));
+                        anys.addAll(searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
                         Optional.ofNullable(anyObjectDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }

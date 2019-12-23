@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -49,10 +49,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
 
-    private static final List<String> LAYOUT_PARAMETERS =
-            Arrays.asList(new String[] { "admin.user.layout", "self.user.layout",
-        "admin.group.layout", "self.group.layout", "admin.membership.layout", "self.membership.layout" });
-
     public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
         super(id);
 
@@ -64,8 +60,10 @@ public class AnyTypeClassDetailsPanel extends Panel {
         antTypeClassForm.setOutputMarkupId(true);
         add(antTypeClassForm);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(
-                this.anyTypeClassTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                Constants.KEY_FIELD_NAME,
+                getString(Constants.KEY_FIELD_NAME),
+                new PropertyModel<>(this.anyTypeClassTO, Constants.KEY_FIELD_NAME));
         key.addRequiredLabel();
         key.setEnabled(anyTypeClassTO.getKey() == null || this.anyTypeClassTO.getKey().isEmpty());
         antTypeClassForm.add(key);
@@ -78,7 +76,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("plainSchemas",
-                        new PropertyModel<List<String>>(this.anyTypeClassTO, "plainSchemas"),
+                        new PropertyModel<>(this.anyTypeClassTO, "plainSchemas"),
                         new ListModel<>(availablePlainSchemas));
         plainSchema.hideLabel();
         plainSchema.setOutputMarkupId(true);
@@ -88,7 +86,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("derSchemas",
-                        new PropertyModel<List<String>>(this.anyTypeClassTO, "derSchemas"),
+                        new PropertyModel<>(this.anyTypeClassTO, "derSchemas"),
                         new ListModel<>(availableDerSchemas));
         derSchema.hideLabel();
         derSchema.setOutputMarkupId(true);
@@ -98,7 +96,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("virSchemas",
-                        new PropertyModel<List<String>>(this.anyTypeClassTO, "virSchemas"),
+                        new PropertyModel<>(this.anyTypeClassTO, "virSchemas"),
                         new ListModel<>(availableVirSchemas));
         virSchema.hideLabel();
         virSchema.setOutputMarkupId(true);
@@ -106,7 +104,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
     }
 
     private void buildAvailableSchemas(final String key) {
-
         List<String> configurationSchemas = new ConfRestClient().list().stream().
                 map(AttrTO::getSchema).collect(Collectors.toList());
 
@@ -119,6 +116,5 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 });
 
         availablePlainSchemas.removeAll(configurationSchemas);
-        availablePlainSchemas.removeAll(LAYOUT_PARAMETERS);
     }
 }

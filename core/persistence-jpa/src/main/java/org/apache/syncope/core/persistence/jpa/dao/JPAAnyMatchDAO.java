@@ -30,6 +30,7 @@ import javax.persistence.Entity;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -41,7 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -104,36 +105,88 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         switch (cond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                if (cond.getAnyTypeCond() != null && AnyTypeKind.ANY_OBJECT == any.getType().getKind()) {
-                    return matches(any, cond.getAnyTypeCond(), not);
-                } else if (cond.getRelationshipTypeCond() != null && any instanceof GroupableRelatable) {
-                    return matches((GroupableRelatable) any, cond.getRelationshipTypeCond(), not);
-                } else if (cond.getRelationshipCond() != null && any instanceof GroupableRelatable) {
-                    return matches((GroupableRelatable) any, cond.getRelationshipCond(), not);
-                } else if (cond.getMembershipCond() != null && any instanceof GroupableRelatable) {
-                    return matches((GroupableRelatable) any, cond.getMembershipCond(), not);
-                } else if (cond.getAssignableCond() != null) {
-                    return matches(any, cond.getAssignableCond(), not);
-                } else if (cond.getRoleCond() != null && any instanceof User) {
-                    return matches((User) any, cond.getRoleCond(), not);
-                } else if (cond.getDynRealmCond() != null) {
-                    return matches(any, cond.getDynRealmCond(), not);
-                } else if (cond.getMemberCond() != null && any instanceof Group) {
-                    return matches((Group) any, cond.getMemberCond(), not);
-                } else if (cond.getResourceCond() != null) {
-                    return matches(any, cond.getResourceCond(), not);
-                } else if (cond.getAttributeCond() != null) {
-                    return matches(any, cond.getAttributeCond(), not);
-                } else if (cond.getAnyCond() != null) {
-                    return matches(any, cond.getAnyCond(), not);
+                Boolean match = cond.getLeaf(AnyTypeCond.class).
+                        filter(leaf -> AnyTypeKind.ANY_OBJECT == any.getType().getKind()).
+                        map(leaf -> matches(any, leaf, not)).
+                        orElse(null);
+
+                if (match == null) {
+                    match = cond.getLeaf(RelationshipTypeCond.class).
+                            filter(leaf -> any instanceof GroupableRelatable).
+                            map(leaf -> matches((GroupableRelatable) any, leaf, not)).
+                            orElse(null);
                 }
-                break;
+
+                if (match == null) {
+                    match = cond.getLeaf(RelationshipCond.class).
+                            filter(leaf -> any instanceof GroupableRelatable).
+                            map(leaf -> matches((GroupableRelatable) any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(MembershipCond.class).
+                            filter(leaf -> any instanceof GroupableRelatable).
+                            map(leaf -> matches((GroupableRelatable) any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(AssignableCond.class).
+                            map(leaf -> matches(any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(RoleCond.class).
+                            filter(leaf -> any instanceof User).
+                            map(leaf -> matches((User) any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(DynRealmCond.class).
+                            map(leaf -> matches(any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(MemberCond.class).
+                            filter(leaf -> any instanceof Group).
+                            map(leaf -> matches((Group) any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(ResourceCond.class).
+                            map(leaf -> matches(any, leaf, not)).
+                            orElse(null);
+                }
+
+                if (match == null) {
+                    Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
+                    if (anyCond.isPresent()) {
+                        match = matches(any, anyCond.get(), not);
+                    } else {
+                        match = cond.getLeaf(AttrCond.class).
+                                map(leaf -> matches(any, leaf, not)).
+                                orElse(null);
+                    }
+                }
+
+                if (match == null) {
+                    match = cond.getLeaf(AttrCond.class).
+                            map(leaf -> matches(any, leaf, not)).
+                            orElse(null);
+                }
+
+                return BooleanUtils.toBoolean(match);
 
             case AND:
-                return matches(any, cond.getLeftSearchCond()) && matches(any, cond.getRightSearchCond());
+                return matches(any, cond.getLeft()) && matches(any, cond.getRight());
 
             case OR:
-                return matches(any, cond.getLeftSearchCond()) || matches(any, cond.getRightSearchCond());
+                return matches(any, cond.getLeft()) || matches(any, cond.getRight());
 
             default:
         }
@@ -232,7 +285,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
             final List<? extends PlainAttrValue> anyAttrValues,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
-            final AttributeCond cond) {
+            final AttrCond cond) {
 
         return anyAttrValues.stream().anyMatch(item -> {
             switch (cond.getType()) {
@@ -263,7 +316,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                                 output.append(c);
                             }
                         }
-                        return (cond.getType() == AttributeCond.Type.LIKE
+                        return (cond.getType() == AttrCond.Type.LIKE
                                 ? Pattern.compile(output.toString())
                                 : Pattern.compile(output.toString(), Pattern.CASE_INSENSITIVE)).
                                 matcher(item.getStringValue()).matches();
@@ -290,7 +343,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         });
     }
 
-    private boolean matches(final Any<?> any, final AttributeCond cond, final boolean not) {
+    private boolean matches(final Any<?> any, final AttrCond cond, final boolean not) {
         PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
@@ -313,10 +366,10 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
             default:
                 PlainAttrValue attrValue = anyUtilsFactory.getInstance(any).newPlainAttrValue();
                 try {
-                    if (cond.getType() != AttributeCond.Type.LIKE
-                            && cond.getType() != AttributeCond.Type.ILIKE
-                            && cond.getType() != AttributeCond.Type.ISNULL
-                            && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+                    if (cond.getType() != AttrCond.Type.LIKE
+                            && cond.getType() != AttrCond.Type.ILIKE
+                            && cond.getType() != AttrCond.Type.ISNULL
+                            && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
                         ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
                     }
@@ -404,10 +457,10 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                 AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
                 PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                if (cond.getType() != AttributeCond.Type.LIKE
-                        && cond.getType() != AttributeCond.Type.ILIKE
-                        && cond.getType() != AttributeCond.Type.ISNULL
-                        && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+                if (cond.getType() != AttrCond.Type.LIKE
+                        && cond.getType() != AttrCond.Type.ILIKE
+                        && cond.getType() != AttrCond.Type.ISNULL
+                        && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
                     try {
                         ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);

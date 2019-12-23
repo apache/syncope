@@ -75,7 +75,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:2:action:action");
+                + "actions:actions:actionRepeater:1:action:action");
 
         TESTER.assertInfoMessages("Operation executed successfully");
     }
@@ -91,7 +91,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:1:action:action");
+                + "actions:actions:actionRepeater:9:action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
                 TextField.class);
@@ -657,7 +657,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:3:action:action");
+                + "actions:actions:actionRepeater:2:action:action");
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:3:outer:form:content:status:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");
@@ -682,7 +682,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:3:action:action");
+                + "actions:actions:actionRepeater:2:action:action");
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:3:outer:form:content:status:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");

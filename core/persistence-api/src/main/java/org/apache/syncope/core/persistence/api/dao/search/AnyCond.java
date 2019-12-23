@@ -23,7 +23,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 /**
  * Search condition to be applied when comparing bean field values.
  */
-public class AnyCond extends AttributeCond {
+public class AnyCond extends AttrCond {
 
     private static final long serialVersionUID = -1880319220462653955L;
 

@@ -1496,7 +1496,7 @@ INSERT INTO PUBLIC.SYNCOPEROLE(ID, CONSOLELAYOUTINFO) VALUES
 ('User manager', NULL),
 ('Other', NULL),
 ('Search for realm evenTwo', NULL),
-('Connector and Resource for realm evenTwo', NULL);         
+('Connector and Resource for realm evenTwo', '{"USER" : {"formClass" : "org.apache.syncope.client.console.wizards.any.GFSUserWizardBuilder","auxClasses" : false,"groups" : true,"plainAttrs" : true,"whichPlainAttrs" : [ ],"derAttrs" : false,"whichDerAttrs" : [ ],"virAttrs" : false,"whichVirAttrs" : [ ],"resources" : true,"passwordManagement" : true,"roles" : false,"relationships" : false},"GROUP" : {"formClass" : "org.apache.syncope.client.console.wizards.any.GFSGroupWizardBuilder","auxClasses" : false,"groups" : true,"plainAttrs" : true,"whichPlainAttrs" : [ ],"derAttrs" : false,"whichDerAttrs" : [ ],"virAttrs" : false,"whichVirAttrs" : [ ],"resources" : false,"ownership" : false,"dynamicMemberships" : false,"typeExtensions" : false}}');         
 CREATE MEMORY TABLE PUBLIC.SYNCOPEROLE_DYNREALM(
     ROLE_ID VARCHAR(255),
     DYNAMICREALM_ID VARCHAR(255)

@@ -348,7 +348,7 @@ public class Relationships extends WizardStep implements ICondition {
                                 anyType.getKey(),
                                 pageRef).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                        is("key").notNullValue().query()).
+                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()).
                                 setWizardInModal(true).build("searchResultPanel");
                         fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }

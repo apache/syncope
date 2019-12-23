@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -95,21 +96,27 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         return userRequestHandler.getUserRequests(userKey, page, size, orderByClauses);
     }
 
-    protected UserRequest doStart(final String bpmnProcess, final User user) {
+    protected UserRequest doStart(
+            final String bpmnProcess,
+            final User user,
+            final WorkflowTaskExecInput inputVariables) {
         // check if BPMN process exists
         bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, new NullOutputStream());
 
-        return userRequestHandler.start(bpmnProcess, user);
+        return userRequestHandler.start(bpmnProcess, user, inputVariables);
     }
 
     @PreAuthorize("isAuthenticated()")
-    public UserRequest start(final String bpmnProcess) {
-        return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()));
+    public UserRequest start(final String bpmnProcess, final WorkflowTaskExecInput inputVariables) {
+        return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()), inputVariables);
     }
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.USER_REQUEST_START + "')")
-    public UserRequest start(final String bpmnProcess, final String userKey) {
-        return doStart(bpmnProcess, userDAO.authFind(userKey));
+    public UserRequest start(
+            final String bpmnProcess,
+            final String userKey,
+            final WorkflowTaskExecInput inputVariables) {
+        return doStart(bpmnProcess, userDAO.authFind(userKey), inputVariables);
     }
 
     protected void securityChecks(final String username, final String entitlement, final String errorMessage) {

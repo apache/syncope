@@ -79,7 +79,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
+            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
+            new Locale("ru")
     ));
 
     public static SyncopeConsoleApplication get() {
@@ -120,18 +121,18 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     protected void populatePageClasses(final Properties props) {
         Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
         while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("page.")) {
+            String className = propNames.nextElement();
+            if (className.startsWith("page.")) {
                 try {
-                    Class<?> clazz = ClassUtils.getClass(props.getProperty(name));
+                    Class<?> clazz = ClassUtils.getClass(props.getProperty(className));
                     if (BasePage.class.isAssignableFrom(clazz)) {
                         pageClasses.put(
-                                StringUtils.substringAfter("page.", name), (Class<? extends BasePage>) clazz);
+                                StringUtils.substringAfter("page.", className), (Class<? extends BasePage>) clazz);
                     } else {
                         LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
                     }
                 } catch (ClassNotFoundException e) {
-                    LOG.error("While looking for class identified by property '{}'", name, e);
+                    LOG.error("While looking for class identified by property '{}'", className, e);
                 }
             }
         }

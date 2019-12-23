@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMUserAddressConf;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 
@@ -63,21 +63,21 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 : value.equalsIgnoreCase(schema) || (resource.schema() + ":" + value).equalsIgnoreCase(schema);
     }
 
-    public AttributeCond createAttributeCond(final String schema) {
-        AttributeCond attributeCond = null;
+    public AttrCond createAttrCond(final String schema) {
+        AttrCond attrCond = null;
 
         if (schemaEquals(Resource.User, "userName", schema)) {
-            attributeCond = new AnyCond();
-            attributeCond.setSchema("username");
+            attrCond = new AnyCond();
+            attrCond.setSchema("username");
         } else if (resource == Resource.Group && schemaEquals(Resource.Group, "displayName", schema)) {
-            attributeCond = new AnyCond();
-            attributeCond.setSchema("name");
+            attrCond = new AnyCond();
+            attrCond.setSchema("name");
         } else if (schemaEquals(null, "meta.created", schema)) {
-            attributeCond = new AnyCond();
-            attributeCond.setSchema("creationDate");
+            attrCond = new AnyCond();
+            attrCond.setSchema("creationDate");
         } else if (schemaEquals(null, "meta.lastModified", schema)) {
-            attributeCond = new AnyCond();
-            attributeCond.setSchema("lastChangeDate");
+            attrCond = new AnyCond();
+            attrCond.setSchema("lastChangeDate");
         }
 
         if (resource == Resource.User) {
@@ -85,24 +85,24 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 if (conf.getUserConf().getName() != null) {
                     for (Map.Entry<String, String> entry : conf.getUserConf().getName().asMap().entrySet()) {
                         if (schemaEquals(Resource.User, "name." + entry.getKey(), schema)) {
-                            attributeCond = new AttributeCond();
-                            attributeCond.setSchema(entry.getValue());
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
                         }
                     }
                 }
 
                 for (Map.Entry<String, String> entry : conf.getUserConf().asMap().entrySet()) {
                     if (schemaEquals(Resource.User, entry.getKey(), schema)) {
-                        attributeCond = new AttributeCond();
-                        attributeCond.setSchema(entry.getValue());
+                        attrCond = new AttrCond();
+                        attrCond.setSchema(entry.getValue());
                     }
                 }
 
                 for (SCIMUserAddressConf address : conf.getUserConf().getAddresses()) {
                     for (Map.Entry<String, String> entry : address.asMap().entrySet()) {
                         if (schemaEquals(Resource.User, "addresses." + entry.getKey(), schema)) {
-                            attributeCond = new AttributeCond();
-                            attributeCond.setSchema(entry.getValue());
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
                         }
                     }
                 }
@@ -111,73 +111,73 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
             if (conf.getEnterpriseUserConf() != null) {
                 for (Map.Entry<String, String> entry : conf.getEnterpriseUserConf().asMap().entrySet()) {
                     if (schemaEquals(Resource.EnterpriseUser, entry.getKey(), schema)) {
-                        attributeCond = new AttributeCond();
-                        attributeCond.setSchema(entry.getValue());
+                        attrCond = new AttrCond();
+                        attrCond.setSchema(entry.getValue());
                     }
                 }
 
                 if (conf.getEnterpriseUserConf().getManager() != null
                         && conf.getEnterpriseUserConf().getManager().getKey() != null) {
 
-                    attributeCond = new AttributeCond();
-                    attributeCond.setSchema(conf.getEnterpriseUserConf().getManager().getKey());
+                    attrCond = new AttrCond();
+                    attrCond.setSchema(conf.getEnterpriseUserConf().getManager().getKey());
                 }
             }
         }
 
-        if (attributeCond == null) {
+        if (attrCond == null) {
             throw new IllegalArgumentException("Could not match " + schema + " for " + resource);
         }
 
-        return attributeCond;
+        return attrCond;
     }
 
-    private SearchCond setOperator(final AttributeCond attributeCond, final String operator) {
+    private SearchCond setOperator(final AttrCond attrCond, final String operator) {
         switch (operator) {
             case "eq":
             default:
-                attributeCond.setType(AttributeCond.Type.IEQ);
+                attrCond.setType(AttrCond.Type.IEQ);
                 break;
 
             case "ne":
-                attributeCond.setType(AttributeCond.Type.IEQ);
+                attrCond.setType(AttrCond.Type.IEQ);
                 break;
 
             case "sw":
-                attributeCond.setType(AttributeCond.Type.ILIKE);
-                attributeCond.setExpression(attributeCond.getExpression() + "%");
+                attrCond.setType(AttrCond.Type.ILIKE);
+                attrCond.setExpression(attrCond.getExpression() + "%");
                 break;
 
             case "co":
-                attributeCond.setType(AttributeCond.Type.ILIKE);
-                attributeCond.setExpression("%" + attributeCond.getExpression() + "%");
+                attrCond.setType(AttrCond.Type.ILIKE);
+                attrCond.setExpression("%" + attrCond.getExpression() + "%");
                 break;
 
             case "ew":
-                attributeCond.setType(AttributeCond.Type.ILIKE);
-                attributeCond.setExpression("%" + attributeCond.getExpression());
+                attrCond.setType(AttrCond.Type.ILIKE);
+                attrCond.setExpression("%" + attrCond.getExpression());
                 break;
 
             case "gt":
-                attributeCond.setType(AttributeCond.Type.GT);
+                attrCond.setType(AttrCond.Type.GT);
                 break;
 
             case "ge":
-                attributeCond.setType(AttributeCond.Type.GE);
+                attrCond.setType(AttrCond.Type.GE);
                 break;
 
             case "lt":
-                attributeCond.setType(AttributeCond.Type.LT);
+                attrCond.setType(AttrCond.Type.LT);
                 break;
 
             case "le":
-                attributeCond.setType(AttributeCond.Type.LE);
+                attrCond.setType(AttrCond.Type.LE);
                 break;
         }
 
         return "ne".equals(operator)
-                ? SearchCond.getNotLeafCond(attributeCond)
-                : SearchCond.getLeafCond(attributeCond);
+                ? SearchCond.getNotLeaf(attrCond)
+                : SearchCond.getLeaf(attrCond);
     }
 
     private <E extends Enum<?>> SearchCond complex(
@@ -187,23 +187,23 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
             Optional<SCIMComplexConf<E>> item = items.stream().
                     filter(object -> object.getType().name().equals(StringUtils.strip(right, "\""))).findFirst();
             if (item.isPresent()) {
-                AttributeCond attributeCond = new AttributeCond();
-                attributeCond.setSchema(item.get().getValue());
-                attributeCond.setType(AttributeCond.Type.ISNOTNULL);
-                return SearchCond.getLeafCond(attributeCond);
+                AttrCond attrCond = new AttrCond();
+                attrCond.setSchema(item.get().getValue());
+                attrCond.setType(AttrCond.Type.ISNOTNULL);
+                return SearchCond.getLeaf(attrCond);
             }
         } else if (!conf.getUserConf().getEmails().isEmpty()
                 && (MULTIVALUE.contains(left) || left.endsWith(".value"))) {
 
             List<SearchCond> orConds = new ArrayList<>();
             items.forEach(item -> {
-                AttributeCond cond = new AttributeCond();
+                AttrCond cond = new AttrCond();
                 cond.setSchema(item.getValue());
                 cond.setExpression(StringUtils.strip(right, "\""));
                 orConds.add(setOperator(cond, operator));
             });
             if (!orConds.isEmpty()) {
-                return SearchCond.getOrCond(orConds);
+                return SearchCond.getOr(orConds);
             }
         }
 
@@ -217,23 +217,23 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
             Optional<SCIMUserAddressConf> item = items.stream().
                     filter(object -> object.getType().name().equals(StringUtils.strip(right, "\""))).findFirst();
             if (item.isPresent()) {
-                AttributeCond attributeCond = new AttributeCond();
-                attributeCond.setSchema(item.get().getFormatted());
-                attributeCond.setType(AttributeCond.Type.ISNOTNULL);
-                return SearchCond.getLeafCond(attributeCond);
+                AttrCond attrCond = new AttrCond();
+                attrCond.setSchema(item.get().getFormatted());
+                attrCond.setType(AttrCond.Type.ISNOTNULL);
+                return SearchCond.getLeaf(attrCond);
             }
         } else if (!conf.getUserConf().getEmails().isEmpty()
                 && (MULTIVALUE.contains(left) || left.endsWith(".value"))) {
 
             List<SearchCond> orConds = new ArrayList<>();
             items.forEach(item -> {
-                AttributeCond cond = new AttributeCond();
+                AttrCond cond = new AttrCond();
                 cond.setSchema(item.getFormatted());
                 cond.setExpression(StringUtils.strip(right, "\""));
                 orConds.add(setOperator(cond, operator));
             });
             if (!orConds.isEmpty()) {
-                return SearchCond.getOrCond(orConds);
+                return SearchCond.getOr(orConds);
             }
         }
 
@@ -274,9 +274,9 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         }
 
         if (result == null) {
-            AttributeCond attributeCond = createAttributeCond(left);
-            attributeCond.setExpression(StringUtils.strip(right, "\""));
-            result = setOperator(attributeCond, operator);
+            AttrCond attrCond = createAttrCond(left);
+            attrCond.setExpression(StringUtils.strip(right, "\""));
+            result = setOperator(attrCond, operator);
         }
 
         if (result == null) {
@@ -303,9 +303,9 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
     @Override
     public SearchCond visitATTR_PR(final SCIMFilterParser.ATTR_PRContext ctx) {
-        AttributeCond cond = createAttributeCond(ctx.ATTRNAME().getText());
-        cond.setType(AttributeCond.Type.ISNOTNULL);
-        return SearchCond.getLeafCond(cond);
+        AttrCond cond = createAttrCond(ctx.ATTRNAME().getText());
+        cond.setType(AttrCond.Type.ISNOTNULL);
+        return SearchCond.getLeaf(cond);
     }
 
     @Override
@@ -316,20 +316,24 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     @Override
     public SearchCond visitNOT_EXPR(final SCIMFilterParser.NOT_EXPRContext ctx) {
         SearchCond cond = visit(ctx.expression());
-        if (cond.getAttributeCond() != null) {
-            if (cond.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
-                cond.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-            } else if (cond.getAttributeCond().getType() == AttributeCond.Type.ISNOTNULL) {
-                cond.getAttributeCond().setType(AttributeCond.Type.ISNULL);
-            }
-        } else if (cond.getAnyCond() != null) {
-            if (cond.getAnyCond().getType() == AnyCond.Type.ISNULL) {
-                cond.getAnyCond().setType(AnyCond.Type.ISNOTNULL);
-            } else if (cond.getAnyCond().getType() == AnyCond.Type.ISNOTNULL) {
-                cond.getAnyCond().setType(AnyCond.Type.ISNULL);
+        Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
+        if (anyCond.isPresent()) {
+            if (anyCond.get().getType() == AttrCond.Type.ISNULL) {
+                anyCond.get().setType(AttrCond.Type.ISNOTNULL);
+            } else if (anyCond.get().getType() == AttrCond.Type.ISNOTNULL) {
+                anyCond.get().setType(AttrCond.Type.ISNULL);
             }
         } else {
-            cond = SearchCond.getNotLeafCond(cond);
+            Optional<AttrCond> attrCond = cond.getLeaf(AttrCond.class);
+            if (attrCond.isPresent()) {
+                if (attrCond.get().getType() == AnyCond.Type.ISNULL) {
+                    attrCond.get().setType(AnyCond.Type.ISNOTNULL);
+                } else if (attrCond.get().getType() == AnyCond.Type.ISNOTNULL) {
+                    attrCond.get().setType(AnyCond.Type.ISNULL);
+                }
+            } else {
+                cond = SearchCond.getNotLeaf(cond);
+            }
         }
 
         return cond;
@@ -337,12 +341,12 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
     @Override
     public SearchCond visitEXPR_AND_EXPR(final SCIMFilterParser.EXPR_AND_EXPRContext ctx) {
-        return SearchCond.getAndCond(visit(ctx.expression(0)), visit(ctx.expression(1)));
+        return SearchCond.getAnd(visit(ctx.expression(0)), visit(ctx.expression(1)));
     }
 
     @Override
     public SearchCond visitEXPR_OR_EXPR(final SCIMFilterParser.EXPR_OR_EXPRContext ctx) {
-        return SearchCond.getOrCond(visit(ctx.expression(0)), visit(ctx.expression(1)));
+        return SearchCond.getOr(visit(ctx.expression(0)), visit(ctx.expression(1)));
     }
 
 }

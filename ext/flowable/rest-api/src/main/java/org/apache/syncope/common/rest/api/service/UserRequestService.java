@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
@@ -67,6 +68,7 @@ public interface UserRequestService extends JAXRSService {
      *
      * @param bpmnProcess BPMN process
      * @param user if value looks like a UUID then it is interpreted as key otherwise as a username
+     * @param inputVariables initial request variables
      * @return data about the started request service, including execution id
      */
     @POST
@@ -74,7 +76,8 @@ public interface UserRequestService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserRequest start(
             @NotNull @PathParam("bpmnProcess") String bpmnProcess,
-            @QueryParam(JAXRSService.PARAM_USER) String user);
+            @QueryParam(JAXRSService.PARAM_USER) String user,
+            WorkflowTaskExecInput inputVariables);
 
     /**
      * Cancel a running user request.

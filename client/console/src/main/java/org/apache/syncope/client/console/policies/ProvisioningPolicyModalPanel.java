@@ -54,6 +54,7 @@ import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -156,7 +157,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     try {
                         implRestClient.update(rule.getImpl());
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new WicketRuntimeException(e);
                     }
                 }
             });
@@ -325,7 +326,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                             ? AnyTypeKind.GROUP
                             : AnyTypeKind.ANY_OBJECT).stream().map(EntityTO::getKey).
                             collect(Collectors.toList());
-            choices.add("key");
+            choices.add(Constants.KEY_FIELD_NAME);
             choices.add(rule.getAnyType().equals(AnyTypeKind.USER.name()) ? "username" : "name");
             Collections.sort(choices);
             return choices;

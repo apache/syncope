@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
@@ -45,6 +44,7 @@ import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -79,7 +79,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
         super(userTO,
                 AjaxWizard.Mode.EDIT,
                 new AnyTypeRestClient().read(userTO.getType()).getClasses(),
-                FormLayoutInfoUtils.fetch(Arrays.asList(userTO.getType())).getLeft().getWhichPlainAttrs(),
+                AnyLayoutUtils.fetch(Arrays.asList(userTO.getType())).getUser().getWhichPlainAttrs(),
                 modelObject);
 
         this.linkedAccountTO = modelObject.getInnerObject();

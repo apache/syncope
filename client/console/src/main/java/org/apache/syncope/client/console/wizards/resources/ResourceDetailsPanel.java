@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -67,10 +68,9 @@ public class ResourceDetailsPanel extends WizardStep {
         add(container);
 
         container.add(new AjaxTextFieldPanel(
-                "key",
-                new ResourceModel("key", "key").
-                        getObject(),
-                new PropertyModel<>(resourceTO, "key"),
+                Constants.KEY_FIELD_NAME,
+                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME).getObject(),
+                new PropertyModel<>(resourceTO, Constants.KEY_FIELD_NAME),
                 false).addRequiredLabel().setEnabled(createFlag));
 
         container.add(new AjaxCheckBoxPanel(

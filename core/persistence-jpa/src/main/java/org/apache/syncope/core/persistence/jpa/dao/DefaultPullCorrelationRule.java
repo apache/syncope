@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -68,33 +68,33 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
                         "Connector object does not contains the attributes to perform the search: " + schema);
             }
 
-            AttributeCond.Type type;
+            AttrCond.Type type;
             String expression = null;
 
             if (attr.getValue() == null || attr.getValue().isEmpty()
                     || (attr.getValue().size() == 1 && attr.getValue().get(0) == null)) {
 
-                type = AttributeCond.Type.ISNULL;
+                type = AttrCond.Type.ISNULL;
             } else {
-                type = AttributeCond.Type.EQ;
+                type = AttrCond.Type.EQ;
                 expression = attr.getValue().size() > 1
                         ? attr.getValue().toString()
                         : attr.getValue().get(0).toString();
             }
 
-            AttributeCond cond = "key".equalsIgnoreCase(schema)
+            AttrCond cond = "key".equalsIgnoreCase(schema)
                     || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)
                     ? new AnyCond()
-                    : new AttributeCond();
+                    : new AttrCond();
             cond.setSchema(schema);
             cond.setType(type);
             cond.setExpression(expression);
 
-            searchConds.add(SearchCond.getLeafCond(cond));
+            searchConds.add(SearchCond.getLeaf(cond));
         });
 
         return conf.isOrSchemas()
-                ? SearchCond.getOrCond(searchConds)
-                : SearchCond.getAndCond(searchConds);
+                ? SearchCond.getOr(searchConds)
+                : SearchCond.getAnd(searchConds);
     }
 }

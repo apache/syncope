@@ -42,7 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -97,11 +97,11 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         List<SearchCond> effectiveConds = dynRealmKeys.stream().map(dynRealmKey -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(dynRealmKey);
-            return SearchCond.getLeafCond(dynRealmCond);
+            return SearchCond.getLeaf(dynRealmCond);
         }).collect(Collectors.toList());
         effectiveConds.add(cond);
 
-        return SearchCond.getAndCond(effectiveConds);
+        return SearchCond.getAnd(effectiveConds);
     }
 
     protected abstract int doCount(Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);
@@ -142,7 +142,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             List<OrderByClause> orderBy,
             AnyTypeKind kind);
 
-    protected Pair<PlainSchema, PlainAttrValue> check(final AttributeCond cond, final AnyTypeKind kind) {
+    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         PlainSchema schema = schemaDAO.find(cond.getSchema());
@@ -155,10 +155,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 ? anyUtils.newPlainAttrUniqueValue()
                 : anyUtils.newPlainAttrValue();
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE
-                    && cond.getType() != AttributeCond.Type.ILIKE
-                    && cond.getType() != AttributeCond.Type.ISNULL
-                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+            if (cond.getType() != AttrCond.Type.LIKE
+                    && cond.getType() != AttrCond.Type.ILIKE
+                    && cond.getType() != AttrCond.Type.ISNULL
+                    && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
                 ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
             }
@@ -218,10 +218,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-        if (computed.getType() != AttributeCond.Type.LIKE
-                && computed.getType() != AttributeCond.Type.ILIKE
-                && computed.getType() != AttributeCond.Type.ISNULL
-                && computed.getType() != AttributeCond.Type.ISNOTNULL) {
+        if (computed.getType() != AttrCond.Type.LIKE
+                && computed.getType() != AttrCond.Type.ILIKE
+                && computed.getType() != AttrCond.Type.ISNULL
+                && computed.getType() != AttrCond.Type.ISNOTNULL) {
 
             try {
                 ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);

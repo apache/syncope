@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
@@ -74,7 +75,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         public TasksProvider(final int paginatorRows, final TaskType id) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             this.id = id;
         }
 

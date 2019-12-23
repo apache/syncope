@@ -20,9 +20,8 @@ package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -55,10 +54,10 @@ public class RoleRestClient extends BaseRestClient {
         return getService(RoleService.class).list();
     }
 
-    public String readConsoleLayoutInfo(final String roleKey) {
+    public String readAnyLayout(final String roleKey) {
         try {
             return IOUtils.toString(InputStream.class.cast(
-                    getService(RoleService.class).getConsoleLayoutInfo(roleKey).getEntity()),
+                    getService(RoleService.class).getAnyLayout(roleKey).getEntity()),
                     StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.error("Error retrieving console layout info for role {}", roleKey, e);
@@ -66,18 +65,16 @@ public class RoleRestClient extends BaseRestClient {
         }
     }
 
-    public void setConsoleLayoutInfo(final String roleKey, final String content) {
-        getService(RoleService.class).setConsoleLayoutInfo(
+    public void setAnyLayout(final String roleKey, final String content) {
+        getService(RoleService.class).setAnyLayout(
                 roleKey, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
-    public void removeConsoleLayoutInfo(final String roleKey) {
-        getService(RoleService.class).removeConsoleLayoutInfo(roleKey);
+    public void removeAnyLayout(final String roleKey) {
+        getService(RoleService.class).removeAnyLayout(roleKey);
     }
 
     public List<String> getAllAvailableEntitlements() {
-        List<String> entitlements = new ArrayList<>(getSyncopeService().platform().getEntitlements());
-        Collections.sort(entitlements);
-        return entitlements;
+        return getSyncopeService().platform().getEntitlements().stream().sorted().collect(Collectors.toList());
     }
 }

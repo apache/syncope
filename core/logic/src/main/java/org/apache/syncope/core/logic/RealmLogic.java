@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
@@ -167,9 +167,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         Set<String> adminRealms = Collections.singleton(realm.getFullPath());
-        AnyCond keyCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+        AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
-        SearchCond allMatchingCond = SearchCond.getLeafCond(keyCond);
+        SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
         int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
         int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);

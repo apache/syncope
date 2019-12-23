@@ -427,15 +427,15 @@ under the License.
 
     <camel.version>2.24.2</camel.version>	
 
-    <slf4j.version>1.7.29</slf4j.version>
+    <slf4j.version>1.7.30</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>6.8.5</elasticsearch.version>
+    <elasticsearch.version>6.8.6</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
 
-    <log4j.version>2.12.1</log4j.version>
+    <log4j.version>2.13.0</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <commons-io.version>2.6</commons-io.version>
@@ -533,7 +533,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.29</tomcat.version>
+    <tomcat.version>9.0.30</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
@@ -2479,7 +2479,7 @@ under the License.
             <link>https://docs.spring.io/spring-security/site/docs/5.1.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.8.5/index.html</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.8.6/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.0.10/apidocs/</link>
           </links>
         </configuration>

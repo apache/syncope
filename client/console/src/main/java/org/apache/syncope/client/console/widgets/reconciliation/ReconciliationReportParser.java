@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class ReconciliationReportParser {
@@ -68,7 +69,7 @@ public final class ReconciliationReportParser {
                     case "user":
                         user = new Any();
                         user.setType(AnyTypeKind.USER.name());
-                        user.setKey(streamReader.getAttributeValue("", "key"));
+                        user.setKey(streamReader.getAttributeValue("", Constants.KEY_FIELD_NAME));
                         user.setName(streamReader.getAttributeValue("", "username"));
                         report.getUsers().getAnys().add(user);
                         break;
@@ -82,7 +83,7 @@ public final class ReconciliationReportParser {
                     case "group":
                         group = new Any();
                         group.setType(AnyTypeKind.GROUP.name());
-                        group.setKey(streamReader.getAttributeValue("", "key"));
+                        group.setKey(streamReader.getAttributeValue("", Constants.KEY_FIELD_NAME));
                         group.setName(streamReader.getAttributeValue("", "groupName"));
                         report.getGroups().getAnys().add(group);
                         break;
@@ -98,7 +99,7 @@ public final class ReconciliationReportParser {
                     case "anyObject":
                         anyObject = new Any();
                         anyObject.setType(lastAnyType);
-                        anyObject.setKey(streamReader.getAttributeValue("", "key"));
+                        anyObject.setKey(streamReader.getAttributeValue("", Constants.KEY_FIELD_NAME));
                         final String anyType = lastAnyType;
                         Optional<Anys> anyReport = report.getAnyObjects().stream().
                                 filter(anys -> anyType.equals(anys.getAnyType())).

@@ -45,6 +45,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 })
 public class GeneratedUpgradeSQLTest {
 
+    private static final String TEST_PULL_RULE = "org.apache.syncope.common.lib.policy.TestPullRuleConf";
+
     @Resource(name = "driverClassName")
     private String driverClassName;
 
@@ -59,8 +61,6 @@ public class GeneratedUpgradeSQLTest {
 
     @Autowired
     private DataSource syncope20DataSource;
-
-    private static final String TEST_PULL_RULE = "org.apache.syncope.common.lib.policy.TestPullRuleConf";
 
     @Test
     public void upgradefrom20() throws Exception {
@@ -136,6 +136,11 @@ public class GeneratedUpgradeSQLTest {
                 "SELECT COUNT(*) FROM PushCorrelationRuleEntity", Integer.class);
         assertNotNull(pushCorrelationRuleEntities);
         assertEquals(0, pushCorrelationRuleEntities.intValue());
+
+        String anyLayout = jdbcTemplate.queryForObject(
+                "SELECT anyLayout FROM SyncopeRole WHERE id='Connector and Resource for realm evenTwo'", String.class);
+        ObjectNode tree = (ObjectNode) new ObjectMapper().readTree(anyLayout);
+        assertTrue(tree.has("USER"));
     }
 
     @Test

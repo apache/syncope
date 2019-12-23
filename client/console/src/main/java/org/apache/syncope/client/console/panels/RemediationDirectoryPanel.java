@@ -30,8 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -101,7 +101,7 @@ public class RemediationDirectoryPanel
         List<IColumn<RemediationTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new ResourceModel("operation"), "operation", "operation"));
         columns.add(new PropertyColumn<>(
@@ -207,7 +207,7 @@ public class RemediationDirectoryPanel
                                     previousUserTO,
                                     newUserTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getLeft(),
+                                    AnyLayoutUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getUser(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, userEvent);
@@ -233,7 +233,7 @@ public class RemediationDirectoryPanel
                                     previousGroupTO,
                                     newGroupTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getMiddle(),
+                                    AnyLayoutUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getGroup(),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, groupEvent);
@@ -259,8 +259,8 @@ public class RemediationDirectoryPanel
                                     previousAnyObjectTO,
                                     newAnyObjectTO,
                                     new AnyTypeRestClient().read(remediationTO.getAnyType()).getClasses(),
-                                    FormLayoutInfoUtils.fetch(Arrays.asList(remediationTO.getAnyType())).
-                                            getRight().values().iterator().next(),
+                                    AnyLayoutUtils.fetch(Arrays.asList(remediationTO.getAnyType())).getAnyObjects().
+                                            get(remediationTO.getAnyType()),
                                     pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, anyObjectEvent);

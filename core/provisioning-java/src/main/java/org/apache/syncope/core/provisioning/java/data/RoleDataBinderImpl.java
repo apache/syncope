@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +62,11 @@ public class RoleDataBinderImpl implements RoleDataBinder {
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     private void setDynMembership(final Role role, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
             sce.getElements().add(dynMembershipFIQL);
