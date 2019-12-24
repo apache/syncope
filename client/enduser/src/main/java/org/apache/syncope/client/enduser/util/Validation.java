@@ -85,7 +85,7 @@ public final class Validation {
     }
 
     private static boolean isValid(final AttrTO attrTO, final CustomAttribute customAttribute) {
-        return customAttribute.isReadonly()
+        return customAttribute.isReadonly() && !customAttribute.getDefaultValues().isEmpty()
                 ? attrTO.getValues().stream().allMatch(value -> customAttribute.getDefaultValues().contains(value))
                 : true;
     }
