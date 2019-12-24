@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -28,8 +30,6 @@ import org.apache.wicket.model.IModel;
 public class MergeLinkedAccountsModalPanel extends Panel implements ModalPanel {
     private static final long serialVersionUID = -4603032036433309900L;
 
-    private final MergeLinkedAccountsWizardBuilder wizard;
-
     public MergeLinkedAccountsModalPanel(final BaseModal<?> baseModal,
                                          final IModel<UserTO> model,
                                          final PageReference pageRef) {
@@ -37,9 +37,37 @@ public class MergeLinkedAccountsModalPanel extends Panel implements ModalPanel {
         final MultilevelPanel mlp = new MultilevelPanel("mlpContainer");
         mlp.setOutputMarkupId(true);
 
+        ActionLinksTogglePanel<UserTO> actionTogglePanel = new ActionLinksTogglePanel<>("toggle", pageRef);
+        add(actionTogglePanel);
+
         setOutputMarkupId(true);
-        wizard = new MergeLinkedAccountsWizardBuilder(model, pageRef);
-        add(mlp);
+        MergeLinkedAccountsWizardBuilder wizard = new MergeLinkedAccountsWizardBuilder(model, pageRef);
+        final MergeLinkedAccountsViewPanel.Builder builder = new MergeLinkedAccountsViewPanel.Builder(pageRef);
+        builder.addNewItemPanelBuilder(wizard, false).setWizardInModal(true);
+
+        WizardMgtPanel<UserTO> mgtPanel = builder.build(MultilevelPanel.FIRST_LEVEL_ID);
+        mgtPanel.setOutputMarkupId(true);
+        add(mlp.setFirstLevel(mgtPanel));
     }
 
+    public static class MergeLinkedAccountsViewPanel extends WizardMgtPanel<UserTO> {
+        private static final long serialVersionUID = -1982691107029848579L;
+
+        public MergeLinkedAccountsViewPanel(final String id, final boolean wizardInModal) {
+            super(id, wizardInModal);
+            setOutputMarkupId(true);
+        }
+
+        public static class Builder extends WizardMgtPanel.Builder<UserTO> {
+            public Builder(final PageReference pageRef) {
+                super(pageRef);
+            }
+
+            @Override
+            protected WizardMgtPanel<UserTO> newInstance(final String id, final boolean wizardInModal) {
+                return new MergeLinkedAccountsViewPanel(id, wizardInModal);
+            }
+        }
+
+    }
 }
