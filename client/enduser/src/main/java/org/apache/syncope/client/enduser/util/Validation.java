@@ -91,7 +91,7 @@ public final class Validation {
     }
 
     private static boolean isValid(final AttrTO attrTO, final CustomAttribute customAttribute) {
-        return customAttribute.isReadonly()
+        return customAttribute.isReadonly() && !customAttribute.getDefaultValues().isEmpty()
                 ? IterableUtils.matchesAll(attrTO.getValues(), new Predicate<String>() {
 
                     @Override
