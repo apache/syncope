@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.panels.MergeLinkAccountsSearchPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -27,8 +27,6 @@ import org.apache.wicket.model.IModel;
 
 public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> {
     private static final long serialVersionUID = -9142332740863374891L;
-
-    private final UserRestClient userRestClient = new UserRestClient();
 
     private final IModel<UserTO> model;
 
@@ -39,6 +37,7 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
 
     @Override
     protected WizardModel buildModelSteps(final UserTO modelObject, final WizardModel wizardModel) {
+        wizardModel.add(new MergeLinkAccountsSearchPanel(modelObject, getPageReference()));
         return wizardModel;
     }
 }
