@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -44,33 +42,8 @@ public class MergeLinkedAccountsModalPanel extends Panel implements ModalPanel {
 
         setOutputMarkupId(true);
         MergeLinkedAccountsWizardBuilder wizard = new MergeLinkedAccountsWizardBuilder(model, pageRef);
-        AjaxWizard<UserTO> mgtPanel = wizard.build(MultilevelPanel.FIRST_LEVEL_ID, AjaxWizard.Mode.READONLY);
-//        final MergeLinkedAccountsViewPanel.Builder builder = new MergeLinkedAccountsViewPanel.Builder(pageRef);
-//        builder.addNewItemPanelBuilder(wizard, false);
-//
-//        WizardMgtPanel<UserTO> mgtPanel = builder.build(MultilevelPanel.FIRST_LEVEL_ID);
+        AjaxWizard<UserTO> mgtPanel = wizard.build(MultilevelPanel.FIRST_LEVEL_ID, AjaxWizard.Mode.CREATE);
         mgtPanel.setOutputMarkupId(true);
         add(mlp.setFirstLevel(mgtPanel));
-    }
-
-    private static class MergeLinkedAccountsViewPanel extends WizardMgtPanel<UserTO> {
-        private static final long serialVersionUID = -1982691107029848579L;
-
-        MergeLinkedAccountsViewPanel(final String id, final boolean wizardInModal) {
-            super(id, wizardInModal);
-            setOutputMarkupId(true);
-        }
-
-        public static class Builder extends WizardMgtPanel.Builder<UserTO> {
-            Builder(final PageReference pageRef) {
-                super(pageRef);
-            }
-
-            @Override
-            protected WizardMgtPanel<UserTO> newInstance(final String id, final boolean wizardInModal) {
-                return new MergeLinkedAccountsViewPanel(id, wizardInModal);
-            }
-        }
-
     }
 }

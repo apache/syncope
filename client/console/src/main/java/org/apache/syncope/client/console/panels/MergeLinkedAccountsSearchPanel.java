@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
-public class MergeLinkAccountsSearchPanel extends WizardStep {
+public class MergeLinkedAccountsSearchPanel extends WizardStep {
     private static final long serialVersionUID = 1221037007528732347L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountDetailsPanel.class);
@@ -56,7 +56,7 @@ public class MergeLinkAccountsSearchPanel extends WizardStep {
 
     private final Fragment userSearchFragment;
 
-    public MergeLinkAccountsSearchPanel(final UserTO userTO, final PageReference pageRef) {
+    public MergeLinkedAccountsSearchPanel(final UserTO userTO, final PageReference pageRef) {
         super();
         setOutputMarkupId(true);
 
@@ -69,12 +69,11 @@ public class MergeLinkAccountsSearchPanel extends WizardStep {
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-            new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkAccountsSearchPanel.this).
+            new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
             build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
         AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
-
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
             anyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
             build("searchResult"));
