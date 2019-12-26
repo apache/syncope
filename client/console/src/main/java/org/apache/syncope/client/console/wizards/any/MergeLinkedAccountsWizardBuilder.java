@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.console.panels.MergeLinkedAccountsReviewAccountsPanel;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsSearchPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -37,7 +38,10 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
 
     @Override
     protected WizardModel buildModelSteps(final UserTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new MergeLinkedAccountsSearchPanel(modelObject, getPageReference()));
+        wizardModel.setCancelVisible(false);
+        UserWrapper userWrapper = new UserWrapper(modelObject);
+        wizardModel.add(new MergeLinkedAccountsSearchPanel(userWrapper, getPageReference()));
+        wizardModel.add(new MergeLinkedAccountsReviewAccountsPanel(userWrapper, pageRef));
         return wizardModel;
     }
 }

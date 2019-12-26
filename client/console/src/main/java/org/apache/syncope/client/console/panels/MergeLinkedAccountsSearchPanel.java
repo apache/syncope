@@ -18,15 +18,25 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
+import org.apache.syncope.client.console.panels.search.SearchClausePanel;
+import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wizards.any.LinkedAccountDetailsPanel;
+import org.apache.syncope.client.console.wizards.any.UserWrapper;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -37,12 +47,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
-public class MergeLinkedAccountsSearchPanel extends WizardStep {
+public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondition {
     private static final long serialVersionUID = 1221037007528732347L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountDetailsPanel.class);
 
-    private final UserTO userTO;
+    private UserWrapper userWrapper;
 
     private final WebMarkupContainer ownerContainer;
 
@@ -56,12 +66,12 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
 
     private final Fragment userSearchFragment;
 
-    public MergeLinkedAccountsSearchPanel(final UserTO userTO, final PageReference pageRef) {
+    public MergeLinkedAccountsSearchPanel(final UserWrapper userTO, final PageReference pageRef) {
         super();
         setOutputMarkupId(true);
 
         setTitleModel(new ResourceModel("mergeLinkedAccounts.searchUser"));
-        this.userTO = userTO;
+        this.userWrapper = userTO;
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
@@ -71,7 +81,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
             new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
             build("usersearch"));
-        userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
+        userSearchFragment.add(userSearchPanel);
 
         AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
@@ -81,5 +91,29 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
         userSearchFragment.add(userDirectoryPanel);
 
         ownerContainer.add(userSearchFragment);
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
+            final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+            final String fiql = SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
+                SyncopeClient.getUserSearchConditionBuilder());
+            userDirectoryPanel.search(fiql, target);
+        } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+            final AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
+            UserTO mergingUserTO = UserTO.class.cast(sel);
+            ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
+            this.userWrapper = new UserWrapper(userWrapper.getInnerObject(), mergingUserTO);
+            getWizardModel().next();
+        } else {
+            super.onEvent(event);
+        }
+    }
+
+    @Override
+    public boolean evaluate() {
+        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+            isActionAuthorized(this, RENDER);
     }
 }
