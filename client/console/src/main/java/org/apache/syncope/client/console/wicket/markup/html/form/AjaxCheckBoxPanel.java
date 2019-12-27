@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
@@ -43,7 +44,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
         super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
-        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

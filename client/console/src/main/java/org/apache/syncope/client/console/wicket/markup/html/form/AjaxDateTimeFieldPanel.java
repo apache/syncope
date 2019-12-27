@@ -23,6 +23,7 @@ import java.util.Date;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public class AjaxDateTimeFieldPanel extends DateFieldPanel {
 
@@ -36,7 +37,7 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
         // dateTimePattern should be spit into separate date and time pattern strings in order to be passed to the
         // AjaxDateTimePicker constructor, but there is no safe way to do that - ignoring
         field = new AjaxDateTimePicker("field", model, SyncopeConsoleSession.get().getLocale());
-        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
     }
 
     @Override
