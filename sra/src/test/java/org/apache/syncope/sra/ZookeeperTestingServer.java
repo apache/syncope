@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.sra;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,24 +29,15 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
+import org.apache.zookeeper.server.auth.DigestLoginModule;
+import org.apache.zookeeper.server.auth.SASLAuthenticationProvider;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 
-@Component
-public class SyncopeSRATestKeymasterStartup extends SyncopeSRAStartStop
-        implements ApplicationListener<ContextRefreshedEvent>, Ordered {
+public class ZookeeperTestingServer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
-    }
-
-    @Override
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
-        // 1. start Zookeeper for Keymaster
+    public void initialize(final ConfigurableApplicationContext ctx) {
         AtomicReference<String> username = new AtomicReference<>();
         AtomicReference<String> password = new AtomicReference<>();
         try (InputStream propStream = getClass().getResourceAsStream("/keymaster.properties")) {
@@ -61,7 +54,7 @@ public class SyncopeSRATestKeymasterStartup extends SyncopeSRAStartStop
 
             private final AppConfigurationEntry[] entries = {
                 new AppConfigurationEntry(
-                "org.apache.zookeeper.server.auth.DigestLoginModule",
+                DigestLoginModule.class.getName(),
                 AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
                 Map.of(
                 "user_" + username.get(), password.get()
@@ -75,18 +68,13 @@ public class SyncopeSRATestKeymasterStartup extends SyncopeSRAStartStop
         });
 
         Map<String, Object> customProperties = new HashMap<>();
-        customProperties.put("authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
+        customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
         InstanceSpec spec = new InstanceSpec(null, 2181, -1, -1, true, 1, -1, -1, customProperties);
-        try {
-            new TestingServer(spec, true).start();
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not start Zookeeper", e);
-        }
 
-        // 2. register Core in Keymaster
-        NetworkService core = new NetworkService();
-        core.setType(NetworkService.Type.CORE);
-        core.setAddress(SyncopeSRATestCoreStartup.ADDRESS);
-        serviceOps.register(core);
+        try {
+            new TestingServer(spec, true);
+        } catch (Exception e) {
+            fail(e);
+        }
     }
 }

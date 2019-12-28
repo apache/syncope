@@ -262,7 +262,7 @@ under the License.
             <configuration>
               <excludes>
                 <exclude>**/org/apache/syncope/sra/**Test.java</exclude>
-                <exclude>**/org/apache/syncope/sra/**Keymaster*.java</exclude>
+                <exclude>**/org/apache/syncope/sra/**Zookeeper*.java</exclude>
               </excludes>
             </configuration>
           </plugin>

@@ -492,7 +492,7 @@ under the License.
     <antlr4.version>4.7.2</antlr4.version>
 
     <curator.version>4.2.0</curator.version>
-    <zookeeper.version>3.4.14</zookeeper.version>
+    <zookeeper.version>3.5.6</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -1723,23 +1723,11 @@ under the License.
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-framework</artifactId>
         <version>${curator.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-x-discovery</artifactId>
         <version>${curator.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.zookeeper</groupId>
@@ -1761,7 +1749,7 @@ under the License.
       <dependency>
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-test</artifactId>
-        <version>2.13.0</version>
+        <version>${curator.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

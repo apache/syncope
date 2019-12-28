@@ -29,18 +29,17 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.GatewayRouteTO;
 import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncopeSRATestCoreStartup extends SyncopeSRAStartStop
-        implements ApplicationListener<ContextRefreshedEvent>, Ordered {
+public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
     public static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
@@ -49,10 +48,8 @@ public class SyncopeSRATestCoreStartup extends SyncopeSRAStartStop
     @Autowired
     private RouteRefresher routeRefresher;
 
-    @Override
-    public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
-    }
+    @Autowired
+    private ServiceOps serviceOps;
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
@@ -69,7 +66,7 @@ public class SyncopeSRATestCoreStartup extends SyncopeSRAStartStop
         // 2. register Core in Keymaster
         NetworkService core = new NetworkService();
         core.setType(NetworkService.Type.CORE);
-        core.setAddress(SyncopeSRATestCoreStartup.ADDRESS);
+        core.setAddress(ADDRESS);
         serviceOps.register(core);
     }
 

@@ -46,10 +46,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = ZookeeperTestingServer.class)
 @AutoConfigureWireMock(port = 0)
 public class SyncopeSRATest {
 
@@ -66,7 +68,7 @@ public class SyncopeSRATest {
 
     @BeforeEach
     public void clearRoutes() {
-        SyncopeSRATestCoreStartup.ROUTES.clear();
+        SyncopeCoreTestingServer.ROUTES.clear();
     }
 
     @Test
@@ -94,7 +96,7 @@ public class SyncopeSRATest {
         routeTO.getFilters().add(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.ADD_RESPONSE_HEADER).args("Hello,World").build());
 
-        SyncopeSRATestCoreStartup.ROUTES.put(routeTO.getKey(), routeTO);
+        SyncopeCoreTestingServer.ROUTES.put(routeTO.getKey(), routeTO);
 
         routeRefresher.refresh();
 
@@ -147,7 +149,7 @@ public class SyncopeSRATest {
         routeTO.getFilters().add(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.HYSTRIX).args("fallbackcmd,forward:/fallback").build());
 
-        SyncopeSRATestCoreStartup.ROUTES.put(routeTO.getKey(), routeTO);
+        SyncopeCoreTestingServer.ROUTES.put(routeTO.getKey(), routeTO);
 
         routeRefresher.refresh();
 
@@ -179,7 +181,7 @@ public class SyncopeSRATest {
                 factory(FilterFactory.CUSTOM).
                 args(BodyPropertyAddingGatewayFilterFactory.class.getName() + ";customized=true").build());
 
-        SyncopeSRATestCoreStartup.ROUTES.put(routeTO.getKey(), routeTO);
+        SyncopeCoreTestingServer.ROUTES.put(routeTO.getKey(), routeTO);
 
         routeRefresher.refresh();
 
