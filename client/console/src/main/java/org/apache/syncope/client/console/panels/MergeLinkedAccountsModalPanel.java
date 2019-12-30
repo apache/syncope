@@ -41,9 +41,10 @@ public class MergeLinkedAccountsModalPanel extends Panel implements ModalPanel {
         add(actionTogglePanel);
 
         setOutputMarkupId(true);
-        MergeLinkedAccountsWizardBuilder wizard = new MergeLinkedAccountsWizardBuilder(model, pageRef);
-        AjaxWizard<UserTO> mgtPanel = wizard.build(MultilevelPanel.FIRST_LEVEL_ID, AjaxWizard.Mode.CREATE);
-        mgtPanel.setOutputMarkupId(true);
-        add(mlp.setFirstLevel(mgtPanel));
+        MergeLinkedAccountsWizardBuilder builder = new MergeLinkedAccountsWizardBuilder(model, pageRef);
+        AjaxWizard<UserTO> wizard = builder.build(MultilevelPanel.FIRST_LEVEL_ID, AjaxWizard.Mode.CREATE);
+        wizard.getButtonBar().setVisible(false);
+        wizard.setOutputMarkupId(true);
+        add(mlp.setFirstLevel(wizard));
     }
 }

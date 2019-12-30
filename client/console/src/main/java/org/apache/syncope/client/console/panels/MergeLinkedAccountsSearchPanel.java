@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -26,13 +30,14 @@ import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.wizards.any.LinkedAccountDetailsPanel;
-import org.apache.syncope.client.console.wizards.any.UserWrapper;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -42,17 +47,26 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondition {
     private static final long serialVersionUID = 1221037007528732347L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountDetailsPanel.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private UserWrapper userWrapper;
+    private static final Logger LOG = LoggerFactory.getLogger(MergeLinkedAccountsSearchPanel.class);
 
     private final WebMarkupContainer ownerContainer;
 
@@ -66,12 +80,14 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
 
     private final Fragment userSearchFragment;
 
-    public MergeLinkedAccountsSearchPanel(final UserWrapper userTO, final PageReference pageRef) {
+    private UserTO originalUserTO;
+
+    public MergeLinkedAccountsSearchPanel(final UserTO userTO, final PageReference pageRef) {
         super();
         setOutputMarkupId(true);
 
         setTitleModel(new ResourceModel("mergeLinkedAccounts.searchUser"));
-        this.userWrapper = userTO;
+        this.originalUserTO = userTO;
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
@@ -89,8 +105,29 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
             build("searchResult"));
 
         userSearchFragment.add(userDirectoryPanel);
-
         ownerContainer.add(userSearchFragment);
+    }
+
+    private static void mergeAccounts(final UserTO mergingUserTO) throws Exception {
+        mergingUserTO.getLinkedAccounts().forEach(linkedAccountTO -> {
+        });
+
+        String address = SyncopeConsoleSession.get().getAddress();
+        BatchRequest batchRequest = new BatchRequest(MediaType.APPLICATION_JSON_TYPE, address,
+            Collections.emptyList(), SyncopeConsoleSession.get().getJWT());
+
+        BatchRequestItem deleteUser = new BatchRequestItem();
+        deleteUser.setMethod(HttpMethod.POST);
+        deleteUser.setRequestURI("/users");
+        deleteUser.setHeaders(new HashMap<>());
+        deleteUser.getHeaders().put(HttpHeaders.ACCEPT, Collections.singletonList(MediaType.APPLICATION_JSON));
+        deleteUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(MediaType.APPLICATION_JSON));
+        String content = MAPPER.writeValueAsString(mergingUserTO);
+        deleteUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Collections.singletonList(content.length()));
+        deleteUser.setContent(content);
+        batchRequest.getItems().add(deleteUser);
+
+        Map<String, String> batchResponse = new UserRestClient().batch(batchRequest);
     }
 
     @Override
@@ -101,13 +138,41 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
                 SyncopeClient.getUserSearchConditionBuilder());
             userDirectoryPanel.search(fiql, target);
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-            final AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
-            UserTO mergingUserTO = UserTO.class.cast(sel);
-            ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
-            this.userWrapper = new UserWrapper(userWrapper.getInnerObject(), mergingUserTO);
-            getWizardModel().next();
-        } else {
-            super.onEvent(event);
+            AnySelectionDirectoryPanel.ItemSelection payload =
+                (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
+            final AnyTO sel = payload.getSelection();
+            UserTO mergingUserTO = new UserRestClient().read(sel.getKey());
+            if (mergingUserTO.getKey().equals(this.originalUserTO.getKey())) {
+                displayError("Cannot merge a user object's accounts with itself.");
+            } else if (mergingUserTO.getLinkedAccounts().isEmpty()) {
+                displayError("Selected user does not have any linked accounts.");
+            } else {
+                try {
+                    payload.getTarget().add(ownerContainer);
+                    mergeAccounts(mergingUserTO);
+                    displaySuccess();
+                } catch (Exception e) {
+                    LOG.error("Wizard error on finish", e);
+                    displayError(StringUtils.isBlank(e.getMessage())
+                        ? e.getClass().getName() : e.getMessage());
+                }
+            }
+        }
+    }
+
+    private void displayError(final String message) {
+        SyncopeConsoleSession.get().error(message);
+        Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
+        if (target.isPresent()) {
+            ((BasePage) getPage()).getNotificationPanel().refresh(target.get());
+        }
+    }
+
+    private void displaySuccess() {
+        SyncopeConsoleSession.get().success("Linked accounts are successfully merged.");
+        Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
+        if (target.isPresent()) {
+            ((BasePage) getPage()).getNotificationPanel().refresh(target.get());
         }
     }
 
