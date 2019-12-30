@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -29,11 +30,15 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.common.objects.SortKey;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 
 /**
@@ -104,7 +109,9 @@ public interface Connector {
      * @param handler to be used to handle deltas.
      * @param options ConnId's OperationOptions.
      */
-    void fullReconciliation(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options);
+    default void fullReconciliation(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options) {
+        filteredReconciliation(objectClass, null, handler, options);
+    }
 
     /**
      * Fetches remote objects (for use during filtered reconciliation).
@@ -114,11 +121,36 @@ public interface Connector {
      * @param handler to be used to handle deltas.
      * @param options ConnId's OperationOptions.
      */
-    void filteredReconciliation(
+    default void filteredReconciliation(
             ObjectClass objectClass,
             ReconFilterBuilder filterBuilder,
             SyncResultsHandler handler,
-            OperationOptions options);
+            OperationOptions options) {
+
+        Filter filter = null;
+        OperationOptions actualOptions = options;
+        if (filterBuilder != null) {
+            filter = filterBuilder.build();
+            actualOptions = filterBuilder.build(actualOptions);
+        }
+
+        search(objectClass, filter, new SearchResultsHandler() {
+
+            @Override
+            public void handleResult(final SearchResult result) {
+                // nothing to do
+            }
+
+            @Override
+            public boolean handle(final ConnectorObject object) {
+                return handler.handle(new SyncDeltaBuilder().
+                        setObject(object).
+                        setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
+                        setToken(new SyncToken("")).
+                        build());
+            }
+        }, actualOptions);
+    }
 
     /**
      * Sync remote objects from a connector instance.
@@ -182,14 +214,27 @@ public interface Connector {
      * @param options ConnId's OperationOptions
      * @return search result
      */
-    SearchResult search(
+    default SearchResult search(
             ObjectClass objectClass,
             Filter filter,
             SearchResultsHandler handler,
             int pageSize,
             String pagedResultsCookie,
             List<OrderByClause> orderBy,
-            OperationOptions options);
+            OperationOptions options) {
+
+        OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize).setPagedResultsOffset(-1);
+        if (pagedResultsCookie != null) {
+            builder.setPagedResultsCookie(pagedResultsCookie);
+        }
+        builder.setSortKeys(orderBy.stream().
+                map(clause -> new SortKey(clause.getField(), clause.getDirection() == OrderByClause.Direction.ASC)).
+                collect(Collectors.toList()));
+
+        builder.setAttributesToGet(options.getAttributesToGet());
+
+        return search(objectClass, filter, handler, builder.build());
+    }
 
     /**
      * Builds metadata description of ConnId {@link ObjectClass}.

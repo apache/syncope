@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -209,7 +208,6 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                             LOG.error("While restoring any object {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                     ? e.getClass().getName() : e.getMessage());
-                            throw new WicketRuntimeException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }

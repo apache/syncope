@@ -32,11 +32,12 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -56,6 +57,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class LDAPMembershipPropagationActions implements PropagationActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
+
+    @Autowired
+    protected DerAttrHandler derAttrHandler;
 
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
@@ -121,11 +125,9 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
 
                         Attribute beforeLdapGroups = beforeObj.getAttributeByName(getGroupMembershipAttrName());
                         LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
-                        for (Object value : beforeLdapGroups.getValue()) {
-                            if (!connObjectLinks.contains(String.valueOf(value))) {
-                                groups.add(String.valueOf(value));
-                            }
-                        }
+                        beforeLdapGroups.getValue().stream().
+                                filter(value -> !connObjectLinks.contains(String.valueOf(value))).
+                                forEach(value -> groups.add(String.valueOf(value)));
                     }
                 }
                 LOG.debug("Add ldapGroups to attributes: {}" + groups);
@@ -144,7 +146,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
         JexlContext jexlContext = new MapContext();
         JexlUtils.addFieldsToContext(group, jexlContext);
         JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
-        JexlUtils.addDerAttrsToContext(group, jexlContext);
+        JexlUtils.addDerAttrsToContext(group, derAttrHandler, jexlContext);
 
         return JexlUtils.evaluate(connObjectLinkTemplate, jexlContext);
     }

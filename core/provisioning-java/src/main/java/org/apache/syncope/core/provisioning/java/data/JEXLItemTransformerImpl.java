@@ -32,10 +32,15 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JEXLItemTransformerImpl implements JEXLItemTransformer {
+
+    @Autowired
+    private DerAttrHandler derAttrHandler;
 
     private String propagationJEXL;
 
@@ -67,7 +72,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
                         JexlUtils.addFieldsToContext(entity, jexlContext);
                         if (entity instanceof Any) {
                             JexlUtils.addPlainAttrsToContext(((Any<?>) entity).getPlainAttrs(), jexlContext);
-                            JexlUtils.addDerAttrsToContext(((Any<?>) entity), jexlContext);
+                            JexlUtils.addDerAttrsToContext(((Any<?>) entity), derAttrHandler, jexlContext);
                         }
                     }
                     jexlContext.set("value", originalValue);

@@ -16,16 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.common.lib.to;
 
-import java.util.Collection;
-import org.apache.commons.lang3.StringUtils;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.TraceLevel;
 
-public class ProvisioningReport {
+@XmlRootElement(name = "provisioningReport")
+@XmlType
+public class ProvisioningReport extends BaseBean {
 
+    private static final long serialVersionUID = -5822836001006407497L;
+
+    @XmlEnum
     public enum Status {
 
         SUCCESS,
@@ -104,41 +112,40 @@ public class ProvisioningReport {
         this.uidValue = uidValue;
     }
 
-    /**
-     * Human readable report string, using the given trace level.
-     *
-     * @param level trace level
-     * @return String for certain levels, null for level NONE
-     */
-    public String getReportString(final TraceLevel level) {
-        if (level == TraceLevel.SUMMARY) {
-            // No per entry log in this case.
-            return null;
-        } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
-            // only report failures
-            return String.format("Failed %s (key/name): %s/%s with message: %s", operation, key, name, message);
-        } else {
-            // All
-            return String.format("%s %s (key/name): %s/%s %s", operation, status, key, name,
-                    StringUtils.isBlank(message)
-                    ? ""
-                    : "with message: " + message);
-        }
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(message).
+                append(status).
+                append(anyType).
+                append(operation).
+                append(key).
+                append(name).
+                append(uidValue).
+                build();
     }
 
-    /**
-     * Helper method to invoke logging per provisioning result, for the given trace level.
-     *
-     * @param results provisioning results
-     * @param level trace level
-     * @return report as string
-     */
-    public static String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
-        StringBuilder sb = new StringBuilder();
-        results.forEach(result -> {
-            sb.append(result.getReportString(level)).append('\n');
-        });
-        return sb.toString();
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ProvisioningReport other = (ProvisioningReport) obj;
+        return new EqualsBuilder().
+                append(message, other.message).
+                append(status, other.status).
+                append(anyType, other.anyType).
+                append(operation, other.operation).
+                append(key, other.key).
+                append(name, other.name).
+                append(uidValue, other.uidValue).
+                build();
     }
 
     @Override

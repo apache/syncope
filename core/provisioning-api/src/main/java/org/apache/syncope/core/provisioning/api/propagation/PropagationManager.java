@@ -20,13 +20,22 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
+import org.identityconnectors.framework.common.objects.Attribute;
 
 public interface PropagationManager {
 
@@ -146,6 +155,16 @@ public interface PropagationManager {
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<String> noPropResourceKeys);
+
+    PropagationTaskInfo newTask(
+            DerAttrHandler derAttrHandler,
+            Any<?> any,
+            ExternalResource resource,
+            ResourceOperation operation,
+            Provision provision,
+            boolean deleteOnResource,
+            Stream<? extends Item> mappingItems,
+            Pair<String, Set<Attribute>> preparedAttrs);
 
     /**
      * Create the needed tasks for the realm for each resource associated, unless in {@code noPropResourceKeys}.

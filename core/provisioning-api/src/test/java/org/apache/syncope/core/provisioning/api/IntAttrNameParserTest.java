@@ -16,30 +16,129 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.util.ReflectionUtils;
 
-@Transactional("Master")
-public class IntAttrNameParserTest extends AbstractTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.WARN)
+public class IntAttrNameParserTest {
 
-    @Autowired
+    private static final Map<AnyTypeKind, List<String>> FIELDS = new HashMap<>();
+
+    static {
+        FIELDS.put(AnyTypeKind.USER, Arrays.asList("key", "username"));
+        FIELDS.put(AnyTypeKind.GROUP, Arrays.asList("key", "name", "userOwner"));
+        FIELDS.put(AnyTypeKind.ANY_OBJECT, Arrays.asList("key", "name"));
+    }
+
+    @Mock
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Mock
+    private DerSchemaDAO derSchemaDAO;
+
+    @Mock
+    private VirSchemaDAO virSchemaDAO;
+
+    @Mock
+    private AnyUtilsFactory anyUtilsFactory;
+
+    @Mock
+    private AnyUtils anyUtils;
+
+    @InjectMocks
     private IntAttrNameParser intAttrNameParser;
+
+    @BeforeEach
+    public void initMocks() throws NoSuchFieldException {
+        MockitoAnnotations.initMocks(this);
+
+        when(anyUtilsFactory.getInstance(any(AnyTypeKind.class))).thenAnswer(ic -> {
+            when(anyUtils.anyTypeKind()).thenReturn(ic.getArgument(0));
+            return anyUtils;
+        });
+        when(anyUtils.getField(anyString())).thenAnswer(ic -> {
+            String field = ic.getArgument(0);
+            return FIELDS.get(anyUtils.anyTypeKind()).contains(field)
+                    ? ReflectionUtils.findField(getClass(), "anyUtils")
+                    : null;
+        });
+        when(plainSchemaDAO.find(anyString())).thenAnswer(ic -> {
+            String schemaName = ic.getArgument(0);
+            switch (schemaName) {
+                case "email":
+                case "firstname":
+                case "location":
+                    PlainSchema schema = mock(PlainSchema.class);
+                    when(schema.getKey()).thenReturn(schemaName);
+                    when(schema.getType()).thenReturn(AttrSchemaType.String);
+                    return schema;
+
+                default:
+                    return null;
+            }
+        });
+        when(derSchemaDAO.find(anyString())).thenAnswer(ic -> {
+            String schemaName = ic.getArgument(0);
+            switch (schemaName) {
+                case "cn":
+                    DerSchema schema = mock(DerSchema.class);
+                    when(schema.getKey()).thenReturn(ic.getArgument(0));
+                    return schema;
+
+                default:
+                    return null;
+            }
+        });
+        when(virSchemaDAO.find(anyString())).thenAnswer(ic -> {
+            String schemaName = ic.getArgument(0);
+            switch (schemaName) {
+                case "rvirtualdata":
+                    VirSchema schema = mock(VirSchema.class);
+                    when(schema.getKey()).thenReturn(ic.getArgument(0));
+                    return schema;
+
+                default:
+                    return null;
+            }
+        });
+    }
 
     @Test
     public void ownFields() throws ParseException {
@@ -231,8 +330,8 @@ public class IntAttrNameParserTest extends AbstractTest {
 
     @Test
     public void relationship() throws ParseException {
-        IntAttrName intAttrName = intAttrNameParser.parse("relationships[inclusion][PRINTER].location",
-                AnyTypeKind.USER);
+        IntAttrName intAttrName = intAttrNameParser.parse(
+                "relationships[inclusion][PRINTER].location", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());

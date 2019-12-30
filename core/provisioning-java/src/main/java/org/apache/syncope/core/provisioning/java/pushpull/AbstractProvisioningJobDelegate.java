@@ -22,6 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -36,7 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobExecutionException;
@@ -49,6 +50,37 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     private static final String GROUP = "GROUP";
 
     private static final String LINKED_ACCOUNT = "LINKED_ACCOUNT";
+
+    /**
+     * Helper method to invoke logging per provisioning result, for the given trace level.
+     *
+     * @param results provisioning results
+     * @param level trace level
+     * @return report as string
+     */
+    public static String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
+        StringBuilder sb = new StringBuilder();
+
+        results.stream().map(result -> {
+            if (level == TraceLevel.SUMMARY) {
+                // No per entry log in this case.
+                return null;
+            } else if (level == TraceLevel.FAILURES && result.getStatus() == ProvisioningReport.Status.FAILURE) {
+                // only report failures
+                return String.format("Failed %s (key/name): %s/%s with message: %s",
+                        result.getOperation(), result.getKey(), result.getName(), result.getMessage());
+            } else {
+                // All
+                return String.format("%s %s (key/name): %s/%s %s",
+                        result.getOperation(), result.getStatus(), result.getKey(), result.getName(),
+                        StringUtils.isBlank(result.getMessage())
+                        ? StringUtils.EMPTY
+                        : "with message: " + result.getMessage());
+            }
+        }).filter(Objects::nonNull).forEach(report -> sb.append(report).append('\n'));
+
+        return sb.toString();
+    }
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -412,71 +444,71 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             if (includeUser) {
                 if (!uFailCreate.isEmpty()) {
                     report.append("\n\nUsers failed to create: ");
-                    report.append(ProvisioningReport.generate(uFailCreate, traceLevel));
+                    report.append(generate(uFailCreate, traceLevel));
                 }
                 if (!uFailUpdate.isEmpty()) {
                     report.append("\nUsers failed to update: ");
-                    report.append(ProvisioningReport.generate(uFailUpdate, traceLevel));
+                    report.append(generate(uFailUpdate, traceLevel));
                 }
                 if (!uFailDelete.isEmpty()) {
                     report.append("\nUsers failed to delete: ");
-                    report.append(ProvisioningReport.generate(uFailDelete, traceLevel));
+                    report.append(generate(uFailDelete, traceLevel));
                 }
 
                 if (!laFailCreate.isEmpty()) {
                     report.append("\n\nAccounts failed to create: ");
-                    report.append(ProvisioningReport.generate(laFailCreate, traceLevel));
+                    report.append(generate(laFailCreate, traceLevel));
                 }
                 if (!laFailUpdate.isEmpty()) {
                     report.append("\nAccounts failed to update: ");
-                    report.append(ProvisioningReport.generate(laFailUpdate, traceLevel));
+                    report.append(generate(laFailUpdate, traceLevel));
                 }
                 if (!laFailDelete.isEmpty()) {
                     report.append("\nAccounts failed to delete: ");
-                    report.append(ProvisioningReport.generate(laFailDelete, traceLevel));
+                    report.append(generate(laFailDelete, traceLevel));
                 }
             }
 
             if (includeGroup) {
                 if (!gFailCreate.isEmpty()) {
                     report.append("\n\nGroups failed to create: ");
-                    report.append(ProvisioningReport.generate(gFailCreate, traceLevel));
+                    report.append(generate(gFailCreate, traceLevel));
                 }
                 if (!gFailUpdate.isEmpty()) {
                     report.append("\nGroups failed to update: ");
-                    report.append(ProvisioningReport.generate(gFailUpdate, traceLevel));
+                    report.append(generate(gFailUpdate, traceLevel));
                 }
                 if (!gFailDelete.isEmpty()) {
                     report.append("\nGroups failed to delete: ");
-                    report.append(ProvisioningReport.generate(gFailDelete, traceLevel));
+                    report.append(generate(gFailDelete, traceLevel));
                 }
             }
 
             if (includeAnyObject && !aFailCreate.isEmpty()) {
                 report.append("\nAny objects failed to create: ");
-                report.append(ProvisioningReport.generate(aFailCreate, traceLevel));
+                report.append(generate(aFailCreate, traceLevel));
             }
             if (includeAnyObject && !aFailUpdate.isEmpty()) {
                 report.append("\nAny objects failed to update: ");
-                report.append(ProvisioningReport.generate(aFailUpdate, traceLevel));
+                report.append(generate(aFailUpdate, traceLevel));
             }
             if (includeAnyObject && !aFailDelete.isEmpty()) {
                 report.append("\nAny objects failed to delete: ");
-                report.append(ProvisioningReport.generate(aFailDelete, traceLevel));
+                report.append(generate(aFailDelete, traceLevel));
             }
 
             if (includeRealm) {
                 if (!rFailCreate.isEmpty()) {
                     report.append("\nRealms failed to create: ");
-                    report.append(ProvisioningReport.generate(rFailCreate, traceLevel));
+                    report.append(generate(rFailCreate, traceLevel));
                 }
                 if (!rFailUpdate.isEmpty()) {
                     report.append("\nRealms failed to update: ");
-                    report.append(ProvisioningReport.generate(rFailUpdate, traceLevel));
+                    report.append(generate(rFailUpdate, traceLevel));
                 }
                 if (!rFailDelete.isEmpty()) {
                     report.append("\nRealms failed to delete: ");
-                    report.append(ProvisioningReport.generate(rFailDelete, traceLevel));
+                    report.append(generate(rFailDelete, traceLevel));
                 }
             }
         }
@@ -486,110 +518,110 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             if (includeUser) {
                 if (!uSuccCreate.isEmpty()) {
                     report.append("\n\nUsers created:\n").
-                            append(ProvisioningReport.generate(uSuccCreate, traceLevel));
+                            append(generate(uSuccCreate, traceLevel));
                 }
                 if (!uSuccUpdate.isEmpty()) {
                     report.append("\nUsers updated:\n").
-                            append(ProvisioningReport.generate(uSuccUpdate, traceLevel));
+                            append(generate(uSuccUpdate, traceLevel));
                 }
                 if (!uSuccDelete.isEmpty()) {
                     report.append("\nUsers deleted:\n").
-                            append(ProvisioningReport.generate(uSuccDelete, traceLevel));
+                            append(generate(uSuccDelete, traceLevel));
                 }
                 if (!uSuccNone.isEmpty()) {
                     report.append("\nUsers no operation:\n").
-                            append(ProvisioningReport.generate(uSuccNone, traceLevel));
+                            append(generate(uSuccNone, traceLevel));
                 }
                 if (!uIgnore.isEmpty()) {
                     report.append("\nUsers ignored:\n").
-                            append(ProvisioningReport.generate(uIgnore, traceLevel));
+                            append(generate(uIgnore, traceLevel));
                 }
 
                 if (!laSuccCreate.isEmpty()) {
                     report.append("\n\nAccounts created:\n").
-                            append(ProvisioningReport.generate(laSuccCreate, traceLevel));
+                            append(generate(laSuccCreate, traceLevel));
                 }
                 if (!laSuccUpdate.isEmpty()) {
                     report.append("\nAccounts updated:\n").
-                            append(ProvisioningReport.generate(laSuccUpdate, traceLevel));
+                            append(generate(laSuccUpdate, traceLevel));
                 }
                 if (!laSuccDelete.isEmpty()) {
                     report.append("\nAccounts deleted:\n").
-                            append(ProvisioningReport.generate(laSuccDelete, traceLevel));
+                            append(generate(laSuccDelete, traceLevel));
                 }
                 if (!laSuccNone.isEmpty()) {
                     report.append("\nAccounts no operation:\n").
-                            append(ProvisioningReport.generate(laSuccNone, traceLevel));
+                            append(generate(laSuccNone, traceLevel));
                 }
                 if (!laIgnore.isEmpty()) {
                     report.append("\nAccounts ignored:\n").
-                            append(ProvisioningReport.generate(laIgnore, traceLevel));
+                            append(generate(laIgnore, traceLevel));
                 }
             }
             if (includeGroup) {
                 if (!gSuccCreate.isEmpty()) {
                     report.append("\n\nGroups created:\n").
-                            append(ProvisioningReport.generate(gSuccCreate, traceLevel));
+                            append(generate(gSuccCreate, traceLevel));
                 }
                 if (!gSuccUpdate.isEmpty()) {
                     report.append("\nGroups updated:\n").
-                            append(ProvisioningReport.generate(gSuccUpdate, traceLevel));
+                            append(generate(gSuccUpdate, traceLevel));
                 }
                 if (!gSuccDelete.isEmpty()) {
                     report.append("\nGroups deleted:\n").
-                            append(ProvisioningReport.generate(gSuccDelete, traceLevel));
+                            append(generate(gSuccDelete, traceLevel));
                 }
                 if (!gSuccNone.isEmpty()) {
                     report.append("\nGroups no operation:\n").
-                            append(ProvisioningReport.generate(gSuccNone, traceLevel));
+                            append(generate(gSuccNone, traceLevel));
                 }
                 if (!gIgnore.isEmpty()) {
                     report.append("\nGroups ignored:\n").
-                            append(ProvisioningReport.generate(gIgnore, traceLevel));
+                            append(generate(gIgnore, traceLevel));
                 }
             }
             if (includeAnyObject) {
                 if (!aSuccCreate.isEmpty()) {
                     report.append("\n\nAny objects created:\n").
-                            append(ProvisioningReport.generate(aSuccCreate, traceLevel));
+                            append(generate(aSuccCreate, traceLevel));
                 }
                 if (!aSuccUpdate.isEmpty()) {
                     report.append("\nAny objects updated:\n").
-                            append(ProvisioningReport.generate(aSuccUpdate, traceLevel));
+                            append(generate(aSuccUpdate, traceLevel));
                 }
                 if (!aSuccDelete.isEmpty()) {
                     report.append("\nAny objects deleted:\n").
-                            append(ProvisioningReport.generate(aSuccDelete, traceLevel));
+                            append(generate(aSuccDelete, traceLevel));
                 }
                 if (!aSuccNone.isEmpty()) {
                     report.append("\nAny objects no operation:\n").
-                            append(ProvisioningReport.generate(aSuccNone, traceLevel));
+                            append(generate(aSuccNone, traceLevel));
                 }
                 if (!aIgnore.isEmpty()) {
                     report.append("\nAny objects ignored:\n").
-                            append(ProvisioningReport.generate(aIgnore, traceLevel));
+                            append(generate(aIgnore, traceLevel));
                 }
             }
             if (includeRealm) {
                 if (!rSuccCreate.isEmpty()) {
                     report.append("\n\nRealms created:\n").
-                            append(ProvisioningReport.generate(rSuccCreate, traceLevel));
+                            append(generate(rSuccCreate, traceLevel));
                 }
                 if (!rSuccUpdate.isEmpty()) {
                     report.append("\nRealms updated:\n").
-                            append(ProvisioningReport.generate(rSuccUpdate, traceLevel));
+                            append(generate(rSuccUpdate, traceLevel));
                 }
                 if (!rSuccDelete.isEmpty()) {
                     report.append("\nRealms deleted:\n").
-                            append(ProvisioningReport.generate(rSuccDelete, traceLevel));
+                            append(generate(rSuccDelete, traceLevel));
                 }
                 if (!rSuccNone.isEmpty()) {
                     report.append("\nRealms no operation:\n").
-                            append(ProvisioningReport.generate(rSuccNone, traceLevel));
+                            append(generate(rSuccNone, traceLevel));
                 }
                 if (!rIgnore.isEmpty()) {
                     report.append("\nRealms ignored:\n").
-                            append(ProvisioningReport.generate(rIgnore, traceLevel));
+                            append(generate(rIgnore, traceLevel));
                 }
             }
         }

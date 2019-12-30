@@ -66,6 +66,7 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -1035,7 +1036,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         template.setPassword("'password123'");
         template.getResources().add(RESOURCE_NAME_DBVIRATTR);
         template.getVirAttrs().add(attrTO("virtualdata", "'virtualvalue'"));
-
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
         taskService.update(TaskType.PULL, task);
@@ -1043,15 +1043,21 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // exec task: one user from CSV will match the user created above and template will be applied
         execProvisioningTask(taskService, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
-        // check that template was successfully applied...
-        userTO = userService.read(userTO.getKey());
-        assertEquals("virtualvalue", userTO.getVirAttr("virtualdata").get().getValues().get(0));
+        // check that template was successfully applied
+        // 1. propagation to db
+        PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).resource(RESOURCE_NAME_DBVIRATTR).build());
+        assertFalse(tasks.getResult().isEmpty());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        // ...and that propagation to db succeeded
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(jdbcTemplate,
                 MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
         assertEquals("virtualvalue", value);
+
+        // 2. virtual attribute
+        userTO = userService.read(userTO.getKey());
+        assertEquals("virtualvalue", userTO.getVirAttr("virtualdata").get().getValues().get(0));
     }
 
     @Test

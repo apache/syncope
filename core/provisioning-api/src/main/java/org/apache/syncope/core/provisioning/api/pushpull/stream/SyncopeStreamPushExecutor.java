@@ -16,26 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.jexl;
+package org.apache.syncope.core.provisioning.api.pushpull.stream;
 
-import org.apache.commons.jexl3.internal.introspection.Uberspect;
-import org.apache.commons.jexl3.introspection.JexlMethod;
-import org.apache.commons.jexl3.introspection.JexlPropertyGet;
+import java.util.List;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.quartz.JobExecutionException;
 
-class ClassFreeUberspect extends Uberspect {
+public interface SyncopeStreamPushExecutor {
 
-    ClassFreeUberspect() {
-        super(null, null);
-    }
-
-    @Override
-    public JexlPropertyGet getPropertyGet(final Object obj, final Object identifier) {
-        return "class".equals(identifier) ? null : super.getPropertyGet(obj, identifier);
-    }
-
-    @Override
-    public JexlMethod getMethod(final Object obj, final String method, final Object... args) {
-        return "getClass".equals(method) ? null : super.getMethod(obj, method, args);
-    }
-
+    List<ProvisioningReport> push(
+            AnyType anyType,
+            List<? extends Any<?>> anys,
+            List<String> columns,
+            StreamConnector connector,
+            PushTaskTO pushTaskTO)
+            throws JobExecutionException;
 }

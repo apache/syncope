@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.java.jexl;
+
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -35,8 +37,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
+import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;

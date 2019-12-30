@@ -347,8 +347,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     public TaskExec execute(final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
         PropagationTask task;
         if (taskInfo.getKey() == null) {
+            // double-checks that provided External Resource is valid, for further actions
+            ExternalResource resource = resourceDAO.find(taskInfo.getResource());
+            if (resource == null) {
+                resource = taskInfo.getExternalResource();
+            }
+
             task = entityFactory.newEntity(PropagationTask.class);
-            task.setResource(resourceDAO.find(taskInfo.getResource()));
+            task.setResource(resource);
             task.setObjectClassName(taskInfo.getObjectClassName());
             task.setAnyTypeKind(taskInfo.getAnyTypeKind());
             task.setAnyType(taskInfo.getAnyType());
@@ -365,9 +371,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
         task.setAttributes(attributes);
 
-        List<PropagationActions> actions = getPropagationActions(task.getResource());
+        Connector connector = taskInfo.getConnector() == null
+                ? connFactory.getConnector(task.getResource())
+                : taskInfo.getConnector();
 
-        String resource = task.getResource().getKey();
+        List<PropagationActions> actions = getPropagationActions(task.getResource());
 
         Date start = new Date();
 
@@ -386,12 +394,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Provision provision = null;
         OrgUnit orgUnit = null;
         Uid uid = null;
-        Connector connector = null;
         Result result;
         try {
             provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName())).orElse(null);
             orgUnit = task.getResource().getOrgUnit();
-            connector = connFactory.getConnector(task.getResource());
 
             if (taskInfo.getBeforeObj() == null) {
                 // Try to read remote object BEFORE any actual operation
@@ -429,7 +435,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             result = Result.SUCCESS;
         } catch (Exception e) {
             result = Result.FAILURE;
-            LOG.error("Exception during provision on resource " + resource, e);
+            LOG.error("Exception during provision on resource " + task.getResource().getKey(), e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();
@@ -515,12 +521,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         String anyTypeKind = task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase();
         String operation = task.getOperation().name().toLowerCase();
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource, operation);
+                AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, task.getResource().getKey(), operation);
         boolean auditRequested = auditManager.auditRequested(
                 AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.PROPAGATION,
                 anyTypeKind,
-                resource,
+                task.getResource().getKey(),
                 operation);
 
         if (notificationsAvailable || auditRequested) {
@@ -529,7 +535,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     AuthContextUtils.getUsername(),
                     AuditElements.EventCategoryType.PROPAGATION,
                     anyTypeKind,
-                    resource,
+                    task.getResource().getKey(),
                     operation,
                     result,
                     beforeObj,
@@ -540,7 +546,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     AuthContextUtils.getUsername(),
                     AuditElements.EventCategoryType.PROPAGATION,
                     anyTypeKind,
-                    resource,
+                    task.getResource().getKey(),
                     operation,
                     result,
                     beforeObj,

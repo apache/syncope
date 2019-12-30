@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,7 +67,6 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
@@ -739,14 +737,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
-        Map<VirSchema, List<String>> virAttrValues = details
-                ? virAttrHandler.getValues(user)
-                : Collections.<VirSchema, List<String>>emptyMap();
         fillTO(userTO, user.getRealm().getFullPath(),
                 user.getAuxClasses(),
                 user.getPlainAttrs(),
                 derAttrHandler.getValues(user),
-                virAttrValues,
+                details ? virAttrHandler.getValues(user) : Collections.emptyMap(),
                 userDAO.findAllResources(user),
                 details);
 

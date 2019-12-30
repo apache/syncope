@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.jexl;
+package org.apache.syncope.core.provisioning.api.jexl;
 
 /**
  * A class loader that will throw {@link ClassNotFoundException} for every class name.

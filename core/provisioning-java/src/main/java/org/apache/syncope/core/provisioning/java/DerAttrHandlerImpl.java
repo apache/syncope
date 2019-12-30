@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;

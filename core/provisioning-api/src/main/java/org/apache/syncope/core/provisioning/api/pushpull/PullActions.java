@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.common.lib.patch.AnyPatch;

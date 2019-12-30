@@ -32,7 +32,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -154,20 +153,24 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @Override
     public Pair<Integer, List<GroupTO>> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderBy,
             final String realm,
             final boolean details) {
 
-        int count = searchDAO.count(
-                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                searchCond == null ? groupDAO.getAllMatchingCond() : searchCond, AnyTypeKind.GROUP);
+        Set<String> adminRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realm);
+
+        SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
+
+        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
-                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                searchCond == null ? groupDAO.getAllMatchingCond() : searchCond,
-                page, size, orderBy, AnyTypeKind.GROUP);
+                adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
-                map(group -> binder.getGroupTO(group, details)).collect(Collectors.toList());
+                map(group -> binder.getGroupTO(group, details)).
+                collect(Collectors.toList());
 
         return Pair.of(count, result);
     }

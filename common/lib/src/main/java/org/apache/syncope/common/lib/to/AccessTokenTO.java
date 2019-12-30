@@ -74,5 +74,4 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
     public void setOwner(final String owner) {
         this.owner = owner;
     }
-
 }

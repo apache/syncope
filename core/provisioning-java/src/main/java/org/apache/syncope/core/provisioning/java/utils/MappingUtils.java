@@ -25,20 +25,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -75,87 +69,6 @@ public final class MappingUtils {
     public static Stream<? extends Item> getPullItems(final Stream<? extends Item> items) {
         return items.filter(
                 item -> item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH);
-    }
-
-    private static Name getName(final String evalConnObjectLink, final String connObjectKey) {
-        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
-        // otherwise evaluated connObjectLink expression is taken as Name().
-        Name name;
-        if (StringUtils.isBlank(evalConnObjectLink)) {
-            // add connObjectKey as __NAME__ attribute ...
-            LOG.debug("Add connObjectKey [{}] as {}", connObjectKey, Name.NAME);
-            name = new Name(connObjectKey);
-        } else {
-            LOG.debug("Add connObjectLink [{}] as {}", evalConnObjectLink, Name.NAME);
-            name = new Name(evalConnObjectLink);
-
-            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("connObjectKey will be used just as {} attribute", Uid.NAME);
-        }
-
-        return name;
-    }
-
-    /**
-     * Build __NAME__ for propagation.
-     * First look if there is a defined connObjectLink for the given resource (and in
-     * this case evaluate as JEXL); otherwise, take given connObjectKey.
-     *
-     * @param any given any object
-     * @param provision external resource
-     * @param connObjectKey connector object key
-     * @return the value to be propagated as __NAME__
-     */
-    public static Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
-        if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", provision.getResource());
-        }
-
-        // Evaluate connObjectKey expression
-        String connObjectLink = provision == null || provision.getMapping() == null
-                ? null
-                : provision.getMapping().getConnObjectLink();
-        String evalConnObjectLink = null;
-        if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(any, jexlContext);
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addDerAttrsToContext(any, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
-        }
-
-        return getName(evalConnObjectLink, connObjectKey);
-    }
-
-    /**
-     * Build __NAME__ for propagation.
-     * First look if there is a defined connObjectLink for the given resource (and in
-     * this case evaluate as JEXL); otherwise, take given connObjectKey.
-     *
-     * @param realm given any object
-     * @param orgUnit external resource
-     * @param connObjectKey connector object key
-     * @return the value to be propagated as __NAME__
-     */
-    public static Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
-        if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", orgUnit.getResource());
-        }
-
-        // Evaluate connObjectKey expression
-        String connObjectLink = orgUnit == null
-                ? null
-                : orgUnit.getConnObjectLink();
-        String evalConnObjectLink = null;
-        if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(realm, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
-        }
-
-        return getName(evalConnObjectLink, connObjectKey);
     }
 
     public static List<ItemTransformer> getItemTransformers(final Item item) {
