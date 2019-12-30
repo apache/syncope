@@ -19,8 +19,13 @@
 package org.apache.syncope.core.provisioning.java;
 
 import javax.persistence.EntityManager;
+import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -36,5 +41,12 @@ public abstract class AbstractTest {
         }
 
         return entityManager;
+    }
+
+    @BeforeAll
+    public static void init() {
+        EntitlementsHolder.getInstance().addAll(IdRepoEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(IdMEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(AMEntitlement.values());
     }
 }

@@ -70,6 +70,6 @@ public interface PropagationTaskExecutor {
      * @param executor the executor of this task
      * @return reporter to report propagation execution status
      */
-    PropagationReporter execute(Collection<PropagationTaskInfo> taskInfos, boolean nullPriorityAsync,
-                                String executor);
+    PropagationReporter execute(
+            Collection<PropagationTaskInfo> taskInfos, boolean nullPriorityAsync, String executor);
 }

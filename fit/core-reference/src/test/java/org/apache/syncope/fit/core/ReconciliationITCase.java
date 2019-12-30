@@ -19,24 +19,46 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.Attr;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
+import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
+import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -167,5 +189,107 @@ public class ReconciliationITCase extends AbstractITCase {
         // 4. verify reconciliation result
         AnyObjectTO printer = anyObjectService.read(externalName);
         assertNotNull(printer);
+    }
+
+    @Test
+    public void importCSV() {
+        ReconciliationService service = adminClient.getService(ReconciliationService.class);
+        Client client = WebClient.client(service);
+        client.type(RESTHeaders.TEXT_CSV);
+
+        CSVPullSpec spec = new CSVPullSpec.Builder(AnyTypeKind.USER.name(), "username").build();
+        InputStream csv = getClass().getResourceAsStream("/test1.csv");
+
+        List<ProvisioningReport> results = service.pull(spec, csv);
+        assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());
+        assertNotNull(results.get(0).getKey());
+        assertEquals("donizetti", results.get(0).getName());
+        assertEquals("donizetti", results.get(0).getUidValue());
+        assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
+        assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
+
+        UserTO donizetti = userService.read(results.get(0).getKey());
+        assertNotNull(donizetti);
+        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().get(0));
+        assertEquals(1, donizetti.getPlainAttr("loginDate").get().getValues().size());
+
+        UserTO cimarosa = userService.read(results.get(1).getKey());
+        assertNotNull(cimarosa);
+        assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().get(0));
+        assertEquals(2, cimarosa.getPlainAttr("loginDate").get().getValues().size());
+    }
+
+    @Test
+    public void exportCSV() throws IOException {
+        ReconciliationService service = adminClient.getService(ReconciliationService.class);
+        Client client = WebClient.client(service);
+        client.accept(RESTHeaders.TEXT_CSV);
+
+        AnyQuery anyQuery = new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("*ini").query()).
+                page(1).
+                size(1000).
+                orderBy("username ASC").
+                build();
+
+        CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).
+                ignorePagination(true).
+                field("username").
+                field("status").
+                plainAttr("firstname").
+                plainAttr("surname").
+                plainAttr("email").
+                plainAttr("loginDate").
+                build();
+
+        Response response = service.push(anyQuery, spec);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                "attachment; filename=" + SyncopeConstants.MASTER_DOMAIN + ".csv",
+                response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
+
+        PagedResult<UserTO> users = userService.search(anyQuery);
+        assertNotNull(users);
+
+        CsvSchema.Builder builder = CsvSchema.builder().setUseHeader(true);
+        builder.addColumn("username");
+        builder.addColumn("status");
+        builder.addColumn("firstname");
+        builder.addColumn("surname");
+        builder.addColumn("email");
+        builder.addColumn("loginDate");
+        CsvSchema schema = builder.build();
+
+        MappingIterator<Map<String, String>> reader = new CsvMapper().readerFor(Map.class).with(schema).
+                readValues((InputStream) response.getEntity());
+
+        int rows = 0;
+        for (; reader.hasNext(); rows++) {
+            Map<String, String> row = reader.next();
+
+            assertEquals(users.getResult().get(rows).getUsername(), row.get("username"));
+            assertEquals(users.getResult().get(rows).getStatus(), row.get("status"));
+
+            switch (row.get("username")) {
+                case "rossini":
+                    assertEquals(spec.getNullValue(), row.get("email"));
+                    assertTrue(row.get("loginDate").contains(spec.getArrayElementSeparator()));
+                    break;
+
+                case "verdi":
+                    assertEquals("verdi@syncope.org", row.get("email"));
+                    assertEquals(spec.getNullValue(), row.get("loginDate"));
+                    break;
+
+                case "bellini":
+                    assertEquals(spec.getNullValue(), row.get("email"));
+                    assertFalse(row.get("loginDate").contains(spec.getArrayElementSeparator()));
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        assertEquals(rows, users.getTotalCount());
     }
 }

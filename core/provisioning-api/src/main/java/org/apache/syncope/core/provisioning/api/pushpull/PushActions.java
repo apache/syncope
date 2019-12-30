@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.quartz.JobExecutionException;
 

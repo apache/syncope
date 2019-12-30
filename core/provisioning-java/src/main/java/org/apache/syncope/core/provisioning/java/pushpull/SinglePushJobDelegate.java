@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;

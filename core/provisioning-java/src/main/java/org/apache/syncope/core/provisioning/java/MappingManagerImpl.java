@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -28,6 +29,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -101,7 +104,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.Uid;
 
 @Component
 public class MappingManagerImpl implements MappingManager {
@@ -182,6 +187,87 @@ public class MappingManagerImpl implements MappingManager {
         return connObjectKey;
     }
 
+    private static Name getName(final String evalConnObjectLink, final String connObjectKey) {
+        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
+        // otherwise evaluated connObjectLink expression is taken as Name().
+        Name name;
+        if (StringUtils.isBlank(evalConnObjectLink)) {
+            // add connObjectKey as __NAME__ attribute ...
+            LOG.debug("Add connObjectKey [{}] as {}", connObjectKey, Name.NAME);
+            name = new Name(connObjectKey);
+        } else {
+            LOG.debug("Add connObjectLink [{}] as {}", evalConnObjectLink, Name.NAME);
+            name = new Name(evalConnObjectLink);
+
+            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
+            LOG.debug("connObjectKey will be used just as {} attribute", Uid.NAME);
+        }
+
+        return name;
+    }
+
+    /**
+     * Build __NAME__ for propagation.
+     * First look if there is a defined connObjectLink for the given resource (and in
+     * this case evaluate as JEXL); otherwise, take given connObjectKey.
+     *
+     * @param any given any object
+     * @param provision external resource
+     * @param connObjectKey connector object key
+     * @return the value to be propagated as __NAME__
+     */
+    private Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
+        if (StringUtils.isBlank(connObjectKey)) {
+            // LOG error but avoid to throw exception: leave it to the external resource
+            LOG.warn("Missing ConnObjectKey value for {}: ", provision.getResource());
+        }
+
+        // Evaluate connObjectKey expression
+        String connObjectLink = provision == null || provision.getMapping() == null
+                ? null
+                : provision.getMapping().getConnObjectLink();
+        String evalConnObjectLink = null;
+        if (StringUtils.isNotBlank(connObjectLink)) {
+            JexlContext jexlContext = new MapContext();
+            JexlUtils.addFieldsToContext(any, jexlContext);
+            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
+            JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
+        }
+
+        return getName(evalConnObjectLink, connObjectKey);
+    }
+
+    /**
+     * Build __NAME__ for propagation.
+     * First look if there is a defined connObjectLink for the given resource (and in
+     * this case evaluate as JEXL); otherwise, take given connObjectKey.
+     *
+     * @param realm given any object
+     * @param orgUnit external resource
+     * @param connObjectKey connector object key
+     * @return the value to be propagated as __NAME__
+     */
+    private Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
+        if (StringUtils.isBlank(connObjectKey)) {
+            // LOG error but avoid to throw exception: leave it to the external resource
+            LOG.warn("Missing ConnObjectKey value for {}: ", orgUnit.getResource());
+        }
+
+        // Evaluate connObjectKey expression
+        String connObjectLink = orgUnit == null
+                ? null
+                : orgUnit.getConnObjectLink();
+        String evalConnObjectLink = null;
+        if (StringUtils.isNotBlank(connObjectLink)) {
+            JexlContext jexlContext = new MapContext();
+            JexlUtils.addFieldsToContext(realm, jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
+        }
+
+        return getName(evalConnObjectLink, connObjectKey);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Pair<String, Set<Attribute>> prepareAttrs(
@@ -225,7 +311,7 @@ public class MappingManagerImpl implements MappingManager {
                 attributes.remove(connObjectKeyAttr);
                 attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue[0]));
             }
-            Name name = MappingUtils.evaluateNAME(any, provision, connObjectKeyValue[0]);
+            Name name = evaluateNAME(any, provision, connObjectKeyValue[0]);
             attributes.add(name);
             if (connObjectKeyAttr == null
                     && connObjectKeyValue[0] != null && !connObjectKeyValue[0].equals(name.getNameValue())) {
@@ -300,7 +386,7 @@ public class MappingManagerImpl implements MappingManager {
                 attributes.remove(connObjectKeyExtAttr);
                 attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
             }
-            Name name = MappingUtils.evaluateNAME(user, provision, connObjectKey);
+            Name name = evaluateNAME(user, provision, connObjectKey);
             attributes.add(name);
             if (!connObjectKey.equals(name.getNameValue()) && connObjectKeyExtAttr == null) {
                 attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKey));
@@ -378,7 +464,7 @@ public class MappingManagerImpl implements MappingManager {
                 attributes.remove(connObjectKeyAttr);
                 attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue[0]));
             }
-            attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKeyValue[0]));
+            attributes.add(evaluateNAME(realm, orgUnit, connObjectKeyValue[0]));
         }
 
         return Pair.of(connObjectKeyValue[0], attributes);
@@ -634,24 +720,24 @@ public class MappingManagerImpl implements MappingManager {
 
                     default:
                         try {
-                            Object fieldValue = FieldUtils.readField(ref, intAttrName.getField(), true);
-                            if (fieldValue instanceof Date) {
-                                // needed because ConnId does not natively supports the Date type
-                                attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
-                                        format((Date) fieldValue));
-                            } else if (Boolean.TYPE.isInstance(fieldValue)) {
-                                attrValue.setBooleanValue((Boolean) fieldValue);
-                            } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
-                                attrValue.setDoubleValue((Double) fieldValue);
-                            } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
-                                attrValue.setLongValue((Long) fieldValue);
-                            } else {
-                                attrValue.setStringValue(fieldValue.toString());
-                            }
-                            values.add(attrValue);
-                        } catch (Exception e) {
-                            LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), ref, e);
+                        Object fieldValue = FieldUtils.readField(ref, intAttrName.getField(), true);
+                        if (fieldValue instanceof Date) {
+                            // needed because ConnId does not natively supports the Date type
+                            attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
+                                    format((Date) fieldValue));
+                        } else if (Boolean.TYPE.isInstance(fieldValue)) {
+                            attrValue.setBooleanValue((Boolean) fieldValue);
+                        } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
+                            attrValue.setDoubleValue((Double) fieldValue);
+                        } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
+                            attrValue.setLongValue((Long) fieldValue);
+                        } else {
+                            attrValue.setStringValue(fieldValue.toString());
                         }
+                        values.add(attrValue);
+                    } catch (Exception e) {
+                        LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), ref, e);
+                    }
                 }
             } else if (intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
@@ -758,8 +844,8 @@ public class MappingManagerImpl implements MappingManager {
                     PlainAttrGetter.DEFAULT);
         }
 
-        return Optional.ofNullable(preparedAttr)
-                .map(attr -> MappingUtils.evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
+        return Optional.ofNullable(preparedAttr).
+                map(attr -> evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
     }
 
     @Transactional(readOnly = true)

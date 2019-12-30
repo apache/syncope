@@ -45,7 +45,7 @@ import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;

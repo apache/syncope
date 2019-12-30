@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.Exec;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
@@ -85,30 +83,25 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final boolean nullPriorityAsync,
             final String executorId) {
 
-        Map<PropagationTaskInfo, ExternalResource> taskToResource = new HashMap<>(taskInfos.size());
         List<PropagationTaskInfo> prioritizedTasks = new ArrayList<>();
 
         int[] connRequestTimeout = { 60 };
 
-        taskInfos.forEach(task -> {
-            ExternalResource resource = resourceDAO.find(task.getResource());
-            taskToResource.put(task, resource);
+        taskInfos.stream().filter(task -> task.getExternalResource().getPropagationPriority() != null).forEach(task -> {
+            prioritizedTasks.add(task);
 
-            if (resource.getPropagationPriority() != null) {
-                prioritizedTasks.add(task);
+            if (task.getExternalResource().getConnector().getConnRequestTimeout() != null
+                    && connRequestTimeout[0] < task.getExternalResource().getConnector().getConnRequestTimeout()) {
 
-                if (resource.getConnector().getConnRequestTimeout() != null
-                        && connRequestTimeout[0] < resource.getConnector().getConnRequestTimeout()) {
-                    connRequestTimeout[0] = resource.getConnector().getConnRequestTimeout();
-                    LOG.debug("Upgrade request connection timeout to {}", connRequestTimeout);
-                }
+                connRequestTimeout[0] = task.getExternalResource().getConnector().getConnRequestTimeout();
+                LOG.debug("Upgrade request connection timeout to {}", connRequestTimeout);
             }
         });
 
-        prioritizedTasks.sort(new PriorityComparator(taskToResource));
+        prioritizedTasks.sort(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority()));
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
-        Collection<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
+        Set<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
                 filter(task -> !prioritizedTasks.contains(task)).collect(Collectors.toSet());
         LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
@@ -169,32 +162,6 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     nullPriority.clear();
                 }
             }
-        }
-    }
-
-    /**
-     * Compare propagation tasks according to related ExternalResource's priority.
-     */
-    protected static class PriorityComparator implements Comparator<PropagationTaskInfo>, Serializable {
-
-        private static final long serialVersionUID = -1969355670784448878L;
-
-        private final Map<PropagationTaskInfo, ExternalResource> taskToResource;
-
-        public PriorityComparator(final Map<PropagationTaskInfo, ExternalResource> taskToResource) {
-            this.taskToResource = taskToResource;
-        }
-
-        @Override
-        public int compare(final PropagationTaskInfo task1, final PropagationTaskInfo task2) {
-            int prop1 = taskToResource.get(task1).getPropagationPriority();
-            int prop2 = taskToResource.get(task2).getPropagationPriority();
-
-            return prop1 > prop2
-                    ? 1
-                    : prop1 == prop2
-                            ? 0
-                            : -1;
         }
     }
 }

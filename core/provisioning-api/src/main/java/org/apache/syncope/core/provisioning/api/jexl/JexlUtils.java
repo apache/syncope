@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.jexl;
+package org.apache.syncope.core.provisioning.api.jexl;
 
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -44,7 +44,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -227,17 +226,24 @@ public final class JexlUtils {
         });
     }
 
-    public static void addDerAttrsToContext(final Any<?> any, final JexlContext jexlContext) {
-        Map<DerSchema, String> derAttrs =
-                ApplicationContextProvider.getBeanFactory().getBean(DerAttrHandler.class).getValues(any);
+    public static void addDerAttrsToContext(
+            final Any<?> any,
+            final DerAttrHandler derAttrHandler,
+            final JexlContext jexlContext) {
+
+        Map<DerSchema, String> derAttrs = derAttrHandler.getValues(any);
 
         derAttrs.forEach((schema, value) -> jexlContext.set(schema.getKey(), value));
     }
 
-    public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?> any) {
+    public static boolean evaluateMandatoryCondition(
+            final String mandatoryCondition,
+            final Any<?> any,
+            final DerAttrHandler derAttrHandler) {
+
         JexlContext jexlContext = new MapContext();
         addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-        addDerAttrsToContext(any, jexlContext);
+        addDerAttrsToContext(any, derAttrHandler, jexlContext);
 
         return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
     }

@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -33,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -159,16 +157,18 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final String realm,
             final boolean details) {
 
-        int count = searchDAO.count(
-                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()), AnyTypeKind.GROUP);
+        Set<String> adminRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH), realm);
+
+        SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
+
+        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
-                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                Optional.ofNullable(searchCond).orElseGet(() -> groupDAO.getAllMatchingCond()),
-                page, size, orderBy, AnyTypeKind.GROUP);
+                adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
-                map(group -> binder.getGroupTO(group, details)).collect(Collectors.toList());
+                map(group -> binder.getGroupTO(group, details)).
+                collect(Collectors.toList());
 
         return Pair.of(count, result);
     }

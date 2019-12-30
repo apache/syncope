@@ -485,22 +485,18 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // schemas given by type extensions
         Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
-            ((User) any).getMemberships().forEach(
-                    memb -> memb.getRightEnd().getTypeExtensions().forEach(
-                            typeExtension -> typeExtensionClasses.put(
-                                    memb.getRightEnd(), typeExtension.getAuxClasses())));
+            ((User) any).getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().
+                    forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
         } else if (any instanceof AnyObject) {
-            ((AnyObject) any).getMemberships().
-                    forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
-                    filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
-                    forEach(typeExtension -> typeExtensionClasses.put(
-                    memb.getRightEnd(), typeExtension.getAuxClasses())));
+            ((AnyObject) any).getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
+                    filter(typeExt -> any.getType().equals(typeExt.getAnyType())).
+                    forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
         }
 
         typeExtensionClasses.entrySet().stream().map(entry -> {
             result.getForMemberships().put(entry.getKey(), new HashSet<>());
             return entry;
-        }).forEachOrdered((entry) -> entry.getValue().forEach(typeClass -> {
+        }).forEach(entry -> entry.getValue().forEach(typeClass -> {
             if (reference.equals(PlainSchema.class)) {
                 result.getForMemberships().get(entry.getKey()).
                         addAll((Collection<? extends S>) typeClass.getPlainSchemas());
@@ -543,7 +539,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered((actualKey) -> {
+                forEach((actualKey) -> {
                     DynRealm dynRealm = dynRealmDAO.find(actualKey.toString());
                     if (dynRealm == null) {
                         LOG.error("Could not find dynRealm with id {}, even though returned by the native query",

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -42,14 +43,13 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
@@ -160,7 +160,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             connector.filteredReconciliation(
                     provision.getObjectClass(),
-                    new AccountReconciliationFilterBuilder(connObjectKey, connObjectValue),
+                    new SingleReconciliationFilterBuilder(connObjectKey, connObjectValue),
                     handler,
                     MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0])));
 
@@ -182,13 +182,13 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
         }
     }
 
-    static class AccountReconciliationFilterBuilder implements ReconFilterBuilder {
+    static class SingleReconciliationFilterBuilder implements ReconFilterBuilder {
 
         private final String key;
 
         private final String value;
 
-        AccountReconciliationFilterBuilder(final String key, final String value) {
+        SingleReconciliationFilterBuilder(final String key, final String value) {
             this.key = key;
             this.value = value;
         }

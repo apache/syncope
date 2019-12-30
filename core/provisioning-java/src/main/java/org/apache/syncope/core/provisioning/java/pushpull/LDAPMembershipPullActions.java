@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;

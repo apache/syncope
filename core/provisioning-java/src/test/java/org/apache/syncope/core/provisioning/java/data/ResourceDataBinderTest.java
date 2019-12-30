@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.java.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
+import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.identityconnectors.framework.common.objects.ObjectClass;

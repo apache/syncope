@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -118,7 +117,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
                 + ".schema_id WHERE " + JPAPlainSchema.TABLE + ".id = ?1");
         query.setParameter(1, schema.getKey());
 
-        return (long) query.getSingleResult() > 0;
+        return ((Number) query.getSingleResult()).intValue() > 0;
     }
 
     @Override
@@ -128,9 +127,8 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
 
     protected void deleteAttrs(final PlainSchema schema) {
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-
-            findAttrs(schema, anyUtils.plainAttrClass()).forEach(attr -> plainAttrDAO.delete(attr));
+            findAttrs(schema, anyUtilsFactory.getInstance(anyTypeKind).plainAttrClass()).
+                    forEach(attr -> plainAttrDAO.delete(attr));
         }
     }
 

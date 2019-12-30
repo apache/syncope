@@ -29,6 +29,7 @@ import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.job.JobManager;

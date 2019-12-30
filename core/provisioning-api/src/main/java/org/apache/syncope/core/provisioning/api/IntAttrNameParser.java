@@ -16,10 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.api;
 
 import java.text.ParseException;
-import org.apache.syncope.core.provisioning.api.IntAttrName;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;

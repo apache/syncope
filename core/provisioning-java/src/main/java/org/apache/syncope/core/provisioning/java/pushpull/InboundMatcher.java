@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,7 +57,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -212,13 +211,13 @@ public class InboundMatcher {
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem,
                     null,
-                    Collections.<Object>singletonList(finalConnObjectKeyValue));
+                    List.of(finalConnObjectKeyValue));
             if (!CollectionUtils.isEmpty(output)) {
                 finalConnObjectKeyValue = output.get(0).toString();
             }
         }
 
-        List<PullMatch> noMatchResult = Collections.singletonList(PullCorrelationRule.NO_MATCH);
+        List<PullMatch> noMatchResult = List.of(PullCorrelationRule.NO_MATCH);
 
         IntAttrName intAttrName;
         try {
@@ -356,7 +355,7 @@ public class InboundMatcher {
             }
         }
 
-        List<PullMatch> result = Collections.emptyList();
+        List<PullMatch> result = List.of();
         try {
             if (rule.isPresent()) {
                 result = matchByCorrelationRule(syncDelta, provision, rule.get(), provision.getAnyType().getKind());
@@ -376,7 +375,7 @@ public class InboundMatcher {
                     }
                 }
                 if (connObjectKeyValue == null) {
-                    result = Collections.singletonList(PullCorrelationRule.NO_MATCH);
+                    result = List.of(PullCorrelationRule.NO_MATCH);
                 } else {
                     result = matchByConnObjectKeyValue(connObjectKeyItem.get(), connObjectKeyValue, provision);
                 }
@@ -412,14 +411,14 @@ public class InboundMatcher {
             }
         }
         if (connObjectKey == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem.get(),
                     null,
-                    Collections.<Object>singletonList(connObjectKey));
+                    List.of(connObjectKey));
             if (!CollectionUtils.isEmpty(output)) {
                 connObjectKey = output.get(0).toString();
             }
@@ -459,4 +458,3 @@ public class InboundMatcher {
         return result;
     }
 }
-

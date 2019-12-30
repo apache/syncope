@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.java.jexl;
+
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,9 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.identityconnectors.framework.common.objects.Name;
+import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,14 +66,16 @@ public class MappingTest extends AbstractTest {
         User user = userDAO.findByUsername("rossini");
         assertNotNull(user);
 
-        Name name = MappingUtils.evaluateNAME(user, provision, user.getUsername());
-        assertEquals("uid=rossini,ou=people,o=isp", name.getNameValue());
+        JexlContext jexlContext = new MapContext();
+        JexlUtils.addFieldsToContext(user, jexlContext);
+        JexlUtils.addPlainAttrsToContext(user.getPlainAttrs(), jexlContext);
 
-        provision.getMapping().setConnObjectLink(
-                "'uid=' + username + realm.replaceAll('/', ',o=') + ',ou=people,o=isp'");
+        assertEquals(
+                "uid=rossini,ou=people,o=isp",
+                JexlUtils.evaluate(provision.getMapping().getConnObjectLink(), jexlContext));
 
-        name = MappingUtils.evaluateNAME(user, provision, user.getUsername());
-        assertEquals("uid=rossini,o=even,ou=people,o=isp", name.getNameValue());
+        String connObjectLink = "'uid=' + username + realm.replaceAll('/', ',o=') + ',ou=people,o=isp'";
+        assertEquals("uid=rossini,o=even,ou=people,o=isp", JexlUtils.evaluate(connObjectLink, jexlContext));
     }
 
     @Test

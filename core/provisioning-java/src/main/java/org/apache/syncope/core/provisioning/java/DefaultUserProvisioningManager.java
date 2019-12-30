@@ -45,7 +45,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

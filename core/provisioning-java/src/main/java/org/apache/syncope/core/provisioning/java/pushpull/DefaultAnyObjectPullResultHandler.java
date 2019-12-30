@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.springframework.beans.factory.annotation.Autowired;

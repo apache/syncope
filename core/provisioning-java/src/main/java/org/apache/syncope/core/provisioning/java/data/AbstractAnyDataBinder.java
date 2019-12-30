@@ -73,8 +73,8 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,7 +226,7 @@ abstract class AbstractAnyDataBinder {
                         AccountGetter.DEFAULT,
                         PlainAttrGetter.DEFAULT);
                 if (intValues.getRight().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any, derAttrHandler)) {
 
                     missingAttrNames.add(mapItem.getIntAttrName());
                 }
@@ -256,7 +256,7 @@ abstract class AbstractAnyDataBinder {
         return reqValMissing;
     }
 
-    private static void checkMandatory(
+    private void checkMandatory(
             final PlainSchema schema,
             final PlainAttr<?> attr,
             final Any<?> any,
@@ -264,7 +264,7 @@ abstract class AbstractAnyDataBinder {
 
         if (attr == null
                 && !schema.isReadonly()
-                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)) {
+                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any, derAttrHandler)) {
 
             LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
 
@@ -272,14 +272,13 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    private static SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
+    private SyncopeClientException checkMandatory(final Any<?> any, final AnyUtils anyUtils) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
-        allowedPlainSchemas.getForSelf()
-                .forEach(schema -> checkMandatory(schema, any.getPlainAttr(schema.getKey())
-                .orElse(null), any, reqValMissing));
+        allowedPlainSchemas.getForSelf().forEach(schema -> checkMandatory(
+                schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
         if (any instanceof GroupableRelatable) {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
                 GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);

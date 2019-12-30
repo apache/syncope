@@ -223,13 +223,13 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 3. update virtual attribute directly
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = queryForObject(jdbcTemplate, 
+        String value = queryForObject(jdbcTemplate,
                 MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache", value);
 
         jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", actual.getKey());
 
-        value = queryForObject(jdbcTemplate, 
+        value = queryForObject(jdbcTemplate,
                 MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache2", value);
 
@@ -380,14 +380,15 @@ public class VirAttrITCase extends AbstractITCase {
         // 4. update value on external resource
         // ----------------------------------------
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = queryForObject(
-                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+        String value = queryForObject(jdbcTemplate,
+                MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.
+                        getKey());
         assertEquals("virattrcache", value);
 
         jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", userTO.getKey());
 
-        value = queryForObject(
-                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+        value = queryForObject(jdbcTemplate,
+                MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
         assertEquals("virattrcache2", value);
         // ----------------------------------------
 

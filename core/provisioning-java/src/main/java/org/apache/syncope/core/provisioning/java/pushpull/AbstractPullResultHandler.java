@@ -19,9 +19,9 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -55,7 +55,7 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
@@ -188,7 +188,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             end(provision.getAnyType().getKind(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         AnyCR anyCR = connObjectUtils.getAnyCR(delta.getObject(), profile.getTask(), provision, true);
@@ -263,7 +263,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             end(provision.getAnyType().getKind(), UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
@@ -293,7 +293,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType().getKind(),
                     MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to update {}", matches);
@@ -402,7 +402,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType().getKind(),
                     MatchingRule.toEventName(matchingRule), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to deprovision {}", matches);
@@ -519,7 +519,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             ? MatchingRule.toEventName(MatchingRule.UNLINK)
                             : MatchingRule.toEventName(MatchingRule.LINK),
                     Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to update {}", matches);
@@ -619,7 +619,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("PullTask not configured for delete");
             end(provision.getAnyType().getKind(),
                     ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         LOG.debug("About to delete {}", matches);
@@ -649,7 +649,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     try {
                         getProvisioningManager().delete(
                                 match.getAny().getKey(),
-                                Collections.singleton(profile.getTask().getResource().getKey()),
+                                Set.of(profile.getTask().getResource().getKey()),
                                 true);
                         output = null;
                         resultStatus = Result.SUCCESS;

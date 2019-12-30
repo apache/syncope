@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -87,13 +87,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     protected SchedulerFactoryBean scheduler;
 
     protected abstract String getName(Any<?> any);
-
-    protected void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
-        if (!reporter.getStatuses().isEmpty()) {
-            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
-            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
-        }
-    }
 
     protected void update(
             final Any<?> any,
@@ -494,7 +487,14 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected ResourceOperation toResourceOperation(final UnmatchingRule rule) {
+    protected static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
+        if (!reporter.getStatuses().isEmpty()) {
+            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
+            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
+        }
+    }
+
+    protected static ResourceOperation toResourceOperation(final UnmatchingRule rule) {
         switch (rule) {
             case ASSIGN:
             case PROVISION:
@@ -504,7 +504,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected ResourceOperation toResourceOperation(final MatchingRule rule) {
+    protected static ResourceOperation toResourceOperation(final MatchingRule rule) {
         switch (rule) {
             case UPDATE:
                 return ResourceOperation.UPDATE;
@@ -516,7 +516,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
+    protected static ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
         switch (status) {
             case FAILURE:
                 return ProvisioningReport.Status.FAILURE;

@@ -31,11 +31,12 @@ import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -858,8 +859,8 @@ public class UserITCase extends AbstractITCase {
     private static void verifyAsyncResult(final List<PropagationStatus> statuses) {
         assertEquals(3, statuses.size());
 
-        Map<String, PropagationStatus> byResource = new HashMap<>(3);
-        statuses.forEach(status -> byResource.put(status.getResource(), status));
+        Map<String, PropagationStatus> byResource = statuses.stream().collect(
+                Collectors.toMap(PropagationStatus::getResource, Function.identity()));
         assertEquals(ExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
         assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.CREATED
                 || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.SUCCESS);

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -111,14 +110,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final String realm,
             final boolean details) {
 
-        int count = searchDAO.count(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm),
-            Optional.ofNullable(searchCond).orElseGet(() -> userDAO.getAllMatchingCond()), AnyTypeKind.USER);
+        Set<String> adminRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm);
 
-        List<User> matching = searchDAO.search(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm),
-            Optional.ofNullable(searchCond).orElseGet(() -> userDAO.getAllMatchingCond()),
-                page, size, orderBy, AnyTypeKind.USER);
+        SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
+
+        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.USER);
+
+        List<User> matching = searchDAO.search(adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.returnUserTO(binder.getUserTO(user, details))).
                 collect(Collectors.toList());

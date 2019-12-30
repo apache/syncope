@@ -128,22 +128,22 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
     }
 
-    protected static RealmPushResultHandler buildRealmHandler() {
+    protected RealmPushResultHandler buildRealmHandler() {
         return (RealmPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultRealmPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected static AnyObjectPushResultHandler buildAnyObjectHandler() {
+    protected AnyObjectPushResultHandler buildAnyObjectHandler() {
         return (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultAnyObjectPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected static UserPushResultHandler buildUserHandler() {
+    protected UserPushResultHandler buildUserHandler() {
         return (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultUserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected static GroupPushResultHandler buildGroupHandler() {
+    protected GroupPushResultHandler buildGroupHandler() {
         return (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultGroupPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }

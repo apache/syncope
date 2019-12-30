@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.common.lib.to;
 
 import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;

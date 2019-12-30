@@ -43,11 +43,14 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -56,8 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -232,18 +233,17 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         TaskUtils taskUtil = taskUtilsFactory.getInstance(task);
         String executor = AuthContextUtils.getUsername();
-        
+
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
                 PropagationTaskTO taskTO = binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false);
-                PropagationTaskInfo taskInfo = new PropagationTaskInfo();
+                PropagationTaskInfo taskInfo = new PropagationTaskInfo(((PropagationTask) task).getResource());
                 taskInfo.setKey(taskTO.getKey());
                 taskInfo.setOperation(taskTO.getOperation());
                 taskInfo.setConnObjectKey(taskTO.getConnObjectKey());
                 taskInfo.setOldConnObjectKey(taskTO.getOldConnObjectKey());
                 taskInfo.setAttributes(taskTO.getAttributes());
-                taskInfo.setResource(taskTO.getResource());
                 taskInfo.setObjectClassName(taskTO.getObjectClassName());
                 taskInfo.setAnyTypeKind(taskTO.getAnyTypeKind());
                 taskInfo.setAnyType(taskTO.getAnyType());

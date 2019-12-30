@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+  <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <property name="locations">
+      <list>
+        <value>classpath:persistence.properties</value>
+        <value>classpath:domains/*.properties</value>
+        <value>classpath:security.properties</value>
+        <value>classpath:connid.properties</value>
+        <value>classpath:mail.properties</value>
+        <value>classpath:workflow.properties</value>
+        <value>classpath:provisioning.properties</value>
+        <value>classpath:logic.properties</value>
+      </list>
+    </property>
+    <property name="ignoreResourceNotFound" value="true"/>
+    <property name="ignoreUnresolvablePlaceholders" value="true"/>
+  </bean>
+
+  <bean id="jwtIssuer" class="java.lang.String">
+    <constructor-arg value="${jwtIssuer}"/>
+  </bean>
+  <bean id="jwsKey" class="java.lang.String">
+    <constructor-arg value="ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f"/>
+  </bean>
+  <bean id="accessTokenJwsSignatureVerifier"
+        class="org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier">
+    <property name="jwsAlgorithm" value="${jwsAlgorithm}"/>
+    <property name="jwsKey" value="ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f"/>
+  </bean>
+  <bean id="accessTokenJwsSignatureProvider"
+        class="org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider">
+    <property name="jwsAlgorithm" value="${jwsAlgorithm}"/>
+    <property name="jwsKey" value="ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f"/>
+  </bean>
+  <bean id="credentialChecker" class="org.apache.syncope.core.spring.security.DefaultCredentialChecker">
+    <constructor-arg value="ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f" index="0"/>
+    <constructor-arg value="DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464" index="1"/>
+    <constructor-arg value="anonymousKey" index="2"/>
+  </bean>
+  
+  <import resource="logicContext.xml"/>
+</beans>

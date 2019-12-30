@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -58,7 +57,7 @@ import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -368,7 +367,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         req,
                         report,
                         null,
-                        Collections.singleton(profile.getTask().getResource().getKey()),
+                        Set.of(profile.getTask().getResource().getKey()),
                         true);
                 resultStatus = Result.SUCCESS;
 
@@ -493,7 +492,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         patch,
                         report,
                         null,
-                        Collections.singleton(profile.getTask().getResource().getKey()),
+                        Set.of(profile.getTask().getResource().getKey()),
                         true);
                 resultStatus = Result.SUCCESS;
 
@@ -587,7 +586,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                             req,
                             report,
                             null,
-                            Collections.singleton(profile.getTask().getResource().getKey()),
+                            Set.of(profile.getTask().getResource().getKey()),
                             true);
                     resultStatus = Result.SUCCESS;
 
