@@ -312,21 +312,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return serviceInstance;
     }
 
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
-
-        synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
-
-            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = clientFactory.create(getJWT()).getService(serviceClass);
-
-            clientFactory.setContentType(preType);
-        }
-
-        return service;
-    }
-
     public BatchRequest batch() {
         return client.batch();
     }

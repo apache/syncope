@@ -489,6 +489,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     new StreamConnector(null, spec.getArrayElementSeparator(), null, writer),
                     pushTask);
         } catch (Exception e) {
+            LOG.error("Could not push to stream", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
             sce.getElements().add(e.getMessage());
             throw sce;
@@ -540,6 +541,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
+            LOG.error("Could not pull from stream", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
             sce.getElements().add(e.getMessage());
             throw sce;

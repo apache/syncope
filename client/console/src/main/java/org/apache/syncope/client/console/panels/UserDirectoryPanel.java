@@ -66,7 +66,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected final BaseModal<Serializable> wizardWrapperModal = new BaseModal<Serializable>("outer") {
+    protected final BaseModal<Serializable> wizardWrapperModal = new BaseModal<Serializable>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 

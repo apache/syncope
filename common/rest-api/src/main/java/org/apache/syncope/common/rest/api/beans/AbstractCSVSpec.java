@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -25,7 +26,9 @@ import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 
-public abstract class AbstractCSVSpec {
+public abstract class AbstractCSVSpec implements Serializable {
+
+    private static final long serialVersionUID = 2253975790270165334L;
 
     protected abstract static class Builder<T extends AbstractCSVSpec, B extends Builder<T, B>> {
 

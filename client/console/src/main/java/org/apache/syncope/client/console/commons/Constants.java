@@ -75,6 +75,10 @@ public final class Constants {
 
     public static final String ERROR = "error";
 
+    public static final String OUTER = "outer";
+
+    public static final String ACTION = "action";
+
     public static final String BEFORE_LOGOUT_PAGE = "beforeLogoutPage";
 
     public static final String PARAM_PASSWORD_RESET_TOKEN = "pwdResetToken";

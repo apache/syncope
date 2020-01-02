@@ -104,9 +104,9 @@ public abstract class DirectoryPanel<
 
     protected String itemKeyFieldName = Constants.KEY_FIELD_NAME;
 
-    protected final BaseModal<W> altDefaultModal = new BaseModal<>("outer");
+    protected final BaseModal<W> altDefaultModal = new BaseModal<>(Constants.OUTER);
 
-    protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
+    protected final BaseModal<W> displayAttributeModal = new BaseModal<>(Constants.OUTER);
 
     protected ActionLinksTogglePanel<T> actionTogglePanel;
 
@@ -149,7 +149,7 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
-        actionTogglePanel = new ActionLinksTogglePanel<>("outer", builder.getPageRef());
+        actionTogglePanel = new ActionLinksTogglePanel<>(Constants.OUTER, builder.getPageRef());
         addOuterObject(actionTogglePanel);
 
         addOuterObject(altDefaultModal);

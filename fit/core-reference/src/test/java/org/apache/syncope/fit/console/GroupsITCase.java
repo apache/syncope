@@ -56,19 +56,19 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "actions:actions:actionRepeater:2:action:action");
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL
-                + "outerObjectsRepeater:7:outer:container:content:togglePanelContainer:membersForm");
+                + "outerObjectsRepeater:8:outer:container:content:togglePanelContainer:membersForm");
 
         formTester.select("type:dropDownChoiceField", 0);
         formTester.submit("changeit");
 
         TESTER.assertModelValue(TAB_PANEL
-                + "outerObjectsRepeater:6:outer:dialog:header:header-label", "USER members of artDirector");
+                + "outerObjectsRepeater:7:outer:dialog:header:header-label", "USER members of artDirector");
         assertNotNull(findComponentByProp("username", TAB_PANEL
-                + "outerObjectsRepeater:6:outer:form:content:searchResult:container:content:"
+                + "outerObjectsRepeater:7:outer:form:content:searchResult:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini"));
 
         TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:6:outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
+                + "outerObjectsRepeater:7:outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
     }
 
     @Test

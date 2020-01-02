@@ -29,6 +29,8 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 
 public class CSVPullSpec extends AbstractCSVSpec {
 
+    private static final long serialVersionUID = -5079876176017613587L;
+
     public static class Builder extends AbstractCSVSpec.Builder<CSVPullSpec, Builder> {
 
         @Override

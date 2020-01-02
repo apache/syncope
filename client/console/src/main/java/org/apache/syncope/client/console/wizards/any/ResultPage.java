@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,9 +44,7 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
 
         add(customResultBody("customResultBody", item, result));
 
-        final ActionsPanel<T> panel = new ActionsPanel<>("action", null);
-        add(panel);
-
+        ActionsPanel<T> panel = new ActionsPanel<>(Constants.ACTION, null);
         panel.add(new ActionLink<T>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
@@ -55,8 +54,7 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
                 closeAction(target);
             }
         }, ActionLink.ActionType.CLOSE, StringUtils.EMPTY).hideLabel();
-
-        panel.setRenderBodyOnly(true);
+        add(panel.setRenderBodyOnly(true));
     }
 
     protected abstract void closeAction(AjaxRequestTarget target);

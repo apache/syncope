@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -48,7 +49,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
     private ItemTO item;
 
     public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
-        super("outer", "itemTransformersTogglePanel", pageRef);
+        super(Constants.OUTER, "itemTransformersTogglePanel", pageRef);
 
         final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 

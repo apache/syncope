@@ -23,6 +23,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.BpmnProcess;
@@ -33,18 +34,27 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
 
-    private BpmnProcessService getService(final MediaType mediaType) {
-        return SyncopeConsoleSession.get().getService(mediaType, BpmnProcessService.class);
-    }
-
     public List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
     }
 
+    private BpmnProcessService getService(final MediaType mediaType) {
+        BpmnProcessService service = getService(BpmnProcessService.class);
+        Client client = WebClient.client(service);
+        client.type(mediaType);
+        return service;
+    }
+
     public InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
+        SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
 
         return (InputStream) response.getEntity();
+    }
+
+    public void setDefinition(final MediaType mediaType, final String key, final String definition) {
+        getService(mediaType).set(key, definition);
+        SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
     }
 
     public byte[] getDiagram(final String key) {
@@ -60,10 +70,6 @@ public class BpmnProcessRestClient extends BaseRestClient {
             diagram = new byte[0];
         }
         return diagram;
-    }
-
-    public void setDefinition(final MediaType mediaType, final String key, final String definition) {
-        getService(mediaType).set(key, definition);
     }
 
     public void deleteDefinition(final String key) {

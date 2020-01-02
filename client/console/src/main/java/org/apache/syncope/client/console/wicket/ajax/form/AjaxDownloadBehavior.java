@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.wicket.ajax.form;
 
+import javax.ws.rs.core.Response;
+import org.apache.syncope.client.console.SerializableSupplier;
+import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
@@ -26,11 +29,15 @@ import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractAjaxDownloadBehavior extends AbstractAjaxBehavior {
+public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
 
     private static final long serialVersionUID = 6833760760338614245L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractAjaxDownloadBehavior.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AjaxDownloadBehavior.class);
+
+    protected SerializableSupplier<Response> response;
+
+    protected HttpResourceStream stream;
 
     /**
      * Call this method to initiate the download.
@@ -54,7 +61,27 @@ public abstract class AbstractAjaxDownloadBehavior extends AbstractAjaxBehavior 
         }
     }
 
-    protected abstract String getFileName();
+    public boolean hasResponse() {
+        return response != null;
+    }
 
-    protected abstract IResourceStream getResourceStream();
+    public void setResponse(final SerializableSupplier<Response> response) {
+        this.response = response;
+    }
+
+    private void createResourceStream() {
+        if (stream == null && response != null) {
+            stream = new HttpResourceStream(response.get());
+        }
+    }
+
+    protected String getFileName() {
+        createResourceStream();
+        return stream == null ? null : stream.getFilename();
+    }
+
+    protected IResourceStream getResourceStream() {
+        createResourceStream();
+        return stream;
+    }
 }

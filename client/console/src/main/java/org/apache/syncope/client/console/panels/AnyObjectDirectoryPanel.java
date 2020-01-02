@@ -145,8 +145,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
                     setRealms(realm, model.getObject().getDynRealms());
 
-            panel.add(
-                    new ActionLink<AnyObjectTO>() {
+            panel.add(new ActionLink<AnyObjectTO>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
