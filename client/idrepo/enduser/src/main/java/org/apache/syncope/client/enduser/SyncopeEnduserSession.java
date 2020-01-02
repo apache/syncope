@@ -179,6 +179,7 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return getService(serviceClass);
     }
 
+    @Override
     public <T> T getService(final Class<T> serviceClass) {
         T service = (client == null || !isAuthenticated())
                 ? anonymousClient.getService(serviceClass)
@@ -187,27 +188,13 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return service;
     }
 
+    @Override
     public <T> T getService(final String etag, final Class<T> serviceClass) {
         T serviceInstance = getService(serviceClass);
         WebClient.client(serviceInstance).match(new EntityTag(etag), false).
                 type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return serviceInstance;
-    }
-
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
-
-        synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
-
-            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = clientFactory.create(getJWT()).getService(serviceClass);
-
-            clientFactory.setContentType(preType);
-        }
-
-        return service;
     }
 
     public UserTO getSelfTO() {
@@ -246,11 +233,13 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return service;
     }
 
+    @Override
     public <T> void resetClient(final Class<T> service) {
         T serviceInstance = getCachedService(service);
         WebClient.client(serviceInstance).reset();
     }
 
+    @Override
     public FastDateFormat getDateFormat() {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
     }

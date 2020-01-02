@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.client.console;
 
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdMAnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdMAnyDirectoryPanelAdditionalActionsProvider;
+import org.apache.syncope.client.console.commons.IdMAnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.IdMAnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.IdMExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdMImplementationInfoProvider;
@@ -34,6 +35,7 @@ import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 
 @Configuration
 public class SyncopeIdMConsoleContext {
@@ -41,6 +43,16 @@ public class SyncopeIdMConsoleContext {
     @Bean
     public ExternalResourceProvider resourceProvider() {
         return new IdMExternalResourceProvider();
+    }
+
+    @Bean
+    public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider() {
+        return new IdMAnyDirectoryPanelAdditionalActionsProvider();
+    }
+
+    @Bean
+    public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider() {
+        return new IdMAnyDirectoryPanelAdditionalActionLinksProvider();
     }
 
     @Bean
@@ -56,11 +68,6 @@ public class SyncopeIdMConsoleContext {
     @Bean
     public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
         return new IdMVirSchemaDetailsPanelProvider();
-    }
-
-    @Bean
-    public AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider() {
-        return new IdMAnyDirectoryPanelAditionalActionLinksProvider();
     }
 
     @Bean

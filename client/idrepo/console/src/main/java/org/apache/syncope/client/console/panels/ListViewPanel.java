@@ -162,17 +162,17 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             @Override
             protected void populateItem(final ListItem<T> beanItem) {
-                beanItem.add(new Check<>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true)
-                        .setOutputMarkupPlaceholderTag(true)
-                        .setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
-                                || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED)
-                        .setEnabled(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE));
+                beanItem.add(new Check<>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true).
+                        setOutputMarkupPlaceholderTag(true).
+                        setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
+                                || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED).
+                        setEnabled(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE));
 
                 final T bean = beanItem.getModelObject();
 
                 final ListView<String> fields = new ListView<String>("fields", toBeIncluded) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -9112553137618363167L;
 
                     @Override
                     protected void populateItem(final ListItem<String> fieldItem) {

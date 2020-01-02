@@ -37,7 +37,7 @@ import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PreferenceManager implements Serializable {
+public final class PreferenceManager implements Serializable {
 
     private static final long serialVersionUID = 3581434664555284193L;
 
@@ -125,7 +125,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
+    public static void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
         Map<String, String> current = new HashMap<>();
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -139,11 +139,11 @@ public class PreferenceManager implements Serializable {
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
         } catch (IOException e) {
-            LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
+            LOG.error("Could not save {} info: {}", PreferenceManager.class.getSimpleName(), current, e);
         }
     }
 
-    public void set(final Request request, final Response response, final String key, final String value) {
+    public static void set(final Request request, final Response response, final String key, final String value) {
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<>();
@@ -157,15 +157,21 @@ public class PreferenceManager implements Serializable {
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
         } catch (IOException e) {
-            LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
+            LOG.error("Could not save {} info: {}", PreferenceManager.class.getSimpleName(), current, e);
         }
     }
 
-    public void setList(final Request request, final Response response, final String key, final List<String> values) {
+    public static void setList(
+            final Request request, final Response response, final String key, final List<String> values) {
         set(request, response, key, StringUtils.join(values, ";"));
     }
 
-    public void setList(final Request request, final Response response, final Map<String, List<String>> prefs) {
+    public static void setList(
+            final Request request, final Response response, final Map<String, List<String>> prefs) {
         set(request, response, prefs);
+    }
+
+    private PreferenceManager() {
+        // private constructor for static utility class
     }
 }

@@ -73,6 +73,11 @@ public final class RESTHeaders {
     public static final String TEXT_CSV = "text/csv";
 
     /**
+     * Mediatype for text/csv, not defined in {@link javax.ws.rs.core.MediaType}.
+     */
+    public static final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
+
+    /**
      * Mediatype for multipart/mixed, not defined in {@link javax.ws.rs.core.MediaType}.
      */
     public static final String MULTIPART_MIXED = "multipart/mixed";

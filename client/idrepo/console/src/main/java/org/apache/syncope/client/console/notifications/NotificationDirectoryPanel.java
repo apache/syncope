@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.notifications;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -59,7 +58,7 @@ public class NotificationDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public NotificationDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef, true);
@@ -112,7 +111,7 @@ public class NotificationDirectoryPanel
                 send(NotificationDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
                                 new NotificationWrapper(
-                                    NotificationRestClient.read(model.getObject().getKey())), target));
+                                        NotificationRestClient.read(model.getObject().getKey())), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 

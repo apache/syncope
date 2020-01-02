@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 
-public interface AnyDirectoryPanelAditionalActionLinksProvider extends Serializable {
+public interface AnyDirectoryPanelAdditionalActionLinksProvider extends Serializable {
 
     List<Action<UserTO>> get(
             IModel<UserTO> model,

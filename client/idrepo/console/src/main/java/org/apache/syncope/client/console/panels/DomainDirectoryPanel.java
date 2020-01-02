@@ -57,7 +57,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
     @SpringBean
     private DomainOps domainOps;
 
-    private final BaseModal<Domain> utilityModal = new BaseModal<>("outer");
+    private final BaseModal<Domain> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public DomainDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);

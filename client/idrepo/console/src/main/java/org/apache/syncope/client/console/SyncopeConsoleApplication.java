@@ -19,10 +19,11 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
@@ -43,6 +44,7 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
@@ -81,6 +83,18 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return new IdRepoExternalResourceProvider();
     }
 
+    @ConditionalOnMissingBean(name = "anyDirectoryPanelAdditionalActionsProvider")
+    @Bean
+    public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider() {
+        return new IdRepoAnyDirectoryPanelAdditionalActionsProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "anyDirectoryPanelAdditionalActionLinksProvider")
+    @Bean
+    public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider() {
+        return new IdRepoAnyDirectoryPanelAdditionalActionLinksProvider();
+    }
+
     @ConditionalOnMissingBean(name = "anyWizardBuilderAdditionalSteps")
     @Bean
     public AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps() {
@@ -97,12 +111,6 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
     @Bean
     public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
         return new IdRepoVirSchemaDetailsPanelProvider();
-    }
-
-    @ConditionalOnMissingBean(name = "anyDirectoryPanelAditionalActionLinksProvider")
-    @Bean
-    public AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider() {
-        return new IdRepoAnyDirectoryPanelAditionalActionLinksProvider();
     }
 
     @ConditionalOnMissingBean(name = "implementationInfoProvider")

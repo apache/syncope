@@ -28,8 +28,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 
-public class IdRepoAnyDirectoryPanelAditionalActionLinksProvider
-        implements AnyDirectoryPanelAditionalActionLinksProvider {
+public class IdRepoAnyDirectoryPanelAdditionalActionLinksProvider
+        implements AnyDirectoryPanelAdditionalActionLinksProvider {
 
     private static final long serialVersionUID = 121356001392126568L;
 

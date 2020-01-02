@@ -25,6 +25,8 @@ import javax.ws.rs.QueryParam;
 
 public class CSVPushSpec extends AbstractCSVSpec {
 
+    private static final long serialVersionUID = -8198709720749169648L;
+
     public static class Builder extends AbstractCSVSpec.Builder<CSVPushSpec, Builder> {
 
         @Override

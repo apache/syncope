@@ -169,8 +169,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      * @param target ajax request target
      * @return payload to be sent.
      */
-    protected static Serializable getEditCustomPayloadEvent(final Serializable afterObject,
-            final AjaxRequestTarget target) {
+    protected Serializable getEditCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
         return null;
     }
 }

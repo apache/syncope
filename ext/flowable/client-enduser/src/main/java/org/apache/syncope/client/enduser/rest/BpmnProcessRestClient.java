@@ -23,6 +23,7 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.BpmnProcess;
@@ -34,7 +35,10 @@ public class BpmnProcessRestClient extends BaseRestClient {
     private static final long serialVersionUID = 5049285686167071017L;
 
     private static BpmnProcessService getService(final MediaType mediaType) {
-        return SyncopeEnduserSession.get().getService(mediaType, BpmnProcessService.class);
+        BpmnProcessService service = getService(BpmnProcessService.class);
+        Client client = WebClient.client(service);
+        client.type(mediaType);
+        return service;
     }
 
     public static List<BpmnProcess> getDefinitions() {
@@ -43,6 +47,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     public static InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
+        SyncopeEnduserSession.get().resetClient(BpmnProcessService.class);
 
         return (InputStream) response.getEntity();
     }
@@ -61,5 +66,4 @@ public class BpmnProcessRestClient extends BaseRestClient {
         }
         return diagram;
     }
-
 }

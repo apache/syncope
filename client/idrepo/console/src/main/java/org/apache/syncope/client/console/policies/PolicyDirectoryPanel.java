@@ -66,7 +66,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected final BaseModal<T> ruleCompositionModal = new BaseModal<T>("outer") {
+    protected final BaseModal<T> ruleCompositionModal = new BaseModal<T>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -78,7 +78,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     };
 
-    protected final BaseModal<T> policySpecModal = new BaseModal<>("outer");
+    protected final BaseModal<T> policySpecModal = new BaseModal<>(Constants.OUTER);
 
     private final PolicyType type;
 

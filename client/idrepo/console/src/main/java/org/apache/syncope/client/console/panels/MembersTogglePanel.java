@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -59,7 +60,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
     };
 
     public MembersTogglePanel(final PageReference pageRef) {
-        super("outer", "groupMembers", pageRef);
+        super(Constants.OUTER, "groupMembers", pageRef);
 
         form = new Form<>("membersForm");
         addInnerObject(form);

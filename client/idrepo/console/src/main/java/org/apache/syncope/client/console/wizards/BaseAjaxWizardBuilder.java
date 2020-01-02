@@ -53,7 +53,7 @@ public abstract class BaseAjaxWizardBuilder<T extends Serializable> extends Ajax
     @Override
     protected Future<Pair<Serializable, Serializable>> execute(
             final Callable<Pair<Serializable, Serializable>> future) {
+
         return SyncopeConsoleSession.get().execute(future);
     }
-
 }

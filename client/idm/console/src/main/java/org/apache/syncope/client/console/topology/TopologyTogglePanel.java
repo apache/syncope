@@ -90,11 +90,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         modal.size(Modal.Size.Large);
         setFooterVisibility(false);
 
-        propTaskModal = new BaseModal<>("outer");
+        propTaskModal = new BaseModal<>(Constants.OUTER);
         propTaskModal.size(Modal.Size.Large);
         addOuterObject(propTaskModal);
 
-        schedTaskModal = new BaseModal<Serializable>("outer") {
+        schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
 
             private static final long serialVersionUID = 389935548143327858L;
 
@@ -107,12 +107,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         schedTaskModal.size(Modal.Size.Large);
         addOuterObject(schedTaskModal);
 
-        provisionModal = new BaseModal<>("outer");
+        provisionModal = new BaseModal<>(Constants.OUTER);
         provisionModal.size(Modal.Size.Large);
         provisionModal.addSubmitButton();
         addOuterObject(provisionModal);
 
-        historyModal = new BaseModal<>("outer");
+        historyModal = new BaseModal<>(Constants.OUTER);
         historyModal.size(Modal.Size.Large);
         addOuterObject(historyModal);
 

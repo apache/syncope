@@ -85,7 +85,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private final List<Component> outerObjects = new ArrayList<>();
 
-    protected final BaseModal<T> modal = new BaseModal<T>("outer") {
+    protected final BaseModal<T> modal = new BaseModal<T>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 

@@ -38,8 +38,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-public class IdMAnyDirectoryPanelAditionalActionLinksProvider
-        implements AnyDirectoryPanelAditionalActionLinksProvider {
+public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
+        implements AnyDirectoryPanelAdditionalActionLinksProvider {
 
     private static final long serialVersionUID = -1698293704237878993L;
 

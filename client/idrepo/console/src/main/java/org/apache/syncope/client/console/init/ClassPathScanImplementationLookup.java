@@ -38,7 +38,6 @@ import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.annotations.Resource;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
@@ -64,6 +63,7 @@ import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 
 public class ClassPathScanImplementationLookup {
 
@@ -169,7 +169,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(AnyWizardBuilderAdditionalSteps.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(StatusProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(VirSchemaDetailsPanelProvider.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AnyDirectoryPanelAditionalActionLinksProvider.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AnyDirectoryPanelAdditionalActionLinksProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ImplementationInfoProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PolicyTabProvider.class));
 

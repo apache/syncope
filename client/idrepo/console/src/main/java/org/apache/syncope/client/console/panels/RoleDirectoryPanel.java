@@ -74,9 +74,9 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
-    protected final BaseModal<Serializable> membersModal = new BaseModal<>("outer");
+    protected final BaseModal<Serializable> membersModal = new BaseModal<>(Constants.OUTER);
 
     protected RoleDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);

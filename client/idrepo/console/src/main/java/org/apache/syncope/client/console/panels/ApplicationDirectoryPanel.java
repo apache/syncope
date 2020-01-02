@@ -64,7 +64,7 @@ public class ApplicationDirectoryPanel extends
 
     private static final long serialVersionUID = -5491515010207202168L;
 
-    protected final BaseModal<PrivilegeTO> privilegeModal = new BaseModal<PrivilegeTO>("outer") {
+    protected final BaseModal<PrivilegeTO> privilegeModal = new BaseModal<PrivilegeTO>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 

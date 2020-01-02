@@ -37,10 +37,12 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.console.AbstractTest.TestSyncopeWebApplication.SyncopeServiceClient;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
@@ -136,6 +138,16 @@ public abstract class AbstractTest {
         }
 
         @Bean
+        public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider() {
+            return new IdRepoAnyDirectoryPanelAdditionalActionsProvider();
+        }
+
+        @Bean
+        public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider() {
+            return new IdRepoAnyDirectoryPanelAdditionalActionLinksProvider();
+        }
+
+        @Bean
         public AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps() {
             return new IdRepoAnyWizardBuilderAdditionalSteps();
         }
@@ -148,11 +160,6 @@ public abstract class AbstractTest {
         @Bean
         public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
             return new IdRepoVirSchemaDetailsPanelProvider();
-        }
-
-        @Bean
-        public AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider() {
-            return new IdRepoAnyDirectoryPanelAditionalActionLinksProvider();
         }
 
         @Bean

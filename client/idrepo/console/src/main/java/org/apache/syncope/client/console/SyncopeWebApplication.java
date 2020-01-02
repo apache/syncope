@@ -35,7 +35,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.annotations.Resource;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -124,6 +125,12 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private ExternalResourceProvider resourceProvider;
 
     @Autowired
+    private AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider;
+
+    @Autowired
+    private AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider;
+
+    @Autowired
     private AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
 
     @Autowired
@@ -131,9 +138,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     @Autowired
     private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
-
-    @Autowired
-    private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider;
 
     @Autowired
     private ImplementationInfoProvider implementationInfoProvider;
@@ -382,6 +386,14 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return resourceProvider;
     }
 
+    public AnyDirectoryPanelAdditionalActionsProvider getAnyDirectoryPanelAdditionalActionsProvider() {
+        return anyDirectoryPanelAdditionalActionsProvider;
+    }
+
+    public AnyDirectoryPanelAdditionalActionLinksProvider getAnyDirectoryPanelAdditionalActionLinksProvider() {
+        return anyDirectoryPanelAdditionalActionLinksProvider;
+    }
+
     public AnyWizardBuilderAdditionalSteps getAnyWizardBuilderAdditionalSteps() {
         return anyWizardBuilderAdditionalSteps;
     }
@@ -392,10 +404,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public VirSchemaDetailsPanelProvider getVirSchemaDetailsPanelProvider() {
         return virSchemaDetailsPanelProvider;
-    }
-
-    public AnyDirectoryPanelAditionalActionLinksProvider getAnyDirectoryPanelAditionalActionLinksProvider() {
-        return anyDirectoryPanelAditionalActionLinksProvider;
     }
 
     public ImplementationInfoProvider getImplementationInfoProvider() {

@@ -76,9 +76,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>("outer");
+    private final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>(Constants.OUTER);
 
-    protected final BaseModal<Serializable> membersModal = new BaseModal<>("outer");
+    protected final BaseModal<Serializable> membersModal = new BaseModal<>(Constants.OUTER);
 
     protected final MembersTogglePanel templates;
 
@@ -296,7 +296,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
-        SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
+        SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                 model.getObject(),
                 realm,
                 altDefaultModal,

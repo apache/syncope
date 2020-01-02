@@ -119,7 +119,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 setRealms(realm, model.getObject().getDynRealms());
 
         if (wizardInModal) {
-            SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
+            SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                     type,
                     model.getObject(),
                     realm,

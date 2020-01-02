@@ -57,8 +57,6 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
      */
     private static final int MAX_SELECTIONS = 9;
 
-    private final PreferenceManager prefMan = new PreferenceManager();
-
     private final List<String> selectedDetails;
 
     private final List<String> selectedPlainSchemas;
@@ -131,7 +129,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("details",
-                        new PropertyModel<List<String>>(this, "selectedDetails"),
+                        new PropertyModel<>(this, "selectedDetails"),
                         new ListModel<>(fnames.getObject()));
         details.hideLabel();
         details.setOutputMarkupId(true);
@@ -141,7 +139,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("plainSchemas",
-                        new PropertyModel<List<String>>(this, "selectedPlainSchemas"),
+                        new PropertyModel<>(this, "selectedPlainSchemas"),
                         new ListModel<>(psnames.getObject()));
         plainSchemas.hideLabel();
         plainSchemas.setOutputMarkupId(true);
@@ -151,7 +149,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
                 setAllowOrder(true).
                 setAllowMoveAll(true).
                 build("derSchemas",
-                        new PropertyModel<List<String>>(this, "selectedDerSchemas"),
+                        new PropertyModel<>(this, "selectedDerSchemas"),
                         new ListModel<>(dsnames.getObject()));
         derSchemas.hideLabel();
         derSchemas.setOutputMarkupId(true);
@@ -169,7 +167,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             prefs.put(DisplayAttributesModalPanel.getPrefDetailView(type), selectedDetails);
             prefs.put(DisplayAttributesModalPanel.getPrefPlainAttributeView(type), selectedPlainSchemas);
             prefs.put(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type), selectedDerSchemas);
-            prefMan.setList(getRequest(), getResponse(), prefs);
+            PreferenceManager.setList(getRequest(), getResponse(), prefs);
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
@@ -177,19 +175,19 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         }
     }
 
-    protected static final String getPrefDetailView(final String type) {
+    public static final String getPrefDetailView(final String type) {
         return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
     }
 
-    protected static final String getPrefPlainAttributeView(final String type) {
+    public static final String getPrefPlainAttributeView(final String type) {
         return String.format(Constants.PREF_ANY_PLAIN_ATTRS_VIEW, type);
     }
 
-    protected static final String getPrefDerivedAttributeView(final String type) {
+    public static final String getPrefDerivedAttributeView(final String type) {
         return String.format(Constants.PREF_ANY_DER_ATTRS_VIEW, type);
     }
 
-    protected static final Class<? extends AnyTO> getTOClass(final String type) {
+    public static final Class<? extends AnyTO> getTOClass(final String type) {
         if (type.equalsIgnoreCase(AnyTypeKind.USER.name())) {
             return UserTO.class;
         } else if (type.equalsIgnoreCase(AnyTypeKind.GROUP.name())) {

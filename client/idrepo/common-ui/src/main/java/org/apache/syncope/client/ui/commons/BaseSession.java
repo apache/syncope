@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 public interface BaseSession {
 
@@ -32,8 +32,7 @@ public interface BaseSession {
 
     <T> T getService(String etag, Class<T> serviceClass);
 
-    <T> T getService(MediaType mediaType, Class<T> serviceClass);
-
     <T> void resetClient(Class<T> service);
 
+    FastDateFormat getDateFormat();
 }

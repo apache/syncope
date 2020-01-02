@@ -61,11 +61,6 @@ public abstract class DirectoryPanel<
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
-    /**
-     * Application preferences.
-     */
-    protected PreferenceManager prefMan = new PreferenceManager();
-
     protected E restClient;
 
     /**
@@ -105,9 +100,9 @@ public abstract class DirectoryPanel<
 
     protected String itemKeyFieldName = Constants.KEY_FIELD_NAME;
 
-    protected final BaseModal<W> altDefaultModal = new BaseModal<>("outer");
+    protected final BaseModal<W> altDefaultModal = new BaseModal<>(Constants.OUTER);
 
-    protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
+    protected final BaseModal<W> displayAttributeModal = new BaseModal<>(Constants.OUTER);
 
     protected ActionLinksTogglePanel<T> actionTogglePanel;
 
@@ -150,7 +145,7 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
-        actionTogglePanel = new ActionLinksTogglePanel<>("outer", builder.getPageRef());
+        actionTogglePanel = new ActionLinksTogglePanel<>(Constants.OUTER, builder.getPageRef());
         addOuterObject(actionTogglePanel);
 
         addOuterObject(altDefaultModal);
@@ -226,7 +221,7 @@ public abstract class DirectoryPanel<
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
+                PreferenceManager.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
 
                 EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);

@@ -223,7 +223,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         setRealms(realm, model.getObject().getDynRealms());
             }
 
-            SyncopeWebApplication.get().getAnyDirectoryPanelAditionalActionLinksProvider().get(
+            SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                     model,
                     realm,
                     altDefaultModal,

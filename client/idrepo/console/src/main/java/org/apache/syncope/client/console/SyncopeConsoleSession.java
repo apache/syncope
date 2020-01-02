@@ -318,22 +318,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return serviceInstance;
     }
 
-    @Override
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
-
-        synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
-
-            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = clientFactory.create(getJWT()).getService(serviceClass);
-
-            clientFactory.setContentType(preType);
-        }
-
-        return service;
-    }
-
     public BatchRequest batch() {
         return client.batch();
     }
@@ -344,6 +328,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         WebClient.client(serviceInstance).reset();
     }
 
+    @Override
     public FastDateFormat getDateFormat() {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
     }
