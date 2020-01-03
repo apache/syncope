@@ -23,6 +23,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.InputStream;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -31,10 +33,15 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
+import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 
 /**
@@ -84,4 +91,30 @@ public interface ReconciliationService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void pull(@BeanParam ReconQuery query, @NotNull PullTaskTO pullTask);
+
+    /**
+     * Export a list of any objects matching the given query as CSV according to the provided specification.
+     *
+     * @param anyQuery query conditions
+     * @param spec CSV push specification
+     * @return CSV content matching the provided specification
+     */
+    @GET
+    @Path("csv/push")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ RESTHeaders.TEXT_CSV })
+    Response push(@BeanParam AnyQuery anyQuery, @BeanParam CSVPushSpec spec);
+
+    /**
+     * Pulls the CSV input into Syncope according to the provided specification.
+     *
+     * @param spec CSV pull specification
+     * @param csv CSV input
+     * @return pull report
+     */
+    @POST
+    @Path("csv/pull")
+    @Consumes({ RESTHeaders.TEXT_CSV })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    List<ProvisioningReport> pull(@BeanParam CSVPullSpec spec, InputStream csv);
 }

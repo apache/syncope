@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -68,7 +67,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected final BaseModal<Serializable> wizardWrapperModal = new BaseModal<Serializable>("outer") {
+    protected final BaseModal<Serializable> wizardWrapperModal = new BaseModal<Serializable>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -404,7 +403,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             LOG.error("While restoring user {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(
                                     StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                            throw new WicketRuntimeException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }

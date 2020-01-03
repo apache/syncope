@@ -32,8 +32,10 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -41,6 +43,9 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
+import org.apache.syncope.client.console.wizards.CSVPushWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
@@ -50,14 +55,22 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
+import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.springframework.util.ReflectionUtils;
 
@@ -87,7 +100,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
      */
     protected final String type;
 
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>(Constants.OUTER);
 
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder) {
         this(id, builder, true);
@@ -116,19 +129,6 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         setWindowClosedReloadCallback(utilityModal);
 
         modal.size(Modal.Size.Large);
-        altDefaultModal.size(Modal.Size.Large);
-
-        this.pSchemaNames = new ArrayList<>();
-        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> {
-            this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas());
-        });
-        this.dSchemaNames = new ArrayList<>();
-        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> {
-            this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
-        });
-
-        initResultTable();
-
         // change close callback in order to update header after model update
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -137,42 +137,133 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof ResultPage) {
-                    actionTogglePanel.updateHeader(
-                            target, ResultPage.class.cast(modal.getContent()).getItem());
+                    actionTogglePanel.updateHeader(target, ResultPage.class.cast(modal.getContent()).getItem());
                 }
                 modal.show(false);
             }
         });
+
+        altDefaultModal.size(Modal.Size.Large);
+
+        this.pSchemaNames = AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().stream().
+                flatMap(anyTypeClassTO -> anyTypeClassTO.getPlainSchemas().stream()).collect(Collectors.toList());
+
+        this.dSchemaNames = AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().stream().
+                flatMap(anyTypeClassTO -> anyTypeClassTO.getDerSchemas().stream()).collect(Collectors.toList());
+
+        initResultTable();
+
+        AjaxDownloadBehavior csvDownloadBehavior = new AjaxDownloadBehavior();
+        WebMarkupContainer csvEventSink = new WebMarkupContainer(Constants.OUTER) {
+
+            private static final long serialVersionUID = -957948639666058749L;
+
+            @Override
+            public void onEvent(final IEvent<?> event) {
+                if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
+                    AjaxRequestTarget target = ((AjaxWizard.NewItemCancelEvent) event.getPayload()).getTarget();
+                    modal.close(target);
+                } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+                    AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
+                    if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
+                        AjaxRequestTarget target = payload.getTarget();
+
+                        if (csvDownloadBehavior.hasResponse()) {
+                            csvDownloadBehavior.initiate(target);
+                        }
+
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+
+                        target.add(container);
+                        modal.close(target);
+                    }
+                }
+            }
+        };
+        csvEventSink.add(csvDownloadBehavior);
+        addOuterObject(csvEventSink);
+        addInnerObject(new AjaxLink<Void>("csvPush") {
+
+            private static final long serialVersionUID = -817438685948164787L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                CSVPushSpec spec = csvPushSpec();
+                AnyQuery query = csvAnyQuery();
+
+                target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
+                        setEventSink(csvEventSink).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+
+                modal.header(new StringResourceModel("csvPush", AnyDirectoryPanel.this, Model.of(spec)));
+                modal.show(true);
+            }
+        });
+        addInnerObject(new AjaxLink<Void>("csvPull") {
+
+            private static final long serialVersionUID = -817438685948164787L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                CSVPullSpec spec = csvPullSpec();
+
+                target.add(modal.setContent(new CSVPullWizardBuilder(spec, pageRef).
+                        setEventSink(csvEventSink).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+
+                modal.header(new StringResourceModel("csvPull", AnyDirectoryPanel.this, Model.of(spec)));
+                modal.show(true);
+            }
+        });
+    }
+
+    protected CSVPushSpec csvPushSpec() {
+        CSVPushSpec spec = new CSVPushSpec.Builder(type).build();
+        spec.setFields(prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).
+                stream().filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
+                collect(Collectors.toList()));
+        spec.setPlainAttrs(
+                prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                        stream().filter(name -> pSchemaNames.contains(name)).collect(Collectors.toList()));
+        spec.setDerAttrs(
+                prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                        stream().filter(name -> dSchemaNames.contains(name)).collect(Collectors.toList()));
+        return spec;
+    }
+
+    protected CSVPullSpec csvPullSpec() {
+        CSVPullSpec spec = new CSVPullSpec();
+        spec.setAnyTypeKey(type);
+        spec.setDestinationRealm(realm);
+        return spec;
+    }
+
+    protected AnyQuery csvAnyQuery() {
+        return new AnyQuery.Builder().realm(realm).fiql(fiql).build();
     }
 
     @Override
     protected List<IColumn<A, String>> getColumns() {
-        final List<IColumn<A, String>> columns = new ArrayList<>();
-        final List<IColumn<A, String>> prefcolumns = new ArrayList<>();
-
+        List<IColumn<A, String>> columns = new ArrayList<>();
         columns.add(new KeyPropertyColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
+        List<IColumn<A, String>> prefcolumns = new ArrayList<>();
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
                 filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
-                forEachOrdered(name -> {
-                    addPropertyColumn(
-                            name,
-                            ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
-                            prefcolumns);
-                });
+                forEach(name -> addPropertyColumn(
+                name,
+                ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                prefcolumns));
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
                 filter(name -> pSchemaNames.contains(name)).
-                forEachOrdered(name -> {
-                    prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN));
-                });
+                map(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
                 filter(name -> (dSchemaNames.contains(name))).
-                forEachOrdered(name -> {
-                    prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED));
-                });
+                forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED)));
 
         // Add defaults in case of no selection
         if (prefcolumns.isEmpty()) {
@@ -183,7 +274,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                         prefcolumns);
             }
 
-            prefMan.setList(getRequest(), getResponse(), DisplayAttributesModalPanel.getPrefDetailView(type),
+            prefMan.setList(
+                    getRequest(), getResponse(), DisplayAttributesModalPanel.getPrefDetailView(type),
                     Arrays.asList(getDefaultAttributeSelection()));
         }
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -59,7 +60,7 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
     };
 
     public MembersTogglePanel(final PageReference pageRef) {
-        super("outer", "groupMembers", pageRef);
+        super(Constants.OUTER, "groupMembers", pageRef);
 
         form = new Form<>("membersForm");
         addInnerObject(form);

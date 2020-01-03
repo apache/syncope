@@ -63,7 +63,7 @@ public class ReportTemplateDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
-    protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public ReportTemplateDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);

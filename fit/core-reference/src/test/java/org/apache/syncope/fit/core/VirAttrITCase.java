@@ -75,8 +75,7 @@ public class VirAttrITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue16@apache.org");
         userTO.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
         userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
-        userTO.getMemberships().add(
-                new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userTO.getMemberships().add(new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         // 1. create user
         userTO = createUser(userTO).getEntity();
@@ -230,13 +229,13 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 3. update virtual attribute directly
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = queryForObject(jdbcTemplate, 
+        String value = queryForObject(jdbcTemplate,
                 MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache", value);
 
         jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", actual.getKey());
 
-        value = queryForObject(jdbcTemplate, 
+        value = queryForObject(jdbcTemplate,
                 MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache2", value);
 
@@ -388,13 +387,15 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------------
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(
-                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.
+                        getKey());
         assertEquals("virattrcache", value);
 
         jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", userTO.getKey());
 
         value = queryForObject(
-                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.
+                        getKey());
         assertEquals("virattrcache2", value);
         // ----------------------------------------
 

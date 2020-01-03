@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -33,7 +32,6 @@ import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -49,9 +47,6 @@ import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.SearchResult;
-import org.identityconnectors.framework.common.objects.SortKey;
-import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
-import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -310,7 +305,7 @@ public class ConnectorFacadeProxy implements Connector {
             final SyncResultsHandler handler,
             final OperationOptions options) {
 
-        filteredReconciliation(objectClass, null, handler, options);
+        Connector.super.fullReconciliation(objectClass, handler, options);
     }
 
     @Transactional
@@ -321,29 +316,7 @@ public class ConnectorFacadeProxy implements Connector {
             final SyncResultsHandler handler,
             final OperationOptions options) {
 
-        Filter filter = null;
-        OperationOptions actualOptions = options;
-        if (filterBuilder != null) {
-            filter = filterBuilder.build();
-            actualOptions = filterBuilder.build(actualOptions);
-        }
-
-        search(objectClass, filter, new SearchResultsHandler() {
-
-            @Override
-            public void handleResult(final SearchResult result) {
-                // nothing to do
-            }
-
-            @Override
-            public boolean handle(final ConnectorObject object) {
-                return handler.handle(new SyncDeltaBuilder().
-                        setObject(object).
-                        setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
-                        setToken(new SyncToken("")).
-                        build());
-            }
-        }, actualOptions);
+        Connector.super.filteredReconciliation(objectClass, filterBuilder, handler, options);
     }
 
     @Override
@@ -474,29 +447,6 @@ public class ConnectorFacadeProxy implements Connector {
         }
 
         return result;
-    }
-
-    @Override
-    public SearchResult search(
-            final ObjectClass objectClass,
-            final Filter filter,
-            final SearchResultsHandler handler,
-            final int pageSize,
-            final String pagedResultsCookie,
-            final List<OrderByClause> orderBy,
-            final OperationOptions options) {
-
-        OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize).setPagedResultsOffset(-1);
-        if (pagedResultsCookie != null) {
-            builder.setPagedResultsCookie(pagedResultsCookie);
-        }
-        builder.setSortKeys(orderBy.stream().map(clause
-                -> new SortKey(clause.getField(), clause.getDirection() == OrderByClause.Direction.ASC)).
-                collect(Collectors.toList()));
-
-        builder.setAttributesToGet(options.getAttributesToGet());
-
-        return search(objectClass, filter, handler, builder.build());
     }
 
     @Override

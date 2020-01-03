@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -146,8 +145,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
                     setRealms(realm, model.getObject().getDynRealms());
 
-            panel.add(
-                    new ActionLink<AnyObjectTO>() {
+            panel.add(new ActionLink<AnyObjectTO>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -209,7 +207,6 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                             LOG.error("While restoring any object {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                     ? e.getClass().getName() : e.getMessage());
-                            throw new WicketRuntimeException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }

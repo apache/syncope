@@ -30,6 +30,6 @@ public class MyJPAJSONPlainSchemaDAO extends AbstractJPAJSONPlainSchemaDAO {
                 "SELECT COUNT(id) FROM " + new SearchSupport(getAnyTypeKind(reference)).field().name
                 + " WHERE JSON_CONTAINS(plainAttrs, '[{\"schema\":\"" + schema.getKey() + "\"}]')");
 
-        return (long) query.getSingleResult() > 0;
+        return ((Number) query.getSingleResult()).intValue() > 0;
     }
 }

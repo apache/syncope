@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -40,7 +41,7 @@ public class JEXLTransformersTogglePanel extends TogglePanel<Serializable> {
     private final AjaxTextFieldPanel pullJEXLTransformer;
 
     public JEXLTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
-        super("outer", "jexlTransformersTogglePanel", pageRef);
+        super(Constants.OUTER, "jexlTransformersTogglePanel", pageRef);
 
         Form<?> form = new Form<>("form");
         addInnerObject(form);

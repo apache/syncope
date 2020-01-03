@@ -182,7 +182,7 @@ public class OutboundMatcher {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
         }
 
-        if (result.size() == 1) {
+        if (any != null && result.size() == 1) {
             virAttrHandler.setValues(any, result.get(0));
         }
 

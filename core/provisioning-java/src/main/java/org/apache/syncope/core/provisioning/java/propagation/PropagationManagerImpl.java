@@ -40,9 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -56,8 +54,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -84,35 +85,26 @@ public class PropagationManagerImpl implements PropagationManager {
     @Autowired
     protected AnyObjectDAO anyObjectDAO;
 
-    /**
-     * User DAO.
-     */
     @Autowired
     protected UserDAO userDAO;
 
-    /**
-     * Group DAO.
-     */
     @Autowired
     protected GroupDAO groupDAO;
 
-    /**
-     * Resource DAO.
-     */
     @Autowired
     protected ExternalResourceDAO resourceDAO;
 
     @Autowired
     protected EntityFactory entityFactory;
 
-    /**
-     * ConnObjectUtils.
-     */
     @Autowired
     protected ConnObjectUtils connObjectUtils;
 
     @Autowired
     protected MappingManager mappingManager;
+
+    @Autowired
+    protected DerAttrHandler derAttrHandler;
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
@@ -387,17 +379,18 @@ public class PropagationManagerImpl implements PropagationManager {
         return createTasks(any, null, false, false, true, localPropByRes, propByLinkedAccount, null);
     }
 
-    protected PropagationTaskInfo newTask(
+    @Override
+    public PropagationTaskInfo newTask(
+            final DerAttrHandler derAttrHandler,
             final Any<?> any,
-            final String resource,
+            final ExternalResource resource,
             final ResourceOperation operation,
             final Provision provision,
             final boolean deleteOnResource,
             final Stream<? extends Item> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
-        PropagationTaskInfo task = new PropagationTaskInfo();
-        task.setResource(resource);
+        PropagationTaskInfo task = new PropagationTaskInfo(resource);
         task.setObjectClassName(provision.getObjectClass().getObjectClassValue());
         task.setAnyTypeKind(any.getType().getKind());
         task.setAnyType(any.getType().getKey());
@@ -412,15 +405,16 @@ public class PropagationManagerImpl implements PropagationManager {
         List<String> mandatoryMissing = new ArrayList<>();
         List<String> mandatoryNullOrEmpty = new ArrayList<>();
         mappingItems.filter(item -> (!item.isConnObjectKey()
-                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any))).forEach(item -> {
+                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler))).
+                forEach(item -> {
 
-            Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getRight());
-            if (attr == null) {
-                mandatoryMissing.add(item.getExtAttrName());
-            } else if (CollectionUtils.isEmpty(attr.getValue())) {
-                mandatoryNullOrEmpty.add(item.getExtAttrName());
-            }
-        });
+                    Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getRight());
+                    if (attr == null) {
+                        mandatoryMissing.add(item.getExtAttrName());
+                    } else if (CollectionUtils.isEmpty(attr.getValue())) {
+                        mandatoryNullOrEmpty.add(item.getExtAttrName());
+                    }
+                });
         if (!mandatoryMissing.isEmpty()) {
             preparedAttrs.getRight().add(AttributeBuilder.build(
                     PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
@@ -525,8 +519,9 @@ public class PropagationManagerImpl implements PropagationManager {
                 }
 
                 PropagationTaskInfo task = newTask(
+                        derAttrHandler,
                         any,
-                        resourceKey,
+                        resource,
                         operation,
                         provision,
                         deleteOnResource,
@@ -568,8 +563,9 @@ public class PropagationManagerImpl implements PropagationManager {
                             AnyTypeKind.USER.name(), account.getResource());
                 } else {
                     PropagationTaskInfo accountTask = newTask(
+                            derAttrHandler,
                             user,
-                            account.getResource().getKey(),
+                            account.getResource(),
                             operation,
                             provision,
                             deleteOnResource,
@@ -617,8 +613,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
                         realm.getFullPath(), resource);
             } else {
-                PropagationTaskInfo task = new PropagationTaskInfo();
-                task.setResource(resource.getKey());
+                PropagationTaskInfo task = new PropagationTaskInfo(resource);
                 task.setObjectClassName(orgUnit.getObjectClass().getObjectClassValue());
                 task.setEntityKey(realm.getKey());
                 task.setOperation(operation);

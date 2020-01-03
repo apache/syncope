@@ -105,18 +105,20 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @Override
     public Pair<Integer, List<UserTO>> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderBy,
             final String realm,
             final boolean details) {
 
-        int count = searchDAO.count(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
-                searchCond == null ? userDAO.getAllMatchingCond() : searchCond, AnyTypeKind.USER);
+        Set<String> adminRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm);
 
-        List<User> matching = searchDAO.search(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
-                searchCond == null ? userDAO.getAllMatchingCond() : searchCond,
-                page, size, orderBy, AnyTypeKind.USER);
+        SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
+
+        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.USER);
+
+        List<User> matching = searchDAO.search(adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.returnUserTO(binder.getUserTO(user, details))).
                 collect(Collectors.toList());

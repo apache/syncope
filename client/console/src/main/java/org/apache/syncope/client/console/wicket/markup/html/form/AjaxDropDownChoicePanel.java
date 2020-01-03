@@ -29,7 +29,7 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<T> implements Cloneable {
 
@@ -45,7 +45,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         super(id, name, model);
 
         field = new BootstrapSelect<>("dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<>());
-        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {

@@ -39,8 +39,8 @@ import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.OIDCProviderDataBinder;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +50,6 @@ import org.springframework.stereotype.Component;
 public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCProviderDataBinder.class);
-
-    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "purpose" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

@@ -68,6 +68,16 @@ public final class RESTHeaders {
     public static final MediaType APPLICATION_YAML_TYPE = new MediaType("application", "yaml");
 
     /**
+     * Mediatype for text/csv, not defined in {@link javax.ws.rs.core.MediaType}.
+     */
+    public static final String TEXT_CSV = "text/csv";
+
+    /**
+     * Mediatype for text/csv, not defined in {@link javax.ws.rs.core.MediaType}.
+     */
+    public static final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
+
+    /**
      * Mediatype for multipart/mixed, not defined in {@link javax.ws.rs.core.MediaType}.
      */
     public static final String MULTIPART_MIXED = "multipart/mixed";
@@ -79,7 +89,7 @@ public final class RESTHeaders {
 
     /**
      * Builds Content-Type string for multipart/mixed and the given boundary.
-     * 
+     *
      * @param boundary multipart boundary value
      * @return multipart/mixed Content-Type string, with given boundary
      */

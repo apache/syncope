@@ -59,7 +59,7 @@ public class NotificationDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<Serializable> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public NotificationDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef, true);

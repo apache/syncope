@@ -33,5 +33,4 @@ public class TestInitializer implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         contentLoader.load();
     }
-
 }

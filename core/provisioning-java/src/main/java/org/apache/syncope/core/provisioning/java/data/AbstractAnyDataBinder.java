@@ -82,8 +82,8 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,7 +225,7 @@ abstract class AbstractAnyDataBinder {
                         AccountGetter.DEFAULT,
                         PlainAttrGetter.DEFAULT);
                 if (intValues.getRight().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any, derAttrHandler)) {
 
                     missingAttrNames.add(mapItem.getIntAttrName());
                 }
@@ -263,7 +263,7 @@ abstract class AbstractAnyDataBinder {
 
         if (attr == null
                 && !schema.isReadonly()
-                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)) {
+                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any, derAttrHandler)) {
 
             LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
 

@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel;
-import org.apache.syncope.client.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
+import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -33,7 +32,6 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.resource.IResourceStream;
 
 /**
  * Modal window with report executions.
@@ -55,9 +53,11 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
         private static final long serialVersionUID = 5691719817252887541L;
 
+        private final ReportRestClient reportRestClient = new ReportRestClient();
+
         private final MultilevelPanel mlp;
 
-        private final AjaxExportDownloadBehavior downloadBehavior;
+        private final AjaxDownloadBehavior downloadBehavior;
 
         ReportExecutionDirectoryPanel(
                 final MultilevelPanel multiLevelPanelRef,
@@ -67,7 +67,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
             super(multiLevelPanelRef, key, executionRestClient, pageRef);
             this.mlp = multiLevelPanelRef;
 
-            this.downloadBehavior = new AjaxExportDownloadBehavior();
+            this.downloadBehavior = new AjaxDownloadBehavior();
             this.add(downloadBehavior);
         }
 
@@ -87,7 +87,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.CSV);
+                    downloadBehavior.setResponse(() -> reportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.CSV));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_CSV, StandardEntitlement.REPORT_READ);
@@ -98,7 +99,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.HTML);
+                    downloadBehavior.setResponse(() -> reportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.HTML));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_HTML, StandardEntitlement.REPORT_READ);
@@ -109,7 +111,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.PDF);
+                    downloadBehavior.setResponse(() -> reportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.PDF));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_PDF, StandardEntitlement.REPORT_READ);
@@ -120,7 +123,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.RTF);
+                    downloadBehavior.setResponse(() -> reportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.RTF));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_RTF, StandardEntitlement.REPORT_READ);
@@ -131,47 +135,11 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setDetails(model.getObject().getKey(), ReportExecExportFormat.XML);
+                    downloadBehavior.setResponse(() -> reportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.XML));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_XML, StandardEntitlement.REPORT_READ);
-        }
-    }
-
-    private static class AjaxExportDownloadBehavior extends AbstractAjaxDownloadBehavior {
-
-        private static final long serialVersionUID = 3109256773218160485L;
-
-        private String execution;
-
-        private ReportExecExportFormat exportFormat;
-
-        private HttpResourceStream stream;
-
-        public AjaxExportDownloadBehavior setDetails(
-                final String execution, final ReportExecExportFormat exportFormat) {
-            this.execution = execution;
-            this.exportFormat = exportFormat;
-            this.stream = null;
-            return this;
-        }
-
-        private void createResourceStream() {
-            if (stream == null) {
-                stream = new HttpResourceStream(new ReportRestClient().exportExecutionResult(execution, exportFormat));
-            }
-        }
-
-        @Override
-        protected String getFileName() {
-            createResourceStream();
-            return stream == null ? null : stream.getFilename();
-        }
-
-        @Override
-        protected IResourceStream getResourceStream() {
-            createResourceStream();
-            return stream;
         }
     }
 }

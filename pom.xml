@@ -453,6 +453,8 @@ under the License.
 
     <junit.version>5.5.2</junit.version>
 
+    <mockito.version>3.2.4</mockito.version>
+
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
@@ -475,7 +477,7 @@ under the License.
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.15.10</highlightjs.version>
-    <codemirror.version>5.49.0</codemirror.version>
+    <codemirror.version>5.50.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
@@ -914,6 +916,11 @@ under the License.
             <artifactId>woodstox-core</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-csv</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -1428,7 +1435,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.17</version>
+        <version>2.0.18</version>
       </dependency>
       
       <dependency>
@@ -1797,8 +1804,20 @@ under the License.
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>3.2.0</version>
+        <version>${mockito.version}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -2466,7 +2485,8 @@ under the License.
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
             <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.24.2/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.24.2/</link>

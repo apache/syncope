@@ -30,6 +30,6 @@ public class PGJPAJSONPlainSchemaDAO extends AbstractJPAJSONPlainSchemaDAO {
                 "SELECT COUNT(id) FROM " + new SearchSupport(getAnyTypeKind(reference)).field().name
                 + " WHERE plainAttrs @> '[{\"schema\":\"" + schema.getKey() + "\"}]'::jsonb");
 
-        return (long) query.getSingleResult() > 0;
+        return ((Number) query.getSingleResult()).intValue() > 0;
     }
 }

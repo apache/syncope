@@ -105,14 +105,12 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
         }.setVisible(false).setEnabled(false));
     }
 
-    public void addAction(
-            final ActionLink<Serializable> action, final ActionType type, final String entitlements) {
+    public void addAction(final ActionLink<Serializable> action, final ActionType type, final String entitlements) {
         actionPanel.add(action, type, entitlements);
     }
 
     public void addCancelButton(final BaseModal<?> modal) {
-
-        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
+        AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
@@ -121,7 +119,6 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
                 modal.close(target);
             }
         };
-
         cancel.setDefaultFormProcessing(false);
         batchForm.addOrReplace(cancel);
     }
