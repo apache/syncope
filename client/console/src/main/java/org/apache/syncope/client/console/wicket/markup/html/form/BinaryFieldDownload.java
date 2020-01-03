@@ -50,14 +50,15 @@ public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
         this.addAntiCache = addAntiCache;
     }
 
-    public BinaryFieldDownload(final String name, final String fileKey, final String mimeType, final boolean addAntiCache) {
+    public BinaryFieldDownload(
+            final String name, final String fileKey, final String mimeType, final boolean addAntiCache) {
+
         this(name, addAntiCache);
         this.fileKey = fileKey;
         this.mimeType = mimeType;
     }
 
     public void initiate(final AjaxRequestTarget target) {
-
         String url = getCallbackUrl().toString();
         if (addAntiCache) {
             url = url + (url.contains("?") ? "&" : "?");
@@ -85,5 +86,4 @@ public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
     }
 
     protected abstract HttpResourceStream getResourceStream();
-
 }
