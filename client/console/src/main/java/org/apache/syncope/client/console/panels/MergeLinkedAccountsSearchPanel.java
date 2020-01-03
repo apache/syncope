@@ -34,12 +34,13 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.patch.LinkedAccountPatch;
-import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
@@ -61,7 +62,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,26 +118,25 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(originalUserTO.getUsername());
 
-        mergingUserTO.getLinkedAccounts().forEach(linkedAccountTO -> userPatch.getLinkedAccounts().add(
-            new LinkedAccountPatch.Builder().linkedAccountTO(linkedAccountTO).build()));
+        mergingUserTO.getLinkedAccounts().forEach(acct -> {
+            LinkedAccountTO linkedAccount =
+                new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
+                    .password(acct.getPassword())
+                    .suspended(acct.isSuspended())
+                    .username(acct.getUsername())
+                    .build();
+            linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
+            linkedAccount.getPrivileges().addAll(acct.getPrivileges());
+            LinkedAccountPatch patch = new LinkedAccountPatch.Builder().linkedAccountTO(linkedAccount)
+                .operation(PatchOperation.ADD_REPLACE)
+                .build();
+            userPatch.getLinkedAccounts().add(patch);
+        });
 
         String address = SyncopeConsoleSession.get().getAddress();
         BatchRequest batchRequest = new BatchRequest(MediaType.APPLICATION_JSON_TYPE, address,
             Collections.emptyList(), SyncopeConsoleSession.get().getJWT());
-        
-        // Update user with linked accounts
-        String updateUserPayload = MAPPER.writeValueAsString(userPatch);
-        BatchRequestItem updateUser = new BatchRequestItem();
-        updateUser.setMethod(HttpMethod.PATCH);
-        updateUser.setRequestURI("/users/" + originalUserTO.getUsername());
-        updateUser.setHeaders(new HashMap<>());
-        updateUser.getHeaders().put(RESTHeaders.PREFER, Collections.singletonList(Preference.RETURN_NO_CONTENT.toString()));
-        updateUser.getHeaders().put(HttpHeaders.ACCEPT, Collections.singletonList(MediaType.APPLICATION_JSON));
-        updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(MediaType.APPLICATION_JSON));
-        updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Collections.singletonList(updateUserPayload.length()));
-        updateUser.setContent(updateUserPayload);
-        batchRequest.getItems().add(updateUser);
-        
+
         // Delete merging user
         BatchRequestItem deleteRequest = new BatchRequestItem();
         deleteRequest.setMethod(HttpMethod.DELETE);
@@ -145,7 +144,29 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
         deleteRequest.getHeaders().put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(MediaType.APPLICATION_JSON));
         batchRequest.getItems().add(deleteRequest);
 
+        // Update user with linked accounts
+        String updateUserPayload = MAPPER.writeValueAsString(userPatch);
+        BatchRequestItem updateUser = new BatchRequestItem();
+        updateUser.setMethod(HttpMethod.PATCH);
+        updateUser.setRequestURI("/users/" + originalUserTO.getUsername());
+        updateUser.setHeaders(new HashMap<>());
+        updateUser.getHeaders().put(RESTHeaders.PREFER,
+            Collections.singletonList(Preference.RETURN_NO_CONTENT.toString()));
+        updateUser.getHeaders().put(HttpHeaders.ACCEPT,
+            Collections.singletonList(MediaType.APPLICATION_JSON));
+        updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE,
+            Collections.singletonList(MediaType.APPLICATION_JSON));
+        updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH,
+            Collections.singletonList(updateUserPayload.length()));
+        updateUser.setContent(updateUserPayload);
+        batchRequest.getItems().add(updateUser);
+        
         Map<String, String> batchResponse = new UserRestClient().batch(batchRequest);
+        batchResponse.forEach((key, value) -> {
+            if (!value.equalsIgnoreCase("success")) {
+                throw new IllegalArgumentException("Unable to report a success operation status for " + key);
+            }
+        });
     }
 
     @Override
