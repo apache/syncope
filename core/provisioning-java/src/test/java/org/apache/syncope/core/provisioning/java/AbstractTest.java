@@ -26,10 +26,15 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { ProvisioningTestContext.class })
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractTest {
 
     protected EntityManager entityManager() {
@@ -48,5 +53,10 @@ public abstract class AbstractTest {
         EntitlementsHolder.getInstance().addAll(IdRepoEntitlement.values());
         EntitlementsHolder.getInstance().addAll(IdMEntitlement.values());
         EntitlementsHolder.getInstance().addAll(AMEntitlement.values());
+    }
+
+    @BeforeEach
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
     }
 }
