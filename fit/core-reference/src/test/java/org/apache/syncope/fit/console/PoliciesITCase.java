@@ -784,7 +784,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:10:"
+                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:11:"
                 + "action:action"), Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
