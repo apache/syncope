@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,9 +58,8 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
-import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -71,6 +69,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class LDAPMembershipPullActionsTest extends AbstractTest {
@@ -96,18 +97,8 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     @Mock
     private ProvisioningReport result;
 
-    private EntityTO entity;
-
-    private AnyPatch anyPatch;
-
-    private Map<String, Set<String>> membershipsBefore;
-
     @Mock
     private Map<String, Set<String>> membershipsAfter;
-
-    private User user;
-
-    Set<ConnConfProperty> connConfProperties;
 
     @Mock
     private ProvisioningTask provisioningTask;
@@ -124,8 +115,18 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     @Mock
     private ConnInstance connInstance;
 
+    private EntityTO entity;
+
+    private AnyPatch anyPatch;
+
+    private Map<String, Set<String>> membershipsBefore;
+
+    private User user;
+
+    Set<ConnConfProperty> connConfProperties;
+
     @BeforeEach
-    public void init() {
+    public void initTest() {
         List<UMembership> uMembList = new ArrayList<>();
         UMembership uMembership = new JPAUMembership();
         user = new JPAUser();
@@ -223,6 +224,19 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         assertTrue(!provision.isPresent());
         assertEquals(expected, attribute.getValue());
         assertTrue(match.isPresent());
+    }
+
+    @Test
+    public void afterAll(
+            @Mock Map<String, Object> jobMap,
+            @Mock SchedulerFactoryBean schedulerFactoryBean,
+            @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
+        ReflectionTestUtils.setField(ldapMembershipPullActions, "scheduler", schedulerFactoryBean);
+        when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);
+        
+        ldapMembershipPullActions.afterAll(profile);
+
+        verify(scheduler).scheduleJob(any(), any());
     }
 
 }
