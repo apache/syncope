@@ -187,6 +187,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
+    @SuppressWarnings(value = { "rawtypes", "unchecked" })
     public void afterWithEmptyAttributes(@Mock Attribute attribute) throws JobExecutionException {
         entity = new GroupTO();
         Optional provision = Optional.of(new JPAProvision());
@@ -202,6 +203,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
+    @SuppressWarnings(value = { "rawtypes", "unchecked" })
     public void after() throws JobExecutionException {
         entity = new UserTO();
         Optional provision = Optional.empty();
@@ -233,7 +235,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
             @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
         ReflectionTestUtils.setField(ldapMembershipPullActions, "scheduler", schedulerFactoryBean);
         when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);
-        
+
         ldapMembershipPullActions.afterAll(profile);
 
         verify(scheduler).scheduleJob(any(), any());
