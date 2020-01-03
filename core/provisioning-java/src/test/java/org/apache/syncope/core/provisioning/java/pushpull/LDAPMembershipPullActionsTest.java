@@ -19,17 +19,18 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,13 +53,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -71,10 +70,14 @@ import org.mockito.Mock;
 import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class LDAPMembershipPullActionsTest extends AbstractTest {
+
+    @Autowired
+    private EntityFactory entityFactory;
 
     @Mock
     private AnyTypeDAO anyTypeDAO;
@@ -123,16 +126,15 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     private User user;
 
-    Set<ConnConfProperty> connConfProperties;
+    private Set<ConnConfProperty> connConfProperties;
 
     @BeforeEach
     public void initTest() {
-        List<UMembership> uMembList = new ArrayList<>();
-        UMembership uMembership = new JPAUMembership();
-        user = new JPAUser();
+        user = entityFactory.newEntity(User.class);
+        UMembership uMembership = entityFactory.newEntity(UMembership.class);
         uMembership.setLeftEnd(user);
         ReflectionTestUtils.setField(user, "id", UUID.randomUUID().toString());
-        uMembList.add(uMembership);
+        List<UMembership> uMembList = Collections.singletonList(uMembership);
 
         anyPatch = new UserPatch();
         membershipsBefore = new HashMap<>();
@@ -150,7 +152,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         lenient().when(profile.getTask()).thenReturn(provisioningTask);
         lenient().when(provisioningTask.getResource()).thenReturn(externalResource);
-        lenient().when(anyTypeDAO.findUser()).thenReturn(new JPAAnyType());
+        lenient().when(anyTypeDAO.findUser()).thenReturn(entityFactory.newEntity(AnyType.class));
 
         lenient().when(profile.getConnector()).thenReturn(connector);
         lenient().when(syncDelta.getObject()).thenReturn(connectorObj);
@@ -182,50 +184,39 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         ldapMembershipPullActions.beforeUpdate(profile, syncDelta, entity, anyPatch);
 
-        assertTrue(!(entity instanceof GroupTO));
+        assertFalse(entity instanceof GroupTO);
         assertEquals(1, membershipsBefore.get(user.getKey()).size());
     }
 
     @Test
-    @SuppressWarnings(value = { "rawtypes", "unchecked" })
     public void afterWithEmptyAttributes(@Mock Attribute attribute) throws JobExecutionException {
         entity = new GroupTO();
-        Optional provision = Optional.of(new JPAProvision());
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(any(AnyType.class))).thenReturn(provision);
+        when(externalResource.getProvision(any(AnyType.class))).thenAnswer(ic -> Optional.of(mock(Provision.class)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
-        assertTrue(entity instanceof GroupTO);
-        assertTrue(provision.isPresent());
-        assertEquals(new LinkedList<>(), attribute.getValue());
+        assertEquals(Collections.emptyList(), attribute.getValue());
     }
 
     @Test
-    @SuppressWarnings(value = { "rawtypes", "unchecked" })
     public void after() throws JobExecutionException {
         entity = new UserTO();
-        Optional provision = Optional.empty();
-        Optional match = Optional.of(new PullMatch(MatchType.ANY, user));
         String expectedUid = UUID.randomUUID().toString();
         Attribute attribute = new Uid(expectedUid);
-        List<Object> expected = new LinkedList<>();
-        expected.add(expectedUid);
+        List<String> expected = Collections.singletonList(expectedUid);
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(any(AnyType.class))).thenReturn(provision);
+        when(externalResource.getProvision(any(AnyType.class))).thenAnswer(ic -> Optional.empty());
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
-                thenReturn(match);
+                thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
         verify(membershipsAfter).get(anyString());
         verify(membershipsAfter).put(anyString(), any());
-        assertTrue(!(entity instanceof GroupTO));
-        assertTrue(!provision.isPresent());
         assertEquals(expected, attribute.getValue());
-        assertTrue(match.isPresent());
     }
 
     @Test
@@ -233,6 +224,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
             @Mock Map<String, Object> jobMap,
             @Mock SchedulerFactoryBean schedulerFactoryBean,
             @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
+
         ReflectionTestUtils.setField(ldapMembershipPullActions, "scheduler", schedulerFactoryBean);
         when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);
 
@@ -240,5 +232,4 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         verify(scheduler).scheduleJob(any(), any());
     }
-
 }
