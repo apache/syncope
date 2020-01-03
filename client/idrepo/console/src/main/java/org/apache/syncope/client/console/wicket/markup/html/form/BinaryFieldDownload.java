@@ -28,7 +28,7 @@ import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
 
-public abstract class AjaxDownload extends AbstractAjaxBehavior {
+public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
 
     private static final long serialVersionUID = 7203445884857810583L;
 
@@ -43,13 +43,14 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
 
     private final boolean addAntiCache;
 
-    public AjaxDownload(final String name, final boolean addAntiCache) {
+    public BinaryFieldDownload(final String name, final boolean addAntiCache) {
         super();
         this.name = name;
         this.addAntiCache = addAntiCache;
     }
 
-    public AjaxDownload(final String name, final String fileKey, final String mimeType, final boolean addAntiCache) {
+    public BinaryFieldDownload(final String name, final String fileKey, final String mimeType,
+            final boolean addAntiCache) {
         this(name, addAntiCache);
         this.fileKey = fileKey;
         this.mimeType = mimeType;
