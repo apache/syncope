@@ -19,12 +19,14 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -40,8 +42,12 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     private static BpmnProcessService getService(final MediaType mediaType) {
         BpmnProcessService service = getService(BpmnProcessService.class);
-        Client client = WebClient.client(service);
-        client.type(mediaType);
+
+        MetadataMap<String, String> headers = new MetadataMap<>();
+        headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(mediaType.toString()));
+        headers.put(HttpHeaders.ACCEPT, Collections.singletonList(mediaType.toString()));
+        WebClient.client(service).headers(headers);
+
         return service;
     }
 
