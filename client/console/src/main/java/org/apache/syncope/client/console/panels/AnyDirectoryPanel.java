@@ -259,7 +259,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
                 filter(name -> pSchemaNames.contains(name)).
-                map(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
+                forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
 
         prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
                 filter(name -> (dSchemaNames.contains(name))).

@@ -72,6 +72,7 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
     private void createResourceStream() {
         if (stream == null && response != null) {
             stream = new HttpResourceStream(response.get());
+            response = null;
         }
     }
 
