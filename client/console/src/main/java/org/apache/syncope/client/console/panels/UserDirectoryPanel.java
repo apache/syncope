@@ -19,6 +19,10 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -57,11 +61,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient> {
 
