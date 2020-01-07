@@ -115,10 +115,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return clientFactory.getContentType().getMediaType();
     }
 
-    public String getAddress() {
-        return clientFactory.getAddress();
-    }
-
     public SyncopeClient getAnonymousClient() {
         return anonymousClient;
     }

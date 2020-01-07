@@ -133,9 +133,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
             userPatch.getLinkedAccounts().add(patch);
         });
 
-        String address = SyncopeConsoleSession.get().getAddress();
-        BatchRequest batchRequest = new BatchRequest(MediaType.APPLICATION_JSON_TYPE, address,
-            Collections.emptyList(), SyncopeConsoleSession.get().getJWT());
+        BatchRequest batchRequest = SyncopeConsoleSession.get().batch();
 
         // Delete merging user
         BatchRequestItem deleteRequest = new BatchRequestItem();
