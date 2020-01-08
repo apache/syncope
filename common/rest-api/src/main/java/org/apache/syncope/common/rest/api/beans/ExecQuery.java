@@ -49,5 +49,4 @@ public class ExecQuery extends AbstractQuery {
     public void setKey(final String key) {
         this.key = key;
     }
-
 }

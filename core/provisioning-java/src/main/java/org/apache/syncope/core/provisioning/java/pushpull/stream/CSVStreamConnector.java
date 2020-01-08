@@ -16,20 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull.stream;
+package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -44,28 +52,78 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public class StreamConnector implements Connector {
+public class CSVStreamConnector implements Connector, AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CSVStreamConnector.class);
 
     private final String keyColumn;
 
     private final String arrayElementsSeparator;
 
-    private final MappingIterator<Map<String, String>> reader;
+    private final CsvSchema.Builder schemaBuilder;
 
-    private final SequenceWriter writer;
+    private final InputStream in;
 
-    public StreamConnector(
+    private final OutputStream out;
+
+    private MappingIterator<Map<String, String>> reader;
+
+    private SequenceWriter writer;
+
+    public CSVStreamConnector(
             final String keyColumn,
             final String arrayElementsSeparator,
-            final MappingIterator<Map<String, String>> reader,
-            final SequenceWriter writer) {
+            final CsvSchema.Builder schemaBuilder,
+            final InputStream in,
+            final OutputStream out) {
 
         this.keyColumn = keyColumn;
         this.arrayElementsSeparator = arrayElementsSeparator;
-        this.reader = reader;
-        this.writer = writer;
+        this.schemaBuilder = schemaBuilder;
+        this.in = in;
+        this.out = out;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (reader != null) {
+            reader.close();
+        }
+        if (writer != null) {
+            writer.close();
+        }
+    }
+
+    public MappingIterator<Map<String, String>> reader() throws IOException {
+        synchronized (this) {
+            if (reader == null) {
+                reader = new CsvMapper().readerFor(Map.class).with(schemaBuilder.build()).readValues(in);
+            }
+        }
+        return reader;
+    }
+
+    public List<String> getColumns(final CSVPullSpec spec) throws IOException {
+        List<String> columns = new ArrayList<>();
+        ((CsvSchema) reader().getParserSchema()).forEach(column -> {
+            if (!spec.getIgnoreColumns().contains(column.getName())) {
+                columns.add(column.getName());
+            }
+        });
+        return columns;
+    }
+
+    public SequenceWriter writer() throws IOException {
+        synchronized (this) {
+            if (writer == null) {
+                writer = new CsvMapper().writerFor(Map.class).with(schemaBuilder.build()).writeValues(out);
+            }
+        }
+        return writer;
     }
 
     @Override
@@ -85,29 +143,34 @@ public class StreamConnector implements Connector {
             final OperationOptions options,
             final AtomicReference<Boolean> propagationAttempted) {
 
-        if (writer != null) {
-            Map<String, String> row = new HashMap<>();
-            attrs.stream().filter(attr -> !AttributeUtil.isSpecial(attr)).forEach(attr -> {
-                if (CollectionUtils.isEmpty(attr.getValue()) || attr.getValue().get(0) == null) {
-                    row.put(attr.getName(), null);
-                } else if (attr.getValue().size() == 1) {
-                    row.put(attr.getName(), attr.getValue().get(0).toString());
-                } else if (arrayElementsSeparator == null) {
-                    row.put(attr.getName(), attr.getValue().toString());
-                } else {
-                    row.put(
-                            attr.getName(),
-                            attr.getValue().stream().map(Object::toString).
-                                    collect(Collectors.joining(arrayElementsSeparator)));
-                }
-            });
-            try {
-                writer.write(row);
-            } catch (IOException e) {
-                throw new IllegalStateException("Could not object " + row, e);
+        synchronized (schemaBuilder) {
+            if (schemaBuilder.size() == 0) {
+                attrs.stream().filter(attr -> !AttributeUtil.isSpecial(attr)).map(Attribute::getName).
+                        forEachOrdered(schemaBuilder::addColumn);
             }
-            propagationAttempted.set(Boolean.TRUE);
         }
+
+        Map<String, String> row = new HashMap<>();
+        attrs.stream().filter(attr -> !AttributeUtil.isSpecial(attr)).forEach(attr -> {
+            if (CollectionUtils.isEmpty(attr.getValue()) || attr.getValue().get(0) == null) {
+                row.put(attr.getName(), null);
+            } else if (attr.getValue().size() == 1) {
+                row.put(attr.getName(), attr.getValue().get(0).toString());
+            } else if (arrayElementsSeparator == null) {
+                row.put(attr.getName(), attr.getValue().toString());
+            } else {
+                row.put(
+                        attr.getName(),
+                        attr.getValue().stream().map(Object::toString).
+                                collect(Collectors.joining(arrayElementsSeparator)));
+            }
+        });
+        try {
+            writer().write(row);
+        } catch (IOException e) {
+            throw new ConnectorException("Could not write object " + row, e);
+        }
+        propagationAttempted.set(Boolean.TRUE);
         return null;
     }
 
@@ -166,9 +229,9 @@ public class StreamConnector implements Connector {
 
         SearchResult result = new SearchResult();
 
-        if (reader != null) {
-            while (reader.hasNext()) {
-                Map<String, String> row = reader.next();
+        try {
+            while (reader().hasNext()) {
+                Map<String, String> row = reader().next();
 
                 ConnectorObjectBuilder builder = new ConnectorObjectBuilder();
                 builder.setObjectClass(objectClass);
@@ -182,6 +245,9 @@ public class StreamConnector implements Connector {
 
                 handler.handle(builder.build());
             }
+        } catch (IOException e) {
+            LOG.error("Could not read CSV from provided stream", e);
+            throw new ConnectorException(e);
         }
 
         return result;

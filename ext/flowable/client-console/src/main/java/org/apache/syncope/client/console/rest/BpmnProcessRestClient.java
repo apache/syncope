@@ -43,10 +43,10 @@ public class BpmnProcessRestClient extends BaseRestClient {
     private BpmnProcessService getService(final MediaType mediaType) {
         BpmnProcessService service = getService(BpmnProcessService.class);
 
-        MetadataMap<String, String> accept = new MetadataMap<>();
-        accept.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(mediaType.toString()));
-        accept.put(HttpHeaders.ACCEPT, Collections.singletonList(mediaType.toString()));
-        WebClient.client(service).headers(accept);
+        MetadataMap<String, String> headers = new MetadataMap<>();
+        headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(mediaType.toString()));
+        headers.put(HttpHeaders.ACCEPT, Collections.singletonList(mediaType.toString()));
+        WebClient.client(service).headers(headers);
 
         return service;
     }

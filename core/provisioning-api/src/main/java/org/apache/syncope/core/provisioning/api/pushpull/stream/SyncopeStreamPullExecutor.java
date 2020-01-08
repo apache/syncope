@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
 
 public interface SyncopeStreamPullExecutor {
@@ -33,7 +34,7 @@ public interface SyncopeStreamPullExecutor {
             List<String> columns,
             ConflictResolutionAction conflictResolutionAction,
             String pullCorrelationRule,
-            StreamConnector connector,
+            Connector connector,
             PullTaskTO pullTaskTO)
             throws JobExecutionException;
 }

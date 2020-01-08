@@ -20,6 +20,7 @@ package org.apache.syncope.common.rest.api.beans;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.QueryParam;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class ReconQuery {
 
@@ -61,7 +62,7 @@ public class ReconQuery {
     }
 
     @NotNull
-    @QueryParam("anyTypeKey")
+    @QueryParam(JAXRSService.PARAM_ANYTYPEKEY)
     public void setAnyTypeKey(final String anyTypeKey) {
         this.anyTypeKey = anyTypeKey;
     }

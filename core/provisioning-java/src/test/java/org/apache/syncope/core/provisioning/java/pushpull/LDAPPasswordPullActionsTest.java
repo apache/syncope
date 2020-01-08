@@ -126,5 +126,4 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
     }
-
 }

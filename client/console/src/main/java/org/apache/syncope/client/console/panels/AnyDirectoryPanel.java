@@ -47,12 +47,14 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
 import org.apache.syncope.client.console.wizards.CSVPushWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.ProvisioningReportsPanel;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -165,17 +167,39 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                     modal.close(target);
                 } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                     AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
-                    if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
-                        AjaxRequestTarget target = payload.getTarget();
+                    AjaxRequestTarget target = payload.getTarget();
 
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+
+                    target.add(container);
+
+                    if (payload.getResult() instanceof ArrayList) {
+                        modal.setContent(new ResultPage<Serializable>(
+                                null,
+                                payload.getResult()) {
+
+                            private static final long serialVersionUID = -2630573849050255233L;
+
+                            @Override
+                            protected void closeAction(final AjaxRequestTarget target) {
+                                modal.close(target);
+                            }
+
+                            @Override
+                            protected Panel customResultBody(
+                                    final String id, final Serializable item, final Serializable result) {
+
+                                @SuppressWarnings("unchecked")
+                                ArrayList<ProvisioningReport> reports = (ArrayList<ProvisioningReport>) result;
+                                return new ProvisioningReportsPanel(id, reports, pageRef);
+                            }
+                        });
+                        target.add(modal.getForm());
+                    } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
                         if (csvDownloadBehavior.hasResponse()) {
                             csvDownloadBehavior.initiate(target);
                         }
-
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-
-                        target.add(container);
                         modal.close(target);
                     }
                 }

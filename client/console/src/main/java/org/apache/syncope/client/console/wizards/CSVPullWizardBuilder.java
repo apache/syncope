@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileInputConfig;
 import java.io.ByteArrayInputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -104,9 +104,8 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
     }
 
     @Override
-    protected Serializable onApplyInternal(final CSVPullSpec modelObject) {
-        restClient.pull(modelObject, new ByteArrayInputStream(csv.getObject()));
-        return Constants.OPERATION_SUCCEEDED;
+    protected ArrayList<ProvisioningReport> onApplyInternal(final CSVPullSpec modelObject) {
+        return restClient.pull(modelObject, new ByteArrayInputStream(csv.getObject()));
     }
 
     @Override
@@ -256,9 +255,10 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
             unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
             add(unmatchingRule);
 
-            AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
-                    build("actions", new PropertyModel<>(spec, "actions"), new ListModel<>(pullActions.getObject()));
-            add(actions);
+            AjaxPalettePanel<String> provisioningActions =
+                    new AjaxPalettePanel.Builder<String>().build("provisioningActions",
+                            new PropertyModel<>(spec, "provisioningActions"), new ListModel<>(pullActions.getObject()));
+            add(provisioningActions);
 
             AjaxDropDownChoicePanel<ConflictResolutionAction> conflictResolutionAction = new AjaxDropDownChoicePanel<>(
                     "conflictResolutionAction", "conflictResolutionAction",
