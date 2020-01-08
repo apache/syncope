@@ -21,8 +21,9 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-//import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verify;
 
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -32,7 +33,7 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -55,9 +56,6 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     private AnyPatch anyPatch;
 
     @Mock
-    private ProvisioningTask provisioningTask;
-
-    @Mock
     private UserDAO userDAO;
 
     @Mock
@@ -75,9 +73,9 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     @BeforeEach
     public void initTest() {
         entity = new UserTO();
-        encodedPassword = "{SHA-512}s3cureP4ssw0rd";
+        encodedPassword = "s3cureP4ssw0rd";
         cipher = CipherAlgorithm.SHA512;
-        
+
         ReflectionTestUtils.setField(ldapPasswordPullActions, "encodedPassword", encodedPassword);
         ReflectionTestUtils.setField(ldapPasswordPullActions, "cipher", cipher);
     }
@@ -110,10 +108,21 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @Test
     public void afterWithNullUser() throws JobExecutionException {
-        when(userDAO.find(any())).thenReturn(null);
+        when(userDAO.find(entity.getKey())).thenReturn(null);
 
         ldapPasswordPullActions.after(profile, syncDelta, entity, result);
 
+        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
+        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
+    }
+
+    @Test
+    public void after(@Mock User user) throws JobExecutionException {
+        when(userDAO.find(entity.getKey())).thenReturn(user);
+
+        ldapPasswordPullActions.after(profile, syncDelta, entity, result);
+
+        verify(user).setEncodedPassword(anyString(), any(CipherAlgorithm.class));
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
     }
