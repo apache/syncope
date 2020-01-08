@@ -510,7 +510,7 @@ under the License.
 
     <antlr4.version>4.7.2</antlr4.version>
 
-    <hotswap.version>1.3.0</hotswap.version>
+    <hotswap.version>1.4.0</hotswap.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
