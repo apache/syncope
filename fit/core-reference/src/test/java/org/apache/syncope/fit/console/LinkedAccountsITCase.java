@@ -22,10 +22,12 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.apache.wicket.Component;
@@ -45,6 +47,9 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
     private static final String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
     private static final String RESULT_DATA_TABLE = "searchResult:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:";
+
+    private static final String SELECT_USER_ACTION = "searchResult:outerObjectsRepeater:1:outer:container:content:"
+        + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action";
 
     private static final String SEARCH_PANEL = "outerObjectsRepeater:6:outer:form:content:mlpContainer:firstLevelContainer:first:form:view"
         + ":ownerContainer:search:";
@@ -80,7 +85,13 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
     @AfterEach
     public void cleanUp() {
-        SyncopeConsoleSession.get().getService(UserService.class).delete(user.getKey());
+        try {
+            SyncopeConsoleSession.get().getService(UserService.class).delete(user.getKey());
+        } catch (final SyncopeClientException e) {
+            if (e.getType() != ClientExceptionType.NotFound) {
+                throw e;
+            }
+        }
     }
 
     @Test
@@ -90,10 +101,10 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = findComponentByProp("username", CONTAINER
+        Component verdiUserComponent = findComponentByProp("username", CONTAINER
             + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "verdi");
-        assertNotNull(component);
-        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        assertNotNull(verdiUserComponent);
+        TESTER.executeAjaxEvent(verdiUserComponent.getPageRelativePath(), Constants.ON_CLICK);
 
         // Click action menu to bring up merge window
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
@@ -121,8 +132,27 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         // Locate result in data table
         Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL + RESULT_DATA_TABLE, user.getUsername());
         TESTER.executeAjaxEvent(comp.getPageRelativePath(), Constants.ON_CLICK);
+
         UserTO userTO = (UserTO) ((OddEvenItem) TESTER.getComponentFromLastRenderedPage(TAB_PANEL + SEARCH_PANEL
             + RESULT_DATA_TABLE + "body:rows:1")).getModel().getObject();
         assertNotNull(userTO);
+
+        // Select user and merge
+        TESTER.clickLink(TAB_PANEL + SEARCH_PANEL + SELECT_USER_ACTION);
+
+        UserService userService = SyncopeConsoleSession.get().getService(UserService.class);
+
+        // User must have been deleted after the merge
+        try {
+            userService.read(user.getKey());
+            fail("User must have been deleted; expect an exception here");
+        } catch (final SyncopeClientException e) {
+            if (e.getType() != ClientExceptionType.NotFound) {
+                fail(e.getMessage(), e);
+            }
+        }
+        // User must include merged accounts now
+        UserTO verdi = userService.read(UserTO.class.cast(verdiUserComponent.getDefaultModelObject()).getKey());
+        assertFalse(verdi.getLinkedAccounts().isEmpty());
     }
 }
