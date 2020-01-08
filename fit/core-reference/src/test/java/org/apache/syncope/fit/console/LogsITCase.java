@@ -73,8 +73,7 @@ public class LogsITCase extends AbstractConsoleITCase {
 
     @Test
     public void readConsoleLogs() {
-        TESTER.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link",
-                AjaxFallbackLink.class);
+        TESTER.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
@@ -91,6 +90,8 @@ public class LogsITCase extends AbstractConsoleITCase {
 
         TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
+        TESTER.assertComponent(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
         TESTER.executeAjaxEvent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
 

@@ -18,16 +18,12 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.SequenceWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -73,7 +69,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.provisioning.api.pushpull.stream.StreamConnector;
+import org.apache.syncope.core.provisioning.java.pushpull.stream.CSVStreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
@@ -378,19 +374,18 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         }
     }
 
-    private CsvSchema csvSchema(final AbstractCSVSpec spec, final CsvSchema base) {
-        CsvSchema schema = base.
-                withColumnSeparator(spec.getColumnSeparator()).
-                withArrayElementSeparator(spec.getArrayElementSeparator()).
-                withQuoteChar(spec.getQuoteChar()).
-                withLineSeparator(spec.getLineSeparator()).
-                withNullValue(spec.getNullValue()).
-                withAllowComments(spec.isAllowComments());
+    private CsvSchema.Builder csvSchema(final AbstractCSVSpec spec) {
+        CsvSchema.Builder schemaBuilder = new CsvSchema.Builder().setUseHeader(true).
+                setColumnSeparator(spec.getColumnSeparator()).
+                setArrayElementSeparator(spec.getArrayElementSeparator()).
+                setQuoteChar(spec.getQuoteChar()).
+                setLineSeparator(spec.getLineSeparator()).
+                setNullValue(spec.getNullValue()).
+                setAllowComments(spec.isAllowComments());
         if (spec.getEscapeChar() != null) {
-            schema = schema.withEscapeChar(spec.getEscapeChar());
+            schemaBuilder.setEscapeChar(spec.getEscapeChar());
         }
-
-        return schema;
+        return schemaBuilder;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
@@ -473,21 +468,24 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             }
         });
 
-        CsvSchema.Builder schemaBuilder = CsvSchema.builder().setUseHeader(true);
-        columns.forEach(schemaBuilder::addColumn);
-        CsvSchema schema = csvSchema(spec, schemaBuilder.build());
-
         PushTaskTO pushTask = new PushTaskTO();
         pushTask.setMatchingRule(spec.getMatchingRule());
         pushTask.setUnmatchingRule(spec.getUnmatchingRule());
-        pushTask.getActions().addAll(spec.getActions());
+        pushTask.getActions().addAll(spec.getProvisioningActions());
 
-        try (SequenceWriter writer = new CsvMapper().writer(schema).forType(Map.class).writeValues(os)) {
+        try (CSVStreamConnector connector = new CSVStreamConnector(
+                null,
+                spec.getArrayElementSeparator(),
+                csvSchema(spec),
+                null,
+                os)) {
+
             return streamPushExecutor.push(
                     anyType,
                     matching,
                     columns,
-                    new StreamConnector(null, spec.getArrayElementSeparator(), null, writer),
+                    connector,
+                    spec.getPropagationActions(),
                     pushTask,
                     AuthContextUtils.getUsername());
         } catch (Exception e) {
@@ -514,31 +512,26 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         pullTask.setRemediation(spec.isRemediation());
         pullTask.setMatchingRule(spec.getMatchingRule());
         pullTask.setUnmatchingRule(spec.getUnmatchingRule());
-        pullTask.getActions().addAll(spec.getActions());
+        pullTask.getActions().addAll(spec.getProvisioningActions());
 
-        CsvSchema schema = csvSchema(spec, CsvSchema.emptySchema().withHeader());
-        try {
-            MappingIterator<Map<String, String>> reader =
-                    new CsvMapper().readerFor(Map.class).with(schema).readValues(csv);
+        try (CSVStreamConnector connector = new CSVStreamConnector(
+                spec.getKeyColumn(),
+                spec.getArrayElementSeparator(),
+                csvSchema(spec),
+                csv,
+                null)) {
 
-            List<String> columns = new ArrayList<>();
-            ((CsvSchema) reader.getParserSchema()).forEach(column -> {
-                if (!spec.getIgnoreColumns().contains(column.getName())) {
-                    columns.add(column.getName());
-                }
-            });
-
+            List<String> columns = connector.getColumns(spec);
             if (!columns.contains(spec.getKeyColumn())) {
                 throw new NotFoundException("Key column '" + spec.getKeyColumn() + "'");
             }
 
-            return streamPullExecutor.pull(
-                    anyType,
+            return streamPullExecutor.pull(anyType,
                     spec.getKeyColumn(),
                     columns,
                     spec.getConflictResolutionAction(),
                     spec.getPullCorrelationRule(),
-                    new StreamConnector(spec.getKeyColumn(), spec.getArrayElementSeparator(), reader, null),
+                    connector,
                     pullTask);
         } catch (NotFoundException e) {
             throw e;

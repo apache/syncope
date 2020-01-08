@@ -22,7 +22,6 @@ import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -260,7 +259,7 @@ public abstract class BaseLogin extends WebPage {
             });
 
             // set default language selection
-            List<Locale> filtered = Collections.emptyList();
+            List<Locale> filtered = List.of();
 
             String acceptLanguage = ((ServletWebRequest) RequestCycle.get().getRequest()).
                     getHeader(HttpHeaders.ACCEPT_LANGUAGE);

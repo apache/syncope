@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -42,7 +41,7 @@ public class AjaxCharacterFieldPanel extends FieldPanel<Character> implements Cl
 
     private Component questionMarkJexlHelp;
 
-    private List<Character> choices = Collections.emptyList();
+    private List<Character> choices = List.of();
 
     public AjaxCharacterFieldPanel(final String id, final String name, final IModel<Character> model) {
         this(id, name, model, true);

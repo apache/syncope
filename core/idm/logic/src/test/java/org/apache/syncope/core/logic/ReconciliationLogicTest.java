@@ -110,16 +110,8 @@ public class ReconciliationLogicTest extends AbstractTest {
         });
         assertEquals(search.getLeft(), results.size());
 
-        CsvSchema.Builder builder = CsvSchema.builder().setUseHeader(true);
-        builder.addColumn("username");
-        builder.addColumn("status");
-        builder.addColumn("firstname");
-        builder.addColumn("surname");
-        builder.addColumn("email");
-        builder.addColumn("loginDate");
-        CsvSchema schema = builder.build();
-
-        MappingIterator<Map<String, String>> reader = new CsvMapper().readerFor(Map.class).with(schema).readValues(in);
+        MappingIterator<Map<String, String>> reader =
+                new CsvMapper().readerFor(Map.class).with(CsvSchema.emptySchema().withHeader()).readValues(in);
 
         for (int i = 0; i < results.size() && reader.hasNext(); i++) {
             Map<String, String> row = reader.next();

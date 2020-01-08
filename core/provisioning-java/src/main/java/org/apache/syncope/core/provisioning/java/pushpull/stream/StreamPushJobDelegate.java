@@ -34,11 +34,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.api.pushpull.stream.StreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
@@ -88,7 +88,9 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
     }
 
     private ExternalResource externalResource(
-            final AnyType anyType, final List<String> columns) throws JobExecutionException {
+            final AnyType anyType,
+            final List<String> columns,
+            final List<String> propagationActions) throws JobExecutionException {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyType);
@@ -118,6 +120,15 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
         resource.add(provision);
         provision.setResource(resource);
 
+        propagationActions.forEach(key -> {
+            Implementation impl = implementationDAO.find(key);
+            if (impl == null || !IdMImplementationType.PROPAGATION_ACTIONS.equals(impl.getType())) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
+            } else {
+                resource.add(impl);
+            }
+        });
+
         return resource;
     }
 
@@ -126,21 +137,22 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             final AnyType anyType,
             final List<? extends Any<?>> anys,
             final List<String> columns,
-            final StreamConnector connector,
+            final Connector connector,
+            final List<String> propagationActions,
             final PushTaskTO pushTaskTO,
             final String executor) throws JobExecutionException {
 
         LOG.debug("Executing stream push as {}", executor);
         this.executor = executor;
 
-        List<PushActions> actions = new ArrayList<>();
+        List<PushActions> pushActions = new ArrayList<>();
         pushTaskTO.getActions().forEach(key -> {
             Implementation impl = implementationDAO.find(key);
             if (impl == null || !IdMImplementationType.PUSH_ACTIONS.equals(impl.getType())) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
             } else {
                 try {
-                    actions.add(ImplementationManager.build(impl));
+                    pushActions.add(ImplementationManager.build(impl));
                 } catch (Exception e) {
                     LOG.warn("While building {}", impl, e);
                 }
@@ -148,7 +160,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
         });
 
         try {
-            ExternalResource resource = externalResource(anyType, columns);
+            ExternalResource resource = externalResource(anyType, columns, propagationActions);
             Provision provision = resource.getProvisions().get(0);
 
             PushTask pushTask = entityFactory.newEntity(PushTask.class);
@@ -161,10 +173,10 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             pushTask.setSyncStatus(false);
 
             profile = new ProvisioningProfile<>(connector, pushTask);
-            profile.getActions().addAll(actions);
+            profile.getActions().addAll(pushActions);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
-            for (PushActions action : actions) {
+            for (PushActions action : pushActions) {
                 action.beforeAll(profile);
             }
 
@@ -186,7 +198,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
             doHandle(anys, handler, provision.getResource());
 
-            for (PushActions action : actions) {
+            for (PushActions action : pushActions) {
                 action.afterAll(profile);
             }
 

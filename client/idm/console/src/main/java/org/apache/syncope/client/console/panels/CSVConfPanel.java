@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,21 +42,21 @@ public class CSVConfPanel extends Panel {
 
         AjaxCharacterFieldPanel columnSeparator = new AjaxCharacterFieldPanel(
                 "columnSeparator", "columnSeparator", new PropertyModel<>(spec, "columnSeparator"));
-        columnSeparator.setChoices(Arrays.asList(',', ';', ' '));
+        columnSeparator.setChoices(List.of(',', ';', ' '));
         columnSeparator.setRequired(true);
         add(columnSeparator);
 
         AjaxTextFieldPanel arrayElementSeparator = new AjaxTextFieldPanel(
                 "arrayElementSeparator", "arrayElementSeparator",
                 new PropertyModel<>(spec, "arrayElementSeparator"));
-        arrayElementSeparator.setChoices(Arrays.asList(";"));
+        arrayElementSeparator.setChoices(List.of(";"));
         arrayElementSeparator.setRequired(true);
         arrayElementSeparator.addValidator(new StringValidator(1, 1));
         add(arrayElementSeparator);
 
         AjaxCharacterFieldPanel quoteChar = new AjaxCharacterFieldPanel(
                 "quoteChar", "quoteChar", new PropertyModel<>(spec, "quoteChar"));
-        quoteChar.setChoices(Arrays.asList('"'));
+        quoteChar.setChoices(List.of('"'));
         quoteChar.setRequired(true);
         add(quoteChar);
 

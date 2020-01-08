@@ -96,5 +96,4 @@ public class ExecuteQuery implements Serializable {
     public void setDryRun(final Boolean dryRun) {
         this.dryRun = dryRun;
     }
-
 }

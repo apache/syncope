@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.PreferenceManager;
@@ -29,8 +31,11 @@ import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
 import org.apache.syncope.client.console.wizards.CSVPushWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.ProvisioningReportsPanel;
+import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
@@ -39,6 +44,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -70,17 +76,39 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                     modal.close(target);
                 } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                     AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
-                    if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
-                        AjaxRequestTarget target = payload.getTarget();
+                    AjaxRequestTarget target = payload.getTarget();
 
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+
+                    target.add(container);
+
+                    if (payload.getResult() instanceof ArrayList) {
+                        modal.setContent(new ResultPage<Serializable>(
+                                null,
+                                payload.getResult()) {
+
+                            private static final long serialVersionUID = -2630573849050255233L;
+
+                            @Override
+                            protected void closeAction(final AjaxRequestTarget target) {
+                                modal.close(target);
+                            }
+
+                            @Override
+                            protected Panel customResultBody(
+                                    final String id, final Serializable item, final Serializable result) {
+
+                                @SuppressWarnings("unchecked")
+                                ArrayList<ProvisioningReport> reports = (ArrayList<ProvisioningReport>) result;
+                                return new ProvisioningReportsPanel(id, reports, pageRef);
+                            }
+                        });
+                        target.add(modal.getForm());
+                    } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
                         if (csvDownloadBehavior.hasResponse()) {
                             csvDownloadBehavior.initiate(target);
                         }
-
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-
-                        target.add(container);
                         modal.close(target);
                     }
                 }

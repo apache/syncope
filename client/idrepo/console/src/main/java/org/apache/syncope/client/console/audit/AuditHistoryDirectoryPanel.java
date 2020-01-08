@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.audit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -54,7 +53,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
 
     private static final long serialVersionUID = -8248734710505211261L;
 
-    private static final List<String> EVENTS = Arrays.asList("create", "update");
+    private static final List<String> EVENTS = List.of("create", "update");
 
     private static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
 

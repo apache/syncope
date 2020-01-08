@@ -251,17 +251,8 @@ public class ReconciliationITCase extends AbstractITCase {
         PagedResult<UserTO> users = userService.search(anyQuery);
         assertNotNull(users);
 
-        CsvSchema.Builder builder = CsvSchema.builder().setUseHeader(true);
-        builder.addColumn("username");
-        builder.addColumn("status");
-        builder.addColumn("firstname");
-        builder.addColumn("surname");
-        builder.addColumn("email");
-        builder.addColumn("loginDate");
-        CsvSchema schema = builder.build();
-
-        MappingIterator<Map<String, String>> reader = new CsvMapper().readerFor(Map.class).with(schema).
-                readValues((InputStream) response.getEntity());
+        MappingIterator<Map<String, String>> reader = new CsvMapper().readerFor(Map.class).
+                with(CsvSchema.emptySchema().withHeader()).readValues((InputStream) response.getEntity());
 
         int rows = 0;
         for (; reader.hasNext(); rows++) {

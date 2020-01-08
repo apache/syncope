@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -117,7 +116,7 @@ public final class MappingUtils {
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
         if (!ArrayUtils.isEmpty(moreAttrsToGet)) {
-            attrsToGet.addAll(Arrays.asList(moreAttrsToGet));
+            attrsToGet.addAll(List.of(moreAttrsToGet));
         }
 
         items.filter(item -> item.getPurpose() != MappingPurpose.NONE).

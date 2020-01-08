@@ -65,5 +65,4 @@ public class SyncopeJexlFunctions {
         Collections.reverse(headless);
         return prefix + attr + '=' + StringUtils.join(headless, ',' + attr + '=');
     }
-
 }

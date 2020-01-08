@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.saml2;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,7 +91,7 @@ public class SAML2UserManager {
         SAML2IdP idp = idpDAO.find(idpKey);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);
-            return Collections.emptyList();
+            return List.of();
         }
 
         return inboundMatcher.matchByConnObjectKeyValue(

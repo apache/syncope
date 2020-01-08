@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.panels.CSVConfPanel;
@@ -98,6 +97,17 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
         private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
+        private final IModel<List<String>> propActions = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 4659376149825914247L;
+
+            @Override
+            protected List<String> load() {
+                return implRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+            }
+        };
+
         private final IModel<List<String>> pushActions = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
@@ -114,20 +124,26 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
                     "ignorePaging", "ignorePaging", new PropertyModel<>(spec, "ignorePaging"), true);
             add(ignorePaging);
 
+            AjaxPalettePanel<String> propagationActions =
+                    new AjaxPalettePanel.Builder<String>().build("propagationActions",
+                            new PropertyModel<>(spec, "propagationActions"), new ListModel<>(propActions.getObject()));
+            add(propagationActions);
+
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                     "matchingRule", "matchingRule", new PropertyModel<>(spec, "matchingRule"), false);
-            matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
+            matchingRule.setChoices(List.of(MatchingRule.values()));
             add(matchingRule);
 
             AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
                     "unmatchingRule", "unmatchingRule", new PropertyModel<>(spec, "unmatchingRule"),
                     false);
-            unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
+            unmatchingRule.setChoices(List.of(UnmatchingRule.values()));
             add(unmatchingRule);
 
-            AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
-                    build("actions", new PropertyModel<>(spec, "actions"), new ListModel<>(pushActions.getObject()));
-            add(actions);
+            AjaxPalettePanel<String> provisioningActions =
+                    new AjaxPalettePanel.Builder<String>().build("provisioningActions",
+                            new PropertyModel<>(spec, "provisioningActions"), new ListModel<>(pushActions.getObject()));
+            add(provisioningActions);
         }
     }
 }

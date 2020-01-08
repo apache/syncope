@@ -23,6 +23,7 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
 
 public interface SyncopeStreamPushExecutor {
@@ -31,7 +32,8 @@ public interface SyncopeStreamPushExecutor {
             AnyType anyType,
             List<? extends Any<?>> anys,
             List<String> columns,
-            StreamConnector connector,
+            Connector connector,
+            List<String> propagationActions,
             PushTaskTO pushTaskTO,
             String executor)
             throws JobExecutionException;

@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -104,7 +103,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
         super();
         this.anyTypeClasses = anyTypeClasses;
-        this.attrs = new ListModel<>(Collections.emptyList());
+        this.attrs = new ListModel<>(List.of());
 
         this.setOutputMarkupId(true);
 
@@ -134,7 +133,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
     protected void setSchemas(final List<String> anyTypeClasses, final Map<String, S> scs) {
         List<S> allSchemas = anyTypeClasses.isEmpty()
-                ? Collections.emptyList()
+                ? List.of()
                 : SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
 
         scs.clear();

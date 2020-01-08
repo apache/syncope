@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -44,8 +43,8 @@ public class BpmnProcessRestClient extends BaseRestClient {
         BpmnProcessService service = getService(BpmnProcessService.class);
 
         MetadataMap<String, String> headers = new MetadataMap<>();
-        headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList(mediaType.toString()));
-        headers.put(HttpHeaders.ACCEPT, Collections.singletonList(mediaType.toString()));
+        headers.put(HttpHeaders.CONTENT_TYPE, List.of(mediaType.toString()));
+        headers.put(HttpHeaders.ACCEPT, List.of(mediaType.toString()));
         WebClient.client(service).headers(headers);
 
         return service;

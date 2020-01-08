@@ -29,7 +29,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +61,9 @@ public class IntAttrNameParserTest {
     private static final Map<AnyTypeKind, List<String>> FIELDS = new HashMap<>();
 
     static {
-        FIELDS.put(AnyTypeKind.USER, Arrays.asList("key", "username"));
-        FIELDS.put(AnyTypeKind.GROUP, Arrays.asList("key", "name", "userOwner"));
-        FIELDS.put(AnyTypeKind.ANY_OBJECT, Arrays.asList("key", "name"));
+        FIELDS.put(AnyTypeKind.USER, List.of("key", "username"));
+        FIELDS.put(AnyTypeKind.GROUP, List.of("key", "name", "userOwner"));
+        FIELDS.put(AnyTypeKind.ANY_OBJECT, List.of("key", "name"));
     }
 
     @Mock

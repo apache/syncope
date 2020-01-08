@@ -25,9 +25,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyCR;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -53,9 +56,6 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     private ProvisioningProfile<?, ?> profile;
 
     @Mock
-    private AnyPatch anyPatch;
-
-    @Mock
     private UserDAO userDAO;
 
     @Mock
@@ -63,6 +63,10 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @InjectMocks
     private LDAPPasswordPullActions ldapPasswordPullActions;
+
+    private AnyCR anyCR;
+
+    private AnyUR anyUR;
 
     private EntityTO entity;
 
@@ -84,9 +88,10 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     public void beforeProvision() throws JobExecutionException {
         String digest = "SHA256";
         String password = "t3stPassw0rd";
-        ReflectionTestUtils.setField(entity, "password", String.format("{%s}%s", digest, password));
+        anyCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "username").
+                password(String.format("{%s}%s", digest, password)).build();
 
-        ldapPasswordPullActions.beforeProvision(profile, syncDelta, entity);
+        ldapPasswordPullActions.beforeProvision(profile, syncDelta, anyCR);
 
         assertEquals(CipherAlgorithm.valueOf(digest), ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
         assertEquals(password, ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
@@ -94,14 +99,11 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @Test
     public void beforeUpdate() throws JobExecutionException {
-        anyPatch = new UserPatch();
-        PasswordPatch passwordPatch = new PasswordPatch();
-        String digest = "MD5";
-        String password = "an0therTestP4ss";
-        ReflectionTestUtils.setField(passwordPatch, "value", String.format("{%s}%s", digest, password));
-        ReflectionTestUtils.setField(anyPatch, "password", passwordPatch);
+        anyUR = new UserUR.Builder(null).
+                password(new PasswordPatch.Builder().value("{MD5}an0therTestP4ss").build()).
+                build();
 
-        ldapPasswordPullActions.beforeUpdate(profile, syncDelta, entity, anyPatch);
+        ldapPasswordPullActions.beforeUpdate(profile, syncDelta, entity, anyUR);
 
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
     }
@@ -126,5 +128,4 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
     }
-
 }

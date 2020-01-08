@@ -22,7 +22,6 @@ import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,7 +79,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
         super(userTO,
                 AjaxWizard.Mode.EDIT,
                 new AnyTypeRestClient().read(userTO.getType()).getClasses(),
-                AnyLayoutUtils.fetch(Arrays.asList(userTO.getType())).getUser().getWhichPlainAttrs(),
+                AnyLayoutUtils.fetch(List.of(userTO.getType())).getUser().getWhichPlainAttrs(),
                 modelObject);
 
         this.linkedAccountTO = modelObject.getInnerObject();

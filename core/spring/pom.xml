@@ -101,8 +101,13 @@ under the License.
       <version>${project.version}</version>
     </dependency>        
     <dependency>
-      <groupId>org.apache.syncope.common.idrepo</groupId>
-      <artifactId>syncope-common-idrepo-rest-api</artifactId>
+      <groupId>org.apache.syncope.common.idm</groupId>
+      <artifactId>syncope-common-idm-rest-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.am</groupId>
+      <artifactId>syncope-common-am-rest-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -34,8 +34,6 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     private static final long serialVersionUID = -9165749229623482717L;
 
-    private static final ConsoleLoggerController CONSOLE_LOGGER_CONTROLLER = new ConsoleLoggerController();
-
     public ConsoleLogPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, ConsoleLoggerController.getLoggers());
     }
@@ -69,8 +67,8 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
         }
 
         public static void setLogLevel(final String name, final LoggerLevel level) {
-            final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-            final LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
                     ? ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
                     : ctx.getConfiguration().getLoggerConfig(name);
             logConf.setLevel(level.getLevel());

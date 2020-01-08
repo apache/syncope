@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +27,25 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public abstract class AbstractCSVSpec implements Serializable {
 
     private static final long serialVersionUID = 2253975790270165334L;
+
+    private static final String PARAM_COLUMNSEPARATOR = "columnSeparator";
+
+    private static final String PARAM_ARRAYELEMENTSEPARATOR = "arrayElementSeparator";
+
+    private static final String PARAM_QUOTECHAR = "quoteChar";
+
+    private static final String PARAM_ESCAPECHAR = "escapeChar";
+
+    private static final String PARAM_LINESEPARATOR = "lineSeparator";
+
+    private static final String PARAM_NULLVALUE = "nullValue";
+
+    private static final String PARAM_ALLOWCOMMENTS = "allowComments";
 
     protected abstract static class Builder<T extends AbstractCSVSpec, B extends Builder<T, B>> {
 
@@ -98,8 +115,8 @@ public abstract class AbstractCSVSpec implements Serializable {
         }
 
         @SuppressWarnings("unchecked")
-        public B action(final String action) {
-            getInstance().getActions().add(action);
+        public B provisioningAction(final String provisioningActions) {
+            getInstance().getProvisioningActions().add(provisioningActions);
             return (B) this;
         }
 
@@ -128,77 +145,98 @@ public abstract class AbstractCSVSpec implements Serializable {
 
     protected MatchingRule matchingRule = MatchingRule.UPDATE;
 
-    protected List<String> actions = new ArrayList<>();
+    protected List<String> provisioningActions = new ArrayList<>();
 
+    @Parameter(name = JAXRSService.PARAM_ANYTYPEKEY, description = "any object type", schema =
+            @Schema(implementation = String.class))
     public String getAnyTypeKey() {
         return anyTypeKey;
     }
 
     @NotNull
-    @QueryParam("anyTypeKey")
+    @QueryParam(JAXRSService.PARAM_ANYTYPEKEY)
     public void setAnyTypeKey(final String anyTypeKey) {
         this.anyTypeKey = anyTypeKey;
     }
 
+    @Parameter(name = PARAM_COLUMNSEPARATOR, description = "separator for column values", schema =
+            @Schema(implementation = char.class, defaultValue = ","))
     public char getColumnSeparator() {
         return columnSeparator;
     }
 
-    @QueryParam("columnSeparator")
+    @QueryParam(PARAM_COLUMNSEPARATOR)
     public void setColumnSeparator(final char columnSeparator) {
         this.columnSeparator = columnSeparator;
     }
 
+    @Parameter(name = PARAM_ARRAYELEMENTSEPARATOR, description = "separator for array elements within a "
+            + "column", schema =
+            @Schema(implementation = String.class, defaultValue = ";"))
     public String getArrayElementSeparator() {
         return arrayElementSeparator;
     }
 
-    @QueryParam("arrayElementSeparator")
+    @QueryParam(PARAM_ARRAYELEMENTSEPARATOR)
     public void setArrayElementSeparator(final String arrayElementSeparator) {
         this.arrayElementSeparator = arrayElementSeparator;
     }
 
+    @Parameter(name = PARAM_QUOTECHAR, description = "character used for quoting values "
+            + "that contain quote characters or linefeeds", schema =
+            @Schema(implementation = char.class, defaultValue = "\""))
     public char getQuoteChar() {
         return quoteChar;
     }
 
-    @QueryParam("quoteChar")
+    @QueryParam(PARAM_QUOTECHAR)
     public void setQuoteChar(final char quoteChar) {
         this.quoteChar = quoteChar;
     }
 
+    @Parameter(name = PARAM_ESCAPECHAR, description = "if any, used to escape values; "
+            + "most commonly defined as backslash", schema =
+            @Schema(implementation = Character.class))
     public Character getEscapeChar() {
         return escapeChar;
     }
 
-    @QueryParam("escapeChar")
+    @QueryParam(PARAM_ESCAPECHAR)
     public void setEscapeChar(final Character escapeChar) {
         this.escapeChar = escapeChar;
     }
 
+    @Parameter(name = PARAM_LINESEPARATOR, description = "character used to separate data rows", schema =
+            @Schema(implementation = String.class, defaultValue = "\\\n"))
     public String getLineSeparator() {
         return lineSeparator;
     }
 
-    @QueryParam("lineSeparator")
+    @QueryParam(PARAM_LINESEPARATOR)
     public void setLineSeparator(final String lineSeparator) {
         this.lineSeparator = lineSeparator;
     }
 
+    @Parameter(name = PARAM_NULLVALUE, description = "when asked to write null, this string value will be used "
+            + "instead", schema =
+            @Schema(implementation = String.class, defaultValue = ""))
     public String getNullValue() {
         return nullValue;
     }
 
-    @QueryParam("nullValue")
+    @QueryParam(PARAM_NULLVALUE)
     public void setNullValue(final String nullValue) {
         this.nullValue = nullValue;
     }
 
+    @Parameter(name = PARAM_ALLOWCOMMENTS, description = "are hash comments, e.g. lines where the first non-whitespace "
+            + "character is '#' allowed? if so, they will be skipped without processing", schema =
+            @Schema(implementation = boolean.class, defaultValue = "false"))
     public boolean isAllowComments() {
         return allowComments;
     }
 
-    @QueryParam("allowComments")
+    @QueryParam(PARAM_ALLOWCOMMENTS)
     public void setAllowComments(final boolean allowComments) {
         this.allowComments = allowComments;
     }
@@ -221,12 +259,12 @@ public abstract class AbstractCSVSpec implements Serializable {
         this.matchingRule = matchingRule;
     }
 
-    public List<String> getActions() {
-        return actions;
+    public List<String> getProvisioningActions() {
+        return provisioningActions;
     }
 
-    @QueryParam("actions")
-    public void setActions(final List<String> actions) {
-        this.actions = actions;
+    @QueryParam("provisioningActions")
+    public void setProvisioningActions(final List<String> provisioningActions) {
+        this.provisioningActions = provisioningActions;
     }
 }

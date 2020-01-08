@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -160,7 +159,7 @@ public class OutboundMatcher {
                         rule.get().getFilter(any, provision),
                         provision,
                         ArrayUtils.isEmpty(linkingItems)
-                        ? Optional.empty() : Optional.of(Arrays.asList(linkingItems)),
+                        ? Optional.empty() : Optional.of(List.of(linkingItems)),
                         Optional.empty()));
             } else {
                 Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
@@ -173,7 +172,7 @@ public class OutboundMatcher {
                             connObjectKeyValue.get(),
                             provision,
                             ArrayUtils.isEmpty(linkingItems)
-                            ? Optional.empty() : Optional.of(Arrays.asList(linkingItems)),
+                            ? Optional.empty() : Optional.of(List.of(linkingItems)),
                             Optional.empty()).
                             ifPresent(result::add);
                 }
