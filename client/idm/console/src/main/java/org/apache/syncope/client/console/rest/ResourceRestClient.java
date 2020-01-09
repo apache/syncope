@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
@@ -87,7 +87,7 @@ public class ResourceRestClient extends BaseRestClient {
         List<ResourceTO> resources = List.of();
         try {
             resources = getService(ResourceService.class).list();
-            resources.sort((o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
+            resources.sort(Comparator.comparing(ResourceTO::getKey));
         } catch (Exception e) {
             LOG.error("Could not fetch the Resource list", e);
         }

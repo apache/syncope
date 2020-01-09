@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.pages.BaseExtPage;
@@ -238,29 +238,19 @@ public class ClassPathScanImplementationLookup {
         pages = Collections.unmodifiableList(pages);
         previewers = Collections.unmodifiableList(previewers);
 
-        idmPages.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(IdMPage.class).priority(),
-                o2.getAnnotation(IdMPage.class).priority()));
+        idmPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         idmPages = Collections.unmodifiableList(idmPages);
 
-        amPages.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(IdMPage.class).priority(),
-                o2.getAnnotation(IdMPage.class).priority()));
+        amPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         amPages = Collections.unmodifiableList(amPages);
 
-        extPages.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(ExtPage.class).priority(),
-                o2.getAnnotation(ExtPage.class).priority()));
+        extPages.sort(Comparator.comparing(o -> o.getAnnotation(ExtPage.class).priority()));
         extPages = Collections.unmodifiableList(extPages);
 
-        extWidgets.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(ExtWidget.class).priority(),
-                o2.getAnnotation(ExtWidget.class).priority()));
+        extWidgets.sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
         extWidgets = Collections.unmodifiableList(extWidgets);
 
-        extAlertWidgets.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(ExtWidget.class).priority(),
-                o2.getAnnotation(ExtWidget.class).priority()));
+        extAlertWidgets.sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
         extAlertWidgets = Collections.unmodifiableList(extAlertWidgets);
 
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
