@@ -548,13 +548,12 @@ under the License.
 
     <ianal.skip>false</ianal.skip>
     <skip.sass>false</skip.sass>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.jacoco.utReportPath>${rootpom.basedir}/target/jacoco.ut.exec</sonar.jacoco.utReportPath>
-    <sonar.jacoco.itReportPath>${rootpom.basedir}/target/jacoco.it.exec</sonar.jacoco.itReportPath>
-    <sonar.jacoco.reportPaths>${sonar.jacoco.utReportPath},${sonar.jacoco.itReportPath}</sonar.jacoco.reportPaths>
-    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports</sonar.junit.reportPaths>
+
     <sonar.language>java</sonar.language>
     <sonar.java.source>${targetJdk}</sonar.java.source>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
     <targetJdk>11</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
@@ -2145,6 +2144,18 @@ under the License.
           <artifactId>sass-maven-plugin</artifactId>
           <version>3.7.2</version>
         </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.5</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>3.7.0.1746</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -2214,37 +2225,21 @@ under the License.
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
         <configuration>
-          <append>true</append>
           <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>
-            <id>jacoco-agent-ut</id>
-            <phase>process-test-classes</phase>
+            <id>prepare-jacoco-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
-            <configuration>
-              <destFile>${sonar.jacoco.utReportPath}</destFile>
-            </configuration>
           </execution>
           <execution>
-            <id>jacoco-agent-it</id>
-            <phase>pre-integration-test</phase>
+            <id>generate-code-coverage-report</id>
+            <phase>test</phase>
             <goals>
-              <goal>prepare-agent-integration</goal>
-            </goals>
-            <configuration>
-              <destFile>${sonar.jacoco.itReportPath}</destFile>
-            </configuration>
-          </execution>
-          <execution>
-            <id>jacoco-site</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report-aggregate</goal>
+              <goal>report</goal>
             </goals>
           </execution>
         </executions>
