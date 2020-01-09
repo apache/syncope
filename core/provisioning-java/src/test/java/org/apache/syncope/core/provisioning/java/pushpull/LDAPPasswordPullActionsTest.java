@@ -25,10 +25,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -53,9 +51,6 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     private ProvisioningProfile<?, ?> profile;
 
     @Mock
-    private AnyPatch anyPatch;
-
-    @Mock
     private UserDAO userDAO;
 
     @Mock
@@ -64,7 +59,9 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     @InjectMocks
     private LDAPPasswordPullActions ldapPasswordPullActions;
 
-    private EntityTO entity;
+    private UserTO userTO;
+
+    private UserPatch userPatch;
 
     private String encodedPassword;
 
@@ -72,7 +69,7 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @BeforeEach
     public void initTest() {
-        entity = new UserTO();
+        userTO = new UserTO();
         encodedPassword = "s3cureP4ssw0rd";
         cipher = CipherAlgorithm.SHA512;
 
@@ -84,9 +81,9 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     public void beforeProvision() throws JobExecutionException {
         String digest = "SHA256";
         String password = "t3stPassw0rd";
-        ReflectionTestUtils.setField(entity, "password", String.format("{%s}%s", digest, password));
+        userTO.setPassword(String.format("{%s}%s", digest, password));
 
-        ldapPasswordPullActions.beforeProvision(profile, syncDelta, entity);
+        ldapPasswordPullActions.beforeProvision(profile, syncDelta, userTO);
 
         assertEquals(CipherAlgorithm.valueOf(digest), ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
         assertEquals(password, ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
@@ -94,23 +91,19 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @Test
     public void beforeUpdate() throws JobExecutionException {
-        anyPatch = new UserPatch();
-        PasswordPatch passwordPatch = new PasswordPatch();
-        String digest = "MD5";
-        String password = "an0therTestP4ss";
-        ReflectionTestUtils.setField(passwordPatch, "value", String.format("{%s}%s", digest, password));
-        ReflectionTestUtils.setField(anyPatch, "password", passwordPatch);
+        userPatch = new UserPatch();
+        userPatch.setPassword(new PasswordPatch.Builder().value("{MD5}an0therTestP4ss").build());
 
-        ldapPasswordPullActions.beforeUpdate(profile, syncDelta, entity, anyPatch);
+        ldapPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userPatch);
 
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
     }
 
     @Test
     public void afterWithNullUser() throws JobExecutionException {
-        when(userDAO.find(entity.getKey())).thenReturn(null);
+        when(userDAO.find(userTO.getKey())).thenReturn(null);
 
-        ldapPasswordPullActions.after(profile, syncDelta, entity, result);
+        ldapPasswordPullActions.after(profile, syncDelta, userTO, result);
 
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
@@ -118,9 +111,9 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @Test
     public void after(@Mock User user) throws JobExecutionException {
-        when(userDAO.find(entity.getKey())).thenReturn(user);
+        when(userDAO.find(userTO.getKey())).thenReturn(user);
 
-        ldapPasswordPullActions.after(profile, syncDelta, entity, result);
+        ldapPasswordPullActions.after(profile, syncDelta, userTO, result);
 
         verify(user).setEncodedPassword(anyString(), any(CipherAlgorithm.class));
         assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
