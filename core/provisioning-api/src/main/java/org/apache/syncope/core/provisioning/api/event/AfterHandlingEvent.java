@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.event;
 import java.io.Serializable;
 import org.apache.syncope.common.lib.types.AuditElements;
 
+@SuppressWarnings("squid:S00107")
 public class AfterHandlingEvent implements Serializable {
 
     private static final long serialVersionUID = 5950986229089263378L;
@@ -39,11 +40,11 @@ public class AfterHandlingEvent implements Serializable {
 
     private final AuditElements.Result condition;
 
-    private final Object before;
+    private final Serializable before;
 
-    private final Object output;
+    private final Serializable output;
 
-    private final Object[] input;
+    private final Serializable[] input;
 
     public AfterHandlingEvent(
             final String who,
@@ -52,9 +53,9 @@ public class AfterHandlingEvent implements Serializable {
             final String subcategory,
             final String event,
             final AuditElements.Result condition,
-            final Object before,
-            final Object output,
-            final Object... input) {
+            final Serializable before,
+            final Serializable output,
+            final Serializable... input) {
 
         this.who = who;
         this.type = type;
@@ -91,15 +92,15 @@ public class AfterHandlingEvent implements Serializable {
         return condition;
     }
 
-    public Object getBefore() {
+    public Serializable getBefore() {
         return before;
     }
 
-    public Object getOutput() {
+    public Serializable getOutput() {
         return output;
     }
 
-    public Object[] getInput() {
+    public Serializable[] getInput() {
         return input;
     }
 }

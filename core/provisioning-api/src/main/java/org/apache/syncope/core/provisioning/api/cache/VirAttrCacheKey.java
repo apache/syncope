@@ -33,12 +33,12 @@ public class VirAttrCacheKey {
     /**
      * Any object key.
      */
-    private final transient String key;
+    private final String key;
 
     /**
      * Virtual attribute schema name.
      */
-    private final transient String virSchema;
+    private final String virSchema;
 
     public VirAttrCacheKey(final String type, final String key, final String virSchema) {
         this.type = type;

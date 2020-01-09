@@ -29,11 +29,22 @@ import org.identityconnectors.common.security.EncryptorFactory;
 import org.identityconnectors.common.security.GuardedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
 class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GuardedStringDeserializer.class);
 
+    private static final String READONLY = "readOnly";
+
+    private static final String DISPOSED = "disposed";
+
+    private static final String ENCRYPTED_BYTES = "encryptedBytes";
+
+    private static final String BASE64_SHA1_HASH = "base64SHA1Hash";
+
+    private static final String LOG_ERROR_MESSAGE = "Could not set field value to {}";
+    
     @Override
     public GuardedString deserialize(final JsonParser jp, final DeserializationContext ctx)
             throws IOException {
@@ -41,20 +52,20 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         ObjectNode tree = jp.readValueAsTree();
 
         boolean readOnly = false;
-        if (tree.has("readOnly")) {
-            readOnly = tree.get("readOnly").asBoolean();
+        if (tree.has(READONLY)) {
+            readOnly = tree.get(READONLY).asBoolean();
         }
         boolean disposed = false;
-        if (tree.has("disposed")) {
-            disposed = tree.get("disposed").asBoolean();
+        if (tree.has(DISPOSED)) {
+            disposed = tree.get(DISPOSED).asBoolean();
         }
         byte[] encryptedBytes = null;
-        if (tree.has("encryptedBytes")) {
-            encryptedBytes = Base64.getDecoder().decode(tree.get("encryptedBytes").asText());
+        if (tree.has(ENCRYPTED_BYTES)) {
+            encryptedBytes = Base64.getDecoder().decode(tree.get(ENCRYPTED_BYTES).asText());
         }
         String base64SHA1Hash = null;
-        if (tree.has("base64SHA1Hash")) {
-            base64SHA1Hash = tree.get("base64SHA1Hash").asText();
+        if (tree.has(BASE64_SHA1_HASH)) {
+            base64SHA1Hash = tree.get(BASE64_SHA1_HASH).asText();
         }
 
         final byte[] clearBytes = EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(encryptedBytes);
@@ -62,28 +73,28 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         GuardedString dest = new GuardedString(new String(clearBytes).toCharArray());
 
         try {
-            Field field = GuardedString.class.getDeclaredField("readOnly");
-            field.setAccessible(true);
-            field.setBoolean(dest, readOnly);
+            Field field = GuardedString.class.getDeclaredField(READONLY);
+            ReflectionUtils.makeAccessible(field);
+            ReflectionUtils.setField(field, dest, readOnly);
         } catch (Exception e) {
-            LOG.error("Could not set field value to {}", readOnly, e);
+            LOG.error(LOG_ERROR_MESSAGE, readOnly, e);
         }
 
         try {
-            Field field = GuardedString.class.getDeclaredField("disposed");
-            field.setAccessible(true);
-            field.setBoolean(dest, disposed);
+            Field field = GuardedString.class.getDeclaredField(DISPOSED);
+            ReflectionUtils.makeAccessible(field);
+            ReflectionUtils.setField(field, dest, disposed);
         } catch (Exception e) {
-            LOG.error("Could not set field value to {}", disposed, e);
+            LOG.error(LOG_ERROR_MESSAGE, disposed, e);
         }
 
         if (base64SHA1Hash != null) {
             try {
-                Field field = GuardedString.class.getDeclaredField("base64SHA1Hash");
-                field.setAccessible(true);
-                field.set(dest, base64SHA1Hash);
+                Field field = GuardedString.class.getDeclaredField(BASE64_SHA1_HASH);
+                ReflectionUtils.makeAccessible(field);
+                ReflectionUtils.setField(field, dest, base64SHA1Hash);
             } catch (Exception e) {
-                LOG.error("Could not set field value to {}", base64SHA1Hash, e);
+                LOG.error(LOG_ERROR_MESSAGE, base64SHA1Hash, e);
             }
         }
 

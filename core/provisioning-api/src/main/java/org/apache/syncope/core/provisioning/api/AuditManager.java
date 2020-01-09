@@ -60,6 +60,7 @@ public interface AuditManager {
      * @param output object(s) produced by the event
      * @param input object(s) provided to the event
      */
+    @SuppressWarnings("squid:S00107")
     void audit(
             String who,
             AuditElements.EventCategoryType type,

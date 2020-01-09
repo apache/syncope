@@ -32,7 +32,7 @@ public class PropagationTaskInfo extends PropagationTaskTO {
 
     private final ExternalResource externalResource;
 
-    private Connector connector;
+    private transient Connector connector;
 
     /**
      * Object on External Resource before propagation takes place.
@@ -41,7 +41,7 @@ public class PropagationTaskInfo extends PropagationTaskTO {
      * not null but not present: beforeObj was attempted to read, but not found
      * not null and present: beforeObj value is available
      */
-    private Optional<ConnectorObject> beforeObj;
+    private transient Optional<ConnectorObject> beforeObj;
 
     public PropagationTaskInfo(final ExternalResource externalResource) {
         super();

@@ -76,6 +76,7 @@ public interface NotificationManager {
      * @param input object(s) provided to the event
      * @return created notification tasks
      */
+    @SuppressWarnings("squid:S00107")
     List<NotificationTask> createTasks(
             String who,
             AuditElements.EventCategoryType type,

@@ -33,26 +33,29 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+@SuppressWarnings({ "squid:S4784", "squid:S3776" })
 public class IntAttrNameParser {
+    
+    private static final String END_PATTERN = ")\\]\\.(.+)";
 
     private static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
             "^privileges\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]");
 
     private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
-            "^groups\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+            "^groups\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
     private static final Pattern RELATED_USER_PATTERN = Pattern.compile(
-            "^users\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+            "^users\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
     private static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
-            "^anyObjects\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+            "^anyObjects\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
     private static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
-            "^memberships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+            "^memberships\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
     private static final Pattern RELATIONSHIP_PATTERN = Pattern.compile(
             "^relationships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]"
-            + "\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]\\.(.+)");
+            + "\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;

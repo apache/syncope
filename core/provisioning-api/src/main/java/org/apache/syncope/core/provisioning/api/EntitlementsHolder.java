@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 
+@SuppressWarnings("squid:S3008")
 public final class EntitlementsHolder {
 
     private static final Object MONITOR = new Object();

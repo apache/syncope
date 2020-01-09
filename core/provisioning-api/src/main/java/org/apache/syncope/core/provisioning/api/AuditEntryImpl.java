@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -38,11 +39,11 @@ public class AuditEntryImpl implements AuditEntry {
 
     private final AuditLoggerName logger;
 
-    private final Object before;
+    private final Serializable before;
 
-    private final Object output;
+    private final Serializable output;
 
-    private final Object[] input;
+    private final Serializable[] input;
 
     private String throwable;
 
@@ -52,20 +53,20 @@ public class AuditEntryImpl implements AuditEntry {
     public AuditEntryImpl(
             @JsonProperty("who") final String who,
             @JsonProperty("logger") final AuditLoggerName logger,
-            @JsonProperty("before") final Object before,
-            @JsonProperty("output") final Object output,
-            @JsonProperty("input") final Object[] input) {
+            @JsonProperty("before") final Serializable before,
+            @JsonProperty("output") final Serializable output,
+            @JsonProperty("input") final Serializable[] input) {
 
         super();
 
         this.who = who;
         this.logger = logger;
-        this.before = maskSensitive(before);
-        this.output = maskSensitive(output);
+        this.before = (Serializable) maskSensitive(before);
+        this.output = (Serializable) maskSensitive(output);
         this.input = ArrayUtils.clone(input);
         if (this.input != null) {
             for (int i = 0; i < this.input.length; i++) {
-                this.input[i] = maskSensitive(this.input[i]);
+                this.input[i] = (Serializable) maskSensitive(this.input[i]);
             }
         }
     }
@@ -102,7 +103,7 @@ public class AuditEntryImpl implements AuditEntry {
     }
 
     @Override
-    public Object getBefore() {
+    public Serializable getBefore() {
         return before;
     }
 
@@ -138,17 +139,18 @@ public class AuditEntryImpl implements AuditEntry {
         return new Builder();
     }
 
+    @SuppressWarnings("squid:S1450")
     public static final class Builder {
 
         private String who;
 
         private AuditLoggerName logger;
 
-        private Object before;
+        private Serializable before;
 
-        private Object output;
+        private Serializable output;
 
-        private Object[] input;
+        private Serializable[] input;
 
         private String throwable;
 
@@ -184,17 +186,17 @@ public class AuditEntryImpl implements AuditEntry {
             return this;
         }
 
-        public Builder before(final Object before) {
+        public Builder before(final Serializable before) {
             this.before = before;
             return this;
         }
 
-        public Builder output(final Object output) {
+        public Builder output(final Serializable output) {
             this.output = output;
             return this;
         }
 
-        public Builder input(final Object[] input) {
+        public Builder input(final Serializable[] input) {
             this.input = input;
             return this;
         }

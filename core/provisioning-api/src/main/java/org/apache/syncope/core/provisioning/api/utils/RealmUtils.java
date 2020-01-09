@@ -67,7 +67,7 @@ public final class RealmUtils {
 
         @Override
         public boolean test(final String realm) {
-            return targets.stream().anyMatch(target -> realm.startsWith(target));
+            return targets.stream().anyMatch(realm::startsWith);
         }
 
     }
