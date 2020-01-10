@@ -42,4 +42,9 @@ public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDire
 
         // nothing to do
     }
+
+    @Override
+    public void hide() {
+        // nothing to do
+    }
 }

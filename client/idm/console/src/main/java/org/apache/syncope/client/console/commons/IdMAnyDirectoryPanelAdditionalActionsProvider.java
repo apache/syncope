@@ -52,6 +52,10 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
     private static final long serialVersionUID = -6768727277642238924L;
 
+    protected AjaxLink<Void> csvPushLink;
+
+    protected AjaxLink<Void> csvPullLink;
+
     @Override
     public void add(
             final AnyDirectoryPanel<?, ?> panel,
@@ -116,7 +120,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
         };
         csvEventSink.add(csvDownloadBehavior);
         panel.addOuterObject(csvEventSink);
-        panel.addInnerObject(new AjaxLink<Void>("csvPush") {
+        csvPushLink = new AjaxLink<Void>("csvPush") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -132,8 +136,9 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 modal.header(new StringResourceModel("csvPush", panel, Model.of(spec)));
                 modal.show(true);
             }
-        });
-        panel.addInnerObject(new AjaxLink<Void>("csvPull") {
+        };
+        panel.addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+        csvPullLink = new AjaxLink<Void>("csvPull") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -148,7 +153,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 modal.header(new StringResourceModel("csvPull", panel, Model.of(spec)));
                 modal.show(true);
             }
-        });
+        };
+        panel.addInnerObject(csvPullLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 
     protected CSVPushSpec csvPushSpec(
@@ -180,5 +186,13 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
     protected AnyQuery csvAnyQuery(final String realm, final String fiql) {
         return new AnyQuery.Builder().realm(realm).fiql(fiql).build();
+    }
+
+    @Override
+    public void hide() {
+        csvPushLink.setEnabled(false);
+        csvPushLink.setVisible(false);
+        csvPullLink.setEnabled(false);
+        csvPullLink.setVisible(false);
     }
 }

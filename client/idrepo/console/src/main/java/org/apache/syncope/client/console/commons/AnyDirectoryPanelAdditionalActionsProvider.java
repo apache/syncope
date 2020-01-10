@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
-@FunctionalInterface
 public interface AnyDirectoryPanelAdditionalActionsProvider extends Serializable {
 
     void add(AnyDirectoryPanel<?, ?> panel,
@@ -37,4 +36,6 @@ public interface AnyDirectoryPanelAdditionalActionsProvider extends Serializable
             List<String> pSchemaNames,
             List<String> dSchemaNames,
             PageReference pageRef);
+
+    void hide();
 }
