@@ -46,6 +46,11 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
             final boolean wizardInModal) {
 
         super(id, builder, wizardInModal);
+
+        csvPushLink.setEnabled(false);
+        csvPushLink.setVisible(false);
+        csvPullLink.setEnabled(false);
+        csvPullLink.setVisible(false);
     }
 
     @Override
