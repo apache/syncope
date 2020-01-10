@@ -52,7 +52,9 @@ import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
@@ -93,9 +95,8 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
         super();
         setOutputMarkupId(true);
 
-        setTitleModel(new ResourceModel("mergeLinkedAccounts.searchUser"));
         this.originalUserTO = userTO;
-
+        setTitleModel(new StringResourceModel("mergeLinkedAccounts.searchUser", Model.of(userTO)));
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
         add(ownerContainer);

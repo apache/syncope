@@ -354,7 +354,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
                     target.add(wizardWrapperModal.setContent(
                       new MergeLinkedAccountsModalPanel(wizardWrapperModal, model, pageRef)));
-                    wizardWrapperModal.header(new ResourceModel("mergeLinkedAccounts.title"));
+                    wizardWrapperModal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
                     wizardWrapperModal.show(true);
                 }
                 }, ActionType.MERGE_ACCOUNTS,
