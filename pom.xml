@@ -414,7 +414,7 @@ under the License.
     <spring-cloud-gateway.version>2.2.1.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
-    <hikaricp.version>3.4.1</hikaricp.version>
+    <hikaricp.version>3.4.2</hikaricp.version>
     <hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.3</jasypt.version>
