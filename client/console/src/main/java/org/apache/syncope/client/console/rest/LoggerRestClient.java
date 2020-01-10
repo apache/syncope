@@ -20,13 +20,13 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatement;
@@ -59,7 +59,7 @@ public class LoggerRestClient extends BaseRestClient {
 
     public List<LoggerTO> listLogs() {
         List<LoggerTO> logs = getService(LoggerService.class).list(LoggerType.LOG);
-        Collections.sort(logs, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
+        logs.sort(Comparator.comparing(LoggerTO::getKey));
 
         return logs;
     }

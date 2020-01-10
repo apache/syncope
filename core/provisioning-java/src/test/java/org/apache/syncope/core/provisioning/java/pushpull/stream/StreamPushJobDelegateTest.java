@@ -20,18 +20,19 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -39,7 +40,6 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.pushpull.stream.StreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -49,8 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class StreamPushJobDelegateTest extends AbstractTest {
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Autowired
     private SyncopeStreamPushExecutor streamPushExecutor;
@@ -71,14 +69,19 @@ public class StreamPushJobDelegateTest extends AbstractTest {
         pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
 
         List<ProvisioningReport> results = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
-            try (SequenceWriter writer = MAPPER.writer().forType(Map.class).writeValues(os)) {
-                writer.init(true);
+            try (CSVStreamConnector connector = new CSVStreamConnector(
+                    null,
+                    ";",
+                    new CsvSchema.Builder().setUseHeader(true),
+                    null,
+                    os)) {
 
                 return streamPushExecutor.push(
                         anyTypeDAO.findUser(),
                         userDAO.findAll(1, 100),
                         Arrays.asList("username", "firstname", "surname", "email", "status", "loginDate"),
-                        new StreamConnector(null, null, null, writer),
+                        connector,
+                        Collections.emptyList(),
                         pushTask);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -86,7 +89,8 @@ public class StreamPushJobDelegateTest extends AbstractTest {
         });
         assertEquals(userDAO.count(), results.size());
 
-        MappingIterator<Map<String, String>> reader = MAPPER.readerFor(Map.class).readValues(in);
+        MappingIterator<Map<String, String>> reader =
+                new CsvMapper().readerFor(Map.class).with(CsvSchema.emptySchema().withHeader()).readValues(in);
 
         for (int i = 0; i < results.size() && reader.hasNext(); i++) {
             Map<String, String> row = reader.next();
@@ -96,18 +100,18 @@ public class StreamPushJobDelegateTest extends AbstractTest {
 
             switch (row.get("username")) {
                 case "rossini":
-                    assertNull(row.get("email"));
-                    assertTrue(row.get("loginDate").contains(","));
+                    assertEquals(StringUtils.EMPTY, row.get("email"));
+                    assertTrue(row.get("loginDate").contains(";"));
                     break;
 
                 case "verdi":
                     assertEquals("verdi@syncope.org", row.get("email"));
-                    assertNull(row.get("loginDate"));
+                    assertEquals(StringUtils.EMPTY, row.get("loginDate"));
                     break;
 
                 case "bellini":
-                    assertNull(row.get("email"));
-                    assertFalse(row.get("loginDate").contains(","));
+                    assertEquals(StringUtils.EMPTY, row.get("email"));
+                    assertFalse(row.get("loginDate").contains(";"));
                     break;
 
                 default:

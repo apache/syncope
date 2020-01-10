@@ -20,16 +20,12 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -42,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
-import org.apache.syncope.core.provisioning.api.pushpull.stream.StreamConnector;
+import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -65,39 +61,51 @@ public class StreamPullJobDelegateTest extends AbstractTest {
 
     @Test
     public void pull() throws JobExecutionException, IOException {
+        List<String> columns = Arrays.asList(
+                "username",
+                "email",
+                "surname",
+                "firstname",
+                "fullname",
+                "userId");
+
+        StringBuilder csv = new StringBuilder();
+        csv.append(columns.stream().collect(Collectors.joining(",")));
+        csv.append('\n');
+        csv.append("donizetti,");
+        csv.append("donizetti@apache.org,");
+        csv.append("Donizetti,");
+        csv.append("Gaetano,");
+        csv.append("Gaetano Donizetti,");
+        csv.append("donizetti@apache.org");
+        csv.append('\n');
+
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTask.setRemediation(false);
         pullTask.setMatchingRule(MatchingRule.UPDATE);
         pullTask.setUnmatchingRule(UnmatchingRule.PROVISION);
 
-        Map<String, String> user = new HashMap<>();
-        user.put("username", "donizetti");
-        user.put("email", "donizetti@apache.org");
-        user.put("surname", "Donizetti");
-        user.put("firstname", "Gaetano");
-        user.put("fullname", "Gaetano Donizetti");
-        user.put("userId", "donizetti@apache.org");
-        Iterator<Map<String, String>> backing = Collections.singletonList(user).iterator();
-
-        @SuppressWarnings("unchecked")
-        MappingIterator<Map<String, String>> itor = mock(MappingIterator.class);
-        when(itor.hasNext()).thenAnswer(invocation -> backing.hasNext());
-        when(itor.next()).thenAnswer(invocation -> backing.next());
-
-        List<String> columns = user.keySet().stream().collect(Collectors.toList());
-
         List<ProvisioningReport> results = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
-            try {
+            try (CSVStreamConnector connector = new CSVStreamConnector(
+                    "username",
+                    ";",
+                    new CsvSchema.Builder().setUseHeader(true),
+                    new ByteArrayInputStream(csv.toString().getBytes()),
+                    null)) {
+
+                List<String> csvColumns = connector.getColumns(new CSVPullSpec());
+                assertEquals(columns, csvColumns);
+
                 return streamPullExecutor.pull(
                         anyTypeDAO.findUser(),
                         "username",
                         columns,
                         ConflictResolutionAction.IGNORE,
                         null,
-                        new StreamConnector("username", null, itor, null),
+                        connector,
                         pullTask);
-            } catch (JobExecutionException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });

@@ -20,9 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -35,22 +34,20 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     private static final long serialVersionUID = -9165749229623482717L;
 
-    private static final ConsoleLoggerController CONSOLE_LOGGER_CONTROLLER = new ConsoleLoggerController();
-
     public ConsoleLogPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, CONSOLE_LOGGER_CONTROLLER.getLoggers());
+        super(id, pageReference, ConsoleLoggerController.getLoggers());
     }
 
     @Override
     protected void update(final LoggerTO loggerTO) {
-        CONSOLE_LOGGER_CONTROLLER.setLogLevel(loggerTO.getKey(), loggerTO.getLevel());
+        ConsoleLoggerController.setLogLevel(loggerTO.getKey(), loggerTO.getLevel());
     }
 
     private static class ConsoleLoggerController implements Serializable {
 
         private static final long serialVersionUID = -1550459341476431714L;
 
-        public List<LoggerTO> getLoggers() {
+        public static List<LoggerTO> getLoggers() {
             LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
             List<LoggerTO> result = new ArrayList<>();
@@ -64,14 +61,14 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
                     result.add(loggerTO);
                 }
             });
-            Collections.sort(result, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
+            result.sort(Comparator.comparing(LoggerTO::getKey));
 
             return result;
         }
 
-        public void setLogLevel(final String name, final LoggerLevel level) {
-            final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-            final LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
+        public static void setLogLevel(final String name, final LoggerLevel level) {
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
                     ? ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
                     : ctx.getConfiguration().getLoggerConfig(name);
             logConf.setLevel(level.getLevel());

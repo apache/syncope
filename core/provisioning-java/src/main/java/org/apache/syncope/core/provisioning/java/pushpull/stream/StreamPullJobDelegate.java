@@ -47,8 +47,8 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.api.pushpull.stream.StreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
@@ -166,7 +166,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             final List<String> columns,
             final ConflictResolutionAction conflictResolutionAction,
             final String pullCorrelationRule,
-            final StreamConnector connector,
+            final Connector connector,
             final PullTaskTO pullTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing stream pull");

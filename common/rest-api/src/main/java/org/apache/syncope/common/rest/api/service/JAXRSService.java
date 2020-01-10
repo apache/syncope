@@ -46,4 +46,6 @@ public interface JAXRSService {
 
     String PARAM_MAX = "max";
 
+    String PARAM_ANYTYPEKEY = "anyTypeKey";
+
 }

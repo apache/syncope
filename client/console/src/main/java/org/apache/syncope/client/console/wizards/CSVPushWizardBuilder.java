@@ -100,6 +100,17 @@ public class CSVPushWizardBuilder extends AjaxWizardBuilder<CSVPushSpec> {
 
         private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
+        private final IModel<List<String>> propActions = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 4659376149825914247L;
+
+            @Override
+            protected List<String> load() {
+                return implRestClient.list(ImplementationType.PROPAGATION_ACTIONS).stream().
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+            }
+        };
+
         private final IModel<List<String>> pushActions = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
@@ -116,6 +127,11 @@ public class CSVPushWizardBuilder extends AjaxWizardBuilder<CSVPushSpec> {
                     "ignorePaging", "ignorePaging", new PropertyModel<>(spec, "ignorePaging"), true);
             add(ignorePaging);
 
+            AjaxPalettePanel<String> propagationActions =
+                    new AjaxPalettePanel.Builder<String>().build("propagationActions",
+                            new PropertyModel<>(spec, "propagationActions"), new ListModel<>(propActions.getObject()));
+            add(propagationActions);
+
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                     "matchingRule", "matchingRule", new PropertyModel<>(spec, "matchingRule"), false);
             matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
@@ -127,9 +143,10 @@ public class CSVPushWizardBuilder extends AjaxWizardBuilder<CSVPushSpec> {
             unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
             add(unmatchingRule);
 
-            AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
-                    build("actions", new PropertyModel<>(spec, "actions"), new ListModel<>(pushActions.getObject()));
-            add(actions);
+            AjaxPalettePanel<String> provisioningActions =
+                    new AjaxPalettePanel.Builder<String>().build("provisioningActions",
+                            new PropertyModel<>(spec, "provisioningActions"), new ListModel<>(pushActions.getObject()));
+            add(provisioningActions);
         }
     }
 }

@@ -82,6 +82,11 @@ public class CSVPushSpec extends AbstractCSVSpec {
             getInstance().setIgnorePaging(ignorePagination);
             return this;
         }
+
+        public Builder propagationAction(final String propagationAction) {
+            getInstance().getPropagationActions().add(propagationAction);
+            return this;
+        }
     }
 
     private List<String> fields = new ArrayList<>();
@@ -93,6 +98,8 @@ public class CSVPushSpec extends AbstractCSVSpec {
     private List<String> virAttrs = new ArrayList<>();
 
     private boolean ignorePaging;
+
+    protected List<String> propagationActions = new ArrayList<>();
 
     public List<String> getFields() {
         return fields;
@@ -137,5 +144,14 @@ public class CSVPushSpec extends AbstractCSVSpec {
     @QueryParam("ignorePaging")
     public void setIgnorePaging(final boolean ignorePaging) {
         this.ignorePaging = ignorePaging;
+    }
+
+    public List<String> getPropagationActions() {
+        return propagationActions;
+    }
+
+    @QueryParam("propagationActions")
+    public void setPropagationActions(final List<String> propagationActions) {
+        this.propagationActions = propagationActions;
     }
 }

@@ -54,7 +54,7 @@ public class AnyTypeRestClient extends BaseRestClient {
 
         try {
             types = getService(AnyTypeService.class).list();
-            Collections.sort(types, new AnyTypeComparator());
+            types.sort(COMPARATOR);
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
