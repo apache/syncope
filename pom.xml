@@ -2106,7 +2106,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.31.0</version>
+          <version>0.32.0</version>
         </plugin>
 
         <plugin>
