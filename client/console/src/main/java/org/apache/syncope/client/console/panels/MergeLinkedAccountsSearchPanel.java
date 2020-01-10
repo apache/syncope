@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
@@ -171,34 +172,30 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
             final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            final String fiql = SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
+            final String fiql = "username!~" + this.originalUserTO.getUsername() + ';'
+                + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
                 SyncopeClient.getUserSearchConditionBuilder());
             userDirectoryPanel.search(fiql, target);
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-            AnySelectionDirectoryPanel.ItemSelection payload =
-                (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
-            final AnyTO sel = payload.getSelection();
-            UserTO mergingUserTO = new UserRestClient().read(sel.getKey());
-            if (mergingUserTO.getKey().equals(this.originalUserTO.getKey())) {
-                displayError("Cannot merge a user object's accounts with itself.");
-            } else if (mergingUserTO.getLinkedAccounts().isEmpty()) {
-                displayError("Selected user does not have any linked accounts.");
-            } else {
-                try {
-                    payload.getTarget().add(ownerContainer);
-                    mergeAccounts(mergingUserTO);
-                    displaySuccess();
-                } catch (Exception e) {
-                    LOG.error("Wizard error on finish", e);
-                    displayError(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.getMessage());
-                }
+            try {
+                AnySelectionDirectoryPanel.ItemSelection payload =
+                    (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
+                final AnyTO sel = payload.getSelection();
+                UserTO mergingUserTO = new UserRestClient().read(sel.getKey());
+                payload.getTarget().add(ownerContainer);
+                mergeAccounts(mergingUserTO);
+                displaySuccess();
+            } catch (Exception e) {
+                LOG.error("Wizard error on finish", e);
+                displayError(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
             }
         }
     }
 
     private void displayError(final String message) {
-        SyncopeConsoleSession.get().error(message);
+        LOG.error(message);
+        SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
         Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
         if (target.isPresent()) {
             ((BasePage) getPage()).getNotificationPanel().refresh(target.get());
@@ -206,7 +203,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
     }
 
     private void displaySuccess() {
-        SyncopeConsoleSession.get().success("Linked accounts are successfully merged.");
+        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
         if (target.isPresent()) {
             ((BasePage) getPage()).getNotificationPanel().refresh(target.get());
