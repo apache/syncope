@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.console.panels.MergeLinkedAccountsReviewPanel;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsSearchPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
 
@@ -35,6 +37,13 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
     @Override
     protected WizardModel buildModelSteps(final UserTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new MergeLinkedAccountsSearchPanel(modelObject, getPageReference()));
+        wizardModel.add(new MergeLinkedAccountsReviewPanel(modelObject, getPageReference()));
         return wizardModel;
+    }
+
+    @Override
+    public MergeLinkedAccountsWizardBuilder setEventSink(final IEventSink eventSink) {
+        super.setEventSink(eventSink);
+        return this;
     }
 }

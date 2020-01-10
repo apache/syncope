@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -53,7 +54,6 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -84,6 +84,8 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
+
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final UserSelectionDirectoryPanel userDirectoryPanel;
 
@@ -120,6 +122,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(originalUserTO.getUsername());
 
+        // Move linked accounts into the target/base user as linked accounts
         mergingUserTO.getLinkedAccounts().forEach(acct -> {
             LinkedAccountTO linkedAccount =
                 new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
@@ -129,11 +132,44 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
                     .build();
             linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(acct.getPrivileges());
-            LinkedAccountPatch patch = new LinkedAccountPatch.Builder().linkedAccountTO(linkedAccount)
+            LinkedAccountPatch patch = new LinkedAccountPatch.Builder()
+                .linkedAccountTO(linkedAccount)
                 .operation(PatchOperation.ADD_REPLACE)
                 .build();
             userPatch.getLinkedAccounts().add(patch);
         });
+
+        // Move merging user's resources into the target/base user as a linked account
+        mergingUserTO.getResources().forEach(resource -> {
+            String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(resource,
+                mergingUserTO.getType(), mergingUserTO.getKey());
+            LinkedAccountTO linkedAccount =
+                new LinkedAccountTO.Builder(resource, connObjectKeyValue)
+                    .build();
+            linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
+            linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
+            LinkedAccountPatch patch = new LinkedAccountPatch.Builder()
+                .linkedAccountTO(linkedAccount)
+                .operation(PatchOperation.ADD_REPLACE)
+                .build();
+            userPatch.getLinkedAccounts().add(patch);
+        });
+        
+        // Move merging user into target/base user as a linked account
+//        String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(resource,
+//            mergingUserTO.getType(), mergingUserTO.getKey());
+//        LinkedAccountTO linkedAccount =
+//            new LinkedAccountTO.Builder(, connObjectKeyValue)
+//                .password(mergingUserTO.getPassword())
+//                .suspended(mergingUserTO.isSuspended())
+//                .username(mergingUserTO.getUsername())
+//                .build();
+//        linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
+//        linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
+//        LinkedAccountPatch patch = new LinkedAccountPatch.Builder().linkedAccountTO(linkedAccount)
+//            .operation(PatchOperation.ADD_REPLACE)
+//            .build();
+//        userPatch.getLinkedAccounts().add(patch);
 
         BatchRequest batchRequest = SyncopeConsoleSession.get().batch();
 
@@ -187,7 +223,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
                 mergeAccounts(mergingUserTO);
                 displaySuccess();
             } catch (Exception e) {
-                LOG.error("Wizard error on finish", e);
+                LOG.error("Wizard error on item selection", e);
                 displayError(StringUtils.isBlank(e.getMessage())
                     ? e.getClass().getName() : e.getMessage());
             }

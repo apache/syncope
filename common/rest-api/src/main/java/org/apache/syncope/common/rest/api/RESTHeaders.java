@@ -35,6 +35,8 @@ public final class RESTHeaders {
 
     public static final String RESOURCE_KEY = "X-Syncope-Key";
 
+    public static final String CONNOBJECT_KEY = "X-Syncope-ConnObject-Key";
+
     /**
      * Asks for asynchronous propagation towards external resources with null priority.
      */

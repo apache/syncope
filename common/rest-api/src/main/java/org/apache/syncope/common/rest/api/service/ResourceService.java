@@ -33,6 +33,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -56,6 +57,30 @@ import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
     @SecurityRequirement(name = "Bearer") })
 @Path("resources")
 public interface ResourceService extends JAXRSService {
+
+    /**
+     * Returns the calculated connObjectKey value for the given type and key.
+     *
+     * @param key name of resource to read connector object from
+     * @param anyTypeKey any object type
+     * @param anyKey user, group or any object key
+     * @return connObjectKey value for the external resource, for the given type and key
+     */
+    @ApiResponses({
+        @ApiResponse(responseCode = "201",
+                description = "connObjectKey value for the external resource, for the given type and key", headers = {
+                    @Header(name = RESTHeaders.CONNOBJECT_KEY, schema =
+                            @Schema(type = "string"),
+                            description = "connObjectKey value for the external resource, for the given type and key")
+                }),
+        @ApiResponse(responseCode = "404",
+                description = "user, group or any object not found, or connObjectKey cannot be calculated") })
+    @OPTIONS
+    @Path("{key}/{anyTypeKey}/{anyKey}")
+    Response getConnObjectKeyValue(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey,
+            @NotNull @PathParam("anyKey") String anyKey);
 
     /**
      * Returns connector object from the external resource, for the given type and key.

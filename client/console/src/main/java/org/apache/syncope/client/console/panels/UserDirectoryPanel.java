@@ -39,8 +39,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.CSVPushWizardBuilder;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -55,6 +57,8 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -351,11 +355,19 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                    IEventSink eventSink = event -> {
+                        if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
+                            AjaxRequestTarget target1 = ((AjaxWizard.NewItemCancelEvent)
+                                event.getPayload()).getTarget();
+                            modal.close(target1);
+                        }
+                    };
                     model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
-                    target.add(wizardWrapperModal.setContent(
-                      new MergeLinkedAccountsModalPanel(wizardWrapperModal, model, pageRef)));
-                    wizardWrapperModal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
-                    wizardWrapperModal.show(true);
+                    target.add(modal.setContent(new MergeLinkedAccountsWizardBuilder(model, pageRef).
+                        setEventSink(eventSink).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                    modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
+                    modal.show(true);
                 }
                 }, ActionType.MERGE_ACCOUNTS,
                         String.format("%s,%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE,
