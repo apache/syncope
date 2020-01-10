@@ -28,6 +28,7 @@ import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
@@ -61,6 +62,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         Component result = searchLog(KEY, CONTAINER_PATH, "io.swagger");
         assertNotNull(result);
 
+        TESTER.getRequest().setMethod(Form.METHOD_GET);
         TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
         TESTER.assertComponent(
@@ -87,8 +89,11 @@ public class LogsITCase extends AbstractConsoleITCase {
         Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit");
         assertNotNull(result);
 
+        TESTER.getRequest().setMethod(Form.METHOD_GET);
         TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
+        TESTER.assertComponent(
+                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
         TESTER.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
 
         TESTER.assertInfoMessages("Operation executed successfully");
