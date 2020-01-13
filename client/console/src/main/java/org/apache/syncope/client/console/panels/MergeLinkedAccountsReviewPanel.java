@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.client.console.commons.MergeLinkedAccountsWizardModel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -27,14 +27,23 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 public class MergeLinkedAccountsReviewPanel extends WizardStep implements ICondition {
     private static final long serialVersionUID = 1221037007528732347L;
 
-    public MergeLinkedAccountsReviewPanel(final UserTO modelObject, final PageReference pageReference) {
+    private final MergeLinkedAccountsWizardModel wizardModel;
+
+    public MergeLinkedAccountsReviewPanel(final MergeLinkedAccountsWizardModel wizardModel,
+                                          final PageReference pageReference) {
         super();
         setOutputMarkupId(true);
+        this.wizardModel = wizardModel;
     }
 
     @Override
     public boolean evaluate() {
         return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
             isActionAuthorized(this, RENDER);
+    }
+
+    @Override
+    public void applyState() {
+        super.applyState();
     }
 }

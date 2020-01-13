@@ -39,7 +39,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.CSVPushWizardBuilder;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardBuilder;
@@ -57,7 +56,6 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -361,11 +359,18 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                 event.getPayload()).getTarget();
                             modal.close(target1);
                         }
+                        if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            AjaxRequestTarget target1 = ((AjaxWizard.NewItemFinishEvent)
+                                event.getPayload()).getTarget();
+                            ((BasePage) getPage()).getNotificationPanel().refresh(target1);
+                            modal.close(target1);
+                        }
                     };
                     model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
-                    target.add(modal.setContent(new MergeLinkedAccountsWizardBuilder(model, pageRef).
-                        setEventSink(eventSink).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                    MergeLinkedAccountsWizardBuilder builder = new MergeLinkedAccountsWizardBuilder(model, pageRef);
+                    builder.setEventSink(eventSink);
+                    target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
                     modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
                     modal.show(true);
                 }
