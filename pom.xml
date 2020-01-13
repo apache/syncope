@@ -412,7 +412,7 @@ under the License.
     <spring-security.version>5.1.7.RELEASE</spring-security.version>
 
     <openjpa.version>3.1.0</openjpa.version>
-    <hikaricp.version>3.4.1</hikaricp.version>
+    <hikaricp.version>3.4.2</hikaricp.version>
     <hibernate-validator.version>6.0.18.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.3</jasypt.version>
@@ -481,7 +481,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>8.6.1</wicket.version>
+    <wicket.version>8.7.0</wicket.version>
     <wicket-jqueryui.version>8.6.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.11</wicket-bootstrap.version>
 
@@ -2102,7 +2102,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.31.0</version>
+          <version>0.32.0</version>
         </plugin>
 
         <plugin>

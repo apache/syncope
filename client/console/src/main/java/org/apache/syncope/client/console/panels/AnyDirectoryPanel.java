@@ -104,6 +104,10 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
     protected final BaseModal<Serializable> utilityModal = new BaseModal<>(Constants.OUTER);
 
+    protected final AjaxLink<Void> csvPushLink;
+
+    protected final AjaxLink<Void> csvPullLink;
+
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder) {
         this(id, builder, true);
     }
@@ -207,7 +211,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         };
         csvEventSink.add(csvDownloadBehavior);
         addOuterObject(csvEventSink);
-        addInnerObject(new AjaxLink<Void>("csvPush") {
+        csvPushLink = new AjaxLink<Void>("csvPush") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -223,8 +227,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 modal.header(new StringResourceModel("csvPush", AnyDirectoryPanel.this, Model.of(spec)));
                 modal.show(true);
             }
-        });
-        addInnerObject(new AjaxLink<Void>("csvPull") {
+        };
+        addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+        csvPullLink = new AjaxLink<Void>("csvPull") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -239,7 +244,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 modal.header(new StringResourceModel("csvPull", AnyDirectoryPanel.this, Model.of(spec)));
                 modal.show(true);
             }
-        });
+        };
+        addInnerObject(csvPullLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 
     protected CSVPushSpec csvPushSpec() {
