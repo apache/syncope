@@ -61,7 +61,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
     private final Fragment userSearchFragment;
 
     private MergeLinkedAccountsWizardModel wizardModel;
-
+    
     public MergeLinkedAccountsSearchPanel(final MergeLinkedAccountsWizardModel model, final PageReference pageRef) {
         super();
         setOutputMarkupId(true);
