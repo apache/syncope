@@ -20,6 +20,8 @@ package org.apache.syncope.common.rest.api.beans;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class ExecQuery extends AbstractQuery {
 
@@ -48,5 +50,29 @@ public class ExecQuery extends AbstractQuery {
     @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ExecQuery execQuery = (ExecQuery) o;
+
+        return new EqualsBuilder().
+                appendSuper(super.equals(o)).
+                append(key, execQuery.key).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                toHashCode();
     }
 }

@@ -23,6 +23,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
@@ -102,5 +104,33 @@ public class AnyQuery extends AbstractQuery {
     @QueryParam(JAXRSService.PARAM_FIQL)
     public void setFiql(final String fiql) {
         this.fiql = fiql;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        AnyQuery anyQuery = (AnyQuery) o;
+
+        return new EqualsBuilder().
+                appendSuper(super.equals(o)).
+                append(realm, anyQuery.realm).
+                append(details, anyQuery.details).
+                append(fiql, anyQuery.fiql).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(realm).
+                append(details).
+                append(fiql).
+                toHashCode();
     }
 }

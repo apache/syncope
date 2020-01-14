@@ -24,6 +24,8 @@ import java.io.Serializable;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public abstract class AbstractQuery implements Serializable {
@@ -107,5 +109,31 @@ public abstract class AbstractQuery implements Serializable {
     @QueryParam(JAXRSService.PARAM_ORDERBY)
     public void setOrderBy(final String orderBy) {
         this.orderBy = orderBy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        AbstractQuery that = (AbstractQuery) o;
+
+        return new EqualsBuilder().
+                append(page, that.page).
+                append(size, that.size).
+                append(orderBy, that.orderBy).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(page).
+                append(size).
+                append(orderBy).
+                toHashCode();
     }
 }

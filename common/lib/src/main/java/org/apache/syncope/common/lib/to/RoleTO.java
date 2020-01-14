@@ -28,6 +28,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "role")
 @XmlType
@@ -94,4 +96,35 @@ public class RoleTO implements EntityTO {
         return privileges;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        RoleTO roleTO = (RoleTO) o;
+
+        return new EqualsBuilder().
+                append(key, roleTO.key).
+                append(entitlements, roleTO.entitlements).
+                append(realms, roleTO.realms).
+                append(dynRealms, roleTO.dynRealms).
+                append(dynMembershipCond, roleTO.dynMembershipCond).
+                append(privileges, roleTO.privileges).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(entitlements).
+                append(realms).
+                append(dynRealms).
+                append(dynMembershipCond).
+                append(privileges).
+                toHashCode();
+    }
 }

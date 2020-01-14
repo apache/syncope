@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
 @XmlRootElement(name = "accessToken")
@@ -73,5 +75,33 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
 
     public void setOwner(final String owner) {
         this.owner = owner;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        AccessTokenTO that = (AccessTokenTO) o;
+
+        return new EqualsBuilder().
+                append(key, that.key).
+                append(body, that.body).
+                append(expiryTime, that.expiryTime).
+                append(owner, that.owner).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(body).
+                append(expiryTime).
+                append(owner).
+                toHashCode();
     }
 }

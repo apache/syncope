@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 
 @XmlRootElement(name = "policy")
@@ -102,4 +104,33 @@ public abstract class PolicyTO implements EntityTO {
         return usedByRealms;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        PolicyTO policyTO = (PolicyTO) o;
+
+        return new EqualsBuilder().
+                append(discriminator, policyTO.discriminator).
+                append(key, policyTO.key).
+                append(description, policyTO.description).
+                append(usedByResources, policyTO.usedByResources).
+                append(usedByRealms, policyTO.usedByRealms).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(discriminator).
+                append(key).
+                append(description).
+                append(usedByResources).
+                append(usedByRealms).
+                toHashCode();
+    }
 }
