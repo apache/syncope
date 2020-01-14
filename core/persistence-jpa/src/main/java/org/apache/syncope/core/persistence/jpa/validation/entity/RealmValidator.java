@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import java.util.regex.Pattern;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
-
-    private static final Pattern REALM_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9]+");
 
     @Override
     public boolean isValid(final Realm realm, final ConstraintValidatorContext context) {
@@ -51,7 +49,7 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                         addPropertyNode("parent").addConstraintViolation();
             }
 
-            if (!REALM_NAME_PATTERN.matcher(realm.getName()).matches()) {
+            if (!RealmDAO.NAME_PATTERN.matcher(realm.getName()).matches()) {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
