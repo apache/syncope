@@ -72,7 +72,7 @@ public class RealmITCase extends AbstractITCase {
 
     @Test
     public void createUpdate() {
-        final RealmTO realm = new RealmTO();
+        RealmTO realm = new RealmTO();
         realm.setName("last");
 
         // 1. create
@@ -123,6 +123,19 @@ public class RealmITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
+    }
+
+    @Test
+    public void createWithTilde() {
+        RealmTO realm = new RealmTO();
+        realm.setName("73~1~19534");
+
+        Response response = realmService.create("/even/two", realm);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        List<RealmTO> realms = realmService.list("/even/two/73~1~19534");
+        assertEquals(1, realms.size());
+        assertEquals(realm.getName(), realms.get(0).getName());
     }
 
     @Test

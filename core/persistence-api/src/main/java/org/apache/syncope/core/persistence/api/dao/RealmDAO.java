@@ -27,7 +27,9 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface RealmDAO extends DAO<Realm> {
 
-    Pattern PATH_PATTERN = Pattern.compile("^(/[A-Za-z0-9]+)+");
+    Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z0-9~]+");
+
+    Pattern PATH_PATTERN = Pattern.compile("^(/[A-Za-z0-9~]+)+");
 
     Realm getRoot();
 
