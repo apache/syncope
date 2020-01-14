@@ -89,7 +89,7 @@ public class RoleITCase extends AbstractITCase {
     public void createWithTilde() {
         RoleTO role = new RoleTO();
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
-        role.getEntitlements().add(StandardEntitlement.LOG_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
         role.setKey("new~" + getUUIDString());
         role = createRole(role);
         assertNotNull(role);
