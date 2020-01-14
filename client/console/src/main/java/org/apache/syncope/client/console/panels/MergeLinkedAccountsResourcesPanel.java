@@ -20,9 +20,11 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -47,13 +49,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class MergeLinkedAccountsResourceSelectionPanel extends WizardStep implements ICondition {
+public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICondition {
     private static final long serialVersionUID = 1221037007528732347L;
 
     private final MergeLinkedAccountsWizardModel wizardModel;
 
-    public MergeLinkedAccountsResourceSelectionPanel(final MergeLinkedAccountsWizardModel wizardModel,
-                                                     final PageReference pageReference) {
+    public MergeLinkedAccountsResourcesPanel(final MergeLinkedAccountsWizardModel wizardModel,
+                                             final PageReference pageReference) {
         super();
         setOutputMarkupId(true);
         this.wizardModel = wizardModel;
@@ -111,22 +113,32 @@ public class MergeLinkedAccountsResourceSelectionPanel extends WizardStep implem
         }
 
         @Override
-        protected Collection<ActionLink.ActionType> getBatches() {
-            return Collections.emptyList();
-        }
-
-        @Override
         protected ActionsPanel<ResourceTO> getActions(final IModel<ResourceTO> model) {
             final ActionsPanel<ResourceTO> panel = super.getActions(model);
             panel.add(new ActionLink<ResourceTO>() {
                 private static final long serialVersionUID = -7978723352517770644L;
+
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ResourceTO resource) {
-                    MergeLinkedAccountsResourceSelectionPanel.this
-                        .wizardModel.setResource(resource);
+                    MergeLinkedAccountsWizardModel model = MergeLinkedAccountsResourcesPanel.this.wizardModel;
+                    String connObjectKeyValue = restClient.getConnObjectKeyValue(
+                        resource.getKey(),
+                        model.getMergingUser().getType(),
+                        model.getMergingUser().getKey());
+                    if (connObjectKeyValue != null) {
+                        model.setResource(resource);
+                    } else {
+                        error(getString(Constants.ERROR) + ": " + "Unable to determine connector object key");
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
                 }
             }, ActionLink.ActionType.SELECT, StandardEntitlement.RESOURCE_READ);
             return panel;
+        }
+
+        @Override
+        protected Collection<ActionLink.ActionType> getBatches() {
+            return Collections.emptyList();
         }
 
         protected final class ResourcesDataProvider extends DirectoryDataProvider<ResourceTO> {
@@ -143,7 +155,7 @@ public class MergeLinkedAccountsResourceSelectionPanel extends WizardStep implem
 
             @Override
             public Iterator<ResourceTO> iterator(final long first, final long count) {
-                List<ResourceTO> list = new ResourceRestClient().list();
+                List<ResourceTO> list = restClient.list();
                 Collections.sort(list, comparator);
                 return list.subList((int) first, (int) first + (int) count).iterator();
             }

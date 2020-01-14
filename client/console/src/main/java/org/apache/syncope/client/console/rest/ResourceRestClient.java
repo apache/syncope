@@ -58,8 +58,17 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public String getConnObjectKeyValue(final String resource, final String anyTypeKey, final String anyKey) {
-        Response response = getService(ResourceService.class).getConnObjectKeyValue(resource, anyTypeKey, anyKey);
-        return response.getHeaderString(RESTHeaders.CONNOBJECT_KEY);
+        try {
+            Response response = getService(ResourceService.class).getConnObjectKeyValue(resource, anyTypeKey, anyKey);
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                return response.getHeaderString(RESTHeaders.CONNOBJECT_KEY);
+            }
+        } catch (Exception e) {
+            LOG.debug("Error fetching connector object key", e);
+        }
+        LOG.error("Unable to determine connector object key value for resource {}, {} and {}",
+            resource, anyTypeKey, anyKey);
+        return null;
     }
 
     public Pair<String, List<ConnObjectTO>> searchConnObjects(
