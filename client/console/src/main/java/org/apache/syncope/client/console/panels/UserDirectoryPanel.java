@@ -56,7 +56,6 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -353,23 +352,10 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                    IEventSink eventSink = event -> {
-                        if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                            AjaxRequestTarget target1 = ((AjaxWizard.NewItemCancelEvent)
-                                event.getPayload()).getTarget();
-                            modal.close(target1);
-                        }
-                        if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            AjaxRequestTarget target1 = ((AjaxWizard.NewItemFinishEvent)
-                                event.getPayload()).getTarget();
-                            ((BasePage) getPage()).getNotificationPanel().refresh(target1);
-                            modal.close(target1);
-                        }
-                    };
                     model.setObject(UserRestClient.class.cast(restClient).read(model.getObject().getKey()));
-                    MergeLinkedAccountsWizardBuilder builder = new MergeLinkedAccountsWizardBuilder(model, pageRef);
-                    builder.setEventSink(eventSink);
+                    MergeLinkedAccountsWizardBuilder builder =
+                        new MergeLinkedAccountsWizardBuilder(model, pageRef, UserDirectoryPanel.this, modal);
+                    builder.setEventSink(builder);
                     target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
                     modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
                     modal.show(true);
