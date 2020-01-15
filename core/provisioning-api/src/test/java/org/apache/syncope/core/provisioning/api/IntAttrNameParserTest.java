@@ -19,12 +19,14 @@
 package org.apache.syncope.core.provisioning.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +35,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -46,18 +49,11 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.springframework.util.ReflectionUtils;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.WARN)
-public class IntAttrNameParserTest {
+public class IntAttrNameParserTest extends AbstractTest {
 
     private static final Map<AnyTypeKind, List<String>> FIELDS = new HashMap<>();
 
@@ -87,51 +83,49 @@ public class IntAttrNameParserTest {
 
     @BeforeEach
     public void initMocks() throws NoSuchFieldException {
-        MockitoAnnotations.initMocks(this);
-
-        when(anyUtilsFactory.getInstance(any(AnyTypeKind.class))).thenAnswer(ic -> {
+        lenient().when(anyUtilsFactory.getInstance(any(AnyTypeKind.class))).thenAnswer(ic -> {
             when(anyUtils.anyTypeKind()).thenReturn(ic.getArgument(0));
             return anyUtils;
         });
-        when(anyUtils.getField(anyString())).thenAnswer(ic -> {
+        lenient().when(anyUtils.getField(anyString())).thenAnswer(ic -> {
             String field = ic.getArgument(0);
             return FIELDS.get(anyUtils.anyTypeKind()).contains(field)
                     ? ReflectionUtils.findField(getClass(), "anyUtils")
                     : null;
         });
-        when(plainSchemaDAO.find(anyString())).thenAnswer(ic -> {
+        lenient().when(plainSchemaDAO.find(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
                 case "email":
                 case "firstname":
                 case "location":
                     PlainSchema schema = mock(PlainSchema.class);
-                    when(schema.getKey()).thenReturn(schemaName);
-                    when(schema.getType()).thenReturn(AttrSchemaType.String);
+                    lenient().when(schema.getKey()).thenReturn(schemaName);
+                    lenient().when(schema.getType()).thenReturn(AttrSchemaType.String);
                     return schema;
 
                 default:
                     return null;
             }
         });
-        when(derSchemaDAO.find(anyString())).thenAnswer(ic -> {
+        lenient().when(derSchemaDAO.find(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
                 case "cn":
                     DerSchema schema = mock(DerSchema.class);
-                    when(schema.getKey()).thenReturn(ic.getArgument(0));
+                    lenient().when(schema.getKey()).thenReturn(ic.getArgument(0));
                     return schema;
 
                 default:
                     return null;
             }
         });
-        when(virSchemaDAO.find(anyString())).thenAnswer(ic -> {
+        lenient().when(virSchemaDAO.find(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
                 case "rvirtualdata":
                     VirSchema schema = mock(VirSchema.class);
-                    when(schema.getKey()).thenReturn(ic.getArgument(0));
+                    lenient().when(schema.getKey()).thenReturn(ic.getArgument(0));
                     return schema;
 
                 default:
@@ -191,6 +185,20 @@ public class IntAttrNameParserTest {
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
+
+        Object obj = null;
+        int expected = new HashCodeBuilder().
+                append(AnyTypeKind.USER).append(obj).append(obj).append(obj).append(obj).
+                append(obj).append(obj).append(obj).append(obj).append(obj).append(obj).
+                build();
+        assertEquals(expected, intAttrName.hashCode());
+        IntAttrName intAttrName2 = intAttrNameParser.parse("email", AnyTypeKind.USER);
+        assertFalse(intAttrName.equals(intAttrName2));
+        assertFalse(intAttrName.equals(obj));
+        assertTrue(intAttrName.equals(intAttrName));
+        String toString = intAttrName.toString();
+        assertTrue(toString.startsWith("org.apache.syncope.core.provisioning.api.IntAttrName"));
+        assertTrue(toString.endsWith("[USER,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>]"));
     }
 
     @Test

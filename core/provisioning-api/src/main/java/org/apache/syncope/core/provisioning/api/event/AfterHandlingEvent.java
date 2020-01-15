@@ -40,11 +40,11 @@ public class AfterHandlingEvent implements Serializable {
 
     private final AuditElements.Result condition;
 
-    private final Serializable before;
+    private final transient Object before;
 
-    private final Serializable output;
+    private final transient Object output;
 
-    private final Serializable[] input;
+    private final transient Object[] input;
 
     public AfterHandlingEvent(
             final String who,
@@ -53,9 +53,9 @@ public class AfterHandlingEvent implements Serializable {
             final String subcategory,
             final String event,
             final AuditElements.Result condition,
-            final Serializable before,
-            final Serializable output,
-            final Serializable... input) {
+            final Object before,
+            final Object output,
+            final Object... input) {
 
         this.who = who;
         this.type = type;
@@ -92,15 +92,15 @@ public class AfterHandlingEvent implements Serializable {
         return condition;
     }
 
-    public Serializable getBefore() {
+    public Object getBefore() {
         return before;
     }
 
-    public Serializable getOutput() {
+    public Object getOutput() {
         return output;
     }
 
-    public Serializable[] getInput() {
+    public Object[] getInput() {
         return input;
     }
 }
