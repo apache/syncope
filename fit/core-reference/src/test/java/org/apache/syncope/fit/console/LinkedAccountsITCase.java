@@ -50,9 +50,8 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
     private static final String SELECT_USER_ACTION = "searchResult:outerObjectsRepeater:1:outer:container:content:"
         + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action";
-
-    private static final String SEARCH_PANEL = "outerObjectsRepeater:6:outer:form:content:mlpContainer:firstLevelContainer:first:form:view"
-        + ":ownerContainer:search:";
+    
+    private static final String SEARCH_PANEL = "outerObjectsRepeater:0:outer:form:content:form:view:ownerContainer:search:";
 
     private static final String USER_SEARCH_PANEL = SEARCH_PANEL + "usersearch:";
 
@@ -137,8 +136,11 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
             + RESULT_DATA_TABLE + "body:rows:1")).getModel().getObject();
         assertNotNull(userTO);
 
-        // Select user and merge
+        // Select user
         TESTER.clickLink(TAB_PANEL + SEARCH_PANEL + SELECT_USER_ACTION);
+
+        // Move onto the next step in the wizard...
+
 
         UserService userService = SyncopeConsoleSession.get().getService(UserService.class);
 
