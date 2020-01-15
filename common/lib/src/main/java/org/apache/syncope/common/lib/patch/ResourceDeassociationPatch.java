@@ -80,21 +80,23 @@ public class ResourceDeassociationPatch implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ResourceDeassociationPatch that = (ResourceDeassociationPatch) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ResourceDeassociationPatch other = (ResourceDeassociationPatch) obj;
         return new EqualsBuilder().
-                append(key, that.key).
-                append(anyTypeKey, that.anyTypeKey).
-                append(action, that.action).
-                append(anyKyes, that.anyKyes).
-                isEquals();
+                append(key, other.key).
+                append(anyTypeKey, other.anyTypeKey).
+                append(action, other.action).
+                append(anyKyes, other.anyKyes).
+                build();
     }
 
     @Override
@@ -104,6 +106,6 @@ public class ResourceDeassociationPatch implements Serializable {
                 append(anyTypeKey).
                 append(action).
                 append(anyKyes).
-                toHashCode();
+                build();
     }
 }

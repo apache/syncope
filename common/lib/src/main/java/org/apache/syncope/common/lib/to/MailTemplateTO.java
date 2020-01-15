@@ -44,24 +44,26 @@ public class MailTemplateTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        MailTemplateTO that = (MailTemplateTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        MailTemplateTO other = (MailTemplateTO) obj;
         return new EqualsBuilder().
-                append(key, that.key).
-                isEquals();
+                append(key, other.key).
+                build();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 append(key).
-                toHashCode();
+                build();
     }
 }

@@ -78,21 +78,23 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        AccessTokenTO that = (AccessTokenTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AccessTokenTO other = (AccessTokenTO) obj;
         return new EqualsBuilder().
-                append(key, that.key).
-                append(body, that.body).
-                append(expiryTime, that.expiryTime).
-                append(owner, that.owner).
-                isEquals();
+                append(key, other.key).
+                append(body, other.body).
+                append(expiryTime, other.expiryTime).
+                append(owner, other.owner).
+                build();
     }
 
     @Override
@@ -102,6 +104,6 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
                 append(body).
                 append(expiryTime).
                 append(owner).
-                toHashCode();
+                build();
     }
 }

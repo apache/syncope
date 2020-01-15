@@ -170,28 +170,30 @@ public class ConnInstanceTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ConnInstanceTO that = (ConnInstanceTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ConnInstanceTO other = (ConnInstanceTO) obj;
         return new EqualsBuilder().
-                append(key, that.key).
-                append(adminRealm, that.adminRealm).
-                append(location, that.location).
-                append(connectorName, that.connectorName).
-                append(bundleName, that.bundleName).
-                append(version, that.version).
-                append(conf, that.conf).
-                append(capabilities, that.capabilities).
-                append(displayName, that.displayName).
-                append(connRequestTimeout, that.connRequestTimeout).
-                append(poolConf, that.poolConf).
-                isEquals();
+                append(key, other.key).
+                append(adminRealm, other.adminRealm).
+                append(location, other.location).
+                append(connectorName, other.connectorName).
+                append(bundleName, other.bundleName).
+                append(version, other.version).
+                append(conf, other.conf).
+                append(capabilities, other.capabilities).
+                append(displayName, other.displayName).
+                append(connRequestTimeout, other.connRequestTimeout).
+                append(poolConf, other.poolConf).
+                build();
     }
 
     @Override
@@ -208,6 +210,6 @@ public class ConnInstanceTO implements EntityTO {
                 append(displayName).
                 append(connRequestTimeout).
                 append(poolConf).
-                toHashCode();
+                build();
     }
 }

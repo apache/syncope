@@ -112,20 +112,22 @@ public abstract class AbstractQuery implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        AbstractQuery that = (AbstractQuery) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AbstractQuery other = (AbstractQuery) obj;
         return new EqualsBuilder().
-                append(page, that.page).
-                append(size, that.size).
-                append(orderBy, that.orderBy).
-                isEquals();
+                append(page, other.page).
+                append(size, other.size).
+                append(orderBy, other.orderBy).
+                build();
     }
 
     @Override
@@ -134,6 +136,6 @@ public abstract class AbstractQuery implements Serializable {
                 append(page).
                 append(size).
                 append(orderBy).
-                toHashCode();
+                build();
     }
 }

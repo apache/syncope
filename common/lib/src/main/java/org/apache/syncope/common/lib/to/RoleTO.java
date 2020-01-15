@@ -97,23 +97,25 @@ public class RoleTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        RoleTO roleTO = (RoleTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RoleTO other = (RoleTO) obj;
         return new EqualsBuilder().
-                append(key, roleTO.key).
-                append(entitlements, roleTO.entitlements).
-                append(realms, roleTO.realms).
-                append(dynRealms, roleTO.dynRealms).
-                append(dynMembershipCond, roleTO.dynMembershipCond).
-                append(privileges, roleTO.privileges).
-                isEquals();
+                append(key, other.key).
+                append(entitlements, other.entitlements).
+                append(realms, other.realms).
+                append(dynRealms, other.dynRealms).
+                append(dynMembershipCond, other.dynMembershipCond).
+                append(privileges, other.privileges).
+                build();
     }
 
     @Override
@@ -125,6 +127,6 @@ public class RoleTO implements EntityTO {
                 append(dynRealms).
                 append(dynMembershipCond).
                 append(privileges).
-                toHashCode();
+                build();
     }
 }

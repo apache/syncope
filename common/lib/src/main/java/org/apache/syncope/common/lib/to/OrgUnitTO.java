@@ -125,23 +125,25 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        OrgUnitTO orgUnitTO = (OrgUnitTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        OrgUnitTO other = (OrgUnitTO) obj;
         return new EqualsBuilder().
-                append(ignoreCaseMatch, orgUnitTO.ignoreCaseMatch).
-                append(key, orgUnitTO.key).
-                append(objectClass, orgUnitTO.objectClass).
-                append(syncToken, orgUnitTO.syncToken).
-                append(connObjectLink, orgUnitTO.connObjectLink).
-                append(items, orgUnitTO.items).
-                isEquals();
+                append(ignoreCaseMatch, other.ignoreCaseMatch).
+                append(key, other.key).
+                append(objectClass, other.objectClass).
+                append(syncToken, other.syncToken).
+                append(connObjectLink, other.connObjectLink).
+                append(items, other.items).
+                build();
     }
 
     @Override
@@ -153,6 +155,6 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
                 append(ignoreCaseMatch).
                 append(connObjectLink).
                 append(items).
-                toHashCode();
+                build();
     }
 }

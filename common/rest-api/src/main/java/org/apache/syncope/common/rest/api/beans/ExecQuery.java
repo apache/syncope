@@ -53,19 +53,21 @@ public class ExecQuery extends AbstractQuery {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ExecQuery execQuery = (ExecQuery) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ExecQuery other = (ExecQuery) obj;
         return new EqualsBuilder().
-                appendSuper(super.equals(o)).
-                append(key, execQuery.key).
-                isEquals();
+                appendSuper(super.equals(obj)).
+                append(key, other.key).
+                build();
     }
 
     @Override
@@ -73,6 +75,6 @@ public class ExecQuery extends AbstractQuery {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(key).
-                toHashCode();
+                build();
     }
 }

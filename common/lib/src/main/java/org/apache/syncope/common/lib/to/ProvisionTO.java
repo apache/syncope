@@ -125,26 +125,28 @@ public class ProvisionTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ProvisionTO that = (ProvisionTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ProvisionTO other = (ProvisionTO) obj;
         return new EqualsBuilder().
-                append(ignoreCaseMatch, that.ignoreCaseMatch).
-                append(key, that.key).
-                append(anyType, that.anyType).
-                append(objectClass, that.objectClass).
-                append(auxClasses, that.auxClasses).
-                append(syncToken, that.syncToken).
-                append(uidOnCreate, that.uidOnCreate).
-                append(mapping, that.mapping).
-                append(virSchemas, that.virSchemas).
-                isEquals();
+                append(ignoreCaseMatch, other.ignoreCaseMatch).
+                append(key, other.key).
+                append(anyType, other.anyType).
+                append(objectClass, other.objectClass).
+                append(auxClasses, other.auxClasses).
+                append(syncToken, other.syncToken).
+                append(uidOnCreate, other.uidOnCreate).
+                append(mapping, other.mapping).
+                append(virSchemas, other.virSchemas).
+                build();
     }
 
     @Override
@@ -159,6 +161,6 @@ public class ProvisionTO implements EntityTO {
                 append(uidOnCreate).
                 append(mapping).
                 append(virSchemas).
-                toHashCode();
+                build();
     }
 }

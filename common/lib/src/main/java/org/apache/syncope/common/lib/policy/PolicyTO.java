@@ -105,22 +105,24 @@ public abstract class PolicyTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        PolicyTO policyTO = (PolicyTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        PolicyTO policyTO = (PolicyTO) obj;
         return new EqualsBuilder().
                 append(discriminator, policyTO.discriminator).
                 append(key, policyTO.key).
                 append(description, policyTO.description).
                 append(usedByResources, policyTO.usedByResources).
                 append(usedByRealms, policyTO.usedByRealms).
-                isEquals();
+                build();
     }
 
     @Override
@@ -131,6 +133,6 @@ public abstract class PolicyTO implements EntityTO {
                 append(description).
                 append(usedByResources).
                 append(usedByRealms).
-                toHashCode();
+                build();
     }
 }

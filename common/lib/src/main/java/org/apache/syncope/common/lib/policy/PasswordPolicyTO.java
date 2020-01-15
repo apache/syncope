@@ -76,21 +76,23 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        PasswordPolicyTO that = (PasswordPolicyTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        PasswordPolicyTO other = (PasswordPolicyTO) obj;
         return new EqualsBuilder().
-                appendSuper(super.equals(o)).
-                append(allowNullPassword, that.allowNullPassword).
-                append(historyLength, that.historyLength).
-                append(rules, that.rules).
-                isEquals();
+                appendSuper(super.equals(obj)).
+                append(allowNullPassword, other.allowNullPassword).
+                append(historyLength, other.historyLength).
+                append(rules, other.rules).
+                build();
     }
 
     @Override
@@ -100,6 +102,6 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
                 append(allowNullPassword).
                 append(historyLength).
                 append(rules).
-                toHashCode();
+                build();
     }
 }

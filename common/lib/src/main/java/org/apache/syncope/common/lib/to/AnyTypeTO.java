@@ -69,20 +69,22 @@ public class AnyTypeTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        AnyTypeTO anyTypeTO = (AnyTypeTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AnyTypeTO other = (AnyTypeTO) obj;
         return new EqualsBuilder().
-                append(key, anyTypeTO.key).
-                append(kind, anyTypeTO.kind).
-                append(classes, anyTypeTO.classes).
-                isEquals();
+                append(key, other.key).
+                append(kind, other.kind).
+                append(classes, other.classes).
+                build();
     }
 
     @Override
@@ -91,6 +93,6 @@ public class AnyTypeTO implements EntityTO {
                 append(key).
                 append(kind).
                 append(classes).
-                toHashCode();
+                build();
     }
 }
