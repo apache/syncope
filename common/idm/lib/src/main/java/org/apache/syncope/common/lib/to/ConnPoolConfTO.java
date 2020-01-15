@@ -81,22 +81,24 @@ public class ConnPoolConfTO implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ConnPoolConfTO that = (ConnPoolConfTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ConnPoolConfTO other = (ConnPoolConfTO) obj;
         return new EqualsBuilder().
-                append(maxObjects, that.maxObjects).
-                append(minIdle, that.minIdle).
-                append(maxIdle, that.maxIdle).
-                append(maxWait, that.maxWait).
-                append(minEvictableIdleTimeMillis, that.minEvictableIdleTimeMillis).
-                isEquals();
+                append(maxObjects, other.maxObjects).
+                append(minIdle, other.minIdle).
+                append(maxIdle, other.maxIdle).
+                append(maxWait, other.maxWait).
+                append(minEvictableIdleTimeMillis, other.minEvictableIdleTimeMillis).
+                build();
     }
 
     @Override
@@ -107,6 +109,6 @@ public class ConnPoolConfTO implements Serializable {
                 append(maxIdle).
                 append(maxWait).
                 append(minEvictableIdleTimeMillis).
-                toHashCode();
+                build();
     }
 }

@@ -109,21 +109,23 @@ public class AnyQuery extends AbstractQuery {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        AnyQuery anyQuery = (AnyQuery) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AnyQuery other = (AnyQuery) obj;
         return new EqualsBuilder().
-                appendSuper(super.equals(o)).
-                append(realm, anyQuery.realm).
-                append(details, anyQuery.details).
-                append(fiql, anyQuery.fiql).
-                isEquals();
+                appendSuper(super.equals(obj)).
+                append(realm, other.realm).
+                append(details, other.details).
+                append(fiql, other.fiql).
+                build();
     }
 
     @Override
@@ -133,6 +135,6 @@ public class AnyQuery extends AbstractQuery {
                 append(realm).
                 append(details).
                 append(fiql).
-                toHashCode();
+                build();
     }
 }

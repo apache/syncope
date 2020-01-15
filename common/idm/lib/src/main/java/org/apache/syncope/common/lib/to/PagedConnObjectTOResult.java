@@ -94,9 +94,9 @@ public class PagedConnObjectTOResult implements Serializable {
     }
 
     /**
-     * Returns a flag indicating whether all the results that match a search query were returned.
+     * Returns a flag indicating whether all the results other match a search query were returned.
      *
-     * @return true if the search returned all the results that match the query, false if the returned
+     * @return true if the search returned all the results other match the query, false if the returned
      * result is not complete, e.g. if the server returned only part of the results due to server limits, errors, etc.
      */
     public boolean isAllResultsReturned() {
@@ -104,7 +104,7 @@ public class PagedConnObjectTOResult implements Serializable {
     }
 
     /**
-     * @param allResultsReturned Set to true if the search returned all the results that match the query. Set to false
+     * @param allResultsReturned Set to true if the search returned all the results other match the query. Set to false
      * if the returned result is not complete, e.g. if the server returned only part of the results due to server
      * limits, errors, etc.
      */

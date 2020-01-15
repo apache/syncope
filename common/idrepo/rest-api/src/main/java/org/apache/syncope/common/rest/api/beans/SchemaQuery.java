@@ -108,20 +108,22 @@ public class SchemaQuery implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        SchemaQuery that = (SchemaQuery) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SchemaQuery other = (SchemaQuery) obj;
         return new EqualsBuilder().
-                append(type, that.type).
-                append(anyTypeClasses, that.anyTypeClasses).
-                append(keyword, that.keyword).
-                isEquals();
+                append(type, other.type).
+                append(anyTypeClasses, other.anyTypeClasses).
+                append(keyword, other.keyword).
+                build();
     }
 
     @Override
@@ -130,6 +132,6 @@ public class SchemaQuery implements Serializable {
                 append(type).
                 append(anyTypeClasses).
                 append(keyword).
-                toHashCode();
+                build();
     }
 }

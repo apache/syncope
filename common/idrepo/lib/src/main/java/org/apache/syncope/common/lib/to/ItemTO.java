@@ -38,7 +38,7 @@ public class ItemTO implements EntityTO {
     private String key;
 
     /**
-     * Attribute schema to be mapped. Consider that we can associate tha same attribute schema more than once, with
+     * Attribute schema to be mapped. Consider other we can associate tha same attribute schema more than once, with
      * different aliases, to different resource attributes.
      */
     private String intAttrName;
@@ -162,27 +162,29 @@ public class ItemTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ItemTO itemTO = (ItemTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ItemTO other = (ItemTO) obj;
         return new EqualsBuilder().
-                append(connObjectKey, itemTO.connObjectKey).
-                append(password, itemTO.password).
-                append(key, itemTO.key).
-                append(intAttrName, itemTO.intAttrName).
-                append(extAttrName, itemTO.extAttrName).
-                append(mandatoryCondition, itemTO.mandatoryCondition).
-                append(purpose, itemTO.purpose).
-                append(propagationJEXLTransformer, itemTO.propagationJEXLTransformer).
-                append(pullJEXLTransformer, itemTO.pullJEXLTransformer).
-                append(transformers, itemTO.transformers).
-                isEquals();
+                append(connObjectKey, other.connObjectKey).
+                append(password, other.password).
+                append(key, other.key).
+                append(intAttrName, other.intAttrName).
+                append(extAttrName, other.extAttrName).
+                append(mandatoryCondition, other.mandatoryCondition).
+                append(purpose, other.purpose).
+                append(propagationJEXLTransformer, other.propagationJEXLTransformer).
+                append(pullJEXLTransformer, other.pullJEXLTransformer).
+                append(transformers, other.transformers).
+                build();
     }
 
     @Override
@@ -198,6 +200,6 @@ public class ItemTO implements EntityTO {
                 append(propagationJEXLTransformer).
                 append(pullJEXLTransformer).
                 append(transformers).
-                toHashCode();
+                build();
     }
 }

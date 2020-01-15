@@ -134,26 +134,28 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        RealmTO realmTO = (RealmTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RealmTO other = (RealmTO) obj;
         return new EqualsBuilder().
-                append(key, realmTO.key).
-                append(name, realmTO.name).
-                append(parent, realmTO.parent).
-                append(fullPath, realmTO.fullPath).
-                append(accountPolicy, realmTO.accountPolicy).
-                append(passwordPolicy, realmTO.passwordPolicy).
-                append(actions, realmTO.actions).
-                append(templates, realmTO.templates).
-                append(resources, realmTO.resources).
-                isEquals();
+                append(key, other.key).
+                append(name, other.name).
+                append(parent, other.parent).
+                append(fullPath, other.fullPath).
+                append(accountPolicy, other.accountPolicy).
+                append(passwordPolicy, other.passwordPolicy).
+                append(actions, other.actions).
+                append(templates, other.templates).
+                append(resources, other.resources).
+                build();
     }
 
     @Override
@@ -168,6 +170,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
                 append(actions).
                 append(templates).
                 append(resources).
-                toHashCode();
+                build();
     }
 }

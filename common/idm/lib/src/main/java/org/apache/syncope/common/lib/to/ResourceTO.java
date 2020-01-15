@@ -255,37 +255,39 @@ public class ResourceTO implements EntityTO {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        ResourceTO that = (ResourceTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ResourceTO other = (ResourceTO) obj;
         return new EqualsBuilder().
-                append(randomPwdIfNotProvided, that.randomPwdIfNotProvided).
-                append(enforceMandatoryCondition, that.enforceMandatoryCondition).
-                append(overrideCapabilities, that.overrideCapabilities).
-                append(key, that.key).
-                append(connector, that.connector).
-                append(connectorDisplayName, that.connectorDisplayName).
-                append(provisions, that.provisions).
-                append(orgUnit, that.orgUnit).
-                append(propagationPriority, that.propagationPriority).
-                append(createTraceLevel, that.createTraceLevel).
-                append(updateTraceLevel, that.updateTraceLevel).
-                append(deleteTraceLevel, that.deleteTraceLevel).
-                append(provisioningTraceLevel, that.provisioningTraceLevel).
-                append(passwordPolicy, that.passwordPolicy).
-                append(accountPolicy, that.accountPolicy).
-                append(pullPolicy, that.pullPolicy).
-                append(pushPolicy, that.pushPolicy).
-                append(confOverride, that.confOverride).
-                append(capabilitiesOverride, that.capabilitiesOverride).
-                append(propagationActions, that.propagationActions).
-                isEquals();
+                append(randomPwdIfNotProvided, other.randomPwdIfNotProvided).
+                append(enforceMandatoryCondition, other.enforceMandatoryCondition).
+                append(overrideCapabilities, other.overrideCapabilities).
+                append(key, other.key).
+                append(connector, other.connector).
+                append(connectorDisplayName, other.connectorDisplayName).
+                append(provisions, other.provisions).
+                append(orgUnit, other.orgUnit).
+                append(propagationPriority, other.propagationPriority).
+                append(createTraceLevel, other.createTraceLevel).
+                append(updateTraceLevel, other.updateTraceLevel).
+                append(deleteTraceLevel, other.deleteTraceLevel).
+                append(provisioningTraceLevel, other.provisioningTraceLevel).
+                append(passwordPolicy, other.passwordPolicy).
+                append(accountPolicy, other.accountPolicy).
+                append(pullPolicy, other.pullPolicy).
+                append(pushPolicy, other.pushPolicy).
+                append(confOverride, other.confOverride).
+                append(capabilitiesOverride, other.capabilitiesOverride).
+                append(propagationActions, other.propagationActions).
+                build();
     }
 
     @Override
@@ -311,6 +313,6 @@ public class ResourceTO implements EntityTO {
                 append(overrideCapabilities).
                 append(capabilitiesOverride).
                 append(propagationActions).
-                toHashCode();
+                build();
     }
 }

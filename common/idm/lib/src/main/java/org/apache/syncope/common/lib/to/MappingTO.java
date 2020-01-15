@@ -95,20 +95,22 @@ public class MappingTO implements ItemContainerTO, Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
-
-        if (o == null || getClass() != o.getClass())
+        }
+        if (obj == null) {
             return false;
-
-        MappingTO mappingTO = (MappingTO) o;
-
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        MappingTO other = (MappingTO) obj;
         return new EqualsBuilder().
-                append(connObjectLink, mappingTO.connObjectLink).
-                append(items, mappingTO.items).
-                append(linkingItems, mappingTO.linkingItems).
-                isEquals();
+                append(connObjectLink, other.connObjectLink).
+                append(items, other.items).
+                append(linkingItems, other.linkingItems).
+                build();
     }
 
     @Override
@@ -117,6 +119,6 @@ public class MappingTO implements ItemContainerTO, Serializable {
                 append(connObjectLink).
                 append(items).
                 append(linkingItems).
-                toHashCode();
+                build();
     }
 }
