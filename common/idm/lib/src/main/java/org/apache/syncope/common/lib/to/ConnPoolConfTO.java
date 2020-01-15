@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "connPoolConf")
 @XmlType
@@ -78,4 +80,33 @@ public class ConnPoolConfTO implements Serializable {
         this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ConnPoolConfTO that = (ConnPoolConfTO) o;
+
+        return new EqualsBuilder().
+                append(maxObjects, that.maxObjects).
+                append(minIdle, that.minIdle).
+                append(maxIdle, that.maxIdle).
+                append(maxWait, that.maxWait).
+                append(minEvictableIdleTimeMillis, that.minEvictableIdleTimeMillis).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(maxObjects).
+                append(minIdle).
+                append(maxIdle).
+                append(maxWait).
+                append(minEvictableIdleTimeMillis).
+                toHashCode();
+    }
 }

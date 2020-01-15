@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "item")
@@ -157,5 +159,45 @@ public class ItemTO implements EntityTO {
     @JsonProperty("transformers")
     public List<String> getTransformers() {
         return transformers;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ItemTO itemTO = (ItemTO) o;
+
+        return new EqualsBuilder().
+                append(connObjectKey, itemTO.connObjectKey).
+                append(password, itemTO.password).
+                append(key, itemTO.key).
+                append(intAttrName, itemTO.intAttrName).
+                append(extAttrName, itemTO.extAttrName).
+                append(mandatoryCondition, itemTO.mandatoryCondition).
+                append(purpose, itemTO.purpose).
+                append(propagationJEXLTransformer, itemTO.propagationJEXLTransformer).
+                append(pullJEXLTransformer, itemTO.pullJEXLTransformer).
+                append(transformers, itemTO.transformers).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(intAttrName).
+                append(extAttrName).
+                append(connObjectKey).
+                append(password).
+                append(mandatoryCondition).
+                append(purpose).
+                append(propagationJEXLTransformer).
+                append(pullJEXLTransformer).
+                append(transformers).
+                toHashCode();
     }
 }

@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -250,5 +252,65 @@ public class ResourceTO implements EntityTO {
     @JsonProperty("propagationActions")
     public List<String> getPropagationActions() {
         return propagationActions;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ResourceTO that = (ResourceTO) o;
+
+        return new EqualsBuilder().
+                append(randomPwdIfNotProvided, that.randomPwdIfNotProvided).
+                append(enforceMandatoryCondition, that.enforceMandatoryCondition).
+                append(overrideCapabilities, that.overrideCapabilities).
+                append(key, that.key).
+                append(connector, that.connector).
+                append(connectorDisplayName, that.connectorDisplayName).
+                append(provisions, that.provisions).
+                append(orgUnit, that.orgUnit).
+                append(propagationPriority, that.propagationPriority).
+                append(createTraceLevel, that.createTraceLevel).
+                append(updateTraceLevel, that.updateTraceLevel).
+                append(deleteTraceLevel, that.deleteTraceLevel).
+                append(provisioningTraceLevel, that.provisioningTraceLevel).
+                append(passwordPolicy, that.passwordPolicy).
+                append(accountPolicy, that.accountPolicy).
+                append(pullPolicy, that.pullPolicy).
+                append(pushPolicy, that.pushPolicy).
+                append(confOverride, that.confOverride).
+                append(capabilitiesOverride, that.capabilitiesOverride).
+                append(propagationActions, that.propagationActions).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(connector).
+                append(connectorDisplayName).
+                append(provisions).
+                append(orgUnit).
+                append(propagationPriority).
+                append(randomPwdIfNotProvided).
+                append(enforceMandatoryCondition).
+                append(createTraceLevel).
+                append(updateTraceLevel).
+                append(deleteTraceLevel).
+                append(provisioningTraceLevel).
+                append(passwordPolicy).
+                append(accountPolicy).
+                append(pullPolicy).
+                append(pushPolicy).
+                append(confOverride).
+                append(overrideCapabilities).
+                append(capabilitiesOverride).
+                append(propagationActions).
+                toHashCode();
     }
 }

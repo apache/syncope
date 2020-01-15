@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 
@@ -167,4 +169,45 @@ public class ConnInstanceTO implements EntityTO {
         this.poolConf = poolConf;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        ConnInstanceTO that = (ConnInstanceTO) o;
+
+        return new EqualsBuilder().
+                append(key, that.key).
+                append(adminRealm, that.adminRealm).
+                append(location, that.location).
+                append(connectorName, that.connectorName).
+                append(bundleName, that.bundleName).
+                append(version, that.version).
+                append(conf, that.conf).
+                append(capabilities, that.capabilities).
+                append(displayName, that.displayName).
+                append(connRequestTimeout, that.connRequestTimeout).
+                append(poolConf, that.poolConf).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(adminRealm).
+                append(location).
+                append(connectorName).
+                append(bundleName).
+                append(version).
+                append(conf).
+                append(capabilities).
+                append(displayName).
+                append(connRequestTimeout).
+                append(poolConf).
+                toHashCode();
+    }
 }

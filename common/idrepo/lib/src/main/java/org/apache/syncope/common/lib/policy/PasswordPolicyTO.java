@@ -19,7 +19,6 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
@@ -27,6 +26,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "passwordPolicy")
 @XmlType
@@ -71,5 +73,33 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
     @Override
     public List<String> getRules() {
         return rules;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        PasswordPolicyTO that = (PasswordPolicyTO) o;
+
+        return new EqualsBuilder().
+                appendSuper(super.equals(o)).
+                append(allowNullPassword, that.allowNullPassword).
+                append(historyLength, that.historyLength).
+                append(rules, that.rules).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(allowNullPassword).
+                append(historyLength).
+                append(rules).
+                toHashCode();
     }
 }
