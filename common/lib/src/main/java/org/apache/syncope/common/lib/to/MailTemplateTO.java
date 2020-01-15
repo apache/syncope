@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "mailTemplate")
 @XmlType
@@ -39,5 +41,27 @@ public class MailTemplateTO implements EntityTO {
     @Override
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        MailTemplateTO that = (MailTemplateTO) o;
+
+        return new EqualsBuilder().
+                append(key, that.key).
+                isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                toHashCode();
     }
 }
