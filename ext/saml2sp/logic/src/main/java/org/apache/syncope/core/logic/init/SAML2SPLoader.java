@@ -147,7 +147,7 @@ public class SAML2SPLoader implements SyncopeCoreLoader {
                 try {
                     cache.put(idp);
                 } catch (Exception e) {
-                    LOG.error("Could not cache the SAML 2.0 IdP with key ", idp.getEntityID(), e);
+                    LOG.error("Could not cache the SAML 2.0 IdP with key {}", idp.getEntityID(), e);
                 }
             });
             return null;

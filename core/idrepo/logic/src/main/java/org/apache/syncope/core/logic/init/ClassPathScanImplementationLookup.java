@@ -116,7 +116,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 scanner.addIncludeFilter(new AssignableTypeFilter(
                         ClassUtils.resolveClassName(typeInterface, ClassUtils.getDefaultClassLoader())));
             } catch (IllegalArgumentException e) {
-                LOG.error("Could not find class {}, ignoring...", e);
+                LOG.error("Could not find class, ignoring...", e);
             }
         });
 

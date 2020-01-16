@@ -77,7 +77,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             try {
                 idpEntity = cache.put(idp);
             } catch (Exception e) {
-                LOG.error("Could not build SAML 2.0 IdP with key ", idp.getEntityID(), e);
+                LOG.error("Could not build SAML 2.0 IdP with key {}", idp.getEntityID(), e);
             }
         }
 

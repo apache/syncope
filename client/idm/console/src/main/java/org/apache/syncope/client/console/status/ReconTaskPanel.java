@@ -185,7 +185,8 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
-                    LOG.error("While attempting reconciliation on {}", reconQuery, form.getModelObject(), e);
+                    LOG.error("While attempting reconciliation using query {} on {}",
+                        reconQuery, form.getModelObject(), e);
                     SyncopeConsoleSession.get().error(resource + ": "
                             + (StringUtils.isBlank(e.getMessage())
                             ? e.getClass().getName()

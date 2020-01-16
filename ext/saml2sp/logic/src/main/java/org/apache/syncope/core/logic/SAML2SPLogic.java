@@ -242,7 +242,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             try {
                 idp = cache.put(saml2IdP);
             } catch (Exception e) {
-                LOG.error("Could not build SAML 2.0 IdP with key ", entityID, e);
+                LOG.error("Could not build SAML 2.0 IdP with key {}", entityID, e);
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
                 sce.getElements().add(e.getMessage());
                 throw sce;

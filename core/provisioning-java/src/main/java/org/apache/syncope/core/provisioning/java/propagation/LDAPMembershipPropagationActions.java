@@ -128,7 +128,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                                 forEach(value -> groups.add(String.valueOf(value)));
                     }
                 }
-                LOG.debug("Add ldapGroups to attributes: {}" + groups);
+                LOG.debug("Add ldapGroups to attributes: {}", groups);
                 attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
 
                 task.setAttributes(attributes);
