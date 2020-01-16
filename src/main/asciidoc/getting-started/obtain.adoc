@@ -121,7 +121,7 @@ https://www.postgresql.org/download/linux/ubuntu/[Ubuntu^] distribution:
 . Use the PostgreSQL JDBC driver with Tomcat
 +
 [source,bash,subs="attributes"]
-$ cd /usr/share/tomcat8/lib/ && sudo wget https://central.maven.org/maven2/org/postgresql/postgresql/{postgresqlJDBC}/postgresql-{postgresqlJDBC}.jar
+$ cd /usr/share/tomcat8/lib/ && sudo wget https://repo1.maven.org/maven2/org/postgresql/postgresql/{postgresqlJDBC}/postgresql-{postgresqlJDBC}.jar
 +
 . Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
 +
@@ -555,7 +555,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 $ mvn archetype:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
-    -DarchetypeRepository=https://central.maven.org/maven2 \
+    -DarchetypeRepository=https://repo1.maven.org/maven2 \
     -DarchetypeVersion={docVersion}
 ----
 
