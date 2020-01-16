@@ -1856,7 +1856,7 @@ under the License.
     </pluginRepository>
     <pluginRepository>
       <id>apache.snapshots</id>
-      <url>http://repository.apache.org/snapshots</url>
+      <url>https://repository.apache.org/snapshots</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -2043,7 +2043,7 @@ under the License.
             <container>
               <containerId>tomcat9x</containerId>
               <zipUrlInstaller>
-                <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+                <url>https://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                 <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                 <extractDir>${project.build.directory}/cargo/extract</extractDir>
               </zipUrlInstaller>
