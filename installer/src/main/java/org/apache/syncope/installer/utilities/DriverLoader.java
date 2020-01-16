@@ -28,13 +28,13 @@ import java.sql.Driver;
 public final class DriverLoader extends URLClassLoader {
 
     private static final String POSTGRES_JAR =
-            "http://repo1.maven.org/maven2/postgresql/postgresql/9.1-901.jdbc4/postgresql-9.1-901.jdbc4.jar";
+            "https://central.maven.org/maven2/postgresql/postgresql/9.1-901.jdbc4/postgresql-9.1-901.jdbc4.jar";
 
     private static final String MYSQL_JAR =
-            "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar";
+            "https://central.maven.org/maven2/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar";
 
     private static final String MARIADB_JAR =
-            "http://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/1.1.8/mariadb-java-client-1.1.8.jar";
+            "https://central.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/1.1.8/mariadb-java-client-1.1.8.jar";
 
     private static final String POSTGRES_CLASS_DRIVER = "org.postgresql.Driver";
 
