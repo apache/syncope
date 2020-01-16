@@ -29,7 +29,7 @@
 
 First of all, verify which connector bundles are predefined in your project by looking at your project's parent
 ifeval::["{snapshotOrRelease}" == "release"]
-https://central.maven.org/maven2/org/apache/syncope/syncope/{docVersion}[POM^].
+https://repo1.maven.org/maven2/org/apache/syncope/syncope/{docVersion}[POM^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://repository.apache.org/content/groups/snapshots/org/apache/syncope/syncope/{docVersion}[POM^].

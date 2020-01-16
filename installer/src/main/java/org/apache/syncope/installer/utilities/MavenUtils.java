@@ -103,7 +103,7 @@ public class MavenUtils {
         properties.setProperty("archetypeRepository",
                 archetypeVersion.contains("SNAPSHOT")
                 ? "https://repository.apache.org/content/repositories/snapshots"
-                : "https://central.maven.org/maven2");
+                : "https://repo1.maven.org/maven2");
         properties.setProperty("archetypeVersion", archetypeVersion);
         properties.setProperty("groupId", groupId);
         properties.setProperty("artifactId", artifactId);
