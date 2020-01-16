@@ -410,12 +410,12 @@ under the License.
 
     <spring.version>5.2.3.RELEASE</spring.version>
     <spring-security.version>5.2.1.RELEASE</spring-security.version>
-    <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+    <spring-boot.version>2.2.3.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.1.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
     <hikaricp.version>3.4.2</hikaricp.version>
-    <hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
+    <hibernate-validator.version>6.1.1.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
