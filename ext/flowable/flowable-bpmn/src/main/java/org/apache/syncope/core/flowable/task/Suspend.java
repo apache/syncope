@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.flowable.task;
 
+import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +28,7 @@ public class Suspend extends FlowableServiceTask {
 
     @Override
     protected void doExecute(final DelegateExecution execution) {
+        User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
+        user.setSuspended(true);
     }
 }
