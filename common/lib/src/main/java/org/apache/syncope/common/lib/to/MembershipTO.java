@@ -156,4 +156,9 @@ public class MembershipTO implements Serializable, AttributableTO {
                 append(virAttrs, other.virAttrs).
                 build();
     }
+
+    @Override
+    public String toString() {
+        return this.groupName;
+    }
 }
