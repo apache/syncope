@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -187,5 +189,12 @@ public class MembershipTO implements Serializable, Attributable {
                 append(derAttrs, other.derAttrs).
                 append(virAttrs, other.virAttrs).
                 build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+            append(this.groupName).
+            build();
     }
 }
