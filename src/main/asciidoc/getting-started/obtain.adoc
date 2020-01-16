@@ -345,7 +345,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 $ mvn archetype:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
-    -DarchetypeRepository=https://central.maven.org/maven2 \
+    -DarchetypeRepository=https://repo1.maven.org/maven2 \
     -DarchetypeVersion={docVersion}
 ----
 
