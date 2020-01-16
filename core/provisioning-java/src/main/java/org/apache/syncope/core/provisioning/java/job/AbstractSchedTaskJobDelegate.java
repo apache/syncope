@@ -175,7 +175,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      * Template method to determine whether this job's task execution has to be persisted or not.
      *
      * @param execution task execution
-     * @return wether to persist or not
+     * @return whether to persist or not
      */
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;

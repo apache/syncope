@@ -237,7 +237,7 @@ public class AuthenticationITCase extends AbstractITCase {
             UserTO delegatedAdmin = createUser(delegatedAdminCR).getEntity();
             delegatedAdminKey = delegatedAdmin.getKey();
 
-            // 3. instantiate a delegate user service client, for further operatins
+            // 3. instantiate a delegate user service client, for further operations
             UserService delegatedUserService =
                     clientFactory.create(delegatedAdmin.getUsername(), "password123").getService(UserService.class);
 

@@ -1360,7 +1360,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. remove user
         userService.delete(user.getKey());
 
-        // 5. verify that user is not in LDAP anynmore
+        // 5. verify that user is not in LDAP anymore
         assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
     }
 

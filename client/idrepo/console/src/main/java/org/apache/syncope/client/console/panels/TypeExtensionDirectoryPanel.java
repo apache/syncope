@@ -197,13 +197,13 @@ public class TypeExtensionDirectoryPanel
 
     @Override
     protected void customActionCallback(final AjaxRequestTarget target) {
-        // change modal foter visibility
+        // change modal footer visibility
         send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
     }
 
     @Override
     protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
-        // change modal foter visibility
+        // change modal footer visibility
         send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
     }
 

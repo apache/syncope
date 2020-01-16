@@ -110,7 +110,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     protected PolicyDAO policyDAO;
 
     /**
-     * Create a textual report of the provisionig operation, based on the trace level.
+     * Create a textual report of the provisioning operation, based on the trace level.
      *
      * @param provResults Provisioning results
      * @param resource Provisioning resource

@@ -56,7 +56,7 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
                     new ResourceStreamRequestHandler(
                             getResourceStream(), getFileName()).setCacheDuration(Duration.NONE));
         } catch (Exception e) {
-            // cannot be notifies beacause the use of scheduleRequestHandlerAfterCurrent
+            // cannot be notifies because the use of scheduleRequestHandlerAfterCurrent
             LOG.error("Error downloading file", e);
         }
     }

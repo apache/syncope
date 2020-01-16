@@ -31,7 +31,7 @@ import org.apache.syncope.client.console.topology.Topology;
 import org.junit.jupiter.api.Test;
 
 // Please, keep the class name as is in order to respect the execution order. It seems that from wicket 7.5.0 the 
-// session creted never expire and the unsuccessfulLogin test fail
+// session created never expire and the unsuccessfulLogin test fail
 public class AjaxBrowseITCase extends AbstractConsoleITCase {
 
     @Test

@@ -339,7 +339,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // Contains used identifiers in order to avoid replications
         Set<String> used = new HashSet<>();
 
-        // Create several clauses: one for eanch identifiers
+        // Create several clauses: one for each identifiers
         for (int i = 0; i < identifiers.size(); i++) {
             if (!used.contains(identifiers.get(i))) {
                 // verify schema existence and get schema type
@@ -363,7 +363,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
                     bld.append(" AND ");
 
-                    // use a value clause different for eanch different schema type
+                    // use a value clause different for each different schema type
                     switch (schema.getType()) {
                         case Boolean:
                             bld.append("v.booleanValue = '").append(attrValues.get(i)).append('\'');

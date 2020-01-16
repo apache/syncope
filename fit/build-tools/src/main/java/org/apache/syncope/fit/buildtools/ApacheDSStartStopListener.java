@@ -255,7 +255,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         if (result == null) {
             throw new RuntimeException("Base DN not found");
         } else {
-            LOG.info("ApacheDS startup completed succesfully");
+            LOG.info("ApacheDS startup completed successfully");
         }
     }
 

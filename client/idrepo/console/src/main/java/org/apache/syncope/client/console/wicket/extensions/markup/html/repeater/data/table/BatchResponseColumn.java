@@ -72,7 +72,7 @@ public class BatchResponseColumn<T, S> extends AbstractColumn<T, S> {
 
             item.add(new Label(componentId, new StringResourceModel(status, item, new Model<>(status))));
         } catch (BeansException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            LOG.error("Errore retrieving target key value", e);
+            LOG.error("Error retrieving target key value", e);
         }
     }
 }

@@ -226,7 +226,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 attributes.remove(newName);
             }
 
-            // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
+            // 2. check whether anything is actually needing to be propagated, i.e. if there is attribute
             // difference between beforeObj - just read above from the connector - and the values to be propagated
             Map<String, Attribute> originalAttrMap = beforeObj.getAttributes().stream().
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
