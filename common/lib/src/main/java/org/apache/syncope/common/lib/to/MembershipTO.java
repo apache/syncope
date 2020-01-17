@@ -162,6 +162,7 @@ public class MembershipTO implements Serializable, AttributableTO {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+            append(this.groupKey).
             append(this.groupName).
             build();
     }
