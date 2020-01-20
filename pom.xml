@@ -483,14 +483,14 @@ under the License.
     
     <wicket.version>8.7.0</wicket.version>
     <wicket-jqueryui.version>8.6.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.11</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.12</wicket-bootstrap.version>
     <wicket-spring-boot.version>2.1.8</wicket-spring-boot.version>
     
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
     <netbeans.version>RELEASE111</netbeans.version>
 
-    <antlr4.version>4.7.2</antlr4.version>
+    <antlr4.version>4.8-1</antlr4.version>
 
     <curator.version>4.2.0</curator.version>
     <zookeeper.version>3.5.6</zookeeper.version>
