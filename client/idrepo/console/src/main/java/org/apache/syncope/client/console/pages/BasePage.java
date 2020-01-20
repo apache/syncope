@@ -133,7 +133,7 @@ public class BasePage extends BaseWebPage {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
         };

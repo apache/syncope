@@ -68,7 +68,7 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         TESTER.clearFeedbackMessages();
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         TESTER.clearFeedbackMessages();
         TESTER.assertRenderedPage(Types.class);
@@ -107,7 +107,7 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         component = findComponentByProp(KEY, DATATABLE_PATH, name);
@@ -126,10 +126,10 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
-        component = findComponentByProp(KEY, DATATABLE_PATH, name);
 
+        component = findComponentByProp(KEY, DATATABLE_PATH, name);
         assertNull(component);
     }
 
@@ -156,11 +156,10 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
-
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
-        component = findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassName);
 
+        component = findComponentByProp(KEY, DATATABLE_PATH, anyTypeClassName);
         assertNull(component);
     }
 }

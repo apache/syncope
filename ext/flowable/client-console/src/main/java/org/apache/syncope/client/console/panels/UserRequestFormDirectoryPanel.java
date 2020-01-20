@@ -195,11 +195,10 @@ public class UserRequestFormDirectoryPanel
 
                             UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
                         } catch (SyncopeClientException e) {
-                            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-
                 }));
 
                 manageFormModal.header(new Model<>(getString("form.manage", new Model<>(model.getObject()))));
@@ -320,7 +319,7 @@ public class UserRequestFormDirectoryPanel
         try {
             UserRequestRestClient.claimForm(taskId);
         } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+            SyncopeConsoleSession.get().onException(scee);
         }
     }
 
@@ -328,7 +327,7 @@ public class UserRequestFormDirectoryPanel
         try {
             UserRequestRestClient.unclaimForm(taskId);
         } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+            SyncopeConsoleSession.get().onException(scee);
         }
     }
 
@@ -372,7 +371,7 @@ public class UserRequestFormDirectoryPanel
             } else {
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), userUR);
                 UserRequestRestClient.getForm(result.getEntity().getKey())
-                    .ifPresent(form -> claimForm(form.getTaskId()));
+                        .ifPresent(form -> claimForm(form.getTaskId()));
             }
 
             return result;

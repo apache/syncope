@@ -100,7 +100,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL 
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:9:action:action");
 
@@ -114,7 +114,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         formTester.setValue("view:name:textField", group + "_clone");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink(TAB_PANEL
@@ -143,7 +143,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:10:action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -215,7 +215,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(TAB_PANEL
@@ -239,7 +239,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:10:action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 

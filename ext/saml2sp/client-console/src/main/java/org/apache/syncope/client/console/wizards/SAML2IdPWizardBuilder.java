@@ -117,8 +117,8 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
     }
 
     @Override
-    protected void sendError(final String message) {
-        SyncopeConsoleSession.get().error(message);
+    protected void sendError(final Exception exception) {
+        SyncopeConsoleSession.get().onException(exception);
     }
 
     @Override
@@ -129,6 +129,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
     @Override
     protected Future<Pair<Serializable, Serializable>> execute(
             final Callable<Pair<Serializable, Serializable>> future) {
+
         return SyncopeConsoleSession.get().execute(future);
     }
 

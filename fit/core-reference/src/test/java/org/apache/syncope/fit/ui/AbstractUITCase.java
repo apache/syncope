@@ -18,13 +18,20 @@
  */
 package org.apache.syncope.fit.ui;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.feedback.ExactLevelFeedbackMessageFilter;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
@@ -107,5 +114,15 @@ public abstract class AbstractUITCase {
         modal.getBehaviors().stream().
                 filter(behavior -> (behavior instanceof AbstractAjaxBehavior)).
                 forEachOrdered(behavior -> TESTER.executeBehavior((AbstractAjaxBehavior) behavior));
+    }
+
+    protected static void assertSuccessMessage() {
+        Set<Serializable> messages =
+                TESTER.getFeedbackMessages(new ExactLevelFeedbackMessageFilter(FeedbackMessage.INFO)).stream().
+                        map(FeedbackMessage::getMessage).collect(Collectors.toSet());
+        if (messages.size() != 1) {
+            fail("Expected single message but found " + messages);
+        }
+        assertEquals("Operation successfully executed", messages.iterator().next());
     }
 }

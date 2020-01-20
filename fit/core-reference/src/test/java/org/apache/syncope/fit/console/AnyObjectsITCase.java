@@ -71,7 +71,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL 
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:5:action:action");
 
@@ -120,7 +120,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"

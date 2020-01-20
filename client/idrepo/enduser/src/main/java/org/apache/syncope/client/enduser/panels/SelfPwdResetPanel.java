@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser.panels;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
@@ -178,9 +177,7 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
                         setResponsePage(getApplication().getHomePage(), parameters);
                     } catch (SyncopeClientException sce) {
                         LOG.error("Unable to reset password of [{}]", usernameText, sce);
-                        SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
-                                ? sce.getClass().getName()
-                                : sce.getMessage());
+                        SyncopeEnduserSession.get().onException(sce);
                         ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }
@@ -215,11 +212,8 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
             target.add(securityQuestion);
         } catch (Exception e) {
             LOG.error("Unable to get security question for [{}]", usernameText, e);
-            SyncopeEnduserSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName()
-                    : e.getMessage());
+            SyncopeEnduserSession.get().onException(e);
             ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
-
 }

@@ -22,12 +22,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
@@ -159,7 +159,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     protected abstract void onCancelInternal();
 
-    protected abstract void sendError(String message);
+    protected abstract void sendError(Exception exception);
 
     protected abstract void sendWarning(String message);
 
@@ -188,8 +188,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             }
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
-            sendError(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            sendError(e);
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
@@ -214,13 +213,12 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             sendWarning(getString("timeout"));
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (CaptchaNotMatchingException ce) {
-            LOG.error("Wizard error on finish: captcha not matching");
-            sendError(getString(Constants.CAPTCHA_ERROR));
+            LOG.error("Wizard error on finish: captcha not matching", ce);
+            sendError(new WicketRuntimeException(getString(Constants.CAPTCHA_ERROR)));
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
-            sendError(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            sendError(e);
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
@@ -260,8 +258,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             return item;
         }
 
-        public AjaxRequestTarget getTarget() {
-            return target;
+        public Optional<AjaxRequestTarget> getTarget() {
+            return Optional.ofNullable(target);
         }
 
         public WizardModalPanel<?> getModalPanel() {

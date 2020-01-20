@@ -19,8 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -78,8 +76,7 @@ public class DomainAdminCredentialsPanel extends AbstractModalPanel<Domain> {
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While updating domain", e);
-            SyncopeConsoleSession.get().error(
-                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

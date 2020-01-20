@@ -150,8 +150,8 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
     }
 
     @Override
-    protected void sendError(final String message) {
-        SyncopeEnduserSession.get().error(message);
+    protected void sendError(final Exception exception) {
+        SyncopeEnduserSession.get().onException(exception);
     }
 
     @Override
@@ -208,8 +208,8 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
             }
 
             @Override
-            protected void sendError(final String message) {
-                AnyWizardBuilder.this.sendError(message);
+            protected void sendError(final Exception exception) {
+                SyncopeEnduserSession.get().onException(exception);
             }
 
             @Override

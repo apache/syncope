@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -69,9 +68,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While creating new BPMN process", e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

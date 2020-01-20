@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.slf4j.Logger;
@@ -123,8 +125,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
             }
 
             @Override
-            protected void sendError(final String message) {
-                AjaxWizardBuilder.this.sendError(message);
+            protected void sendError(final Exception exception) {
+                BaseSession.class.cast(Session.get()).onException(exception);
             }
 
             @Override
@@ -155,7 +157,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected abstract long getMaxWaitTimeInSeconds();
 
-    protected abstract void sendError(String message);
+    protected abstract void sendError(Exception exception);
 
     protected abstract void sendWarning(String message);
 

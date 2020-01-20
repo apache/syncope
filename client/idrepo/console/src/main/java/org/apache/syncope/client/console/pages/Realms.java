@@ -157,14 +157,18 @@ public class Realms extends BasePage {
                 final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
                 templateModal.setFormModel(model);
                 templateModal.header(newItemEvent.getResourceModel());
-                newItemEvent.getTarget().add(templateModal.setContent(modalPanel));
+                newItemEvent.getTarget().ifPresent(t -> t.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                templateModal.close(newItemEvent.getTarget());
+                if (newItemEvent.getTarget().isPresent()) {
+                    templateModal.close(newItemEvent.getTarget().get());
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                ((BaseWebPage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget());
-                templateModal.close(newItemEvent.getTarget());
+                if (newItemEvent.getTarget().isPresent()) {
+                    ((BasePage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget().get());
+                    templateModal.close(newItemEvent.getTarget().get());
+                }
             }
         }
     }

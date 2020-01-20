@@ -99,8 +99,7 @@ public class TypeExtensionDirectoryPanel
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Group update failure", e);
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
-
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

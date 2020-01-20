@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -518,8 +519,7 @@ public class JobWidget extends BaseWidget {
                         }
                     } catch (SyncopeClientException e) {
                         LOG.error("While deleting object {}", jobTO.getRefKey(), e);
-                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
@@ -539,11 +539,13 @@ public class JobWidget extends BaseWidget {
         @SuppressWarnings("unchecked")
         public void onEvent(final IEvent<?> event) {
             if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-                final AjaxRequestTarget target = AjaxWizard.NewItemEvent.class.cast(event.getPayload()).getTarget();
+                Optional<AjaxRequestTarget> target = ((AjaxWizard.NewItemEvent<?>) event.getPayload()).getTarget();
 
-                if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
+                if (target.isPresent()
+                        && event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
                         || event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                    jobModal.close(target);
+
+                    jobModal.close(target.get());
                 }
             }
 

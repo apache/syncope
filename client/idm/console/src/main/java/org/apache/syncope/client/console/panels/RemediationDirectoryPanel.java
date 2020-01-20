@@ -158,8 +158,7 @@ public class RemediationDirectoryPanel
                         target.add(container);
                     } catch (SyncopeClientException e) {
                         LOG.error("While performing remediation {}", model.getObject().getKey(), e);
-                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                ? e.getClass().getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
@@ -288,8 +287,7 @@ public class RemediationDirectoryPanel
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

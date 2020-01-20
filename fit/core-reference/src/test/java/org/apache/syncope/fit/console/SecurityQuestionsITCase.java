@@ -56,7 +56,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
@@ -107,7 +107,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -131,7 +131,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), "onclick");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("content",

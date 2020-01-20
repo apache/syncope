@@ -84,7 +84,7 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
     }
 
     @Test
@@ -109,7 +109,7 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         TESTER.cleanupFeedbackMessages();
         result = findComponentByProp(KEY, DATATABLE_PATH, name);

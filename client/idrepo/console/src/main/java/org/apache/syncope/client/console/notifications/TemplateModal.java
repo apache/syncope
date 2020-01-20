@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.notifications;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
@@ -70,8 +69,7 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
             modal.close(target);
         } catch (SyncopeClientException e) {
             LOG.error("While creating template for {}", templateTO.getKey(), e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

@@ -181,7 +181,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         // ajax event required to retrieve AjaxRequestTarget (used into finish custom event)
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:0:outer:form:content:form:buttons:finish", Constants.ON_CLICK);
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         TESTER.cleanupFeedbackMessages();
         TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
@@ -245,7 +245,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:buttons:finish", Constants.ON_CLICK);
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", AjaxSubmitLink.class);
@@ -255,7 +255,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
         TESTER.assertNoErrorMessage();
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
@@ -286,7 +286,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:delete");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
@@ -315,7 +315,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:startAt:container:content:togglePanelContainer:startAtForm:startAt");
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
         component = findComponentByProp("name",
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
@@ -469,7 +469,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -536,13 +536,13 @@ public class TopologyITCase extends AbstractConsoleITCase {
         formTester.setValue("view:name:textField", "'k' + name");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1", Constants.ON_CLICK);
+                + "body:rows:2", Constants.ON_CLICK);
         TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
@@ -574,7 +574,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         formTester.setValue("view:name:textField", "");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -589,7 +589,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:reload");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 }

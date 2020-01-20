@@ -276,8 +276,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -294,16 +293,16 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
+            if (newItemEvent instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
                 final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
                 templateModal.setFormModel(model);
                 templateModal.header(newItemEvent.getResourceModel());
-                newItemEvent.getTarget().add(templateModal.setContent(modalPanel));
+                newItemEvent.getTarget().ifPresent(target -> target.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
-            } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                templateModal.close(newItemEvent.getTarget());
-            } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                templateModal.close(newItemEvent.getTarget());
+            } else if (newItemEvent instanceof AjaxWizard.NewItemCancelEvent) {
+                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
+            } else if (newItemEvent instanceof AjaxWizard.NewItemFinishEvent) {
+                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
             }
         }
     }

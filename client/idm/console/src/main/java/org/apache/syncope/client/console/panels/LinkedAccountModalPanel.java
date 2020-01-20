@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -187,8 +186,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
                     } catch (SyncopeClientException e) {
                         LOG.error("While contacting linked account", e);
-                        SyncopeConsoleSession.get().error(
-                                StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
 
@@ -268,8 +266,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (Exception e) {
                         LOG.error("While removing linked account {}", linkedAccountTO.getKey(), e);
-                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                ? e.getClass().getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
 
                     checkAddButton();

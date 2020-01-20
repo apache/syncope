@@ -60,7 +60,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:reportsLI:reports");
@@ -86,7 +86,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:5:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(
@@ -158,7 +158,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         delete("updateReport");

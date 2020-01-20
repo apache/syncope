@@ -93,8 +93,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                         send(container, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While stopping {}", jobTO.getRefDesc(), e);
-                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName()
-                                : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
@@ -127,8 +126,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                         send(container, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While starting {}", jobTO.getRefDesc(), e);
-                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName()
-                                : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }

@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -90,9 +89,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
                         target.add(container);
                     } catch (Exception e) {
                         LOG.error("While importing SAML 2.0 IdP metadata", e);
-                        SyncopeConsoleSession.get().error(
-                                StringUtils.isBlank(e.getMessage())
-                                ? e.getClass().getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
@@ -104,5 +101,4 @@ public class ImportMetadata extends TogglePanel<Serializable> {
             }
         });
     }
-
 }

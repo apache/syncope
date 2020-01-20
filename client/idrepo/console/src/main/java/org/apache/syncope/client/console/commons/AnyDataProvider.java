@@ -109,7 +109,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             }
         } catch (Exception e) {
             LOG.error("While searching with FIQL {}", fiql, e);
-            SyncopeConsoleSession.get().error(e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
             target.ifPresent(ajaxRequestTarget ->
@@ -132,7 +132,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             }
         } catch (Exception e) {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);
-            SyncopeConsoleSession.get().error(e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
             target.ifPresent(ajaxRequestTarget ->

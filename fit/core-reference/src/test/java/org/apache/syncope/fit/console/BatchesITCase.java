@@ -170,7 +170,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + "second:container:actions:actionRepeater:0:action:action",
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -228,7 +228,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + "second:container:actions:actionRepeater:1:action:action",
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
@@ -314,7 +314,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         // manage resource
         TESTER.clickLink(
-        "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
                 + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:"
                 + "action:action");
 

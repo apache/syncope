@@ -23,6 +23,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -176,7 +177,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             modal.close(target);
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
-            final AjaxRequestTarget target = newItemEvent.getTarget();
+            final Optional<AjaxRequestTarget> target = newItemEvent.getTarget();
             final T item = newItemEvent.getItem();
 
             final boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
@@ -202,7 +203,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     final IModel<T> model = new CompoundPropertyModel<>(item);
                     modal.setFormModel(model);
 
-                    target.add(modal.setContent(modalPanel));
+                    target.ifPresent(t -> t.add(modal.setContent(modalPanel)));
 
                     modal.header(new StringResourceModel(
                             String.format("any.%s", newItemEvent.getEventDescription()),
@@ -218,17 +219,25 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
-                customActionCallback(target);
+                if (target.isPresent()) {
+                    customActionCallback(target.get());
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
-                    modal.close(target);
+                    if (target.isPresent()) {
+                        modal.close(target.get());
+                    }
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                customActionOnCancelCallback(target);
+                if (target.isPresent()) {
+                    customActionOnCancelCallback(target.get());
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                if (target.isPresent()) {
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+                }
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<T>(
@@ -247,17 +256,21 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                             return WizardMgtPanel.this.customResultBody(id, item, result);
                         }
                     });
-                    target.add(modal.getForm());
+                    target.ifPresent(t -> t.add(modal.getForm()));
                 } else if (wizardInModal) {
-                    modal.close(target);
+                    if (target.isPresent()) {
+                        modal.close(target.get());
+                    }
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                customActionOnFinishCallback(target);
+                if (target.isPresent()) {
+                    customActionOnFinishCallback(target.get());
+                }
             }
 
             if (containerAutoRefresh) {
-                target.add(container);
+                target.ifPresent(t -> t.add(container));
             }
         }
         super.onEvent(event);

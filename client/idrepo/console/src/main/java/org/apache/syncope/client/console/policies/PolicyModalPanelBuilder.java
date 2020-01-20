@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.policies;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -164,11 +163,9 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 Profile.this.modal.close(target);
             } catch (Exception e) {
                 LOG.error("While creating/updating policy", e);
-                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.getMessage());
+                SyncopeConsoleSession.get().onException(e);
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
-
 }

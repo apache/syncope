@@ -60,7 +60,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -117,7 +117,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -167,7 +167,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit",
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -214,7 +214,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
@@ -239,7 +239,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
@@ -264,7 +264,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
                 Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
@@ -312,7 +312,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -363,7 +363,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -414,7 +414,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -458,7 +458,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -515,7 +515,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink(
@@ -560,7 +560,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -621,7 +621,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink(
@@ -660,7 +660,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -728,7 +728,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer:dialog:footer:inputs:0:submit");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         closeCallBack(modal);
@@ -762,7 +762,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         formTester.select("view:details:container:accountPolicy:dropDownChoiceField", 0);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.executeAjaxEvent(
@@ -815,7 +815,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apace.org");
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:"
@@ -840,7 +840,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:10:"
                 + "action:action"), Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         component = findComponentByProp("username",

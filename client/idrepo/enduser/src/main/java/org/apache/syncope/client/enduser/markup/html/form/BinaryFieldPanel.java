@@ -169,8 +169,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
                 try {
                     fileDownload.initiate(target);
                 } catch (Exception e) {
-                    SyncopeEnduserSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeEnduserSession.get().onException(e);
                 }
             }
         };
@@ -294,8 +293,8 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     }
 
     @Override
-    protected void sendError(final String message) {
-        SyncopeEnduserSession.get().error(message);
+    protected void sendError(final Exception exception) {
+        SyncopeEnduserSession.get().onException(exception);
     }
 
     @Override

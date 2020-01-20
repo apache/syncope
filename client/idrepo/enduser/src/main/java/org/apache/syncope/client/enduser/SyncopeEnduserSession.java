@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser;
 
+import java.security.AccessControlException;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,16 +27,21 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -89,6 +95,32 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         executor.setMaxPoolSize(SyncopeWebApplication.get().getMaxPoolSize());
         executor.setQueueCapacity(SyncopeWebApplication.get().getQueueCapacity());
         executor.initialize();
+    }
+
+    @Override
+    public void onException(final Exception e) {
+        Throwable root = ExceptionUtils.getRootCause(e);
+        String message = root.getMessage();
+
+        if (root instanceof SyncopeClientException) {
+            SyncopeClientException sce = (SyncopeClientException) root;
+            if (!sce.isComposite()) {
+                message = sce.getElements().stream().collect(Collectors.joining(", "));
+            }
+        } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
+            Error error = StringUtils.containsIgnoreCase(message, "expired")
+                    ? Error.SESSION_EXPIRED
+                    : Error.AUTHORIZATION;
+            message = getApplication().getResourceSettings().getLocalizer().
+                    getString(error.key(), null, null, null, null, error.fallback());
+        } else if (root instanceof BadRequestException || root instanceof WebServiceException) {
+            message = getApplication().getResourceSettings().getLocalizer().
+                    getString(Error.REST.key(), null, null, null, null, Error.REST.fallback());
+        }
+
+        message = getApplication().getResourceSettings().getLocalizer().
+                getString(message, null, null, null, null, message);
+        error(message);
     }
 
     public void cleanup() {

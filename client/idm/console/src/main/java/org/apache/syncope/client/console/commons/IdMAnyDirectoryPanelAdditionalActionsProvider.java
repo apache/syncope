@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.commons;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -76,16 +77,17 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             @Override
             public void onEvent(final IEvent<?> event) {
                 if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                    AjaxRequestTarget target = ((AjaxWizard.NewItemCancelEvent) event.getPayload()).getTarget();
-                    modal.close(target);
+                    ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().
+                            ifPresent(target -> modal.close(target));
                 } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                     AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
-                    AjaxRequestTarget target = payload.getTarget();
+                    Optional<AjaxRequestTarget> target = payload.getTarget();
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-
-                    target.add(container);
+                    if (target.isPresent()) {
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+                        target.get().add(container);
+                    }
 
                     if (payload.getResult() instanceof ArrayList) {
                         modal.setContent(new ResultPage<Serializable>(
@@ -108,12 +110,14 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                                 return new ProvisioningReportsPanel(id, reports, pageRef);
                             }
                         });
-                        target.add(modal.getForm());
+                        target.ifPresent(t -> t.add(modal.getForm()));
                     } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
-                        if (csvDownloadBehavior.hasResponse()) {
-                            csvDownloadBehavior.initiate(target);
-                        }
-                        modal.close(target);
+                        target.ifPresent(t -> {
+                            if (csvDownloadBehavior.hasResponse()) {
+                                csvDownloadBehavior.initiate(target.get());
+                            }
+                            modal.close(t);
+                        });
                     }
                 }
             }

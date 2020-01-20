@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -50,8 +49,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
         } catch (Exception e) {
             LOG.error("While changing password for {}",
                     SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
-            SyncopeEnduserSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeEnduserSession.get().onException(e);
             notificationPanel.refresh(target);
         }
     }
@@ -65,5 +63,4 @@ public class MustChangePassword extends AbstractMustChangePassword {
     protected void doCancel() {
         setResponsePage(getApplication().getHomePage());
     }
-
 }

@@ -461,7 +461,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
-            final AjaxRequestTarget target = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getTarget();
+            final Optional<AjaxRequestTarget> target = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getTarget();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 final T old = getActualItem(item, ListViewPanel.this.listOfItems);
@@ -473,7 +473,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 ListViewPanel.this.listOfItems.add(indexOf, item);
             }
 
-            target.add(ListViewPanel.this);
+            target.ifPresent(t -> t.add(ListViewPanel.this));
             super.onEvent(event);
         } else if (event.getPayload() instanceof ListViewPanel.ListViewReload) {
             final ListViewPanel.ListViewReload<?> payload = (ListViewPanel.ListViewReload<?>) event.getPayload();

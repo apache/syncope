@@ -86,8 +86,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating AnyTypeClassTO", e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -182,8 +181,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
