@@ -88,8 +88,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating {}", modelObject, e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -113,7 +112,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return Collections.emptyList();
     }
 
     @Override
@@ -183,8 +182,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

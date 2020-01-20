@@ -19,14 +19,24 @@
 package org.apache.syncope.client.console;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.security.AccessControlException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import javax.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.common.lib.SyncopeClientCompositeException;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
 
@@ -65,5 +75,62 @@ public class SyncopeConsoleApplicationTest extends AbstractTest {
 
         TESTER.assertRenderedPage(Dashboard.class);
         securityHeaders.forEach((key, value) -> assertEquals(value, TESTER.getLastResponse().getHeader(key)));
+    }
+
+    @Test
+    public void errors() {
+        SyncopeConsoleSession session = SyncopeConsoleSession.get();
+
+        assertNull(session.getFeedbackMessages().first());
+
+        session.onException(new AccessControlException("JWT Expired"));
+        FeedbackMessage message = session.getFeedbackMessages().first();
+        assertNotNull(message);
+        assertTrue(message.isError());
+        assertEquals(SyncopeConsoleSession.Error.SESSION_EXPIRED.fallback(), message.getMessage());
+        session.getFeedbackMessages().clear();
+
+        session.onException(new AccessControlException("Auth Exception"));
+        message = session.getFeedbackMessages().first();
+        assertNotNull(message);
+        assertTrue(message.isError());
+        assertEquals(SyncopeConsoleSession.Error.AUTHORIZATION.fallback(), message.getMessage());
+        session.getFeedbackMessages().clear();
+
+        session.onException(new BadRequestException());
+        message = session.getFeedbackMessages().first();
+        assertNotNull(message);
+        assertTrue(message.isError());
+        assertEquals(SyncopeConsoleSession.Error.REST.fallback(), message.getMessage());
+        session.getFeedbackMessages().clear();
+
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidUser);
+        sce.getElements().add("Error 1");
+        session.onException(sce);
+        message = session.getFeedbackMessages().first();
+        assertNotNull(message);
+        assertTrue(message.isError());
+        assertEquals("Error 1", message.getMessage());
+        session.getFeedbackMessages().clear();
+
+        sce = SyncopeClientException.build(ClientExceptionType.InvalidUser);
+        sce.getElements().add("Error 1");
+        sce.getElements().add("Error 2");
+        session.onException(sce);
+        message = session.getFeedbackMessages().first();
+        assertNotNull(message);
+        assertTrue(message.isError());
+        assertEquals("Error 1, Error 2", message.getMessage());
+        session.getFeedbackMessages().clear();
+
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+        scce.addException(SyncopeClientException.build(ClientExceptionType.InvalidUser));
+        scce.addException(SyncopeClientException.build(ClientExceptionType.InvalidExternalResource));
+        session.onException(new ExecutionException(scce));
+        message = session.getFeedbackMessages().first();
+        assertNotNull(message);
+        assertTrue(message.isError());
+        assertEquals(scce.getMessage(), message.getMessage());
+        session.getFeedbackMessages().clear();
     }
 }

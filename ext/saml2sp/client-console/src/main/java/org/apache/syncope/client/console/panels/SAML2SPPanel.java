@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import javax.ws.rs.client.ClientBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -62,10 +61,9 @@ public class SAML2SPPanel extends Panel {
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
                     LOG.error("While exporting SAML 2.0 SP metadata", e);
-                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
         });
     }
-
 }

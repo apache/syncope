@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
@@ -180,8 +181,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While reloading all connectors", e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -261,8 +261,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -359,8 +358,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             toggle(target, false);
                         } catch (Exception e) {
                             LOG.error("While restoring connector {}", node.getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -401,8 +399,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -614,8 +611,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             toggle(target, false);
                         } catch (Exception e) {
                             LOG.error("While restoring resource {}", node.getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -674,8 +670,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While cloning resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -692,13 +687,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         super.onEvent(event);
 
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            final AjaxWizard.NewItemFinishEvent item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
+            final AjaxWizard.NewItemFinishEvent<?> item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
             final Serializable result = item.getResult();
-            final AjaxRequestTarget target = item.getTarget();
-            if (result != null && result instanceof ConnInstanceTO) {
+            final Optional<AjaxRequestTarget> target = item.getTarget();
+            if (result != null && result instanceof ConnInstanceTO && target.isPresent()) {
                 // update Toggle Panel header
                 ConnInstanceTO conn = ConnInstanceTO.class.cast(result);
-                setHeader(target, StringUtils.abbreviate(conn.getDisplayName(), HEADER_FIRST_ABBREVIATION));
+                setHeader(target.get(), StringUtils.abbreviate(conn.getDisplayName(), HEADER_FIRST_ABBREVIATION));
             }
         }
     }

@@ -91,5 +91,4 @@ public class SyncopeClientException extends RuntimeException {
     public String getLocalizedMessage() {
         return getMessage();
     }
-
 }

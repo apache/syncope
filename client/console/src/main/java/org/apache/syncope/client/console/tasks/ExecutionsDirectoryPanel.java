@@ -133,8 +133,8 @@ public abstract class ExecutionsDirectoryPanel
                     restClient.deleteExecution(taskExecutionTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
-                } catch (SyncopeClientException scce) {
-                    SyncopeConsoleSession.get().error(scce.getMessage());
+                } catch (SyncopeClientException e) {
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

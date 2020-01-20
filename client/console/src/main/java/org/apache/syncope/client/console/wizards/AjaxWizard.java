@@ -22,12 +22,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -182,8 +182,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             }
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
@@ -212,8 +211,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
@@ -253,8 +251,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             return item;
         }
 
-        public AjaxRequestTarget getTarget() {
-            return target;
+        public Optional<AjaxRequestTarget> getTarget() {
+            return Optional.ofNullable(target);
         }
 
         public WizardModalPanel<?> getModalPanel() {

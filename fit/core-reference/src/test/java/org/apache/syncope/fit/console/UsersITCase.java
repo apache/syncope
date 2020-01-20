@@ -77,7 +77,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:1:action:action");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
     }
 
     @Test
@@ -225,7 +225,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
 
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
@@ -292,7 +292,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(TAB_PANEL
@@ -324,7 +324,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:finish", Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 
@@ -401,7 +401,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(TAB_PANEL
@@ -481,7 +481,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(TAB_PANEL
@@ -592,7 +592,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         formTester.submit("buttons:finish");
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(TAB_PANEL
@@ -670,7 +670,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 TAB_PANEL + "outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:realmsLI:realms");
@@ -695,7 +695,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 TAB_PANEL + "outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
 
-        TESTER.assertInfoMessages("Operation executed successfully");
+        assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
     }
 }
