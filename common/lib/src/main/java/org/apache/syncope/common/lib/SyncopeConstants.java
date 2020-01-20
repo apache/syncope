@@ -59,6 +59,9 @@ public final class SyncopeConstants {
             + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
             Pattern.CASE_INSENSITIVE);
 
+    public static final Pattern USERNAME_PATTERN =
+        Pattern.compile('^' + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
     public static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);

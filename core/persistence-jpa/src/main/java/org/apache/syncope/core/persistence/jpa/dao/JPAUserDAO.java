@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
@@ -76,9 +75,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
-
-    protected static final Pattern USERNAME_PATTERN =
-            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
@@ -359,13 +355,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 
-            if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
+            if (!SyncopeConstants.USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
                 throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
             }
             user.getLinkedAccounts().stream().
                     filter(account -> account.getUsername() != null).
                     forEach(account -> {
-                        if (!USERNAME_PATTERN.matcher(account.getUsername()).matches()) {
+                        if (!SyncopeConstants.USERNAME_PATTERN.matcher(account.getUsername()).matches()) {
                             throw new AccountPolicyException("Character(s) not allowed: " + account.getUsername());
                         }
                     });
