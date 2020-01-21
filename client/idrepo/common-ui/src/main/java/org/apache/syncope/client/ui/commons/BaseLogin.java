@@ -22,6 +22,7 @@ import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -129,7 +131,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                target.add(form);
+                getLanguageOnChangeComponents().forEach(target::add);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -137,7 +139,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                target.add(form);
+                getLanguageOnChangeComponents().forEach(target::add);
             }
         });
         form.add(languageSelect.setOutputMarkupId(true));
@@ -149,7 +151,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                target.add(form);
+                getDomainOnChangeComponents().forEach(target::add);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -157,7 +159,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                target.add(form);
+                getDomainOnChangeComponents().forEach(target::add);
             }
         });
         form.add(domainSelect.setOutputMarkupId(true));
@@ -189,6 +191,14 @@ public abstract class BaseLogin extends WebPage {
         form.add(ssoLogins);
 
         add(form);
+    }
+
+    protected Collection<Component> getLanguageOnChangeComponents() {
+        return List.of(form);
+    }
+
+    protected Collection<Component> getDomainOnChangeComponents() {
+        return List.of(form);
     }
 
     @Override

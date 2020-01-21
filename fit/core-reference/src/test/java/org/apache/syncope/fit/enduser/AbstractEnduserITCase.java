@@ -25,6 +25,7 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
@@ -108,6 +109,8 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     @BeforeAll
     public static void setUp() {
+        Locale.setDefault(Locale.ENGLISH);
+
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(SyncopeEnduserWebApplicationTestConfig.class);
         ctx.register(SyncopeWebApplication.class);
@@ -133,7 +136,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
         userService = adminClient.getService(UserService.class);
-        securityQuestionService = adminClient.getService(SecurityQuestionService.class);
+
         // create test user for must change password
         userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
                 password("password123").
@@ -146,6 +149,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
                 plainAttr(attr("email", "mustchangepassword@apache.org")).
                 plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
                 build());
+
         // create test user for self password reset
         userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
                 password("password123").
@@ -157,6 +161,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
                 plainAttr(attr("email", "selfpwdreset@apache.org")).
                 plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
                 build());
+
         // create test user for self update
         userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
                 password("password123").
@@ -166,6 +171,8 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
                 plainAttr(attr("ctype", "a type")).
                 plainAttr(attr("userId", "selfupdate@apache.org")).
                 build());
+
+        securityQuestionService = adminClient.getService(SecurityQuestionService.class);
     }
 
     protected void doLogin(final String user, final String passwd) {

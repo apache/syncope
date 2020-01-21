@@ -62,4 +62,7 @@ public class UserSelfRestClient extends BaseRestClient {
         getService(UserSelfService.class).mustChangePassword(password);
     }
 
+    public static void requestPasswordReset(final String username, final String securityAnswer) {
+        getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
+    }
 }

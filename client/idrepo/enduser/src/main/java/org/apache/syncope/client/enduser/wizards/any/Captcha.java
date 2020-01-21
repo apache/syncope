@@ -46,5 +46,4 @@ public class Captcha extends WizardStep implements WizardModel.ICondition {
     public boolean evaluate() {
         return SyncopeWebApplication.get().isCaptchaEnabled();
     }
-
 }

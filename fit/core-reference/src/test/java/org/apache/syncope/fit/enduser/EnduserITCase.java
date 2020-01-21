@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.wicket.extensions.markup.html.form.palette.component.Choices;
 import org.apache.wicket.markup.html.basic.Label;
@@ -140,19 +139,14 @@ public class EnduserITCase extends AbstractEnduserITCase {
     @Test
     public void selfPasswordReset() {
         SecurityQuestionTO question = securityQuestionService.read("887028ea-66fc-41e7-b397-620d7ea6dfbb");
-        UserTO selfpwdreset = userService.read("selfpwdreset");
-        userService.update(new UserUR.Builder(selfpwdreset.getKey())
-                .securityQuestion(new StringReplacePatchItem.Builder()
-                        .operation(PatchOperation.ADD_REPLACE)
-                        .value(question.getKey())
-                        .build())
-                .securityAnswer(new StringReplacePatchItem.Builder()
-                        .operation(PatchOperation.ADD_REPLACE)
-                        .value("ananswer")
-                        .build())
-                .build());
 
-        final String pwdResetForm = "body:content:selfPwdResetForm";
+        UserTO selfpwdreset = userService.read("selfpwdreset");
+        userService.update(new UserUR.Builder(selfpwdreset.getKey()).
+                securityQuestion(new StringReplacePatchItem.Builder().value(question.getKey()).build()).
+                securityAnswer(new StringReplacePatchItem.Builder().value("ananswer").build()).
+                build());
+
+        String pwdResetForm = "body:content:selfPwdResetForm";
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
 
@@ -165,27 +159,29 @@ public class EnduserITCase extends AbstractEnduserITCase {
 
         FormTester formTester = TESTER.newFormTester(pwdResetForm);
         assertNotNull(formTester);
+
         // 1. set username to selfpwdreset
-        formTester.setValue(findComponentById(pwdResetForm + ":selfPwdResetPanel", "username"),
-                "selfpwdreset");
+        formTester.setValue(findComponentById(pwdResetForm + ":selfPwdResetPanel", "username"), "selfpwdreset");
+
         // 2. check that the question has been populated
         TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:username", Constants.ON_BLUR);
-        TESTER.assertModelValue(pwdResetForm + ":selfPwdResetPanel:securityQuestion", question.
-                getContent());
+        TESTER.assertModelValue(pwdResetForm + ":selfPwdResetPanel:securityQuestion", question.getContent());
+
         // 3. submit form and receive an error
         formTester = TESTER.newFormTester(pwdResetForm);
         assertNotNull(formTester);
         TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:submit", Constants.ON_CLICK);
-        TESTER.assertErrorMessages("InvalidSecurityAnswer []");
+        TESTER.assertErrorMessages("Invalid security answer");
         TESTER.cleanupFeedbackMessages();
+
         // 3.1 set the correct answer
         formTester = TESTER.newFormTester(pwdResetForm);
         assertNotNull(formTester);
         TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", TextField.class);
         formTester.setValue("selfPwdResetPanel:securityAnswer", "ananswer");
         TESTER.executeAjaxEvent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", Constants.ON_CHANGE);
-        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer",
-                TextField.class);
+        TESTER.assertComponent(pwdResetForm + ":selfPwdResetPanel:securityAnswer", TextField.class);
+
         // 4. submit form
         TESTER.assertNoFeedbackMessage(0);
         TESTER.assertNoErrorMessage();
@@ -200,10 +196,8 @@ public class EnduserITCase extends AbstractEnduserITCase {
     @Test
     public void mustChangePassword() {
         UserTO mustchangepassword = userService.read("mustchangepassword");
-        userService.update(new UserUR.Builder(mustchangepassword.getKey())
-                .mustChangePassword(new BooleanReplacePatchItem.Builder()
-                        .operation(PatchOperation.ADD_REPLACE)
-                        .value(Boolean.TRUE).build()).build());
+        userService.update(new UserUR.Builder(mustchangepassword.getKey()).
+                mustChangePassword(new BooleanReplacePatchItem.Builder().value(Boolean.TRUE).build()).build());
 
         TESTER.startPage(Login.class);
         doLogin("mustchangepassword", "password123");

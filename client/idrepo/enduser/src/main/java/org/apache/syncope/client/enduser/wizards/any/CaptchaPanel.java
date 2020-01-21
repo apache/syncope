@@ -21,9 +21,15 @@ package org.apache.syncope.client.enduser.wizards.any;
 import java.security.SecureRandom;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.RandomStringGenerator;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 
-public class CaptchaPanel<T> extends AbstractCaptchaPanel<T> {
+public class CaptchaPanel<T> extends Panel {
 
     private static final long serialVersionUID = 1169850573252481471L;
 
@@ -34,13 +40,16 @@ public class CaptchaPanel<T> extends AbstractCaptchaPanel<T> {
             withinRange('a', 'z').
             build();
 
+    private String randomText;
+
+    private final Model<String> captchaText = new Model<>();
+
+    private final CaptchaImageResource captchaImageResource;
+
     public CaptchaPanel(final String id) {
         super(id);
-    }
 
-    @Override
-    protected CaptchaImageResource createCaptchaImageResource() {
-        return new CaptchaImageResource() {
+        captchaImageResource = new CaptchaImageResource() {
 
             private static final long serialVersionUID = 2436829189992948005L;
 
@@ -51,18 +60,35 @@ public class CaptchaPanel<T> extends AbstractCaptchaPanel<T> {
                 return super.render();
             }
         };
+        Image captchaImage = new Image("image", captchaImageResource);
+        captchaImage.setOutputMarkupId(true);
+        add(captchaImage);
+
+        add(new AjaxButton("reloadButton") {
+
+            private static final long serialVersionUID = -957948639666058749L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target) {
+                captchaImageResource.invalidate();
+                target.add(captchaImage);
+            }
+
+        }.setDefaultFormProcessing(false));
+
+        add(new AjaxTextFieldPanel("captcha", "captcha", captchaText).
+                hideLabel().
+                setOutputMarkupId(true).
+                setOutputMarkupPlaceholderTag(true));
     }
 
-    @Override
-    protected void reload() {
+    public void reload() {
         this.captchaImageResource.invalidate();
     }
 
-    @Override
     public boolean captchaCheck() {
         return StringUtils.isBlank(captchaText.getObject()) || StringUtils.isBlank(randomText)
                 ? false
                 : captchaText.getObject().equals(randomText);
     }
-
 }

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
+import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.enduser.wizards.any.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DomainDropDown;
@@ -33,7 +34,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
-import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -162,7 +162,6 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
             protected void onSubmit(final AjaxRequestTarget target) {
                 boolean checked = true;
                 if (SyncopeWebApplication.get().isCaptchaEnabled()) {
-                    // captcha check
                     checked = captcha.captchaCheck();
                 }
                 if (!checked) {
@@ -170,9 +169,8 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
                     ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 } else {
                     try {
-                        SyncopeEnduserSession.get().getService(UserSelfService.class).
-                                requestPasswordReset(usernameText, securityAnswerText);
-                        final PageParameters parameters = new PageParameters();
+                        UserSelfRestClient.requestPasswordReset(usernameText, securityAnswerText);
+                        PageParameters parameters = new PageParameters();
                         parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success"));
                         setResponsePage(getApplication().getHomePage(), parameters);
                     } catch (SyncopeClientException sce) {
