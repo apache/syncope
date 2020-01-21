@@ -125,7 +125,7 @@ public class JexlUtilsTest extends AbstractTest {
         JexlUtils.addAttrTOsToContext(attrs, context);
         verify(context).set(schemaName, value);
     }
-    
+
     @Test
     public void addPlainAttrsToContext(@Mock Collection<? extends PlainAttr<?>> attrs) {
         JexlUtils.addPlainAttrsToContext(attrs, context);

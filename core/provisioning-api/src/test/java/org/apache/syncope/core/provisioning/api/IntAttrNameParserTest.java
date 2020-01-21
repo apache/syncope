@@ -186,15 +186,15 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
 
-        Object obj = null;
+        Object nullObj = null;
         int expected = new HashCodeBuilder().
-                append(AnyTypeKind.USER).append(obj).append(obj).append(obj).append(obj).
-                append(obj).append(obj).append(obj).append(obj).append(obj).append(obj).
+                append(AnyTypeKind.USER).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
+                append(nullObj).append(nullObj).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
                 build();
         assertEquals(expected, intAttrName.hashCode());
         IntAttrName intAttrName2 = intAttrNameParser.parse("email", AnyTypeKind.USER);
         assertFalse(intAttrName.equals(intAttrName2));
-        assertFalse(intAttrName.equals(obj));
+        assertFalse(intAttrName.equals(nullObj));
         assertTrue(intAttrName.equals(intAttrName));
         String toString = intAttrName.toString();
         assertTrue(toString.startsWith("org.apache.syncope.core.provisioning.api.IntAttrName"));

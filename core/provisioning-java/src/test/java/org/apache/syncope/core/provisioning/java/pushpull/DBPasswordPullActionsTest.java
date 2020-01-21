@@ -26,26 +26,12 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-=======
-import java.util.ArrayList;
-import java.util.Collections;
-=======
->>>>>>> 2a5b9c68d... SOme cleanup
-import java.util.HashSet;
-import java.util.Set;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
-<<<<<<< HEAD
 import org.apache.syncope.common.lib.to.EntityTO;
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
->>>>>>> 2a5b9c68d... SOme cleanup
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -74,15 +60,6 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     private ProvisioningProfile<?, ?> profile;
 
     @Mock
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    private AnyPatch anyPatch;
-
-    @Mock
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
->>>>>>> 2a5b9c68d... SOme cleanup
     private UserDAO userDAO;
 
     @Mock
@@ -99,19 +76,9 @@ public class DBPasswordPullActionsTest extends AbstractTest {
 
     private Set<ConnConfProperty> connConfProperties;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     private UserTO userTO;
 
     private UserPatch userPatch;
-=======
-    private EntityTO entity;
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
-    private UserTO userTO;
-
-    private UserPatch userPatch;
->>>>>>> 2a5b9c68d... SOme cleanup
 
     private String encodedPassword;
 
@@ -121,15 +88,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
 
     @BeforeEach
     public void initTest() {
-<<<<<<< HEAD
-<<<<<<< HEAD
         userTO = new UserTO();
-=======
-        entity = new UserTO();
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
-        userTO = new UserTO();
->>>>>>> 2a5b9c68d... SOme cleanup
         encodedPassword = "s3cureP4ssw0rd";
         cipher = CipherAlgorithm.SHA512;
         ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
@@ -151,27 +110,16 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     public void beforeProvision() throws JobExecutionException {
         String digest = "SHA256";
         String password = "t3stPassw0rd";
-<<<<<<< HEAD
-<<<<<<< HEAD
         userTO.setPassword(password);
         connConfProperty.getValues().clear();
         connConfProperty.getValues().add(digest);
 
         dBPasswordPullActions.beforeProvision(profile, syncDelta, userTO);
-=======
-        ReflectionTestUtils.setField(entity, "password", password);
-        ReflectionTestUtils.setField(connConfProperty, "values",
-                new ArrayList<>(Collections.singletonList(digest)));
-
-        dBPasswordPullActions.beforeProvision(profile, syncDelta, entity);
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
         userTO.setPassword(password);
         connConfProperty.getValues().clear();
         connConfProperty.getValues().add(digest);
 
         dBPasswordPullActions.beforeProvision(profile, syncDelta, userTO);
->>>>>>> 2a5b9c68d... SOme cleanup
 
         assertEquals(CipherAlgorithm.valueOf(digest), ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
         assertEquals(password, ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
@@ -179,59 +127,27 @@ public class DBPasswordPullActionsTest extends AbstractTest {
 
     @Test
     public void beforeUpdate() throws JobExecutionException {
-<<<<<<< HEAD
-<<<<<<< HEAD
         userPatch = new UserPatch();
         userPatch.setPassword(new PasswordPatch.Builder().value("an0therTestP4ss").build());
 
         dBPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userPatch);
-=======
-        anyPatch = new UserPatch();
-        PasswordPatch passwordPatch = new PasswordPatch();
-        String password = "an0therTestP4ss";
-        ReflectionTestUtils.setField(passwordPatch, "value", password);
-        ReflectionTestUtils.setField(anyPatch, "password", passwordPatch);
-
-        dBPasswordPullActions.beforeUpdate(profile, syncDelta, entity, anyPatch);
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
         userPatch = new UserPatch();
         userPatch.setPassword(new PasswordPatch.Builder().value("an0therTestP4ss").build());
 
         dBPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userPatch);
->>>>>>> 2a5b9c68d... SOme cleanup
-
         assertEquals(cipher, ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
         assertEquals(encodedPassword, ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
     }
 
     @Test
     public void after(@Mock User user) throws JobExecutionException {
-<<<<<<< HEAD
-<<<<<<< HEAD
         when(userDAO.find(user.getKey())).thenReturn(user);
 
         dBPasswordPullActions.after(profile, syncDelta, userTO, result);
-=======
-        when(userDAO.find(entity.getKey())).thenReturn(user);
-
-        dBPasswordPullActions.after(profile, syncDelta, entity, result);
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
-        when(userDAO.find(user.getKey())).thenReturn(user);
-
-        dBPasswordPullActions.after(profile, syncDelta, userTO, result);
->>>>>>> 2a5b9c68d... SOme cleanup
 
         verify(user).setEncodedPassword(anyString(), any(CipherAlgorithm.class));
         assertNull(ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
         assertNull(ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> 20fe766ff... Completed tests for DBPasswordPullActions
-=======
->>>>>>> 2a5b9c68d... SOme cleanup
 }
