@@ -430,7 +430,7 @@ under the License.
     <camel.version>3.0.1</camel.version>
 
     <slf4j.version>1.7.30</slf4j.version>
-    <opensaml.version>3.4.4</opensaml.version>
+    <opensaml.version>3.3.1</opensaml.version>
 
     <elasticsearch.version>7.5.1</elasticsearch.version>
 
@@ -782,7 +782,7 @@ under the License.
         <version>${camel.version}</version>
       </dependency>
       <!-- /Camel -->
-      
+
       <!-- OpenSAML -->
       <dependency>
         <groupId>org.opensaml</groupId>
@@ -843,7 +843,7 @@ under the License.
         </exclusions>
       </dependency>
       <!-- /OpenSAML -->
-          
+
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -1830,16 +1830,6 @@ under the License.
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
-    <repository>
-      <id>shibboleth-releases</id>
-      <url>https://build.shibboleth.net/nexus/content/repositories/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -2106,7 +2096,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.32.0</version>
+          <version>0.33.0</version>
         </plugin>
 
         <plugin>
@@ -2472,7 +2462,7 @@ under the License.
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.4.4/apidocs/</link>
+            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
             <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.5.1/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.1.0/apidocs/</link>
           </links>
