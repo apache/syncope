@@ -48,5 +48,4 @@ public class VirAttrCacheValueTest extends AbstractTest {
         assertFalse(cacheValue2.equals(String.class));
         assertNotEquals(cacheValue.toString(), cacheValue2.toString());
     }
-
 }

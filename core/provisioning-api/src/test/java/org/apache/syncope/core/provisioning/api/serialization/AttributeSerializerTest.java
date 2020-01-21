@@ -79,5 +79,4 @@ public class AttributeSerializerTest extends AbstractTest {
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeString(eq("test"));
     }
-
 }

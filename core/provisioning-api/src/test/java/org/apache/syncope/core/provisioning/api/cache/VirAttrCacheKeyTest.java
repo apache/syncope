@@ -53,5 +53,4 @@ public class VirAttrCacheKeyTest extends AbstractTest {
         
         assertEquals(cacheKey.toString(), cacheKey2.toString());
     }
-
 }

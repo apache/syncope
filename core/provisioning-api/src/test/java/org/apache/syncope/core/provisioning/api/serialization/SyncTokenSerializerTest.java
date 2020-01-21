@@ -70,5 +70,4 @@ public class SyncTokenSerializerTest extends AbstractTest {
         serializer.serialize(source, jgen, sp);
         verify(jgen, times(2)).writeString(anyString());
     }
-
 }

@@ -57,5 +57,4 @@ public class EntitlementsHolderTest extends AbstractTest {
         assertTrue(removed.contains(String.format("%s_%s", testValue, "DELETE")));
         assertEquals(values.size(), entitlementsHolder.getValues().size());
     }
-
 }

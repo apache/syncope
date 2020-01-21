@@ -58,5 +58,4 @@ public class ProvisioningProfileTest extends AbstractTest {
         profile.setConflictResolutionAction(conflictResolutionAction);
         assertEquals(conflictResolutionAction, profile.getConflictResolutionAction());
     }
-
 }

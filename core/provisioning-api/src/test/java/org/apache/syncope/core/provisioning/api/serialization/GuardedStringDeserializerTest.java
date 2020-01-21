@@ -78,12 +78,12 @@ public class GuardedStringDeserializerTest extends AbstractTest {
         kids.remove(READONLY);
         assertEquals(Boolean.FALSE, ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), DISPOSED));
         kids.remove(DISPOSED);
-        assertEquals(encryptedString, ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), BASE64_SHA1_HASH));
+        assertEquals(encryptedString, 
+                ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), BASE64_SHA1_HASH));
 
         kids.remove(BASE64_SHA1_HASH);
         GuardedString expected = new GuardedString(new String(testString.getBytes()).toCharArray());
         assertTrue(EqualsBuilder.reflectionEquals(ReflectionTestUtils.getField(expected, ENCRYPTED_BYTES),
                 ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), ENCRYPTED_BYTES)));
     }
-
 }

@@ -34,5 +34,4 @@ public class AbstractTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
     }
-    
 }

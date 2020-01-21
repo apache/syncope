@@ -63,5 +63,4 @@ public class AuditEntryImplTest extends AbstractTest {
         assertEquals(date, auditEntryImpl2.getDate());
         assertEquals(throwable, auditEntryImpl2.getThrowable());
     }
-
 }

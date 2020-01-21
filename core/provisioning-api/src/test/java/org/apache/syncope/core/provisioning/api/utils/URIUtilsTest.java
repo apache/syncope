@@ -25,25 +25,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
 public class URIUtilsTest extends AbstractTest {
     
-    private String location;
+    private final AtomicReference<String> location = new AtomicReference<>();
     
     @Test
     public void buildForConnId() throws URISyntaxException, MalformedURLException {
-        location = "www.tirasa.net";
-        
+        location.set("www.tirasa.net");
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location));
+                assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location.get()));
         assertEquals(exception.getClass(), IllegalArgumentException.class);
         
-        location = "connid:test/location";
-        URI expectedURI = new URI(location.trim());
-        
-        assertEquals(expectedURI, URIUtils.buildForConnId(location));
+        location.set("connid:test/location");
+        URI expectedURI = new URI(location.get().trim());
+        assertEquals(expectedURI, URIUtils.buildForConnId(location.get()));
     }
-
 }

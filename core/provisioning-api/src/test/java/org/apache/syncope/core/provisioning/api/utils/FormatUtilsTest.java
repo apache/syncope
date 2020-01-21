@@ -86,5 +86,4 @@ public class FormatUtilsTest extends AbstractTest {
         conversionPattern = "###,###";
         assertEquals(Long.valueOf(source), FormatUtils.parseNumber(source, conversionPattern));
     }
-
 }

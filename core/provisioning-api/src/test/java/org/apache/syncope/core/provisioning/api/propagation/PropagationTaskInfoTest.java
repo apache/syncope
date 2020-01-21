@@ -68,5 +68,4 @@ public class PropagationTaskInfoTest extends AbstractTest {
         propagationTaskInfo.setBeforeObj(beforeObj);
         assertEquals(beforeObj, propagationTaskInfo.getBeforeObj());
     }
-
 }

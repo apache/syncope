@@ -59,5 +59,4 @@ public class UserWorkflowResultTest extends AbstractTest {
         assertNotEquals(userWorkflowResult.toString(), userWorkflowResult2.toString());
         assertEquals(performedTasks, userWorkflowResult2.getPerformedTasks());
     }
-
 }

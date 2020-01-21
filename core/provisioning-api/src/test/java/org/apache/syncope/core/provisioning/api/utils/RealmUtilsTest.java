@@ -64,5 +64,4 @@ public class RealmUtilsTest extends AbstractTest {
         Set<String> effective = RealmUtils.getEffective(allowedRealms, requestedRealm);
         assertEquals(allowedRealms, effective);
     }
-
 }

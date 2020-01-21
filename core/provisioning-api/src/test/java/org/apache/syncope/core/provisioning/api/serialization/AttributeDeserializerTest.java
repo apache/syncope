@@ -128,5 +128,4 @@ public class AttributeDeserializerTest extends AbstractTest {
         assertEquals(attr.getName(), name);
         assertEquals(Collections.singletonList(text).get(0), attr.getValue().get(0));
     }
-
 }

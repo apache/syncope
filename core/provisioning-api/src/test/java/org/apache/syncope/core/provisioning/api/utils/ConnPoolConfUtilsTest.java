@@ -54,5 +54,4 @@ public class ConnPoolConfUtilsTest extends AbstractTest {
         verify(opc).setMinEvictableIdleTimeMillis(anyLong());
         verify(opc).setMinIdle(anyInt());
     }
-
 }

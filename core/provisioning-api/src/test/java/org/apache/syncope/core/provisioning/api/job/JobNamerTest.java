@@ -78,5 +78,4 @@ public class JobNamerTest extends AbstractTest {
         String jobName = "testJobName";
         assertEquals("Trigger_" + jobName, JobNamer.getTriggerName(jobName));
     }
-
 }

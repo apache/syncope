@@ -55,5 +55,4 @@ public class POJOHelperTest extends AbstractTest {
 
         assertNull(POJOHelper.deserialize(serialized, reference));
     }
-
 }

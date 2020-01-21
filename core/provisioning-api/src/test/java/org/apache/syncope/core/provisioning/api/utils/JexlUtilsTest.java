@@ -160,5 +160,4 @@ public class JexlUtilsTest extends AbstractTest {
         assertTrue(JexlUtils.evaluateMandatoryCondition("true", any, derAttrHandler));
         assertFalse(JexlUtils.evaluateMandatoryCondition("false", any, derAttrHandler));
     }
-
 }

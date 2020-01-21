@@ -69,5 +69,4 @@ public class AfterHandlingEventTest extends AbstractTest {
         assertEquals(output, afterHandlingEvent.getOutput());
         assertEquals(input, afterHandlingEvent.getInput());
     }
-
 }

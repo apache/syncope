@@ -54,5 +54,4 @@ public class WorkflowResultTest extends AbstractTest {
         
         assertEquals(propByRes, workflowResult2.getPropByRes());
     }
-    
 }

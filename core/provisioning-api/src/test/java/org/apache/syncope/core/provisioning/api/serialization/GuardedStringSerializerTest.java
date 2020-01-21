@@ -53,5 +53,4 @@ public class GuardedStringSerializerTest extends AbstractTest {
         verify(jgen).writeStringField(eq(BASE64_SHA1_HASH), anyString());
         verify(jgen).writeEndObject();
     }
-
 }

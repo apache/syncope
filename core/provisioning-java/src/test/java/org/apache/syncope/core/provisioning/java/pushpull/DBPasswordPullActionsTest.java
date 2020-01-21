@@ -149,5 +149,4 @@ public class DBPasswordPullActionsTest extends AbstractTest {
         assertNull(ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
         assertNull(ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
     }
-
 }

@@ -182,5 +182,4 @@ public class PropagationByResourceTest extends AbstractTest {
         propagationByResource.set(ResourceOperation.DELETE, keys);
         assertEquals(keys, ReflectionTestUtils.getField(propagationByResource, "toBeDeleted"));
     }
-
 }
