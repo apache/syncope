@@ -77,7 +77,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         if (resource.getKey() == null || !KEY_PATTERN.matcher(resource.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid resource key")).
+                    getTemplate(EntityViolationType.InvalidKey, resource.getKey())).
                     addPropertyNode("key").addConstraintViolation();
             return false;
         }

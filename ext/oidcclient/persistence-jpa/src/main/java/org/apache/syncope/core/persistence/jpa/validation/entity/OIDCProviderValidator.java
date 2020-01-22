@@ -33,7 +33,7 @@ public class OIDCProviderValidator extends AbstractValidator<OIDCProviderCheck, 
 
         if (isHtml(oidcProvider.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    getTemplate(EntityViolationType.InvalidKey, oidcProvider.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             return false;

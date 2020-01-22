@@ -44,7 +44,7 @@ public class SchemaKeyValidator extends AbstractValidator<SchemaKeyCheck, Object
         if (!isValid) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid schema key")).
+                    getTemplate(EntityViolationType.InvalidKey, key)).
                     addPropertyNode("key").addConstraintViolation();
         } else if (JPAAnyUtils.matchesFieldName(key)) {
             context.disableDefaultConstraintViolation();

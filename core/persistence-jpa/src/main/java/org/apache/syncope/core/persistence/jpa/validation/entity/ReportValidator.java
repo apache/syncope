@@ -38,7 +38,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
 
         if (isHtml(report.getName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid name")).
+                    getTemplate(EntityViolationType.InvalidName, report.getName())).
                     addPropertyNode("name").addConstraintViolation();
 
             isValid = false;

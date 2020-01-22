@@ -32,7 +32,7 @@ public class AnyObjectValidator extends AbstractValidator<AnyObjectCheck, AnyObj
 
         if (!isValid) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid any object name")).
+                    getTemplate(EntityViolationType.InvalidName, anyObject.getName())).
                     addPropertyNode("name").addConstraintViolation();
         }
 

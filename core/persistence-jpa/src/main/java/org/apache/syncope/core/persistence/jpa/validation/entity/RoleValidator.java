@@ -30,7 +30,7 @@ public class RoleValidator extends AbstractValidator<RoleCheck, Role> {
 
         if (role.getKey() == null || !KEY_PATTERN.matcher(role.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid role key")).
+                    getTemplate(EntityViolationType.InvalidKey, role.getKey())).
                     addPropertyNode("key").addConstraintViolation();
             return false;
         }
