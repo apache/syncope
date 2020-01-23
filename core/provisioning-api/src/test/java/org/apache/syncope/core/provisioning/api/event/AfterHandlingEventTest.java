@@ -28,26 +28,17 @@ import org.junit.jupiter.api.Test;
 
 public class AfterHandlingEventTest extends AbstractTest {
 
-    private final String who = "testUser";
-
-    private final AuditElements.EventCategoryType type = AuditElements.EventCategoryType.CUSTOM;
-
-    private final String category = SyncopeConstants.REALM_ANYTYPE.toLowerCase();
-
-    private final String subcategory = UUID.randomUUID().toString();
-
-    private final String event = "testEvent";
-
-    private final AuditElements.Result condition = AuditElements.Result.SUCCESS;
-
-    private final Object before = "before";
-
-    private final Object output = "output";
-
-    private final Object[] input = new String[] { "value1", "value2" };
-
     @Test
     public void test() {
+     String who = "testUser";
+        AuditElements.EventCategoryType type = AuditElements.EventCategoryType.CUSTOM;
+        String category = SyncopeConstants.REALM_ANYTYPE.toLowerCase();
+        String subcategory = UUID.randomUUID().toString();
+        String event = "testEvent";
+        AuditElements.Result condition = AuditElements.Result.SUCCESS;
+        Object before = "before";
+        Object output = "output";
+        Object[] input = new String[] { "value1", "value2" };
         AfterHandlingEvent afterHandlingEvent = new AfterHandlingEvent(
                 who,
                 type,

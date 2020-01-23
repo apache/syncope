@@ -29,13 +29,11 @@ import org.junit.jupiter.api.Test;
 
 public class EntitlementsHolderTest extends AbstractTest {
 
-    private final EntitlementsHolder entitlementsHolder = EntitlementsHolder.getInstance();
-
-    Collection<String> values = new HashSet<>();
-
     @Test
     public void test() {
+        EntitlementsHolder entitlementsHolder = EntitlementsHolder.getInstance();
         String testValue = "testValue";
+        Collection<String> values = new HashSet<>();
         values.add(testValue);
 
         entitlementsHolder.init(values);

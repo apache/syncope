@@ -27,30 +27,27 @@ import org.junit.jupiter.api.Test;
 
 public class VirAttrCacheKeyTest extends AbstractTest {
 
-    private final String type = "type";
-
-    private final String key = "key";
-
-    private final String virSchema = "virSchema";
-
     @Test
     public void test() {
+        String type = "type";
+        String key = "key";
+        String virSchema = "virSchema";
         VirAttrCacheKey cacheKey = new VirAttrCacheKey(type, key, virSchema);
         VirAttrCacheKey cacheKey2 = new VirAttrCacheKey(type, key, virSchema);
         VirAttrCacheKey cacheKey3 = new VirAttrCacheKey(type, String.format(type, "3"), String.format(virSchema, "3"));
         Object nullObj = null;
-        
+
         assertEquals(type, cacheKey.getKind());
         assertEquals(key, cacheKey.getKey());
         assertEquals(virSchema, cacheKey.getVirSchema());
-        
+
         assertEquals(cacheKey.hashCode(), cacheKey2.hashCode());
         assertFalse(cacheKey.equals(nullObj));
         assertFalse(cacheKey.equals(String.class));
         assertTrue(cacheKey.equals(cacheKey));
         assertTrue(cacheKey.equals(cacheKey2));
         assertFalse(cacheKey.equals(cacheKey3));
-        
+
         assertEquals(cacheKey.toString(), cacheKey2.toString());
     }
 }

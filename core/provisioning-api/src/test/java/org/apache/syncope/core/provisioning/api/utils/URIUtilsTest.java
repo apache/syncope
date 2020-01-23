@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.api.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,16 +29,15 @@ import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
 public class URIUtilsTest extends AbstractTest {
-    
-    private final AtomicReference<String> location = new AtomicReference<>();
-    
+
     @Test
     public void buildForConnId() throws URISyntaxException, MalformedURLException {
+        AtomicReference<String> location = new AtomicReference<>();
         location.set("www.tirasa.net");
         IllegalArgumentException exception =
                 assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location.get()));
         assertEquals(exception.getClass(), IllegalArgumentException.class);
-        
+
         location.set("connid:test/location");
         URI expectedURI = new URI(location.get().trim());
         assertEquals(expectedURI, URIUtils.buildForConnId(location.get()));

@@ -37,7 +37,7 @@ public class POJOHelperTest extends AbstractTest {
 
     @Test
     public void serializeWithDefaultPrettyPrinter() {
-        Object object = 9002;
+        Object object = 9001;
 
         assertEquals(String.valueOf(object), POJOHelper.serializeWithDefaultPrettyPrinter(object));
     }

@@ -30,15 +30,10 @@ import org.mockito.Mock;
 
 public class WorkflowResultTest extends AbstractTest {
     
-    private String result = "result";
-    
-    @Mock
-    private PropagationByResource<String> propByRes;
-    
-    private final Set<String> performedTasks = new HashSet<>();
-    
     @Test
-    public void test() {
+    public void test(@Mock PropagationByResource<String> propByRes) {
+        String result = "result";
+        Set<String> performedTasks = new HashSet<>();
         performedTasks.add("TEST");
         WorkflowResult<String> workflowResult = new WorkflowResult<>(result, propByRes, performedTasks);
         WorkflowResult<String> workflowResult2 = new WorkflowResult<>(result, propByRes, performedTasks);

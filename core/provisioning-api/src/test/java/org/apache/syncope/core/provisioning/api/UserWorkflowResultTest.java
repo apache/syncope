@@ -30,16 +30,12 @@ import org.junit.jupiter.api.Test;
 
 public class UserWorkflowResultTest extends AbstractTest {
 
-    private final PropagationByResource<String> propByRes = new PropagationByResource<>();
-
-    private final PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
-
-    private UserWorkflowResult<String> userWorkflowResult;
-
-    private UserWorkflowResult<String> userWorkflowResult2;
-
     @Test
     public void test() {
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+        UserWorkflowResult<String> userWorkflowResult;
+        UserWorkflowResult<String> userWorkflowResult2;
         String result = "true";
         String performedTask = "testTask";
         Set<String> performedTasks = new HashSet<>();

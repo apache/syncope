@@ -33,39 +33,38 @@ import org.mockito.Mock;
 
 public class SyncTokenSerializerTest extends AbstractTest {
 
-    private final SyncTokenSerializer serializer = new SyncTokenSerializer();
-
     @Test
     public void SyncTokenSerializer(
             @Mock JsonGenerator jgen,
             @Mock SerializerProvider sp) throws IOException {
+        SyncTokenSerializer serializer = new SyncTokenSerializer();
         SyncToken source = new SyncToken(UUID.randomUUID().toString());
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeStartObject();
         verify(jgen).writeFieldName("value");
         verify(jgen).writeEndObject();
-        
+
         boolean bool = false;
         source = new SyncToken(bool);
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeBoolean(bool);
-        
+
         double doubleNum = 9000.1;
         source = new SyncToken(doubleNum);
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(doubleNum);
-        
+
         long longNum = 9001;
         source = new SyncToken(longNum);
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(longNum);
-        
+
         int intNum = 9000;
         source = new SyncToken(intNum);
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(intNum);
-        
-        byte[] bytes = new byte[] {9, 0, 0, 1};
+
+        byte[] bytes = new byte[] { 9, 0, 0, 1 };
         source = new SyncToken(bytes);
         serializer.serialize(source, jgen, sp);
         verify(jgen, times(2)).writeString(anyString());

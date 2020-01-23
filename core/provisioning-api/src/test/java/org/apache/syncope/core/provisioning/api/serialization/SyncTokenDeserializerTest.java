@@ -98,7 +98,7 @@ public class SyncTokenDeserializerTest extends AbstractTest {
 
         value = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.ISO_8859_1));
         when(node.asText()).thenReturn(value);
-        assertTrue(EqualsBuilder.reflectionEquals(Base64.getDecoder().decode(value), 
+        assertTrue(EqualsBuilder.reflectionEquals(Base64.getDecoder().decode(value),
                 deserializer.deserialize(jp, ct).getValue()));
     }
 }

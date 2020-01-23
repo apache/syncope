@@ -31,30 +31,24 @@ import org.mockito.Mock;
 
 public class ProvisioningProfileTest extends AbstractTest {
 
-    @Mock
-    private Connector connector;
-
-    @Mock
-    private PushTask pushTask;
-
-    private final boolean dryRun = false;
-
-    private final ConflictResolutionAction conflictResolutionAction = ConflictResolutionAction.FIRSTMATCH;
-
-    private ProvisioningProfile<PushTask, PushActions> profile;
 
     @Test
-    public void test() {
+    public void test(
+            @Mock Connector connector,
+            @Mock PushTask pushTask) {
+        boolean dryRun = false;
+        ConflictResolutionAction conflictResolutionAction = ConflictResolutionAction.FIRSTMATCH;
+        ProvisioningProfile<PushTask, PushActions> profile;
         profile = new ProvisioningProfile<>(connector, pushTask);
-        
+
         assertEquals(connector, profile.getConnector());
         assertEquals(pushTask, profile.getTask());
         assertEquals(new ArrayList<>(), profile.getResults());
         assertEquals(new ArrayList<>(), profile.getActions());
-        
+
         profile.setDryRun(dryRun);
         assertFalse(profile.isDryRun());
-        
+
         profile.setConflictResolutionAction(conflictResolutionAction);
         assertEquals(conflictResolutionAction, profile.getConflictResolutionAction());
     }

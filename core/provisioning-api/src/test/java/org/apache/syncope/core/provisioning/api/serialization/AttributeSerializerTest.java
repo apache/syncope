@@ -40,11 +40,10 @@ import org.mockito.Mock;
 
 public class AttributeSerializerTest extends AbstractTest {
 
-    private final AttributeSerializer serializer = new AttributeSerializer();
-
     @Test
     public void serialize(@Mock Attribute source, @Mock JsonGenerator jgen, @Mock SerializerProvider sp)
             throws IOException {
+        AttributeSerializer serializer = new AttributeSerializer();
         when(source.getValue()).thenReturn(null);
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeStartObject();
@@ -54,27 +53,27 @@ public class AttributeSerializerTest extends AbstractTest {
         when(source.getValue()).thenAnswer(ic -> Collections.singletonList(new GuardedString()));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeObject(any(GuardedString.class));
-        
+
         when(source.getValue()).thenAnswer(ic -> Collections.singletonList(9000));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(anyInt());
-        
+
         when(source.getValue()).thenAnswer(ic -> Collections.singletonList(9000L));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(anyLong());
-        
+
         when(source.getValue()).thenAnswer(ic -> Collections.singletonList(9000.1));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(anyDouble());
-        
+
         when(source.getValue()).thenAnswer(ic -> Collections.singletonList(Boolean.TRUE));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeBoolean(anyBoolean());
-        
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(new byte[] {9, 0, 0, 0}));
+
+        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(new byte[] { 9, 0, 0, 0 }));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeString(anyString());
-        
+
         when(source.getValue()).thenAnswer(ic -> Collections.singletonList("test"));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeString(eq("test"));
