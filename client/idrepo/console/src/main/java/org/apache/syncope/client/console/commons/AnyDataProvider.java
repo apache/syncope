@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +26,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,19 +43,19 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyDataProvider.class);
 
-    private final SortableAnyProviderComparator<A> comparator;
+    protected final SortableAnyProviderComparator<A> comparator;
 
-    private final AbstractAnyRestClient<A> restClient;
+    protected final AbstractAnyRestClient<A> restClient;
 
     protected String fiql;
 
     protected final boolean filtered;
 
-    private final String realm;
+    protected final String realm;
 
-    private final String type;
+    protected final String type;
 
-    private final PageReference pageRef;
+    protected final PageReference pageRef;
 
     public AnyDataProvider(
             final AbstractAnyRestClient<A> restClient,
@@ -112,8 +111,8 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget ->
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            target.ifPresent(ajaxRequestTarget
+                    -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
         result.sort(comparator);
@@ -134,9 +133,8 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);
             SyncopeConsoleSession.get().onException(e);
 
-            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget ->
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            RequestCycle.get().find(AjaxRequestTarget.class).
+                    ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
         }
 
         return result;
