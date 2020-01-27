@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,7 +88,7 @@ public class JexlUtilsTest extends AbstractTest {
             @Mock Realm realm,
             @Mock RealmTO realmTO) {
         JexlUtils.addFieldsToContext(new Exception(), context);
-        verify(context).set(anyString(), any(Object.class));
+        verify(context, times(2)).set(eq("cause"), any());
 
         String testFullPath = "testFullPath";
         when(any.getRealm()).thenReturn(realm);
@@ -98,13 +99,17 @@ public class JexlUtilsTest extends AbstractTest {
         String testRealm = "testRealm";
         when(anyTO.getRealm()).thenReturn(testRealm);
         JexlUtils.addFieldsToContext(anyTO, context);
-        verify(context).set("realm", testRealm);
+        verify(context, times(3)).set("realm", testRealm);
 
+        String fullPath = "test/full/path";
+        when(realm.getFullPath()).thenReturn(fullPath);
         JexlUtils.addFieldsToContext(realm, context);
-        verify(context).set("fullPath", realm.getFullPath());
+        verify(context, times(2)).set("fullPath", fullPath);
 
+        fullPath = "test/full/path2";
+        when(realmTO.getFullPath()).thenReturn(fullPath);
         JexlUtils.addFieldsToContext(realmTO, context);
-        verify(context).set("fullPath", realmTO.getFullPath());
+        verify(context, times(2)).set("fullPath", fullPath);
     }
 
     @Test

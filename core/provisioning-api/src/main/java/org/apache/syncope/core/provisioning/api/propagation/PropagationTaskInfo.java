@@ -26,13 +26,14 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
+@SuppressWarnings("squid:S1948")
 public class PropagationTaskInfo extends PropagationTaskTO {
 
     private static final long serialVersionUID = -2879861567335503099L;
 
     private final ExternalResource externalResource;
 
-    private transient Connector connector;
+    private Connector connector;
 
     /**
      * Object on External Resource before propagation takes place.
@@ -41,7 +42,7 @@ public class PropagationTaskInfo extends PropagationTaskTO {
      * not null but not present: beforeObj was attempted to read, but not found
      * not null and present: beforeObj value is available
      */
-    private transient Optional<ConnectorObject> beforeObj;
+    private Optional<ConnectorObject> beforeObj;
 
     public PropagationTaskInfo(final ExternalResource externalResource) {
         super();

@@ -57,7 +57,7 @@ import org.springframework.util.ReflectionUtils;
 /**
  * JEXL <a href="http://commons.apache.org/jexl/reference/index.html">reference</a> is available.
  */
-@SuppressWarnings({ "squid:S3008", "squid:S3776" })
+@SuppressWarnings({ "squid:S3008", "squid:S3776", "squid:S1141" })
 public final class JexlUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtils.class);
@@ -132,7 +132,6 @@ public final class JexlUtils {
             List<Class<?>> classes = ClassUtils.getAllSuperclasses(object.getClass());
             classes.add(object.getClass());
             classes.forEach(clazz -> {
-                String propertyDescriptorName = "";
                 try {
                     for (PropertyDescriptor desc : Introspector.getBeanInfo(clazz).getPropertyDescriptors()) {
                         if (!desc.getName().startsWith("pc")
@@ -142,14 +141,15 @@ public final class JexlUtils {
                                 && !desc.getPropertyType().isArray()) {
 
                             Field field = null;
-                            propertyDescriptorName = desc.getName();
-                            field = clazz.getDeclaredField(propertyDescriptorName);
+                            try {
+                                field = clazz.getDeclaredField(desc.getName());
+                            } catch (NoSuchFieldException | SecurityException e) {
+                                LOG.debug("Could not get field {} from {}", desc.getName(), clazz.getName(), e);
+                            }
 
                             FIELD_CACHE.get(object.getClass()).add(Pair.of(desc, field));
                         }
                     }
-                } catch (NoSuchFieldException | SecurityException e) {
-                    LOG.debug("Could not get field {} from {}", propertyDescriptorName, clazz.getName(), e);
                 } catch (IntrospectionException e) {
                     LOG.warn("Could not introspect {}", clazz.getName(), e);
                 }
