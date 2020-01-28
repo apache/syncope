@@ -66,6 +66,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserApplication.class);
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private static final String ENDUSER_PROPERTIES = "enduser.properties";
 
     private static final String CUSTOM_FORM_ATTRIBUTES_FILE = "customFormAttributes.json";
@@ -92,11 +94,13 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private SyncopeClientFactoryBean clientFactory;
 
+    private FileAlterationMonitor customFormAttributesMonitor;
+
     private Map<String, CustomAttributesInfo> customFormAttributes;
 
-    private CustomTemplateInfo customTemplate;
+    private FileAlterationMonitor customTemplateMonitor;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private CustomTemplateInfo customTemplate;
 
     @Override
     protected void init() {
@@ -162,7 +166,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                     : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE));
 
-            FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
+            customFormAttributesMonitor = new FileAlterationMonitor(5000);
 
             FileAlterationListener listener = new FileAlterationListenerAdaptor() {
 
@@ -175,7 +179,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                                 new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                         });
                     } catch (IOException e) {
-                        e.printStackTrace(System.err);
+                        LOG.error("{} While reading form attributes customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE, e);
                     }
                 }
 
@@ -188,7 +193,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                                 new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                         });
                     } catch (IOException e) {
-                        e.printStackTrace(System.err);
+                        LOG.error("{} While reading form attributes customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE, e);
                     }
                 }
 
@@ -201,8 +207,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             };
 
             observer.addListener(listener);
-            monitor.addObserver(observer);
-            monitor.start();
+            customFormAttributesMonitor.addObserver(observer);
+            customFormAttributesMonitor.start();
         } catch (Exception e) {
             throw new WicketRuntimeException("Could not read " + CUSTOM_FORM_ATTRIBUTES_FILE, e);
         }
@@ -227,7 +233,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                     : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_TEMPLATE_FILE).getFile(),
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_TEMPLATE_FILE));
 
-            FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
+            customTemplateMonitor = new FileAlterationMonitor(5000);
 
             FileAlterationListener listener = new FileAlterationListenerAdaptor() {
 
@@ -239,7 +245,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                         customTemplate = MAPPER.readValue(FileUtils.openInputStream(file),
                                 CustomTemplateInfo.class);
                     } catch (IOException e) {
-                        e.printStackTrace(System.err);
+                        LOG.error("{} While reading app customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE, e);
                     }
                 }
 
@@ -251,7 +258,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                         customTemplate = MAPPER.readValue(FileUtils.openInputStream(file),
                                 CustomTemplateInfo.class);
                     } catch (IOException e) {
-                        e.printStackTrace(System.err);
+                        LOG.error("{} While reading app customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE, e);
                     }
                 }
 
@@ -264,8 +272,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             };
 
             observer.addListener(listener);
-            monitor.addObserver(observer);
-            monitor.start();
+            customTemplateMonitor.addObserver(observer);
+            customTemplateMonitor.start();
         } catch (Exception e) {
             throw new WicketRuntimeException("Could not read " + CUSTOM_TEMPLATE_FILE, e);
         }
@@ -320,6 +328,24 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (customFormAttributesMonitor != null) {
+            try {
+                customFormAttributesMonitor.stop(0);
+            } catch (Exception e) {
+                LOG.error("{} While stopping file monitor", CUSTOM_FORM_ATTRIBUTES_FILE, e);
+            }
+        }
+        if (customTemplateMonitor != null) {
+            try {
+                customTemplateMonitor.stop(0);
+            } catch (Exception e) {
+                LOG.error("{} While stopping file monitor", CUSTOM_TEMPLATE_FILE, e);
+            }
+        }
     }
 
     @Override
