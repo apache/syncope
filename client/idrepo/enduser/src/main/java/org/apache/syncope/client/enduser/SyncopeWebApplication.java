@@ -133,6 +133,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private Integer maxUploadFileSizeMB;
 
+    private FileAlterationMonitor customFormAttributesMonitor;
+
     private Map<String, CustomAttributesInfo> customFormAttributes;
 
     protected void setSecurityHeaders(final Properties props, final WebResponse response) {
@@ -207,7 +209,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                     : new FileAlterationObserver(getClass().getResource('/' + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE));
 
-            FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
+            customFormAttributesMonitor = new FileAlterationMonitor(5000);
 
             FileAlterationListener listener = new FileAlterationListenerAdaptor() {
 
@@ -220,7 +222,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                                 new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                         });
                     } catch (IOException e) {
-                        e.printStackTrace(System.err);
+                        LOG.error("{} While reading app customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE, e);
                     }
                 }
 
@@ -233,7 +236,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                                 new TypeReference<HashMap<String, CustomAttributesInfo>>() {
                         });
                     } catch (IOException e) {
-                        e.printStackTrace(System.err);
+                        LOG.error("{} While reading app customization configuration.",
+                                CUSTOM_FORM_ATTRIBUTES_FILE, e);
                     }
                 }
 
@@ -246,8 +250,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             };
 
             observer.addListener(listener);
-            monitor.addObserver(observer);
-            monitor.start();
+            customFormAttributesMonitor.addObserver(observer);
+            customFormAttributesMonitor.start();
         } catch (Exception e) {
             throw new WicketRuntimeException("Could not read " + CUSTOM_FORM_ATTRIBUTES_FILE, e);
         }
@@ -359,7 +363,13 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     protected void onDestroy() {
         serviceOps.unregister(getNetworkService());
 
-        super.onDestroy();
+        if (customFormAttributesMonitor != null) {
+            try {
+                customFormAttributesMonitor.stop(0);
+            } catch (Exception e) {
+                LOG.error("{} While stopping file monitor", CUSTOM_FORM_ATTRIBUTES_FILE, e);
+            }
+        }
     }
 
     @Override
