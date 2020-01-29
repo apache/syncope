@@ -30,7 +30,7 @@ public class ApplicationValidator extends AbstractValidator<ApplicationCheck, Ap
 
         if (application.getKey() == null || !KEY_PATTERN.matcher(application.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid application key")).
+                    getTemplate(EntityViolationType.InvalidKey, application.getKey())).
                     addPropertyNode("key").addConstraintViolation();
             return false;
         }

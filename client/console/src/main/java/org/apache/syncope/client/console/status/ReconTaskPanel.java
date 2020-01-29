@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -193,10 +192,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While attempting reconciliation on {}", reconQuery, form.getModelObject(), e);
-                    SyncopeConsoleSession.get().error(resource + ": "
-                            + (StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName()
-                            : StringUtils.abbreviate(StringUtils.normalizeSpace(e.getMessage()), 280)));
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 multiLevelPanelRef.prev(target);
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

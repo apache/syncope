@@ -26,6 +26,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaQuery implements Serializable {
@@ -108,4 +110,31 @@ public class SchemaQuery implements Serializable {
         this.keyword = keyword;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        SchemaQuery other = (SchemaQuery) obj;
+        return new EqualsBuilder().
+                append(type, other.type).
+                append(anyTypeClasses, other.anyTypeClasses).
+                append(keyword, other.keyword).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(type).
+                append(anyTypeClasses).
+                append(keyword).
+                build();
+    }
 }

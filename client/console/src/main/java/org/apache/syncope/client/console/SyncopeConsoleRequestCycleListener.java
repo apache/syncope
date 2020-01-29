@@ -22,6 +22,7 @@ import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
@@ -40,14 +41,6 @@ import org.slf4j.LoggerFactory;
 public class SyncopeConsoleRequestCycleListener implements IRequestCycleListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleRequestCycleListener.class);
-
-    private static final String PAGE_EXPIRED = "Session expired: please login again";
-
-    private static final String MISSING_AUTHORIZATION = "Missing authorization";
-
-    private static final String MISSING_AUTHORIZATION_CORE = "Missing authorization while contacting Syncope core";
-
-    private static final String REST = "Error while contacting Syncope core";
 
     private Throwable instanceOf(final Exception e, final Class<? extends Exception> clazz) {
         return clazz.isAssignableFrom(e.getClass())
@@ -68,23 +61,23 @@ public class SyncopeConsoleRequestCycleListener implements IRequestCycleListener
 
         IRequestablePage errorPage;
         if (instanceOf(e, UnauthorizedInstantiationException.class) != null) {
-            errorParameters.add("errorMessage", MISSING_AUTHORIZATION);
+            errorParameters.add("errorMessage", SyncopeConsoleSession.Error.AUTHORIZATION.fallback());
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, AccessControlException.class) != null) {
-            if (instanceOf(e, AccessControlException.class).getMessage().contains("expired")) {
-                errorParameters.add("errorMessage", PAGE_EXPIRED);
+            if (StringUtils.containsIgnoreCase(instanceOf(e, AccessControlException.class).getMessage(), "expired")) {
+                errorParameters.add("errorMessage", SyncopeConsoleSession.Error.SESSION_EXPIRED.fallback());
             } else {
-                errorParameters.add("errorMessage", MISSING_AUTHORIZATION_CORE);
+                errorParameters.add("errorMessage", SyncopeConsoleSession.Error.AUTHORIZATION.fallback());
             }
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, PageExpiredException.class) != null || !SyncopeConsoleSession.get().isSignedIn()) {
-            errorParameters.add("errorMessage", PAGE_EXPIRED);
+            errorParameters.add("errorMessage", SyncopeConsoleSession.Error.SESSION_EXPIRED.fallback());
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, BadRequestException.class) != null
                 || instanceOf(e, WebServiceException.class) != null
                 || instanceOf(e, SyncopeClientException.class) != null) {
 
-            errorParameters.add("errorMessage", REST);
+            errorParameters.add("errorMessage", SyncopeConsoleSession.Error.REST.fallback());
             errorPage = new Login(errorParameters);
         } else {
             Throwable cause = instanceOf(e, ForbiddenException.class);

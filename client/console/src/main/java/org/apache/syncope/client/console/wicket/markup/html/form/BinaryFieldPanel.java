@@ -165,8 +165,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 try {
                     fileDownload.initiate(target);
                 } catch (Exception e) {
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
         };

@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -28,6 +33,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.feedback.ExactLevelFeedbackMessageFilter;
+import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
@@ -63,6 +70,16 @@ public abstract class AbstractConsoleITCase {
         SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
                 setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
                 getService(SyncopeService.class);
+    }
+
+    protected void assertSuccessMessage() {
+        Set<Serializable> messages =
+                TESTER.getFeedbackMessages(new ExactLevelFeedbackMessageFilter(FeedbackMessage.INFO)).stream().
+                        map(FeedbackMessage::getMessage).collect(Collectors.toSet());
+        if (messages.size() != 1) {
+            fail("Expected single message but found " + messages);
+        }
+        assertEquals("Operation executed successfully", messages.iterator().next());
     }
 
     protected void doLogin(final String user, final String passwd) {

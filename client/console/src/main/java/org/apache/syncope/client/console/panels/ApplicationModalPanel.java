@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -83,10 +82,8 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating application", e);
-            SyncopeConsoleSession.get().error(
-                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
-
 }

@@ -34,7 +34,7 @@ under the License.
 
     <section name="Introduction">
       <p>The Syncope team uses the 
-        <a href="http://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
+        <a href="https://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
         <br/>
         More details on
         <a href="http://www.apache.org/dev/publishing-maven-artifacts.html#maven">releasing Maven artifacts</a>

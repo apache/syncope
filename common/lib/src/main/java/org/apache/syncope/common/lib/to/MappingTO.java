@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "mapping")
 @XmlType
@@ -88,5 +90,33 @@ public class MappingTO implements ItemContainerTO, Serializable {
     @JsonProperty("linkingItems")
     public List<ItemTO> getLinkingItems() {
         return linkingItems;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        MappingTO other = (MappingTO) obj;
+        return new EqualsBuilder().
+                append(connObjectLink, other.connObjectLink).
+                append(items, other.items).
+                append(linkingItems, other.linkingItems).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(connObjectLink).
+                append(items).
+                append(linkingItems).
+                build();
     }
 }

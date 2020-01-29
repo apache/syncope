@@ -30,7 +30,7 @@ public class PrivilegeValidator extends AbstractValidator<PrivilegeCheck, Privil
 
         if (privilege.getKey() == null || !KEY_PATTERN.matcher(privilege.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid privilege key")).
+                    getTemplate(EntityViolationType.InvalidKey, privilege.getKey())).
                     addPropertyNode("key").addConstraintViolation();
             return false;
         }

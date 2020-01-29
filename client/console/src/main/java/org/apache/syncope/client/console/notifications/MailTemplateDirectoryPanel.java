@@ -167,8 +167,7 @@ public class MailTemplateDirectoryPanel
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                            getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -189,7 +188,7 @@ public class MailTemplateDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return Collections.emptyList();
     }
 
     protected final class MailTemplateProvider extends DirectoryDataProvider<MailTemplateTO> {
@@ -257,8 +256,7 @@ public class MailTemplateDirectoryPanel
                     modal.close(target);
                 } catch (Exception e) {
                     LOG.error("While updating template for {}", content.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "orgUnit")
 @XmlType
@@ -120,5 +122,39 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     public boolean remove(final ItemTO item) {
         return this.items.remove(item);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        OrgUnitTO other = (OrgUnitTO) obj;
+        return new EqualsBuilder().
+                append(ignoreCaseMatch, other.ignoreCaseMatch).
+                append(key, other.key).
+                append(objectClass, other.objectClass).
+                append(syncToken, other.syncToken).
+                append(connObjectLink, other.connObjectLink).
+                append(items, other.items).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(objectClass).
+                append(syncToken).
+                append(ignoreCaseMatch).
+                append(connObjectLink).
+                append(items).
+                build();
     }
 }

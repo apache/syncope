@@ -167,8 +167,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating policy", e);
-            SyncopeConsoleSession.get().error(
-                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
@@ -383,8 +382,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                 try {
                     this.defaultRuleConf = OBJECT_MAPPER.readValue(impl.getBody(), ruleConfClass);
                 } catch (Exception e) {
-                    LOG.debug("Could not deserialize {} as {}",
-                            impl.getBody(), ruleConfClass.getName());
+                    LOG.debug("Could not deserialize {} as {}", impl.getBody(), ruleConfClass.getName());
                 }
             }
         }

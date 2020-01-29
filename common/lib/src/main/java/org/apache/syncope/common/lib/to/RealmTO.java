@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "realm")
@@ -129,4 +131,43 @@ public class RealmTO implements EntityTO, TemplatableTO {
         return resources;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        RealmTO other = (RealmTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(name, other.name).
+                append(parent, other.parent).
+                append(fullPath, other.fullPath).
+                append(accountPolicy, other.accountPolicy).
+                append(passwordPolicy, other.passwordPolicy).
+                append(actions, other.actions).
+                append(templates, other.templates).
+                append(resources, other.resources).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(name).
+                append(parent).
+                append(fullPath).
+                append(accountPolicy).
+                append(passwordPolicy).
+                append(actions).
+                append(templates).
+                append(resources).
+                build();
+    }
 }

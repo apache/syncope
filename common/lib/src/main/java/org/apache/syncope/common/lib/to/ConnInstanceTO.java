@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 
@@ -167,4 +169,47 @@ public class ConnInstanceTO implements EntityTO {
         this.poolConf = poolConf;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ConnInstanceTO other = (ConnInstanceTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(adminRealm, other.adminRealm).
+                append(location, other.location).
+                append(connectorName, other.connectorName).
+                append(bundleName, other.bundleName).
+                append(version, other.version).
+                append(conf, other.conf).
+                append(capabilities, other.capabilities).
+                append(displayName, other.displayName).
+                append(connRequestTimeout, other.connRequestTimeout).
+                append(poolConf, other.poolConf).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(adminRealm).
+                append(location).
+                append(connectorName).
+                append(bundleName).
+                append(version).
+                append(conf).
+                append(capabilities).
+                append(displayName).
+                append(connRequestTimeout).
+                append(poolConf).
+                build();
+    }
 }

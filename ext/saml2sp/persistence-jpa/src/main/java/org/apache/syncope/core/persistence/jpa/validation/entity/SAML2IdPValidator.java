@@ -33,7 +33,7 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
 
         if (isHtml(saml2IdP.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    getTemplate(EntityViolationType.InvalidKey, saml2IdP.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             return false;

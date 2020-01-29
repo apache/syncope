@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -88,8 +87,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                                 target.add(loggerTOs);
                             } catch (SyncopeClientException e) {
                                 LOG.error("Error updating the logger level", e);
-                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                        getName() : e.getMessage());
+                                SyncopeConsoleSession.get().onException(e);
                             }
                             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }

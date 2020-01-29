@@ -196,11 +196,10 @@ public class UserRequestFormDirectoryPanel
 
                             UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
                         } catch (SyncopeClientException e) {
-                            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-
                 }));
 
                 manageFormModal.header(new Model<>(getString("form.manage", new Model<>(model.getObject()))));
@@ -322,16 +321,16 @@ public class UserRequestFormDirectoryPanel
     private void claimForm(final String taskId) {
         try {
             restClient.claimForm(taskId);
-        } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+        } catch (SyncopeClientException e) {
+            SyncopeConsoleSession.get().onException(e);
         }
     }
 
     private void unclaimForm(final String taskId) {
         try {
             restClient.unclaimForm(taskId);
-        } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+        } catch (SyncopeClientException e) {
+            SyncopeConsoleSession.get().onException(e);
         }
     }
 

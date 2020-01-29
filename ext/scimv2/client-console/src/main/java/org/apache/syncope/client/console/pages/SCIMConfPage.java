@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.pages;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -85,8 +84,7 @@ public class SCIMConfPage extends BaseExtPage {
                             target.add(content);
                         } catch (Exception e) {
                             LOG.error("While setting SCIM configuration", e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }

@@ -30,7 +30,7 @@ public class ImplementationValidator extends AbstractValidator<ImplementationChe
 
         if (resource.getKey() == null || !KEY_PATTERN.matcher(resource.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid implementation key")).
+                    getTemplate(EntityViolationType.InvalidKey, resource.getKey())).
                     addPropertyNode("key").addConstraintViolation();
             return false;
         }

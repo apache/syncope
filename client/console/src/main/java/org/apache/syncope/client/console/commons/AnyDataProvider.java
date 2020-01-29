@@ -41,19 +41,19 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyDataProvider.class);
 
-    private final SortableAnyProviderComparator<A> comparator;
+    protected final SortableAnyProviderComparator<A> comparator;
 
-    private final AbstractAnyRestClient<A> restClient;
+    protected final AbstractAnyRestClient<A> restClient;
 
     protected String fiql;
 
     protected final boolean filtered;
 
-    private final String realm;
+    protected final String realm;
 
-    private final String type;
+    protected final String type;
 
-    private final PageReference pageRef;
+    protected final PageReference pageRef;
 
     public AnyDataProvider(
             final AbstractAnyRestClient<A> restClient,
@@ -106,7 +106,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             }
         } catch (Exception e) {
             LOG.error("While searching with FIQL {}", fiql, e);
-            SyncopeConsoleSession.get().error(e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
             if (target.isPresent()) {
@@ -130,12 +130,10 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             }
         } catch (Exception e) {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);
-            SyncopeConsoleSession.get().error(e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
 
-            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            if (target.isPresent()) {
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-            }
+            RequestCycle.get().find(AjaxRequestTarget.class).
+                    ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
         }
 
         return result;

@@ -30,7 +30,7 @@ public class PolicyValidator extends AbstractValidator<PolicyCheck, Policy> {
 
         if (isHtml(policy.getDescription())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid description")).
+                    getTemplate(EntityViolationType.InvalidName, policy.getDescription())).
                     addPropertyNode("description").addConstraintViolation();
             return false;
         }

@@ -34,7 +34,7 @@ public class AnyTypeValidator extends AbstractValidator<AnyTypeCheck, AnyType> {
 
         if (isHtml(anyType.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    getTemplate(EntityViolationType.InvalidKey, anyType.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             isValid = false;

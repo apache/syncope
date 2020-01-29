@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @XmlRootElement(name = "membership")
 @XmlType
@@ -155,5 +157,13 @@ public class MembershipTO implements Serializable, AttributableTO {
                 append(derAttrs, other.derAttrs).
                 append(virAttrs, other.virAttrs).
                 build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+            append(this.groupKey).
+            append(this.groupName).
+            build();
     }
 }

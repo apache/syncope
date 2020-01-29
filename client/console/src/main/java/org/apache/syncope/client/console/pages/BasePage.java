@@ -143,7 +143,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
         };

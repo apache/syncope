@@ -177,8 +177,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
                                 utility.show(false);
                                 utility.close(target);
                             } catch (SyncopeClientException e) {
-                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                        ? e.getClass().getName() : e.getMessage());
+                                SyncopeConsoleSession.get().onException(e);
                             }
                             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }
@@ -244,8 +243,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting BPMN definition {}", model.getObject().getName(), e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

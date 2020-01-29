@@ -27,6 +27,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 
 @XmlRootElement(name = "resourceDeassociationPatch")
@@ -77,4 +79,33 @@ public class ResourceDeassociationPatch implements Serializable {
         return anyKyes;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ResourceDeassociationPatch other = (ResourceDeassociationPatch) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(anyTypeKey, other.anyTypeKey).
+                append(action, other.action).
+                append(anyKyes, other.anyKyes).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(anyTypeKey).
+                append(action).
+                append(anyKyes).
+                build();
+    }
 }

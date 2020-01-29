@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -169,11 +168,9 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 Profile.this.modal.close(target);
             } catch (Exception e) {
                 LOG.error("While creating/updating policy", e);
-                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.getMessage());
+                SyncopeConsoleSession.get().onException(e);
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
-
 }
