@@ -190,7 +190,6 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
         private static final long serialVersionUID = -7087008312629522790L;
 
         public OPContinue(final OIDCProviderTO opTO) {
-
             final WebMarkupContainer content = new WebMarkupContainer("content");
             this.setOutputMarkupId(true);
             content.setOutputMarkupId(true);

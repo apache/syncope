@@ -197,7 +197,6 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                 protected void populateItem(final ListItem<Component> item) {
                     item.add(item.getModelObject());
                 }
-
             });
         }
     }
@@ -226,5 +225,4 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
         SAML2IdPsRestClient.update(modelObject);
         return modelObject;
     }
-
 }

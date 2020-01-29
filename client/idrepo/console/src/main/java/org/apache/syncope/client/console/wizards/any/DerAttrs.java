@@ -58,7 +58,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             final List<String> anyTypeClasses,
             final List<String> whichDerAttrs) {
 
-        super(modelObject, anyTypeClasses, whichDerAttrs);
+        super(modelObject, AjaxWizard.Mode.CREATE, anyTypeClasses, whichDerAttrs);
         setTitleModel(new ResourceModel("attributes.derived"));
 
         add(new Accordion("derSchemas", Collections.<ITab>singletonList(new AbstractTab(

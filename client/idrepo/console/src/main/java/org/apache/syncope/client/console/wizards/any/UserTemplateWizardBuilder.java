@@ -50,7 +50,6 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
         } else {
             setItem(new UserWrapper(template));
         }
-
     }
 
     public UserTemplateWizardBuilder(
@@ -58,6 +57,7 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
+
         super(anyTypeClasses, formLayoutInfo, pageRef);
         this.templatable = templatable;
 
