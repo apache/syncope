@@ -73,6 +73,8 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                     final String borderId, final S property, final ISortStateLocator<S> locator) {
                 return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
 
+                    private static final long serialVersionUID = 8261993963983329775L;
+
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {
                         if (container != null) {
@@ -91,6 +93,8 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
             protected WebMarkupContainer newSortableHeader(
                     final String borderId, final S property, final ISortStateLocator<S> locator) {
                 return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
+
+                    private static final long serialVersionUID = 985887006636879421L;
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {
