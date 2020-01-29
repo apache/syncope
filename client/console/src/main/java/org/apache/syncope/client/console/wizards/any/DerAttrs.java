@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -57,7 +58,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             final List<String> anyTypeClasses,
             final List<String> whichDerAttrs) {
 
-        super(modelObject, anyTypeClasses, whichDerAttrs);
+        super(modelObject, AjaxWizard.Mode.CREATE, anyTypeClasses, whichDerAttrs);
         setTitleModel(new ResourceModel("attributes.derived"));
 
         add(new Accordion("derSchemas", Collections.<ITab>singletonList(new AbstractTab(

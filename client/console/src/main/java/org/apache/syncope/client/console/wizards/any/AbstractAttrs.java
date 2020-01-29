@@ -51,10 +51,11 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
 
     public AbstractAttrs(
             final AnyWrapper<?> modelObject,
+            final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichAttrs) {
 
-        super(modelObject.getInnerObject(), AjaxWizard.Mode.CREATE, anyTypeClasses, whichAttrs, null);
+        super(modelObject.getInnerObject(), mode, anyTypeClasses, whichAttrs, null);
 
         this.memberships = new ListModel<>(Collections.<MembershipTO>emptyList());
 

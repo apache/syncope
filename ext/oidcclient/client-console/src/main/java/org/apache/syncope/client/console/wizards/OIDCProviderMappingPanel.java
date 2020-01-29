@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -90,16 +89,14 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
 
         List<String> choices = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
 
-        for (AnyTypeClassTO anyTypeClassTO : anyTypeClassRestClient.list(
-                anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses())) {
-
-            choices.addAll(anyTypeClassTO.getPlainSchemas());
-            choices.addAll(anyTypeClassTO.getDerSchemas());
-            choices.addAll(anyTypeClassTO.getVirSchemas());
-        }
+        anyTypeClassRestClient.list(anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses()).
+                forEach(anyTypeClassTO -> {
+                    choices.addAll(anyTypeClassTO.getPlainSchemas());
+                    choices.addAll(anyTypeClassTO.getDerSchemas());
+                    choices.addAll(anyTypeClassTO.getVirSchemas());
+                });
 
         Collections.sort(choices);
         toBeUpdated.setChoices(choices);
     }
-
 }
