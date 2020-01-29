@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;

@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -414,8 +415,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     ResourceOperation.UPDATE,
                     anyUtils.getAllResources(toBeUpdated).stream().
                             filter(resource -> resource.getProvision(toBeUpdated.getType()).isPresent()).
-                            filter(resource -> mappingManager.hasMustChangePassword(
-                            resource.getProvision(toBeUpdated.getType()).get())).
+                            filter(resource -> {
+                                Provision provision = resource.getProvision(toBeUpdated.getType()).orElse(null);
+                                return provision != null && mappingManager.hasMustChangePassword(provision);
+                            }).
                             map(Entity::getKey).
                             collect(Collectors.toSet()));
         }

@@ -89,7 +89,10 @@ public class SAML2UserManager {
             LOG.warn("Invalid IdP: {}", idpKey);
             return Collections.emptyList();
         }
-
+        if (!idp.getConnObjectKeyItem().isPresent()) {
+            LOG.warn("Unable to determine conn object key item for  IdP: {}", idpKey);
+            return Collections.emptyList();
+        }
         return inboundMatcher.matchByConnObjectKeyValue(
                 idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
