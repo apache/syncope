@@ -19,20 +19,18 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -46,7 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MergeLinkedAccountsReviewPanel extends WizardStep implements ICondition {
+public class MergeLinkedAccountsReviewPanel extends WizardStep {
     private static final long serialVersionUID = 1221037007528732347L;
 
     public MergeLinkedAccountsReviewPanel(final MergeLinkedAccountsWizardModel wizardModel,
@@ -55,12 +53,6 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep implements ICondi
         setOutputMarkupId(true);
         setTitleModel(new StringResourceModel("mergeLinkedAccounts.reviewAccounts.title"));
         add(new LinkedAccountsReviewDirectoryPanel("linkedAccounts", pageReference, wizardModel));
-    }
-
-    @Override
-    public boolean evaluate() {
-        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-            isActionAuthorized(this, RENDER);
     }
 
     private static class LinkedAccountsReviewDirectoryPanel extends

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsResourcesPanel;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsReviewPanel;
@@ -41,7 +40,6 @@ import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -86,20 +84,20 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-            AjaxRequestTarget target1 = ((AjaxWizard.NewItemCancelEvent) event.getPayload()).getTarget();
-            modal.close(target1);
+            ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().ifPresent(modal::close);
         }
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            AjaxRequestTarget target1 = ((AjaxWizard.NewItemFinishEvent) event.getPayload()).getTarget();
-            try {
-                mergeAccounts();
-                this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
-                ((BasePage) this.parentPanel.getPage()).getNotificationPanel().refresh(target1);
-                modal.close(target1);
-            } catch (Exception e) {
-                this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target1);
-            }
+            ((AjaxWizard.NewItemFinishEvent<?>) event.getPayload()).getTarget().ifPresent(target -> {
+                try {
+                    mergeAccounts();
+                    this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
+                    ((BasePage) this.parentPanel.getPage()).getNotificationPanel().refresh(target);
+                    modal.close(target);
+                } catch (Exception e) {
+                    this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                }
+            });
         }
     }
 

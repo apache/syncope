@@ -22,12 +22,12 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -81,8 +81,6 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
         DirectoryPanel<ResourceTO, ResourceTO,
             ResourceSelectionDirectoryPanel.ResourcesDataProvider, ResourceRestClient> {
 
-        private static final String PAGINATOR_ROWS = "linked.account.merge.paginator.rows";
-
         private static final long serialVersionUID = 6005711052393825472L;
 
         ResourceSelectionDirectoryPanel(final String id, final PageReference pageReference) {
@@ -102,13 +100,13 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
 
         @Override
         protected String paginatorRowsKey() {
-            return PAGINATOR_ROWS;
+            return Constants.PREF_RESOURCES_PAGINATOR_ROWS;
         }
 
         @Override
         protected List<IColumn<ResourceTO, String>> getColumns() {
             List<IColumn<ResourceTO, String>> columns = new ArrayList<>();
-            columns.add(new PropertyColumn<>(new ResourceModel("connector"), "key", "key"));
+            columns.add(new PropertyColumn<>(new ResourceModel("resource"), "key", "key"));
             return columns;
         }
 
@@ -128,7 +126,7 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
                     if (connObjectKeyValue != null) {
                         model.setResource(resource);
                     } else {
-                        error(getString(Constants.ERROR) + ": " + "Unable to determine connector object key");
+                        error("Unable to determine connector object key");
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }

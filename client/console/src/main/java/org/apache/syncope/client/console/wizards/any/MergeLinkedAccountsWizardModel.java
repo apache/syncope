@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import java.io.Serializable;
 
 public class MergeLinkedAccountsWizardModel implements Serializable {
+    private static final long serialVersionUID = -2420343164344634869L;
+
     private final UserTO baseUser;
 
     private UserTO mergingUser;

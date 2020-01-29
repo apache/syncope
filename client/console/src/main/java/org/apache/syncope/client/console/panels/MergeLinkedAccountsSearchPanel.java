@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
-import org.apache.syncope.client.console.commons.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -28,6 +27,7 @@ import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPan
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
