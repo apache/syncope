@@ -24,10 +24,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
+import javax.security.auth.login.AccountNotFoundException;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -39,6 +42,8 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -231,8 +236,16 @@ public class AuthDataAccessor {
             ExternalResource resource = itor.next();
             String connObjectKey = null;
             try {
-                connObjectKey = mappingManager.getConnObjectKeyValue(
-                        user, resource.getProvision(anyTypeDAO.findUser()).get()).get();
+                AnyType userType = anyTypeDAO.findUser();
+                Optional<? extends Provision> provision = resource.getProvision(userType);
+                if (provision.isEmpty()) {
+                    throw new AccountNotFoundException("Unable to locate provision for user type " + userType.getKey());
+                }
+                Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(user, provision.get());
+                if (connObjectKeyValue.isEmpty()) {
+                    throw new AccountNotFoundException("Unable to locate conn object key value for " + userType.getKey());
+                }
+                connObjectKey = connObjectKeyValue.get();
                 Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;

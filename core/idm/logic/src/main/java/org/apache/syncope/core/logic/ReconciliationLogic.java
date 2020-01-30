@@ -344,7 +344,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             Any<?> any = getAny(provision, query.getAnyKey());
             connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
         }
-        if (!connObjectKeyValue.isPresent()) {
+        if (connObjectKeyValue.isEmpty()) {
             throw new NotFoundException(
                     "ConnObjectKey for " + provision.getAnyType().getKey()
                     + " on resource '" + provision.getResource().getKey() + "'");
@@ -352,6 +352,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         if (pullTask.getDestinationRealm() == null || realmDAO.findByFullPath(pullTask.getDestinationRealm()) == null) {
             throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
+        }
+        if (provision.getMapping().getConnObjectKeyItem().isEmpty()) {
+            throw new NotFoundException("ConnObjectKey cannot be determined for mapping " + provision.getMapping().getKey());
         }
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);

@@ -119,7 +119,7 @@ public class InboundMatcher {
             final Connector connector) {
 
         Optional<? extends Provision> provision = resource.getProvision(anyType);
-        if (!provision.isPresent()) {
+        if (provision.isEmpty()) {
             return Optional.empty();
         }
 

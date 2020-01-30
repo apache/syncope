@@ -851,7 +851,12 @@ public class MappingManagerImpl implements MappingManager {
     @Transactional(readOnly = true)
     @Override
     public Optional<String> getConnObjectKeyValue(final Any<?> any, final Provision provision) {
-        MappingItem mapItem = provision.getMapping().getConnObjectKeyItem().get();
+        Optional<? extends MappingItem> connObjectKeyItem = provision.getMapping().getConnObjectKeyItem();
+        if (connObjectKeyItem.isEmpty()) {
+             LOG.error("Unable to locate conn object key item for " + provision.getMapping().getKey());
+             return Optional.empty();
+        }
+        MappingItem mapItem = connObjectKeyItem.get();
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues;
         try {
             intValues = getIntValues(provision,
@@ -873,10 +878,13 @@ public class MappingManagerImpl implements MappingManager {
     @Transactional(readOnly = true)
     @Override
     public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
-        OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
-
-        return Optional.ofNullable(Optional.of(orgUnitItem)
-                .map(unitItem -> getIntValue(realm, unitItem)).orElse(null));
+        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        if (connObjectKeyItem.isEmpty()) {
+            LOG.error("Unable to locate conn object key item for " + orgUnit.getKey());
+            return Optional.empty();
+        }
+        OrgUnitItem orgUnitItem = connObjectKeyItem.get();
+        return Optional.ofNullable(getIntValue(realm, orgUnitItem));
     }
 
     @Transactional(readOnly = true)
