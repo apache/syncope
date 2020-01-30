@@ -58,6 +58,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
@@ -231,6 +232,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(csvPushLink, RENDER,
+                String.format("%s,%s", StandardEntitlement.IMPLEMENTATION_LIST, StandardEntitlement.TASK_EXECUTE));
         addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
         csvPullLink = new AjaxLink<Void>("csvPull") {
 
@@ -248,6 +251,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(csvPullLink, RENDER,
+                String.format("%s,%s", StandardEntitlement.IMPLEMENTATION_LIST, StandardEntitlement.TASK_EXECUTE));
         addInnerObject(csvPullLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 
