@@ -260,7 +260,8 @@ public class AuthDataAccessor {
                 }
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(user, provision.get());
                 if (!connObjectKeyValue.isPresent()) {
-                    throw new AccountNotFoundException("Unable to locate conn object key value for " + userType.getKey());
+                    throw new AccountNotFoundException(
+                            "Unable to locate conn object key value for " + userType.getKey());
                 }
                 connObjectKey = connObjectKeyValue.get();
                 Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
