@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.function.Function;
 import org.apache.syncope.core.persistence.api.entity.user.Account;
 
+@SuppressWarnings("squid:S1214")
 public interface AccountGetter extends Function<Account, Account> {
 
     AccountGetter DEFAULT = account -> account;

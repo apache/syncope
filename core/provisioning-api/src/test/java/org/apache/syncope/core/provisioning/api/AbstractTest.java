@@ -16,23 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.core.provisioning.api;
 
-import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-/**
- * Interface to be implemented for performing filtered reconciliation of a
- * {@link org.apache.syncope.core.persistence.api.entity.task.PullTask}.
- */
-public interface ReconFilterBuilder {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.WARN)
+@SuppressWarnings("squid:S2187")
+public class AbstractTest {
 
-    default Filter build() {
-        return new FilteredResultsHandler.PassThroughFilter();
-    }
-
-    default OperationOptions build(final OperationOptions initialOptions) {
-        return initialOptions;
+    @BeforeEach
+    public void init() {
+        MockitoAnnotations.initMocks(this);
     }
 }
