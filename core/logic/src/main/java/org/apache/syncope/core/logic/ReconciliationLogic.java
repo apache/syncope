@@ -354,7 +354,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         if (!provision.getMapping().getConnObjectKeyItem().isPresent()) {
-            throw new NotFoundException("ConnObjectKey cannot be determines for mapping " + provision.getMapping().getKey());
+            throw new NotFoundException(
+                    "ConnObjectKey cannot be determines for mapping " + provision.getMapping().getKey());
         }
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
