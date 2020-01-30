@@ -23,6 +23,7 @@ import java.util.Objects;
 /**
  * Cache entry key.
  */
+@SuppressWarnings("squid:S2065")
 public class VirAttrCacheKey {
 
     /**

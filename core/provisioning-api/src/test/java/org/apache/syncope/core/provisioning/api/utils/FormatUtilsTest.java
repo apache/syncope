@@ -21,10 +21,12 @@ package org.apache.syncope.core.provisioning.api.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
@@ -51,7 +53,9 @@ public class FormatUtilsTest extends AbstractTest {
     @Test
     public void formatLongNumber() {
         long number = date.getTime();
-        assertEquals(new DecimalFormat().format(number), FormatUtils.format(number));
+        DecimalFormat df = new DecimalFormat();
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        assertEquals(df.format(number), FormatUtils.format(number));
 
         conversionPattern = "###,###";
         assertEquals(new DecimalFormat(conversionPattern).format(number),
@@ -61,7 +65,9 @@ public class FormatUtilsTest extends AbstractTest {
     @Test
     public void formatDoubleNumber() {
         double number = date.getTime();
-        assertEquals(new DecimalFormat().format(number), FormatUtils.format(number));
+        DecimalFormat df = new DecimalFormat();
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        assertEquals(df.format(number), FormatUtils.format(number));
 
         conversionPattern = "###.###";
         assertEquals(new DecimalFormat(conversionPattern).format(number),
