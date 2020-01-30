@@ -37,12 +37,15 @@ import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -141,6 +144,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(csvPushLink, Component.RENDER,
+                String.format("%s,%s", IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
         panel.addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
         csvPullLink = new AjaxLink<Void>("csvPull") {
 
@@ -158,6 +163,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(csvPullLink, Component.RENDER,
+                String.format("%s,%s", IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
         panel.addInnerObject(csvPullLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 
