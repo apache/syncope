@@ -73,7 +73,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
         return groupProvisioningManager;
     }
 

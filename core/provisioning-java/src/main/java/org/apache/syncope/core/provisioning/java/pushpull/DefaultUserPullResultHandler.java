@@ -88,7 +88,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
         return userProvisioningManager;
     }
 

@@ -27,6 +27,7 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 
+@SuppressWarnings("squid:S1214")
 public interface JobManager {
 
     String DOMAIN_KEY = "domain";

@@ -32,18 +32,13 @@ import org.apache.syncope.common.lib.SyncopeConstants;
  */
 public final class FormatUtils {
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT =
-        ThreadLocal.withInitial(() -> new SimpleDateFormat());
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(SimpleDateFormat::new);
 
-    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = new ThreadLocal<DecimalFormat>() {
-
-        @Override
-        protected DecimalFormat initialValue() {
-            DecimalFormat df = new DecimalFormat();
-            df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-            return df;
-        }
-    };
+    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = ThreadLocal.withInitial(() -> {
+        DecimalFormat df = new DecimalFormat();
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        return df;
+    });
 
     public static String format(final Date date) {
         return format(date, true);

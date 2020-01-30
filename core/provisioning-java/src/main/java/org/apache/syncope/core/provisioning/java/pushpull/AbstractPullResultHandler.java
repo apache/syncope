@@ -108,7 +108,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract String getName(AnyCR anyCR);
 
-    protected abstract ProvisioningManager<?, ?, ?> getProvisioningManager();
+    protected abstract ProvisioningManager<?, ?> getProvisioningManager();
 
     protected abstract AnyTO doCreate(AnyCR anyCR, SyncDelta delta);
 

@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.persistence.api.entity.AuditEntry;
 
+@SuppressWarnings({ "squid:S1450", "squid:S1948" })
 public class AuditEntryImpl implements AuditEntry {
 
     private static final long serialVersionUID = -2299082316063743582L;

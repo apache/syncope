@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
  *
  * @see PropagationTaskTO
  */
+@SuppressWarnings("squid:S1214")
 public interface PropagationTaskExecutor {
 
     /**

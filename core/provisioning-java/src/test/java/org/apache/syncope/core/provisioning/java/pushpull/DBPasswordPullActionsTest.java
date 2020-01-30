@@ -117,6 +117,11 @@ public class DBPasswordPullActionsTest extends AbstractTest {
         connConfProperty.getValues().add(digest);
 
         dBPasswordPullActions.beforeProvision(profile, syncDelta, userCR);
+        userTO.setPassword(password);
+        connConfProperty.getValues().clear();
+        connConfProperty.getValues().add(digest);
+
+        dBPasswordPullActions.beforeProvision(profile, syncDelta, userCR);
 
         assertEquals(CipherAlgorithm.valueOf(digest), ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
         assertEquals(password, ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
@@ -129,7 +134,10 @@ public class DBPasswordPullActionsTest extends AbstractTest {
                 build();
 
         dBPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userUR);
+        userUR = new UserUR();
+        userUR.setPassword(new PasswordPatch.Builder().value("an0therTestP4ss").build());
 
+        dBPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userUR);
         assertEquals(cipher, ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
         assertEquals(encodedPassword, ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
     }

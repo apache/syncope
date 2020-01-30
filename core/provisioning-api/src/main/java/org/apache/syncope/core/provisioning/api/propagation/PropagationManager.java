@@ -37,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.identityconnectors.framework.common.objects.Attribute;
 
+@SuppressWarnings("squid:S00107")
 public interface PropagationManager {
 
     /**

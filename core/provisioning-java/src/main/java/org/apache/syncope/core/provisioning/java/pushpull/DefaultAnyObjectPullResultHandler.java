@@ -63,7 +63,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
         return anyObjectProvisioningManager;
     }
 

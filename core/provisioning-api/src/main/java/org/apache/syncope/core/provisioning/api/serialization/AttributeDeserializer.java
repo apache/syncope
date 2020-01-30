@@ -34,6 +34,7 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
 
+@SuppressWarnings("squid:S3776")
 class AttributeDeserializer extends JsonDeserializer<Attribute> {
 
     @Override
@@ -71,11 +72,15 @@ class AttributeDeserializer extends JsonDeserializer<Attribute> {
             }
         }
 
-        return Uid.NAME.equals(name)
-                ? new Uid(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString())
-                : Name.NAME.equals(name)
-                ? new Name(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString())
-                : AttributeBuilder.build(name, values);
+        if (Uid.NAME.equals(name)) {
+            return new Uid(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString());
+        } else {
+            if (Name.NAME.equals(name)) {
+                return new Name(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString());
+            } else {
+                return AttributeBuilder.build(name, values);
+            }
+        }
     }
 
 }
