@@ -478,7 +478,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 spec.getArrayElementSeparator(),
                 csvSchema(spec),
                 null,
-                os)) {
+                os,
+                columns.toArray(new String[columns.size()]))) {
 
             return streamPushExecutor.push(
                     anyType,
