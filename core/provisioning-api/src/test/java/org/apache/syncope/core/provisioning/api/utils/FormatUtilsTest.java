@@ -58,8 +58,9 @@ public class FormatUtilsTest extends AbstractTest {
         assertEquals(df.format(number), FormatUtils.format(number));
 
         conversionPattern = "###,###";
-        assertEquals(new DecimalFormat(conversionPattern).format(number),
-                FormatUtils.format(number, conversionPattern));
+        df = new DecimalFormat(conversionPattern);
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        assertEquals(df.format(number), FormatUtils.format(number, conversionPattern));
     }
 
     @Test
@@ -69,9 +70,10 @@ public class FormatUtilsTest extends AbstractTest {
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         assertEquals(df.format(number), FormatUtils.format(number));
 
-        conversionPattern = "###.###";
-        assertEquals(new DecimalFormat(conversionPattern).format(number),
-                FormatUtils.format(number, conversionPattern));
+        conversionPattern = "###,###";
+        df = new DecimalFormat(conversionPattern);
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        assertEquals(df.format(number), FormatUtils.format(number, conversionPattern));
     }
 
     @Test
