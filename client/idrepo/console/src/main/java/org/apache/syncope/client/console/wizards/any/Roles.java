@@ -37,6 +37,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.Action
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
@@ -48,6 +49,8 @@ public class Roles extends WizardStep implements ICondition {
     private static final int MAX_ROLE_LIST_SIZE = 30;
 
     private final List<String> allRoles;
+
+    protected WebMarkupContainer dynrolesContainer;
 
     public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
         if (!(modelObject.getInnerObject() instanceof UserTO)) {
@@ -106,7 +109,12 @@ public class Roles extends WizardStep implements ICondition {
                 hideLabel().
                 setOutputMarkupId(true));
 
-        add(new AjaxPalettePanel.Builder<String>().build("dynroles",
+        dynrolesContainer = new WebMarkupContainer("dynrolesContainer");
+        dynrolesContainer.setOutputMarkupId(true);
+        dynrolesContainer.setOutputMarkupPlaceholderTag(true);
+        add(dynrolesContainer);
+
+        dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
                 new PropertyModel<>(entityTO, "dynRoles"),
                 new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
