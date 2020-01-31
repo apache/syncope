@@ -484,7 +484,7 @@ under the License.
     <wicket.version>8.7.0</wicket.version>
     <wicket-jqueryui.version>8.6.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.12</wicket-bootstrap.version>
-    <wicket-spring-boot.version>2.1.8</wicket-spring-boot.version>
+    <wicket-spring-boot.version>2.1.9</wicket-spring-boot.version>
     
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
