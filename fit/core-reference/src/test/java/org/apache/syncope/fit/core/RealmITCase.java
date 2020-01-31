@@ -43,9 +43,11 @@ import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class RealmITCase extends AbstractITCase {
@@ -55,13 +57,17 @@ public class RealmITCase extends AbstractITCase {
     }
 
     @Test
+    public void search() {
+        List<RealmTO> match = realmService.search(new RealmQuery.Builder().keyword("*o*").build());
+        assertTrue(match.stream().allMatch(realm -> realm.getName().contains("o")));
+    }
+
+    @Test
     public void list() {
-        List<RealmTO> realms = realmService.list();
+        List<RealmTO> realms = realmService.list(SyncopeConstants.ROOT_REALM);
         assertNotNull(realms);
         assertFalse(realms.isEmpty());
-        realms.forEach(realm -> {
-            assertNotNull(realm);
-        });
+        realms.forEach(Assertions::assertNotNull);
 
         try {
             realmService.list("a name");
@@ -106,7 +112,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actual);
         assertEquals("/odd/last", actual.getFullPath());
 
-        assertEquals(1, realmService.list().stream().
+        assertEquals(1, realmService.list(SyncopeConstants.ROOT_REALM).stream().
                 filter(object -> realm.getName().equals(object.getName())).count());
 
         // 4. create under invalid path

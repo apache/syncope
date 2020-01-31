@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -70,6 +71,20 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @Autowired
     private PropagationTaskExecutor taskExecutor;
 
+    @PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
+    @Transactional(readOnly = true)
+    public List<RealmTO> search(final String keyword) {
+        Set<String> bases = AuthContextUtils.getAuthorizations().get(StandardEntitlement.REALM_LIST);
+
+        return realmDAO.findMatching(keyword).stream().
+                filter(realm -> bases.stream().anyMatch(base -> realm.getFullPath().startsWith(base))).
+                flatMap(realm -> realmDAO.findDescendants(realm).stream()).
+                distinct().
+                map(realm -> binder.getRealmTO(realm, true)).
+                sorted(Comparator.comparing(RealmTO::getFullPath)).
+                collect(Collectors.toList());
+    }
+
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<RealmTO> list(final String fullPath) {
@@ -80,7 +95,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw new NotFoundException(fullPath);
         }
 
-        final boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(StandardEntitlement.REALM_LIST);
+        boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(StandardEntitlement.REALM_LIST);
         return realmDAO.findDescendants(realm).stream().
                 map(descendant -> binder.getRealmTO(descendant, admin)).collect(Collectors.toList());
     }
@@ -223,5 +238,4 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         throw new UnresolvedReferenceException();
     }
-
 }

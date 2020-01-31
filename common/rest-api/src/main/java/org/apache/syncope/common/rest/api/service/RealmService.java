@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -44,6 +45,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 
 /**
  * REST operations for realms.
@@ -56,13 +58,15 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 public interface RealmService extends JAXRSService {
 
     /**
-     * Returns a list of all realms.
+     * Returns a paged list of existing realms matching the given query.
      *
-     * @return list of all realms.
+     * @param query query conditions
+     * @return paged list of existing realms matching the given query
      */
     @GET
+    @Path("search")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<RealmTO> list();
+    List<RealmTO> search(@BeanParam RealmQuery query);
 
     /**
      * Returns realms rooted at the given path.

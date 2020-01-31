@@ -73,8 +73,9 @@ public class Realms extends BasePage {
             @Override
             protected Serializable onApplyInternal(
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
+
                 targetObject.getTemplates().put(type, anyTO);
-                new RealmRestClient().update(RealmTO.class.cast(targetObject));
+                realmRestClient.update(RealmTO.class.cast(targetObject));
                 return targetObject;
             }
         };
