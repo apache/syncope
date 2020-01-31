@@ -84,6 +84,8 @@ under the License.
     <property name="ignorePattern" value="^import"/>
     <property name="fileExtensions" value="java,xml"/>
   </module>
+
+  <module name="SuppressWithPlainTextCommentFilter"/>
   
   <!-- Miscellaneous other checks.                   -->
   <!-- See http://checkstyle.sf.net/config_misc.html -->
