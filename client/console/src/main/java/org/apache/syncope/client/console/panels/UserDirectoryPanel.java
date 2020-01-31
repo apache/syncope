@@ -364,10 +364,12 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                           @Override
                           protected void restore(final String json, final AjaxRequestTarget target) {
                               // The original audit record masks the password and the security
-                              // answer; so we cannot use the audit record to resurrect the entry based on mask data.
+                              // answer; so we cannot use the audit record to resurrect the entry
+                              // based on mask data.
                               //
-                              // The method behavior below will reset the audit record such that the current security
-                              // answer and the password for the object are always maintained, and such properties for the
+                              // The method behavior below will reset the audit record such
+                              // that the current security answer and the password for the object
+                              // are always maintained, and such properties for the
                               // user cannot be restored using audit records.
                               UserTO original = model.getObject();
                               try {
@@ -375,7 +377,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                   UserPatch userPatch = AnyOperations.diff(updated, original, false);
                                   userPatch.setPassword(null);
                                   userPatch.setSecurityAnswer(null);
-                                  ProvisioningResult<UserTO> result = restClient.update(original.getETagValue(), userPatch);
+                                  ProvisioningResult<UserTO> result =
+                                      restClient.update(original.getETagValue(), userPatch);
                                   model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
                                   SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
