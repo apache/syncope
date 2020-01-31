@@ -85,6 +85,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -962,7 +963,7 @@ public class UserITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.list("/even/two").get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
         String oldAccountPolicy = realm.getAccountPolicy();
         realm.setAccountPolicy(accountPolicy.getKey());
         String oldPasswordPolicy = realm.getPasswordPolicy();
