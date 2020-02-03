@@ -415,7 +415,7 @@ under the License.
 
     <openjpa.version>3.1.0</openjpa.version>
     <hikaricp.version>3.4.2</hikaricp.version>
-    <hibernate-validator.version>6.1.1.Final</hibernate-validator.version>
+    <hibernate-validator.version>6.1.2.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
