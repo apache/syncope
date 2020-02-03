@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ws.rs.ClientErrorException;
@@ -51,9 +50,9 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
     @Autowired
     private OIDCProviderDataBinder binder;
 
-    private OIDCProviderDiscoveryDocument getDiscoveryDocument(final String issuer) {
+    private static OIDCProviderDiscoveryDocument getDiscoveryDocument(final String issuer) {
         String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
-        WebClient client = WebClient.create(discoveryDocumentURL, Arrays.asList(new JacksonJsonProvider())).
+        WebClient client = WebClient.create(discoveryDocumentURL, List.of(new JacksonJsonProvider())).
                 accept(MediaType.APPLICATION_JSON);
         try {
             return client.get(OIDCProviderDiscoveryDocument.class);
@@ -109,7 +108,7 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
     public OIDCProviderTO read(final String key) {
         OIDCProvider op = opDAO.find(key);
         if (op == null) {
-            throw new NotFoundException("OIDC Provider '" + key + "'");
+            throw new NotFoundException("OIDC Provider '" + key + '\'');
         }
         return binder.getOIDCProviderTO(op);
     }
@@ -118,7 +117,7 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
     public void update(final OIDCProviderTO oidcProviderTO) {
         OIDCProvider oidcProvider = opDAO.find(oidcProviderTO.getKey());
         if (oidcProvider == null) {
-            throw new NotFoundException("OIDC Provider '" + oidcProviderTO.getKey() + "'");
+            throw new NotFoundException("OIDC Provider '" + oidcProviderTO.getKey() + '\'');
         }
 
         if (!oidcProvider.getIssuer().equals(oidcProviderTO.getIssuer())) {
@@ -136,7 +135,7 @@ public class OIDCProviderLogic extends AbstractTransactionalLogic<OIDCProviderTO
     public void delete(final String key) {
         OIDCProvider op = opDAO.find(key);
         if (op == null) {
-            throw new NotFoundException("OIDC Provider '" + key + "'");
+            throw new NotFoundException("OIDC Provider '" + key + '\'');
         }
         opDAO.delete(key);
     }

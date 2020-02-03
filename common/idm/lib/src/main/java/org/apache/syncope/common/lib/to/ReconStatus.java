@@ -22,6 +22,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MatchType;
 
 /**
  * Reconciliation status.
@@ -32,9 +34,42 @@ public class ReconStatus implements Serializable {
 
     private static final long serialVersionUID = -8516345256596521490L;
 
+    private AnyTypeKind anyTypeKind;
+
+    private String anyKey;
+
+    private MatchType matchType;
+
     private ConnObjectTO onSyncope;
 
     private ConnObjectTO onResource;
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
+    }
+
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public String getAnyKey() {
+        return anyKey;
+    }
+
+    public void setAnyKey(final String anyKey) {
+        this.anyKey = anyKey;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public MatchType getMatchType() {
+        return matchType;
+    }
+
+    public void setMatchType(final MatchType matchType) {
+        this.matchType = matchType;
+    }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public ConnObjectTO getOnSyncope() {

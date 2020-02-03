@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -78,7 +79,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class AuthenticationITCase extends AbstractITCase {
 
-    private int getFailedLogins(final UserService userService, final String userKey) {
+    private static int getFailedLogins(final UserService userService, final String userKey) {
         UserTO readUserTO = userService.read(userKey);
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
@@ -198,7 +199,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
         Set<String> matchingUserKeys = matchingUsers.getResult().stream().
-                map(user -> user.getKey()).collect(Collectors.toSet());
+                map(AnyTO::getKey).collect(Collectors.toSet());
         assertTrue(matchingUserKeys.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertFalse(matchingUserKeys.contains("74cd8ece-715a-44a4-a736-e17b46c4e7e6"));
         assertFalse(matchingUserKeys.contains("823074dc-d280-436d-a7dd-07399fae48ec"));
@@ -236,7 +237,7 @@ public class AuthenticationITCase extends AbstractITCase {
             UserTO delegatedAdmin = createUser(delegatedAdminCR).getEntity();
             delegatedAdminKey = delegatedAdmin.getKey();
 
-            // 3. instantiate a delegate user service client, for further operatins
+            // 3. instantiate a delegate user service client, for further operations
             UserService delegatedUserService =
                     clientFactory.create(delegatedAdmin.getUsername(), "password123").getService(UserService.class);
 
@@ -528,9 +529,9 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 4. check that the db resource has still the initial password value
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = queryForObject(
-                jdbcTemplate, 50, "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String value = queryForObject(jdbcTemplate, MAX_WAIT_SECONDS,
+                "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values

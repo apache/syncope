@@ -19,7 +19,9 @@
 package org.apache.syncope.fit.buildtools;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.util.Arrays;
+
+import java.util.List;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
@@ -28,11 +30,11 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider;
 import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
@@ -40,15 +42,13 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-@SpringBootApplication
-@ComponentScan("org.apache.syncope.fit.buildtools")
-@EnableAutoConfiguration(exclude = {
-    ErrorMvcAutoConfiguration.class,
-    WebMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class })
+@SpringBootApplication(scanBasePackages = "org.apache.syncope.fit.buildtools",
+        exclude = {
+            ErrorMvcAutoConfiguration.class,
+            WebMvcAutoConfiguration.class,
+            HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
@@ -98,8 +98,8 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         restProvisioning.setBus(bus);
         restProvisioning.setAddress("/rest");
         restProvisioning.setStaticSubresourceResolution(true);
-        restProvisioning.setBasePackages(Arrays.asList("org.apache.syncope.fit.buildtools.cxf"));
-        restProvisioning.setProviders(Arrays.asList(new JacksonJsonProvider()));
+        restProvisioning.setBasePackages(List.of("org.apache.syncope.fit.buildtools.cxf"));
+        restProvisioning.setProviders(List.of(new JacksonJsonProvider(), new DateParamConverterProvider()));
         return restProvisioning.create();
     }
 

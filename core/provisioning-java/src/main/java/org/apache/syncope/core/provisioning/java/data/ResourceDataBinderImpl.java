@@ -20,14 +20,14 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -51,9 +50,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -65,15 +63,13 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,9 +97,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
-    private ExternalResourceHistoryConfDAO resourceHistoryConfDAO;
-
-    @Autowired
     private ConfParamOps confParamOps;
 
     @Autowired
@@ -125,31 +118,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Override
     public ExternalResource update(final ExternalResource resource, final ResourceTO resourceTO) {
-        if (resource.getKey() != null) {
-            ResourceTO current = getResourceTO(resource);
-            if (!current.equals(resourceTO)) {
-                // 1. save the current configuration, before update
-                ExternalResourceHistoryConf resourceHistoryConf =
-                        entityFactory.newEntity(ExternalResourceHistoryConf.class);
-                resourceHistoryConf.setCreator(AuthContextUtils.getUsername());
-                resourceHistoryConf.setCreation(new Date());
-                resourceHistoryConf.setEntity(resource);
-                resourceHistoryConf.setConf(current);
-                resourceHistoryConfDAO.save(resourceHistoryConf);
-
-                // 2. ensure the maximum history size is not exceeded
-                List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
-                long maxHistorySize = confParamOps.get(
-                        AuthContextUtils.getDomain(), "resource.conf.history.size", 10L, Long.class);
-                if (maxHistorySize < history.size()) {
-                    // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
-                    for (int i = 0; i < history.size() - maxHistorySize; i++) {
-                        resourceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
-                    }
-                }
-            }
-        }
-
         resource.setKey(resourceTO.getKey());
 
         if (resourceTO.getConnector() != null) {
@@ -204,10 +172,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 provision.setIgnoreCaseMatch(provisionTO.isIgnoreCaseMatch());
 
-                if (StringUtils.isNotBlank(provisionTO.getUidOnCreate())) {
+                if (StringUtils.isBlank(provisionTO.getUidOnCreate())) {
+                    provision.setUidOnCreate(null);
+                } else {
                     PlainSchema uidOnCreate = plainSchemaDAO.find(provisionTO.getUidOnCreate());
                     if (uidOnCreate == null) {
-                        LOG.warn("Ignoring invalid schema for uidOnCreate(): {}", provisionTO.getUidOnCreate());
+                        LOG.warn("Ignoring invalid schema for uidOnCreate: {}", provisionTO.getUidOnCreate());
+                        provision.setUidOnCreate(null);
                     } else {
                         provision.setUidOnCreate(uidOnCreate);
                     }
@@ -226,18 +197,17 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     }
 
                     AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
-                    for (Iterator<AnyTypeClass> itor = new IteratorChain<>(
-                            provision.getAnyType().getClasses().iterator(),
-                            provision.getAuxClasses().iterator()); itor.hasNext();) {
+                    Stream.concat(
+                            provision.getAnyType().getClasses().stream(),
+                            provision.getAuxClasses().stream()).forEach(anyTypeClass -> {
 
-                        AnyTypeClass anyTypeClass = itor.next();
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
                                 map(Entity::getKey).collect(Collectors.toList()));
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
                                 map(Entity::getKey).collect(Collectors.toList()));
                         allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
                                 map(Entity::getKey).collect(Collectors.toList()));
-                    }
+                    });
 
                     populateMapping(
                             provisionTO.getMapping(),
@@ -266,10 +236,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // 2. remove all provisions not contained in the TO
         for (Iterator<? extends Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
             Provision provision = itor.next();
-            if (resourceTO.getProvision(provision.getAnyType().getKey()) == null) {
-                virSchemaDAO.findByProvision(provision).forEach(schema -> {
-                    virSchemaDAO.delete(schema.getKey());
-                });
+            if (resourceTO.getProvision(provision.getAnyType().getKey()).isEmpty()) {
+                virSchemaDAO.findByProvision(provision).forEach(schema -> virSchemaDAO.delete(schema.getKey()));
 
                 itor.remove();
             }
@@ -444,7 +412,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         && intAttrName.getPrivilegesOfApplication() == null) {
 
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
-                    invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
+                    invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
                     boolean allowed = true;
                     if (intAttrName.getSchemaType() != null
@@ -575,7 +543,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         }
                     } else {
                         LOG.error("'{}' not allowed", itemTO.getIntAttrName());
-                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                        invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not allowed");
                     }
                 }
             }
@@ -589,7 +557,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
     }
 
-    private void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
+    private static void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
         items.forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
@@ -623,8 +591,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // set the connector instance
         ConnInstance connector = resource.getConnector();
 
-        resourceTO.setConnector(connector == null ? null : connector.getKey());
-        resourceTO.setConnectorDisplayName(connector == null ? null : connector.getDisplayName());
+        resourceTO.setConnector(Optional.ofNullable(connector).map(Entity::getKey).orElse(null));
+        resourceTO.setConnectorDisplayName(Optional.ofNullable(connector)
+                .map(ConnInstance::getDisplayName).orElse(null));
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {
@@ -716,16 +685,5 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 resource.getPropagationActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         return resourceTO;
-    }
-
-    @Override
-    public ResourceHistoryConfTO getResourceHistoryConfTO(final ExternalResourceHistoryConf history) {
-        ResourceHistoryConfTO historyTO = new ResourceHistoryConfTO();
-        historyTO.setKey(history.getKey());
-        historyTO.setCreator(history.getCreator());
-        historyTO.setCreation(history.getCreation());
-        historyTO.setResourceTO(history.getConf());
-
-        return historyTO;
     }
 }

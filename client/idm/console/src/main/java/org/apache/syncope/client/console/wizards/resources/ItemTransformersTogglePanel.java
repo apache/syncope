@@ -19,12 +19,12 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -43,12 +43,10 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private ItemTO item;
 
     public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
-        super("outer", "itemTransformersTogglePanel", pageRef);
+        super(Constants.OUTER, "itemTransformersTogglePanel", pageRef);
 
         final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 
@@ -58,7 +56,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
             protected List<String> load() {
                 // [!] this is required to disable changed with close button
                 return item == null
-                        ? Collections.<String>emptyList()
+                        ? List.of()
                         : item.getTransformers();
             }
         };
@@ -66,7 +64,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
         Form<?> form = new Form<>("form");
         addInnerObject(form);
 
-        List<String> choices = implRestClient.list(IdMImplementationType.ITEM_TRANSFORMER).stream().
+        List<String> choices = ImplementationRestClient.list(IdMImplementationType.ITEM_TRANSFORMER).stream().
                 map(EntityTO::getKey).sorted().collect(Collectors.toList());
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<String>() {

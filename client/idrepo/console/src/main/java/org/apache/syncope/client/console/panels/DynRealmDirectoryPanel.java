@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -112,7 +110,8 @@ public class DynRealmDirectoryPanel extends
     protected List<IColumn<DynRealmTO, String>> getColumns() {
         final List<IColumn<DynRealmTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
 
         return columns;
     }
@@ -141,13 +140,12 @@ public class DynRealmDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final DynRealmTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    DynRealmRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting dynamic realm {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -158,7 +156,7 @@ public class DynRealmDirectoryPanel extends
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     public abstract static class Builder
@@ -176,13 +174,11 @@ public class DynRealmDirectoryPanel extends
         }
     }
 
-    protected class DynRealmDataProvider extends DirectoryDataProvider<DynRealmTO> {
+    protected static class DynRealmDataProvider extends DirectoryDataProvider<DynRealmTO> {
 
         private static final long serialVersionUID = 3124431855954382273L;
 
         private final SortableDataProviderComparator<DynRealmTO> comparator;
-
-        private final DynRealmRestClient restClient = new DynRealmRestClient();
 
         public DynRealmDataProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -191,14 +187,14 @@ public class DynRealmDirectoryPanel extends
 
         @Override
         public Iterator<DynRealmTO> iterator(final long first, final long count) {
-            List<DynRealmTO> result = restClient.list();
-            Collections.sort(result, comparator);
+            List<DynRealmTO> result = DynRealmRestClient.list();
+            result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return DynRealmRestClient.list().size();
         }
 
         @Override

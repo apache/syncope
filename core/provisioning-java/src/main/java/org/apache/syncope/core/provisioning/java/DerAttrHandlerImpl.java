@@ -18,19 +18,18 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
-    private Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
+    private static Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
@@ -69,7 +68,7 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Collections.singleton(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Collections.singleton(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema);
     }
 
     @Override
@@ -91,8 +90,8 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
-    private Map<DerSchema, String> getValues(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+    private static Map<DerSchema, String> getValues(
+        final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 

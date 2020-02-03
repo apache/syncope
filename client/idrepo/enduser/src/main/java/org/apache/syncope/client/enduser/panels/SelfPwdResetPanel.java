@@ -21,21 +21,19 @@ package org.apache.syncope.client.enduser.panels;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
+import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.enduser.wizards.any.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DomainDropDown;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
-import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -77,11 +75,11 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
 
     private String usernameText;
 
+    private String securityAnswerText;
+
     private final TextField<String> securityQuestion;
 
     private final CaptchaPanel<Void> captcha;
-
-    protected final Model<String> securityAnswerModel = new Model<>();
 
     public SelfPwdResetPanel(final String id, final PageReference pageRef) {
         super(id);
@@ -137,10 +135,17 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
         };
         add(reloadLink);
 
-        AjaxTextFieldPanel securityAnswer =
-                new AjaxTextFieldPanel("securityAnswer", "securityAnswer", securityAnswerModel);
-        securityAnswer.setOutputMarkupId(true);
-        securityAnswer.setOutputMarkupPlaceholderTag(true);
+        TextField<String> securityAnswer =
+                new TextField<>("securityAnswer", new PropertyModel<>(this, "securityAnswerText"), String.class);
+        securityAnswer.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // do nothing
+            }
+        });
         securityAnswer.setRequired(true);
         add(securityAnswer);
 
@@ -157,7 +162,6 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
             protected void onSubmit(final AjaxRequestTarget target) {
                 boolean checked = true;
                 if (SyncopeWebApplication.get().isCaptchaEnabled()) {
-                    // captcha check
                     checked = captcha.captchaCheck();
                 }
                 if (!checked) {
@@ -165,16 +169,13 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
                     ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 } else {
                     try {
-                        SyncopeEnduserSession.get().getService(UserSelfService.class).
-                                requestPasswordReset(usernameText, securityAnswerModel.getObject());
-                        final PageParameters parameters = new PageParameters();
+                        UserSelfRestClient.requestPasswordReset(usernameText, securityAnswerText);
+                        PageParameters parameters = new PageParameters();
                         parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success"));
                         setResponsePage(getApplication().getHomePage(), parameters);
                     } catch (SyncopeClientException sce) {
                         LOG.error("Unable to reset password of [{}]", usernameText, sce);
-                        SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
-                                ? sce.getClass().getName()
-                                : sce.getMessage());
+                        SyncopeEnduserSession.get().onException(sce);
                         ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }
@@ -209,11 +210,8 @@ public class SelfPwdResetPanel extends Panel implements IEventSource {
             target.add(securityQuestion);
         } catch (Exception e) {
             LOG.error("Unable to get security question for [{}]", usernameText, e);
-            SyncopeEnduserSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName()
-                    : e.getMessage());
+            SyncopeEnduserSession.get().onException(e);
             ((BaseEnduserWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
-
 }

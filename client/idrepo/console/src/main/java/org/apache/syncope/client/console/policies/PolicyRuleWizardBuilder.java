@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -50,10 +51,6 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
     private static final long serialVersionUID = 5945391813567245081L;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private final ImplementationRestClient implementationClient = new ImplementationRestClient();
-
-    private final PolicyRestClient restClient = new PolicyRestClient();
 
     private final String policy;
 
@@ -78,7 +75,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
     @Override
     protected Serializable onApplyInternal(final PolicyRuleWrapper modelObject) {
-        PolicyTO policyTO = restClient.getPolicy(type, policy);
+        PolicyTO policyTO = PolicyRestClient.getPolicy(type, policy);
 
         ComposablePolicy composable;
         if (policyTO instanceof ComposablePolicy) {
@@ -88,12 +85,13 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         }
 
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
-            ImplementationTO rule = implementationClient.read(implementationType, modelObject.getImplementationKey());
+            ImplementationTO rule = ImplementationRestClient.read(implementationType,
+                    modelObject.getImplementationKey());
             try {
                 rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
-                implementationClient.update(rule);
+                ImplementationRestClient.update(rule);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new WicketRuntimeException(e);
             }
         }
 
@@ -101,7 +99,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             composable.getRules().add(modelObject.getImplementationKey());
         }
 
-        restClient.updatePolicy(type, policyTO);
+        PolicyRestClient.updatePolicy(type, policyTO);
         return modelObject;
     }
 
@@ -127,12 +125,12 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             List<String> choices;
             switch (type) {
                 case ACCOUNT:
-                    choices = implementationClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
+                    choices = ImplementationRestClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
                             map(EntityTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 case PASSWORD:
-                    choices = implementationClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
+                    choices = ImplementationRestClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
                             map(EntityTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
@@ -150,7 +148,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
-                    ImplementationTO impl = implementationClient.read(implementationType, conf.getModelObject());
+                    ImplementationTO impl = ImplementationRestClient.read(implementationType, conf.getModelObject());
                     rule.setImplementationEngine(impl.getEngine());
                     if (impl.getEngine() == ImplementationEngine.JAVA) {
                         try {
@@ -173,7 +171,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         }
     }
 
-    public class Configuration extends WizardStep {
+    public static class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 

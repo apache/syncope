@@ -18,11 +18,15 @@
  */
 import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.dao.PasswordRule
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
 import org.apache.syncope.core.persistence.api.entity.user.User
 
 @CompileStatic
 class MyPasswordRule implements PasswordRule {
   
   void enforce(User user) {
+  }
+
+  void enforce(LinkedAccount account) {
   }
 }

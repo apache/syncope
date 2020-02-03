@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void findAll() {
         List<PlainSchema> schemas = plainSchemaDAO.findAll();
-        assertEquals(26, schemas.size());
+        assertEquals(27, schemas.size());
     }
 
     @Test
@@ -80,9 +81,27 @@ public class PlainSchemaTest extends AbstractTest {
         PlainSchema schema = plainSchemaDAO.find("icon");
         assertNotNull(schema);
 
-        List<GPlainAttr> attrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
-        assertNotNull(attrs);
-        assertFalse(attrs.isEmpty());
+        List<GPlainAttr> gattrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
+        assertNotNull(gattrs);
+        assertFalse(gattrs.isEmpty());
+
+        schema = plainSchemaDAO.find("aLong");
+        assertNotNull(schema);
+
+        List<UPlainAttr> uattrs = plainSchemaDAO.findAttrs(schema, UPlainAttr.class);
+        assertNotNull(uattrs);
+        assertTrue(uattrs.isEmpty());
+    }
+
+    @Test
+    public void hasAttrs() {
+        PlainSchema schema = plainSchemaDAO.find("icon");
+        assertNotNull(schema);
+        assertTrue(plainSchemaDAO.hasAttrs(schema, GPlainAttr.class));
+
+        schema = plainSchemaDAO.find("aLong");
+        assertNotNull(schema);
+        assertFalse(plainSchemaDAO.hasAttrs(schema, UPlainAttr.class));
     }
 
     @Test
@@ -130,7 +149,7 @@ public class PlainSchemaTest extends AbstractTest {
         }
 
         schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
-        schema.setEnumerationKeys("1" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "2");
+        schema.setEnumerationKeys('1' + SyncopeConstants.ENUM_VALUES_SEPARATOR + '2');
 
         plainSchemaDAO.save(schema);
 

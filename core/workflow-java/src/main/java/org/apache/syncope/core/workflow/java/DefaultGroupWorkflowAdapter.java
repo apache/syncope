@@ -36,7 +36,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         dataBinder.create(group, groupCR);
         group = groupDAO.saveAndRefreshDynMemberships(group);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, groupDAO.findAllResourceKeys(group.getKey()));
 
         return new WorkflowResult<>(group.getKey(), propByRes, "create");
@@ -44,7 +44,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
     protected WorkflowResult<GroupUR> doUpdate(final Group group, final GroupUR groupUR) {
-        PropagationByResource propByRes = dataBinder.update(group, groupUR);
+        PropagationByResource<String> propByRes = dataBinder.update(group, groupUR);
         return new WorkflowResult<>(groupUR, propByRes, "update");
     }
 

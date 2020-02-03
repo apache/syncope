@@ -22,10 +22,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum SpecialAttr {
-
-    /**
-     * Applies to users, groups and any objects.
-     */
+    
     /**
      * Applies to users, groups and any objects.
      */
@@ -85,5 +82,4 @@ public enum SpecialAttr {
     public static Optional<SpecialAttr> fromString(final String value) {
         return Arrays.stream(values()).filter(specialAttr -> specialAttr.literal.equals(value)).findFirst();
     }
-
 }

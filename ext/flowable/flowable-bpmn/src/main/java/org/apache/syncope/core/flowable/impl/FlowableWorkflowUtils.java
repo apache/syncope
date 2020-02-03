@@ -28,7 +28,7 @@ public class FlowableWorkflowUtils {
     @Autowired
     protected DomainProcessEngine engine;
 
-    public boolean isUserIngroup(final UserTO user, final String groupName) {
+    public static boolean isUserIngroup(final UserTO user, final String groupName) {
         return user.getMemberships().stream().
                 anyMatch(membership -> groupName != null && groupName.equals(membership.getGroupName()));
     }

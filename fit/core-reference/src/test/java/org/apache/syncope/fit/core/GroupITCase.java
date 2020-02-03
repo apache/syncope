@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.security.AccessControlException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -79,6 +79,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -93,7 +94,9 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class GroupITCase extends AbstractITCase {
@@ -180,7 +183,7 @@ public class GroupITCase extends AbstractITCase {
                 groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
-        groupTOs.getResult().forEach(groupTO -> assertNotNull(groupTO));
+        groupTOs.getResult().forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -249,7 +252,7 @@ public class GroupITCase extends AbstractITCase {
         GroupCR createReq = getBasicSample("patch");
         createReq.setUDynMembershipCond("(($groups==3;$resources!=ws-target-resource-1);aLong==1)");
         createReq.getADynMembershipConds().put(
-                "PRINTER",
+                PRINTER,
                 "(($groups==7;cool==ss);$resources==ws-target-resource-2);$type==PRINTER");
 
         GroupTO created = createGroup(createReq).getEntity();
@@ -268,9 +271,9 @@ public class GroupITCase extends AbstractITCase {
         Map<String, Attr> attrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
         assertFalse(attrs.containsKey("icon"));
         assertFalse(attrs.containsKey("show"));
-        assertEquals(Collections.singletonList("sx"), attrs.get("rderived_sx").getValues());
-        assertEquals(Collections.singletonList("dx"), attrs.get("rderived_dx").getValues());
-        assertEquals(Collections.singletonList("mr"), attrs.get("title").getValues());
+        assertEquals(List.of("sx"), attrs.get("rderived_sx").getValues());
+        assertEquals(List.of("dx"), attrs.get("rderived_dx").getValues());
+        assertEquals(List.of("mr"), attrs.get("title").getValues());
     }
 
     @Test
@@ -600,6 +603,57 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
+    public void encrypted() throws Exception {
+        // 1. create encrypted schema with secret key as system property
+        PlainSchemaTO encrypted = new PlainSchemaTO();
+        encrypted.setKey("encrypted" + getUUIDString());
+        encrypted.setType(AttrSchemaType.Encrypted);
+        encrypted.setCipherAlgorithm(CipherAlgorithm.SHA512);
+        encrypted.setSecretKey("${obscureSecretKey}");
+        schemaService.create(SchemaType.PLAIN, encrypted);
+
+        // 2. add the new schema to the default group type
+        AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
+        String typeClassName = type.getClasses().get(0);
+        AnyTypeClassTO typeClass = anyTypeClassService.read(typeClassName);
+        typeClass.getPlainSchemas().add(encrypted.getKey());
+        anyTypeClassService.update(typeClass);
+        typeClass = anyTypeClassService.read(typeClassName);
+        assertTrue(typeClass.getPlainSchemas().contains(encrypted.getKey()));
+
+        // 3. create group, verify that the correct encrypted value is returned
+        GroupCR groupCR = getSample("encrypted");
+        groupCR.getPlainAttrs().add(new Attr.Builder(encrypted.getKey()).value("testvalue").build());
+        GroupTO group = createGroup(groupCR).getEntity();
+
+        assertEquals(Encryptor.getInstance(System.getProperty("obscureSecretKey")).
+                encode("testvalue", encrypted.getCipherAlgorithm()),
+                group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+
+        // 4. update schema to return cleartext values
+        encrypted.setAnyTypeClass(typeClassName);
+        encrypted.setCipherAlgorithm(CipherAlgorithm.AES);
+        encrypted.setConversionPattern(SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN);
+        schemaService.update(SchemaType.PLAIN, encrypted);
+
+        // 5. update group, verify that the cleartext value is returned
+        GroupUR groupUR = new GroupUR();
+        groupUR.setKey(group.getKey());
+        groupUR.getPlainAttrs().add(new AttrPatch.Builder(
+                new Attr.Builder(encrypted.getKey()).value("testvalue").build()).build());
+        group = updateGroup(groupUR).getEntity();
+
+        assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+
+        // 6. update schema again to disallow cleartext values
+        encrypted.setConversionPattern(null);
+        schemaService.update(SchemaType.PLAIN, encrypted);
+
+        group = groupService.read(group.getKey());
+        assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+    }
+
+    @Test
     public void anonymous() {
         GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
         try {
@@ -649,17 +703,17 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void aDynMembership() {
-        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").notNullValue().query();
+        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").notNullValue().query();
 
         // 1. create group with a given aDynMembership condition
         GroupCR groupCR = getBasicSample("aDynMembership");
-        groupCR.getADynMembershipConds().put("PRINTER", fiql);
+        groupCR.getADynMembershipConds().put(PRINTER, fiql);
         GroupTO group = createGroup(groupCR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         group = groupService.read(group.getKey());
         final String groupKey = group.getKey();
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
         AnyObjectCR newAnyCR = AnyObjectITCase.getSample("aDynMembership");
@@ -678,17 +732,17 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         // 2. update group and change aDynMembership condition
-        fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").nullValue().query();
+        fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").nullValue().query();
 
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(group.getKey());
-        groupUR.getADynMembershipConds().put("PRINTER", fiql);
+        groupUR.getADynMembershipConds().put(PRINTER, fiql);
 
         group = updateGroup(groupUR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         group = groupService.read(group.getKey());
-        assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
+        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
         AnyObjectUR anyObjectUR = new AnyObjectUR();
@@ -713,14 +767,14 @@ public class GroupITCase extends AbstractITCase {
     public void aDynMembershipCount() {
         // Create a new printer as a dynamic member of a new group
         GroupCR groupCR = getBasicSample("aDynamicMembership");
-        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").equalTo("home").query();
-        groupCR.getADynMembershipConds().put("PRINTER", fiql);
+        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").equalTo("home").query();
+        groupCR.getADynMembershipConds().put(PRINTER, fiql);
         GroupTO group = createGroup(groupCR).getEntity();
 
         AnyObjectCR printerCR = new AnyObjectCR();
         printerCR.setRealm(SyncopeConstants.ROOT_REALM);
         printerCR.setName("Printer_" + getUUIDString());
-        printerCR.setType("PRINTER");
+        printerCR.setType(PRINTER);
         printerCR.getPlainAttrs().add(new Attr.Builder("location").value("home").build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
@@ -741,7 +795,7 @@ public class GroupITCase extends AbstractITCase {
         AnyObjectCR printerCR = new AnyObjectCR();
         printerCR.setRealm(SyncopeConstants.ROOT_REALM);
         printerCR.setName("Printer_" + getUUIDString());
-        printerCR.setType("PRINTER");
+        printerCR.setType(PRINTER);
         printerCR.getMemberships().add(new MembershipTO.Builder(group.getKey()).build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
@@ -910,7 +964,6 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(exec.getRefKey());
 
             int i = 0;
-            int maxit = 50;
 
             // wait for task exec completion (executions incremented)
             SchedTaskTO taskTO;
@@ -922,7 +975,7 @@ public class GroupITCase extends AbstractITCase {
                 assertNotNull(taskTO);
                 assertNotNull(taskTO.getExecutions());
                 i++;
-            } while (taskTO.getExecutions().isEmpty() && i < maxit);
+            } while (taskTO.getExecutions().isEmpty() && i < MAX_WAIT_SECONDS);
             assertFalse(taskTO.getExecutions().isEmpty());
 
             assertEquals(TaskJob.Status.SUCCESS.name(), taskTO.getExecutions().get(0).getStatus());
@@ -1033,7 +1086,7 @@ public class GroupITCase extends AbstractITCase {
                 ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
                 NamingEnumeration<SearchResult> result =
-                        ctx.search("ou=groups,o=isp", "(description=" + groupTO.getKey() + ")", ctls);
+                        ctx.search("ou=groups,o=isp", "(description=" + groupTO.getKey() + ')', ctls);
                 while (result.hasMore()) {
                     result.next();
                     entries++;

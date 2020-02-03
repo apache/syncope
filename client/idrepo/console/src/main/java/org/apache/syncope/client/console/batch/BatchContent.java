@@ -163,8 +163,8 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                 ExecTO exec = ExecTO.class.cast(item);
 
                                 try {
-                                    batchExecutor.getClass().getMethod("deleteExecution",
-                                            String.class).invoke(batchExecutor, exec.getKey());
+                                    batchExecutor.getClass().getMethod("deleteExecution", String.class).
+                                            invoke(batchExecutor, exec.getKey());
                                     results.put(exec.getKey(), ExecStatus.SUCCESS.name());
                                 } catch (Exception e) {
                                     LOG.error("Error deleting execution {}", exec.getKey(), e);
@@ -176,7 +176,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                             // Group bean information by anyKey
                             Map<String, List<StatusBean>> beans = new HashMap<>();
-                            items.stream().map(bean -> StatusBean.class.cast(bean)).
+                            items.stream().map(StatusBean.class::cast).
                                     forEachOrdered(sb -> {
                                         final List<StatusBean> sblist;
                                         if (beans.containsKey(sb.getKey())) {

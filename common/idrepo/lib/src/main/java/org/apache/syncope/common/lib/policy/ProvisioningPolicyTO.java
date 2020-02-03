@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -41,9 +43,7 @@ public abstract class ProvisioningPolicyTO extends PolicyTO {
     private final Map<String, String> correlationRules = new HashMap<>();
 
     public ConflictResolutionAction getConflictResolutionAction() {
-        return conflictResolutionAction == null
-                ? ConflictResolutionAction.IGNORE
-                : conflictResolutionAction;
+        return Optional.ofNullable(conflictResolutionAction).orElse(ConflictResolutionAction.IGNORE);
     }
 
     public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {

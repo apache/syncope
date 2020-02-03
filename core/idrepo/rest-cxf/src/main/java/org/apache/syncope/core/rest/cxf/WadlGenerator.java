@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +65,7 @@ public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator
                         try {
                             super.setJavaDocPaths(javaDocPaths);
                         } catch (Exception e) {
-                            LOG.error("Could not set javadoc paths from {}", Arrays.asList(javaDocPaths), e);
+                            LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
                         }
                     }
                 } else {
@@ -118,9 +117,7 @@ public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator
                     } else {
                         cri = Optional.ofNullable(ResourceUtils.createClassResourceInfo(
                                 beanClass, beanClass, true, true, BusFactory.getDefaultBus()));
-                        if (cri.isPresent()) {
-                            classResourceInfos.add(cri.get());
-                        }
+                        cri.ifPresent(classResourceInfos::add);
                     }
                 }
 

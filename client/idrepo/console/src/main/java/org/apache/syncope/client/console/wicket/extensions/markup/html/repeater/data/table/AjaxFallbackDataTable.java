@@ -50,9 +50,15 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
     private ActionLinksTogglePanel<T> togglePanel;
 
-    public AjaxFallbackDataTable(final String id, final List<? extends IColumn<T, S>> columns,
-            final ISortableDataProvider<T, S> dataProvider, final int rowsPerPage, final WebMarkupContainer container) {
+    public AjaxFallbackDataTable(
+            final String id,
+            final List<? extends IColumn<T, S>> columns,
+            final ISortableDataProvider<T, S> dataProvider,
+            final int rowsPerPage,
+            final WebMarkupContainer container) {
+
         super(id, columns, dataProvider, rowsPerPage);
+
         setOutputMarkupId(true);
         setVersioned(false);
 
@@ -67,7 +73,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                     final String borderId, final S property, final ISortStateLocator<S> locator) {
                 return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 8261993963983329775L;
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {
@@ -77,7 +83,6 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                     }
                 };
             }
-
         });
 
         addBottomToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
@@ -89,7 +94,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                     final String borderId, final S property, final ISortStateLocator<S> locator) {
                 return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 985887006636879421L;
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {

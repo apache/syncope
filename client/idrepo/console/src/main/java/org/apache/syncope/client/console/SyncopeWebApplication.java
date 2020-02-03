@@ -19,11 +19,11 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
+import com.google.common.net.HttpHeaders;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,7 +35,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.annotations.Resource;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -50,6 +51,7 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.protocol.ws.WebSocketAwareCsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -84,10 +86,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     private static final String CONSOLE_PROPERTIES = "console.properties";
 
-    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE
-            }));
+    public static final List<Locale> SUPPORTED_LOCALES = List.of(
+            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
+            new Locale("ru"));
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
@@ -120,18 +121,28 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     private Integer queueCapacity;
 
+    @Autowired
     private ExternalResourceProvider resourceProvider;
 
+    @Autowired
+    private AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider;
+
+    @Autowired
+    private AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider;
+
+    @Autowired
     private AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
 
+    @Autowired
     private StatusProvider statusProvider;
 
+    @Autowired
     private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
 
-    private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider;
-
+    @Autowired
     private ImplementationInfoProvider implementationInfoProvider;
 
+    @Autowired
     private PolicyTabProvider policyTabProvider;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
@@ -140,19 +151,30 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     protected void populatePageClasses(final Properties props) {
         Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
         while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("page.")) {
+            String className = propNames.nextElement();
+            if (className.startsWith("page.")) {
                 try {
-                    Class<?> clazz = ClassUtils.getClass(props.getProperty(name));
+                    Class<?> clazz = ClassUtils.getClass(props.getProperty(className));
                     if (BasePage.class.isAssignableFrom(clazz)) {
                         pageClasses.put(
-                                StringUtils.substringAfter("page.", name), (Class<? extends BasePage>) clazz);
+                                StringUtils.substringAfter("page.", className), (Class<? extends BasePage>) clazz);
                     } else {
                         LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
                     }
                 } catch (ClassNotFoundException e) {
-                    LOG.error("While looking for class identified by property '{}'", name, e);
+                    LOG.error("While looking for class identified by property '{}'", className, e);
                 }
+            }
+        }
+    }
+
+    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
+        @SuppressWarnings("unchecked")
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("security.headers.")) {
+                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
             }
         }
     }
@@ -189,8 +211,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
 
-        boolean csrf = BooleanUtils.toBoolean(props.getProperty("csrf"));
-
         // process page properties
         pageClasses = new HashMap<>();
         populatePageClasses(props);
@@ -211,23 +231,11 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
 
-        resourceProvider = lookup.getResourceProvider();
-        anyWizardBuilderAdditionalSteps = lookup.getAnyWizardBuilderAdditionalSteps();
-        statusProvider = lookup.getStatusProvider();
-        virSchemaDetailsPanelProvider = lookup.getVirSchemaDetailsPanelProvider();
-        anyDirectoryPanelAditionalActionLinksProvider = lookup.getAnyDirectoryPanelAditionalActionLinksProvider();
-        implementationInfoProvider = lookup.getImplementationInfoProvider();
-        policyTabProvider = lookup.getPolicyTabProvider();
-
         lookup.getPageClasses().
                 forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, Constants.ROLE_AUTHENTICATED));
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
-
-        if (csrf) {
-            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
-        }
 
         getRequestCycleListeners().add(new SyncopeUIRequestCycleListener() {
 
@@ -247,15 +255,26 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             }
         });
 
+        if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
+            XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
+            config.setProtocolHeader(props.getProperty("x-forward.protocol.header", HttpHeaders.X_FORWARDED_PROTO));
+            config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
+            config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
+
+            XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
+            factory.setConfig(config);
+            getFilterFactoryManager().add(factory);
+        }
+
+        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
+            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
+        }
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {
                 if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
-                    WebResponse response = (WebResponse) cycle.getResponse();
-                    response.setHeader("X-XSS-Protection", "1; mode=block");
-                    response.setHeader("X-Content-Type-Options", "nosniff");
-                    response.setHeader("X-Frame-Options", "sameorigin");
+                    setSecurityHeaders(props, (WebResponse) cycle.getResponse());
                 }
             }
         });
@@ -367,6 +386,14 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return resourceProvider;
     }
 
+    public AnyDirectoryPanelAdditionalActionsProvider getAnyDirectoryPanelAdditionalActionsProvider() {
+        return anyDirectoryPanelAdditionalActionsProvider;
+    }
+
+    public AnyDirectoryPanelAdditionalActionLinksProvider getAnyDirectoryPanelAdditionalActionLinksProvider() {
+        return anyDirectoryPanelAdditionalActionLinksProvider;
+    }
+
     public AnyWizardBuilderAdditionalSteps getAnyWizardBuilderAdditionalSteps() {
         return anyWizardBuilderAdditionalSteps;
     }
@@ -377,10 +404,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public VirSchemaDetailsPanelProvider getVirSchemaDetailsPanelProvider() {
         return virSchemaDetailsPanelProvider;
-    }
-
-    public AnyDirectoryPanelAditionalActionLinksProvider getAnyDirectoryPanelAditionalActionLinksProvider() {
-        return anyDirectoryPanelAditionalActionLinksProvider;
     }
 
     public ImplementationInfoProvider getImplementationInfoProvider() {

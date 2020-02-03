@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -33,8 +32,6 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     private static final long serialVersionUID = 4024126489500665435L;
 
     private final SecurityQuestionTO securityQuestionTO;
-
-    private final SecurityQuestionRestClient restClient = new SecurityQuestionRestClient();
 
     public SecurityQuestionsModalPanel(
             final BaseModal<SecurityQuestionTO> modal,
@@ -55,17 +52,16 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (securityQuestionTO.getKey() == null) {
-                restClient.create(securityQuestionTO);
+                SecurityQuestionRestClient.create(securityQuestionTO);
             } else {
-                restClient.update(securityQuestionTO);
+                SecurityQuestionRestClient.update(securityQuestionTO);
             }
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", securityQuestionTO, e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

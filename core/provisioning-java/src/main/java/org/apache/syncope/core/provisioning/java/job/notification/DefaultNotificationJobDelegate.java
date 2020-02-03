@@ -127,21 +127,21 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
     @Transactional
     @Override
-    public TaskExec executeSingle(final NotificationTask task) {
+    public TaskExec executeSingle(final NotificationTask task, final String executor) {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
         execution.setStart(new Date());
-
+        execution.setExecutor(executor);
         boolean retryPossible = true;
 
         if (StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
                 || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
             String message = "Could not fetch all required information for sending e-mails:\n"
-                    + task.getRecipients() + "\n"
-                    + task.getSender() + "\n"
-                    + task.getSubject() + "\n"
-                    + task.getHtmlBody() + "\n"
+                    + task.getRecipients() + '\n'
+                    + task.getSender() + '\n'
+                    + task.getSubject() + '\n'
+                    + task.getHtmlBody() + '\n'
                     + task.getTextBody();
             LOG.error(message);
 
@@ -154,11 +154,11 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
         } else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("About to send e-mails:\n"
-                        + task.getRecipients() + "\n"
-                        + task.getSender() + "\n"
-                        + task.getSubject() + "\n"
-                        + task.getHtmlBody() + "\n"
-                        + task.getTextBody() + "\n");
+                        + task.getRecipients() + '\n'
+                        + task.getSender() + '\n'
+                        + task.getSubject() + '\n'
+                        + task.getHtmlBody() + '\n'
+                        + task.getTextBody() + '\n');
             }
 
             status.set("Sending notifications to " + task.getRecipients());
@@ -250,14 +250,14 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
 
     @Transactional
     @Override
-    public void execute() throws JobExecutionException {
+    public void execute(final String executor) throws JobExecutionException {
         List<NotificationTask> tasks = taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION);
 
         status.set("Sending out " + tasks.size() + " notifications");
 
         for (int i = 0; i < tasks.size() && !interrupt; i++) {
             LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
-            executeSingle(tasks.get(i));
+            executeSingle(tasks.get(i), executor);
             LOG.debug("Notification task {} executed", tasks.get(i));
         }
         if (interrupt) {
@@ -266,7 +266,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
         }
     }
 
-    private boolean hasToBeRegistered(final TaskExec execution) {
+    private static boolean hasToBeRegistered(final TaskExec execution) {
         NotificationTask task = (NotificationTask) execution.getTask();
 
         // True if either failed and failures have to be registered, or if ALL

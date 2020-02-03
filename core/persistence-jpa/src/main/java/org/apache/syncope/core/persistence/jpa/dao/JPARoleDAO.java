@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -32,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
@@ -54,6 +54,9 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     @Override
     public int count() {
@@ -104,7 +107,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         clearDynMembers(merged);
         if (merged.getDynMembership() != null) {
             List<User> matching = searchDAO.search(
-                    SearchCondConverter.convert(merged.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
+                    SearchCondConverter.convert(searchCondVisitor, merged.getDynMembership().getFIQLCond()),
+                    AnyTypeKind.USER);
 
             matching.forEach((user) -> {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
@@ -149,7 +153,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     @SuppressWarnings("unchecked")
     public List<String> findDynMembers(final Role role) {
         if (role.getDynMembership() == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         Query query = entityManager().createNativeQuery("SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
@@ -178,8 +182,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         query.setParameter(1, user.getKey());
 
         findAll().stream().filter(role -> role.getDynMembership() != null).forEach(role -> {
-            boolean matches =
-                    anyMatchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()));
+            boolean matches = anyMatchDAO.matches(
+                    user, SearchCondConverter.convert(searchCondVisitor, role.getDynMembership().getFIQLCond()));
 
             Query find = entityManager().createNativeQuery(
                     "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");

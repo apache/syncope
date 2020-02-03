@@ -21,10 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -62,19 +59,14 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private static final Map<SchemaType, List<String>> COL_NAMES = new HashMap<SchemaType, List<String>>() {
-
-        private static final long serialVersionUID = 3109256773218160485L;
-
-        {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] {
-                "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] {
-                "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
-                "key", "resource", "anyType", "extAttrName", "readonly" }));
-        }
-    };
+    private static final Map<SchemaType, List<String>> COL_NAMES = Map.of(
+            SchemaType.PLAIN,
+            List.of(Constants.KEY_FIELD_NAME,
+                    "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"),
+            SchemaType.DERIVED,
+            List.of(Constants.KEY_FIELD_NAME, "expression"),
+            SchemaType.VIRTUAL,
+            List.of(Constants.KEY_FIELD_NAME, "resource", "anyType", "extAttrName", "readonly"));
 
     private final SchemaType schemaType;
 
@@ -119,7 +111,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override
@@ -141,7 +133,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(field)) {
+                            if (Constants.KEY_FIELD_NAME.equals(field)) {
                                 css = StringUtils.isBlank(css)
                                         ? "col-xs-1"
                                         : css + " col-xs-1";
@@ -179,15 +171,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 try {
                     switch (schemaType) {
                         case DERIVED:
-                            restClient.deleteDerSchema(model.getObject().getKey());
+                            SchemaRestClient.deleteDerSchema(model.getObject().getKey());
                             break;
 
                         case VIRTUAL:
-                            restClient.deleteVirSchema(model.getObject().getKey());
+                            SchemaRestClient.deleteVirSchema(model.getObject().getKey());
                             break;
 
                         default:
-                            restClient.deletePlainSchema(model.getObject().getKey());
+                            SchemaRestClient.deletePlainSchema(model.getObject().getKey());
                             break;
                     }
 
@@ -195,8 +187,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -217,21 +208,21 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             super(paginatorRows);
 
             this.schemaType = schemaType;
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
-            List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
-            Collections.sort(schemas, comparator);
+            List<SchemaTO> schemas = SchemaRestClient.getSchemas(this.schemaType, keyword);
+            schemas.sort(comparator);
 
             return schemas.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getSchemas(this.schemaType, keyword).size();
+            return SchemaRestClient.getSchemas(this.schemaType, keyword).size();
         }
 
         @Override
@@ -248,10 +239,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
             keyword = payload.getKeyword();
             if (!keyword.startsWith("*")) {
-                keyword = "*" + keyword;
+                keyword = '*' + keyword;
             }
             if (!keyword.endsWith("*")) {
-                keyword = keyword + "*";
+                keyword = keyword + '*';
             }
 
             updateResultTable(target);

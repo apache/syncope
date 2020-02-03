@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.event;
 import java.io.Serializable;
 import org.apache.syncope.common.lib.types.AuditElements;
 
+@SuppressWarnings({ "squid:S00107", "squid:S1948" })
 public class AfterHandlingEvent implements Serializable {
 
     private static final long serialVersionUID = 5950986229089263378L;

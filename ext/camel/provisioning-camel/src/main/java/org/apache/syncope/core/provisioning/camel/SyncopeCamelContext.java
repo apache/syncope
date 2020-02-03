@@ -19,10 +19,8 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.camel.CamelContext;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
 import org.apache.camel.model.ModelHelper;
 import org.apache.camel.model.RoutesDefinition;
@@ -49,7 +47,7 @@ public class SyncopeCamelContext {
 
     private SpringCamelContext camelContext;
 
-    public CamelContext getCamelContext() {
+    public SpringCamelContext getCamelContext() {
         synchronized (this) {
             if (camelContext == null) {
                 camelContext = ApplicationContextProvider.getBeanFactory().getBean(SpringCamelContext.class);
@@ -60,7 +58,7 @@ public class SyncopeCamelContext {
                 List<CamelRoute> routes = routeDAO.findAll();
                 LOG.debug("{} route(s) are going to be loaded ", routes.size());
 
-                loadRouteDefinitions(routes.stream().map(input -> input.getContent()).collect(Collectors.toList()));
+                loadRouteDefinitions(routes.stream().map(CamelRoute::getContent).collect(Collectors.toList()));
             }
         }
 
@@ -76,23 +74,23 @@ public class SyncopeCamelContext {
                             + "</routes>", StandardCharsets.UTF_8));
             camelContext.addRouteDefinitions(routeDefs.getRoutes());
         } catch (Exception e) {
-            LOG.error("While adding route definitions into Camel Context {}", camelContext, e);
+            LOG.error("While adding route definitions into Camel Context {}", getCamelContext(), e);
             throw new CamelException(e);
         }
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void updateContext(final String routeKey) {
-        if (!camelContext.getRouteDefinitions().isEmpty()) {
-            camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-            loadRouteDefinitions(Arrays.asList(routeDAO.find(routeKey).getContent()));
+        if (!getCamelContext().getRouteDefinitions().isEmpty()) {
+            getCamelContext().getRouteDefinitions().remove(getCamelContext().getRouteDefinition(routeKey));
+            loadRouteDefinitions(List.of(routeDAO.find(routeKey).getContent()));
         }
     }
 
     public void restoreRoute(final String routeKey, final String routeContent) {
         try {
-            camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-            loadRouteDefinitions(Arrays.asList(routeContent));
+            getCamelContext().getRouteDefinitions().remove(getCamelContext().getRouteDefinition(routeKey));
+            loadRouteDefinitions(List.of(routeContent));
         } catch (Exception e) {
             LOG.error("While restoring Camel route {}", routeKey, e);
             throw new CamelException(e);
@@ -101,12 +99,11 @@ public class SyncopeCamelContext {
 
     public void restartContext() {
         try {
-            camelContext.stop();
-            camelContext.start();
+            getCamelContext().stop();
+            getCamelContext().start();
         } catch (Exception e) {
             LOG.error("While restarting Camel context", e);
             throw new CamelException(e);
         }
     }
-
 }

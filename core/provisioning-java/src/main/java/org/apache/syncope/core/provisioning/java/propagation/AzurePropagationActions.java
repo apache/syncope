@@ -35,13 +35,13 @@ import org.springframework.transaction.annotation.Transactional;
  * This class is required during setup of an External Resource based on the ConnId
  * <a href="https://github.com/Tirasa/ConnIdAzureBundle">Azure connector</a>.
  *
- * It ensures to send the configured e-mail address as <pre>__NAME__</pre>.
+ * It ensures to send the configured e-mail address as {@code __NAME__}.
  */
 public class AzurePropagationActions implements PropagationActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(AzurePropagationActions.class);
 
-    protected String getEmailAttrName() {
+    protected static String getEmailAttrName() {
         return "mailNickname";
     }
 
@@ -66,11 +66,11 @@ public class AzurePropagationActions implements PropagationActions {
         }
     }
 
-    private void setName(final PropagationTask task) {
+    private static void setName(final PropagationTask task) {
         Set<Attribute> attrs = new HashSet<>(task.getAttributes());
 
         if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
-            LOG.warn("Can't find {} attribute to set as __NAME__ attribute value, skipping...", getEmailAttrName());
+            LOG.warn("Can't find {} to set as {} attribute value, skipping...", getEmailAttrName(), Name.NAME);
             return;
         }
 

@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -129,7 +127,9 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<ImplementationTO, String>> getColumns() {
         List<IColumn<ImplementationTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this),
+                Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new StringResourceModel("engine", this), "engine", "engine"));
 
         return columns;
@@ -159,13 +159,12 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ImplementationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getType(), model.getObject().getKey());
+                    ImplementationRestClient.delete(model.getObject().getType(), model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -186,7 +185,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     protected class ImplementationProvider extends DirectoryDataProvider<ImplementationTO> {
@@ -198,20 +197,20 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
         public ImplementationProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<ImplementationTO> iterator(final long first, final long count) {
-            List<ImplementationTO> list = restClient.list(type);
-            Collections.sort(list, comparator);
+            List<ImplementationTO> list = ImplementationRestClient.list(type);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list(type).size();
+            return ImplementationRestClient.list(type).size();
         }
 
         @Override

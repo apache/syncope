@@ -29,6 +29,7 @@ import org.flowable.engine.IdentityService;
 import org.flowable.engine.ManagementService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.ProcessMigrationService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
@@ -57,9 +58,7 @@ public class DomainProcessEngine implements ProcessEngine {
 
     @Override
     public void close() {
-        engines.values().forEach(engine -> {
-            engine.close();
-        });
+        engines.get(AuthContextUtils.getDomain()).close();
     }
 
     @Override
@@ -105,6 +104,16 @@ public class DomainProcessEngine implements ProcessEngine {
     @Override
     public DynamicBpmnService getDynamicBpmnService() {
         return engines.get(AuthContextUtils.getDomain()).getDynamicBpmnService();
+    }
+
+    @Override
+    public ProcessMigrationService getProcessMigrationService() {
+        return engines.get(AuthContextUtils.getDomain()).getProcessMigrationService();
+    }
+
+    @Override
+    public void startExecutors() {
+        engines.get(AuthContextUtils.getDomain()).startExecutors();
     }
 
     public DataSource getDataSource() {

@@ -25,6 +25,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -133,9 +135,7 @@ public class BatchPayloadLineReader implements AutoCloseable {
 
             if (currentLine.startsWith(HttpHeaders.CONTENT_TYPE)) {
                 String charsetString = multipartMixed.getParameters().get(MediaType.CHARSET_PARAMETER);
-                currentCharset = charsetString == null
-                        ? DEFAULT_CHARSET
-                        : Charset.forName(charsetString);
+                currentCharset = Optional.ofNullable(charsetString).map(Charset::forName).orElse(DEFAULT_CHARSET);
 
                 currentBoundary = SyncopeConstants.DOUBLE_DASH + multipartMixed.getParameters().
                         get(RESTHeaders.BOUNDARY_PARAMETER);

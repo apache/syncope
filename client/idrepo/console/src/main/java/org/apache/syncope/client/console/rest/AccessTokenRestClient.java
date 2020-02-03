@@ -31,17 +31,17 @@ public class AccessTokenRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(AccessTokenService.class).delete(key);
     }
 
-    public int count() {
+    public static int count() {
         return getService(AccessTokenService.class).list(
                 new AccessTokenQuery.Builder().page(1).size(1).build()).
                 getTotalCount();
     }
 
-    public List<AccessTokenTO> list(final int page, final int size, final SortParam<String> sort) {
+    public static List<AccessTokenTO> list(final int page, final int size, final SortParam<String> sort) {
         return getService(AccessTokenService.class).list(
                 new AccessTokenQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();

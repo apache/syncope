@@ -26,9 +26,12 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerAdapter;
 import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
@@ -44,6 +47,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
     private final IModel<T> model;
 
     private final Options options;
+
+    private SpinnerBehavior behavior;
 
     private AjaxSpinnerFieldPanel(
             final String id,
@@ -61,7 +66,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
             @Override
             public JQueryUIBehavior newWidgetBehavior(final String selector) {
-                SpinnerBehavior behavior = new SpinnerBehavior(selector, new SpinnerAdapter());
+                behavior = new SpinnerBehavior(selector, new SpinnerAdapter());
                 behavior.setOptions(options);
                 return behavior;
             }
@@ -166,8 +171,46 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final T object) {
-                item.setModelObject(object == null ? null : object.toString());
+                item.setModelObject(Optional.ofNullable(object).map(Object::toString).orElse(null));
             }
+        });
+
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public FieldPanel<T> setNewModel(final Attributable attributableTO, final String schema) {
+        field.setModel(new Model() {
+
+            private static final long serialVersionUID = -4214654722524358000L;
+
+            @Override
+            public Serializable getObject() {
+                List<String> values = attributableTO.getPlainAttr(schema).get().getValues();
+                if (!values.isEmpty()) {
+                    return reference.equals(Integer.class)
+                            ? reference.cast(NumberUtils.toInt(values.get(0)))
+                            : reference.equals(Long.class)
+                            ? reference.cast(NumberUtils.toLong(values.get(0)))
+                            : reference.equals(Short.class)
+                            ? reference.cast(NumberUtils.toShort(values.get(0)))
+                            : reference.equals(Float.class)
+                            ? reference.cast(NumberUtils.toFloat(values.get(0)))
+                            : reference.equals(byte.class)
+                            ? reference.cast(NumberUtils.toByte(values.get(0)))
+                            : reference.cast(NumberUtils.toDouble(values.get(0)));
+                }
+                return null;
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                attributableTO.getPlainAttr(schema).get().getValues().clear();
+                if (object != null) {
+                    attributableTO.getPlainAttr(schema).get().getValues().add(object.toString());
+                }
+            }
+
         });
 
         return this;
@@ -186,6 +229,17 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         }
 
         return panel;
+    }
+
+    @Override
+    public FieldPanel<T> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        AjaxSpinner.class.cast(field).setEnabled(!readOnly);
+        options.set("disabled", readOnly);
+        if (behavior != null) {
+            behavior.setOptions(options);
+        }
+        return this;
     }
 
     public static class Builder<T extends Number> {

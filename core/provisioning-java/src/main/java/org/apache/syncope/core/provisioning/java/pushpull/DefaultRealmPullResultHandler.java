@@ -19,11 +19,11 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -44,7 +44,7 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
@@ -63,7 +63,7 @@ public class DefaultRealmPullResultHandler
         implements RealmPullResultHandler {
 
     @Autowired
-    private PullUtils pullUtils;
+    private InboundMatcher inboundMatcher;
 
     @Autowired
     private ConnObjectUtils connObjectUtils;
@@ -111,7 +111,7 @@ public class DefaultRealmPullResultHandler
             ProvisioningReport ignoreResult = new ProvisioningReport();
             ignoreResult.setOperation(ResourceOperation.NONE);
             ignoreResult.setStatus(ProvisioningReport.Status.IGNORE);
-            ignoreResult.setAnyType(REALM_TYPE);
+            ignoreResult.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             ignoreResult.setKey(null);
             ignoreResult.setName(delta.getObject().getName().getNameValue());
             profile.getResults().add(ignoreResult);
@@ -133,22 +133,22 @@ public class DefaultRealmPullResultHandler
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
         if (realmTO.getFullPath() == null) {
             if (realmTO.getParent() == null) {
-                realmTO.setParent(profile.getTask().getDestinatioRealm().getFullPath());
+                realmTO.setParent(profile.getTask().getDestinationRealm().getFullPath());
             }
 
-            realmTO.setFullPath(realmTO.getParent() + "/" + realmTO.getName());
+            realmTO.setFullPath(realmTO.getParent() + '/' + realmTO.getName());
         }
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(realmTO.getFullPath());
 
@@ -163,7 +163,7 @@ public class DefaultRealmPullResultHandler
             create(realmTO, delta, UnmatchingRule.ASSIGN, result);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     private List<ProvisioningReport> provision(final SyncDelta delta, final OrgUnit orgUnit)
@@ -172,21 +172,21 @@ public class DefaultRealmPullResultHandler
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
         if (realmTO.getFullPath() == null) {
             if (realmTO.getParent() == null) {
-                realmTO.setParent(profile.getTask().getDestinatioRealm().getFullPath());
+                realmTO.setParent(profile.getTask().getDestinationRealm().getFullPath());
             }
 
-            realmTO.setFullPath(realmTO.getParent() + "/" + realmTO.getName());
+            realmTO.setFullPath(realmTO.getParent() + '/' + realmTO.getName());
         }
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setName(realmTO.getFullPath());
 
@@ -201,7 +201,7 @@ public class DefaultRealmPullResultHandler
             create(realmTO, delta, UnmatchingRule.PROVISION, result);
         }
 
-        return Collections.singletonList(result);
+        return List.of(result);
     }
 
     private void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
@@ -233,19 +233,19 @@ public class DefaultRealmPullResultHandler
         Result resultStatus;
 
         try {
-            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinatioRealm(), realmTO));
+            Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinationRealm(), realmTO));
 
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
             if (unmatchingRule == UnmatchingRule.ASSIGN) {
                 List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                taskExecutor.execute(taskInfos, false);
+                taskExecutor.execute(taskInfos, false, adminUser);
             }
 
             RealmTO actual = binder.getRealmTO(realm, true);
 
             result.setKey(actual.getKey());
-            result.setName(profile.getTask().getDestinatioRealm().getFullPath() + "/" + actual.getName());
+            result.setName(profile.getTask().getDestinationRealm().getFullPath() + '/' + actual.getName());
 
             output = actual;
             resultStatus = Result.SUCCESS;
@@ -274,93 +274,83 @@ public class DefaultRealmPullResultHandler
         finalize(UnmatchingRule.toEventName(unmatchingRule), resultStatus, null, output, delta);
     }
 
-    private List<ProvisioningReport> update(final SyncDelta delta, final List<String> keys, final boolean inLink)
+    private List<ProvisioningReport> update(final SyncDelta delta, final List<Realm> realms, final boolean inLink)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             finalize(MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
-        LOG.debug("About to update {}", keys);
+        LOG.debug("About to update {}", realms);
 
         List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : keys) {
-            LOG.debug("About to update {}", key);
+        for (Realm realm : realms) {
+            LOG.debug("About to update {}", realm);
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.UPDATE);
-            result.setAnyType(REALM_TYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.SUCCESS);
-            result.setKey(key);
-
-            Realm realm = realmDAO.find(key);
-            RealmTO before = binder.getRealmTO(realm, true);
-            if (before == null) {
-                result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(String.format("Realm '%s' not found", key));
-            } else {
-                result.setName(before.getFullPath());
-            }
+            result.setKey(realm.getKey());
+            result.setName(realm.getFullPath());
 
             if (!profile.isDryRun()) {
                 Result resultStatus;
                 Object output;
 
-                if (before == null) {
-                    resultStatus = Result.FAILURE;
-                    output = null;
-                } else {
-                    try {
-                        if (!inLink) {
-                            for (PullActions action : profile.getActions()) {
-                                action.beforeUpdate(profile, delta, before, null);
-                            }
-                        }
-
-                        PropagationByResource propByRes = binder.update(realm, before);
-                        realm = realmDAO.save(realm);
-                        RealmTO updated = binder.getRealmTO(realm, true);
-
-                        List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                        taskExecutor.execute(taskInfos, false);
-
+                RealmTO before = binder.getRealmTO(realm, true);
+                try {
+                    if (!inLink) {
                         for (PullActions action : profile.getActions()) {
-                            action.after(profile, delta, updated, result);
+                            action.beforeUpdate(profile, delta, before, null);
                         }
-
-                        output = updated;
-                        resultStatus = Result.SUCCESS;
-                        result.setName(updated.getFullPath());
-
-                        LOG.debug("{} successfully updated", updated);
-                    } catch (PropagationException e) {
-                        // A propagation failure doesn't imply a pull failure.
-                        // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
-                        output = e;
-                        resultStatus = Result.FAILURE;
-                    } catch (Exception e) {
-                        throwIgnoreProvisionException(delta, e);
-
-                        result.setStatus(ProvisioningReport.Status.FAILURE);
-                        result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
-                        output = e;
-                        resultStatus = Result.FAILURE;
                     }
+
+                    PropagationByResource<String> propByRes = binder.update(realm, before);
+                    realm = realmDAO.save(realm);
+                    RealmTO updated = binder.getRealmTO(realm, true);
+
+                    List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
+                    taskExecutor.execute(taskInfos, false, adminUser);
+
+                    for (PullActions action : profile.getActions()) {
+                        action.after(profile, delta, updated, result);
+                    }
+
+                    output = updated;
+                    resultStatus = Result.SUCCESS;
+                    result.setName(updated.getFullPath());
+
+                    LOG.debug("{} successfully updated", updated);
+                } catch (PropagationException e) {
+                    // A propagation failure doesn't imply a pull failure.
+                    // The propagation exception status will be reported into the propagation task execution.
+                    LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
+                    output = e;
+                    resultStatus = Result.FAILURE;
+                } catch (Exception e) {
+                    throwIgnoreProvisionException(delta, e);
+
+                    result.setStatus(ProvisioningReport.Status.FAILURE);
+                    result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                    LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
+                    output = e;
+                    resultStatus = Result.FAILURE;
                 }
+
                 finalize(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
             }
+
             results.add(result);
         }
 
         return results;
     }
 
-    private List<ProvisioningReport> deprovision(final SyncDelta delta, final List<String> keys, final boolean unlink)
+    private List<ProvisioningReport> deprovision(final SyncDelta delta, final List<Realm> realms, final boolean unlink)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
@@ -368,97 +358,87 @@ public class DefaultRealmPullResultHandler
             finalize(unlink
                     ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
                     : MatchingRule.toEventName(MatchingRule.DEPROVISION), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
-        LOG.debug("About to deprovision {}", keys);
+        LOG.debug("About to deprovision {}", realms);
 
         final List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : keys) {
-            LOG.debug("About to unassign resource {}", key);
+        for (Realm realm : realms) {
+            LOG.debug("About to unassign resource {}", realm);
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.DELETE);
-            result.setAnyType(REALM_TYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.SUCCESS);
-            result.setKey(key);
-
-            Realm realm = realmDAO.find(key);
-            RealmTO before = binder.getRealmTO(realm, true);
-            if (before == null) {
-                result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(String.format("Realm '%s' not found", key));
-            } else {
-                result.setName(before.getFullPath());
-            }
+            result.setKey(realm.getKey());
+            result.setName(realm.getFullPath());
 
             if (!profile.isDryRun()) {
                 Object output;
                 Result resultStatus;
 
-                if (before == null) {
-                    resultStatus = Result.FAILURE;
-                    output = null;
-                } else {
-                    try {
-                        if (unlink) {
-                            for (PullActions action : profile.getActions()) {
-                                action.beforeUnassign(profile, delta, before);
-                            }
-                        } else {
-                            for (PullActions action : profile.getActions()) {
-                                action.beforeDeprovision(profile, delta, before);
-                            }
-                        }
-
-                        PropagationByResource propByRes = new PropagationByResource();
-                        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-                        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null), false);
-
-                        RealmTO realmTO;
-                        if (unlink) {
-                            realm.getResources().remove(profile.getTask().getResource());
-                            realmTO = binder.getRealmTO(realmDAO.save(realm), true);
-                        } else {
-                            realmTO = binder.getRealmTO(realm, true);
-                        }
-                        output = realmTO;
-
+                RealmTO before = binder.getRealmTO(realm, true);
+                try {
+                    if (unlink) {
                         for (PullActions action : profile.getActions()) {
-                            action.after(profile, delta, realmTO, result);
+                            action.beforeUnassign(profile, delta, before);
                         }
-
-                        resultStatus = Result.SUCCESS;
-
-                        LOG.debug("{} successfully updated", realm);
-                    } catch (PropagationException e) {
-                        // A propagation failure doesn't imply a pull failure.
-                        // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
-                        output = e;
-                        resultStatus = Result.FAILURE;
-                    } catch (Exception e) {
-                        throwIgnoreProvisionException(delta, e);
-
-                        result.setStatus(ProvisioningReport.Status.FAILURE);
-                        result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
-                        output = e;
-                        resultStatus = Result.FAILURE;
+                    } else {
+                        for (PullActions action : profile.getActions()) {
+                            action.beforeDeprovision(profile, delta, before);
+                        }
                     }
+
+                    PropagationByResource<String> propByRes = new PropagationByResource<>();
+                    propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
+                    taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null), false, adminUser);
+
+                    RealmTO realmTO;
+                    if (unlink) {
+                        realm.getResources().remove(profile.getTask().getResource());
+                        realmTO = binder.getRealmTO(realmDAO.save(realm), true);
+                    } else {
+                        realmTO = binder.getRealmTO(realm, true);
+                    }
+                    output = realmTO;
+
+                    for (PullActions action : profile.getActions()) {
+                        action.after(profile, delta, realmTO, result);
+                    }
+
+                    resultStatus = Result.SUCCESS;
+
+                    LOG.debug("{} successfully updated", realm);
+                } catch (PropagationException e) {
+                    // A propagation failure doesn't imply a pull failure.
+                    // The propagation exception status will be reported into the propagation task execution.
+                    LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
+                    output = e;
+                    resultStatus = Result.FAILURE;
+                } catch (Exception e) {
+                    throwIgnoreProvisionException(delta, e);
+
+                    result.setStatus(ProvisioningReport.Status.FAILURE);
+                    result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                    LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
+                    output = e;
+                    resultStatus = Result.FAILURE;
                 }
+
                 finalize(unlink
                         ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
                         : MatchingRule.toEventName(MatchingRule.DEPROVISION), resultStatus, before, output, delta);
             }
+
             results.add(result);
         }
 
         return results;
     }
 
-    private List<ProvisioningReport> link(final SyncDelta delta, final List<String> keys, final boolean unlink)
+    private List<ProvisioningReport> link(final SyncDelta delta, final List<Realm> realms, final boolean unlink)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
@@ -466,75 +446,65 @@ public class DefaultRealmPullResultHandler
             finalize(unlink
                     ? MatchingRule.toEventName(MatchingRule.UNLINK)
                     : MatchingRule.toEventName(MatchingRule.LINK), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
-        LOG.debug("About to link {}", keys);
+        LOG.debug("About to link {}", realms);
 
         final List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : keys) {
-            LOG.debug("About to unassign resource {}", key);
+        for (Realm realm : realms) {
+            LOG.debug("About to unassign resource {}", realm);
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
-            result.setAnyType(REALM_TYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.SUCCESS);
-            result.setKey(key);
+            result.setKey(realm.getKey());
+            result.setName(realm.getFullPath());
 
-            Realm realm = realmDAO.find(key);
-            RealmTO before = binder.getRealmTO(realm, true);
-            if (before == null) {
-                result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(String.format("Realm '%s' not found", key));
-            } else {
-                result.setName(before.getFullPath());
-            }
-
-            Object output;
-            Result resultStatus;
             if (!profile.isDryRun()) {
-                if (before == null) {
-                    resultStatus = Result.FAILURE;
-                    output = null;
-                } else {
-                    try {
-                        if (unlink) {
-                            for (PullActions action : profile.getActions()) {
-                                action.beforeUnlink(profile, delta, before);
-                            }
-                        } else {
-                            for (PullActions action : profile.getActions()) {
-                                action.beforeLink(profile, delta, before);
-                            }
+                Object output;
+                Result resultStatus;
+
+                RealmTO before = binder.getRealmTO(realm, true);
+                try {
+                    if (unlink) {
+                        for (PullActions action : profile.getActions()) {
+                            action.beforeUnlink(profile, delta, before);
                         }
-
-                        if (unlink) {
-                            realm.getResources().remove(profile.getTask().getResource());
-                        } else {
-                            realm.add(profile.getTask().getResource());
+                    } else {
+                        for (PullActions action : profile.getActions()) {
+                            action.beforeLink(profile, delta, before);
                         }
-                        output = update(delta, Collections.singletonList(key), true);
-
-                        resultStatus = Result.SUCCESS;
-
-                        LOG.debug("{} successfully updated", realm);
-                    } catch (PropagationException e) {
-                        // A propagation failure doesn't imply a pull failure.
-                        // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
-                        output = e;
-                        resultStatus = Result.FAILURE;
-                    } catch (Exception e) {
-                        throwIgnoreProvisionException(delta, e);
-
-                        result.setStatus(ProvisioningReport.Status.FAILURE);
-                        result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
-                        output = e;
-                        resultStatus = Result.FAILURE;
                     }
+
+                    if (unlink) {
+                        realm.getResources().remove(profile.getTask().getResource());
+                    } else {
+                        realm.add(profile.getTask().getResource());
+                    }
+                    output = update(delta, List.of(realm), true);
+
+                    resultStatus = Result.SUCCESS;
+
+                    LOG.debug("{} successfully updated", realm);
+                } catch (PropagationException e) {
+                    // A propagation failure doesn't imply a pull failure.
+                    // The propagation exception status will be reported into the propagation task execution.
+                    LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
+                    output = e;
+                    resultStatus = Result.FAILURE;
+                } catch (Exception e) {
+                    throwIgnoreProvisionException(delta, e);
+
+                    result.setStatus(ProvisioningReport.Status.FAILURE);
+                    result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                    LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
+                    output = e;
+                    resultStatus = Result.FAILURE;
                 }
+
                 finalize(unlink
                         ? MatchingRule.toEventName(MatchingRule.UNLINK)
                         : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, delta);
@@ -545,39 +515,32 @@ public class DefaultRealmPullResultHandler
         return results;
     }
 
-    private List<ProvisioningReport> delete(final SyncDelta delta, final List<String> keys)
+    private List<ProvisioningReport> delete(final SyncDelta delta, final List<Realm> realms)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
             finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return Collections.<ProvisioningReport>emptyList();
+            return List.of();
         }
 
-        LOG.debug("About to delete {}", keys);
+        LOG.debug("About to delete {}", realms);
 
         List<ProvisioningReport> results = new ArrayList<>();
 
-        for (String key : keys) {
+        realms.forEach(realm -> {
             Object output;
             Result resultStatus = Result.FAILURE;
 
             ProvisioningReport result = new ProvisioningReport();
 
+            RealmTO before = binder.getRealmTO(realm, true);
             try {
-                result.setKey(key);
+                result.setKey(realm.getKey());
+                result.setName(realm.getFullPath());
                 result.setOperation(ResourceOperation.DELETE);
-                result.setAnyType(REALM_TYPE);
+                result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
-
-                Realm realm = realmDAO.find(key);
-                RealmTO before = binder.getRealmTO(realm, true);
-                if (before == null) {
-                    result.setStatus(ProvisioningReport.Status.FAILURE);
-                    result.setMessage(String.format("Realm '%s' not found", key));
-                } else {
-                    result.setName(before.getFullPath());
-                }
 
                 if (!profile.isDryRun()) {
                     for (PullActions action : profile.getActions()) {
@@ -589,10 +552,10 @@ public class DefaultRealmPullResultHandler
                             throw SyncopeClientException.build(ClientExceptionType.HasChildren);
                         }
 
-                        Set<String> adminRealms = Collections.singleton(realm.getFullPath());
-                        AnyCond keyCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+                        Set<String> adminRealms = Set.of(realm.getFullPath());
+                        AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
                         keyCond.setSchema("key");
-                        SearchCond allMatchingCond = SearchCond.getLeafCond(keyCond);
+                        SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
                         int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
                         int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
                         int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
@@ -606,10 +569,10 @@ public class DefaultRealmPullResultHandler
                             throw containedAnys;
                         }
 
-                        PropagationByResource propByRes = new PropagationByResource();
+                        PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
                         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                        taskExecutor.execute(taskInfos, false);
+                        taskExecutor.execute(taskInfos, false, adminUser);
 
                         realmDAO.delete(realm);
 
@@ -633,20 +596,16 @@ public class DefaultRealmPullResultHandler
 
                 results.add(result);
             } catch (DelegatedAdministrationException e) {
-                LOG.error("Not allowed to read Realm {}", key, e);
+                LOG.error("Not allowed to read Realm {}", realm, e);
             } catch (Exception e) {
-                LOG.error("Could not delete Realm {}", key, e);
+                LOG.error("Could not delete Realm {}", realm, e);
             }
-        }
+        });
 
         return results;
     }
 
-    private ProvisioningReport ignore(
-            final SyncDelta delta,
-            final boolean matching)
-            throws JobExecutionException {
-
+    private ProvisioningReport ignore(final SyncDelta delta, final boolean matching) throws JobExecutionException {
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
         ProvisioningReport result = new ProvisioningReport();
@@ -654,7 +613,7 @@ public class DefaultRealmPullResultHandler
         result.setKey(null);
         result.setName(delta.getObject().getUid().getUidValue());
         result.setOperation(ResourceOperation.NONE);
-        result.setAnyType(REALM_TYPE);
+        result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
         result.setStatus(ProvisioningReport.Status.SUCCESS);
 
         if (!profile.isDryRun()) {
@@ -670,30 +629,30 @@ public class DefaultRealmPullResultHandler
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        SyncDelta processed = delta;
+        SyncDelta finalDelta = delta;
         for (PullActions action : profile.getActions()) {
-            processed = action.preprocess(profile, processed);
+            finalDelta = action.preprocess(profile, finalDelta);
         }
 
         LOG.debug("Transformed {} for {} as {}",
-                processed.getDeltaType(), processed.getUid().getUidValue(), processed.getObject().getObjectClass());
+                finalDelta.getDeltaType(), finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass());
 
-        List<String> keys = pullUtils.match(processed, orgUnit);
+        List<Realm> realms = inboundMatcher.match(finalDelta, orgUnit);
         LOG.debug("Match found for {} as {}: {}",
-                processed.getUid().getUidValue(), processed.getObject().getObjectClass(), keys);
+                finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass(), realms);
 
-        if (keys.size() > 1) {
+        if (realms.size() > 1) {
             switch (profile.getConflictResolutionAction()) {
                 case IGNORE:
                     throw new IgnoreProvisionException("More than one match found for "
-                            + processed.getObject().getUid().getUidValue() + ": " + keys);
+                            + finalDelta.getObject().getUid().getUidValue() + ": " + realms);
 
                 case FIRSTMATCH:
-                    keys = keys.subList(0, 1);
+                    realms = realms.subList(0, 1);
                     break;
 
                 case LASTMATCH:
-                    keys = keys.subList(keys.size() - 1, keys.size());
+                    realms = realms.subList(realms.size() - 1, realms.size());
                     break;
 
                 default:
@@ -702,19 +661,19 @@ public class DefaultRealmPullResultHandler
         }
 
         try {
-            if (SyncDeltaType.CREATE_OR_UPDATE == processed.getDeltaType()) {
-                if (keys.isEmpty()) {
+            if (SyncDeltaType.CREATE_OR_UPDATE == finalDelta.getDeltaType()) {
+                if (realms.isEmpty()) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            profile.getResults().addAll(assign(processed, orgUnit));
+                            profile.getResults().addAll(assign(finalDelta, orgUnit));
                             break;
 
                         case PROVISION:
-                            profile.getResults().addAll(provision(processed, orgUnit));
+                            profile.getResults().addAll(provision(finalDelta, orgUnit));
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(processed, false));
+                            profile.getResults().add(ignore(finalDelta, false));
                             break;
 
                         default:
@@ -723,39 +682,39 @@ public class DefaultRealmPullResultHandler
                 } else {
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(processed, keys, false));
+                            profile.getResults().addAll(update(finalDelta, realms, false));
                             break;
 
                         case DEPROVISION:
-                            profile.getResults().addAll(deprovision(processed, keys, false));
+                            profile.getResults().addAll(deprovision(finalDelta, realms, false));
                             break;
 
                         case UNASSIGN:
-                            profile.getResults().addAll(deprovision(processed, keys, true));
+                            profile.getResults().addAll(deprovision(finalDelta, realms, true));
                             break;
 
                         case LINK:
-                            profile.getResults().addAll(link(processed, keys, false));
+                            profile.getResults().addAll(link(finalDelta, realms, false));
                             break;
 
                         case UNLINK:
-                            profile.getResults().addAll(link(processed, keys, true));
+                            profile.getResults().addAll(link(finalDelta, realms, true));
                             break;
 
                         case IGNORE:
-                            profile.getResults().add(ignore(processed, true));
+                            profile.getResults().add(ignore(finalDelta, true));
                             break;
 
                         default:
                         // do nothing
                     }
                 }
-            } else if (SyncDeltaType.DELETE == processed.getDeltaType()) {
-                if (keys.isEmpty()) {
-                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, processed);
+            } else if (SyncDeltaType.DELETE == finalDelta.getDeltaType()) {
+                if (realms.isEmpty()) {
+                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, finalDelta);
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(processed, keys));
+                    profile.getResults().addAll(delete(finalDelta, realms));
                 }
             }
         } catch (IllegalStateException | IllegalArgumentException e) {
@@ -777,7 +736,7 @@ public class DefaultRealmPullResultHandler
         notificationManager.createTasks(
                 AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.PULL,
-                REALM_TYPE.toLowerCase(),
+                SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -788,7 +747,7 @@ public class DefaultRealmPullResultHandler
         auditManager.audit(
                 AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.PULL,
-                REALM_TYPE.toLowerCase(),
+                SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,

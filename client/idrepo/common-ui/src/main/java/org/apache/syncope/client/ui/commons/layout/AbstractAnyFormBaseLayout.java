@@ -97,5 +97,4 @@ public abstract class AbstractAnyFormBaseLayout<A extends AnyTO, F extends AnyFo
     public void setResources(final boolean resources) {
         this.resources = resources;
     }
-
 }

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -55,15 +57,11 @@ public class StaticReportletConf extends AbstractReportletConf {
     }
 
     public Date getDateField() {
-        return dateField == null
-                ? null
-                : new Date(dateField.getTime());
+        return Optional.ofNullable(dateField).map(field -> new Date(field.getTime())).orElse(null);
     }
 
     public void setDateField(final Date dateField) {
-        this.dateField = dateField == null
-                ? null
-                : new Date(dateField.getTime());
+        this.dateField = Optional.ofNullable(dateField).map(field -> new Date(field.getTime())).orElse(null);
     }
 
     public Double getDoubleField() {

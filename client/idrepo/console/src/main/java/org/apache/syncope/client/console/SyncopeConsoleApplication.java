@@ -19,21 +19,34 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
+import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
+import org.apache.syncope.client.console.commons.ExternalResourceProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
+import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
+import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
+import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
+import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
+import org.apache.syncope.client.console.commons.StatusProvider;
+import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.filter.HiddenHttpMethodFilter;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 
-@SpringBootApplication
-@EnableAutoConfiguration(exclude = {
+@SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
@@ -48,6 +61,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return super.configure(builder);
     }
 
+    @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
     public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
         ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
@@ -55,6 +69,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return lookup;
     }
 
+    @ConditionalOnMissingBean(name = "mimeTypesLoader")
     @Bean
     public MIMETypesLoader mimeTypesLoader() {
         MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
@@ -62,10 +77,51 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return mimeTypesLoader;
     }
 
+    @ConditionalOnMissingBean(name = "resourceProvider")
     @Bean
-    public FilterRegistrationBean<HiddenHttpMethodFilter> registration(final HiddenHttpMethodFilter filter) {
-        FilterRegistrationBean<HiddenHttpMethodFilter> registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false);
-        return registration;
+    public ExternalResourceProvider resourceProvider() {
+        return new IdRepoExternalResourceProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "anyDirectoryPanelAdditionalActionsProvider")
+    @Bean
+    public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider() {
+        return new IdRepoAnyDirectoryPanelAdditionalActionsProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "anyDirectoryPanelAdditionalActionLinksProvider")
+    @Bean
+    public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider() {
+        return new IdRepoAnyDirectoryPanelAdditionalActionLinksProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "anyWizardBuilderAdditionalSteps")
+    @Bean
+    public AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps() {
+        return new IdRepoAnyWizardBuilderAdditionalSteps();
+    }
+
+    @ConditionalOnMissingBean(name = "statusProvider")
+    @Bean
+    public StatusProvider statusProvider() {
+        return new IdRepoStatusProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "virSchemaDetailsPanelProvider")
+    @Bean
+    public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
+        return new IdRepoVirSchemaDetailsPanelProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "implementationInfoProvider")
+    @Bean
+    public ImplementationInfoProvider implementationInfoProvider() {
+        return new IdRepoImplementationInfoProvider();
+    }
+
+    @ConditionalOnMissingBean(name = "policyTabProvider")
+    @Bean
+    public PolicyTabProvider policyTabProvider() {
+        return new IdRepoPolicyTabProvider();
     }
 }

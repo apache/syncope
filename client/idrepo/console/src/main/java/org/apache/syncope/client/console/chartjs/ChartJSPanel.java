@@ -75,6 +75,6 @@ public class ChartJSPanel extends Panel {
         }
 
         return "var " + container.getMarkupId() + " = WicketCharts['" + container.getMarkupId() + "']."
-                + model.getObject().getClass().getSimpleName() + "(" + dataString + ", " + optionString + ");";
+                + model.getObject().getClass().getSimpleName() + '(' + dataString + ", " + optionString + ");";
     }
 }

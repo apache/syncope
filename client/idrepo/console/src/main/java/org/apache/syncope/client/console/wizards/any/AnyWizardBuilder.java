@@ -25,10 +25,11 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import java.util.Optional;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractAnyWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
@@ -90,10 +91,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
     @Override
     protected WizardModel buildModelSteps(final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
         // optional details panel step
-        final Details<A> details = addOptionalDetailsPanel(modelObject);
-        if (details != null) {
-            wizardModel.add(details);
-        }
+        addOptionalDetailsPanel(modelObject).ifPresent(wizardModel::add);
 
         if ((this instanceof GroupWizardBuilder)
                 && (modelObject.getInnerObject() instanceof GroupTO)
@@ -167,15 +165,11 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         return wizardModel;
     }
 
-    protected Details<A> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
+    protected Optional<Details<A>> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
         if (modelObject.getInnerObject().getKey() == null) {
-            return null;
+            return Optional.empty();
         } else {
-            return new Details<>(
-                    modelObject,
-                    mode == AjaxWizard.Mode.TEMPLATE,
-                    true,
-                    pageRef);
+            return Optional.of(new Details<>(modelObject, mode == AjaxWizard.Mode.TEMPLATE, true, pageRef));
         }
     }
 
@@ -184,27 +178,27 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
         // form layout, which might have not included some plain or virtual attributes
         for (Attr plainAttr : original.getPlainAttrs()) {
-            if (!updated.getPlainAttr(plainAttr.getSchema()).isPresent()) {
+            if (updated.getPlainAttr(plainAttr.getSchema()).isEmpty()) {
                 updated.getPlainAttrs().add(plainAttr);
             }
         }
         for (Attr virAttr : original.getVirAttrs()) {
-            if (!updated.getVirAttr(virAttr.getSchema()).isPresent()) {
+            if (updated.getVirAttr(virAttr.getSchema()).isEmpty()) {
                 updated.getVirAttrs().add(virAttr);
             }
         }
 
         if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class.cast(original).getMemberships().forEach(oMemb -> {
-                GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
-                    oMemb.getPlainAttrs().stream().
-                            filter(attr -> !uMemb.getPlainAttr(attr.getSchema()).isPresent()).
-                            forEach(attr -> uMemb.getPlainAttrs().add(attr));
-                    oMemb.getVirAttrs().stream().
-                            filter(attr -> !uMemb.getVirAttr(attr.getSchema()).isPresent()).
-                            forEach(attr -> uMemb.getVirAttrs().add(attr));
-                });
-            });
+            GroupableRelatableTO.class.cast(original).getMemberships().
+                    forEach(oMemb -> GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).
+                    ifPresent(uMemb -> {
+                        oMemb.getPlainAttrs().stream().
+                                filter(attr -> !uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                                forEach(attr -> uMemb.getPlainAttrs().add(attr));
+                        oMemb.getVirAttrs().stream().
+                                filter(attr -> !uMemb.getVirAttr(attr.getSchema()).isPresent()).
+                                forEach(attr -> uMemb.getVirAttrs().add(attr));
+                    }));
         }
 
         // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in
@@ -225,8 +219,8 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
     }
 
     @Override
-    protected void sendError(final String message) {
-        SyncopeConsoleSession.get().error(message);
+    protected void sendError(final Exception exception) {
+        SyncopeConsoleSession.get().onException(exception);
     }
 
     @Override
@@ -237,6 +231,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
     @Override
     protected Future<Pair<Serializable, Serializable>> execute(
             final Callable<Pair<Serializable, Serializable>> future) {
+
         return SyncopeConsoleSession.get().execute(future);
     }
 }

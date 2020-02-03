@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -60,20 +61,30 @@ public class DeprovisionProducer extends AbstractProducer {
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         if (null != getAnyTypeKind()) {
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             List<PropagationTaskInfo> taskInfos;
             PropagationReporter propagationReporter;
             switch (getAnyTypeKind()) {
                 case USER:
                     propByRes.set(ResourceOperation.DELETE, resources);
+
+                    PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+                    userDAO.findLinkedAccounts(key).stream().
+                            filter(account -> resources.contains(account.getResource().getKey())).
+                            forEach(account -> propByLinkedAccount.add(
+                            ResourceOperation.DELETE,
+                            Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+
                     taskInfos = getPropagationManager().getDeleteTasks(
                             AnyTypeKind.USER,
                             key,
                             propByRes,
+                            propByLinkedAccount,
                             userDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
-                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
-                    exchange.getOut().setBody(propagationReporter.getStatuses());
+                    propagationReporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
+                    exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
                 case GROUP:
@@ -82,10 +93,12 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.GROUP,
                             key,
                             propByRes,
+                            null,
                             groupDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
-                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
-                    exchange.getOut().setBody(propagationReporter.getStatuses());
+                    propagationReporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
+                    exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
                 case ANY_OBJECT:
@@ -94,10 +107,12 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.ANY_OBJECT,
                             key,
                             propByRes,
+                            null,
                             anyObjectDAO.findAllResourceKeys(key).stream().
                                     filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
-                    propagationReporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
-                    exchange.getOut().setBody(propagationReporter.getStatuses());
+                    propagationReporter =
+                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
+                    exchange.getMessage().setBody(propagationReporter.getStatuses());
                     break;
 
                 default:

@@ -18,35 +18,62 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
+import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 
 public class ReconciliationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public ReconStatus status(final AnyTypeKind anyTypeKind, final String anyKey, final String resourceKey) {
-        return getService(ReconciliationService.class).status(anyTypeKind, anyKey, resourceKey);
+    public static ReconStatus status(final ReconQuery reconQuery) {
+        return getService(ReconciliationService.class).status(reconQuery);
     }
 
-    public void push(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PushTaskTO pushTask) {
-
-        getService(ReconciliationService.class).push(anyTypeKind, anyKey, resourceKey, pushTask);
+    public static void push(final ReconQuery reconQuery, final PushTaskTO pushTask) {
+        getService(ReconciliationService.class).push(reconQuery, pushTask);
     }
 
-    public void pull(
-            final AnyTypeKind anyTypeKind,
-            final String anyKey,
-            final String resourceKey,
-            final PullTaskTO pullTask) {
+    public static void pull(final ReconQuery reconQuery, final PullTaskTO pullTask) {
+        getService(ReconciliationService.class).pull(reconQuery, pullTask);
+    }
 
-        getService(ReconciliationService.class).pull(anyTypeKind, anyKey, resourceKey, pullTask);
+    public static Response push(final AnyQuery anyQuery, final CSVPushSpec spec) {
+        ReconciliationService service = getService(ReconciliationService.class);
+        Client client = WebClient.client(service);
+        client.accept(RESTHeaders.TEXT_CSV);
+
+        Response response = service.push(anyQuery, spec);
+
+        SyncopeConsoleSession.get().resetClient(ReconciliationService.class);
+
+        return response;
+    }
+
+    public static ArrayList<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
+        ReconciliationService service = getService(ReconciliationService.class);
+        Client client = WebClient.client(service);
+        client.type(RESTHeaders.TEXT_CSV);
+
+        ArrayList<ProvisioningReport> result = service.pull(spec, csv).stream().
+                collect(Collectors.toCollection(ArrayList::new));
+
+        SyncopeConsoleSession.get().resetClient(ReconciliationService.class);
+
+        return result;
     }
 }

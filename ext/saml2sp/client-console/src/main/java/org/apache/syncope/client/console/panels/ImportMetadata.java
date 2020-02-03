@@ -24,7 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -42,8 +41,6 @@ import org.apache.wicket.model.util.ListModel;
 public class ImportMetadata extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = 6959177759869415782L;
-
-    private final SAML2IdPsRestClient restClient = new SAML2IdPsRestClient();
 
     private final Form<?> form;
 
@@ -84,7 +81,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target) {
                 if (ArrayUtils.isNotEmpty(metadata.getObject())) {
                     try {
-                        restClient.importIdPs(new ByteArrayInputStream(metadata.getObject()));
+                        SAML2IdPsRestClient.importIdPs(new ByteArrayInputStream(metadata.getObject()));
                         metadata.setObject(null);
 
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -92,9 +89,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
                         target.add(container);
                     } catch (Exception e) {
                         LOG.error("While importing SAML 2.0 IdP metadata", e);
-                        SyncopeConsoleSession.get().error(
-                                StringUtils.isBlank(e.getMessage())
-                                ? e.getClass().getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
@@ -106,5 +101,4 @@ public class ImportMetadata extends TogglePanel<Serializable> {
             }
         });
     }
-
 }

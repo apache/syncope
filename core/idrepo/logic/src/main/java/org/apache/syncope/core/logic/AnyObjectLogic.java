@@ -86,16 +86,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
         }
 
-        Set<String> effectiveRealms = RealmUtils.getEffective(
+        Set<String> adminRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.SEARCH.getFor(searchCond.hasAnyTypeCond())),
                 realm);
 
-        int count = searchDAO.count(effectiveRealms, searchCond, AnyTypeKind.ANY_OBJECT);
+        int count = searchDAO.count(adminRealms, searchCond, AnyTypeKind.ANY_OBJECT);
 
         List<AnyObject> matching = searchDAO.search(
-                effectiveRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
+                adminRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
         List<AnyObjectTO> result = matching.stream().
-                map(anyObject -> binder.getAnyObjectTO(anyObject, details)).collect(Collectors.toList());
+                map(anyObject -> binder.getAnyObjectTO(anyObject, details)).
+                collect(Collectors.toList());
 
         return Pair.of(count, result);
     }

@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "provision")
 @XmlType
@@ -122,4 +124,43 @@ public class ProvisionTO implements EntityTO {
         return virSchemas;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ProvisionTO other = (ProvisionTO) obj;
+        return new EqualsBuilder().
+                append(ignoreCaseMatch, other.ignoreCaseMatch).
+                append(key, other.key).
+                append(anyType, other.anyType).
+                append(objectClass, other.objectClass).
+                append(auxClasses, other.auxClasses).
+                append(syncToken, other.syncToken).
+                append(uidOnCreate, other.uidOnCreate).
+                append(mapping, other.mapping).
+                append(virSchemas, other.virSchemas).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(anyType).
+                append(objectClass).
+                append(auxClasses).
+                append(syncToken).
+                append(ignoreCaseMatch).
+                append(uidOnCreate).
+                append(mapping).
+                append(virSchemas).
+                build();
+    }
 }

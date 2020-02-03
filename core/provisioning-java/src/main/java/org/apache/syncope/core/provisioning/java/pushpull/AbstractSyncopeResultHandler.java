@@ -18,8 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import javax.annotation.Resource;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -27,8 +31,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions;
@@ -83,6 +85,9 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
+    @Resource(name = "adminUser")
+    protected String adminUser;
+
     /**
      * Provisioning profile.
      */
@@ -90,7 +95,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
 
     protected abstract AnyUtils getAnyUtils();
 
-    protected abstract AnyTO getAnyTO(String key);
+    protected abstract AnyTO getAnyTO(Any<?> any);
 
     protected abstract WorkflowResult<? extends AnyUR> update(AnyUR req);
 

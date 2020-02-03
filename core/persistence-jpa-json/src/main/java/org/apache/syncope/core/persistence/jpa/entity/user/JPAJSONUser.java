@@ -23,34 +23,40 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.Column;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.JSONAny;
-import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAnyCheck;
+import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
 
 @Entity
 @Table(name = JPAUser.TABLE)
 @EntityListeners({ JPAJSONUserListener.class })
-@JPAJSONAnyCheck
-public class JPAJSONUser extends JPAUser implements JSONAny<User>, User {
+@JPAJSONAttributableCheck
+public class JPAJSONUser extends JPAUser implements JSONAttributable<User>, User {
 
     private static final long serialVersionUID = -8543654943709531885L;
 
     @Lob
-    @Column(columnDefinition = "jsonb")
     private String plainAttrs;
 
     @Transient
     private final List<JPAJSONUPlainAttr> plainAttrList = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
+    @Valid
+    private List<JPAJSONLinkedAccount> linkedAccounts = new ArrayList<>();
 
     @Override
     public String getPlainAttrsJSON() {
@@ -117,5 +123,32 @@ public class JPAJSONUser extends JPAUser implements JSONAny<User>, User {
         plainAttrList.removeIf(attr -> attr.getMembershipKey() != null
                 && attr.getMembershipKey().equals(membership.getKey()));
         return super.remove(membership);
+    }
+
+    @Override
+    public boolean add(final LinkedAccount account) {
+        checkType(account, JPALinkedAccount.class);
+        return linkedAccounts.contains((JPAJSONLinkedAccount) account)
+                || linkedAccounts.add((JPAJSONLinkedAccount) account);
+    }
+
+    @Override
+    public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectKeyValue) {
+        return linkedAccounts.stream().
+                filter(account -> account.getResource().getKey().equals(resource)
+                && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
+                findFirst();
+    }
+
+    @Override
+    public List<? extends LinkedAccount> getLinkedAccounts(final String resource) {
+        return linkedAccounts.stream().
+                filter(account -> account.getResource().getKey().equals(resource)).
+                collect(Collectors.toList());
+    }
+
+    @Override
+    public List<? extends LinkedAccount> getLinkedAccounts() {
+        return linkedAccounts;
     }
 }

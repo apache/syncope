@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -36,14 +38,14 @@ public class AuditLoggerName implements Serializable {
     private static final long serialVersionUID = -647989486671786839L;
 
     public static String getAuditLoggerName(final String domain) {
-        return LoggerType.AUDIT.getPrefix() + "." + domain;
+        return LoggerType.AUDIT.getPrefix() + '.' + domain;
     }
 
     public static String getAuditEventLoggerName(final String domain, final String loggerName) {
-        return domain + "." + loggerName;
+        return domain + '.' + loggerName;
     }
 
-    private final AuditElements.EventCategoryType type;
+    private final EventCategoryType type;
 
     private final String category;
 
@@ -63,11 +65,11 @@ public class AuditLoggerName implements Serializable {
 
         super();
 
-        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
+        this.type = Optional.ofNullable(type).orElse(EventCategoryType.CUSTOM);
         this.category = category;
         this.subcategory = subcategory;
         this.event = event;
-        this.result = result == null ? Result.SUCCESS : result;
+        this.result = Optional.ofNullable(result).orElse(Result.SUCCESS);
     }
 
     public AuditElements.EventCategoryType getType() {
@@ -139,7 +141,7 @@ public class AuditLoggerName implements Serializable {
         }
 
         Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(
-                loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + ".", ""));
+                loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + '.', ""));
 
         return new AuditLoggerName(
                 eventCategory.getKey().getType(),

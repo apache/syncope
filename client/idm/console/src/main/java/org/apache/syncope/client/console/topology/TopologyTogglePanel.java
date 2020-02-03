@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.client.console.topology;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.HistoryConfList;
 import org.apache.syncope.client.console.panels.ConnObjects;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
@@ -48,6 +50,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
@@ -70,9 +73,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final WebMarkupContainer container;
 
@@ -90,11 +91,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         modal.size(Modal.Size.Large);
         setFooterVisibility(false);
 
-        propTaskModal = new BaseModal<>("outer");
+        propTaskModal = new BaseModal<>(Constants.OUTER);
         propTaskModal.size(Modal.Size.Large);
         addOuterObject(propTaskModal);
 
-        schedTaskModal = new BaseModal<Serializable>("outer") {
+        schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
 
             private static final long serialVersionUID = 389935548143327858L;
 
@@ -107,12 +108,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         schedTaskModal.size(Modal.Size.Large);
         addOuterObject(schedTaskModal);
 
-        provisionModal = new BaseModal<>("outer");
+        provisionModal = new BaseModal<>(Constants.OUTER);
         provisionModal.size(Modal.Size.Large);
         provisionModal.addSubmitButton();
         addOuterObject(provisionModal);
 
-        historyModal = new BaseModal<>("outer");
+        historyModal = new BaseModal<>(Constants.OUTER);
         historyModal.size(Modal.Size.Large);
         addOuterObject(historyModal);
 
@@ -187,12 +188,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    connectorRestClient.reload();
+                    ConnectorRestClient.reload();
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While reloading all connectors", e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -266,14 +266,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    connectorRestClient.delete(String.class.cast(node.getKey()));
+                    ConnectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -316,7 +315,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ConnInstanceTO connInstance = connectorRestClient.read(String.class.cast(node.getKey()));
+                ConnInstanceTO connInstance = ConnectorRestClient.read(String.class.cast(node.getKey()));
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(connInstance);
                 modal.setFormModel(model);
@@ -348,11 +347,33 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                String connKey = String.class.cast(node.getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(connKey);
+                ConnInstanceTO modelObject = ConnectorRestClient.read(node.getKey());
 
-                target.add(historyModal.setContent(
-                        new HistoryConfList<>(historyModal, connKey, pageRef, connInstance)));
+                target.add(historyModal.setContent(new AuditHistoryModal<ConnInstanceTO>(
+                        historyModal,
+                        AuditElements.EventCategoryType.LOGIC,
+                        "ConnectorLogic",
+                        modelObject,
+                        IdMEntitlement.CONNECTOR_UPDATE,
+                        pageRef) {
+
+                    private static final long serialVersionUID = -3225348282675513648L;
+
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        try {
+                            ConnInstanceTO updated = MAPPER.readValue(json, ConnInstanceTO.class);
+                            ConnectorRestClient.update(updated);
+
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            toggle(target, false);
+                        } catch (Exception e) {
+                            LOG.error("While restoring connector {}", node.getKey(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
 
                 historyModal.header(
                         new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
@@ -366,7 +387,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, IdMEntitlement.CONNECTOR_HISTORY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER,
+                String.format("%s,%s", IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
         fragment.add(history);
 
         return fragment;
@@ -382,14 +404,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    resourceRestClient.delete(node.getKey());
+                    ResourceRestClient.delete(node.getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -403,8 +424,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO resource = resourceRestClient.read(node.getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+                ResourceTO resource = ResourceRestClient.read(node.getKey());
+                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 modal.setFormModel(model);
@@ -435,7 +456,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey());
+                ResourceTO modelObject = ResourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
                         new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(
@@ -458,8 +479,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO resource = resourceRestClient.read(node.getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+                ResourceTO resource = ResourceRestClient.read(node.getKey());
+                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
                         owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
@@ -494,7 +515,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO resource = resourceRestClient.read(node.getKey());
+                ResourceTO resource = ResourceRestClient.read(node.getKey());
 
                 target.add(propTaskModal.setContent(new ConnObjects(resource, pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
@@ -579,11 +600,33 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                String resourceKey = String.class.cast(node.getKey());
-                final ResourceTO modelObject = resourceRestClient.read(String.class.cast(node.getKey()));
+                ResourceTO modelObject = ResourceRestClient.read(node.getKey());
 
-                target.add(historyModal.setContent(
-                        new HistoryConfList<>(historyModal, resourceKey, pageRef, modelObject)));
+                target.add(historyModal.setContent(new AuditHistoryModal<ResourceTO>(
+                        historyModal,
+                        AuditElements.EventCategoryType.LOGIC,
+                        "ResourceLogic",
+                        modelObject,
+                        IdMEntitlement.RESOURCE_UPDATE,
+                        pageRef) {
+
+                    private static final long serialVersionUID = -3712506022627033811L;
+
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        try {
+                            ResourceTO updated = MAPPER.readValue(json, ResourceTO.class);
+                            ResourceRestClient.update(updated);
+
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            toggle(target, false);
+                        } catch (Exception e) {
+                            LOG.error("While restoring resource {}", node.getKey(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
 
                 historyModal.header(
                         new Model<>(MessageFormat.format(getString("resource.menu.history"), node.getDisplayName())));
@@ -597,7 +640,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, IdMEntitlement.RESOURCE_HISTORY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER,
+                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
         fragment.add(history);
 
         // [SYNCOPE-1161] - Option to clone a resource
@@ -608,7 +652,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    ResourceTO resource = resourceRestClient.read(node.getKey());
+                    ResourceTO resource = ResourceRestClient.read(node.getKey());
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
                     if (resource.getOrgUnit() != null) {
@@ -627,7 +671,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         }
                         provision.getVirSchemas().clear();
                     }
-                    resourceRestClient.create(resource);
+                    ResourceRestClient.create(resource);
 
                     // refresh Topology
                     send(pageRef.getPage(), Broadcast.DEPTH, new AbstractResourceWizardBuilder.CreateEvent(
@@ -641,8 +685,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While cloning resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -659,18 +702,18 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         super.onEvent(event);
 
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            final AjaxWizard.NewItemFinishEvent item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
+            final AjaxWizard.NewItemFinishEvent<?> item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
             final Serializable result = item.getResult();
-            final AjaxRequestTarget target = item.getTarget();
-            if (result != null && result instanceof ConnInstanceTO) {
+            final Optional<AjaxRequestTarget> target = item.getTarget();
+            if (result != null && result instanceof ConnInstanceTO && target.isPresent()) {
                 // update Toggle Panel header
                 ConnInstanceTO conn = ConnInstanceTO.class.cast(result);
-                setHeader(target, StringUtils.abbreviate(conn.getDisplayName(), HEADER_FIRST_ABBREVIATION));
+                setHeader(target.get(), StringUtils.abbreviate(conn.getDisplayName(), HEADER_FIRST_ABBREVIATION));
             }
         }
     }
 
-    public final class UpdateEvent {
+    public static final class UpdateEvent {
 
         private final AjaxRequestTarget target;
 

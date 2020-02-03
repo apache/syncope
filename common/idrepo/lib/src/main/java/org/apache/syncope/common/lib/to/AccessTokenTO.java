@@ -19,8 +19,12 @@
 package org.apache.syncope.common.lib.to;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
 @XmlRootElement(name = "accessToken")
@@ -56,15 +60,11 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
     }
 
     public Date getExpiryTime() {
-        return expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     public void setExpiryTime(final Date expiryTime) {
-        this.expiryTime = expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        this.expiryTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     public String getOwner() {
@@ -75,4 +75,33 @@ public class AccessTokenTO extends BaseBean implements EntityTO {
         this.owner = owner;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AccessTokenTO other = (AccessTokenTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(body, other.body).
+                append(expiryTime, other.expiryTime).
+                append(owner, other.owner).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(body).
+                append(expiryTime).
+                append(owner).
+                build();
+    }
 }

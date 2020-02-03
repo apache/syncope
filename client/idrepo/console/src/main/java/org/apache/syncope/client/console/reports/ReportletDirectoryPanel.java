@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -73,8 +71,6 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         implements ModalPanel {
 
     private static final long serialVersionUID = 4984337552918213290L;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final BaseModal<ReportTO> baseModal;
 
@@ -155,16 +151,15 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                 final ReportletConf reportlet = model.getObject().getConf();
                 try {
-                    final ReportTO actual = restClient.read(report);
+                    final ReportTO actual = ReportRestClient.read(report);
                     actual.getReportlets().remove(model.getObject().getImplementationKey());
-                    restClient.update(actual);
+                    ReportRestClient.update(actual);
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", reportlet.getName(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -193,7 +188,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -210,8 +205,6 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final ImplementationRestClient implementationClient = new ImplementationRestClient();
-
         private final SortableDataProviderComparator<ReportletWrapper> comparator;
 
         public ReportDataProvider(final int paginatorRows) {
@@ -224,7 +217,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         private List<ReportletWrapper> getReportletWrappers(final ReportTO reportTO) {
             return reportTO.getReportlets().stream().map(reportlet -> {
-                ImplementationTO impl = implementationClient.read(IdRepoImplementationType.REPORTLET, reportlet);
+                ImplementationTO impl = ImplementationRestClient.read(IdRepoImplementationType.REPORTLET, reportlet);
 
                 ReportletWrapper wrapper = new ReportletWrapper(false).
                         setImplementationKey(impl.getKey()).
@@ -239,22 +232,22 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 }
 
                 return wrapper;
-            }).filter(wrapper -> wrapper != null).collect(Collectors.toList());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
         }
 
         @Override
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
-            final ReportTO actual = restClient.read(report);
+            final ReportTO actual = ReportRestClient.read(report);
 
             List<ReportletWrapper> reportlets = getReportletWrappers(actual);
 
-            Collections.sort(reportlets, comparator);
+            reportlets.sort(comparator);
             return reportlets.subList((int) first, (int) (first + count)).iterator();
         }
 
         @Override
         public long size() {
-            final ReportTO actual = restClient.read(report);
+            final ReportTO actual = ReportRestClient.read(report);
             return getReportletWrappers(actual).size();
         }
 

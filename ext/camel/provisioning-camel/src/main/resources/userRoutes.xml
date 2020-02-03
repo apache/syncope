@@ -21,7 +21,7 @@ under the License.
   
   <route id="createUser">
     <from uri="direct:createUser"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
@@ -41,7 +41,7 @@ under the License.
        
   <route id="updateUser">
     <from uri="direct:updateUser"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>

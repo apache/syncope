@@ -111,9 +111,7 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
             transformerFactory = TRAX_FACTORY;
         } else {
             transformerFactory = createNewSAXTransformerFactory();
-            attributes.forEach((key, values) -> {
-                transformerFactory.setAttribute(key, values);
-            });
+            attributes.forEach(transformerFactory::setAttribute);
         }
 
         try {
@@ -136,9 +134,6 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void setSAXConsumer(final SAXConsumer consumer) {
         TransformerHandler transformerHandler;
@@ -193,6 +188,6 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
 
     @Override
     public String toString() {
-        return StringRepresentation.buildString(this, "src=<" + this.source + ">");
+        return StringRepresentation.buildString(this, "src=<" + this.source + '>');
     }
 }

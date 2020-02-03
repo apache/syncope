@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.scim;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class SCIMGeneralConf implements Serializable {
@@ -71,9 +73,7 @@ public class SCIMGeneralConf implements Serializable {
     public String getETagValue() {
         Date etagDate = getLastChangeDate() == null
                 ? getCreationDate() : getLastChangeDate();
-        return etagDate == null
-                ? StringUtils.EMPTY
-                : String.valueOf(etagDate.getTime());
+        return Optional.ofNullable(etagDate).map(date -> String.valueOf(date.getTime())).orElse(StringUtils.EMPTY);
 
     }
 

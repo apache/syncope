@@ -19,27 +19,22 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
-import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -48,7 +43,6 @@ import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,9 +55,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
-
-    @Autowired
-    private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -134,32 +125,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     public ConnInstance update(final ConnInstanceTO connInstanceTO) {
         ConnInstance connInstance = connInstanceDAO.authFind(connInstanceTO.getKey());
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
+            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + '\'');
         }
 
-        ConnInstanceTO current = getConnInstanceTO(connInstance);
-        if (!current.equals(connInstanceTO)) {
-            // 1. save the current configuration, before update
-            ConnInstanceHistoryConf connInstanceHistoryConf = entityFactory.newEntity(ConnInstanceHistoryConf.class);
-            connInstanceHistoryConf.setCreator(AuthContextUtils.getUsername());
-            connInstanceHistoryConf.setCreation(new Date());
-            connInstanceHistoryConf.setEntity(connInstance);
-            connInstanceHistoryConf.setConf(current);
-            connInstanceHistoryConfDAO.save(connInstanceHistoryConf);
-
-            // 2. ensure the maximum history size is not exceeded
-            List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(connInstance);
-            long maxHistorySize = confParamOps.get(
-                    AuthContextUtils.getDomain(), "connector.conf.history.size", 10L, Long.class);
-            if (maxHistorySize < history.size()) {
-                // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
-                for (int i = 0; i < history.size() - maxHistorySize; i++) {
-                    connInstanceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
-                }
-            }
-        }
-
-        // 3. actual update
         connInstance.getCapabilities().clear();
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
@@ -233,7 +201,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         if (property.getValue() != null) {
             if (property.getValue().getClass().isArray()) {
-                connConfPropSchema.getDefaultValues().addAll(Arrays.asList((Object[]) property.getValue()));
+                connConfPropSchema.getDefaultValues().addAll(List.of((Object[]) property.getValue()));
             } else if (property.getValue() instanceof Collection<?>) {
                 connConfPropSchema.getDefaultValues().addAll((Collection<?>) property.getValue());
             } else {
@@ -265,7 +233,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 
             Optional<ConnConfProperty> property = connInstanceTO.getConf(propName);
-            if (!property.isPresent()) {
+            if (property.isEmpty()) {
                 property = Optional.of(new ConnConfProperty());
                 connInstanceTO.getConf().add(property.get());
             }
@@ -291,16 +259,5 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
 
         return connInstanceTO;
-    }
-
-    @Override
-    public ConnInstanceHistoryConfTO getConnInstanceHistoryConfTO(final ConnInstanceHistoryConf history) {
-        ConnInstanceHistoryConfTO historyTO = new ConnInstanceHistoryConfTO();
-        historyTO.setKey(history.getKey());
-        historyTO.setCreator(history.getCreator());
-        historyTO.setCreation(history.getCreation());
-        historyTO.setConnInstanceTO(history.getConf());
-
-        return historyTO;
     }
 }

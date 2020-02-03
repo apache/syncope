@@ -33,7 +33,7 @@ public class RelationshipTypeValidator extends AbstractValidator<RelationshipTyp
 
         if (isHtml(relationShipType.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid key")).
+                    getTemplate(EntityViolationType.InvalidKey, relationShipType.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             isValid = false;
@@ -41,7 +41,7 @@ public class RelationshipTypeValidator extends AbstractValidator<RelationshipTyp
 
         if (MembershipType.getInstance().getKey().equalsIgnoreCase(relationShipType.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Invalid relationshipType name")).
+                    getTemplate(EntityViolationType.InvalidKey, relationShipType.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             isValid = false;

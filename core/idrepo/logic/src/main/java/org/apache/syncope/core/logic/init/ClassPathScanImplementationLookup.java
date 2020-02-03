@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
@@ -100,7 +101,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
      *
      * @return basePackage for classpath scanning
      */
-    protected String getBasePackage() {
+    protected static String getBasePackage() {
         return DEFAULT_BASE_PACKAGE;
     }
 
@@ -115,7 +116,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 scanner.addIncludeFilter(new AssignableTypeFilter(
                         ClassUtils.resolveClassName(typeInterface, ClassUtils.getDefaultClassLoader())));
             } catch (IllegalArgumentException e) {
-                LOG.error("Could not find class {}, ignoring...", e);
+                LOG.error("Could not find class, ignoring...", e);
             }
         });
 
@@ -130,7 +131,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
-                        bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                    Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (JWTSSOProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {

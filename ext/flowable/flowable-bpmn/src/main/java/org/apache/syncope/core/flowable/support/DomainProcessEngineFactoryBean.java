@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
@@ -87,7 +89,7 @@ public class DomainProcessEngineFactoryBean
                     ctx.getBean(SpringIdmEngineConfiguration.class));
         }
         conf.setEnableSafeBpmnXml(true);
-        conf.setCustomFormTypes(Arrays.asList(new DropdownFormType(null)));
+        conf.setCustomFormTypes(List.of(new DropdownFormType(null)));
 
         return conf.buildProcessEngine();
     }
@@ -95,7 +97,7 @@ public class DomainProcessEngineFactoryBean
     @Override
     public void load(final String domain, final DataSource datasource) {
         try {
-            getObject().getEngines().put(domain, build(domain, datasource));
+            Objects.requireNonNull(getObject()).getEngines().put(domain, build(domain, datasource));
         } catch (Exception e) {
             LOG.error("Could not setup Flowable for {}", domain, e);
         }
@@ -106,9 +108,8 @@ public class DomainProcessEngineFactoryBean
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 
-            ctx.getBean(DomainHolder.class).getDomains().forEach((domain, datasource) -> {
-                engines.put(domain, build(domain, datasource));
-            });
+            ctx.getBean(DomainHolder.class).getDomains().forEach(
+                    (domain, datasource) -> engines.put(domain, build(domain, datasource)));
 
             engine = new DomainProcessEngine(engines);
         }

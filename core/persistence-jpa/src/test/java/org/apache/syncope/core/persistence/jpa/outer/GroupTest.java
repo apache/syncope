@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -235,7 +235,7 @@ public class GroupTest extends AbstractTest {
         // 3. verify that expected users have the created group dynamically assigned
         List<String> members = groupDAO.findUDynMembers(actual);
         assertEquals(2, members.size());
-        assertEquals(new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
+        assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey),
                 new HashSet<>(members));
 
         user = userDAO.findByUsername("bellini");
@@ -339,7 +339,7 @@ public class GroupTest extends AbstractTest {
                 -> "PRINTER".equals(anyObjectDAO.find(object).getType().getKey())).collect(Collectors.toList());
         assertEquals(2, members.size());
         assertEquals(
-                new HashSet<>(Arrays.asList("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
+                Set.of("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey),
                 new HashSet<>(members));
 
         anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
@@ -370,5 +370,33 @@ public class GroupTest extends AbstractTest {
 
         dynGroupMemberships = findDynGroups(anyObject);
         assertTrue(dynGroupMemberships.isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE1512() {
+        Group group = groupDAO.findByName("root");
+        assertNotNull(group);
+
+        // non unique
+        GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
+        title.setOwner(group);
+        title.setSchema(plainSchemaDAO.find("title"));
+        title.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        group.add(title);
+
+        // unique
+        GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
+        originalName.setOwner(group);
+        originalName.setSchema(plainSchemaDAO.find("originalName"));
+        originalName.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        group.add(originalName);
+
+        groupDAO.save(group);
+
+        entityManager().flush();
+
+        group = groupDAO.find(group.getKey());
+        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().get(0));
+        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().get(0));
     }
 }

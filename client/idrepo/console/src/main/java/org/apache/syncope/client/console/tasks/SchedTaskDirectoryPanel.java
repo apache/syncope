@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
@@ -120,7 +119,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
 
                 targetObject.getTemplates().put(type, anyTO);
-                new TaskRestClient().update(taskType, SchedTaskTO.class.cast(targetObject));
+                TaskRestClient.update(taskType, SchedTaskTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -132,7 +131,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("name", this), "name", "name"));
@@ -208,7 +207,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.readTask(taskType, model.getObject().getKey()),
+                                TaskRestClient.readTask(taskType, model.getObject().getKey()),
                                 target).setResourceModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
@@ -255,14 +254,13 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 try {
-                    restClient.delete(taskType, taskTO.getKey());
+                    TaskRestClient.delete(taskType, taskTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -293,7 +291,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         return new SchedTasksProvider<>(reference, taskType, rows);
     }
 
-    protected class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
+    protected static class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -307,13 +305,13 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         @Override
         public long size() {
-            return restClient.count(taskType);
+            return TaskRestClient.count(taskType);
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list(
+            return TaskRestClient.list(
                     reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

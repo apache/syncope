@@ -29,31 +29,30 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
     }
 
     @Test
     public void readAndSet() {
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
                 + "searchContainer:tablehandling:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:3:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:3:outer:form");
 
         formTester.setValue("content:container:details:paletteField:recorder", "status");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
                 + "3:outer:dialog:footer:inputs:0:submit");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-
-        UTILITY_UI.getTester().clearFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.clearFeedbackMessages();
     }
 }

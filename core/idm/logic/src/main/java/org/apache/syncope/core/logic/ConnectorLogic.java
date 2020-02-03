@@ -22,14 +22,18 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -46,7 +50,6 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorKey;
-import org.identityconnectors.framework.common.objects.AttributeInfo;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +75,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @Autowired
     private ConnectorFactory connFactory;
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+    protected static void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);
         }
@@ -113,7 +116,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public ConnInstanceTO delete(final String key) {
         ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + "'");
+            throw new NotFoundException("Connector '" + key + '\'');
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -124,9 +127,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (!connInstance.getResources().isEmpty()) {
             SyncopeClientException associatedResources = SyncopeClientException.build(
                     ClientExceptionType.AssociatedResources);
-            connInstance.getResources().forEach(resource -> {
-                associatedResources.getElements().add(resource.getKey());
-            });
+            connInstance.getResources().forEach(resource -> associatedResources.getElements().add(resource.getKey()));
             throw associatedResources;
         }
 
@@ -141,7 +142,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
         return connInstanceDAO.findAll().stream().
-                filter(connInstance -> connInstance != null).
+                filter(Objects::nonNull).
                 map(connInstance -> {
                     ConnInstanceTO result = null;
                     try {
@@ -162,7 +163,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + "'");
+            throw new NotFoundException("Connector '" + key + '\'');
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -178,25 +179,25 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<>();
-        connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> {
-            connectorBundleTOs.addAll(cim.getConnectorInfos().stream().map(bundle -> {
-                ConnBundleTO connBundleTO = new ConnBundleTO();
-                connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
+        connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> connectorBundleTOs.addAll(
+                cim.getConnectorInfos().stream().map(bundle -> {
+                    ConnBundleTO connBundleTO = new ConnBundleTO();
+                    connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
-                connBundleTO.setLocation(uri.toString());
+                    connBundleTO.setLocation(uri.toString());
 
-                ConnectorKey key = bundle.getConnectorKey();
-                connBundleTO.setBundleName(key.getBundleName());
-                connBundleTO.setConnectorName(key.getConnectorName());
-                connBundleTO.setVersion(key.getBundleVersion());
+                    ConnectorKey key = bundle.getConnectorKey();
+                    connBundleTO.setBundleName(key.getBundleName());
+                    connBundleTO.setConnectorName(key.getConnectorName());
+                    connBundleTO.setVersion(key.getBundleVersion());
 
-                ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
-                connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
-                        map(propName -> binder.build(properties.getProperty(propName))).collect(Collectors.toList()));
+                    ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
+                    connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
+                            map(propName -> binder.build(properties.getProperty(propName))).
+                            collect(Collectors.toList()));
 
-                return connBundleTO;
-            }).collect(Collectors.toList()));
-        });
+                    return connBundleTO;
+                }).collect(Collectors.toList())));
 
         return connectorBundleTOs;
     }
@@ -224,7 +225,31 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
             connIdObjectClassTO.getAttributes().addAll(info.getAttributeInfo().stream().
                     filter(attrInfo -> includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())).
-                    map(AttributeInfo::getName).
+                    map(attrInfo -> {
+                        PlainSchemaTO schema = new PlainSchemaTO();
+                        schema.setKey(attrInfo.getName());
+                        schema.setMandatoryCondition(BooleanUtils.toStringTrueFalse(attrInfo.isRequired()));
+                        schema.setMultivalue(attrInfo.isMultiValued());
+                        schema.setReadonly(!attrInfo.isUpdateable());
+
+                        if (attrInfo.getType().equals(int.class) || attrInfo.getType().equals(Integer.class)
+                                || attrInfo.getType().equals(long.class) || attrInfo.getType().equals(Long.class)) {
+
+                            schema.setType(AttrSchemaType.Long);
+                        } else if (attrInfo.getType().equals(float.class) || attrInfo.getType().equals(Float.class)
+                                || attrInfo.getType().equals(double.class) || attrInfo.getType().equals(Double.class)) {
+
+                            schema.setType(AttrSchemaType.Double);
+                        } else if (attrInfo.getType().equals(boolean.class)
+                                || attrInfo.getType().equals(Boolean.class)) {
+
+                            schema.setType(AttrSchemaType.Boolean);
+                        } else {
+                            schema.setType(AttrSchemaType.String);
+                        }
+
+                        return schema;
+                    }).
                     collect(Collectors.toList()));
 
             return connIdObjectClassTO;
@@ -248,7 +273,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceName + '\'');
         }
         ConnInstanceTO connInstance = binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
         connInstance.setKey(resource.getConnector().getKey());

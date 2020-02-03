@@ -54,8 +54,7 @@ public class JPABatchDAO extends AbstractDAO<Batch> implements BatchDAO {
     @Override
     public int deleteExpired() {
         Query query = entityManager().createQuery(
-                "DELETE FROM " + JPABatch.class.getSimpleName() + " e "
-                + "WHERE e.expiryTime < :now");
+                "DELETE FROM " + JPABatch.class.getSimpleName() + " e WHERE e.expiryTime < :now");
         query.setParameter("now", new Date());
         return query.executeUpdate();
     }

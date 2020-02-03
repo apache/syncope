@@ -29,6 +29,6 @@ public class IdMExternalResourceProvider implements ExternalResourceProvider {
 
     @Override
     public List<String> get() {
-        return new ResourceRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList());
+        return ResourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
     }
 }

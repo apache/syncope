@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +55,6 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final TaskRestClient restClient = new TaskRestClient();
-
     private final TaskType type;
 
     private PushTaskWrapper wrapper;
@@ -70,7 +67,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         @Override
         protected List<String> load() {
-            List<String> result = new RealmRestClient().list().stream().
+            List<String> result = RealmRestClient.list().stream().
                     map(RealmTO::getFullPath).collect(Collectors.toList());
             Collections.sort(result);
 
@@ -91,9 +88,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
-            restClient.create(type, modelObject);
+            TaskRestClient.create(type, modelObject);
         } else {
-            restClient.update(type, modelObject);
+            TaskRestClient.update(type, modelObject);
         }
         return modelObject;
     }
@@ -164,7 +161,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>(
                     "pullMode", "pullMode", new PropertyModel<>(taskTO, "pullMode"), false);
-            pullMode.setChoices(Arrays.asList(PullMode.values()));
+            pullMode.setChoices(List.of(PullMode.values()));
             if (taskTO instanceof PullTaskTO) {
                 pullMode.addRequiredLabel();
             }
@@ -251,13 +248,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                     "matchingRule", "matchingRule", new PropertyModel<>(taskTO, "matchingRule"), false);
-            matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
+            matchingRule.setChoices(List.of(MatchingRule.values()));
             provisioningTaskSpecifics.add(matchingRule);
 
             AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
                     "unmatchingRule", "unmatchingRule", new PropertyModel<>(taskTO, "unmatchingRule"),
                     false);
-            unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
+            unmatchingRule.setChoices(List.of(UnmatchingRule.values()));
             provisioningTaskSpecifics.add(unmatchingRule);
 
             AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(

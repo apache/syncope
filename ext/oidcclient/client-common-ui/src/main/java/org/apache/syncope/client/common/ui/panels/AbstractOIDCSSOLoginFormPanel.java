@@ -21,8 +21,6 @@ package org.apache.syncope.client.common.ui.panels;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -72,13 +70,9 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
             @Override
             public OIDCProviderTO getObject(final String id,
                     final IModel<? extends List<? extends OIDCProviderTO>> choices) {
-                return IterableUtils.find(choices.getObject(), new Predicate<OIDCProviderTO>() {
 
-                    @Override
-                    public boolean evaluate(final OIDCProviderTO object) {
-                        return object.getName().equals(id);
-                    }
-                });
+                return choices.getObject().stream().
+                        filter(object -> object.getName().equals(id)).findFirst().orElse(null);
             }
         });
 
@@ -92,8 +86,7 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
                     try {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
                                 UrlUtils.rewriteToContextRelative("oidcclient/login?op="
-                                        + URLEncoder.encode(
-                                                model.getObject().getName(), StandardCharsets.UTF_8),
+                                        + URLEncoder.encode(model.getObject().getName(), StandardCharsets.UTF_8),
                                         RequestCycle.get())));
                     } catch (Exception e) {
                         LOG.error("Could not redirect to the selected OP {}", model.getObject().getName(), e);
@@ -105,5 +98,4 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
         ops.setVisible(!available.isEmpty());
         add(ops);
     }
-
 }

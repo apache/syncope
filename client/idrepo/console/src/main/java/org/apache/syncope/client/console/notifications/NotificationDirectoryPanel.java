@@ -19,13 +19,10 @@
 package org.apache.syncope.client.console.notifications;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
@@ -60,7 +57,7 @@ public class NotificationDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public NotificationDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef, true);
@@ -85,7 +82,8 @@ public class NotificationDirectoryPanel
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
         List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("sender", this), "sender", "sender"));
         columns.add(new PropertyColumn<>(
@@ -111,7 +109,8 @@ public class NotificationDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 send(NotificationDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
+                                new NotificationWrapper(
+                                        NotificationRestClient.read(model.getObject().getKey())), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 
@@ -136,13 +135,12 @@ public class NotificationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    NotificationRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -163,10 +161,10 @@ public class NotificationDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
-    protected class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
+    protected static class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -175,20 +173,20 @@ public class NotificationDirectoryPanel
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<NotificationTO> iterator(final long first, final long count) {
-            List<NotificationTO> list = restClient.list();
-            Collections.sort(list, comparator);
+            List<NotificationTO> list = NotificationRestClient.list();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return NotificationRestClient.list().size();
         }
 
         @Override

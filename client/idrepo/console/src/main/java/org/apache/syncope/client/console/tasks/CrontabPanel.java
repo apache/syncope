@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -96,7 +97,7 @@ public class CrontabPanel extends Panel {
                 // no detach
             }
         });
-        cronTemplateChooser.setChoices(Arrays.asList(cronTemplates));
+        cronTemplateChooser.setChoices(List.of(cronTemplates));
         cronTemplateChooser.setChoiceRenderer(new SelectChoiceRenderer<>());
         add(cronTemplateChooser);
 
@@ -138,7 +139,7 @@ public class CrontabPanel extends Panel {
         });
     }
 
-    private String getCronField(final FormComponent<?> formComponent, final int field) {
+    private static String getCronField(final FormComponent<?> formComponent, final int field) {
         String cronField = null;
 
         if (formComponent != null) {
@@ -148,7 +149,7 @@ public class CrontabPanel extends Panel {
         return cronField;
     }
 
-    private String getCronField(final String cron, final int field) {
+    private static String getCronField(final String cron, final int field) {
         String cronField = null;
 
         if (cron != null && !cron.isEmpty() && !"UNSCHEDULE".equals(cron)) {
@@ -169,11 +170,11 @@ public class CrontabPanel extends Panel {
                 && daysOfWeek != null && daysOfWeek.getModelObject() != null) {
 
             cronExpression = new StringBuilder().
-                    append(seconds.getModelObject().trim()).append(" ").
-                    append(minutes.getModelObject().trim()).append(" ").
-                    append(hours.getModelObject().trim()).append(" ").
-                    append(daysOfMonth.getModelObject().trim()).append(" ").
-                    append(months.getModelObject().trim()).append(" ").
+                    append(seconds.getModelObject().trim()).append(' ').
+                    append(minutes.getModelObject().trim()).append(' ').
+                    append(hours.getModelObject().trim()).append(' ').
+                    append(daysOfMonth.getModelObject().trim()).append(' ').
+                    append(months.getModelObject().trim()).append(' ').
                     append(daysOfWeek.getModelObject().trim()).toString();
         }
 

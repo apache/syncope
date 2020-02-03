@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -44,14 +43,12 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    getRestClient().startExecution(key, startAtDateModel.getObject(), true);
+                    TaskRestClient.startExecution(key, startAtDateModel.getObject(), true);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName()
-                            : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                     LOG.error("While running task {}", key, e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -61,7 +58,6 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
             protected void onError(final AjaxRequestTarget target) {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-
         });
     }
 
@@ -69,5 +65,4 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
     protected TaskRestClient getRestClient() {
         return new TaskRestClient();
     }
-
 }

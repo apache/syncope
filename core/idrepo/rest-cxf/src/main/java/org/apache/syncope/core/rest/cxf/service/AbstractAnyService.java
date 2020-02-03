@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 result = any.getPlainAttr(schema);
         }
 
-        if (!result.isPresent()) {
+        if (result.isEmpty()) {
             throw new NotFoundException("Attribute for type " + schemaType + " and schema " + schema);
         }
 
@@ -193,7 +192,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public void delete(final String key, final SchemaType schemaType, final String schema) {
-        addUpdateOrReplaceAttr(getActualKey(getAnyDAO(), key),
+        addUpdateOrReplaceAttr(
+                getActualKey(getAnyDAO(), key),
                 schemaType,
                 new Attr.Builder(schema).build(),
                 PatchOperation.DELETE);
@@ -239,7 +239,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
             batchResponseItems = req.getResources().stream().map(resource -> {
                 BatchResponseItem item = new BatchResponseItem();
 
-                item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
+                item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(resource));
 
                 item.setStatus(updated.getEntity().getResources().contains(resource)
                         ? Response.Status.BAD_REQUEST.getStatusCode()
@@ -248,7 +248,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 if (getPreference() == Preference.RETURN_NO_CONTENT) {
                     item.getHeaders().put(
                             RESTHeaders.PREFERENCE_APPLIED,
-                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                            List.of(Preference.RETURN_NO_CONTENT.toString()));
                 } else {
                     item.setContent(POJOHelper.serialize(updated.getEntity()));
                 }
@@ -260,18 +260,18 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                     map(status -> {
                         BatchResponseItem item = new BatchResponseItem();
 
-                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
+                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(status.getResource()));
 
                         item.setStatus(status.getStatus().getHttpStatus());
 
                         if (status.getFailureReason() != null) {
-                            item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
+                            item.getHeaders().put(RESTHeaders.ERROR_INFO, List.of(status.getFailureReason()));
                         }
 
                         if (getPreference() == Preference.RETURN_NO_CONTENT) {
                             item.getHeaders().put(
                                     RESTHeaders.PREFERENCE_APPLIED,
-                                    Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                                    List.of(Preference.RETURN_NO_CONTENT.toString()));
                         } else {
                             item.setContent(POJOHelper.serialize(updated.getEntity()));
                         }
@@ -328,7 +328,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
             batchResponseItems = req.getResources().stream().map(resource -> {
                 BatchResponseItem item = new BatchResponseItem();
 
-                item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(resource));
+                item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(resource));
 
                 item.setStatus(updated.getEntity().getResources().contains(resource)
                         ? Response.Status.OK.getStatusCode()
@@ -337,7 +337,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 if (getPreference() == Preference.RETURN_NO_CONTENT) {
                     item.getHeaders().put(
                             RESTHeaders.PREFERENCE_APPLIED,
-                            Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                            List.of(Preference.RETURN_NO_CONTENT.toString()));
                 } else {
                     item.setContent(POJOHelper.serialize(updated.getEntity()));
                 }
@@ -349,18 +349,18 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                     map(status -> {
                         BatchResponseItem item = new BatchResponseItem();
 
-                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(status.getResource()));
+                        item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(status.getResource()));
 
                         item.setStatus(status.getStatus().getHttpStatus());
 
                         if (status.getFailureReason() != null) {
-                            item.getHeaders().put(RESTHeaders.ERROR_INFO, Arrays.asList(status.getFailureReason()));
+                            item.getHeaders().put(RESTHeaders.ERROR_INFO, List.of(status.getFailureReason()));
                         }
 
                         if (getPreference() == Preference.RETURN_NO_CONTENT) {
                             item.getHeaders().put(
                                     RESTHeaders.PREFERENCE_APPLIED,
-                                    Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
+                                    List.of(Preference.RETURN_NO_CONTENT.toString()));
                         } else {
                             item.setContent(POJOHelper.serialize(updated.getEntity()));
                         }

@@ -20,6 +20,8 @@ package org.apache.syncope.client.enduser.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.layout.UserForm;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
@@ -92,7 +94,7 @@ public class UserWizardBuilder extends AnyWizardBuilder implements UserForm {
                     ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
 
-            result = userSelfRestClient.create(req);
+            result = UserSelfRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             UserUR userUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
@@ -123,7 +125,8 @@ public class UserWizardBuilder extends AnyWizardBuilder implements UserForm {
      */
     @Override
     public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
-        super.setItem(item == null ? null : new UserWrapper(item.getInnerObject()));
+        super.setItem(Optional.ofNullable(item)
+            .map(userTOAnyWrapper -> new UserWrapper(userTOAnyWrapper.getInnerObject())).orElse(null));
         return this;
     }
 

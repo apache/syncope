@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -55,7 +54,7 @@ public class RemediationTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Remediation> remediations = remediationDAO.findAll(1, 1, Collections.emptyList());
+        List<Remediation> remediations = remediationDAO.findAll(1, 1, List.of());
         assertTrue(remediations.isEmpty());
     }
 

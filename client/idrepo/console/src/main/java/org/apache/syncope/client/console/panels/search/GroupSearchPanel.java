@@ -22,11 +22,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
-public final class GroupSearchPanel extends AbstractSearchPanel {
+public class GroupSearchPanel extends AbstractSearchPanel {
 
     private static final long serialVersionUID = 5757183539269316263L;
 
@@ -44,7 +50,7 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
         }
     }
 
-    private GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
+    protected GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
         super(id, AnyTypeKind.GROUP, builder);
     }
 
@@ -73,6 +79,18 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
             @Override
             protected Map<String, String> load() {
                 return Collections.<String, String>emptyMap();
+            }
+        };
+
+        this.anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected Map<String, PlainSchemaTO> load() {
+                return SchemaRestClient.<PlainSchemaTO>getSchemas(
+                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
+                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
             }
         };
     }

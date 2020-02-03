@@ -19,7 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import java.io.IOException;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -33,11 +32,10 @@ public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
 
     @Override
     public void commence(final HttpServletRequest request, final HttpServletResponse response,
-            final AuthenticationException authException) throws IOException, ServletException {
+            final AuthenticationException authException) throws IOException {
 
         response.addHeader(RESTHeaders.ERROR_INFO, authException.getMessage());
 
         super.commence(request, response, authException);
     }
-
 }

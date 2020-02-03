@@ -20,7 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.syncope.client.console.rest.GatewayRouteRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -42,8 +43,6 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
 
     private static final long serialVersionUID = 2060352959114706419L;
 
-    private final GatewayRouteRestClient restClient = new GatewayRouteRestClient();
-
     public GatewayRouteWizardBuilder(final GatewayRouteTO route, final PageReference pageRef) {
         super(route, pageRef);
     }
@@ -51,9 +50,9 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
     @Override
     protected Serializable onApplyInternal(final GatewayRouteTO modelObject) {
         if (modelObject.getKey() == null) {
-            restClient.create(modelObject);
+            GatewayRouteRestClient.create(modelObject);
         } else {
-            restClient.update(modelObject);
+            GatewayRouteRestClient.update(modelObject);
         }
         return modelObject;
     }
@@ -66,7 +65,7 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
         return wizardModel;
     }
 
-    public class Profile extends WizardStep {
+    public static class Profile extends WizardStep {
 
         private static final long serialVersionUID = 8610155719550948702L;
 
@@ -104,11 +103,11 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
 
             add(new AjaxDropDownChoicePanel<>(
                     "status", "status", new PropertyModel<>(route, "status")).
-                    setChoices(Arrays.asList((Serializable[]) GatewayRouteStatus.values())));
+                    setChoices(List.of((Serializable[]) GatewayRouteStatus.values())));
         }
     }
 
-    public class Predicates extends WizardStep {
+    public static class Predicates extends WizardStep {
 
         private static final long serialVersionUID = 5934389493874714599L;
 
@@ -118,7 +117,7 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
         }
     }
 
-    public class Filters extends WizardStep {
+    public static class Filters extends WizardStep {
 
         private static final long serialVersionUID = -6552124285142294023L;
 

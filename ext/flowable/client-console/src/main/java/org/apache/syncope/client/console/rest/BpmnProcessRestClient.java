@@ -20,10 +20,12 @@ package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
 import java.util.List;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -33,21 +35,34 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
 
-    private BpmnProcessService getService(final MediaType mediaType) {
-        return SyncopeConsoleSession.get().getService(mediaType, BpmnProcessService.class);
-    }
-
-    public List<BpmnProcess> getDefinitions() {
+    public static List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
     }
 
-    public InputStream getDefinition(final MediaType mediaType, final String key) {
+    private static BpmnProcessService getService(final MediaType mediaType) {
+        BpmnProcessService service = getService(BpmnProcessService.class);
+
+        MetadataMap<String, String> headers = new MetadataMap<>();
+        headers.put(HttpHeaders.CONTENT_TYPE, List.of(mediaType.toString()));
+        headers.put(HttpHeaders.ACCEPT, List.of(mediaType.toString()));
+        WebClient.client(service).headers(headers);
+
+        return service;
+    }
+
+    public static InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
+        SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
 
         return (InputStream) response.getEntity();
     }
 
-    public byte[] getDiagram(final String key) {
+    public static void setDefinition(final MediaType mediaType, final String key, final String definition) {
+        getService(mediaType).set(key, definition);
+        SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
+    }
+
+    public static byte[] getDiagram(final String key) {
         BpmnProcessService service = getService(BpmnProcessService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
         Response response = service.exportDiagram(key);
@@ -62,11 +77,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return diagram;
     }
 
-    public void setDefinition(final MediaType mediaType, final String key, final String definition) {
-        getService(mediaType).set(key, definition);
-    }
-
-    public void deleteDefinition(final String key) {
+    public static void deleteDefinition(final String key) {
         getService(BpmnProcessService.class).delete(key);
     }
 }

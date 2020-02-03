@@ -22,10 +22,9 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -58,6 +57,7 @@ import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -71,9 +71,48 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private static final long serialVersionUID = -527351923968737757L;
 
+    public interface Customizer extends Serializable {
+
+        default IChoiceRenderer<SearchClause.Type> typeRenderer() {
+            return new ChoiceRenderer<>();
+        }
+
+        default List<Comparator> comparators() {
+            return List.of();
+        }
+
+        default String comparatorDisplayValue(Comparator object) {
+            return object.toString();
+        }
+
+        default Optional<SearchClause.Comparator> comparatorGetObject(String id) {
+            return Optional.empty();
+        }
+
+        default List<String> properties() {
+            return List.of();
+        }
+
+        default void setFieldAccess(
+                AjaxTextFieldPanel value,
+                AjaxTextFieldPanel property,
+                LoadableDetachableModel<List<String>> properties) {
+
+            value.setEnabled(true);
+            value.setModelObject(StringUtils.EMPTY);
+            property.setEnabled(true);
+
+            // reload properties list
+            properties.detach();
+            property.setChoices(properties.getObject());
+        }
+    }
+
     private final boolean required;
 
     private final IModel<List<SearchClause.Type>> types;
+
+    private final Customizer customizer;
 
     private final IModel<Map<String, PlainSchemaTO>> anames;
 
@@ -109,6 +148,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Model<SearchClause> clause,
             final boolean required,
             final IModel<List<SearchClause.Type>> types,
+            final Customizer customizer,
             final IModel<Map<String, PlainSchemaTO>> anames,
             final IModel<List<String>> dnames,
             final Pair<IModel<Map<String, String>>, Integer> groupInfo,
@@ -122,6 +162,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         this.required = required;
         this.types = types;
+        this.customizer = customizer;
         this.anames = anames;
         this.dnames = dnames;
         this.groupInfo = groupInfo;
@@ -163,30 +204,34 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected List<Comparator> load() {
                 if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
-                    return Collections.<Comparator>emptyList();
+                    return List.of();
                 }
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        return Arrays.asList(SearchClause.Comparator.values());
+                        return List.of(SearchClause.Comparator.values());
 
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
                     case GROUP_MEMBER:
                     case RESOURCE:
-                        return Arrays.asList(
+                        return List.of(
                                 SearchClause.Comparator.EQUALS,
                                 SearchClause.Comparator.NOT_EQUALS);
 
                     case RELATIONSHIP:
-                        return Arrays.asList(
+                        return List.of(
                                 SearchClause.Comparator.IS_NOT_NULL,
                                 SearchClause.Comparator.IS_NULL,
                                 SearchClause.Comparator.EQUALS,
                                 SearchClause.Comparator.NOT_EQUALS);
+
+                    case CUSTOM:
+                        return customizer.comparators();
+
                     default:
-                        return Collections.<Comparator>emptyList();
+                        return List.of();
                 }
             }
         };
@@ -198,46 +243,42 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected List<String> load() {
                 if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
-                    return Collections.<String>emptyList();
+                    return List.of();
                 }
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        final List<String> names = new ArrayList<>(dnames.getObject());
+                        List<String> names = new ArrayList<>(dnames.getObject());
                         if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
                             names.addAll(anames.getObject().keySet());
                         }
-                        Collections.sort(names);
-                        return names;
+                        return names.stream().sorted().collect(Collectors.toList());
 
                     case GROUP_MEMBERSHIP:
-                        final List<String> groups = groupInfo.getLeft().getObject().values().
-                                stream().collect(Collectors.toList());
-                        Collections.sort(groups);
-                        return groups;
+                        return groupInfo.getLeft().getObject().values().stream().
+                                sorted().collect(Collectors.toList());
 
                     case ROLE_MEMBERSHIP:
-                        final List<String> roles = new ArrayList<>(roleNames.getObject());
-                        Collections.sort(roles);
-                        return roles;
+                        return roleNames.getObject().stream().
+                                sorted().collect(Collectors.toList());
 
                     case PRIVILEGE:
-                        final List<String> privileges = new ArrayList<>(privilegeNames.getObject());
-                        Collections.sort(privileges);
-                        return privileges;
+                        return privilegeNames.getObject().stream().
+                                sorted().collect(Collectors.toList());
 
                     case RESOURCE:
-                        final List<String> resources = new ArrayList<>(resourceNames.getObject());
-                        Collections.sort(resources);
-                        return resources;
+                        return resourceNames.getObject().stream().
+                                sorted().collect(Collectors.toList());
 
                     case RELATIONSHIP:
-                        final List<String> relations = new RelationshipTypeRestClient().list().stream().
+                        return RelationshipTypeRestClient.list().stream().
                                 map(RelationshipTypeTO::getKey).collect(Collectors.toList());
-                        return relations;
+
+                    case CUSTOM:
+                        return customizer.properties();
 
                     default:
-                        return Collections.<String>emptyList();
+                        return List.of();
                 }
             }
         };
@@ -405,11 +446,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 ? inputAsArray[1]
                                 : property.getField().getInput();
                         inputValue = (inputValue.startsWith("*") && !inputValue.endsWith("*"))
-                                ? inputValue + "*"
+                                ? inputValue + '*'
                                 : (!inputValue.startsWith("*") && inputValue.endsWith("*"))
-                                ? "*" + inputValue
+                                ? '*' + inputValue
                                 : (inputValue.startsWith("*") && inputValue.endsWith("*")
-                                ? inputValue : "*" + inputValue + "*");
+                                ? inputValue : '*' + inputValue + '*');
 
                         if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
                             property.setChoices(groupRestClient.search(
@@ -489,9 +530,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         });
 
-        final AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<>(searchClause, "type"));
-        type.setChoices(types).hideLabel().setRequired(required).setOutputMarkupId(true);
+        type.setChoices(types).setChoiceRenderer(customizer.typeRenderer()).
+                hideLabel().setRequired(required).setOutputMarkupId(true);
         type.setNullValid(false);
         type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -525,8 +567,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (type.getModelObject() == SearchClause.Type.ATTRIBUTE
                         || type.getModelObject() == SearchClause.Type.RELATIONSHIP) {
+
                     if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
                             || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
+
                         value.setModelObject(StringUtils.EMPTY);
                         value.setEnabled(false);
                     } else {
@@ -538,7 +582,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 if (type.getModelObject() == SearchClause.Type.RELATIONSHIP) {
                     property.setEnabled(true);
 
-                    final SearchClause searchClause = new SearchClause();
+                    SearchClause searchClause = new SearchClause();
                     searchClause.setType(Type.valueOf(type.getDefaultModelObjectAsString()));
                     searchClause.setComparator(comparator.getModelObject());
                     SearchClausePanel.this.clause.setObject(searchClause);
@@ -557,7 +601,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Type type,
             final AjaxTextFieldPanel property,
             final FieldPanel<Comparator> comparator,
-            final FieldPanel<String> value) {
+            final AjaxTextFieldPanel value) {
 
         if (type != null) {
             property.setEnabled(true);
@@ -634,6 +678,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     property.setChoices(properties.getObject());
                     break;
 
+                case CUSTOM:
+                    customizer.setFieldAccess(value, property, properties);
+                    break;
+
                 default:
                     break;
             }
@@ -647,7 +695,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             public Object getDisplayValue(final SearchClause.Comparator object) {
-
                 if (clause == null || clause.getObject() == null || clause.getObject().getType() == null) {
                     return object.toString();
                 }
@@ -693,6 +740,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 display = StringUtils.EMPTY;
                         }
                         break;
+
                     case GROUP_MEMBERSHIP:
                         switch (object) {
                             case EQUALS:
@@ -707,6 +755,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 display = StringUtils.EMPTY;
                         }
                         break;
+
                     case GROUP_MEMBER:
                         switch (object) {
                             case EQUALS:
@@ -721,6 +770,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 display = StringUtils.EMPTY;
                         }
                         break;
+
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case RESOURCE:
@@ -737,6 +787,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 display = StringUtils.EMPTY;
                         }
                         break;
+
                     case RELATIONSHIP:
                         switch (object) {
                             case IS_NOT_NULL:
@@ -759,6 +810,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 display = StringUtils.EMPTY;
                         }
                         break;
+
+                    case CUSTOM:
+                        display = customizer.comparatorDisplayValue(object);
+                        break;
+
                     default:
                         display = object.toString();
                 }
@@ -778,58 +834,69 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     return SearchClause.Comparator.EQUALS;
                 }
 
-                final SearchClause.Comparator res;
+                final SearchClause.Comparator comparator;
                 switch (id) {
                     case "HAS":
                     case "IN":
                     case "WITH":
-                        res = SearchClause.Comparator.EQUALS;
+                        comparator = SearchClause.Comparator.EQUALS;
                         break;
+
                     case "HAS NOT":
                     case "NOT IN":
                     case "WITHOUT":
-                        res = SearchClause.Comparator.NOT_EQUALS;
+                        comparator = SearchClause.Comparator.NOT_EQUALS;
                         break;
+
                     case "NULL":
                     case "NOT EXIST":
-                        res = SearchClause.Comparator.IS_NULL;
+                        comparator = SearchClause.Comparator.IS_NULL;
                         break;
+
                     case "NOT NULL":
                     case "EXIST":
-                        res = SearchClause.Comparator.IS_NOT_NULL;
+                        comparator = SearchClause.Comparator.IS_NOT_NULL;
                         break;
+
                     case "==":
-                        res = SearchClause.Comparator.EQUALS;
+                        comparator = SearchClause.Comparator.EQUALS;
                         break;
+
                     case "!=":
-                        res = SearchClause.Comparator.NOT_EQUALS;
+                        comparator = SearchClause.Comparator.NOT_EQUALS;
                         break;
+
                     case "<":
-                        res = SearchClause.Comparator.LESS_THAN;
+                        comparator = SearchClause.Comparator.LESS_THAN;
                         break;
+
                     case "<=":
-                        res = SearchClause.Comparator.LESS_OR_EQUALS;
+                        comparator = SearchClause.Comparator.LESS_OR_EQUALS;
                         break;
+
                     case ">":
-                        res = SearchClause.Comparator.GREATER_THAN;
+                        comparator = SearchClause.Comparator.GREATER_THAN;
                         break;
+
                     case ">=":
-                        res = SearchClause.Comparator.GREATER_OR_EQUALS;
+                        comparator = SearchClause.Comparator.GREATER_OR_EQUALS;
                         break;
+
                     default:
                         // EQUALS to be used as default value
-                        res = SearchClause.Comparator.EQUALS;
+                        comparator = customizer.comparatorGetObject(id).orElse(SearchClause.Comparator.EQUALS);
                         break;
                 }
-                return res;
+
+                return comparator;
             }
         };
     }
 
     @Override
     public FieldPanel<SearchClause> clone() {
-        final SearchClausePanel panel = new SearchClausePanel(
-                getId(), name, null, required, types, anames, dnames, groupInfo,
+        SearchClausePanel panel = new SearchClausePanel(
+                getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
                 roleNames, privilegeNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
@@ -839,7 +906,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         return panel;
     }
 
-    private class DefaultChoiceRender implements IChoiceRenderer<String> {
+    private static class DefaultChoiceRender implements IChoiceRenderer<String> {
 
         private static final long serialVersionUID = -8034248752951761058L;
 

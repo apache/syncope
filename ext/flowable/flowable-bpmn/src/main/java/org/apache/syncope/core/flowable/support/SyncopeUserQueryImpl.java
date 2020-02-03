@@ -19,7 +19,6 @@
 package org.apache.syncope.core.flowable.support;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -44,7 +43,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
 
     private List<User> result;
 
-    private User fromSyncopeUser(final org.apache.syncope.core.persistence.api.entity.user.User syncopeUser) {
+    private static User fromSyncopeUser(final org.apache.syncope.core.persistence.api.entity.user.User syncopeUser) {
         UserEntity user = new UserEntityImpl();
         user.setId(syncopeUser.getUsername());
         return user;
@@ -54,22 +53,20 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
         if (id != null) {
             org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(id);
             if (user == null) {
-                result = Collections.<User>emptyList();
+                result = List.of();
             } else if (groupId == null || userDAO.findAllGroupNames(user).contains(groupId)) {
-                result = Collections.singletonList(fromSyncopeUser(user));
+                result = List.of(fromSyncopeUser(user));
             }
         } else if (groupId != null) {
             Group group = groupDAO.findByName(groupId);
             if (group == null) {
-                result = Collections.<User>emptyList();
+                result = List.of();
             } else {
                 result = new ArrayList<>();
                 List<UMembership> memberships = groupDAO.findUMemberships(group);
                 memberships.stream().map(membership -> fromSyncopeUser(membership.getLeftEnd())).
                         filter(user -> (!result.contains(user))).
-                        forEachOrdered(user -> {
-                            result.add(user);
-                        });
+                        forEachOrdered(user -> result.add(user));
             }
         }
     }

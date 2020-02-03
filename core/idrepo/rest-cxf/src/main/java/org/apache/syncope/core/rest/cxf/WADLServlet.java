@@ -48,7 +48,7 @@ public class WADLServlet extends HttpServlet {
 
     private static final Pattern SCHEMA_PATTERN = Pattern.compile("/schema_(.*)_(.*)\\.html");
 
-    protected void finish(final Pipeline<SAXPipelineComponent> pipeline, final HttpServletResponse response)
+    protected static void finish(final Pipeline<SAXPipelineComponent> pipeline, final HttpServletResponse response)
             throws ServletException, IOException {
 
         pipeline.addComponent(XMLSerializer.createHTML4Serializer());
@@ -61,7 +61,7 @@ public class WADLServlet extends HttpServlet {
     }
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP {@code GET} method.
      *
      * @param request servlet request
      * @param response servlet response

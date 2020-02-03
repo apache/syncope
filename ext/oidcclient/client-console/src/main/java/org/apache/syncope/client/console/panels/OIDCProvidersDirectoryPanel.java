@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -161,7 +160,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
 
     }
 
@@ -175,7 +174,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCProviderTO ignore) {
-                OIDCProviderTO object = restClient.read(model.getObject().getKey());
+                OIDCProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
                 send(OIDCProvidersDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(object, target));
                 modal.header(Model.of(StringUtils.capitalize(("Edit " + object.getName()))));
@@ -188,11 +187,11 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCProviderTO ignore) {
-                final OIDCProviderTO object = restClient.read(model.getObject().getKey());
+                final OIDCProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
                         object.getUserTemplate(),
-                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                         new UserFormLayoutInfo(),
                         pageRef) {
 
@@ -201,7 +200,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                     @Override
                     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
                         object.setUserTemplate(modelObject.getInnerObject());
-                        restClient.update(object);
+                        OIDCProviderRestClient.update(object);
 
                         return modelObject;
                     }
@@ -222,13 +221,12 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCProviderTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    OIDCProviderRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -244,21 +242,21 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
+            if (newItemEvent instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
                 final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
                 templateModal.setFormModel(model);
                 templateModal.header(newItemEvent.getResourceModel());
-                newItemEvent.getTarget().add(templateModal.setContent(modalPanel));
+                newItemEvent.getTarget().ifPresent(target -> target.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
-            } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                templateModal.close(newItemEvent.getTarget());
-            } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                templateModal.close(newItemEvent.getTarget());
+            } else if (newItemEvent instanceof AjaxWizard.NewItemCancelEvent) {
+                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
+            } else if (newItemEvent instanceof AjaxWizard.NewItemFinishEvent) {
+                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
             }
         }
     }
 
-    protected final class OIDCProvidersProvider extends DirectoryDataProvider<OIDCProviderTO> {
+    protected static final class OIDCProvidersProvider extends DirectoryDataProvider<OIDCProviderTO> {
 
         private static final long serialVersionUID = -2865055116864423761L;
 
@@ -273,20 +271,19 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<OIDCProviderTO> iterator(final long first, final long count) {
-            List<OIDCProviderTO> list = restClient.list();
-            Collections.sort(list, comparator);
+            List<OIDCProviderTO> list = OIDCProviderRestClient.list();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return OIDCProviderRestClient.list().size();
         }
 
         @Override
         public IModel<OIDCProviderTO> model(final OIDCProviderTO object) {
             return new CompoundPropertyModel<>(object);
         }
-
     }
 }

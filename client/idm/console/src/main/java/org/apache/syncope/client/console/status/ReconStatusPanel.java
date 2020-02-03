@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -26,7 +25,6 @@ import org.apache.syncope.client.console.panels.RemoteObjectPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -37,17 +35,17 @@ public class ReconStatusPanel extends RemoteObjectPanel {
 
     private final String resource;
 
-    private final AnyTypeKind anyTypeKind;
+    private final String anyTypeKey;
 
     private final String anyKey;
 
     public ReconStatusPanel(
             final String resource,
-            final AnyTypeKind anyTypeKind,
+            final String anyTypeKey,
             final String anyKey) {
 
         this.resource = resource;
-        this.anyTypeKind = anyTypeKind;
+        this.anyTypeKey = anyTypeKey;
         this.anyKey = anyKey;
 
         add(new ConnObjectPanel(
@@ -60,7 +58,7 @@ public class ReconStatusPanel extends RemoteObjectPanel {
     @Override
     protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
         List<Pair<String, ReconStatus>> statuses =
-                ReconStatusUtils.getReconStatuses(anyTypeKind, anyKey, Arrays.asList(resource));
+                ReconStatusUtils.getReconStatuses(anyTypeKey, anyKey, List.of(resource));
 
         return statuses.isEmpty()
                 ? null

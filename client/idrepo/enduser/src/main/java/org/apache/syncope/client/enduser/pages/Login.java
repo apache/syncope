@@ -20,13 +20,17 @@ package org.apache.syncope.client.enduser.pages;
 
 import java.security.AccessControlException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -40,11 +44,26 @@ public class Login extends BaseLogin {
     @SpringBean
     private ClassPathScanImplementationLookup lookup;
 
+    private final BookmarkablePageLink<Void> selfRegistration;
+
+    private final BookmarkablePageLink<Void> selfPwdReset;
+
     public Login(final PageParameters parameters) {
         super(parameters);
 
-        add(new BookmarkablePageLink<>("self-registration", Self.class).setOutputMarkupId(true));
-        add(new BookmarkablePageLink<>("self-pwd-reset", SelfPasswordReset.class).setOutputMarkupId(true));
+        selfRegistration = new BookmarkablePageLink<>("self-registration", Self.class);
+        add(selfRegistration.setOutputMarkupId(true));
+
+        selfPwdReset = new BookmarkablePageLink<>("self-pwd-reset", SelfPasswordReset.class);
+        add(selfPwdReset.setOutputMarkupId(true));
+    }
+
+    @Override
+    protected Collection<Component> getLanguageOnChangeComponents() {
+        return Stream.concat(
+                super.getLanguageOnChangeComponents().stream(),
+                List.of(selfRegistration, selfPwdReset).stream()).
+                collect(Collectors.toList());
     }
 
     @Override
@@ -57,8 +76,8 @@ public class Login extends BaseLogin {
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
         lookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
-                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).newInstance(
-                        "ssoLogin", SyncopeEnduserSession.get()));
+                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).
+                        newInstance("ssoLogin", SyncopeEnduserSession.get()));
             } catch (Exception e) {
                 LOG.error("Could not initialize the provided SSO login form panel", e);
             }

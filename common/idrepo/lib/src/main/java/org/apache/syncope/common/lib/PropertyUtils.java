@@ -46,7 +46,7 @@ public final class PropertyUtils {
 
         Properties props = new Properties();
 
-        try (InputStream is = clazz.getResourceAsStream("/" + propertiesFileName)) {
+        try (InputStream is = clazz.getResourceAsStream('/' + propertiesFileName)) {
             props.load(is);
 
             String confDirName = props.getProperty(confDirProp);

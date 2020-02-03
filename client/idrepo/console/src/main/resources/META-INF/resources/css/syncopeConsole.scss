@@ -43,6 +43,17 @@ body {
   background-image: linear-gradient($background_console_darker, $background_console_dark);
 }
 
+.table {
+  > tbody {
+    > tr {
+      > td {
+        &.list_view_panel_labels {
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+}
 
 
 /* Login

@@ -54,10 +54,6 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected final Comparator<Attr> attrComparator = new AttrComparator();
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
-    private final SyncopeRestClient syncopeRestClient = new SyncopeRestClient();
-
     protected final AnyTO anyTO;
 
     private final Map<String, CustomizationOption> whichAttrs;
@@ -78,7 +74,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
             final Map<String, CustomizationOption> whichAttrs) {
         super();
         this.anyTypeClasses = anyTypeClasses;
-        this.attrs = new ListModel<>(Collections.<Attr>emptyList());
+        this.attrs = new ListModel<>(List.of());
         this.membershipTOs = new ListModel<>(Collections.<MembershipTO>emptyList());
 
         this.setOutputMarkupId(true);
@@ -131,7 +127,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         // whether to render the attribute as readonly or not, without considering schema readonly property
         String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
                 ? org.apache.commons.lang3.StringUtils.EMPTY
-                : groupName + "#")
+                : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null ? false : whichAttrs.get(schemaName).isReadonly();
     }
@@ -143,10 +139,10 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     protected List<String> getDefaultValues(final String schema, final String groupName) {
         String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
                 ? org.apache.commons.lang3.StringUtils.EMPTY
-                : groupName + "#")
+                : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null
-                ? Collections.<String>emptyList()
+                ? List.of()
                 : whichAttrs.get(schemaName).getDefaultValues();
     }
 
@@ -171,9 +167,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     private void setSchemas(final List<String> anyTypeClasses, final String groupName, final Map<String, S> scs) {
         final List<S> allSchemas;
         if (anyTypeClasses.isEmpty()) {
-            allSchemas = Collections.emptyList();
+            allSchemas = new ArrayList<>();
         } else {
-            allSchemas = schemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
+            allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
         }
 
         scs.clear();
@@ -183,12 +179,10 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
             allSchemas.removeAll(allSchemas.stream().
                     filter(schemaTO -> org.apache.commons.lang3.StringUtils.isBlank(groupName)
                     ? !whichAttrs.containsKey(schemaTO.getKey())
-                    : !whichAttrs.containsKey(groupName + "#" + schemaTO.getKey())).collect(Collectors.toSet()));
+                    : !whichAttrs.containsKey(groupName + '#' + schemaTO.getKey())).collect(Collectors.toSet()));
         }
 
-        allSchemas.forEach(schemaTO -> {
-            scs.put(schemaTO.getKey(), schemaTO);
-        });
+        allSchemas.forEach(schemaTO -> scs.put(schemaTO.getKey(), schemaTO));
     }
 
     @Override
@@ -210,11 +204,11 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected abstract List<Attr> getAttrsFromTO(MembershipTO membershipTO);
 
-    protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
+    protected static List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
         try {
-            return syncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
+            return SyncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
         } catch (Exception e) {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 
@@ -259,7 +253,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         }
     }
 
-    public class Schemas extends Panel {
+    public static class Schemas extends Panel {
 
         private static final long serialVersionUID = -2447602429647965090L;
 

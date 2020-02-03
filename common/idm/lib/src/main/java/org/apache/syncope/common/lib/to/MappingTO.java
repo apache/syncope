@@ -22,10 +22,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "mapping")
 @XmlType
@@ -49,7 +53,7 @@ public class MappingTO implements ItemContainerTO, Serializable {
 
     @Override
     public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst().orElse(null);
+        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
     }
 
     protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
@@ -61,9 +65,8 @@ public class MappingTO implements ItemContainerTO, Serializable {
 
     @Override
     public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return connObjectKeyItem == null
-                ? remove(getConnObjectKeyItem())
-                : addConnObjectKeyItem(connObjectKeyItem);
+        return Optional.ofNullable(connObjectKeyItem)
+            .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
     }
 
     @XmlElementWrapper(name = "items")
@@ -76,7 +79,8 @@ public class MappingTO implements ItemContainerTO, Serializable {
 
     @Override
     public boolean add(final ItemTO item) {
-        return item == null ? false : this.items.contains(item) || this.items.add(item);
+        return Optional.ofNullable(item)
+            .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
     }
 
     public boolean remove(final ItemTO item) {
@@ -88,5 +92,33 @@ public class MappingTO implements ItemContainerTO, Serializable {
     @JsonProperty("linkingItems")
     public List<ItemTO> getLinkingItems() {
         return linkingItems;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        MappingTO other = (MappingTO) obj;
+        return new EqualsBuilder().
+                append(connObjectLink, other.connObjectLink).
+                append(items, other.items).
+                append(linkingItems, other.linkingItems).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(connObjectLink).
+                append(items).
+                append(linkingItems).
+                build();
     }
 }

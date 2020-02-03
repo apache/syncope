@@ -18,25 +18,33 @@
  */
 package org.apache.syncope.client.enduser;
 
+import java.security.AccessControlException;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.wicket.Session;
@@ -90,6 +98,35 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         executor.initialize();
     }
 
+    @Override
+    public void onException(final Exception e) {
+        Throwable root = ExceptionUtils.getRootCause(e);
+        String message = root.getMessage();
+
+        if (root instanceof SyncopeClientException) {
+            SyncopeClientException sce = (SyncopeClientException) root;
+            if (sce.getType() == ClientExceptionType.InvalidSecurityAnswer) {
+                message = getApplication().getResourceSettings().getLocalizer().
+                        getString("invalid.security.answer", null);
+            } else if (!sce.isComposite()) {
+                message = sce.getElements().stream().collect(Collectors.joining(", "));
+            }
+        } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
+            Error error = StringUtils.containsIgnoreCase(message, "expired")
+                    ? Error.SESSION_EXPIRED
+                    : Error.AUTHORIZATION;
+            message = getApplication().getResourceSettings().getLocalizer().
+                    getString(error.key(), null, null, null, null, error.fallback());
+        } else if (root instanceof BadRequestException || root instanceof WebServiceException) {
+            message = getApplication().getResourceSettings().getLocalizer().
+                    getString(Error.REST.key(), null, null, null, null, Error.REST.fallback());
+        }
+
+        message = getApplication().getResourceSettings().getLocalizer().
+                getString(message, null, null, null, null, message);
+        error(message);
+    }
+
     public void cleanup() {
         client = null;
         selfTO = null;
@@ -97,7 +134,7 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
     }
 
     public String getJWT() {
-        return client == null ? null : client.getJWT();
+        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }
 
     @Override
@@ -178,6 +215,7 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return getService(serviceClass);
     }
 
+    @Override
     public <T> T getService(final Class<T> serviceClass) {
         T service = (client == null || !isAuthenticated())
                 ? anonymousClient.getService(serviceClass)
@@ -186,27 +224,13 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return service;
     }
 
+    @Override
     public <T> T getService(final String etag, final Class<T> serviceClass) {
         T serviceInstance = getService(serviceClass);
         WebClient.client(serviceInstance).match(new EntityTag(etag), false).
                 type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return serviceInstance;
-    }
-
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
-
-        synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
-
-            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = clientFactory.create(getJWT()).getService(serviceClass);
-
-            clientFactory.setContentType(preType);
-        }
-
-        return service;
     }
 
     public UserTO getSelfTO() {
@@ -245,11 +269,13 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return service;
     }
 
+    @Override
     public <T> void resetClient(final Class<T> service) {
         T serviceInstance = getCachedService(service);
         WebClient.client(serviceInstance).reset();
     }
 
+    @Override
     public FastDateFormat getDateFormat() {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
     }

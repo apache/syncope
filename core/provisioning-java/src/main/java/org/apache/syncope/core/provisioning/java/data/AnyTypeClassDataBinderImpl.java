@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -70,9 +70,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach(schema -> {
-            schema.setAnyTypeClass(null);
-        });
+        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
+                forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getPlainSchemas().clear();
         anyTypeClassTO.getPlainSchemas().forEach(schemaName -> {
@@ -85,9 +84,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach((schema) -> {
-            schema.setAnyTypeClass(null);
-        });
+        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
+                forEach((schema) -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getDerSchemas().clear();
         anyTypeClassTO.getDerSchemas().forEach(schemaName -> {
@@ -100,9 +98,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             }
         });
 
-        virSchemaDAO.findByAnyTypeClasses(Collections.singletonList(anyTypeClass)).forEach(schema -> {
-            schema.setAnyTypeClass(null);
-        });
+        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
+                forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getVirSchemas().clear();
         anyTypeClassTO.getVirSchemas().forEach(schemaName -> {
@@ -134,5 +131,4 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
         return anyTypeClassTO;
     }
-
 }

@@ -103,16 +103,15 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
     private <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
         List<Realm> result = new ArrayList<>();
 
-        for (Realm child : findChildren(realm)) {
-            if ((policy instanceof AccountPolicy
-                    && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
-                    || (policy instanceof PasswordPolicy
-                    && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))) {
-
-                result.add(child);
-                result.addAll(findSamePolicyChildren(child, policy));
-            }
-        }
+        findChildren(realm).stream().
+                filter(child -> (policy instanceof AccountPolicy
+                && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
+                || (policy instanceof PasswordPolicy
+                && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))).
+                forEach(child -> {
+                    result.add(child);
+                    result.addAll(findSamePolicyChildren(child, policy));
+                });
 
         return result;
     }
@@ -131,6 +130,15 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         TypedQuery<Realm> query = entityManager().createQuery("SELECT e FROM " + JPARealm.class.getSimpleName() + " e "
                 + "WHERE :resource MEMBER OF e.resources", Realm.class);
         query.setParameter("resource", resource);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Realm> findMatching(final String keyword) {
+        TypedQuery<Realm> query = entityManager().createQuery("SELECT e FROM " + JPARealm.class.getSimpleName() + " e "
+                + "WHERE e.name LIKE :keyword", Realm.class);
+        query.setParameter("keyword", keyword);
 
         return query.getResultList();
     }
@@ -173,7 +181,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return query.getResultList();
     }
 
-    private void findAncestors(final List<Realm> result, final Realm realm) {
+    private static void findAncestors(final List<Realm> result, final Realm realm) {
         if (realm.getParent() != null && !result.contains(realm.getParent())) {
             result.add(realm.getParent());
             findAncestors(result, realm.getParent());
@@ -201,9 +209,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         result.add(realm);
         List<Realm> children = findChildren(realm);
         if (children != null) {
-            for (Realm child : children) {
-                findDescendants(result, child);
-            }
+            children.forEach(child -> findDescendants(result, child));
         }
     }
 

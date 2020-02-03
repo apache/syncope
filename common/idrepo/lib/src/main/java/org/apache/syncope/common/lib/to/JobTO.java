@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.JobType;
@@ -85,15 +87,11 @@ public class JobTO implements Serializable {
     }
 
     public Date getStart() {
-        return start == null
-                ? null
-                : new Date(start.getTime());
+        return Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setStart(final Date start) {
-        this.start = start == null
-                ? null
-                : new Date(start.getTime());
+        this.start = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public String getStatus() {

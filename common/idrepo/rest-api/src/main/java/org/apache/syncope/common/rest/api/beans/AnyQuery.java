@@ -18,10 +18,17 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
+
+import java.util.Optional;
 
 public class AnyQuery extends AbstractQuery {
 
@@ -57,18 +64,27 @@ public class AnyQuery extends AbstractQuery {
 
     private String fiql;
 
+    @Parameter(name = JAXRSService.PARAM_REALM, description = "realms define a hierarchical security domain tree, "
+            + "primarily meant for containing Users, Groups and Any Objects", schema =
+            @Schema(implementation = String.class, defaultValue = SyncopeConstants.ROOT_REALM, externalDocs =
+                    @ExternalDocumentation(description = "Apache Syncope Reference Guide",
+                            url = "http://syncope.apache.org/docs/2.1/reference-guide.html#realms")))
     public String getRealm() {
         return realm;
     }
 
     @DefaultValue(SyncopeConstants.ROOT_REALM)
-    @QueryParam("realm")
+    @QueryParam(JAXRSService.PARAM_REALM)
     public void setRealm(final String realm) {
         this.realm = realm;
     }
 
+    @Parameter(name = JAXRSService.PARAM_DETAILS, description = "whether detailed information is to be included, "
+            + "if applicable, about virtual attributes, (dynamic) roles, privileges, relationships, "
+            + "(dynamic) memberships or linked accounts", schema =
+            @Schema(implementation = Boolean.class))
     public Boolean getDetails() {
-        return details == null ? Boolean.TRUE : details;
+        return Optional.ofNullable(details).orElse(Boolean.TRUE);
     }
 
     @QueryParam(JAXRSService.PARAM_DETAILS)
@@ -81,9 +97,44 @@ public class AnyQuery extends AbstractQuery {
         return fiql;
     }
 
+    @Parameter(name = JAXRSService.PARAM_FIQL, description = "Feed Item Query Language (FIQL, pronounced “fickle”) is "
+            + "a simple but flexible, URI-friendly syntax for expressing filters across the entries in a syndicated "
+            + "feed.", example = "username==rossini", schema =
+            @Schema(implementation = String.class, externalDocs =
+                    @ExternalDocumentation(description = "Apache Syncope Reference Guide",
+                            url = "http://syncope.apache.org/docs/2.1/reference-guide.html#search")))
     @QueryParam(JAXRSService.PARAM_FIQL)
     public void setFiql(final String fiql) {
         this.fiql = fiql;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AnyQuery other = (AnyQuery) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(realm, other.realm).
+                append(details, other.details).
+                append(fiql, other.fiql).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(realm).
+                append(details).
+                append(fiql).
+                build();
+    }
 }

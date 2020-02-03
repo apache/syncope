@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
 
+@FunctionalInterface
 public interface SyncopeSinglePullExecutor {
 
     List<ProvisioningReport> pull(
@@ -32,6 +33,5 @@ public interface SyncopeSinglePullExecutor {
             Connector connector,
             String connObjectKey,
             String connObjectValue,
-            Realm realm,
             PullTaskTO pullTaskTO) throws JobExecutionException;
 }

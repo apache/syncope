@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+@FunctionalInterface
 public interface AccountRuleConf extends RuleConf {
 
 }

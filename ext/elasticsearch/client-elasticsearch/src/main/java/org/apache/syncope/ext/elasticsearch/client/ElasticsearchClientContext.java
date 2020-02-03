@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
-import java.util.Collections;
+import java.util.List;
+
 import org.apache.http.HttpHost;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,7 @@ public class ElasticsearchClientContext {
     @Bean
     public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean() {
         return new ElasticsearchClientFactoryBean(
-                Collections.singletonList(new HttpHost("localhost", 9200, "http")));
+                List.of(new HttpHost("localhost", 9200, "http")));
     }
 
     @ConditionalOnMissingBean

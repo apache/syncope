@@ -33,18 +33,14 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class IdRepoImplementationInfoProvider implements ImplementationInfoProvider {
 
     private static final long serialVersionUID = -6620368595630782392L;
 
-    protected final ClassPathScanImplementationLookup lookup;
-
-    protected final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
-    public IdRepoImplementationInfoProvider(final ClassPathScanImplementationLookup lookup) {
-        this.lookup = lookup;
-    }
+    @Autowired
+    protected ClassPathScanImplementationLookup lookup;
 
     @Override
     public ViewMode getViewMode(final ImplementationTO implementation) {
@@ -59,13 +55,12 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
     @Override
     public List<String> getClasses(final ImplementationTO implementation, final ViewMode viewMode) {
-        List<String> classes = Collections.emptyList();
+        List<String> classes = List.of();
         if (viewMode == ViewMode.JAVA_CLASS) {
             Optional<JavaImplInfo> javaClasses = SyncopeConsoleSession.get().getPlatformInfo().
                     getJavaImplInfo(implementation.getType());
-            classes = javaClasses.isPresent()
-                    ? new ArrayList<>(javaClasses.get().getClasses())
-                    : new ArrayList<>();
+            classes = javaClasses.map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses()))
+                    .orElseGet(ArrayList::new);
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdRepoImplementationType.REPORTLET:
@@ -160,7 +155,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
+                return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -174,7 +169,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return Collections.emptyList();
+                return List.of();
             }
         };
     }
@@ -187,7 +182,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return Collections.emptyList();
+                return List.of();
             }
         };
     }
@@ -200,7 +195,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return Collections.emptyList();
+                return List.of();
             }
         };
     }

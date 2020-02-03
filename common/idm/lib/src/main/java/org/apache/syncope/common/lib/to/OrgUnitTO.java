@@ -21,10 +21,14 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "orgUnit")
 @XmlType
@@ -88,7 +92,7 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     @Override
     public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst().orElse(null);
+        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
     }
 
     protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
@@ -100,9 +104,8 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return connObjectKeyItem == null
-                ? remove(getConnObjectKeyItem())
-                : addConnObjectKeyItem(connObjectKeyItem);
+        return Optional.ofNullable(connObjectKeyItem)
+            .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
     }
 
     @XmlElementWrapper(name = "items")
@@ -115,10 +118,45 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean add(final ItemTO item) {
-        return item == null ? false : this.items.contains(item) || this.items.add(item);
+        return Optional.ofNullable(item)
+            .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
     }
 
     public boolean remove(final ItemTO item) {
         return this.items.remove(item);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        OrgUnitTO other = (OrgUnitTO) obj;
+        return new EqualsBuilder().
+                append(ignoreCaseMatch, other.ignoreCaseMatch).
+                append(key, other.key).
+                append(objectClass, other.objectClass).
+                append(syncToken, other.syncToken).
+                append(connObjectLink, other.connObjectLink).
+                append(items, other.items).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(objectClass).
+                append(syncToken).
+                append(ignoreCaseMatch).
+                append(connObjectLink).
+                append(items).
+                build();
     }
 }

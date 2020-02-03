@@ -50,10 +50,6 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
     private static final long serialVersionUID = -3773196441177699452L;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    private final DynRealmRestClient restClient = new DynRealmRestClient();
-
     private final DynRealmWrapper dynRealmWrapper;
 
     private final boolean create;
@@ -70,7 +66,9 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         modal.setFormModel(dynRealmWrapper);
 
         AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<>(dynRealmWrapper.getInnerObject(), "key"), false);
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME,
+                new PropertyModel<>(dynRealmWrapper.getInnerObject(), Constants.KEY_FIELD_NAME), false);
         key.setReadOnly(!create);
         key.setRequired(true);
         add(key);
@@ -81,7 +79,7 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return anyTypeRestClient.listAnyTypes();
+                return AnyTypeRestClient.listAnyTypes();
             }
         };
 
@@ -134,18 +132,16 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         try {
             dynRealmWrapper.fillDynamicConditions();
             if (create) {
-                restClient.create(dynRealmWrapper.getInnerObject());
+                DynRealmRestClient.create(dynRealmWrapper.getInnerObject());
             } else {
-                restClient.update(dynRealmWrapper.getInnerObject());
+                DynRealmRestClient.update(dynRealmWrapper.getInnerObject());
             }
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating dynamic realm", e);
-            SyncopeConsoleSession.get().error(
-                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
-
 }

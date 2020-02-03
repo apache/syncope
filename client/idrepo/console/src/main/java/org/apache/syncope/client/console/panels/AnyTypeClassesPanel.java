@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -78,17 +77,16 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                restClient.create(modelObject);
+                                AnyTypeClassRestClient.create(modelObject);
                             } else {
-                                restClient.update(modelObject);
+                                AnyTypeClassRestClient.update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             AnyTypeClassesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating AnyTypeClassTO", e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -103,7 +101,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
 
     @Override
     protected AnyTypeClassesPanel.AnyTypeClassProvider dataProvider() {
-        return new AnyTypeClassesPanel.AnyTypeClassProvider(rows);
+        return new AnyTypeClassProvider(rows);
     }
 
     @Override
@@ -113,7 +111,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override
@@ -141,7 +139,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
+                            if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "col-xs-1"
                                         : css + " col-xs-1";
@@ -178,13 +176,12 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    AnyTypeClassRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -193,7 +190,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
         return panel;
     }
 
-    protected final class AnyTypeClassProvider extends DirectoryDataProvider<AnyTypeClassTO> {
+    protected static final class AnyTypeClassProvider extends DirectoryDataProvider<AnyTypeClassTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -206,14 +203,14 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
 
         @Override
         public Iterator<AnyTypeClassTO> iterator(final long first, final long count) {
-            final List<AnyTypeClassTO> list = restClient.list();
-            Collections.sort(list, comparator);
+            final List<AnyTypeClassTO> list = AnyTypeClassRestClient.list();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return AnyTypeClassRestClient.list().size();
         }
 
         @Override

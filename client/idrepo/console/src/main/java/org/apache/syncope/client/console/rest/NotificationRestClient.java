@@ -36,31 +36,31 @@ public class NotificationRestClient extends BaseRestClient
 
     private static final long serialVersionUID = 6328933265096511690L;
 
-    public List<NotificationTO> list() {
+    public static List<NotificationTO> list() {
         return getService(NotificationService.class).list();
     }
 
-    public JobTO getJob() {
+    public static JobTO getJob() {
         return getService(NotificationService.class).getJob();
     }
 
-    public void actionJob(final JobAction jobAction) {
+    public static void actionJob(final JobAction jobAction) {
         getService(NotificationService.class).actionJob(jobAction);
     }
 
-    public NotificationTO read(final String key) {
+    public static NotificationTO read(final String key) {
         return getService(NotificationService.class).read(key);
     }
 
-    public void create(final NotificationTO notificationTO) {
+    public static void create(final NotificationTO notificationTO) {
         getService(NotificationService.class).create(notificationTO);
     }
 
-    public void update(final NotificationTO notificationTO) {
+    public static void update(final NotificationTO notificationTO) {
         getService(NotificationService.class).update(notificationTO);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(NotificationService.class).delete(key);
     }
 

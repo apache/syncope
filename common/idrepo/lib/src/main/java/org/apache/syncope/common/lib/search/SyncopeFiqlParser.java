@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.search;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,8 +60,8 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
         CONDITION_MAP.put(ConditionType.CUSTOM, IEQ);
         CONDITION_MAP.put(ConditionType.CUSTOM, NIEQ);
 
-        String comparators = GT + "|" + GE + "|" + LT + "|" + LE + "|" + EQ + "|" + NEQ + "|" + IEQ + "|" + NIEQ;
-        String s1 = "[\\p{ASCII}]+(" + comparators + ")";
+        String comparators = GT + '|' + GE + '|' + LT + '|' + LE + '|' + EQ + '|' + NEQ + '|' + IEQ + '|' + NIEQ;
+        String s1 = "[\\p{ASCII}]+(" + comparators + ')';
         comparatorsPattern = Pattern.compile(s1);
     }
 
@@ -107,8 +106,8 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
 
         @Override
         public String toString() {
-            return name + " " + operator + " " + tvalue.getObject()
-                    + " (" + tvalue.getObject().getClass().getSimpleName() + ")";
+            return name + ' ' + operator + ' ' + tvalue.getObject()
+                    + " (" + tvalue.getObject().getClass().getSimpleName() + ')';
         }
 
         @Override
@@ -121,9 +120,9 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
                 return new SyncopeFiqlSearchCondition<>(ct, cond);
             } else {
                 String templateNameLCase = templateName.toLowerCase();
-                return new SyncopeFiqlSearchCondition<>(Collections.singletonMap(templateNameLCase, ct),
-                        Collections.singletonMap(templateNameLCase, name),
-                        Collections.singletonMap(templateNameLCase, tvalue.getTypeInfo()),
+                return new SyncopeFiqlSearchCondition<>(Map.of(templateNameLCase, ct),
+                        Map.of(templateNameLCase, name),
+                        Map.of(templateNameLCase, tvalue.getTypeInfo()),
                         cond, operator);
             }
         }

@@ -43,25 +43,31 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class RealmITCase extends AbstractITCase {
 
-    private Optional<RealmTO> getRealm(final String fullPath) {
+    private static Optional<RealmTO> getRealm(final String fullPath) {
         return realmService.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
     @Test
+    public void search() {
+        List<RealmTO> match = realmService.search(new RealmQuery.Builder().keyword("*o*").build());
+        assertTrue(match.stream().allMatch(realm -> realm.getName().contains("o")));
+    }
+
+    @Test
     public void list() {
-        List<RealmTO> realms = realmService.list();
+        List<RealmTO> realms = realmService.list(SyncopeConstants.ROOT_REALM);
         assertNotNull(realms);
         assertFalse(realms.isEmpty());
-        realms.forEach(realm -> {
-            assertNotNull(realm);
-        });
+        realms.forEach(Assertions::assertNotNull);
 
         try {
             realmService.list("a name");
@@ -73,7 +79,7 @@ public class RealmITCase extends AbstractITCase {
 
     @Test
     public void createUpdate() {
-        final RealmTO realm = new RealmTO();
+        RealmTO realm = new RealmTO();
         realm.setName("last");
 
         // 1. create
@@ -106,7 +112,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actual);
         assertEquals("/odd/last", actual.getFullPath());
 
-        assertEquals(1, realmService.list().stream().
+        assertEquals(1, realmService.list(SyncopeConstants.ROOT_REALM).stream().
                 filter(object -> realm.getName().equals(object.getName())).count());
 
         // 4. create under invalid path
@@ -124,6 +130,19 @@ public class RealmITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
+    }
+
+    @Test
+    public void createWithTilde() {
+        RealmTO realm = new RealmTO();
+        realm.setName("73~1~19534");
+
+        Response response = realmService.create("/even/two", realm);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        List<RealmTO> realms = realmService.list("/even/two/73~1~19534");
+        assertEquals(1, realms.size());
+        assertEquals(realm.getName(), realms.get(0).getName());
     }
 
     @Test

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -36,7 +35,7 @@ public class CapabilitiesPanel extends Panel {
 
         AjaxPalettePanel<ConnectorCapability> capabilitiesPalette = new AjaxPalettePanel.Builder<ConnectorCapability>().
                 setAllowMoveAll(true).
-                build("capabilities", model, new ListModel<>(Arrays.asList(ConnectorCapability.values())));
+                build("capabilities", model, new ListModel<>(List.of(ConnectorCapability.values())));
         capabilitiesPalette.setOutputMarkupId(true);
         add(capabilitiesPalette);
     }

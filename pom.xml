@@ -334,6 +334,16 @@ under the License.
       </roles>
       <email>dimaayash@apache.org</email>
     </developer>
+    <developer>
+      <id>mmoayyed</id>
+      <name>Misagh Moayyed</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <email>mmoayyed@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
@@ -372,14 +382,19 @@ under the License.
       <email>tusharm567@gmail.com</email>
       <url>http://tusharmishra.in</url>
     </contributor>
+    <contributor>
+      <name>Dmitriy Brashevets</name>
+      <organization>United Security Providers AG</organization>
+      <organizationUrl>https://www.united-security-providers.com/</organizationUrl>
+    </contributor>
   </contributors>
 
   <properties>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.5.0.1</connid.version>
+    <connid.version>1.5.0.2</connid.version>
     <connid.soap.version>1.4.3</connid.soap.version>
-    <connid.rest.version>1.0.4</connid.rest.version>
+    <connid.rest.version>1.0.5</connid.rest.version>
     <connid.database.version>2.2.6</connid.database.version>
     <connid.csvdir.version>0.8.8</connid.csvdir.version>
     <connid.ldap.version>1.5.4</connid.ldap.version>
@@ -389,62 +404,63 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.3.2</cxf.version>
+    <cxf.version>3.3.5</cxf.version>
 
-    <jackson.version>2.9.9</jackson.version>
+    <jackson.version>2.10.2</jackson.version>
 
-    <spring.version>5.1.7.RELEASE</spring.version>
-    <spring-security.version>5.1.5.RELEASE</spring-security.version>
-    <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
-    <spring-cloud-gateway.version>2.1.1.RELEASE</spring-cloud-gateway.version>
+    <spring.version>5.2.3.RELEASE</spring.version>
+    <spring-security.version>5.2.1.RELEASE</spring-security.version>
+    <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
+    <spring-cloud-gateway.version>2.2.1.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.0</openjpa.version>
-    <hikaricp.version>3.3.1</hikaricp.version>
-    <hibernate-validator.version>6.0.13.Final</hibernate-validator.version>
+    <hikaricp.version>3.4.2</hikaricp.version>
+    <hibernate-validator.version>6.1.1.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <quartz.version>2.3.1</quartz.version>
+    <quartz.version>2.3.2</quartz.version>
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>3.0.0-beta-1</groovy.version>
+    <groovy.version>3.0.0-rc-3</groovy.version>
 
-    <flowable.version>6.4.1</flowable.version>
+    <flowable.version>6.5.0</flowable.version>
 
-    <camel.version>3.0.0-M2</camel.version>
+    <camel.version>3.0.1</camel.version>
 
-    <slf4j.version>1.7.26</slf4j.version>
-    <opensaml.version>3.3.0</opensaml.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>7.1.1</elasticsearch.version>
+    <elasticsearch.version>7.5.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
 
-    <log4j.version>2.11.2</log4j.version>
+    <log4j.version>2.13.0</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.9</commons-lang.version>
-    <commons-text.version>1.6</commons-text.version>
+    <commons-text.version>1.8</commons-text.version>
     <commons-logging.version>1.1.3</commons-logging.version>
     
-    <tika.version>1.21</tika.version>
+    <tika.version>1.23</tika.version>
 
-    <joda.version>2.10.2</joda.version>
+    <joda.version>2.10.5</joda.version>
 
-    <h2.version>1.4.199</h2.version>
+    <h2.version>1.4.200</h2.version>
 
-    <junit.version>5.4.2</junit.version>
+    <junit.version>5.6.0</junit.version>
+    <mockito.version>3.2.4</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
 
-    <swagger-core.version>2.0.8</swagger-core.version>    
-    <swagger-ui.version>3.22.2</swagger-ui.version>
+    <swagger-core.version>2.1.1</swagger-core.version>    
+    <swagger-ui.version>3.24.3</swagger-ui.version>
     <guava.version>20.0</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
@@ -455,35 +471,29 @@ under the License.
     <bootstrap.version>3.4.1</bootstrap.version>
     <bootstrap-select.version>1.12.4</bootstrap-select.version>
     <bootstrap-fileinput.version>4.4.8</bootstrap-fileinput.version>
-    <bootbox.version>4.4.0</bootbox.version>
+    <bootbox.version>5.4.0</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
-    <highlightjs.version>9.8.0</highlightjs.version>
-    <codemirror.version>5.45.0</codemirror.version>
+    <highlightjs.version>9.15.10</highlightjs.version>
+    <codemirror.version>5.50.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>8.5.0</wicket.version>
-    <wicket-jqueryui.version>8.3.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.10</wicket-bootstrap.version>
-    <wicket-spring-boot.version>2.1.7</wicket-spring-boot.version>
-    
-    <ng-password-strength.version>0.2.1</ng-password-strength.version>
-    <lodash.version>4.17.4</lodash.version>
-    <kendo-ui-core.version>2018.1.221</kendo-ui-core.version>
-    <select2.version>3.4.8</select2.version>
-    <fileSaver.version>0.0.2</fileSaver.version>
+    <wicket.version>8.7.0</wicket.version>
+    <wicket-jqueryui.version>8.6.0</wicket-jqueryui.version>
+    <wicket-bootstrap.version>2.0.12</wicket-bootstrap.version>
+    <wicket-spring-boot.version>2.1.9</wicket-spring-boot.version>
     
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
-    <netbeans.version>RELEASE82</netbeans.version>
+    <netbeans.version>RELEASE111</netbeans.version>
 
-    <antlr4.version>4.7.2</antlr4.version>
+    <antlr4.version>4.8-1</antlr4.version>
 
     <curator.version>4.2.0</curator.version>
-    <zookeeper.version>3.4.14</zookeeper.version>
+    <zookeeper.version>3.5.6</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -504,20 +514,24 @@ under the License.
     <cargo.servlet.port>9080</cargo.servlet.port>
     <cargo.tomcat.ajp.port>9889</cargo.tomcat.ajp.port>
     <cargo.rmi.port>9805</cargo.rmi.port>
+    <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.20</tomcat.version>
+    <tomcat.version>9.0.30</tomcat.version>
+    <payara.version>5.194</payara.version>
+    <javax.faces.version>2.4.0</javax.faces.version>
 
-    <docker.postgresql.version>11.2</docker.postgresql.version>
-    <docker.mysql.version>8.0</docker.mysql.version>
+    <docker.postgresql.version>12</docker.postgresql.version>
+    <docker.mysql.version>8.0.18</docker.mysql.version>
     <docker.mariadb.version>10.4</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.5</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.16</jdbc.mysql.version>
+    <jdbc.postgresql.version>42.2.8</jdbc.postgresql.version>
+    <jdbc.mysql.version>8.0.18</jdbc.mysql.version>
     <jdbc.mariadb.version>2.4.1</jdbc.mariadb.version>
     <jdbc.mssql.version>7.2.2.jre</jdbc.mssql.version>
-
+    <jdbc.oracle.version>19.3.0.0</jdbc.oracle.version>
+    
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
     <adminPassword>DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464</adminPassword>
@@ -532,13 +546,14 @@ under the License.
     -->
     <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
 
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.jacoco.utReportPath>${rootpom.basedir}/target/jacoco.ut.exec</sonar.jacoco.utReportPath>
-    <sonar.jacoco.itReportPath>${rootpom.basedir}/target/jacoco.it.exec</sonar.jacoco.itReportPath>
-    <sonar.jacoco.reportPaths>${sonar.jacoco.utReportPath},${sonar.jacoco.itReportPath}</sonar.jacoco.reportPaths>
-    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports</sonar.junit.reportPaths>
+    <ianal.skip>false</ianal.skip>
+    <skip.sass>false</skip.sass>
+
     <sonar.language>java</sonar.language>
     <sonar.java.source>${targetJdk}</sonar.java.source>
+    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
     <targetJdk>11</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
@@ -587,9 +602,9 @@ under the License.
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>1.2</version>
+        <groupId>org.apache.taglibs</groupId>
+        <artifactId>taglibs-standard-impl</artifactId>
+        <version>1.2.5</version>
       </dependency>
       
       <!-- CXF -->
@@ -733,7 +748,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-script</artifactId>
+        <artifactId>camel-groovy</artifactId>
         <version>${camel.version}</version>
         <exclusions>
           <exclusion>
@@ -767,7 +782,7 @@ under the License.
         <version>${camel.version}</version>
       </dependency>
       <!-- /Camel -->
-      
+
       <!-- OpenSAML -->
       <dependency>
         <groupId>org.opensaml</groupId>
@@ -828,7 +843,7 @@ under the License.
         </exclusions>
       </dependency>
       <!-- /OpenSAML -->
-          
+
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -956,6 +971,11 @@ under the License.
             <artifactId>woodstox-core</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-csv</artifactId>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -1139,7 +1159,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.4</version>
+        <version>1.9.5</version>
       </dependency>
       
       <dependency>
@@ -1273,7 +1293,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.10</version>
+        <version>1.5.11</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1492,14 +1512,14 @@ under the License.
         <version>${log4j.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.lmax</groupId>
-        <artifactId>disruptor</artifactId>
-        <version>${disruptor.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-slf4j-impl</artifactId>
         <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.lmax</groupId>
+        <artifactId>disruptor</artifactId>
+        <version>${disruptor.version}</version>
       </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
@@ -1516,7 +1536,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.14</version>
+        <version>2.0.18</version>
       </dependency>
       
       <dependency>
@@ -1610,44 +1630,6 @@ under the License.
         <version>${jquery-cookie.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>ng-password-strength</artifactId>
-        <version>${ng-password-strength.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>lodash</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>lodash</artifactId>
-        <version>${lodash.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars</groupId>
-        <artifactId>kendo-ui-core</artifactId>
-        <version>${kendo-ui-core.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>select2</artifactId>
-        <version>${select2.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>jquery</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>FileSaver.js</artifactId>
-        <version>${fileSaver.version}</version>
-      </dependency>
-      
       <dependency>
         <groupId>org.netbeans.api</groupId>
         <artifactId>org-netbeans-api-annotations-common</artifactId>
@@ -1746,23 +1728,11 @@ under the License.
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-framework</artifactId>
         <version>${curator.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-x-discovery</artifactId>
         <version>${curator.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.zookeeper</groupId>
@@ -1784,7 +1754,7 @@ under the License.
       <dependency>
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-test</artifactId>
-        <version>2.13.0</version>
+        <version>${curator.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1802,7 +1772,13 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.62</version>
+        <version>1.64</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-client</artifactId>
+        <version>9.4.20.v20190813</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1810,6 +1786,24 @@ under the License.
         <artifactId>spring-test</artifactId>
         <version>${spring.version}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -1833,10 +1827,6 @@ under the License.
       </snapshots>
     </repository>
     <repository>
-      <id>netbeans</id>
-      <url>http://bits.netbeans.org/maven2/</url>
-    </repository>
-    <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
@@ -1844,11 +1834,27 @@ under the License.
 
   <pluginRepositories>
     <pluginRepository>
-      <id>apache.snapshots</id>
-      <url>http://repository.apache.org/snapshots</url>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/releases</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </pluginRepository>
     <pluginRepository>
-      <id>sonatype</id>
+      <id>apache.snapshots</id>
+      <url>https://repository.apache.org/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>sonatype.snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
         <enabled>false</enabled>
@@ -1898,7 +1904,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         
         <plugin>
@@ -1977,7 +1983,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>3.2.0</version>
         </plugin>
         
         <plugin>
@@ -2026,7 +2032,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.4</version>
+          <version>1.7.10</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2074,6 +2080,13 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
           <version>3.1.0</version>
+          <dependencies>
+            <dependency>
+              <groupId>com.puppycrawl.tools</groupId>
+              <artifactId>checkstyle</artifactId>
+              <version>8.29</version>
+            </dependency>
+          </dependencies>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <targetJdk>${targetJdk}</targetJdk>
@@ -2081,21 +2094,15 @@ under the License.
         </plugin>
 
         <plugin>
-          <groupId>org.vafer</groupId>
-          <artifactId>jdeb</artifactId>
-          <version>1.7</version>
-        </plugin>
-
-        <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.30.0</version>
+          <version>0.33.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>
@@ -2125,7 +2132,19 @@ under the License.
         <plugin>
           <groupId>nl.geodienstencentrum.maven</groupId>
           <artifactId>sass-maven-plugin</artifactId>
-          <version>3.7.1</version>
+          <version>3.7.2</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.5</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>3.7.0.1746</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -2134,10 +2153,10 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.4.1</version>
+        <version>3.0.0-M3</version>
         <executions>
           <execution>
-            <id>enforce-maven</id>
+            <id>default-cli</id>
             <goals>
               <goal>enforce</goal>
             </goals>
@@ -2149,7 +2168,7 @@ under the License.
                 <requireMavenVersion>
                   <version>3.5.0</version>
                 </requireMavenVersion>
-              </rules>    
+              </rules> 
             </configuration>
           </execution>
         </executions>
@@ -2158,7 +2177,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>1.8.0</version>
+        <version>2.0.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
@@ -2196,37 +2215,21 @@ under the License.
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.4</version>
         <configuration>
-          <append>true</append>
           <skip>${skipTests}</skip>
         </configuration>
         <executions>
           <execution>
-            <id>jacoco-agent-ut</id>
-            <phase>process-test-classes</phase>
+            <id>prepare-jacoco-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
-            <configuration>
-              <destFile>${sonar.jacoco.utReportPath}</destFile>
-            </configuration>
           </execution>
           <execution>
-            <id>jacoco-agent-it</id>
-            <phase>pre-integration-test</phase>
+            <id>generate-code-coverage-report</id>
+            <phase>test</phase>
             <goals>
-              <goal>prepare-agent-integration</goal>
-            </goals>
-            <configuration>
-              <destFile>${sonar.jacoco.itReportPath}</destFile>
-            </configuration>
-          </execution>
-          <execution>
-            <id>jacoco-site</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>report-aggregate</goal>
+              <goal>report</goal>
             </goals>
           </execution>
         </executions>
@@ -2235,7 +2238,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.7.1</version>
+        <version>1.8.1</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -2274,6 +2277,7 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
@@ -2295,8 +2299,6 @@ under the License.
             <exclude>.idea/**</exclude>
             <exclude>**/.settings/**</exclude>
             <exclude>**/.*</exclude>
-            <exclude>**/deb/control/conffiles</exclude>
-            <exclude>**/deb/control/control</exclude>
             <exclude>**/*.lst</exclude>
             <exclude>**/*.json</exclude>
             <exclude>**/banner.txt</exclude>
@@ -2386,6 +2388,7 @@ under the License.
             <configuration>
               <!-- Fail the build if any artifacts are missing legal files -->
               <strict>true</strict>
+              <skip>${ianal.skip}</skip>
             </configuration>
           </execution>
         </executions>
@@ -2427,7 +2430,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.1</version>
         <configuration>
           <destDir>apidocs/3.0</destDir>
           <isOffline>false</isOffline>
@@ -2442,25 +2445,26 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.4/</link>
             <link>http://cxf.apache.org/javadoc/latest/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.9.pr1/</link>
-            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.9/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/3.0.0-M2/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/3.0.0-M2/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
+            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/3.0.1/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/3.0.1/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/1.20/api/</link>
+            <link>https://tika.apache.org/1.21/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.0/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.1.1/index.html</link>
-            <link>http://docs.swagger.io/swagger-core/v2.0.8/apidocs/</link>
+            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.5.2/index.html</link>
+            <link>http://docs.swagger.io/swagger-core/v2.1.1/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
@@ -2528,7 +2532,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>1.5.0-alpha.18</version>
+                <version>1.5.0-rc.2</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -2538,6 +2542,9 @@ under the License.
               <attributes>
                 <docVersion>${project.version}</docVersion>
                 <snapshotOrRelease>${snapshotOrRelease}</snapshotOrRelease>
+                <postgresql>${docker.postgresql.version}</postgresql>
+                <mysql>${docker.mysql.version}</mysql>
+                <mariadb>${docker.mariadb.version}</mariadb>
                 <postgresqlJDBC>${jdbc.postgresql.version}</postgresqlJDBC>
                 <mysqlJDBC>${jdbc.mysql.version}</mysqlJDBC>
                 <mariadbJDBC>${jdbc.mariadb.version}</mariadbJDBC>
@@ -2620,7 +2627,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.7.1</version>
+            <version>3.8.2</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
@@ -2659,6 +2666,10 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
+        <ianal.skip>true</ianal.skip>
+        <modernizer.skip>true</modernizer.skip>
+        <rat.skip>true</rat.skip>
+        <checkstyle.skip>true</checkstyle.skip>
       </properties>
 
       <build>
@@ -2666,33 +2677,11 @@ under the License.
         
         <plugins>
           <plugin>
-            <groupId>org.gaul</groupId>
-            <artifactId>modernizer-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>modernizer-check</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
             <executions>
               <execution>
                 <id>checkstyle-check</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-      
-          <plugin>
-            <groupId>org.apache.rat</groupId>
-            <artifactId>apache-rat-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>rat-check</id>
                 <phase>none</phase>
               </execution>
             </executions>
@@ -2719,7 +2708,6 @@ under the License.
     <module>ext</module>
     <module>archetype</module>
     <module>standalone</module>
-    <module>deb</module>
     <module>ide</module>
   </modules>
 

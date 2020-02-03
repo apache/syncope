@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -111,14 +110,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final String realm,
             final boolean details) {
 
-        int count = searchDAO.count(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm),
-                searchCond == null ? userDAO.getAllMatchingCond() : searchCond, AnyTypeKind.USER);
+        Set<String> adminRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm);
 
-        List<User> matching = searchDAO.search(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm),
-                searchCond == null ? userDAO.getAllMatchingCond() : searchCond,
-                page, size, orderBy, AnyTypeKind.USER);
+        SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
+
+        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.USER);
+
+        List<User> matching = searchDAO.search(adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.returnUserTO(binder.getUserTO(user, details))).
                 collect(Collectors.toList());
@@ -170,7 +169,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         // Ensures that, if the self update above moves the user into a status from which no authentication
         // is possible, the existing Access Token is clean up to avoid issues with future authentications
-        List<String> authStatuses = Arrays.asList(confParamOps.get(AuthContextUtils.getDomain(),
+        List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
             String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
@@ -261,7 +260,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 updated.getRight(),
                 Collections.<LogicActions>emptyList(),
                 false,
-                Collections.<String>emptySet());
+                Set.of());
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -274,7 +273,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 updated.getRight(),
                 Collections.<LogicActions>emptyList(),
                 false,
-                Collections.<String>emptySet());
+                Set.of());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")
@@ -347,7 +346,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(group -> group.getKey() + " " + group.getName()).collect(Collectors.toList()));
+                    map(group -> group.getKey() + ' ' + group.getName()).collect(Collectors.toList()));
             throw sce;
         }
 

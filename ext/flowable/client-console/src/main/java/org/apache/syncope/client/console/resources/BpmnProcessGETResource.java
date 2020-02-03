@@ -46,7 +46,7 @@ public class BpmnProcessGETResource extends AbstractBpmnProcessResource {
 
             @Override
             public void writeData(final Attributes attributes) throws IOException {
-                IOUtils.copy(new BpmnProcessRestClient().getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()),
+                IOUtils.copy(BpmnProcessRestClient.getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()),
                         attributes.getResponse().getOutputStream());
             }
         });

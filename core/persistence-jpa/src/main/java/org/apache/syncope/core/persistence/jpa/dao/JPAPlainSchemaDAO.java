@@ -20,18 +20,23 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.Collection;
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
@@ -57,9 +62,9 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
-        anyTypeClasses.forEach(anyTypeClass -> {
-            queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
-        });
+        anyTypeClasses.forEach(anyTypeClass -> queryString.
+                append("e.anyTypeClass.id='").
+                append(anyTypeClass.getKey()).append("' OR "));
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(
                 queryString.substring(0, queryString.length() - 4), PlainSchema.class);
@@ -104,17 +109,26 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     }
 
     @Override
+    public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
+        String plainAttrTable = getPlainAttrTable(reference);
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(" + plainAttrTable + ".id) FROM " + JPAPlainSchema.TABLE
+                + " JOIN " + plainAttrTable + " ON " + JPAPlainSchema.TABLE + ".id = " + plainAttrTable
+                + ".schema_id WHERE " + JPAPlainSchema.TABLE + ".id = ?1");
+        query.setParameter(1, schema.getKey());
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
     public PlainSchema save(final PlainSchema schema) {
         return entityManager().merge(schema);
     }
 
     protected void deleteAttrs(final PlainSchema schema) {
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-
-            findAttrs(schema, anyUtils.plainAttrClass()).forEach(attr -> {
-                plainAttrDAO.delete(attr);
-            });
+            findAttrs(schema, anyUtilsFactory.getInstance(anyTypeKind).plainAttrClass()).
+                    forEach(attr -> plainAttrDAO.delete(attr));
         }
     }
 
@@ -136,5 +150,15 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         }
 
         entityManager().remove(schema);
+    }
+
+    private <T extends PlainAttr<?>> String getPlainAttrTable(final Class<T> plainAttrClass) {
+        if (GPlainAttr.class.isAssignableFrom(plainAttrClass)) {
+            return JPAGPlainAttr.TABLE;
+        }
+        if (APlainAttr.class.isAssignableFrom(plainAttrClass)) {
+            return JPAAPlainAttr.TABLE;
+        }
+        return JPAUPlainAttr.TABLE;
     }
 }

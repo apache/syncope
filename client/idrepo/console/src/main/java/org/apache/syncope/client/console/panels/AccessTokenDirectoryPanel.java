@@ -21,11 +21,9 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -123,13 +121,12 @@ public class AccessTokenDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AccessTokenTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    AccessTokenRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                            getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -140,7 +137,7 @@ public class AccessTokenDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     public abstract static class Builder
@@ -158,7 +155,7 @@ public class AccessTokenDirectoryPanel
         }
     }
 
-    protected class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
+    protected static class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
 
         private static final long serialVersionUID = 6267494272884913376L;
 
@@ -173,14 +170,14 @@ public class AccessTokenDirectoryPanel
         @Override
         public Iterator<AccessTokenTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list(
+            return AccessTokenRestClient.list(
                     (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }
 
         @Override
         public long size() {
-            return restClient.count();
+            return AccessTokenRestClient.count();
         }
 
         @Override

@@ -21,22 +21,28 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.ext.search.SearchBean;
+import org.apache.cxf.jaxrs.ext.search.SearchCondition;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
-import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
-import org.apache.syncope.core.logic.GroupLogic;
-import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,15 +51,6 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Autowired
     private ResourceLogic logic;
-
-    @Autowired
-    private AnyObjectLogic anyObjectLogic;
-
-    @Autowired
-    private UserLogic userLogic;
-
-    @Autowired
-    private GroupLogic groupLogic;
 
     @Override
     public Response create(final ResourceTO resourceTO) {
@@ -95,16 +92,44 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String anyKey) {
-        return logic.readConnObject(key, anyTypeKey, anyKey);
+    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String value) {
+        return SyncopeConstants.UUID_PATTERN.matcher(value).matches()
+                ? logic.readConnObjectByAnyKey(key, anyTypeKey, value)
+                : logic.readConnObjectByConnObjectKeyValue(key, anyTypeKey, value);
     }
 
     @Override
-    public PagedConnObjectTOResult listConnObjects(
-            final String key, final String anyTypeKey, final ConnObjectTOListQuery listQuery) {
+    public PagedConnObjectTOResult searchConnObjects(
+            final String key, final String anyTypeKey, final ConnObjectTOQuery query) {
 
-        Pair<SearchResult, List<ConnObjectTO>> list = logic.listConnObjects(key, anyTypeKey,
-                listQuery.getSize(), listQuery.getPagedResultsCookie(), getOrderByClauses(listQuery.getOrderBy()));
+        Filter filter = null;
+        Set<String> moreAttrsToGet = Set.of();
+        if (StringUtils.isNotBlank(query.getFiql())) {
+            try {
+                FilterVisitor visitor = new FilterVisitor();
+                SearchCondition<SearchBean> sc = searchContext.getCondition(query.getFiql(), SearchBean.class);
+                sc.accept(visitor);
+
+                filter = visitor.getQuery();
+                moreAttrsToGet = visitor.getAttrs();
+            } catch (Exception e) {
+                LOG.error("Invalid FIQL expression: {}", query.getFiql(), e);
+
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                sce.getElements().add(query.getFiql());
+                sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
+                throw sce;
+            }
+        }
+
+        Pair<SearchResult, List<ConnObjectTO>> list = logic.searchConnObjects(
+                filter,
+                moreAttrsToGet,
+                key,
+                anyTypeKey,
+                query.getSize(),
+                query.getPagedResultsCookie(),
+                getOrderByClauses(query.getOrderBy()));
 
         PagedConnObjectTOResult result = new PagedConnObjectTOResult();
         if (list.getLeft() != null) {
@@ -123,7 +148,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         if (StringUtils.isNotBlank(result.getPagedResultsCookie())) {
             result.setNext(builder.
                     replaceQueryParam(PARAM_CONNID_PAGED_RESULTS_COOKIE, result.getPagedResultsCookie()).
-                    replaceQueryParam(PARAM_SIZE, listQuery.getSize()).
+                    replaceQueryParam(PARAM_SIZE, query.getSize()).
                     build());
         }
 

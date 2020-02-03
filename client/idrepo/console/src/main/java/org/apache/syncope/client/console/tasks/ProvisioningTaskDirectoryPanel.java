@@ -21,7 +21,9 @@ package org.apache.syncope.client.console.tasks;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -101,7 +103,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
         List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("name", this), "name", "name"));
@@ -141,7 +143,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
                 Component panel;
                 try {
-                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                    JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
@@ -186,13 +188,13 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
         @Override
         public long size() {
-            return restClient.count(resource, taskType);
+            return TaskRestClient.count(resource, taskType);
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list(
+            return TaskRestClient.list(
                     resource, reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

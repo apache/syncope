@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
@@ -27,12 +29,14 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrValueCheck;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.Encryptor;
 
 @MappedSuperclass
@@ -40,6 +44,8 @@ import org.apache.syncope.core.spring.security.Encryptor;
 public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity implements PlainAttrValue {
 
     private static final long serialVersionUID = -9141923816611244785L;
+
+    private static final Pattern SPRING_ENV_PROPERTY = Pattern.compile("^\\$\\{.*\\}$");
 
     private String stringValue;
 
@@ -67,16 +73,12 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     @Override
     public Date getDateValue() {
-        return dateValue == null
-                ? null
-                : new Date(dateValue.getTime());
+        return Optional.ofNullable(dateValue).map(value -> new Date(value.getTime())).orElse(null);
     }
 
     @Override
     public void setDateValue(final Date dateValue) {
-        this.dateValue = dateValue == null
-                ? null
-                : new Date(dateValue.getTime());
+        this.dateValue = Optional.ofNullable(dateValue).map(value -> new Date(value.getTime())).orElse(null);
     }
 
     @Override
@@ -127,6 +129,13 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
         this.binaryValue = ArrayUtils.clone(binaryValue);
     }
 
+    protected String getSecretKey(final PlainSchema schema) {
+        return SPRING_ENV_PROPERTY.matcher(schema.getSecretKey()).matches()
+                ? ApplicationContextProvider.getApplicationContext().getEnvironment().
+                        getProperty(StringUtils.substringBetween(schema.getSecretKey(), "${", "}"))
+                : schema.getSecretKey();
+    }
+
     @Override
     public void parseValue(final PlainSchema schema, final String value) {
         Exception exception = null;
@@ -139,42 +148,42 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
             case Long:
                 try {
-                    this.setLongValue(schema.getConversionPattern() == null
-                            ? Long.valueOf(value)
-                            : FormatUtils.parseNumber(value, schema.getConversionPattern()).longValue());
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
+                this.setLongValue(schema.getConversionPattern() == null
+                        ? Long.valueOf(value)
+                        : FormatUtils.parseNumber(value, schema.getConversionPattern()).longValue());
+            } catch (Exception pe) {
+                exception = pe;
+            }
+            break;
 
             case Double:
                 try {
-                    this.setDoubleValue(schema.getConversionPattern() == null
-                            ? Double.valueOf(value)
-                            : FormatUtils.parseNumber(value, schema.getConversionPattern()).doubleValue());
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
+                this.setDoubleValue(schema.getConversionPattern() == null
+                        ? Double.valueOf(value)
+                        : FormatUtils.parseNumber(value, schema.getConversionPattern()).doubleValue());
+            } catch (Exception pe) {
+                exception = pe;
+            }
+            break;
 
             case Date:
                 try {
-                    this.setDateValue(schema.getConversionPattern() == null
-                            ? FormatUtils.parseDate(value)
-                            : new Date(FormatUtils.parseDate(value, schema.getConversionPattern()).getTime()));
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
+                this.setDateValue(schema.getConversionPattern() == null
+                        ? FormatUtils.parseDate(value)
+                        : new Date(FormatUtils.parseDate(value, schema.getConversionPattern()).getTime()));
+            } catch (Exception pe) {
+                exception = pe;
+            }
+            break;
 
             case Encrypted:
                 try {
-                    this.setStringValue(Encryptor.getInstance(schema.getSecretKey()).
-                            encode(value, schema.getCipherAlgorithm()));
-                } catch (Exception pe) {
-                    exception = pe;
-                }
-                break;
+                this.setStringValue(Encryptor.getInstance(getSecretKey(schema)).
+                        encode(value, schema.getCipherAlgorithm()));
+            } catch (Exception pe) {
+                exception = pe;
+            }
+            break;
 
             case Binary:
                 this.setBinaryValue(Base64.getDecoder().decode(value));
@@ -187,8 +196,8 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
         }
 
         if (exception != null) {
-            throw new ParsingValidationException("While trying to parse '" + value + "' as " + schema.getKey(),
-                    exception);
+            throw new ParsingValidationException(
+                    "While trying to parse '" + value + "' as " + schema.getKey(), exception);
         }
     }
 
@@ -250,7 +259,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
             LOG.warn("Could not find expected value for type {} in {}, reverting to getValue().toString()", type, this);
 
             Object value = getValue();
-            return value == null ? null : value.toString();
+            return Optional.ofNullable(value).map(Object::toString).orElse(null);
         }
 
         String result;
@@ -282,9 +291,25 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 result = Base64.getEncoder().encodeToString(getBinaryValue());
                 break;
 
+            case Encrypted:
+                if (schema == null
+                        || !SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN.equals(schema.getConversionPattern())
+                        || !schema.getCipherAlgorithm().isInvertible()) {
+
+                    result = getStringValue();
+                } else {
+                    try {
+                        result = Encryptor.getInstance(getSecretKey(schema)).
+                                decode(getStringValue(), schema.getCipherAlgorithm());
+                    } catch (Exception e) {
+                        LOG.error("Could not decode encrypted value {} for schema {}", getStringValue(), schema, e);
+                        result = getStringValue();
+                    }
+                }
+                break;
+
             case String:
             case Enum:
-            case Encrypted:
             default:
                 result = getStringValue();
         }

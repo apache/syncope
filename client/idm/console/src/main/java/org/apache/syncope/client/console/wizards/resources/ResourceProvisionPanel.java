@@ -20,10 +20,10 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -53,8 +53,6 @@ import org.apache.wicket.model.StringResourceModel;
 public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -7982691107029848579L;
-
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final ResourceTO resourceTO;
 
@@ -95,13 +93,13 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             protected ResourceProvision getActualItem(
                     final ResourceProvision item, final List<ResourceProvision> list) {
 
-                return item == null
-                        ? null
-                        : list.stream().filter(in -> ((item.getKey() == null && in.getKey() == null)
-                        || (in.getKey() != null && in.getKey().equals(item.getKey())))
-                        && ((item.getAnyType() == null && in.getAnyType() == null)
-                        || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())))).
-                                findAny().orElse(null);
+                return Optional.ofNullable(item)
+                    .map(resourceProvision -> list.stream()
+                        .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
+                    || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
+                    && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
+                    || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
+                    findAny().orElse(null)).orElse(null);
             }
 
             @Override
@@ -137,9 +135,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         if (resourceTO.getOrgUnit() != null) {
             provisions.add(new ResourceProvision(resourceTO.getOrgUnit()));
         }
-        resourceTO.getProvisions().forEach(provision -> {
-            provisions.add(new ResourceProvision(provision));
-        });
+        resourceTO.getProvisions().forEach(provision -> provisions.add(new ResourceProvision(provision)));
         // keep list ordered - SYNCOPE-1154
         sortProvisions();
 
@@ -161,8 +157,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                                             Model.of(provision))));
                 } catch (SyncopeClientException e) {
                     LOG.error("While contacting resource", e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
             }
@@ -174,13 +169,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
-                            resourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
+                            ResourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
                                     resourceTO.getKey(), provision.getAnyType(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -192,13 +186,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
-                            resourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
+                            ResourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
                                     resourceTO.getKey(), provision.getAnyType(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -282,7 +275,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             }
 
             new ArrayList<>(resourceTO.getProvisions()).stream().
-                    filter(provision -> provision != null).
+                    filter(Objects::nonNull).
                     forEachOrdered(provision -> {
                         if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
                             resourceTO.getProvisions().remove(provision);
@@ -291,20 +284,18 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         }
                     });
 
-            resourceRestClient.update(resourceTO);
+            ResourceRestClient.update(resourceTO);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", resourceTO, e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     private void sortProvisions() {
-        Collections.sort(provisions,
-                (o1, o2) -> AnyTypeRestClient.KEY_COMPARATOR.compare(o1.getAnyType(), o2.getAnyType()));
+        provisions.sort((o1, o2) -> AnyTypeRestClient.KEY_COMPARATOR.compare(o1.getAnyType(), o2.getAnyType()));
     }
 
     private LoadableDetachableModel<List<String>> getAnyTypes() {
@@ -314,14 +305,14 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected List<String> load() {
-                List<String> anyTypes = new AnyTypeRestClient().list().stream().
-                        filter(anyType -> !resourceTO.getProvision(anyType).isPresent()).
+                List<String> anyTypes = AnyTypeRestClient.list().stream().
+                        filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
                         collect(Collectors.toList());
                 if (resourceTO.getOrgUnit() == null) {
                     anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
                 }
 
-                Collections.sort(anyTypes, AnyTypeRestClient.KEY_COMPARATOR);
+                anyTypes.sort(AnyTypeRestClient.KEY_COMPARATOR);
                 return anyTypes;
             }
         };

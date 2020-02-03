@@ -363,6 +363,9 @@ under the License.
   <SyncopeSchema id="title"/>
   <PlainSchema id="title" type="String" anyTypeClass_id="minimal group"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <SyncopeSchema id="originalName"/>
+  <PlainSchema id="originalName" type="String" anyTypeClass_id="minimal group"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="1" readonly="0"/>
 
   <SyncopeSchema id="rderiveddata"/>
   <DerSchema id="rderiveddata" expression="rderived_sx + '-' + rderived_dx"
@@ -517,7 +520,7 @@ under the License.
   <!-- push policies -->
   <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" description="a push policy" conflictResolutionAction="IGNORE"/>
   <Implementation id="TestPushCorrelationRule" type="PUSH_CORRELATION_RULE" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["email"]}'/>
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["surname"]}'/>
   <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" 
                              anyType_id="USER" implementation_id="TestPushCorrelationRule"/>
   
@@ -2427,33 +2430,70 @@ $$ }&#10;
                   body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
   
-  <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
-  
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
 
-  <GatewayRoute id="ec7bada2-3dd6-460c-8441-65521d005ffa" name="basic1" target="http://httpbin.org:80" status="PUBLISHED"
-                predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
-    
+  <GatewayRoute id="ec7bada2-3dd6-460c-8441-65521d005ffa" name="basic1" target="http://httpbin.org:80" status="PUBLISHED"                predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[delete]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+
   <AuthenticationModule id="be456831-593d-4003-b273-4c3fb61700df" name="TestAuthModule"/>
   <Implementation id="DefaultAuthenticationModuleConf" type="AUTH_MODULE_CONFIGURATIONS" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.authentication.DefaultAuthenticationModuleConf","name":"DefaultAuthenticationModuleConf"}'/>
   <AuthenticationModuleConf authentication_module_id="be456831-593d-4003-b273-4c3fb61700df" implementation_id="DefaultAuthenticationModuleConf"/>
-  
+
   <AuthenticationChain id="4735ce66-aa3f-416b-b810-9b2c1d25ada7" name="ChainAuthenticationPolicy"/>
   <Implementation id="ChainAuthenticationPolicyConf" type="AUTH_CHAIN_CONFIGURATIONS" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.authentication.ChainAuthenticationPolicyConf","name":"ChainAuthenticationPolicyConf"}'/>
   <AuthenticationChainConf authentication_chain_id="4735ce66-aa3f-416b-b810-9b2c1d25ada7" implementation_id="ChainAuthenticationPolicyConf"/>
-  
+
   <AuthenticationPostProcessor id="2460e430-ce67-41a5-86ed-ea0a4e78c0a3" name="TestPostProcessor" authenticationPolicy_id="b912a0d4-a890-416f-9ab8-84ab077eb028"
-  defaultSuccessLoginURL="login"/>
+                               defaultSuccessLoginURL="login"/>
   <Implementation id="TestAuthPostProcessorAction" type="AUTH_POST_PROCESSING" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.authentication.TestAuthPostProcessor","name":"TestAuthPostProcessorAction"}'/>
-  <AuthenticationPostProcessorActions authentication_post_processor="2460e430-ce67-41a5-86ed-ea0a4e78c0a3" 
-                                      implementation_id="TestAuthPostProcessorAction" />  
-  
-  <AuthenticationPreProcessor id="c413566e-8859-11e9-bc42-526af7764f64" name="TestPreProcessor" authenticationPolicy_id="b912a0d4-a890-416f-9ab8-84ab077eb028"/>  
+  <AuthenticationPostProcessorActions authentication_post_processor="2460e430-ce67-41a5-86ed-ea0a4e78c0a3"
+                                      implementation_id="TestAuthPostProcessorAction" />
+
+  <AuthenticationPreProcessor id="c413566e-8859-11e9-bc42-526af7764f64" name="TestPreProcessor" authenticationPolicy_id="b912a0d4-a890-416f-9ab8-84ab077eb028"/>
   <Implementation id="TestAuthPreProcessorAction" type="AUTH_PRE_PROCESSING" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.authentication.TestAuthPreProcessorAction","name":"TestAuthPreProcessorAction"}'/>
   <AuthenticationPreProcessorActions authentication_pre_processor="c413566e-8859-11e9-bc42-526af7764f64" implementation_id="TestAuthPreProcessorAction"/>
-  
 </dataset>

@@ -55,9 +55,7 @@ public class RoleITCase extends AbstractITCase {
         List<RoleTO> roleTOs = roleService.list();
         assertNotNull(roleTOs);
         assertFalse(roleTOs.isEmpty());
-        for (RoleTO instance : roleTOs) {
-            assertNotNull(instance);
-        }
+        roleTOs.forEach(instance -> assertNotNull(instance));
     }
 
     @Test
@@ -83,6 +81,16 @@ public class RoleITCase extends AbstractITCase {
         }
 
         role.setKey("new" + getUUIDString());
+        role = createRole(role);
+        assertNotNull(role);
+    }
+
+    @Test
+    public void createWithTilde() {
+        RoleTO role = new RoleTO();
+        role.getRealms().add(SyncopeConstants.ROOT_REALM);
+        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
+        role.setKey("new~" + getUUIDString());
         role = createRole(role);
         assertNotNull(role);
     }

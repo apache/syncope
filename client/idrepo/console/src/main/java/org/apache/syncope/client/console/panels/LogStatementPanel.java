@@ -74,7 +74,7 @@ public class LogStatementPanel extends Panel {
         collapse.setOutputMarkupPlaceholderTag(true);
         collapse.setVisible(StringUtils.isNotBlank(statement.getStackTrace()));
         collapse.add(new JQueryUIBehavior(
-                "#" + collapse.getMarkupId(), "accordion", new Options("active", false).set("collapsible", true)));
+            '#' + collapse.getMarkupId(), "accordion", new Options("active", false).set("collapsible", true)));
         add(collapse);
 
         Label stacktrace = new Label("stacktrace", Model.of(statement.getStackTrace()));

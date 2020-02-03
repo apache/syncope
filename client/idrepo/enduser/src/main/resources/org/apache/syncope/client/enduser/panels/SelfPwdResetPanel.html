@@ -41,7 +41,10 @@ under the License.
           </wicket:message><a wicket:id="reloadLink"> <wicket:message key="reload"></wicket:message></a>)</div>
       </div>
       <div class="form-group input-md">
-        <span wicket:id="securityAnswer">[SECURITY ANSWER]</span>
+        <label for="securityAnswer"><wicket:message key="securityAnswer"/></label>
+        <input id="securityAnswer" type="text" wicket:id="securityAnswer" class="form-control" 
+               wicket:message="placeholder:securityAnswer" 
+               autofocus="autofocus" />
       </div>
       <div class="form-group input-md">
         <span wicket:id="captchaPanel">[CAPTCHA]</span>

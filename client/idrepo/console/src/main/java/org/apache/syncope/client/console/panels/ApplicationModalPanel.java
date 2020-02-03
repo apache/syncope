@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -33,8 +32,6 @@ import org.apache.wicket.model.PropertyModel;
 public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
 
     private static final long serialVersionUID = 4575264480736377795L;
-
-    private final ApplicationRestClient restClient = new ApplicationRestClient();
 
     private final ApplicationTO application;
 
@@ -53,7 +50,9 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
         modal.setFormModel(application);
 
         AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<>(application, "key"), false);
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME,
+                new PropertyModel<>(application, Constants.KEY_FIELD_NAME), false);
         key.setReadOnly(!create);
         key.setRequired(true);
         add(key);
@@ -73,18 +72,16 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
-                restClient.create(application);
+                ApplicationRestClient.create(application);
             } else {
-                restClient.update(application);
+                ApplicationRestClient.update(application);
             }
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating application", e);
-            SyncopeConsoleSession.get().error(
-                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
-
 }

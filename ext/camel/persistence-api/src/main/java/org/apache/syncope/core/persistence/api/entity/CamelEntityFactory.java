@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+@FunctionalInterface
 public interface CamelEntityFactory {
 
     CamelRoute newCamelRoute();

@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
@@ -29,7 +28,6 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -38,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -84,9 +83,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Autowired
     private RealmDAO realmDAO;
-
-    @Autowired
-    private ExternalResourceHistoryConfDAO externalResourceHistoryConfDAO;
 
     @Override
     public int count() {
@@ -151,7 +147,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         return query.getResultList();
     }
 
-    private StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
+    private static StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
         StringBuilder query = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
                 append(" e WHERE e.");
@@ -181,7 +177,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     public List<ExternalResource> findAll() {
         final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_LIST);
         if (authRealms == null || authRealms.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         TypedQuery<ExternalResource> query = entityManager().createQuery(
@@ -213,16 +209,14 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 + " m WHERE m.intAttrName=:intAttrName", MappingItem.class);
         query.setParameter("intAttrName", intAttrName);
 
-        Set<String> itemKeys = new HashSet<>();
-        query.getResultList().forEach(item -> itemKeys.add(item.getKey()));
-        itemKeys.stream().map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).
-                filter(item -> item != null).map(item -> {
-            item.getMapping().getItems().remove(item);
-            return item;
-        }).map(item -> {
-            item.setMapping(null);
-            return item;
-        }).forEachOrdered(item -> entityManager().remove(item));
+        query.getResultList().stream().
+                map(Entity::getKey).
+                map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).filter(Objects::nonNull).
+                forEach(item -> {
+                    item.getMapping().getItems().remove(item);
+                    item.setMapping(null);
+                    entityManager().remove(item);
+                });
 
         // Make empty query cache for *MappingItem and related *Mapping
         entityManager().getEntityManagerFactory().getCache().evict(JPAMappingItem.class);
@@ -244,6 +238,10 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 forEach(realm -> realm.getResources().remove(resource));
         anyObjectDAO.findByResource(resource).
                 forEach(anyObject -> anyObject.getResources().remove(resource));
+        userDAO.findLinkedAccountsByResource(resource).forEach(account -> {
+            account.getOwner().getLinkedAccounts().remove(account);
+            account.setOwner(null);
+        });
         userDAO.findByResource(resource).
                 forEach(user -> user.getResources().remove(resource));
         groupDAO.findByResource(resource).
@@ -263,8 +261,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 }).
                 forEach(provision -> virSchemaDAO.findByProvision(provision).
                 forEach(schema -> virSchemaDAO.delete(schema.getKey())));
-
-        externalResourceHistoryConfDAO.deleteByEntity(resource);
 
         if (resource.getConnector() != null && resource.getConnector().getResources() != null
                 && !resource.getConnector().getResources().isEmpty()) {

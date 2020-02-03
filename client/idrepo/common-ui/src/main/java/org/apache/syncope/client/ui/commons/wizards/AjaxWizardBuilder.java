@@ -20,13 +20,14 @@ package org.apache.syncope.client.ui.commons.wizards;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.slf4j.Logger;
@@ -53,13 +54,10 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     }
 
     public final AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(Arrays.asList(childs));
+        outerObjects.addAll(List.of(childs));
         return this;
     }
 
-    /**
-     * {@inheritDoc }
-     */
     @Override
     public AjaxWizard<T> build(final String id, final int index, final AjaxWizard.Mode mode) {
         final AjaxWizard<T> wizard = build(id, mode);
@@ -92,7 +90,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         // get the specified item if available
         final T modelObject = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, this.pageRef) {
+        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 
@@ -127,8 +125,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
             }
 
             @Override
-            protected void sendError(final String message) {
-                AjaxWizardBuilder.this.sendError(message);
+            protected void sendError(final Exception exception) {
+                BaseSession.class.cast(Session.get()).onException(exception);
             }
 
             @Override
@@ -159,7 +157,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected abstract long getMaxWaitTimeInSeconds();
 
-    protected abstract void sendError(String message);
+    protected abstract void sendError(Exception exception);
 
     protected abstract void sendWarning(String message);
 

@@ -26,6 +26,7 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 /**
  * Interface for correlation rule to be evaluated during PushJob execution.
  */
+@FunctionalInterface
 public interface PushCorrelationRule {
 
     default void setConf(PushCorrelationRuleConf conf) {

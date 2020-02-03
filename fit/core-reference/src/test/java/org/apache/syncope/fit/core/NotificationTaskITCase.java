@@ -70,7 +70,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         assertNotNull(taskTO);
         assertTrue(taskTO.isExecuted());
         assertNotNull(taskTO.getTextBody());
-        assertTrue(taskTO.getTextBody().contains("Your email address is " + created.getRight() + "."));
+        assertTrue(taskTO.getTextBody().contains("Your email address is " + created.getRight() + '.'));
         assertTrue(taskTO.getTextBody().contains("Your email address inside a link: "
                 + "http://localhost/?email=" + created.getRight().replaceAll("@", "%40")));
     }

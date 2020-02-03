@@ -49,7 +49,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
         assertNotNull(POP3_PORT);
     }
 
-    private boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
+    private static boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
         boolean found = false;
         Store store = null;
         try {
@@ -77,11 +77,11 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
         return found;
     }
 
-    protected boolean verifyMail(
-            final String sender,
-            final String subject,
-            final String mailAddress,
-            final int maxWaitSeconds) throws Exception {
+    protected static boolean verifyMail(
+        final String sender,
+        final String subject,
+        final String mailAddress,
+        final int maxWaitSeconds) throws Exception {
 
         boolean read = false;
 

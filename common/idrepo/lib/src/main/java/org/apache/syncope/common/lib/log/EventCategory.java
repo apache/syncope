@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -64,7 +66,7 @@ public class EventCategory implements Serializable {
     }
 
     public void setType(final AuditElements.EventCategoryType type) {
-        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
+        this.type = Optional.ofNullable(type).orElse(AuditElements.EventCategoryType.CUSTOM);
     }
 
     public String getCategory() {

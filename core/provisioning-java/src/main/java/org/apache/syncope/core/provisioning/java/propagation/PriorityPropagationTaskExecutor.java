@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Exec;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
@@ -66,7 +65,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
      * @return new {@link PropagationTaskCallable} instance for usage with
      * {@link java.util.concurrent.CompletionService}
      */
-    protected PropagationTaskCallable newPropagationTaskCallable(
+    protected static PropagationTaskCallable newPropagationTaskCallable(
             final PropagationTaskInfo taskInfo, final PropagationReporter reporter) {
 
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
@@ -81,32 +80,28 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     protected void doExecute(
             final Collection<PropagationTaskInfo> taskInfos,
             final PropagationReporter reporter,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String executorId) {
 
-        Map<PropagationTaskInfo, ExternalResource> taskToResource = new HashMap<>(taskInfos.size());
         List<PropagationTaskInfo> prioritizedTasks = new ArrayList<>();
 
         int[] connRequestTimeout = { 60 };
 
-        taskInfos.forEach(task -> {
-            ExternalResource resource = resourceDAO.find(task.getResource());
-            taskToResource.put(task, resource);
+        taskInfos.stream().filter(task -> task.getExternalResource().getPropagationPriority() != null).forEach(task -> {
+            prioritizedTasks.add(task);
 
-            if (resource.getPropagationPriority() != null) {
-                prioritizedTasks.add(task);
+            if (task.getExternalResource().getConnector().getConnRequestTimeout() != null
+                    && connRequestTimeout[0] < task.getExternalResource().getConnector().getConnRequestTimeout()) {
 
-                if (resource.getConnector().getConnRequestTimeout() != null
-                        && connRequestTimeout[0] < resource.getConnector().getConnRequestTimeout()) {
-                    connRequestTimeout[0] = resource.getConnector().getConnRequestTimeout();
-                    LOG.debug("Upgrade request connection timeout to {}", connRequestTimeout);
-                }
+                connRequestTimeout[0] = task.getExternalResource().getConnector().getConnRequestTimeout();
+                LOG.debug("Upgrade request connection timeout to {}", connRequestTimeout);
             }
         });
 
-        Collections.sort(prioritizedTasks, new PriorityComparator(taskToResource));
+        prioritizedTasks.sort(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority()));
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
-        Collection<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
+        Set<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
                 filter(task -> !prioritizedTasks.contains(task)).collect(Collectors.toSet());
         LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
@@ -114,15 +109,19 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         prioritizedTasks.forEach(task -> {
             TaskExec execution = null;
             ExecStatus execStatus;
+            String errorMessage = null;
             try {
                 execution = newPropagationTaskCallable(task, reporter).call();
                 execStatus = ExecStatus.valueOf(execution.getStatus());
             } catch (Exception e) {
                 LOG.error("Unexpected exception", e);
                 execStatus = ExecStatus.FAILURE;
+                errorMessage = e.getMessage();
             }
             if (execStatus != ExecStatus.SUCCESS) {
-                throw new PropagationException(task.getResource(), execution == null ? null : execution.getMessage());
+                throw new PropagationException(
+                        task.getResource(),
+                        Optional.ofNullable(execution).map(Exec::getMessage).orElse(errorMessage));
             }
         });
 
@@ -141,9 +140,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         // ...waiting for all callables to complete, if async processing was not required
         if (!nullPriority.isEmpty()) {
             if (nullPriorityAsync) {
-                nullPriority.forEach((task, exec) -> {
-                    reporter.onSuccessOrNonPriorityResourceFailures(task, ExecStatus.CREATED, null, null, null);
-                });
+                nullPriority.forEach((task, exec)
+                        -> reporter.onSuccessOrNonPriorityResourceFailures(task, ExecStatus.CREATED, null, null, null));
             } else {
                 final Set<Future<TaskExec>> nullPriorityFutures = new HashSet<>(nullPriority.values());
                 try {
@@ -159,39 +157,11 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
                 } finally {
-                    nullPriorityFutures.forEach(future -> {
-                        future.cancel(true);
-                    });
+                    nullPriorityFutures.forEach(future -> future.cancel(true));
                     nullPriorityFutures.clear();
                     nullPriority.clear();
                 }
             }
-        }
-    }
-
-    /**
-     * Compare propagation tasks according to related ExternalResource's priority.
-     */
-    protected static class PriorityComparator implements Comparator<PropagationTaskInfo>, Serializable {
-
-        private static final long serialVersionUID = -1969355670784448878L;
-
-        private final Map<PropagationTaskInfo, ExternalResource> taskToResource;
-
-        public PriorityComparator(final Map<PropagationTaskInfo, ExternalResource> taskToResource) {
-            this.taskToResource = taskToResource;
-        }
-
-        @Override
-        public int compare(final PropagationTaskInfo task1, final PropagationTaskInfo task2) {
-            int prop1 = taskToResource.get(task1).getPropagationPriority();
-            int prop2 = taskToResource.get(task2).getPropagationPriority();
-
-            return prop1 > prop2
-                    ? 1
-                    : prop1 == prop2
-                            ? 0
-                            : -1;
         }
     }
 }

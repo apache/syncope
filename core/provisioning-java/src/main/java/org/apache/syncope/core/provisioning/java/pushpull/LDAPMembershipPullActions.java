@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,12 +27,12 @@ import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -64,7 +63,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     protected GroupDAO groupDAO;
 
     @Autowired
-    private PullUtils pullUtils;
+    private InboundMatcher inboundMatcher;
 
     protected final Map<String, Set<String>> membershipsBefore = new HashMap<>();
 
@@ -77,14 +76,11 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
      * @return the name of the attribute used to keep track of group memberships
      */
     protected String getGroupMembershipAttrName(final Connector connector) {
-        Optional<ConnConfProperty> groupMembership = connector.getConnInstance().getConf().stream().
+        return connector.getConnInstance().getConf().stream().
                 filter(property -> "groupMemberAttribute".equals(property.getSchema().getName())
-                && !property.getValues().isEmpty()).
-                findFirst();
-
-        return groupMembership.isPresent()
-                ? (String) groupMembership.get().getValues().get(0)
-                : "uniquemember";
+                && !property.getValues().isEmpty()).findFirst().
+                map(groupMembership -> (String) groupMembership.getValues().get(0)).
+                orElse("uniquemember");
     }
 
     /**
@@ -103,8 +99,11 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         Attribute membAttr = delta.getObject().getAttributeByName(groupMemberName);
         // if not found, perform an additional read on the underlying connector for the same connector object
         if (membAttr == null) {
-            OperationOptionsBuilder oob = new OperationOptionsBuilder().setAttributesToGet(groupMemberName);
-            ConnectorObject remoteObj = connector.getObject(ObjectClass.GROUP, delta.getUid(), false, oob.build());
+            ConnectorObject remoteObj = connector.getObject(
+                    ObjectClass.GROUP,
+                    delta.getUid(),
+                    false,
+                    new OperationOptionsBuilder().setAttributesToGet(groupMemberName).build());
             if (remoteObj == null) {
                 LOG.debug("Object for '{}' not found", delta.getUid().getUidValue());
             } else {
@@ -113,7 +112,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         }
 
         return membAttr == null || membAttr.getValue() == null
-                ? Collections.emptyList()
+                ? List.of()
                 : membAttr.getValue();
     }
 
@@ -166,22 +165,21 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
 
         Optional<? extends Provision> provision = profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).
                 filter(p -> p.getMapping() != null);
-        if (!provision.isPresent()) {
+        if (provision.isEmpty()) {
             super.after(profile, delta, entity, result);
         }
 
         getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
-            Optional<String> userKey = pullUtils.match(
+            Optional<PullMatch> match = inboundMatcher.match(
                     anyTypeDAO.findUser(),
                     membValue.toString(),
                     profile.getTask().getResource(),
-                    profile.getConnector(),
-                    false);
-            if (userKey.isPresent()) {
-                Set<String> memb = membershipsAfter.get(userKey.get());
+                    profile.getConnector());
+            if (match.isPresent()) {
+                Set<String> memb = membershipsAfter.get(match.get().getAny().getKey());
                 if (memb == null) {
                     memb = new HashSet<>();
-                    membershipsAfter.put(userKey.get(), memb);
+                    membershipsAfter.put(match.get().getAny().getKey(), memb);
                 }
                 memb.add(entity.getKey());
             } else {

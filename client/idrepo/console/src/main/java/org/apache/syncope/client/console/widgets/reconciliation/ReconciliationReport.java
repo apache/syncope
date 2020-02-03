@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class ReconciliationReport implements Serializable {
 
@@ -44,7 +45,7 @@ public class ReconciliationReport implements Serializable {
     }
 
     public Date getRun() {
-        return run == null ? null : new Date(run.getTime());
+        return Optional.ofNullable(run).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public Anys getUsers() {

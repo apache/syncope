@@ -40,12 +40,6 @@ public final class IdMEntitlement {
 
     public static final String RESOURCE_LIST_CONNOBJECT = "RESOURCE_LIST_CONNOBJECT";
 
-    public static final String RESOURCE_HISTORY_LIST = "RESOURCE_HISTORY_LIST";
-
-    public static final String RESOURCE_HISTORY_RESTORE = "RESOURCE_HISTORY_RESTORE";
-
-    public static final String RESOURCE_HISTORY_DELETE = "RESOURCE_HISTORY_DELETE";
-
     public static final String CONNECTOR_LIST = "CONNECTOR_LIST";
 
     public static final String CONNECTOR_CREATE = "CONNECTOR_CREATE";
@@ -57,12 +51,6 @@ public final class IdMEntitlement {
     public static final String CONNECTOR_DELETE = "CONNECTOR_DELETE";
 
     public static final String CONNECTOR_RELOAD = "CONNECTOR_RELOAD";
-
-    public static final String CONNECTOR_HISTORY_LIST = "CONNECTOR_HISTORY_LIST";
-
-    public static final String CONNECTOR_HISTORY_RESTORE = "CONNECTOR_HISTORY_RESTORE";
-
-    public static final String CONNECTOR_HISTORY_DELETE = "CONNECTOR_HISTORY_DELETE";
 
     public static final String REMEDIATION_LIST = "REMEDIATION_LIST";
 

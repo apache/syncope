@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +72,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -338,7 +337,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         return PLATFORM_INFO;
     }
 
-    private void initSystemInfo() {
+    private static void initSystemInfo() {
         if (SYSTEM_INFO == null) {
             OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
@@ -351,19 +350,19 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             }
 
             SYSTEM_INFO.setOs(operatingSystemMXBean.getName()
-                    + " " + operatingSystemMXBean.getVersion()
-                    + " " + operatingSystemMXBean.getArch());
+                    + ' ' + operatingSystemMXBean.getVersion()
+                    + ' ' + operatingSystemMXBean.getArch());
             SYSTEM_INFO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
             SYSTEM_INFO.setJvm(
                     runtimeMXBean.getVmName()
-                    + " " + System.getProperty("java.version")
-                    + " " + runtimeMXBean.getVmVendor());
+                    + ' ' + System.getProperty("java.version")
+                    + ' ' + runtimeMXBean.getVmVendor());
             SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
         }
     }
 
     @EventListener
-    public void addLoadInstant(final PayloadApplicationEvent<SystemInfo.LoadInstant> event) {
+    public static void addLoadInstant(final PayloadApplicationEvent<SystemInfo.LoadInstant> event) {
         synchronized (MONITOR) {
             initSystemInfo();
             SYSTEM_INFO.getLoad().add(event.getPayload());
@@ -371,7 +370,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public SystemInfo system() {
+    public static SystemInfo system() {
         synchronized (MONITOR) {
             initSystemInfo();
         }
@@ -445,22 +444,22 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
         SearchCond searchCond;
         if (StringUtils.isNotBlank(term)) {
-            AnyCond termCond = new AnyCond(AttributeCond.Type.ILIKE);
+            AnyCond termCond = new AnyCond(AttrCond.Type.ILIKE);
             termCond.setSchema("name");
 
             String termSearchableValue = (term.startsWith("*") && !term.endsWith("*"))
-                    ? term + "%"
+                    ? term + '%'
                     : (!term.startsWith("*") && term.endsWith("*"))
-                    ? "%" + term
+                    ? '%' + term
                     : (term.startsWith("*") && term.endsWith("*")
-                    ? term : "%" + term + "%");
+                    ? term : '%' + term + '%');
             termCond.setExpression(termSearchableValue);
 
-            searchCond = SearchCond.getAndCond(
-                    SearchCond.getLeafCond(assignableCond),
-                    SearchCond.getLeafCond(termCond));
+            searchCond = SearchCond.getAnd(
+                    SearchCond.getLeaf(assignableCond),
+                    SearchCond.getLeaf(termCond));
         } else {
-            searchCond = SearchCond.getLeafCond(assignableCond);
+            searchCond = SearchCond.getLeaf(assignableCond);
         }
 
         int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
@@ -472,7 +471,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 searchCond,
                 page, size,
-                Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
+                List.of(orderByClause), AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> groupDataBinder.getGroupTO(group, false)).collect(Collectors.toList());
 
@@ -486,7 +485,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             throw new NotFoundException("Group " + groupName);
         }
         Optional<? extends TypeExtension> typeExt = group.getTypeExtension(anyTypeDAO.findUser());
-        if (!typeExt.isPresent()) {
+        if (typeExt.isEmpty()) {
             throw new NotFoundException("TypeExtension in " + groupName + " for users");
         }
 
@@ -503,7 +502,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                     uwfAdapter.getPrefix(),
                     gwfAdapter.getPrefix(),
                     awfAdapter.getPrefix());
-            LOG.debug("Interal storage content successfully exported");
+            LOG.debug("Internal storage content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting internal storage content", e);
         }

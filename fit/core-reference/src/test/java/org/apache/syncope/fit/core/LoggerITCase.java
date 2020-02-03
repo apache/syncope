@@ -57,12 +57,14 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.core.logic.ConnectorLogic;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class LoggerITCase extends AbstractITCase {
@@ -97,9 +99,7 @@ public class LoggerITCase extends AbstractITCase {
         List<LoggerTO> loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
-        loggers.forEach(logger -> {
-            assertNotNull(logger);
-        });
+        loggers.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -249,7 +249,7 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
     }
 
-    private boolean logFileContains(final Path path, final String message, final int maxWaitSeconds)
+    private static boolean logFileContains(final Path path, final String message, final int maxWaitSeconds)
             throws IOException {
 
         int i = 0;
@@ -371,7 +371,7 @@ public class LoggerITCase extends AbstractITCase {
         EventCategory userLogic = events.stream().
                 filter(object -> "UserLogic".equals(object.getCategory())).findAny().get();
         assertNotNull(userLogic);
-        assertEquals(1, userLogic.getEvents().stream().filter(event -> "create".equals(event)).count());
+        assertEquals(1, userLogic.getEvents().stream().filter("create"::equals).count());
     }
 
     @Test
@@ -422,11 +422,11 @@ public class LoggerITCase extends AbstractITCase {
             pushTask.setPerformUpdate(true);
             pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
             pushTask.setMatchingRule(MatchingRule.UPDATE);
-            reconciliationService.push(
-                    AnyTypeKind.ANY_OBJECT, "fc6dbc3a-6c07-4965-8781-921e7401a4a5", RESOURCE_NAME_DBSCRIPTED, pushTask);
+            reconciliationService.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+                    anyKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5").build(), pushTask);
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
-            fail(e.getMessage());
+            fail(e::getMessage);
         } finally {
             try {
                 loggerService.delete(LoggerType.AUDIT, createSuccess.toLoggerName());

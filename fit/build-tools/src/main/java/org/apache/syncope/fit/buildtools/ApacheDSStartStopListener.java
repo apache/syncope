@@ -21,6 +21,7 @@ package org.apache.syncope.fit.buildtools;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -52,6 +53,7 @@ import org.apache.directory.server.protocol.shared.transport.TcpTransport;
 import org.apache.directory.server.xdbm.Index;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -95,7 +97,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @param partition The partition on which we want to add index
      * @param attrs The list of attributes to index
      */
-    private void addIndex(final Partition partition, final String... attrs) {
+    private static void addIndex(final Partition partition, final String... attrs) {
         // Index some attributes on the apache partition
         Set<Index<?, String>> indexedAttributes = new HashSet<>();
 
@@ -201,10 +203,11 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         service.startup();
 
         if (loadDefaultContent) {
-            Resource contentLdif = WebApplicationContextUtils.getWebApplicationContext(servletContext).
-                    getResource("classpath:/content.ldif");
+            Resource contentLdif = Objects.requireNonNull(
+                WebApplicationContextUtils.getWebApplicationContext(servletContext))
+                .getResource("classpath:/content.ldif");
             LdifInputStreamLoader contentLoader = new LdifInputStreamLoader(service.getAdminSession(),
-                    contentLdif.getInputStream());
+                contentLdif.getInputStream());
             int numEntries = contentLoader.execute();
             LOG.info("Successfully created {} entries", numEntries);
         }
@@ -230,10 +233,12 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         try {
             initDirectoryService(sce.getServletContext(), workDir, loadDefaultContent);
 
+            ApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(
+                sce.getServletContext());
             server = new LdapServer();
             server.setTransports(new TcpTransport(Integer.parseInt(
-                    WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext()).
-                            getEnvironment().getProperty("testds.port"))));
+                Objects.requireNonNull(
+                    Objects.requireNonNull(applicationContext).getEnvironment().getProperty("testds.port")))));
             server.setDirectoryService(service);
 
             server.start();
@@ -250,7 +255,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         if (result == null) {
             throw new RuntimeException("Base DN not found");
         } else {
-            LOG.info("ApacheDS startup completed succesfully");
+            LOG.info("ApacheDS startup completed successfully");
         }
     }
 

@@ -43,8 +43,6 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
     private final ChartJSPanel chart;
 
-    private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
-
     public CamelMetricsWidget(final String id, final PageReference pageRef) {
         super(id, pageRef);
 
@@ -52,7 +50,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
         container.setOutputMarkupId(true);
         add(container);
 
-        CamelMetrics metrics = restClient.metrics();
+        CamelMetrics metrics = CamelRoutesRestClient.metrics();
         meanRates = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
             meanRates.add(metrics.getResponseMeanRates().get(i));
@@ -67,7 +65,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                CamelMetrics metrics = restClient.metrics();
+                CamelMetrics metrics = CamelRoutesRestClient.metrics();
                 List<CamelMetrics.MeanRate> updatedMeanRates = new ArrayList<>(5);
                 for (int i = 0; i < 5; i++) {
                     updatedMeanRates.add(metrics.getResponseMeanRates().get(i));
@@ -80,7 +78,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
         });
     }
 
-    private Bar build(final List<CamelMetrics.MeanRate> meanRates) {
+    private static Bar build(final List<CamelMetrics.MeanRate> meanRates) {
         Bar bar = new Bar();
         bar.getOptions().setScaleBeginAtZero(true);
         bar.getOptions().setBarShowStroke(true);
@@ -91,10 +89,10 @@ public class CamelMetricsWidget extends BaseExtWidget {
         bar.getOptions().setMaintainAspectRatio(true);
 
         bar.getData().getLabels().addAll(
-                meanRates.stream().map(input -> input.getRouteId()).collect(Collectors.toList()));
+                meanRates.stream().map(CamelMetrics.MeanRate::getRouteId).collect(Collectors.toList()));
 
         BarDataSet dataset = new BarDataSet(
-                meanRates.stream().map(input -> input.getValue()).collect(Collectors.toList()));
+                meanRates.stream().map(CamelMetrics.MeanRate::getValue).collect(Collectors.toList()));
         dataset.setFillColor("blue");
         bar.getData().getDatasets().add(dataset);
 

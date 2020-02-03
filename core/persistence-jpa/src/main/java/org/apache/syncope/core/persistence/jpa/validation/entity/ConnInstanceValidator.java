@@ -34,7 +34,7 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
 
         if (isHtml(connInstance.getDisplayName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid display name")).
+                    getTemplate(EntityViolationType.InvalidName, connInstance.getDisplayName())).
                     addPropertyNode("displayName").addConstraintViolation();
 
             isValid = false;

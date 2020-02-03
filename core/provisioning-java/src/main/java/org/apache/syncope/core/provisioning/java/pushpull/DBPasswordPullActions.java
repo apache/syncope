@@ -19,6 +19,8 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Optional;
+
+import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -33,7 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -83,7 +85,8 @@ public class DBPasswordPullActions implements PullActions {
 
         if (anyUR instanceof UserUR) {
             PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
-            parseEncodedPassword(modPassword == null ? null : modPassword.getValue(), profile.getConnector());
+            parseEncodedPassword(Optional.ofNullable(modPassword)
+                .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
         }
     }
 
@@ -104,7 +107,7 @@ public class DBPasswordPullActions implements PullActions {
         }
     }
 
-    private String getCipherAlgorithm(final ConnInstance connInstance) {
+    private static String getCipherAlgorithm(final ConnInstance connInstance) {
         Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst();

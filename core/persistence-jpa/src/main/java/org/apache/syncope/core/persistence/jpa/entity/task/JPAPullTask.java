@@ -100,7 +100,7 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
     }
 
     @Override
-    public Realm getDestinatioRealm() {
+    public Realm getDestinationRealm() {
         return destinationRealm;
     }
 

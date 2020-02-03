@@ -21,11 +21,9 @@ package org.apache.syncope.client.console.reports;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -107,7 +105,8 @@ public abstract class ReportDirectoryPanel
     protected List<IColumn<ReportTO, String>> getColumns() {
         final List<IColumn<ReportTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
 
         columns.add(new DatePropertyColumn<>(
@@ -140,7 +139,7 @@ public abstract class ReportDirectoryPanel
 
                 Component panel;
                 try {
-                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                    JobTO jobTO = ReportRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
@@ -184,7 +183,7 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.read(model.getObject().getKey()), target));
+                                ReportRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
 
@@ -246,13 +245,12 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 final ReportTO reportTO = model.getObject();
                 try {
-                    restClient.delete(reportTO.getKey());
+                    ReportRestClient.delete(reportTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", reportTO.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -280,7 +278,7 @@ public abstract class ReportDirectoryPanel
 
     protected abstract void viewReport(ReportTO reportTO, AjaxRequestTarget target);
 
-    protected class ReportDataProvider extends DirectoryDataProvider<ReportTO> {
+    protected static class ReportDataProvider extends DirectoryDataProvider<ReportTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -295,14 +293,14 @@ public abstract class ReportDirectoryPanel
 
         @Override
         public Iterator<ReportTO> iterator(final long first, final long count) {
-            List<ReportTO> list = restClient.list();
-            Collections.sort(list, comparator);
+            List<ReportTO> list = ReportRestClient.list();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return ReportRestClient.list().size();
         }
 
         @Override

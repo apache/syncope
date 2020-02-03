@@ -28,10 +28,8 @@ import org.identityconnectors.framework.impl.api.local.operations.FilteredResult
  */
 public interface ReconFilterBuilder {
 
-    FilteredResultsHandler.PassThroughFilter PASS_THROUGH = new FilteredResultsHandler.PassThroughFilter();
-
     default Filter build() {
-        return PASS_THROUGH;
+        return new FilteredResultsHandler.PassThroughFilter();
     }
 
     default OperationOptions build(final OperationOptions initialOptions) {

@@ -23,8 +23,11 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -68,7 +71,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         this.title = title;
         field.add(new PopoverBehavior(
                 Model.<String>of(),
-                title == null ? Model.<String>of() : Model.of(title),
+            Optional.ofNullable(title).map(Model::of).orElseGet(Model::<String>of),
                 new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
                         index.getObject() != null && index.getObject() == 0
                         ? TooltipConfig.Placement.bottom
@@ -126,13 +129,37 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public FieldPanel<T> setNewModel(final Attributable attributableTO, final String schema) {
+        field.setModel(new Model() {
+
+            private static final long serialVersionUID = -4214654722524358000L;
+
+            @Override
+            public Serializable getObject() {
+                return (!attributableTO.getPlainAttr(schema).get().getValues().isEmpty())
+                        ? attributableTO.getPlainAttr(schema).get().getValues().get(0)
+                        : null;
+            }
+
+            @Override
+            public void setObject(final Serializable object) {
+                attributableTO.getPlainAttr(schema).get().getValues().clear();
+                if (object != null) {
+                    attributableTO.getPlainAttr(schema).get().getValues().add(object.toString());
+                }
+            }
+        });
+        
+        return this;
+    }
+
     /**
      * Used by MultiFieldPanel to attach items (usually strings).
      * This method has to be overridden in case of type conversion is required.
      *
      * @param item item to attach.
      * @return updated FieldPanel object.
-     * @see MultiFieldPanel
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public FieldPanel<T> setNewModel(final ListItem item) {

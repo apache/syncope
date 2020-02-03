@@ -27,22 +27,34 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +79,12 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private ApplicationDAO applicationDAO;
 
     @Test
     public void delete() {
@@ -213,6 +231,94 @@ public class UserTest extends AbstractTest {
         assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> newM.equals(plainAttr.getMembership())));
     }
 
+    private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {
+        User user = userDAO.findByUsername("vivaldi");
+        user.getLinkedAccounts().stream().filter(Objects::nonNull).forEach(account -> account.setOwner(null));
+        user.getLinkedAccounts().clear();
+
+        LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
+        account.setOwner(user);
+        user.add(account);
+
+        account.setConnObjectKeyValue(connObjectKeyValue);
+        account.setResource(resourceDAO.find("resource-ldap"));
+        account.add(applicationDAO.findPrivilege("getMighty"));
+
+        account.setUsername(UUID.randomUUID().toString());
+        account.setPassword("Password123", CipherAlgorithm.AES);
+
+        AnyUtils anyUtils = anyUtilsFactory.getLinkedAccountInstance();
+        LAPlainAttr attr = anyUtils.newPlainAttr();
+        attr.setOwner(user);
+        attr.setAccount(account);
+        account.add(attr);
+        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.add("testvalue", anyUtils);
+
+        user = userDAO.save(user);
+        entityManager().flush();
+
+        assertEquals(1, user.getLinkedAccounts().size());
+
+        return user.getLinkedAccounts().get(0);
+    }
+
+    @Test
+    public void findLinkedAccount() {
+        LinkedAccount account = newLinkedAccount("findLinkedAccount");
+        assertNotNull(account.getKey());
+        assertEquals(1, account.getPlainAttrs().size());
+        assertTrue(account.getPlainAttr("obscure").isPresent());
+        assertEquals(account.getOwner(), account.getPlainAttr("obscure").get().getOwner());
+
+        assertTrue(userDAO.linkedAccountExists(account.getOwner().getKey(), account.getConnObjectKeyValue()));
+
+        List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(resourceDAO.find("resource-ldap"));
+        assertEquals(1, accounts.size());
+        assertEquals(account, accounts.get(0));
+
+        accounts = userDAO.findLinkedAccountsByPrivilege(applicationDAO.findPrivilege("getMighty"));
+        assertEquals(1, accounts.size());
+        assertEquals(account, accounts.get(0));
+    }
+
+    @Tag("plainAttrTable")
+    @Test
+    public void deleteLinkedAccountUserCascade() {
+        LinkedAccount account = newLinkedAccount("deleteLinkedAccountUserCascade");
+        assertNotNull(account.getKey());
+
+        LAPlainAttr plainAttr = account.getPlainAttrs().get(0);
+        assertNotNull(entityManager().find(JPALAPlainAttr.class, plainAttr.getKey()));
+
+        PlainAttrValue plainAttrValue = account.getPlainAttrs().get(0).getValues().get(0);
+        assertNotNull(entityManager().find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
+
+        LinkedAccount found = entityManager().find(JPALinkedAccount.class, account.getKey());
+        assertEquals(account, found);
+
+        userDAO.delete(account.getOwner());
+        entityManager().flush();
+
+        assertNull(entityManager().find(JPALinkedAccount.class, account.getKey()));
+        assertNull(entityManager().find(JPALAPlainAttr.class, plainAttr.getKey()));
+        assertNull(entityManager().find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
+    }
+
+    @Test
+    public void deleteLinkedAccountResourceCascade() {
+        LinkedAccount account = newLinkedAccount("deleteLinkedAccountResourceCascade");
+        assertNotNull(account.getKey());
+
+        LinkedAccount found = entityManager().find(JPALinkedAccount.class, account.getKey());
+        assertEquals(account, found);
+
+        resourceDAO.delete(account.getResource().getKey());
+        entityManager().flush();
+
+        assertNull(entityManager().find(JPALinkedAccount.class, account.getKey()));
+    }
+
     /**
      * Search by derived attribute.
      */
@@ -242,11 +348,11 @@ public class UserTest extends AbstractTest {
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute
-        List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("ksuffix"), firstname + "k", false);
+        List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("ksuffix"), firstname + 'k', false);
         assertEquals(1, list.size());
 
         // search by kprefix derived attribute
-        list = userDAO.findByDerAttrValue(derSchemaDAO.find("kprefix"), "k" + firstname, false);
+        list = userDAO.findByDerAttrValue(derSchemaDAO.find("kprefix"), 'k' + firstname, false);
         assertEquals(1, list.size());
     }
 

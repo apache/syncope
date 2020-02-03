@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -35,8 +36,6 @@ import org.apache.wicket.model.StringResourceModel;
 public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
 
     private static final long serialVersionUID = -1817419622749405208L;
-
-    private final ApplicationRestClient restClient = new ApplicationRestClient();
 
     private final ApplicationTO application;
 
@@ -59,12 +58,12 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
         application.getPrivileges().removeIf(privilege -> privilege.getKey().equals(modelObject.getKey()));
         application.getPrivileges().add(modelObject);
 
-        restClient.update(application);
+        ApplicationRestClient.update(application);
 
         return modelObject;
     }
 
-    public class Profile extends WizardStep {
+    public static class Profile extends WizardStep {
 
         private static final long serialVersionUID = 11881843064077955L;
 
@@ -74,7 +73,8 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
                     : new StringResourceModel("privilege.edit", Model.of(privilege)));
 
             AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                    "key", "key", new PropertyModel<>(privilege, "key"), false);
+                    Constants.KEY_FIELD_NAME,
+                    Constants.KEY_FIELD_NAME, new PropertyModel<>(privilege, Constants.KEY_FIELD_NAME), false);
             key.setReadOnly(privilege.getKey() != null);
             key.setRequired(true);
             add(key);
@@ -86,7 +86,7 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
         }
     }
 
-    public class Spec extends WizardStep {
+    public static class Spec extends WizardStep {
 
         private static final long serialVersionUID = -3237113253888332643L;
 

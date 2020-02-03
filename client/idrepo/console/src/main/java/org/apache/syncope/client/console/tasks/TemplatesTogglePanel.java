@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -70,7 +69,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            return new AnyTypeRestClient().list();
+            return AnyTypeRestClient.list();
         }
     };
 
@@ -102,7 +101,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                             Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(
                             "Edit template"));
 
-                    final List<String> classes = new AnyTypeRestClient().read(typeModel.getObject()).getClasses();
+                    final List<String> classes = AnyTypeRestClient.read(typeModel.getObject()).getClasses();
 
                     final TemplateWizardBuilder<?> builder;
 
@@ -161,10 +160,8 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                     send(container, Broadcast.EXACT, payload);
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName()
-                            : e.getMessage());
                     LOG.error("While editing template for {}", typeModel.getObject(), e);
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

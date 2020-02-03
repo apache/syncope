@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.pages.AbstractMustChangePassword;
@@ -30,8 +29,6 @@ public class MustChangePassword extends AbstractMustChangePassword {
 
     private static final long serialVersionUID = 8581970794722709800L;
 
-    protected UserSelfRestClient restClient = new UserSelfRestClient();
-
     public MustChangePassword(final PageParameters parameters) {
         super(parameters);
     }
@@ -39,7 +36,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
     @Override
     protected void doSubmit(final AjaxRequestTarget target) {
         try {
-            restClient.changePassword(passwordField.getModelObject());
+            UserSelfRestClient.changePassword(passwordField.getModelObject());
 
             SyncopeConsoleSession.get().invalidate();
 
@@ -47,8 +44,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
         } catch (Exception e) {
             LOG.error("While changing password for {}",
                     SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
             notificationPanel.refresh(target);
         }
     }
@@ -62,5 +58,4 @@ public class MustChangePassword extends AbstractMustChangePassword {
     protected void doCancel() {
         setResponsePage(Login.class);
     }
-
 }

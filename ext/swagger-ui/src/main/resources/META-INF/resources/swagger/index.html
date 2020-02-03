@@ -57,8 +57,7 @@ under the License.
     <script src="./swagger-ui-standalone-preset.js"> </script>
     <script>
     window.onload = function() {
-
-      // Build a system
+      // Begin Swagger UI call region
       const ui = SwaggerUIBundle({
     // <ApacheSyncope>
     urls: [{
@@ -81,6 +80,7 @@ under the License.
         ],
         layout: "StandaloneLayout"
       })
+      // End Swagger UI call region
 
       window.ui = ui
     }

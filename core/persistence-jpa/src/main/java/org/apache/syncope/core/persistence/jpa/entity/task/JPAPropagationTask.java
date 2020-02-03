@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -113,7 +113,7 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     public Set<Attribute> getAttributes() {
         Set<Attribute> result = new HashSet<>();
         if (StringUtils.isNotBlank(this.attributes)) {
-            result.addAll(Arrays.asList(POJOHelper.deserialize(this.attributes, Attribute[].class)));
+            result.addAll(List.of(POJOHelper.deserialize(this.attributes, Attribute[].class)));
         }
 
         return result;

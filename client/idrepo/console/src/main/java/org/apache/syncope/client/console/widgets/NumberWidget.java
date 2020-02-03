@@ -46,12 +46,12 @@ public class NumberWidget extends BaseWidget {
         setOutputMarkupId(true);
 
         WebMarkupContainer box = new WebMarkupContainer("box");
-        box.add(new AttributeAppender("class", " " + bg));
+        box.add(new AttributeAppender("class", ' ' + bg));
 
         boolean isAuthorized = true;
         final PageParameters pageParameters = new PageParameters();
         final Class<? extends IRequestablePage> responsePage;
-        List<String> anyTypes = new AnyTypeRestClient().list();
+        List<String> anyTypes = AnyTypeRestClient.list();
         switch (id) {
             case "totalUsers":
                 pageParameters.add("selectedIndex", 1);

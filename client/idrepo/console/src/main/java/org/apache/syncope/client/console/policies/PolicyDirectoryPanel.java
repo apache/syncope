@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -66,7 +65,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected final BaseModal<T> ruleCompositionModal = new BaseModal<T>("outer") {
+    protected final BaseModal<T> ruleCompositionModal = new BaseModal<T>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -78,7 +77,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     };
 
-    protected final BaseModal<T> policySpecModal = new BaseModal<>("outer");
+    protected final BaseModal<T> policySpecModal = new BaseModal<>(Constants.OUTER);
 
     private final PolicyType type;
 
@@ -119,7 +118,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("description", this), "description", "description"));
         columns.add(new CollectionPropertyColumn<>(
@@ -146,7 +145,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.getPolicy(type, model.getObject().getKey()), target));
+                                PolicyRestClient.getPolicy(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
@@ -173,13 +172,12 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 final T policyTO = model.getObject();
                 try {
-                    restClient.delete(type, policyTO.getKey());
+                    PolicyRestClient.delete(type, policyTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", policyTO.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -224,14 +222,14 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            List<T> list = restClient.getPolicies(type);
-            Collections.sort(list, comparator);
+            List<T> list = PolicyRestClient.getPolicies(type);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.getPolicies(type).size();
+            return PolicyRestClient.getPolicies(type).size();
         }
 
         @Override

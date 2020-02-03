@@ -26,6 +26,6 @@ public enum AnyEntitlement {
     DELETE;
 
     public String getFor(final String anyTypeKey) {
-        return anyTypeKey + "_" + name();
+        return anyTypeKey + '_' + name();
     }
 }

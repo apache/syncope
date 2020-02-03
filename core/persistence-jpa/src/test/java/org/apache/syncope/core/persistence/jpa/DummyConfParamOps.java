@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import java.util.Collections;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,7 @@ public class DummyConfParamOps implements ConfParamOps {
 
     @Override
     public Map<String, Object> list(final String domain) {
-        return Collections.emptyMap();
+        return Map.of();
     }
 
     @Override

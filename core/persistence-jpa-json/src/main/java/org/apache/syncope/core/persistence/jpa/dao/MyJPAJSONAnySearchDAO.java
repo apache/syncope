@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -36,6 +35,32 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 
 public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
+
+    @Override
+    protected String buildAdminRealmsFilter(
+            final Set<String> realmKeys,
+            final SearchSupport svs,
+            final List<Object> parameters) {
+
+        StringBuilder adminRealmsFilter = new StringBuilder("u.any_id IN (").
+                append("SELECT any_id FROM ").append(svs.field().name).
+                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
+
+        boolean firstRealm = true;
+        for (String realmKey : realmKeys) {
+            if (firstRealm) {
+                adminRealmsFilter.append(" WHERE");
+                firstRealm = false;
+            } else {
+                adminRealmsFilter.append(" OR");
+            }
+            adminRealmsFilter.append(" id=?").append(setParameter(parameters, realmKey));
+        }
+
+        adminRealmsFilter.append("))");
+
+        return adminRealmsFilter.toString();
+    }
 
     @Override
     protected void processOBS(
@@ -64,7 +89,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         attrWhere.append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]')");
 
                         nullAttrWhere.append(" UNION SELECT DISTINCT any_id,").append(svs.table().alias).append(".*, ").
-                                append("\"").append(field).append("\"").append(" AS plainShema, ").
+                                append('"').append(field).append('"').append(" AS plainShema, ").
                                 append("null AS binaryValue, ").
                                 append("null AS booleanValue, ").
                                 append("null AS dateValue, ").
@@ -72,7 +97,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                                 append("null AS longValue, ").
                                 append("null AS stringValue, ").
                                 append("null AS attrUniqueValue").
-                                append(" FROM ").append(svs.table().name).append(" ").append(svs.table().alias).
+                                append(" FROM ").append(svs.table().name).append(' ').append(svs.table().alias).
                                 append(", ").append(svs.field().name).
                                 append(" WHERE any_id=").append(svs.table().alias).append(".id").
                                 append(" AND any_id NOT IN ").
@@ -106,11 +131,11 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = svs.field().alias + "."
+        item.select = svs.field().alias + '.'
                 + (schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType()))
                 + " AS " + fieldName;
-        item.where = "plainSchema = '" + fieldName + "'";
-        item.orderBy = fieldName + " " + clause.getDirection().name();
+        item.where = "plainSchema = '" + fieldName + '\'';
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
     private void fillAttrQuery(
@@ -118,7 +143,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final StringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
-            final AttributeCond cond,
+            final AttrCond cond,
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
@@ -126,14 +151,14 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
         if (not && schema.isMultivalue()
                 && !(cond instanceof AnyCond)
-                && cond.getType() != AttributeCond.Type.ISNULL && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+                && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
             query.append(svs.field().name).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else {
-            if (!not && cond.getType() == AttributeCond.Type.EQ) {
+            if (!not && cond.getType() == AttrCond.Type.EQ) {
                 PlainAttr<?> container = anyUtils.newPlainAttr();
                 container.setSchema(schema);
                 if (attrValue instanceof PlainAttrUniqueValue) {
@@ -143,25 +168,25 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 }
 
                 query.append("JSON_CONTAINS(plainAttrs, '").
-                        append(POJOHelper.serialize(Arrays.asList(container))).
+                        append(POJOHelper.serialize(List.of(container)).replace("'", "''")).
                         append("')");
             } else {
                 String key = key(schema.getType());
                 boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
-                        && (cond.getType() == AttributeCond.Type.IEQ || cond.getType() == AttributeCond.Type.ILIKE);
+                        && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
                 query.append("plainSchema = ?").append(setParameter(parameters, cond.getSchema())).
                         append(" AND ").
                         append(lower ? "LOWER(" : "").
                         append(schema.isUniqueConstraint()
-                                ? "attrUniqueValue ->> '$." + key + "'"
+                                ? "attrUniqueValue ->> '$." + key + '\''
                                 : key).
                         append(lower ? ")" : "");
 
                 appendOp(query, cond.getType(), not);
 
                 query.append(lower ? "LOWER(" : "").
-                        append("?").append(setParameter(parameters, cond.getExpression())).
+                        append('?').append(setParameter(parameters, cond.getExpression())).
                         append(lower ? ")" : "");
             }
         }
@@ -169,7 +194,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
     @Override
     protected String getQuery(
-            final AttributeCond cond,
+            final AttrCond cond,
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
@@ -183,10 +208,10 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         // normalize NULL / NOT NULL checks
         if (not) {
-            if (cond.getType() == AttributeCond.Type.ISNULL) {
-                cond.setType(AttributeCond.Type.ISNOTNULL);
-            } else if (cond.getType() == AttributeCond.Type.ISNOTNULL) {
-                cond.setType(AttributeCond.Type.ISNULL);
+            if (cond.getType() == AttrCond.Type.ISNULL) {
+                cond.setType(AttrCond.Type.ISNOTNULL);
+            } else if (cond.getType() == AttrCond.Type.ISNOTNULL) {
+                cond.setType(AttrCond.Type.ISNULL);
             }
         }
 

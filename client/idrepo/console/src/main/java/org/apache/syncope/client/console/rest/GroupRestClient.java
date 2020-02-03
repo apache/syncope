@@ -43,7 +43,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         return GroupService.class;
     }
 
-    public ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
+    public static ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
         Response response = getService(GroupService.class).create(groupCR);
         return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
         });
@@ -81,7 +81,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
-    public void provisionMembers(final String key, final ProvisionAction actionType) {
+    public static void provisionMembers(final String key, final ProvisionAction actionType) {
         getService(GroupService.class).provisionMembers(key, actionType);
     }
 }

@@ -29,22 +29,6 @@ public interface GroupableRelatable<
         R extends Any<?>,
         REL extends Relationship<L, R>> extends Any<P> {
 
-    @Override
-    boolean add(P attr);
-
-    @Override
-    boolean remove(P attr);
-
-    /**
-     * Returns the plain attribute for this instance and the given schema name - if found, {@code NULL} otherwise.
-     * <b>IMPORTANT:</b> This method won't return any attribute related to memberships.
-     *
-     * @param plainSchema plain schema name
-     * @return plain attribute for this instance and the given schema name
-     */
-    @Override
-    Optional<? extends P> getPlainAttr(String plainSchema);
-
     /**
      * Returns the plain attribute for this instance, the given schema name and the given membership -
      * if found, {@code NULL} otherwise.
@@ -54,15 +38,6 @@ public interface GroupableRelatable<
      * @return plain attribute for this instance, the given schema name and the given membership
      */
     Optional<? extends P> getPlainAttr(String plainSchema, Membership<?> membership);
-
-    /**
-     * Returns the plain attributes for this instance.
-     * <b>IMPORTANT:</b> This method won't return any attribute related to memberships.
-     *
-     * @return plain attribute for this instance
-     */
-    @Override
-    List<? extends P> getPlainAttrs();
 
     /**
      * Returns the list of plain attributes for this instance and the given schema name (including membeship attributes,

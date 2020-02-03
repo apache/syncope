@@ -19,7 +19,7 @@
 package org.apache.syncope.core.spring.security;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.Collections;
+
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
@@ -84,7 +84,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
         User user = userDAO.findByUsername(jwtClaims.getSubject());
-        Set<SyncopeGrantedAuthority> authorities = Collections.emptySet();
+        Set<SyncopeGrantedAuthority> authorities = Set.of();
         if (user != null) {
             AccessToken accessToken = accessTokenDAO.find(jwtClaims.getTokenId());
             if (accessToken != null && accessToken.getAuthorities() != null) {

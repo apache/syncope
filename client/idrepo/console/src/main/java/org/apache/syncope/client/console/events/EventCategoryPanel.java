@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.events;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -108,7 +107,7 @@ public abstract class EventCategoryPanel extends Panel {
                 "type",
                 new PropertyModel<>(eventCategoryTO, "type"),
                 false);
-        type.setChoices(Arrays.asList(EventCategoryType.values()));
+        type.setChoices(List.of(EventCategoryType.values()));
         type.setStyleSheet("ui-widget-content ui-corner-all");
         type.setChoiceRenderer(new IChoiceRenderer<EventCategoryType>() {
 
@@ -209,7 +208,7 @@ public abstract class EventCategoryPanel extends Panel {
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
                             Collections.<String>singleton(eventString),
-                            Collections.<String>emptySet()));
+                            Set.of()));
                     target.add(categoryContainer);
                 }
             }
@@ -235,7 +234,7 @@ public abstract class EventCategoryPanel extends Panel {
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
-                            Collections.<String>emptySet(),
+                            Set.of(),
                             Collections.<String>singleton(eventString)));
                     target.add(categoryContainer);
                 }
@@ -259,31 +258,27 @@ public abstract class EventCategoryPanel extends Panel {
         });
     }
 
-    private List<String> filter(final List<EventCategory> eventCategoryTOs, final EventCategoryType type) {
+    private static List<String> filter(final List<EventCategory> eventCategoryTOs, final EventCategoryType type) {
         Set<String> res = new HashSet<>();
 
         eventCategoryTOs.stream().filter(eventCategory
                 -> type == eventCategory.getType() && StringUtils.isNotEmpty(eventCategory.getCategory())).
-                forEachOrdered(eventCategory -> {
-                    res.add(eventCategory.getCategory());
-                });
+                forEachOrdered(eventCategory -> res.add(eventCategory.getCategory()));
 
         List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
         return filtered;
     }
 
-    private List<String> filter(
-            final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
+    private static List<String> filter(
+        final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
 
         Set<String> res = new HashSet<>();
 
         eventCategoryTOs.stream().filter(eventCategory
                 -> type == eventCategory.getType() && StringUtils.equals(category, eventCategory.getCategory())
                 && StringUtils.isNotEmpty(eventCategory.getSubcategory())).
-                forEachOrdered(eventCategory -> {
-                    res.add(eventCategory.getSubcategory());
-                });
+                forEachOrdered(eventCategory -> res.add(eventCategory.getSubcategory()));
 
         List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
@@ -306,8 +301,8 @@ public abstract class EventCategoryPanel extends Panel {
                         eventCategoryTO.setCategory(null);
                         eventCategoryTO.setSubcategory(null);
                         if (type.getModelObject() == EventCategoryType.CUSTOM) {
-                            category.setChoices(Collections.<String>emptyList());
-                            subcategory.setChoices(Collections.<String>emptyList());
+                            category.setChoices(List.of());
+                            subcategory.setChoices(List.of());
                             category.setEnabled(false);
                             subcategory.setEnabled(false);
                             custom.setVisible(true);
@@ -316,7 +311,7 @@ public abstract class EventCategoryPanel extends Panel {
                             actionsPanel.setEnabled(true);
                         } else {
                             category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
-                            subcategory.setChoices(Collections.<String>emptyList());
+                            subcategory.setChoices(List.of());
                             category.setEnabled(true);
                             subcategory.setEnabled(true);
                             custom.setVisible(false);
@@ -431,9 +426,8 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private void authorizeList() {
-        getListAuthRoles().forEach(role -> {
-            MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role);
-        });
+        getListAuthRoles().forEach(
+                role -> MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role));
     }
 
     private void authorizeChanges() {

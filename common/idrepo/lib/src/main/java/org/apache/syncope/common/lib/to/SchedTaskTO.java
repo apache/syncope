@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -62,11 +64,11 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
     }
 
     public Date getStartAt() {
-        return startAt == null ? null : new Date(startAt.getTime());
+        return Optional.ofNullable(startAt).map(at -> new Date(at.getTime())).orElse(null);
     }
 
     public void setStartAt(final Date start) {
-        this.startAt = start == null ? null : new Date(start.getTime());
+        this.startAt = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public String getCronExpression() {
@@ -87,20 +89,20 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getLastExec() {
-        return lastExec == null ? null : new Date(lastExec.getTime());
+        return Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public void setLastExec(final Date lastExec) {
-        this.lastExec = lastExec == null ? null : new Date(lastExec.getTime());
+        this.lastExec = Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public Date getNextExec() {
-        return nextExec == null ? null : new Date(nextExec.getTime());
+        return Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public void setNextExec(final Date nextExec) {
-        this.nextExec = nextExec == null ? null : new Date(nextExec.getTime());
+        this.nextExec = Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public String getDescription() {

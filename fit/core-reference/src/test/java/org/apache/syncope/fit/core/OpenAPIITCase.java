@@ -21,10 +21,8 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.MediaType;
@@ -41,7 +39,7 @@ public class OpenAPIITCase extends AbstractITCase {
         Response response = webClient.get();
         assertEquals(200, response.getStatus());
 
-        JsonNode tree = new ObjectMapper().readTree((InputStream) response.getEntity());
+        JsonNode tree = MAPPER.readTree((InputStream) response.getEntity());
         assertNotNull(tree);
 
         JsonNode info = tree.get("info");

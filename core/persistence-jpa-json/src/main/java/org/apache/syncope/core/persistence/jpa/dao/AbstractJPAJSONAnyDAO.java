@@ -20,13 +20,14 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
 import org.apache.commons.jexl3.parser.Parser;
@@ -42,6 +43,8 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
@@ -120,7 +123,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         Query query = entityManager().createNativeQuery(
@@ -134,26 +137,26 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends Any<?>> A findByPlainAttrUniqueValue(
+    public <A extends Any<?>> Optional<A> findByPlainAttrUniqueValue(
             final String table,
             final AnyUtils anyUtils,
             final PlainSchema schema,
-            final PlainAttrValue attrUniqueValue,
+            final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return null;
+            return Optional.empty();
         }
         if (!schema.isUniqueConstraint()) {
             LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
-            return null;
+            return Optional.empty();
         }
 
         List<A> result = findByPlainAttrValue(table, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
-                ? null
-                : result.get(0);
+                ? Optional.empty()
+                : Optional.of(result.get(0));
     }
 
     /**
@@ -163,7 +166,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
      * @param literals literals/tokens
      * @return split value
      */
-    private List<String> split(final String attrValue, final List<String> literals) {
+    private static List<String> split(final String attrValue, final List<String> literals) {
         final List<String> attrValues = new ArrayList<>();
 
         if (literals.isEmpty()) {
@@ -179,7 +182,27 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         return attrValues;
     }
 
-    protected abstract List<Object> findByDerAttrValue(String table, Map<String, List<Object>> clauses);
+    @SuppressWarnings("unchecked")
+    protected List<Object> findByDerAttrValue(
+            final String table,
+            final Map<String, List<Object>> clauses) {
+
+        StringJoiner actualClauses = new StringJoiner(" AND id IN ");
+        List<Object> queryParams = new ArrayList<>();
+
+        clauses.forEach((clause, parameters) -> {
+            actualClauses.add(clause);
+            queryParams.addAll(parameters);
+        });
+
+        Query query = entityManager().createNativeQuery(
+                "SELECT DISTINCT id FROM " + table + " u WHERE id IN " + actualClauses.toString());
+        for (int i = 0; i < queryParams.size(); i++) {
+            query.setParameter(i + 1, queryParams.get(i));
+        }
+
+        return query.getResultList();
+    }
 
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
@@ -193,7 +216,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
         if (derSchema == null) {
             LOG.error("No DerSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         Parser parser = new Parser(new StringReader(derSchema.getExpression()));
@@ -218,12 +241,12 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         }
 
         // Sort literals in order to process later literals included into others
-        Collections.sort(literals, (l1, l2) -> {
+        literals.sort((l1, l2) -> {
             if (l1 == null && l2 == null) {
                 return 0;
             } else if (l1 != null && l2 == null) {
                 return -1;
-            } else if (l1 == null && l2 != null) {
+            } else if (l1 == null) {
                 return 1;
             } else if (l1.length() == l2.length()) {
                 return 0;
@@ -239,7 +262,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
-            return Collections.emptyList();
+            return List.of();
         }
 
         Map<String, List<Object>> clauses = new LinkedHashMap<>();
@@ -295,20 +318,21 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
     @Override
     public <A extends Any<?>> void checkBeforeSave(final String table, final AnyUtils anyUtils, final A any) {
         // check UNIQUE constraints
-        any.getPlainAttrs().stream().
-                filter(attr -> attr.getUniqueValue() != null).
-                map(JSONPlainAttr.class::cast).
-                forEach(attr -> {
-                    PlainSchema schema = attr.getSchema();
-                    List<A> others = findByPlainAttrValue(table, anyUtils, schema, attr.getUniqueValue(), false);
-                    if (others.isEmpty() || (others.size() == 1 && others.get(0).getKey().equals(any.getKey()))) {
-                        LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
-                    } else {
-                        throw new DuplicateException(
-                                "Value " + attr.getUniqueValue().getValueAsString()
-                                + " existing for " + schema.getKey());
-                    }
-                });
+        // cannot move to functional style due to the same issue reported at
+        // https://medium.com/xiumeteo-labs/stream-and-concurrentmodificationexception-2d14ed8ff4b2
+        for (PlainAttr<?> attr : any.getPlainAttrs()) {
+            if (attr.getUniqueValue() != null && attr instanceof JSONPlainAttr) {
+                PlainSchema schema = attr.getSchema();
+                Optional<A> other = findByPlainAttrUniqueValue(table, anyUtils, schema, attr.getUniqueValue(), false);
+                if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
+                    LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
+                } else {
+                    throw new DuplicateException(
+                            "Value " + attr.getUniqueValue().getValueAsString()
+                            + " existing for " + schema.getKey());
+                }
+            }
+        }
 
         // update sysInfo - as org.apache.syncope.core.persistence.jpa.entity.PlainAttrListener is not invoked
         Date now = new Date();

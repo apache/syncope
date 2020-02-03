@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -57,10 +59,7 @@ public abstract class DirectoryPanel<
 
     protected static final Logger LOG = LoggerFactory.getLogger(DirectoryPanel.class);
 
-    /**
-     * Application preferences.
-     */
-    protected PreferenceManager prefMan = new PreferenceManager();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     protected E restClient;
 
@@ -87,7 +86,7 @@ public abstract class DirectoryPanel<
     /**
      * Result table.
      */
-    private AjaxDataTablePanel<T, String> resultTable;
+    protected AjaxDataTablePanel<T, String> resultTable;
 
     /**
      * Data provider used to search for entities.
@@ -101,9 +100,9 @@ public abstract class DirectoryPanel<
 
     protected String itemKeyFieldName = Constants.KEY_FIELD_NAME;
 
-    protected final BaseModal<W> altDefaultModal = new BaseModal<>("outer");
+    protected final BaseModal<W> altDefaultModal = new BaseModal<>(Constants.OUTER);
 
-    protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
+    protected final BaseModal<W> displayAttributeModal = new BaseModal<>(Constants.OUTER);
 
     protected ActionLinksTogglePanel<T> actionTogglePanel;
 
@@ -146,7 +145,7 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
-        actionTogglePanel = new ActionLinksTogglePanel<>("outer", builder.getPageRef());
+        actionTogglePanel = new ActionLinksTogglePanel<>(Constants.OUTER, builder.getPageRef());
         addOuterObject(actionTogglePanel);
 
         addOuterObject(altDefaultModal);
@@ -166,7 +165,7 @@ public abstract class DirectoryPanel<
         container.setOutputMarkupId(true);
         addInnerObject(container);
 
-        rows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey());
+        rows = PreferenceManager.getPaginatorRows(getRequest(), paginatorRowsKey());
 
         setWindowClosedReloadCallback(modal);
         setWindowClosedReloadCallback(altDefaultModal);
@@ -215,14 +214,14 @@ public abstract class DirectoryPanel<
         container.add(paginatorForm);
 
         DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
-                "rowsChooser", new PropertyModel<>(this, "rows"), prefMan.getPaginatorChoices());
+                "rowsChooser", new PropertyModel<>(this, "rows"), PreferenceManager.getPaginatorChoices());
         rowsChooser.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                prefMan.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
+                PreferenceManager.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
 
                 EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
@@ -276,8 +275,8 @@ public abstract class DirectoryPanel<
     private void updateResultTable(final boolean create, final int rows) {
         dataProvider = dataProvider();
 
-        final int currentPage = resultTable != null
-                ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
+        final int currentPage = Optional.ofNullable(resultTable)
+                .map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
 
         // take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<T, String>(

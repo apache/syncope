@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -81,7 +81,7 @@ public abstract class NotificationTaskDirectoryPanel
         final List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("sender", this), "sender", "sender"));
@@ -146,9 +146,8 @@ public abstract class NotificationTaskDirectoryPanel
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
                     LOG.error("While running {}", taskTO.getKey(), e);
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -160,14 +159,13 @@ public abstract class NotificationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 try {
-                    restClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
+                    TaskRestClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
                     updateResultTable(target);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", taskTO.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -194,7 +192,7 @@ public abstract class NotificationTaskDirectoryPanel
         return IdRepoConstants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS;
     }
 
-    protected class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
+    protected static class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -218,13 +216,13 @@ public abstract class NotificationTaskDirectoryPanel
 
         @Override
         public long size() {
-            return restClient.count(anyTypeKind, entityKey, notification);
+            return TaskRestClient.count(anyTypeKind, entityKey, notification);
         }
 
         @Override
         public Iterator<NotificationTaskTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.listNotificationTasks(
+            return TaskRestClient.listNotificationTasks(
                     notification, anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

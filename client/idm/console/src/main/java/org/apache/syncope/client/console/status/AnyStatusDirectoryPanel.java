@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.status;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +32,7 @@ import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
+import org.apache.syncope.client.console.panels.LinkedAccountsStatusModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
@@ -65,6 +64,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 public class AnyStatusDirectoryPanel
@@ -111,7 +111,7 @@ public class AnyStatusDirectoryPanel
             anyTypeKind = AnyTypeKind.ANY_OBJECT;
         }
 
-        resources = new ResourceRestClient().list().stream().
+        resources = ResourceRestClient.list().stream().
                 filter(resource -> resource.getProvision(anyTO.getType()).isPresent()).
                 map(EntityTO::getKey).collect(Collectors.toList());
 
@@ -194,7 +194,7 @@ public class AnyStatusDirectoryPanel
                 @Override
                 public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                     multiLevelPanelRef.next(bean.getResource(),
-                            new ReconStatusPanel(bean.getResource(), anyTypeKind, anyTO.getKey()),
+                            new ReconStatusPanel(bean.getResource(), anyTO.getType(), anyTO.getKey()),
                             target);
                     target.add(multiLevelPanelRef);
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
@@ -213,8 +213,9 @@ public class AnyStatusDirectoryPanel
                             new ReconTaskPanel(
                                     bean.getResource(),
                                     new PushTaskTO(),
-                                    anyTypeKind,
+                                    anyTO.getType(),
                                     anyTO.getKey(),
+                                    true,
                                     multiLevelPanelRef,
                                     pageRef),
                             target);
@@ -233,8 +234,9 @@ public class AnyStatusDirectoryPanel
                             new ReconTaskPanel(
                                     bean.getResource(),
                                     new PullTaskTO(),
-                                    anyTypeKind,
+                                    anyTO.getType(),
                                     anyTO.getKey(),
+                                    true,
                                     multiLevelPanelRef,
                                     pageRef),
                             target);
@@ -242,6 +244,33 @@ public class AnyStatusDirectoryPanel
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
                 }
             }, ActionLink.ActionType.RECONCILIATION_PULL, IdRepoEntitlement.TASK_EXECUTE);
+        }
+
+        if (anyTO instanceof UserTO && !UserTO.class.cast(anyTO).getLinkedAccounts().isEmpty()) {
+            UserTO userTO = UserTO.class.cast(anyTO);
+
+            if (!userTO.getLinkedAccounts().isEmpty()
+                    && userTO.getLinkedAccounts().stream().anyMatch(linkedAccountTO -> {
+                        return linkedAccountTO.getResource().equals(model.getObject().getResource());
+                    })) {
+
+                panel.add(new ActionLink<StatusBean>() {
+
+                    private static final long serialVersionUID = 5168094747477174155L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                        multiLevelPanelRef.next("ACCOUNTS",
+                                new LinkedAccountsStatusModalPanel(
+                                        baseModal, Model.of(UserTO.class.cast(anyTO)), pageRef),
+                                target);
+                        target.add(multiLevelPanelRef);
+                        AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+                    }
+                }, ActionLink.ActionType.MANAGE_ACCOUNTS,
+                        String.format("%s,%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE,
+                                IdMEntitlement.RESOURCE_GET_CONNOBJECT));
+            }
         }
 
         return panel;
@@ -288,10 +317,9 @@ public class AnyStatusDirectoryPanel
             final AnyTO actual = restClient.read(anyTO.getKey());
 
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
-                List<Pair<String, ReconStatus>> statuses = Collections.emptyList();
+                List<Pair<String, ReconStatus>> statuses = List.of();
                 if (statusOnly) {
-                    statuses = ReconStatusUtils.
-                            getReconStatuses(anyTypeKind, anyTO.getKey(), Arrays.asList(resource));
+                    statuses = ReconStatusUtils.getReconStatuses(anyTO.getType(), anyTO.getKey(), List.of(resource));
                 }
 
                 return StatusUtils.getStatusBean(actual,
@@ -328,11 +356,11 @@ public class AnyStatusDirectoryPanel
                 }
                 syncope.setStatus(syncopeStatus);
 
-                Collections.sort(statusBeans, comparator);
+                statusBeans.sort(comparator);
                 statusBeans.add(0, syncope);
             } else {
                 statusBeans.addAll(resources.stream().
-                        filter(resource -> !anyTO.getResources().contains(resource)).
+                        filter(resource -> !actual.getResources().contains(resource)).
                         map(resource -> {
                             StatusBean statusBean = StatusUtils.getStatusBean(actual,
                                     resource,
@@ -342,7 +370,7 @@ public class AnyStatusDirectoryPanel
                             return statusBean;
                         }).collect(Collectors.toList()));
 
-                Collections.sort(statusBeans, comparator);
+                statusBeans.sort(comparator);
             }
 
             return first == -1 && count == -1

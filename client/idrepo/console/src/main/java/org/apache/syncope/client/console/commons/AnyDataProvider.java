@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -42,19 +43,19 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyDataProvider.class);
 
-    private final SortableAnyProviderComparator<A> comparator;
+    protected final SortableAnyProviderComparator<A> comparator;
 
-    private final AbstractAnyRestClient<A> restClient;
+    protected final AbstractAnyRestClient<A> restClient;
 
     protected String fiql;
 
     protected final boolean filtered;
 
-    private final String realm;
+    protected final String realm;
 
-    private final String type;
+    protected final String type;
 
-    private final PageReference pageRef;
+    protected final PageReference pageRef;
 
     public AnyDataProvider(
             final AbstractAnyRestClient<A> restClient,
@@ -81,7 +82,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
                 break;
 
             default:
-                setSort("key", SortOrder.ASCENDING);
+                setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
         }
 
         this.comparator = new SortableAnyProviderComparator<>(this);
@@ -93,29 +94,28 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     @Override
     public Iterator<A> iterator(final long first, final long count) {
-        List<A> result = Collections.emptyList();
+        List<A> result = new ArrayList<>();
 
         try {
-            final int page = ((int) first / paginatorRows);
+            final int page = (int) first / paginatorRows;
 
             if (filtered) {
                 result = fiql == null
-                        ? Collections.<A>emptyList()
+                        ? new ArrayList<>()
                         : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
             } else {
                 result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
             }
         } catch (Exception e) {
             LOG.error("While searching with FIQL {}", fiql, e);
-            SyncopeConsoleSession.get().error(e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            if (target.isPresent()) {
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-            }
+            target.ifPresent(ajaxRequestTarget
+                    -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
-        Collections.sort(result, comparator);
+        result.sort(comparator);
         return result.iterator();
     }
 
@@ -125,18 +125,16 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
         try {
             if (filtered) {
-                result = fiql == null ? 0 : restClient.count(realm, fiql, type);
+                result = Optional.ofNullable(fiql).map(s -> restClient.count(realm, s, type)).orElse(0);
             } else {
                 result = restClient.count(realm, null, type);
             }
         } catch (Exception e) {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);
-            SyncopeConsoleSession.get().error(e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
 
-            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            if (target.isPresent()) {
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-            }
+            RequestCycle.get().find(AjaxRequestTarget.class).
+                    ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
         }
 
         return result;

@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -46,6 +46,8 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
             final boolean wizardInModal) {
 
         super(id, builder, wizardInModal);
+
+        SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionsProvider().hide();
     }
 
     @Override
@@ -68,7 +70,7 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.<ActionType>emptyList();
+        return List.of();
     }
 
     public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A>>

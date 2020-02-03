@@ -88,7 +88,7 @@ public class OpenJpaVendorAdapter extends AbstractJpaVendorAdapter {
      * @param database the specified database
      * @return the OpenJPA database dictionary name, or {@code null} if none found
      */
-    protected String determineDatabaseDictionary(final Database database) {
+    protected static String determineDatabaseDictionary(final Database database) {
         switch (database) {
             case DB2:
                 return "db2";

@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.common.util.UrlUtils;
 import org.apache.syncope.client.console.annotations.Resource;
+import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.wicket.util.io.IOUtils;
 
@@ -61,7 +62,7 @@ public class BpmnProcessPUTResource extends AbstractBpmnProcessResource {
         }
 
         try {
-            restClient.setDefinition(MediaType.APPLICATION_JSON_TYPE, toSet.getKey(), definition);
+            BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_JSON_TYPE, toSet.getKey(), definition);
             return new ResourceResponse().setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
         } catch (Exception e) {
             LOG.error("While updating BPMN process", e);

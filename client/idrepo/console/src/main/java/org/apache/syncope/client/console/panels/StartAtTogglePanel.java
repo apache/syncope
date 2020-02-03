@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.Date;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -55,7 +54,7 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
         addInnerObject(form);
 
         final AjaxDateTimeFieldPanel startAtDate = new AjaxDateTimeFieldPanel(
-                "startAtDate", "startAtDate", startAtDateModel, 
+                "startAtDate", "startAtDate", startAtDateModel,
                 FastDateFormat.getInstance(SyncopeConstants.DATE_PATTERNS[3]));
 
         startAtDate.setReadOnly(true).hideLabel();
@@ -88,9 +87,8 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
                     LOG.error("While running task {}", key, e);
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

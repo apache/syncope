@@ -184,7 +184,7 @@ public abstract class EventSelectionPanel extends Panel {
         failureGroup.add(failureView);
     }
 
-    private List<String> getEvents(final EventCategory eventCategoryTO) {
+    private static List<String> getEvents(final EventCategory eventCategoryTO) {
         final List<String> res;
 
         res = eventCategoryTO.getEvents();

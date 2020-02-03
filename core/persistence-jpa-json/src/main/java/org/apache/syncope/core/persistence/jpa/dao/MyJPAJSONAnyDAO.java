@@ -18,15 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.persistence.Query;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -47,7 +39,7 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                 : StringUtils.containsIgnoreCase(table, AnyTypeKind.GROUP.name())
                 ? "group_search"
                 : "anyObject_search";
-        return "SELECT DISTINCT id FROM " + view + " ";
+        return "SELECT DISTINCT id FROM " + view + ' ';
     }
 
     @Override
@@ -63,12 +55,12 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                     + "AND "
                     + (schemaInfo.getRight() ? "LOWER(" : "")
                     + (schema.isUniqueConstraint()
-                    ? "attrUniqueValue ->> '$." + schemaInfo.getLeft() + "'"
+                    ? "attrUniqueValue ->> '$." + schemaInfo.getLeft() + '\''
                     : schemaInfo.getLeft())
                     + (schemaInfo.getRight() ? ")" : "")
                     + " = "
                     + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + "?"
+                    + '?'
                     + (schemaInfo.getRight() ? ")" : "");
         } else {
             PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -78,43 +70,7 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
             } else {
                 ((JSONPlainAttr) container).add(attrValue);
             }
-            return "JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(Arrays.asList(container)) + "')";
+            return "JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''") + "')";
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * This method is a workaround for a bug experienced up to MySQL 8.0.15, where the correct implementation (as shown
-     * in {@link PGJPAJSONAnyDAO#findByDerAttrValue(java.lang.String, java.util.Map)} generates a core dump.
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    protected List<Object> findByDerAttrValue(
-            final String table,
-            final Map<String, List<Object>> clauses) {
-
-        if (clauses.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Set<Object> result = new HashSet<>();
-        AtomicReference<Boolean> first = new AtomicReference<>(Boolean.TRUE);
-        clauses.forEach((clause, parameters) -> {
-            Query query = entityManager().createNativeQuery(StringUtils.replaceIgnoreCase(clause, "DISTINCT", ""));
-            for (int i = 0; i < parameters.size(); i++) {
-                query.setParameter(i + 1, parameters.get(i));
-            }
-
-            Set<Object> local = new HashSet<>(query.getResultList());
-            if (first.get()) {
-                result.addAll(local);
-                first.set(Boolean.FALSE);
-            } else {
-                result.retainAll(local);
-            }
-        });
-
-        return new ArrayList<>(result);
     }
 }

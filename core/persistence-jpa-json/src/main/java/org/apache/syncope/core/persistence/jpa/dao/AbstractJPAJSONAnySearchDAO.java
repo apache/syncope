@@ -18,22 +18,17 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 
 abstract class AbstractJPAJSONAnySearchDAO extends JPAAnySearchDAO {
-
-    protected static final FastDateFormat DATE_FORMAT =
-            FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN);
 
     @Override
     SearchSupport buildSearchSupport(final AnyTypeKind kind) {
         return new SearchSupport(kind);
     }
 
-    protected void appendOp(final StringBuilder query, final AttributeCond.Type condType, final boolean not) {
+    protected void appendOp(final StringBuilder query, final AttrCond.Type condType, final boolean not) {
         switch (condType) {
             case LIKE:
             case ILIKE:

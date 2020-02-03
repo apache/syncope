@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -163,17 +162,17 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             @Override
             protected void populateItem(final ListItem<T> beanItem) {
-                beanItem.add(new Check<>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true)
-                        .setOutputMarkupPlaceholderTag(true)
-                        .setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
-                                || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED)
-                        .setEnabled(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE));
+                beanItem.add(new Check<>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true).
+                        setOutputMarkupPlaceholderTag(true).
+                        setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
+                                || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED).
+                        setEnabled(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE));
 
                 final T bean = beanItem.getModelObject();
 
                 final ListView<String> fields = new ListView<String>("fields", toBeIncluded) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -9112553137618363167L;
 
                     @Override
                     protected void populateItem(final ListItem<String> fieldItem) {
@@ -216,7 +215,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         checkGroup.add(beans);
     }
 
-    private ListView<String> header(final List<String> labels) {
+    private static ListView<String> header(final List<String> labels) {
         return new ListView<String>("names", labels) {
 
             private static final long serialVersionUID = 1L;
@@ -226,6 +225,15 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 item.add(new Label("name", new ResourceModel(item.getModelObject(), item.getModelObject())));
             }
         };
+    }
+
+    /**
+     * Use this to refresh the ListView with updated items (e.g. from callback methods)
+     *
+     * @param elements
+     */
+    public void refreshList(final List<T> elements) {
+        beans.setList(elements);
     }
 
     public void setCheckAvailability(final CheckAvailability check) {
@@ -253,7 +261,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         private static final long serialVersionUID = -3643771352897992172L;
 
-        private IModel<? extends Collection<T>> model = Model.of(Collections.<T>emptyList());
+        private IModel<? extends Collection<T>> model = Model.of(List.of());
 
         private final List<String> includes = new ArrayList<>();
 
@@ -384,15 +392,15 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             LOG.debug("Field value {}", value);
 
-            return value == null
-                    ? new Label("field", StringUtils.EMPTY)
-                    : new Label("field", new ResourceModel(value.toString(), value.toString()));
+            return Optional.ofNullable(value)
+                    .map(o -> new Label("field", new ResourceModel(o.toString(), o.toString())))
+                    .orElseGet(() -> new Label("field", StringUtils.EMPTY));
         }
 
         protected T getActualItem(final T item, final List<T> list) {
             return item == null
                     ? null
-                    : list.stream().filter(object -> item.equals(object)).findAny().orElse(null);
+                    : list.stream().filter(item::equals).findAny().orElse(null);
         }
 
         @Override
@@ -453,7 +461,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
-            final AjaxRequestTarget target = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getTarget();
+            final Optional<AjaxRequestTarget> target = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getTarget();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 final T old = getActualItem(item, ListViewPanel.this.listOfItems);
@@ -465,7 +473,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 ListViewPanel.this.listOfItems.add(indexOf, item);
             }
 
-            target.add(ListViewPanel.this);
+            target.ifPresent(t -> t.add(ListViewPanel.this));
             super.onEvent(event);
         } else if (event.getPayload() instanceof ListViewPanel.ListViewReload) {
             final ListViewPanel.ListViewReload<?> payload = (ListViewPanel.ListViewReload<?>) event.getPayload();

@@ -86,7 +86,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
 
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
-        List<User> users = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.getLeaf(membershipCond), AnyTypeKind.USER);
         Collection<String> groupResourceKeys = groupDAO.findAllResourceKeys(groupKey);
         status.set("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
@@ -103,9 +103,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
                     result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
                 }
-                result.append("\n");
+                result.append('\n');
             }
-            result.append("\n");
+            result.append('\n');
         }
         if (interrupt) {
             LOG.debug("Group assignment interrupted");
@@ -115,7 +115,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
 
         membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
-        List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.ANY_OBJECT);
+        List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeaf(membershipCond), AnyTypeKind.ANY_OBJECT);
         status.set("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + anyObjects.size() + " any objects from " + groupResourceKeys);
@@ -133,9 +133,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
                     result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
                 }
-                result.append("\n");
+                result.append('\n');
             }
-            result.append("\n");
+            result.append('\n');
         }
         if (interrupt) {
             LOG.debug("Group assignment interrupted");

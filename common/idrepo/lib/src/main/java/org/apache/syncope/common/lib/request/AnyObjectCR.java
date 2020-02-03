@@ -23,9 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
@@ -65,7 +63,7 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder relationships(final RelationshipTO... relationships) {
-            getInstance().getRelationships().addAll(Arrays.asList(relationships));
+            getInstance().getRelationships().addAll(List.of(relationships));
             return this;
         }
 
@@ -80,7 +78,7 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         }
 
         public Builder memberships(final MembershipTO... memberships) {
-            getInstance().getMemberships().addAll(Arrays.asList(memberships));
+            getInstance().getMemberships().addAll(List.of(memberships));
             return this;
         }
 
@@ -157,7 +155,7 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
 
     @Override
     public List<MembershipTO> getDynMemberships() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override

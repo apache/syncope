@@ -20,9 +20,7 @@ package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -61,8 +59,6 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
     private final BaseModal<T> modal;
 
     private final PolicyType type;
-
-    private final PolicyRestClient restClient = new PolicyRestClient();
 
     public PolicyModalPanelBuilder(
             final PolicyType type, final T policyTO, final BaseModal<T> modal, final PageReference pageRef) {
@@ -140,7 +136,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         "field",
                         "conflictResolutionAction",
                         new PropertyModel<>(policyTO, "conflictResolutionAction")).
-                        setChoices(Arrays.asList((Serializable[]) ConflictResolutionAction.values())));
+                        setChoices(List.of((Serializable[]) ConflictResolutionAction.values())));
             }
 
             add(new ListView<Component>("fields", fields) {
@@ -159,19 +155,17 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         public void onSubmit(final AjaxRequestTarget target) {
             try {
                 if (policyTO.getKey() == null) {
-                    restClient.createPolicy(type, policyTO);
+                    PolicyRestClient.createPolicy(type, policyTO);
                 } else {
-                    restClient.updatePolicy(type, policyTO);
+                    PolicyRestClient.updatePolicy(type, policyTO);
                 }
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);
             } catch (Exception e) {
                 LOG.error("While creating/updating policy", e);
-                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.getMessage());
+                SyncopeConsoleSession.get().onException(e);
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
-
 }

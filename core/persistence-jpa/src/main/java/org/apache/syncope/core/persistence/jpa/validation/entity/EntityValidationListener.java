@@ -70,7 +70,8 @@ public class EntityValidationListener {
                 }
             }
 
-            throw new InvalidEntityException(entityInt == null ? "Entity" : entityInt.getSimpleName(), violations);
+            throw new InvalidEntityException(entityInt == null
+                ? "Entity" : entityInt.getSimpleName(), violations);
         }
     }
 }

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -30,15 +29,19 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class ProvisionProducer extends AbstractProducer {
 
-    public ProvisionProducer(final Endpoint endpoint, final AnyTypeKind anyType) {
+    private final UserDAO userDAO;
+
+    public ProvisionProducer(final Endpoint endpoint, final AnyTypeKind anyType, final UserDAO userDAO) {
         super(endpoint, anyType);
+        this.userDAO = userDAO;
     }
 
     @SuppressWarnings("unchecked")
@@ -63,19 +66,27 @@ public class ProvisionProducer extends AbstractProducer {
                         new PasswordPatch.Builder().onSyncope(true).value(password).resources(resources).build());
             }
 
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-            WorkflowResult<Pair<UserUR, Boolean>> wfResult = new WorkflowResult<>(
-                    ImmutablePair.of(userUR, (Boolean) null), propByRes, "update");
+            UserWorkflowResult<Pair<UserUR, Boolean>> wfResult = new UserWorkflowResult<>(
+                    Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);
-            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+            PropagationReporter reporter =
+                getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
-            exchange.getOut().setBody(reporter.getStatuses());
+            exchange.getMessage().setBody(reporter.getStatuses());
         } else {
-            PropagationByResource propByRes = new PropagationByResource();
+            PropagationByResource<String> propByRes = new PropagationByResource<>();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
+
+            PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+            userDAO.findLinkedAccounts(key).stream().
+                    filter(account -> resources.contains(account.getResource().getKey())).
+                    forEach(account -> propByLinkedAccount.add(
+                    ResourceOperation.UPDATE,
+                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
             AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;
             if (getAnyTypeKind() != null) {
@@ -88,11 +99,13 @@ public class ProvisionProducer extends AbstractProducer {
                     false,
                     null,
                     propByRes,
+                    propByLinkedAccount,
                     null,
                     null);
-            PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+            PropagationReporter reporter =
+                getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
-            exchange.getOut().setBody(reporter.getStatuses());
+            exchange.getMessage().setBody(reporter.getStatuses());
         }
     }
 }

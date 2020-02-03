@@ -41,8 +41,8 @@ import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCUserTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.OIDCProviderDataBinder;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +102,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
 
                 if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
-                    invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
+                    invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
                     boolean allowed = true;
                     if (intAttrName.getSchemaType() != null
@@ -162,7 +162,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
                         }
                     } else {
                         LOG.error("'{}' not allowed", itemTO.getIntAttrName());
-                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                        invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not allowed");
                     }
                 }
             }
@@ -231,7 +231,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         return oidcOPDAO.save(op);
     }
 
-    private void populateItems(final OIDCProvider op, final OIDCProviderTO opTO) {
+    private static void populateItems(final OIDCProvider op, final OIDCProviderTO opTO) {
         op.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());

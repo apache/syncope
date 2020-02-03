@@ -18,15 +18,16 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.apache.syncope.client.console.panels.ToggleableTarget;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.client.console.panels.ToggleableTarget;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class ResourceProvision implements ToggleableTarget {
 
@@ -87,18 +88,16 @@ public class ResourceProvision implements ToggleableTarget {
     @Override
     public String getKey() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : orgUnitTO.getKey()
-                : provisionTO.getKey();
+            ? Optional.ofNullable(orgUnitTO).map(OrgUnitTO::getKey).orElse(null)
+            : provisionTO.getKey();
     }
 
     @Override
     public String getAnyType() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : SyncopeConstants.REALM_ANYTYPE : provisionTO.getAnyType();
+            ? orgUnitTO == null
+            ? null
+            : SyncopeConstants.REALM_ANYTYPE : provisionTO.getAnyType();
     }
 
     public void setAnyType(final String anyType) {
@@ -113,9 +112,9 @@ public class ResourceProvision implements ToggleableTarget {
 
     public String getObjectClass() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : orgUnitTO.getObjectClass() : provisionTO.getObjectClass();
+            ? Optional.ofNullable(orgUnitTO)
+            .map(OrgUnitTO::getObjectClass)
+            .orElse(null) : provisionTO.getObjectClass();
     }
 
     public void setObjectClass(final String objectClass) {
@@ -127,11 +126,12 @@ public class ResourceProvision implements ToggleableTarget {
     }
 
     public List<String> getAuxClasses() {
-        return provisionTO == null ? Collections.<String>emptyList() : provisionTO.getAuxClasses();
+        return provisionTO == null ? List.of() : provisionTO.getAuxClasses();
     }
 
     public boolean isIgnoreCaseMatch() {
-        return provisionTO == null ? orgUnitTO.isIgnoreCaseMatch() : provisionTO.isIgnoreCaseMatch();
+        return Optional.ofNullable(provisionTO)
+            .map(ProvisionTO::isIgnoreCaseMatch).orElseGet(() -> orgUnitTO.isIgnoreCaseMatch());
     }
 
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
@@ -144,10 +144,8 @@ public class ResourceProvision implements ToggleableTarget {
 
     public String getConnObjectLink() {
         return provisionTO == null
-                ? orgUnitTO == null
-                        ? null
-                        : orgUnitTO.getConnObjectLink()
-                : provisionTO.getMapping().getConnObjectLink();
+            ? Optional.ofNullable(orgUnitTO).map(OrgUnitTO::getConnObjectLink).orElse(null)
+            : provisionTO.getMapping().getConnObjectLink();
     }
 
     public void setConnObjectLink(final String connObjectLink) {

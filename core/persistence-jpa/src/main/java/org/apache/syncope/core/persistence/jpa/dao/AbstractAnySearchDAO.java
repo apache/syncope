@@ -20,8 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Optional;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,7 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -53,6 +52,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -94,15 +94,15 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
+    protected static SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
         List<SearchCond> effectiveConds = dynRealmKeys.stream().map(dynRealmKey -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(dynRealmKey);
-            return SearchCond.getLeafCond(dynRealmCond);
+            return SearchCond.getLeaf(dynRealmCond);
         }).collect(Collectors.toList());
         effectiveConds.add(cond);
 
-        return SearchCond.getAndCond(effectiveConds);
+        return SearchCond.getAnd(effectiveConds);
     }
 
     protected abstract int doCount(Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);
@@ -125,7 +125,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Override
     public <T extends Any<?>> List<T> search(final SearchCond cond, final AnyTypeKind kind) {
-        return search(cond, Collections.<OrderByClause>emptyList(), kind);
+        return search(cond, List.of(), kind);
     }
 
     @Override
@@ -143,7 +143,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             List<OrderByClause> orderBy,
             AnyTypeKind kind);
 
-    protected Pair<PlainSchema, PlainAttrValue> check(final AttributeCond cond, final AnyTypeKind kind) {
+    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         PlainSchema schema = schemaDAO.find(cond.getSchema());
@@ -156,15 +156,15 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 ? anyUtils.newPlainAttrUniqueValue()
                 : anyUtils.newPlainAttrValue();
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE
-                    && cond.getType() != AttributeCond.Type.ILIKE
-                    && cond.getType() != AttributeCond.Type.ISNULL
-                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+            if (cond.getType() != AttrCond.Type.LIKE
+                    && cond.getType() != AttrCond.Type.ILIKE
+                    && cond.getType() != AttrCond.Type.ISNULL
+                    && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
                 ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
-            LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+            LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
             throw new IllegalArgumentException();
         }
 
@@ -219,15 +219,15 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-        if (computed.getType() != AttributeCond.Type.LIKE
-                && computed.getType() != AttributeCond.Type.ILIKE
-                && computed.getType() != AttributeCond.Type.ISNULL
-                && computed.getType() != AttributeCond.Type.ISNOTNULL) {
+        if (computed.getType() != AttrCond.Type.LIKE
+                && computed.getType() != AttrCond.Type.ILIKE
+                && computed.getType() != AttrCond.Type.ISNULL
+                && computed.getType() != AttrCond.Type.ISNOTNULL) {
 
             try {
                 ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);
             } catch (ValidationException e) {
-                LOG.error("Could not validate expression '" + computed.getExpression() + "'", e);
+                LOG.error("Could not validate expression '" + computed.getExpression() + '\'', e);
                 throw new IllegalArgumentException();
             }
         }
@@ -241,10 +241,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             groupKey = cond.getGroup();
         } else {
             Group group = groupDAO.findByName(cond.getGroup());
-            groupKey = group == null ? null : group.getKey();
+            groupKey = Optional.ofNullable(group).map(Entity::getKey).orElse(null);
         }
         if (groupKey == null) {
-            LOG.error("Could not find group for '" + cond.getGroup() + "'");
+            LOG.error("Could not find group for '" + cond.getGroup() + '\'');
             throw new IllegalArgumentException();
         }
 
@@ -257,10 +257,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             rightAnyObjectKey = cond.getAnyObject();
         } else {
             AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
-            rightAnyObjectKey = anyObject == null ? null : anyObject.getKey();
+            rightAnyObjectKey = Optional.ofNullable(anyObject).map(Entity::getKey).orElse(null);
         }
         if (rightAnyObjectKey == null) {
-            LOG.error("Could not find any object for '" + cond.getAnyObject() + "'");
+            LOG.error("Could not find any object for '" + cond.getAnyObject() + '\'');
             throw new IllegalArgumentException();
         }
 
@@ -270,7 +270,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Realm check(final AssignableCond cond) {
         Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
         if (realm == null) {
-            LOG.error("Could not find realm for '" + cond.getRealmFullPath() + "'");
+            LOG.error("Could not find realm for '" + cond.getRealmFullPath() + '\'');
             throw new IllegalArgumentException();
         }
 
@@ -286,37 +286,28 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             if (member == null) {
                 member = anyObjectDAO.findByName(cond.getMember());
             }
-            memberKey = member == null ? null : member.getKey();
+            memberKey = Optional.ofNullable(member).map(Entity::getKey).orElse(null);
         }
         if (memberKey == null) {
-            LOG.error("Could not find user or any object for '" + cond.getMember() + "'");
+            LOG.error("Could not find user or any object for '" + cond.getMember() + '\'');
             throw new IllegalArgumentException();
         }
 
         return memberKey;
     }
 
+    @SuppressWarnings("unchecked")
     protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
-        List<T> result = new ArrayList<>();
+        List<String> keys = raw.stream().
+                map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
+                collect(Collectors.toList());
 
-        raw.stream().map(anyKey -> anyKey instanceof Object[]
-                ? (String) ((Object[]) anyKey)[0]
-                : ((String) anyKey)).
-                forEachOrdered(actualKey -> {
-                    @SuppressWarnings("unchecked")
-                    T any = kind == AnyTypeKind.USER
-                            ? (T) userDAO.find(actualKey)
-                            : kind == AnyTypeKind.GROUP
-                                    ? (T) groupDAO.find(actualKey)
-                                    : (T) anyObjectDAO.find(actualKey);
-                    if (any == null) {
-                        LOG.error("Could not find {} with id {}, even if returned by native query", kind, actualKey);
-                    } else if (!result.contains(any)) {
-                        result.add(any);
-                    }
-                });
+        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys);
 
-        return result;
+        keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
+                forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
+
+        return (List<T>) anys;
     }
 
     @Override
@@ -330,13 +321,13 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         if (adminRealms == null || adminRealms.isEmpty()) {
             LOG.error("No realms provided");
-            return Collections.<T>emptyList();
+            return List.of();
         }
 
         LOG.debug("Search condition:\n{}", cond);
         if (cond == null || !cond.isValid()) {
             LOG.error("Invalid search condition:\n{}", cond);
-            return Collections.<T>emptyList();
+            return List.of();
         }
 
         List<OrderByClause> effectiveOrderBy;
@@ -344,7 +335,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             OrderByClause keyClause = new OrderByClause();
             keyClause.setField(kind == AnyTypeKind.USER ? "username" : "name");
             keyClause.setDirection(OrderByClause.Direction.ASC);
-            effectiveOrderBy = Collections.singletonList(keyClause);
+            effectiveOrderBy = List.of(keyClause);
         } else {
             effectiveOrderBy = orderBy.stream().
                     filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).

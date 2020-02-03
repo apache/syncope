@@ -18,9 +18,32 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 public interface BaseSession {
+
+    enum Error {
+        SESSION_EXPIRED("error.session.expired", "Session expired: please login again"),
+        AUTHORIZATION("error.authorization", "Insufficient access rights when performing the requested operation"),
+        REST("error.rest", "There was an error while contacting the Core server");
+
+        private final String key;
+
+        private final String fallback;
+
+        Error(final String key, final String fallback) {
+            this.key = key;
+            this.fallback = fallback;
+        }
+
+        public String key() {
+            return key;
+        }
+
+        public String fallback() {
+            return fallback;
+        }
+    }
 
     void setDomain(String domain);
 
@@ -32,8 +55,17 @@ public interface BaseSession {
 
     <T> T getService(String etag, Class<T> serviceClass);
 
-    <T> T getService(MediaType mediaType, Class<T> serviceClass);
-
     <T> void resetClient(Class<T> service);
 
+    FastDateFormat getDateFormat();
+
+    /**
+     * Extract and localize (if translation available) the actual message from the given exception; then, report it
+     * via {@link Session#error(java.io.Serializable)}.
+     *
+     * @see org.apache.syncope.client.lib.RestClientExceptionMapper
+     *
+     * @param e raised exception
+     */
+    void onException(Exception e);
 }

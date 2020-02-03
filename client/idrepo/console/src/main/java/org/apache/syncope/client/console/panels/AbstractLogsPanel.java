@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -73,7 +71,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                     MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, IdRepoEntitlement.LOG_SET_LEVEL);
 
                     loggerTOs.hideLabel();
-                    loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));
+                    loggerTOs.setChoices(List.of(LoggerLevel.values()));
                     loggerTOs.setNullValid(false);
                     loggerTOs.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -88,8 +86,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                                 target.add(loggerTOs);
                             } catch (SyncopeClientException e) {
                                 LOG.error("Error updating the logger level", e);
-                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                        getName() : e.getMessage());
+                                SyncopeConsoleSession.get().onException(e);
                             }
                             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }
@@ -103,7 +100,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
 
         builder.setItems(loggerTOs).
                 setModel(new ListModel<>(loggerTOs)).
-                includes("key", "level").
+                includes(Constants.KEY_FIELD_NAME, "level").
                 withChecks(ListViewPanel.CheckAvailability.NONE).
                 setReuseItem(false);
 

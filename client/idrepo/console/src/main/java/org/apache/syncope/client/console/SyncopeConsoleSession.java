@@ -18,24 +18,28 @@
  */
 package org.apache.syncope.client.console;
 
+import java.security.AccessControlException;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.collections4.list.SetUniqueList;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -45,6 +49,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -111,6 +116,32 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         executor.initialize();
     }
 
+    @Override
+    public void onException(final Exception e) {
+        Throwable root = ExceptionUtils.getRootCause(e);
+        String message = root.getMessage();
+
+        if (root instanceof SyncopeClientException) {
+            SyncopeClientException sce = (SyncopeClientException) root;
+            if (!sce.isComposite()) {
+                message = sce.getElements().stream().collect(Collectors.joining(", "));
+            }
+        } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
+            Error error = StringUtils.containsIgnoreCase(message, "expired")
+                    ? Error.SESSION_EXPIRED
+                    : Error.AUTHORIZATION;
+            message = getApplication().getResourceSettings().getLocalizer().
+                    getString(error.key(), null, null, null, null, error.fallback());
+        } else if (root instanceof BadRequestException || root instanceof WebServiceException) {
+            message = getApplication().getResourceSettings().getLocalizer().
+                    getString(Error.REST.key(), null, null, null, null, Error.REST.fallback());
+        }
+
+        message = getApplication().getResourceSettings().getLocalizer().
+                getString(message, null, null, null, null, message);
+        error(message);
+    }
+
     public MediaType getMediaType() {
         return clientFactory.getContentType().getMediaType();
     }
@@ -156,7 +187,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public String getJWT() {
-        return client == null ? null : client.getJWT();
+        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }
 
     @Override
@@ -223,9 +254,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     public List<String> getAuthRealms() {
         List<String> sortable = new ArrayList<>();
         List<String> available = SetUniqueList.setUniqueList(sortable);
-        auth.values().forEach(entitlement -> {
-            available.addAll(entitlement);
-        });
+        auth.values().forEach(available::addAll);
         Collections.sort(sortable);
         return sortable;
     }
@@ -240,8 +269,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         }
 
         Set<String> requested = ArrayUtils.isEmpty(realms)
-                ? Collections.singleton(SyncopeConstants.ROOT_REALM)
-                : new HashSet<>(Arrays.asList(realms));
+                ? Set.of(SyncopeConstants.ROOT_REALM)
+                : Set.of(realms);
 
         for (String entitlement : entitlements.split(",")) {
             if (auth.containsKey(entitlement)) {
@@ -250,7 +279,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 Set<String> owned = auth.get(entitlement);
                 for (String realm : requested) {
                     if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
-                        owns |= owned.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+                        owns |= owned.stream().anyMatch(realm::startsWith);
                     } else {
                         owns |= owned.contains(realm);
                     }
@@ -321,22 +350,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return serviceInstance;
     }
 
-    @Override
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
-
-        synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
-
-            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = clientFactory.create(getJWT()).getService(serviceClass);
-
-            clientFactory.setContentType(preType);
-        }
-
-        return service;
-    }
-
     public BatchRequest batch() {
         return client.batch();
     }
@@ -347,6 +360,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         WebClient.client(serviceInstance).reset();
     }
 
+    @Override
     public FastDateFormat getDateFormat() {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
     }

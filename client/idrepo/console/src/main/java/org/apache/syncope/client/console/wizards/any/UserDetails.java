@@ -143,6 +143,5 @@ public class UserDetails extends Details<UserTO> {
             add(new Label("warning", new ResourceModel("password.change.warning")));
             add(new PasswordPanel("passwordPanel", wrapper, templateMode));
         }
-
     }
 }

@@ -31,6 +31,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
+
 public class PropagateComponent extends DefaultComponent {
 
     @Autowired
@@ -54,6 +56,9 @@ public class PropagateComponent extends DefaultComponent {
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
 
+    @Resource(name = "adminUser")
+    protected String adminUser;
+
     @Override
     protected Endpoint createEndpoint(final String uri, final String remaining,
             final Map<String, Object> parameters) throws Exception {
@@ -67,7 +72,8 @@ public class PropagateComponent extends DefaultComponent {
         endpoint.setAnyObjectDAO(anyObjectDAO);
         endpoint.setGroupDataBinder(groupDataBinder);
         endpoint.setUwfAdapter(uwfAdapter);
-
+        endpoint.setExecutor(adminUser);
+        
         setProperties(endpoint, parameters);
         return endpoint;
     }

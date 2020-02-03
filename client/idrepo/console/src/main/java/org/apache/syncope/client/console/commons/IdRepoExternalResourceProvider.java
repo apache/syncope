@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.Collections;
 import java.util.List;
 
 public class IdRepoExternalResourceProvider implements ExternalResourceProvider {
@@ -27,6 +26,6 @@ public class IdRepoExternalResourceProvider implements ExternalResourceProvider 
 
     @Override
     public List<String> get() {
-        return Collections.emptyList();
+        return List.of();
     }
 }

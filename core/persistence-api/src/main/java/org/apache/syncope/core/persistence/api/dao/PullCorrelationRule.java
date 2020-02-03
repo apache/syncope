@@ -18,15 +18,21 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
 /**
  * Interface for correlation rule to be evaluated during PullJob execution.
  */
+@FunctionalInterface
 public interface PullCorrelationRule {
+
+    PullMatch NO_MATCH = new PullMatch(MatchType.ANY, null);
 
     default void setConf(PullCorrelationRuleConf conf) {
     }
@@ -39,4 +45,33 @@ public interface PullCorrelationRule {
      * @return search condition.
      */
     SearchCond getSearchCond(SyncDelta syncDelta, Provision provision);
+
+    /**
+     * Create matching information for the given Any, found matching for the given
+     * {@link SyncDelta} and {@link Provision}.
+     * For users, this might end with creating / updating / deleting a
+     * {@link org.apache.syncope.core.persistence.api.entity.user.LinkedAccount}.
+     *
+     * @param any any
+     * @param syncDelta change operation, including external attributes
+     * @param provision resource provision
+     * @return matching information
+     */
+    default PullMatch matching(Any<?> any, SyncDelta syncDelta, Provision provision) {
+        return new PullMatch(MatchType.ANY, any);
+    }
+
+    /**
+     * Optionally create matching information in case no matching Any was found for the given
+     * {@link SyncDelta} and {@link Provision}.
+     * For users, this might end with creating a
+     * {@link org.apache.syncope.core.persistence.api.entity.user.LinkedAccount}.
+     *
+     * @param syncDelta change operation, including external attributes
+     * @param provision resource provision
+     * @return matching information
+     */
+    default Optional<PullMatch> unmatching(SyncDelta syncDelta, Provision provision) {
+        return Optional.of(NO_MATCH);
+    }
 }

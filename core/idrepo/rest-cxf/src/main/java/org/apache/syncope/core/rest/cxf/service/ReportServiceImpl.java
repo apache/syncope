@@ -20,6 +20,8 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
+
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -70,13 +72,13 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
 
     @Override
     public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
-        ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
+        ReportExecExportFormat format = Optional.ofNullable(fmt).orElse(ReportExecExportFormat.XML);
         ReportExec reportExec = logic.getReportExec(executionKey);
-        StreamingOutput sout = (os) -> logic.exportExecutionResult(os, reportExec, format);
+        StreamingOutput sout = (os) -> ReportLogic.exportExecutionResult(os, reportExec, format);
 
         return Response.ok(sout).
                 header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=" + reportExec.getReport().getName() + "." + format.name().toLowerCase()).
+                        "attachment; filename=" + reportExec.getReport().getName() + '.' + format.name().toLowerCase()).
                 build();
     }
 

@@ -19,11 +19,12 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -33,7 +34,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
@@ -72,6 +73,9 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
+    @Autowired
+    protected SearchCondVisitor searchCondVisitor;
+
     protected ProvisioningProfile<PushTask, PushActions> profile;
 
     protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
@@ -91,12 +95,10 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         synchronized (status) {
             if (!handled.isEmpty()) {
                 StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((key, value) -> {
-                    builder.append(' ').append(value.getLeft()).append('\t').
-                            append(key).
-                            append(" / latest: ").append(value.getRight()).
-                            append('\n');
-                });
+                handled.forEach((key, value) -> builder.append(' ').append(value.getLeft()).append('\t').
+                        append(key).
+                        append(" / latest: ").append(value.getRight()).
+                        append('\n'));
                 status.set(builder.toString());
             }
         }
@@ -223,23 +225,21 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 handler.setProfile(profile);
 
                 Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(provision.getAnyType());
-                String filter = anyFilter.isPresent()
-                        ? anyFilter.get().getFIQLCond()
-                        : null;
+                String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
                 SearchCond cond = StringUtils.isBlank(filter)
                         ? anyDAO.getAllMatchingCond()
-                        : SearchCondConverter.convert(filter);
+                        : SearchCondConverter.convert(searchCondVisitor, filter);
                 int count = searchDAO.count(
-                        Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
+                        Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
                         provision.getAnyType().getKind());
                 for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
                     List<? extends Any<?>> anys = searchDAO.search(
-                            Collections.singleton(profile.getTask().getSourceRealm().getFullPath()),
+                            Set.of(profile.getTask().getSourceRealm().getFullPath()),
                             cond,
                             page,
                             AnyDAO.DEFAULT_PAGE_SIZE,
-                            Collections.<OrderByClause>emptyList(),
+                            List.of(),
                             provision.getAnyType().getKind());
                     doHandle(anys, handler, pushTask.getResource());
                 }

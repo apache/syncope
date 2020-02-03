@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
@@ -188,7 +187,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision("PRINTER").get();
+        ProvisionTO provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
         Optional<ItemTO> mappingItem = provision.getMapping().getItems().stream().
@@ -197,7 +196,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertTrue(mappingItem.get().getTransformers().isEmpty());
 
         String suffix = getUUIDString();
-        mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + "'");
+        mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + '\'');
 
         try {
             resourceService.update(resource);
@@ -437,7 +436,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Set<Attribute> propagationAttrs = new HashSet<>();
             if (StringUtils.isNotBlank(tasks.getResult().get(0).getAttributes())) {
-                propagationAttrs.addAll(Arrays.asList(
+                propagationAttrs.addAll(List.of(
                         POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
             }
 

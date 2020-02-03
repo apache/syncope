@@ -39,7 +39,7 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
     public ConnObjectAttrColumn(final String name, final SchemaType schemaType) {
         // set sortProperty to schematype#name (e.g. derivedSchema#cn, 
         // for use with SortableUserProviderComparator.AttrModel#getObject)
-        super(new ResourceModel(name, name), schemaType.name() + "#" + name);
+        super(new ResourceModel(name, name), schemaType.name() + '#' + name);
         this.name = name;
     }
 
@@ -50,7 +50,7 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
             final IModel<ConnObjectTO> rowModel) {
 
         Optional<Attr> attr = rowModel.getObject().getAttr(name);
-        List<String> values = attr.isPresent() ? attr.get().getValues() : null;
+        List<String> values = attr.map(Attr::getValues).orElse(null);
 
         if (values == null || values.isEmpty()) {
             cellItem.add(new Label(componentId, ""));

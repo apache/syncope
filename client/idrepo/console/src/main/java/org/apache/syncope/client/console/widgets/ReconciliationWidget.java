@@ -121,7 +121,7 @@ public class ReconciliationWidget extends BaseWidget {
             protected void onTimer(final AjaxRequestTarget target) {
                 if (isCheckReconciliationJob()) {
                     try {
-                        restClient.listJobs().stream().
+                        ReportRestClient.listJobs().stream().
                                 filter(jobTO -> SyncopeWebApplication.get().
                                 getReconciliationReportKey().equals(jobTO.getRefKey())).
                                 findFirst().ifPresent(reportJobTO -> {
@@ -155,7 +155,7 @@ public class ReconciliationWidget extends BaseWidget {
         ReportTO reconciliationReport = null;
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_READ)) {
             try {
-                reconciliationReport = restClient.read(reconciliationReportKey);
+                reconciliationReport = ReportRestClient.read(reconciliationReportKey);
             } catch (Exception e) {
                 LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
                         reconciliationReportKey, e);
@@ -262,7 +262,7 @@ public class ReconciliationWidget extends BaseWidget {
     }
 
     private Pair<List<ProgressBean>, ReconciliationReport> parseReconciliationReportExec() throws IOException {
-        List<ProgressBean> beans = Collections.emptyList();
+        List<ProgressBean> beans = List.of();
         ReconciliationReport report = null;
 
         Optional<ExecTO> exec = Optional.empty();
@@ -270,10 +270,10 @@ public class ReconciliationWidget extends BaseWidget {
             exec = restClient.listRecentExecutions(ROWS).stream().
                     filter(e -> reconciliationReportKey.equals(e.getRefKey())).findFirst();
         }
-        if (!exec.isPresent()) {
+        if (exec.isEmpty()) {
             LOG.error("Could not find the last execution of reconciliation report");
         } else {
-            Object entity = restClient.exportExecutionResult(
+            Object entity = ReportRestClient.exportExecutionResult(
                     exec.get().getKey(), ReportExecExportFormat.XML).getEntity();
             if (entity instanceof InputStream) {
                 try {
@@ -312,7 +312,7 @@ public class ReconciliationWidget extends BaseWidget {
             }
         }
 
-        return Pair.of(beans, report == null ? new ReconciliationReport(new Date()) : report);
+        return Pair.of(beans, Optional.ofNullable(report).orElseGet(() -> new ReconciliationReport(new Date())));
     }
 
     private class AnysReconciliationPanel extends DirectoryPanel<Any, Any, AnysReconciliationProvider, BaseRestClient> {
@@ -349,14 +349,14 @@ public class ReconciliationWidget extends BaseWidget {
 
         @Override
         protected Collection<ActionLink.ActionType> getBatches() {
-            return Collections.<ActionLink.ActionType>emptyList();
+            return List.of();
         }
 
         @Override
         protected List<IColumn<Any, String>> getColumns() {
             List<IColumn<Any, String>> columns = new ArrayList<>();
 
-            columns.add(new AbstractColumn<Any, String>(new ResourceModel("reference"), "key") {
+            columns.add(new AbstractColumn<Any, String>(new ResourceModel("reference"), Constants.KEY_FIELD_NAME) {
 
                 private static final long serialVersionUID = -1822504503325964706L;
 
@@ -370,7 +370,7 @@ public class ReconciliationWidget extends BaseWidget {
                             rowModel.getObject().getKey()
                             + (StringUtils.isBlank(rowModel.getObject().getName())
                             ? StringUtils.EMPTY
-                            : " " + rowModel.getObject().getName())));
+                            : ' ' + rowModel.getObject().getName())));
                 }
             });
 
@@ -400,8 +400,8 @@ public class ReconciliationWidget extends BaseWidget {
                                 filter(object -> resource.equals(object.getResource())).collect(Collectors.toList());
 
                         Component content;
-                        if (!missing.isPresent()) {
-                            if (misaligned == null || misaligned.isEmpty()) {
+                        if (missing.isEmpty()) {
+                            if (misaligned.isEmpty()) {
                                 content = new Label(componentId, StringUtils.EMPTY);
                             } else {
                                 Action<Any> action = new Action<>(new ActionLink<Any>() {
@@ -412,8 +412,8 @@ public class ReconciliationWidget extends BaseWidget {
                                     public void onClick(final AjaxRequestTarget target, final Any ignore) {
                                         modal.header(Model.of(
                                                 rowModel.getObject().getType()
-                                                + " " + rowModel.getObject().getKey()
-                                                + " " + rowModel.getObject().getName()));
+                                                + ' ' + rowModel.getObject().getKey()
+                                                + ' ' + rowModel.getObject().getName()));
                                         modal.setContent(new ReconDetailsModalPanel(
                                                 modal,
                                                 resource,
@@ -441,7 +441,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    protected final class AnysReconciliationProvider extends DirectoryDataProvider<Any> {
+    protected static final class AnysReconciliationProvider extends DirectoryDataProvider<Any> {
 
         private static final long serialVersionUID = -1500081449932597854L;
 
@@ -452,13 +452,13 @@ public class ReconciliationWidget extends BaseWidget {
         private AnysReconciliationProvider(final Anys anys) {
             super(ROWS);
             this.anys = anys;
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<Any> iterator(final long first, final long count) {
-            Collections.sort(anys.getAnys(), comparator);
+            anys.getAnys().sort(comparator);
             return anys.getAnys().subList((int) first, (int) first + (int) count).iterator();
         }
 

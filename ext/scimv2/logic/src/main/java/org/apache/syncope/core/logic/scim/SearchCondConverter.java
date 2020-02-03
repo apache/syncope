@@ -34,8 +34,8 @@ public final class SearchCondConverter {
     private static final Logger LOG = LoggerFactory.getLogger(SearchCondConverter.class);
 
     public static SearchCond convert(final SearchCondVisitor visitor, final String filter) {
-        SCIMFilterParser parser = new SCIMFilterParser(new CommonTokenStream(
-                new SCIMFilterLexer(CharStreams.fromString(filter))));
+        SCIMFilterParser parser = new SCIMFilterParser(
+                new CommonTokenStream(new SCIMFilterLexer(CharStreams.fromString(filter))));
         parser.setBuildParseTree(true);
         parser.setTrimParseTree(true);
         parser.setProfile(true);
@@ -46,7 +46,7 @@ public final class SearchCondConverter {
             return visitor.visit(parser.scimFilter());
         } catch (Exception e) {
             LOG.error("Could not parse '{}'", filter, e);
-            throw new BadRequestException(ErrorType.invalidFilter, "Could not parse '" + filter + "'");
+            throw new BadRequestException(ErrorType.invalidFilter, "Could not parse '" + filter + '\'');
         }
     }
 

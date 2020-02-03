@@ -38,7 +38,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
 
         if (isHtml(report.getName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid name")).
+                    getTemplate(EntityViolationType.InvalidName, report.getName())).
                     addPropertyNode("name").addConstraintViolation();
 
             isValid = false;
@@ -48,7 +48,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             try {
                 new CronExpression(report.getCronExpression());
             } catch (ParseException e) {
-                LOG.error("Invalid cron expression '" + report.getCronExpression() + "'", e);
+                LOG.error("Invalid cron expression '" + report.getCronExpression() + '\'', e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();

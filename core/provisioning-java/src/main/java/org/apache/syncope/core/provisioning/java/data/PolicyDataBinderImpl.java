@@ -151,7 +151,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
                     Implementation rule = implementationDAO.find(impl);
                     if (rule == null) {
-                        throw new NotFoundException("Implementation " + type + " " + impl);
+                        throw new NotFoundException("Implementation " + type + ' ' + impl);
                     }
                     correlationRule.setImplementation(rule);
                 }
@@ -184,7 +184,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
                     Implementation rule = implementationDAO.find(impl);
                     if (rule == null) {
-                        throw new NotFoundException("Implementation " + type + " " + impl);
+                        throw new NotFoundException("Implementation " + type + ' ' + impl);
                     }
                     correlationRule.setImplementation(rule);
                 }
@@ -245,18 +245,18 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             policyTO = (T) pullPolicyTO;
 
             pullPolicyTO.setConflictResolutionAction(((PullPolicy) policy).getConflictResolutionAction());
-            pullPolicy.getCorrelationRules().forEach(rule -> {
-                pullPolicyTO.getCorrelationRules().put(rule.getAnyType().getKey(), rule.getImplementation().getKey());
-            });
+            pullPolicy.getCorrelationRules().
+                    forEach(rule -> pullPolicyTO.getCorrelationRules().
+                    put(rule.getAnyType().getKey(), rule.getImplementation().getKey()));
         } else if (policy instanceof PushPolicy) {
             PushPolicy pushPolicy = PushPolicy.class.cast(policy);
             PushPolicyTO pushPolicyTO = new PushPolicyTO();
             policyTO = (T) pushPolicyTO;
 
             pushPolicyTO.setConflictResolutionAction(((PushPolicy) policy).getConflictResolutionAction());
-            pushPolicy.getCorrelationRules().forEach(rule -> {
-                pushPolicyTO.getCorrelationRules().put(rule.getAnyType().getKey(), rule.getImplementation().getKey());
-            });
+            pushPolicy.getCorrelationRules().
+                    forEach(rule -> pushPolicyTO.getCorrelationRules().
+                    put(rule.getAnyType().getKey(), rule.getImplementation().getKey()));
         }
 
         if (policyTO != null) {

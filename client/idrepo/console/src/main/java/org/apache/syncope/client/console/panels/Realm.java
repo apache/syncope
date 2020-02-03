@@ -23,20 +23,16 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
-import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
-import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
-import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.console.layout.AnyLayout;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -79,7 +75,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
         super(id, true);
         this.realmTO = realmTO;
-        this.anyTypes = new AnyTypeRestClient().listAnyTypes();
+        this.anyTypes = AnyTypeRestClient.listAnyTypes();
 
         setPageRef(pageRef);
 
@@ -168,18 +164,17 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(anyTypes.stream().map(EntityTO::getKey).collect(Collectors.toList()));
-
-        for (final AnyTypeTO anyType : anyTypes) {
-            tabs.add(new ITabComponent(
-                    new Model<>(anyType.getKey()), String.format("%s_SEARCH", anyType.getKey())) {
+        AnyLayout anyLayout = AnyLayoutUtils.fetch(
+                anyTypes.stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        for (AnyTypeTO anyType : anyTypes) {
+            tabs.add(new ITabComponent(new Model<>(anyType.getKey()), String.format("%s_SEARCH", anyType.getKey())) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
                 @Override
                 public WebMarkupContainer getPanel(final String panelId) {
-                    return new AnyPanel(panelId, anyType, realmTO, formLayoutInfo, true, pageRef);
+                    return AnyLayoutUtils.newAnyPanel(
+                            anyLayout.getAnyPanelClass(), panelId, anyType, realmTO, anyLayout, true, pageRef);
                 }
 
                 @Override
@@ -222,7 +217,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
                             || afterObj.getAttrs().isEmpty()
-                            || !afterObj.getAttr(ConnIdSpecialName.NAME).isPresent()
+                            || afterObj.getAttr(ConnIdSpecialName.NAME).isEmpty()
                             || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues() == null
                             || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().isEmpty()
                             ? StringUtils.EMPTY
@@ -288,7 +283,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected abstract void onClickDelete(AjaxRequestTarget target, RealmTO realmTO);
 
-    class RemoteRealmPanel extends RemoteObjectPanel {
+    static class RemoteRealmPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 

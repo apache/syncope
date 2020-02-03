@@ -55,6 +55,7 @@ import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ReportITCase extends AbstractITCase {
@@ -65,11 +66,12 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(reportTO.getExecutions());
 
         int preExecSize = reportTO.getExecutions().size();
-        ExecTO exec = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        ExecuteQuery query = new ExecuteQuery.Builder().key(reportKey).build();
+        ExecTO exec = reportService.execute(query);
         assertNotNull(exec);
+        assertNotNull(exec.getExecutor());
 
         int i = 0;
-        int maxit = 50;
 
         // wait for completion (executions incremented)
         do {
@@ -84,8 +86,8 @@ public class ReportITCase extends AbstractITCase {
             assertNotNull(reportTO.getExecutions());
 
             i++;
-        } while (preExecSize == reportTO.getExecutions().size() && i < maxit);
-        if (i == maxit) {
+        } while (preExecSize == reportTO.getExecutions().size() && i < MAX_WAIT_SECONDS);
+        if (i == MAX_WAIT_SECONDS) {
             fail("Timeout when executing report " + reportKey);
         }
         exec = reportTO.getExecutions().get(reportTO.getExecutions().size() - 1);
@@ -107,9 +109,7 @@ public class ReportITCase extends AbstractITCase {
         List<ReportTO> reports = reportService.list();
         assertNotNull(reports);
         assertFalse(reports.isEmpty());
-        reports.forEach(report -> {
-            assertNotNull(report);
-        });
+        reports.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -147,10 +147,8 @@ public class ReportITCase extends AbstractITCase {
 
         report = createReport(report);
         assertNotNull(report);
-
         ReportTO actual = reportService.read(report.getKey());
         assertNotNull(actual);
-
         assertEquals(actual, report);
     }
 
@@ -235,13 +233,13 @@ public class ReportITCase extends AbstractITCase {
         }
     }
 
-    private void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
+    private static void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
         Response response = reportService.exportExecutionResult(execKey, fmt);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).
-                endsWith("." + fmt.name().toLowerCase()));
+                endsWith('.' + fmt.name().toLowerCase()));
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
@@ -362,7 +360,7 @@ public class ReportITCase extends AbstractITCase {
         ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
         assertNotNull(execution);
 
-        int maxit = 50;
+        int maxit = MAX_WAIT_SECONDS;
         do {
             try {
                 Thread.sleep(1000);
@@ -393,7 +391,7 @@ public class ReportITCase extends AbstractITCase {
         }
 
         // Wait for one execution
-        int maxit = 50;
+        int maxit = MAX_WAIT_SECONDS;
         do {
             try {
                 Thread.sleep(1000);

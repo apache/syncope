@@ -58,7 +58,7 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
                 withoutMembers(member, moreMembers);
     }
 
-    protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder
+    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements GroupProperty, CompleteCondition {
 
         public Builder(final Map<String, String> properties) {
@@ -93,6 +93,5 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
             this.result = SpecialAttr.MEMBER.toString();
             return condition(FiqlParser.NEQ, member, (Object[]) moreMembers);
         }
-
     }
 }

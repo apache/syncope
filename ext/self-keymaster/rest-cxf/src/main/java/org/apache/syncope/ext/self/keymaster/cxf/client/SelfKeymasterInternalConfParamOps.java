@@ -21,7 +21,7 @@ package org.apache.syncope.ext.self.keymaster.cxf.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.logic.ConfParamLogic;
@@ -48,7 +48,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
         return AuthContextUtils.callAs(
                 domain,
                 keymasterUser,
-                Collections.emptyList(),
+                List.of(),
                 () -> logic.list());
     }
 
@@ -58,7 +58,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
         JsonNode valueNode = AuthContextUtils.callAs(
                 domain,
                 keymasterUser,
-                Collections.emptyList(),
+                List.of(),
                 () -> logic.get(key));
         if (valueNode == null) {
             return defaultValue;
@@ -79,7 +79,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
         } else {
             JsonNode valueNode = MAPPER.valueToTree(value);
 
-            AuthContextUtils.callAs(domain, keymasterUser, Collections.emptyList(), () -> {
+            AuthContextUtils.callAs(domain, keymasterUser, List.of(), () -> {
                 logic.set(key, valueNode);
                 return null;
             });
@@ -88,7 +88,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
     @Override
     public void remove(final String domain, final String key) {
-        AuthContextUtils.callAs(domain, keymasterUser, Collections.emptyList(), () -> {
+        AuthContextUtils.callAs(domain, keymasterUser, List.of(), () -> {
             logic.remove(key);
             return null;
         });

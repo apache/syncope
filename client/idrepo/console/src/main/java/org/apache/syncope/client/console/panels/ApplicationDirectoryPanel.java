@@ -21,11 +21,9 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -65,7 +63,7 @@ public class ApplicationDirectoryPanel extends
 
     private static final long serialVersionUID = -5491515010207202168L;
 
-    protected final BaseModal<PrivilegeTO> privilegeModal = new BaseModal<PrivilegeTO>("outer") {
+    protected final BaseModal<PrivilegeTO> privilegeModal = new BaseModal<PrivilegeTO>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -132,7 +130,8 @@ public class ApplicationDirectoryPanel extends
     protected List<IColumn<ApplicationTO, String>> getColumns() {
         final List<IColumn<ApplicationTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
         columns.add(new AbstractColumn<ApplicationTO, String>(new ResourceModel("privileges")) {
 
@@ -144,8 +143,8 @@ public class ApplicationDirectoryPanel extends
                     final String componentId,
                     final IModel<ApplicationTO> rowModel) {
 
-                item.add(new Label(componentId, "[" + rowModel.getObject().getPrivileges().stream().
-                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + "]"));
+                item.add(new Label(componentId, '[' + rowModel.getObject().getPrivileges().stream().
+                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + ']'));
             }
         });
 
@@ -195,13 +194,12 @@ public class ApplicationDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final ApplicationTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    ApplicationRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting application {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -212,7 +210,7 @@ public class ApplicationDirectoryPanel extends
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     public abstract static class Builder
@@ -230,13 +228,11 @@ public class ApplicationDirectoryPanel extends
         }
     }
 
-    protected class ApplicationDataProvider extends DirectoryDataProvider<ApplicationTO> {
+    protected static class ApplicationDataProvider extends DirectoryDataProvider<ApplicationTO> {
 
         private static final long serialVersionUID = 3124431855954382273L;
 
         private final SortableDataProviderComparator<ApplicationTO> comparator;
-
-        private final ApplicationRestClient restClient = new ApplicationRestClient();
 
         public ApplicationDataProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -245,14 +241,14 @@ public class ApplicationDirectoryPanel extends
 
         @Override
         public Iterator<ApplicationTO> iterator(final long first, final long count) {
-            List<ApplicationTO> result = restClient.list();
-            Collections.sort(result, comparator);
+            List<ApplicationTO> result = ApplicationRestClient.list();
+            result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return ApplicationRestClient.list().size();
         }
 
         @Override

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -94,7 +93,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override
@@ -114,7 +113,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                final CamelRouteTO route = restClient.read(anyTypeKind, model.getObject().getKey());
+                final CamelRouteTO route = CamelRoutesRestClient.read(anyTypeKind, model.getObject().getKey());
 
                 utilityModal.header(Model.of(route.getKey()));
                 utilityModal.setContent(new XMLEditorPanel(
@@ -125,7 +124,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                     @Override
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            restClient.update(anyTypeKind, route);
+                            CamelRoutesRestClient.update(anyTypeKind, route);
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
@@ -144,7 +143,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
         return panel;
     }
 
-    protected final class CamelRoutesProvider extends DirectoryDataProvider<CamelRouteTO> {
+    protected static final class CamelRoutesProvider extends DirectoryDataProvider<CamelRouteTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -160,14 +159,14 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<CamelRouteTO> iterator(final long first, final long count) {
-            List<CamelRouteTO> list = restClient.list(anyTypeKind);
-            Collections.sort(list, comparator);
+            List<CamelRouteTO> list = CamelRoutesRestClient.list(anyTypeKind);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list(anyTypeKind).size();
+            return CamelRoutesRestClient.list(anyTypeKind).size();
         }
 
         @Override

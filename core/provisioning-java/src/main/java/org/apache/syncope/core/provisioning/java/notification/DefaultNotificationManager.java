@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.notification;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -65,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
@@ -74,8 +73,8 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,6 +155,9 @@ public class DefaultNotificationManager implements NotificationManager {
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
@@ -183,8 +185,8 @@ public class DefaultNotificationManager implements NotificationManager {
 
         if (notification.getRecipientsFIQL() != null) {
             recipients.addAll(searchDAO.<User>search(
-                    SearchCondConverter.convert(notification.getRecipientsFIQL()),
-                    Collections.<OrderByClause>emptyList(), AnyTypeKind.USER));
+                    SearchCondConverter.convert(searchCondVisitor, notification.getRecipientsFIQL()),
+                    List.of(), AnyTypeKind.USER));
         }
 
         if (notification.isSelfAsRecipient() && any instanceof User) {
@@ -244,7 +246,7 @@ public class DefaultNotificationManager implements NotificationManager {
         return task;
     }
 
-    private String evaluate(final String template, final Map<String, Object> jexlVars) {
+    private static String evaluate(final String template, final Map<String, Object> jexlVars) {
         StringWriter writer = new StringWriter();
         JexlUtils.newJxltEngine().
                 createTemplate(template).
@@ -325,15 +327,14 @@ public class DefaultNotificationManager implements NotificationManager {
             any = groupDAO.find(((ProvisioningResult) output).getEntity().getKey());
         }
 
-        AnyType anyType = any == null ? null : any.getType();
+        AnyType anyType = Optional.ofNullable(any).map(Any::getType).orElse(null);
         LOG.debug("Search notification for [{}]{}", anyType, any);
 
         List<NotificationTask> notifications = new ArrayList<>();
         for (Notification notification : notificationDAO.findAll()) {
             if (LOG.isDebugEnabled()) {
-                notification.getAbouts().forEach(about -> {
-                    LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get());
-                });
+                notification.getAbouts().forEach(
+                        about -> LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get()));
             }
 
             if (notification.isActive()) {
@@ -342,8 +343,8 @@ public class DefaultNotificationManager implements NotificationManager {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
                         || !notification.getAbout(anyType).isPresent()
-                        || anyMatchDAO.matches(
-                                any, SearchCondConverter.convert(notification.getAbout(anyType).get().get()))) {
+                        || anyMatchDAO.matches(any, SearchCondConverter.convert(
+                                searchCondVisitor, notification.getAbout(anyType).get().get()))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
@@ -385,7 +386,7 @@ public class DefaultNotificationManager implements NotificationManager {
             intAttrName = intAttrNameParser.parse(recipientAttrName, AnyTypeKind.USER);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified as recipient, ignoring", recipientAttrName, e);
-            return email;
+            return null;
         }
 
         if ("username".equals(intAttrName.getField())) {

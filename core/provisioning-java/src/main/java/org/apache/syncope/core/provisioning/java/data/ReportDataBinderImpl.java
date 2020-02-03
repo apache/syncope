@@ -108,11 +108,12 @@ public class ReportDataBinderImpl implements ReportDataBinder {
             reportTO.setStart(latestExec.getStart());
             reportTO.setEnd(latestExec.getEnd());
 
+            reportTO.setLastExecutor(latestExec.getExecutor());
             reportTO.setLastExec(reportTO.getStart());
         }
 
         reportTO.getExecutions().addAll(report.getExecs().stream().
-                map(reportExec -> getExecTO(reportExec)).collect(Collectors.toList()));
+                map(this::getExecTO).collect(Collectors.toList()));
 
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
         try {
@@ -132,7 +133,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     @Override
     public String buildRefDesc(final Report report) {
         return "Report "
-                + report.getKey() + " "
+                + report.getKey() + ' '
                 + report.getName();
     }
 
@@ -148,6 +149,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         execTO.setStart(execution.getStart());
         execTO.setEnd(execution.getEnd());
 
+        execTO.setExecutor(execution.getExecutor());
         return execTO;
     }
 }

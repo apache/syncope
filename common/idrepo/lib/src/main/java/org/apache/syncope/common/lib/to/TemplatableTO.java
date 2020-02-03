@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import java.io.Serializable;
 import java.util.Map;
 
+@FunctionalInterface
 public interface TemplatableTO extends Serializable {
 
     Map<String, AnyTO> getTemplates();

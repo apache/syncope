@@ -72,7 +72,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
     private void setTemplates(final RealmTO realmTO, final Realm realm) {
         // validate JEXL expressions from templates and proceed if fine
-        templateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
+        TemplateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
         realmTO.getTemplates().forEach((key, template) -> {
             AnyType type = anyTypeDAO.find(key);
             if (type == null) {
@@ -148,7 +148,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     }
 
     @Override
-    public PropagationByResource update(final Realm realm, final RealmTO realmTO) {
+    public PropagationByResource<String> update(final Realm realm, final RealmTO realmTO) {
         realm.setName(realmTO.getName());
         realm.setParent(realmTO.getParent() == null ? null : realmDAO.find(realmTO.getParent()));
 
@@ -194,7 +194,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         setTemplates(realmTO, realm);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         realmTO.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
@@ -229,20 +229,14 @@ public class RealmDataBinderImpl implements RealmDataBinder {
             realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
             realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
 
-            realm.getActions().forEach(action -> {
-                realmTO.getActions().add(action.getKey());
-            });
+            realm.getActions().forEach(action -> realmTO.getActions().add(action.getKey()));
 
-            realm.getTemplates().forEach(template -> {
-                realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
-            });
+            realm.getTemplates().forEach(
+                    template -> realmTO.getTemplates().put(template.getAnyType().getKey(), template.get()));
 
-            realm.getResources().forEach(resource -> {
-                realmTO.getResources().add(resource.getKey());
-            });
+            realm.getResources().forEach(resource -> realmTO.getResources().add(resource.getKey()));
         }
 
         return realmTO;
     }
-
 }

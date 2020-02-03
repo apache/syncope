@@ -80,8 +80,9 @@ public class Login extends BaseLogin {
     }
 
     @Override
-    protected void authenticate(final String username, final String password, final AjaxRequestTarget target) throws
-            AccessControlException {
+    protected void authenticate(final String username, final String password, final AjaxRequestTarget target)
+            throws AccessControlException {
+
         if (SyncopeWebApplication.get().getAnonymousUser().equals(username)) {
             throw new AccessControlException("Illegal username");
         }

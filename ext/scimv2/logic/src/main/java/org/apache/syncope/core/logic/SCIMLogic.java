@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +68,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     private void init() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode tree = mapper.readTree(getClass().getResourceAsStream("/" + SCHEMAS_JSON));
+            JsonNode tree = mapper.readTree(getClass().getResourceAsStream('/' + SCHEMAS_JSON));
             if (!tree.isArray()) {
                 throw new IOException("JSON node is not a tree");
             }
@@ -132,7 +131,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
+    public static List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
         synchronized (MONITOR) {
             if (USER == null) {
                 USER = new ResourceType("User", "User", "/Users", "User Account", Resource.User.schema(),
@@ -147,11 +146,11 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             }
         }
 
-        return Arrays.asList(USER, GROUP);
+        return List.of(USER, GROUP);
     }
 
     @PreAuthorize("isAuthenticated()")
-    public ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
+    public static ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
         if (Resource.User.name().equals(type)) {
             resourceTypes(uriBuilder);
             return USER;

@@ -56,7 +56,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
@@ -80,7 +80,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
     private final BootstrapFileInputField fileUpload;
 
-    private final AjaxDownload fileDownload;
+    private final BinaryFieldDownload fileDownload;
 
     private final AbstractBinaryPreviewer previewer;
 
@@ -145,11 +145,11 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         uploadForm.add(container);
 
         field = new TextField<>("textField", model);
-        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
-        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
+        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : '(' + mimeType + ')'));
 
-        fileDownload = new AjaxDownload(name, fileKey, mimeType, true) {
+        fileDownload = new BinaryFieldDownload(name, fileKey, mimeType, true) {
 
             private static final long serialVersionUID = 7203445884857810583L;
 
@@ -170,8 +170,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
                 try {
                     fileDownload.initiate(target);
                 } catch (Exception e) {
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
         };
@@ -281,7 +280,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         if (StringUtils.isNotBlank(modelObj)) {
             final Component panelPreview;
             if (previewer == null) {
-                panelPreview = previewUtils.getDefaultPreviewer(mimeType);
+                panelPreview = PreviewUtils.getDefaultPreviewer(mimeType);
             } else {
                 panelPreview = previewer.preview(modelObj);
             }
@@ -297,12 +296,19 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     }
 
     @Override
-    protected void sendError(final String message) {
-        SyncopeConsoleSession.get().error(message);
+    protected void sendError(final Exception exception) {
+        SyncopeConsoleSession.get().onException(exception);
     }
 
     @Override
     protected Integer getMaxUploadFileSizeMB() {
         return SyncopeWebApplication.get().getMaxUploadFileSizeMB();
+    }
+
+    @Override
+    public FieldPanel<String> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        fileUpload.setEnabled(!readOnly);
+        return this;
     }
 }

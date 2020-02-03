@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
@@ -47,12 +46,12 @@ public class DummyImplementationLookup implements ImplementationLookup {
 
     @Override
     public Set<String> getClassNames(final String type) {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     @Override
     public Set<Class<?>> getJWTSSOProviderClasses() {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     @Override
@@ -92,6 +91,6 @@ public class DummyImplementationLookup implements ImplementationLookup {
 
     @Override
     public Set<Class<?>> getAuditAppenderClasses() {
-        return Collections.emptySet();
+        return Set.of();
     }
 }

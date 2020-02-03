@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -181,7 +182,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
                     getLastSelectedPathComponent();
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
-            String parentNodeName = parentNode == null ? null : String.valueOf(parentNode.getUserObject());
+            String parentNodeName = Optional.ofNullable(parentNode)
+                .map(node -> String.valueOf(node.getUserObject())).orElse(null);
             if (selectedNode.isLeaf() && StringUtils.isNotBlank(parentNodeName)) {
                 String leafNodeName = (String) selectedNode.getUserObject();
                 DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode) parentNode.getParent();
@@ -281,31 +283,28 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         resetTree();
     }
 
-    void writeProperties(final java.util.Properties p) {
+    static void writeProperties(final java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
         // TODO store your settings
     }
 
-    void readProperties(final java.util.Properties p) {
+    static void readProperties(final java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
 
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
-        mailTemplateList.forEach(mailTemplate -> {
-            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
-        });
+        mailTemplateList
+            .forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
         treeModel.reload();
     }
 
     private void addReportXslts() {
         List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
-        reportTemplates.forEach(reportTemplate -> {
-            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
-        });
+        reportTemplates.forEach(reportTemplate -> reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey())));
         treeModel.reload();
     }
 
@@ -557,8 +556,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (!mailTemplatesDir.exists()) {
                 mailTemplatesDir.mkdirs();
             }
-            File file = new File(mailTemplatesDirName + name + "." + type);
-            FileWriter fw = new FileWriter(file);
+            File file = new File(mailTemplatesDirName + name + '.' + type);
+            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             fw.write(content);
             fw.flush();
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
@@ -577,13 +576,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void openScriptEditor(final String name, final String type) throws IOException {
         ImplementationTO node = implementationManagerService.read(type, name);
-        String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType() + "/";
+        String groovyScriptsDirName = System.getProperty("java.io.tmpdir") + "/Groovy/" + node.getType() + '/';
         File groovyScriptsDir = new File(groovyScriptsDirName);
         if (!groovyScriptsDir.exists()) {
             groovyScriptsDir.mkdirs();
         }
         File file = new File(groovyScriptsDirName + name + ".groovy");
-        FileWriter fw = new FileWriter(file);
+        FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
         fw.write(node.getBody());
         fw.flush();
         FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
@@ -627,9 +626,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (!reportTemplatesDir.exists()) {
                 reportTemplatesDir.mkdirs();
             }
-            File file = new File(reportTemplatesDirName + name + "." + format.
+            File file = new File(reportTemplatesDirName + name + '.' + format.
                     name().toLowerCase());
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             fw.write(content);
             fw.flush();
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());

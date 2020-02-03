@@ -22,9 +22,18 @@ under the License.
       <div class="realm-label">
         <label wicket:id="realmLabel"/>: <label wicket:id="realm"/>
       </div>
-      <div class="realm-choice">
-        <button wicket:id="realms"></button>
-      </div>
+      <span wicket:id="realmsFragment"></span>
+
+      <wicket:fragment wicket:id="realmsSearchFragment">
+        <div class="realm-choice">
+          <select wicket:id="realmsLiveSearch" class="realm-live-search"></select> 
+        </div>
+      </wicket:fragment>
+      <wicket:fragment wicket:id="realmsListFragment">
+        <div class="realm-choice">
+          <button wicket:id="realms"></button>
+        </div>
+      </wicket:fragment>
     </div>
   </wicket:panel>
 </html>

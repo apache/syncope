@@ -33,13 +33,16 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
@@ -60,6 +63,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
 
     @Test
     public void searchByDynMembership() {
@@ -86,7 +92,7 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole(role.getKey());
 
-        List<User> users = searchDAO.search(SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.getLeaf(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
@@ -94,16 +100,14 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE95() {
-        groupDAO.findAll(1, 100).forEach(group -> {
-            groupDAO.delete(group.getKey());
-        });
+        groupDAO.findAll(1, 100).forEach(group -> groupDAO.delete(group.getKey()));
         entityManager().flush();
 
-        AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
+        AttrCond coolLeafCond = new AttrCond(AttrCond.Type.EQ);
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
+        SearchCond cond = SearchCond.getLeaf(coolLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -118,11 +122,11 @@ public class AnySearchTest extends AbstractTest {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("rossini");
-        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
+        AttrCond idRightCond = new AttrCond(AttrCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
-        SearchCond searchCondition = SearchCond.getOrCond(
-                SearchCond.getLeafCond(usernameLeafCond), SearchCond.getLeafCond(idRightCond));
+        SearchCond searchCondition = SearchCond.getOr(
+                SearchCond.getLeaf(usernameLeafCond), SearchCond.getLeaf(idRightCond));
 
         List<OrderByClause> orderByClauses = new ArrayList<>();
         OrderByClause orderByClause = new OrderByClause();
@@ -140,5 +144,45 @@ public class AnySearchTest extends AbstractTest {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1512() {
+        Group group = groupDAO.findByName("root");
+        assertNotNull(group);
+
+        // non unique
+        GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
+        title.setOwner(group);
+        title.setSchema(plainSchemaDAO.find("title"));
+        title.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        group.add(title);
+
+        // unique
+        GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
+        originalName.setOwner(group);
+        originalName.setSchema(plainSchemaDAO.find("originalName"));
+        originalName.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        group.add(originalName);
+
+        groupDAO.save(group);
+
+        entityManager().flush();
+
+        AttrCond titleCond = new AttrCond(AttrCond.Type.EQ);
+        titleCond.setSchema("title");
+        titleCond.setExpression("syncope's group");
+
+        List<Group> matching = searchDAO.search(SearchCond.getLeaf(titleCond), AnyTypeKind.GROUP);
+        assertEquals(1, matching.size());
+        assertEquals(group.getKey(), matching.get(0).getKey());
+
+        AttrCond originalNameCond = new AttrCond(AttrCond.Type.EQ);
+        originalNameCond.setSchema("originalName");
+        originalNameCond.setExpression("syncope's group");
+
+        matching = searchDAO.search(SearchCond.getLeaf(originalNameCond), AnyTypeKind.GROUP);
+        assertEquals(1, matching.size());
+        assertEquals(group.getKey(), matching.get(0).getKey());
     }
 }

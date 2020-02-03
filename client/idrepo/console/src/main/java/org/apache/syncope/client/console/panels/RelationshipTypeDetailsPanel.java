@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -43,8 +44,9 @@ public class RelationshipTypeDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(relationshipTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"),
-                new PropertyModel<>(relationshipTypeTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                Constants.KEY_FIELD_NAME, getString(Constants.KEY_FIELD_NAME),
+                new PropertyModel<>(relationshipTypeTO, Constants.KEY_FIELD_NAME));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);

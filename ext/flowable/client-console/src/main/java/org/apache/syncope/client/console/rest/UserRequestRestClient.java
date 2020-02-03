@@ -32,35 +32,35 @@ public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public int countUserRequests() {
+    public static int countUserRequests() {
         return getService(UserRequestService.class).
                 list(new UserRequestQuery.Builder().page(1).size(1).build()).
                 getTotalCount();
     }
 
-    public List<UserRequest> getUserRequests(final int page, final int size, final SortParam<String> sort) {
+    public static List<UserRequest> getUserRequests(final int page, final int size, final SortParam<String> sort) {
         return getService(UserRequestService.class).
                 list(new UserRequestQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
-    public void cancelRequest(final String executionId, final String reason) {
+    public static void cancelRequest(final String executionId, final String reason) {
         getService(UserRequestService.class).cancel(executionId, reason);
     }
 
-    public int countForms() {
+    public static int countForms() {
         return getService(UserRequestService.class).
                 getForms(new UserRequestFormQuery.Builder().page(1).size(1).build()).
                 getTotalCount();
     }
 
-    public List<UserRequestForm> getForms(final int page, final int size, final SortParam<String> sort) {
+    public static List<UserRequestForm> getForms(final int page, final int size, final SortParam<String> sort) {
         return getService(UserRequestService.class).
                 getForms(new UserRequestFormQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
-    public Optional<UserRequestForm> getForm(final String userKey) {
+    public static Optional<UserRequestForm> getForm(final String userKey) {
         PagedResult<UserRequestForm> forms = getService(UserRequestService.class).
                 getForms(new UserRequestFormQuery.Builder().user(userKey).page(1).size(1).build());
         UserRequestForm form = forms.getResult().isEmpty()
@@ -69,15 +69,15 @@ public class UserRequestRestClient extends BaseRestClient {
         return Optional.ofNullable(form);
     }
 
-    public UserRequestForm claimForm(final String taskKey) {
+    public static UserRequestForm claimForm(final String taskKey) {
         return getService(UserRequestService.class).claimForm(taskKey);
     }
 
-    public UserRequestForm unclaimForm(final String taskKey) {
+    public static UserRequestForm unclaimForm(final String taskKey) {
         return getService(UserRequestService.class).unclaimForm(taskKey);
     }
 
-    public void submitForm(final UserRequestForm form) {
+    public static void submitForm(final UserRequestForm form) {
         getService(UserRequestService.class).submitForm(form);
     }
 }

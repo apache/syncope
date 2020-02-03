@@ -20,6 +20,7 @@ package org.apache.syncope.core.flowable.impl;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.identityconnectors.common.security.EncryptorFactory;
@@ -68,6 +70,8 @@ public final class FlowableRuntimeUtils {
 
     public static final String PROP_BY_RESOURCE = "propByResource";
 
+    public static final String PROP_BY_LINKEDACCOUNT = "propByLinkedAccount";
+
     public static final String PROPAGATE_ENABLE = "propagateEnable";
 
     public static final String ENCRYPTED_PWD = "encryptedPwd";
@@ -92,16 +96,16 @@ public final class FlowableRuntimeUtils {
     public static String getWFProcInstID(final DomainProcessEngine engine, final String userKey) {
         ProcessInstance procInst = engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceBusinessKey(getWFProcBusinessKey(userKey)).singleResult();
-        return procInst == null ? null : procInst.getId();
+        return Optional.ofNullable(procInst).map(Execution::getId).orElse(null);
     }
 
     public static String getProcBusinessKey(final String procDefId, final String userKey) {
-        return procDefId + ":" + userKey;
+        return procDefId + ':' + userKey;
     }
 
     public static Pair<String, String> splitProcBusinessKey(final String procBusinessKey) {
         String[] split = procBusinessKey.split(":");
-        if (split == null || split.length != 2) {
+        if (split.length != 2) {
             throw new WorkflowException(new IllegalArgumentException("Unexpected business key: " + procBusinessKey));
         }
 
@@ -160,6 +164,7 @@ public final class FlowableRuntimeUtils {
      * @param password password
      * @param enabled is user to be enabled or not?
      * @param propByRes current propagation actions against resources
+     * @param propByLinkedAccount current propagation actions for linked accounts
      */
     public static void saveForFormSubmit(
             final DomainProcessEngine engine,
@@ -168,7 +173,8 @@ public final class FlowableRuntimeUtils {
             final UserTO userTO,
             final String password,
             final Boolean enabled,
-            final PropagationByResource propByRes) {
+            final PropagationByResource<String> propByRes,
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount) {
 
         String formTaskId = getFormTask(engine, procInstId);
         if (formTaskId == null) {
@@ -189,11 +195,19 @@ public final class FlowableRuntimeUtils {
                     setVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, encrypt(password));
         }
 
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.ENABLED, enabled);
+        engine.getRuntimeService().setVariable(
+                procInstId, FlowableRuntimeUtils.ENABLED, enabled);
 
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+        engine.getRuntimeService().setVariable(
+                procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
         if (propByRes != null) {
             propByRes.clear();
+        }
+
+        engine.getRuntimeService().setVariable(
+                procInstId, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propByLinkedAccount);
+        if (propByLinkedAccount != null) {
+            propByLinkedAccount.clear();
         }
     }
 

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -49,6 +48,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 abstract class AbstractServiceImpl implements JAXRSService {
 
@@ -64,6 +64,9 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     @Context
     protected SearchContext searchContext;
+
+    @Autowired
+    protected SearchCondVisitor searchCondVisitor;
 
     protected String getActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
@@ -162,12 +165,11 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     protected SearchCond getSearchCond(final String fiql, final String realm) {
         try {
-            SearchCondVisitor visitor = new SearchCondVisitor();
-            visitor.setRealm(realm);
+            searchCondVisitor.setRealm(realm);
             SearchCondition<SearchBean> sc = searchContext.getCondition(fiql, SearchBean.class);
-            sc.accept(visitor);
+            sc.accept(searchCondVisitor);
 
-            return visitor.getQuery();
+            return searchCondVisitor.getQuery();
         } catch (Exception e) {
             LOG.error("Invalid FIQL expression: {}", fiql, e);
 
@@ -180,7 +182,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
     protected List<OrderByClause> getOrderByClauses(final String orderBy) {
         if (StringUtils.isBlank(orderBy)) {
-            return Collections.<OrderByClause>emptyList();
+            return List.of();
         }
 
         List<OrderByClause> result = new ArrayList<>();
@@ -224,9 +226,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-        queryParams.forEach((key, value) -> {
-            builder.queryParam(key, value.toArray());
-        });
+        queryParams.forEach((key, value) -> builder.queryParam(key, value.toArray()));
 
         if (result.getPage() > 1) {
             result.setPrev(builder.

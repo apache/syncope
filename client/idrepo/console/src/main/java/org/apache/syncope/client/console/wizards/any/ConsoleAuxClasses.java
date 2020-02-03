@@ -35,6 +35,6 @@ public class ConsoleAuxClasses extends AbstractAuxClasses {
 
     @Override
     protected final List<AnyTypeClassTO> listAnyTypecClasses() {
-        return new AnyTypeClassRestClient().list();
+        return AnyTypeClassRestClient.list();
     }
 }

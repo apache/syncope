@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
@@ -151,9 +153,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     }
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
-        this.header.setDefaultModelObject(header == null
-                ? StringUtils.EMPTY
-                : header.length() >= 40 ? (header.substring(0, 30) + " ... ") : header);
+        this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40
+            ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
         target.add(this.header);
     }
 
@@ -231,7 +232,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                 target.appendJavaScript(
                         selector + ".toggle(\"slow\");"
                         + selector + ".attr(\"class\", \""
-                        + ToggleMenuCSS.CLASS.value() + " " + ToggleMenuCSS.CLASS_ACTIVE.value() + "\");");
+                        + ToggleMenuCSS.CLASS.value() + ' ' + ToggleMenuCSS.CLASS_ACTIVE.value() + "\");");
                 status = Status.ACTIVE;
             } else if (status == Status.ACTIVE) {
                 // useful when handling action menu after refreshing (ref. SYNCOPE-1134)
@@ -244,7 +245,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             target.appendJavaScript(
                     selector + ".toggle(\"slow\");"
                     + selector + ".attr(\"class\", \""
-                    + ToggleMenuCSS.CLASS.value() + " " + ToggleMenuCSS.CLASS_INACTIVE.value() + "\");");
+                    + ToggleMenuCSS.CLASS.value() + ' ' + ToggleMenuCSS.CLASS_INACTIVE.value() + "\");");
             status = Status.INACTIVE;
         }
     }

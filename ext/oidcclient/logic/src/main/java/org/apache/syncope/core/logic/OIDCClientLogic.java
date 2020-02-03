@@ -22,12 +22,12 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -104,7 +104,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         if (op == null) {
             throw new NotFoundException(StringUtils.isBlank(opName)
                     ? "Any OIDC Provider"
-                    : "OIDC Provider '" + opName + "'");
+                    : "OIDC Provider '" + opName + '\'');
         }
         return op;
     }
@@ -130,11 +130,11 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         OIDCProvider op = getOIDCProvider(opName);
 
         // 1. get OpenID Connect tokens
-        String body = OAuthConstants.AUTHORIZATION_CODE_VALUE + "=" + authorizationCode
-                + "&" + OAuthConstants.CLIENT_ID + "=" + op.getClientID()
-                + "&" + OAuthConstants.CLIENT_SECRET + "=" + op.getClientSecret()
-                + "&" + OAuthConstants.REDIRECT_URI + "=" + redirectURI
-                + "&" + OAuthConstants.GRANT_TYPE + "=" + OAuthConstants.AUTHORIZATION_CODE_GRANT;
+        String body = OAuthConstants.AUTHORIZATION_CODE_VALUE + '=' + authorizationCode
+                + '&' + OAuthConstants.CLIENT_ID + '=' + op.getClientID()
+                + '&' + OAuthConstants.CLIENT_SECRET + '=' + op.getClientSecret()
+                + '&' + OAuthConstants.REDIRECT_URI + '=' + redirectURI
+                + '&' + OAuthConstants.GRANT_TYPE + '=' + OAuthConstants.AUTHORIZATION_CODE_GRANT;
         TokenEndpointResponse tokenEndpointResponse;
         try {
             tokenEndpointResponse = getOIDCTokens(op.getTokenEndpoint(), body);
@@ -300,7 +300,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         final List<String> matchingUsers = keyValue == null
-                ? Collections.<String>emptyList()
+                ? List.of()
                 : userManager.findMatchingUser(keyValue, op.getConnObjectKeyItem().get());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
@@ -328,9 +328,9 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
 
                 return responseTO;
             } else {
-                throw new NotFoundException(keyValue == null
-                        ? "User marching the provided claims"
-                        : "User matching the provided value " + keyValue);
+                throw new NotFoundException(Optional.ofNullable(keyValue)
+                    .map(value -> "User matching the provided value " + value)
+                    .orElse("User marching the provided claims"));
             }
         } else if (matchingUsers.size() > 1) {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);
@@ -370,8 +370,8 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return responseTO;
     }
 
-    private TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
-        Response response = WebClient.create(url, Arrays.asList(new JacksonJsonProvider())).
+    private static TokenEndpointResponse getOIDCTokens(final String url, final String body) throws IOException {
+        Response response = WebClient.create(url, List.of(new JacksonJsonProvider())).
                 type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_JSON).
                 post(body);
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
@@ -387,11 +387,12 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return response.readEntity(TokenEndpointResponse.class);
     }
 
-    private IdToken getValidatedIdToken(final OIDCProvider op, final Consumer consumer, final String jwtIdToken) {
+    private static IdToken getValidatedIdToken(final OIDCProvider op, final Consumer consumer,
+                                               final String jwtIdToken) {
         IdTokenReader idTokenReader = new IdTokenReader();
         idTokenReader.setClockOffset(10);
         idTokenReader.setIssuerId(op.getIssuer());
-        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), Arrays.asList(new JsonWebKeysProvider())).
+        idTokenReader.setJwkSetClient(WebClient.create(op.getJwksUri(), List.of(new JsonWebKeysProvider())).
                 accept(MediaType.APPLICATION_JSON));
         IdToken idToken;
         try {
@@ -405,13 +406,13 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         return idToken;
     }
 
-    private UserInfo getUserInfo(
-            final String endpoint,
-            final String accessToken,
-            final IdToken idToken,
-            final Consumer consumer) {
+    private static UserInfo getUserInfo(
+        final String endpoint,
+        final String accessToken,
+        final IdToken idToken,
+        final Consumer consumer) {
 
-        WebClient userInfoServiceClient = WebClient.create(endpoint, Arrays.asList(new JsonMapObjectProvider())).
+        WebClient userInfoServiceClient = WebClient.create(endpoint, List.of(new JsonMapObjectProvider())).
                 accept(MediaType.APPLICATION_JSON);
         ClientAccessToken clientAccessToken =
                 new ClientAccessToken(OAuthConstants.BEARER_AUTHORIZATION_SCHEME, accessToken);

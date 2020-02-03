@@ -236,7 +236,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         components.stream().
                 filter(component -> SUBMIT.equals(component.getId())).
                 findFirst().
-                ifPresent(button -> components.remove(button));
+                ifPresent(components::remove);
 
         submitButton = null;
     }

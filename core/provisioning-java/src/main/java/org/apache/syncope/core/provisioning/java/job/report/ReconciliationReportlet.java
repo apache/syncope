@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -54,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -98,9 +97,12 @@ public class ReconciliationReportlet extends AbstractReportlet {
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     private ReconciliationReportletConf conf;
 
-    private String getAnyElementName(final AnyTypeKind anyTypeKind) {
+    private static String getAnyElementName(final AnyTypeKind anyTypeKind) {
         String elementName;
 
         switch (anyTypeKind) {
@@ -252,15 +254,13 @@ public class ReconciliationReportlet extends AbstractReportlet {
         handler.endElement("", "", getAnyElementName(any.getType().getKind()));
     }
 
-    private Set<Object> getValues(final Attribute attr) {
+    private static Set<Object> getValues(final Attribute attr) {
         Set<Object> values;
         if (attr.getValue() == null || attr.getValue().isEmpty()) {
-            values = Collections.emptySet();
+            values = Set.of();
         } else if (attr.getValue().get(0) instanceof byte[]) {
             values = new HashSet<>(attr.getValue().size());
-            attr.getValue().forEach(single -> {
-                values.add(Base64.getEncoder().encode((byte[]) single));
-            });
+            attr.getValue().forEach(single -> values.add(Base64.getEncoder().encode((byte[]) single)));
         } else {
             values = new HashSet<>(attr.getValue());
         }
@@ -292,7 +292,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             provision.getObjectClass(),
                             AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
                             provision.isIgnoreCaseMatch(),
-                            MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
+                            MappingUtils.buildOperationOptions(provision.getMapping().getItems().stream()));
 
                     if (connectorObject == null) {
                         // 2. not found on resource?
@@ -310,28 +310,22 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                 connObjectKeyItem.get().getExtAttrName(), preparedAttrs.getLeft()));
 
                         final Map<String, Set<Object>> syncopeAttrs = new HashMap<>();
-                        preparedAttrs.getRight().forEach(attr -> {
-                            syncopeAttrs.put(attr.getName(), getValues(attr));
-                        });
+                        preparedAttrs.getRight().forEach(attr -> syncopeAttrs.put(attr.getName(), getValues(attr)));
 
                         final Map<String, Set<Object>> resourceAttrs = new HashMap<>();
                         connectorObject.getAttributes().stream().
                                 filter(attr -> (!OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
                                 && !OperationalAttributes.ENABLE_NAME.equals(attr.getName()))).
-                                forEachOrdered(attr -> {
-                                    resourceAttrs.put(attr.getName(), getValues(attr));
-                                });
+                                forEachOrdered(attr -> resourceAttrs.put(attr.getName(), getValues(attr)));
 
                         syncopeAttrs.keySet().stream().
                                 filter(syncopeAttr -> !resourceAttrs.containsKey(syncopeAttr)).
-                                forEach(name -> {
-                                    misaligned.add(new Misaligned(
-                                            resource.getKey(),
-                                            connObjectKeyValue,
-                                            name,
-                                            syncopeAttrs.get(name),
-                                            Collections.emptySet()));
-                                });
+                                forEach(name -> misaligned.add(new Misaligned(
+                                resource.getKey(),
+                                connObjectKeyValue,
+                                name,
+                                syncopeAttrs.get(name),
+                                Set.of())));
 
                         resourceAttrs.forEach((key, values) -> {
                             if (syncopeAttrs.containsKey(key)) {
@@ -348,7 +342,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                         resource.getKey(),
                                         connObjectKeyValue,
                                         key,
-                                        Collections.emptySet(),
+                                        Set.of(),
                                         values));
                             }
                         });
@@ -384,7 +378,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " users in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " users: page " + page + " of " + pages);
@@ -392,7 +386,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 doExtract(handler, userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
         } else {
-            SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
+            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, this.conf.getUserMatchingCond());
 
             int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
@@ -400,7 +394,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " users in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " users: page " + page + " of " + pages);
@@ -410,11 +404,11 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         cond,
                         page,
                         PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.USER));
             }
         }
-        handler.endElement("", "", getAnyElementName(AnyTypeKind.USER) + "s");
+        handler.endElement("", "", getAnyElementName(AnyTypeKind.USER) + 's');
 
         atts.clear();
         if (StringUtils.isBlank(this.conf.getGroupMatchingCond())) {
@@ -424,7 +418,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " groups in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " groups: page " + page + " of " + pages);
@@ -432,7 +426,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 doExtract(handler, groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
         } else {
-            SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
+            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, this.conf.getUserMatchingCond());
 
             int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.GROUP);
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
@@ -440,7 +434,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
             status.set("Processing " + total + " groups in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
+            handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + 's', atts);
 
             for (int page = 1; page <= pages; page++) {
                 status.set("Processing " + total + " groups: page " + page + " of " + pages);
@@ -450,21 +444,21 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         cond,
                         page,
                         PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.GROUP));
             }
         }
-        handler.endElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s");
+        handler.endElement("", "", getAnyElementName(AnyTypeKind.GROUP) + 's');
 
         for (AnyType anyType : anyTypeDAO.findAll()) {
             if (!anyType.equals(anyTypeDAO.findUser()) && !anyType.equals(anyTypeDAO.findGroup())) {
                 AnyTypeCond anyTypeCond = new AnyTypeCond();
                 anyTypeCond.setAnyTypeKey(anyType.getKey());
                 SearchCond cond = StringUtils.isBlank(this.conf.getAnyObjectMatchingCond())
-                        ? SearchCond.getLeafCond(anyTypeCond)
-                        : SearchCond.getAndCond(
-                                SearchCond.getLeafCond(anyTypeCond),
-                                SearchCondConverter.convert(this.conf.getAnyObjectMatchingCond()));
+                        ? SearchCond.getLeaf(anyTypeCond)
+                        : SearchCond.getAnd(
+                                SearchCond.getLeaf(anyTypeCond),
+                                SearchCondConverter.convert(searchCondVisitor, this.conf.getAnyObjectMatchingCond()));
 
                 int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.ANY_OBJECT);
                 int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
@@ -474,7 +468,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 atts.clear();
                 atts.addAttribute("", "", "type", ReportXMLConst.XSD_STRING, anyType.getKey());
                 atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
-                handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s", atts);
+                handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + 's', atts);
 
                 for (int page = 1; page <= pages; page++) {
                     status.set("Processing " + total + " any objects " + anyType.getKey()
@@ -485,11 +479,11 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             cond,
                             page,
                             PAGE_SIZE,
-                            Collections.<OrderByClause>emptyList(),
+                            List.of(),
                             AnyTypeKind.ANY_OBJECT));
                 }
 
-                handler.endElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s");
+                handler.endElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + 's');
             }
         }
     }

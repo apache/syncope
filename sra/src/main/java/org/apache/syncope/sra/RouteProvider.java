@@ -19,11 +19,10 @@
 package org.apache.syncope.sra;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
@@ -85,6 +84,7 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
 
 @Component
@@ -282,7 +282,7 @@ public class RouteProvider {
 
             case SET_REQUEST_SIZE:
                 filter = ctx.getBean(RequestSizeGatewayFilterFactory.class).
-                        apply(c -> c.setMaxSize(Long.valueOf(gwfilter.getArgs().trim())));
+                        apply(c -> c.setMaxSize(DataSize.ofBytes(Long.valueOf(gwfilter.getArgs().trim()))));
                 break;
 
             case CUSTOM:
@@ -346,18 +346,20 @@ public class RouteProvider {
             case HOST:
                 String[] hostArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(HostRoutePredicateFactory.class).
-                        applyAsync(c -> c.setPatterns(Arrays.asList(hostArgs)));
+                        applyAsync(c -> c.setPatterns(List.of(hostArgs)));
                 break;
 
             case METHOD:
+                String[] methodArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(MethodRoutePredicateFactory.class).
-                        applyAsync(c -> c.setMethod(HttpMethod.resolve(gwpredicate.getArgs().trim())));
+                        applyAsync(c -> c.setMethods(
+                        Stream.of(methodArgs).map(arg -> HttpMethod.resolve(arg.trim())).toArray(HttpMethod[]::new)));
                 break;
 
             case PATH:
                 String[] pathArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(PathRoutePredicateFactory.class).
-                        applyAsync(c -> c.setPatterns(Arrays.asList(pathArgs)));
+                        applyAsync(c -> c.setPatterns(List.of(pathArgs)));
                 break;
 
             case QUERY:
@@ -370,7 +372,7 @@ public class RouteProvider {
             case REMOTE_ADDR:
                 String[] remoteAddrArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(RemoteAddrRoutePredicateFactory.class).
-                        applyAsync(c -> c.setSources(Arrays.asList(remoteAddrArgs)));
+                        applyAsync(c -> c.setSources(List.of(remoteAddrArgs)));
                 break;
 
             case CUSTOM:
@@ -459,14 +461,14 @@ public class RouteProvider {
                             create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
                 } catch (Exception e) {
                     LOG.error("Could not init SyncopeClient", e);
-                    return Collections.emptyList();
+                    return List.of();
                 }
             }
         }
 
         return client.getService(GatewayRouteService.class).list().stream().
                 filter(gwroute -> gwroute.getStatus() == GatewayRouteStatus.PUBLISHED).
-                map(gwroute -> toRoute(gwroute)).
+                map(this::toRoute).
                 collect(Collectors.toList());
     }
 }

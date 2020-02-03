@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -27,6 +28,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAnyObject
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -53,9 +55,9 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
     }
 
     @Override
-    public AnyObject findByPlainAttrUniqueValue(
+    public Optional<AnyObject> findByPlainAttrUniqueValue(
             final PlainSchema schema,
-            final PlainAttrValue attrUniqueValue,
+            final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
         return anyDAO().findByPlainAttrUniqueValue(

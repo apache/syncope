@@ -81,7 +81,7 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
                     case NODE_REMOVED:
                         LOG.debug("Domain {} removed", event.getData().getPath());
-                        watcher.removed(StringUtils.substringAfter(event.getData().getPath(), DOMAIN_PATH + "/"));
+                        watcher.removed(StringUtils.substringAfter(event.getData().getPath(), DOMAIN_PATH + '/'));
                         break;
 
                     default:
@@ -91,11 +91,11 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
         }
     }
 
-    private String buildDomainPath(final String... parts) {
+    private static String buildDomainPath(final String... parts) {
         String prefix = DOMAIN_PATH;
         String suffix = StringUtils.EMPTY;
         if (parts != null && parts.length > 0) {
-            suffix = "/" + String.join("/", parts);
+            suffix = '/' + String.join("/", parts);
         }
         return prefix + suffix;
     }

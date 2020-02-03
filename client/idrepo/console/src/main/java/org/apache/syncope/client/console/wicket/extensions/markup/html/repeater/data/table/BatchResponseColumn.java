@@ -20,6 +20,9 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -60,15 +63,16 @@ public class BatchResponseColumn<T, S> extends AbstractColumn<T, S> {
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
         try {
-            Object key = BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName).
-                    getReadMethod().invoke(rowModel.getObject(), new Object[0]);
+            Object key = Objects.requireNonNull(
+                BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName))
+                .getReadMethod().invoke(rowModel.getObject(), ArrayUtils.EMPTY_OBJECT_ARRAY);
             String status = results.containsKey(key.toString())
                     ? results.get(key.toString())
                     : ExecStatus.NOT_ATTEMPTED.name();
 
             item.add(new Label(componentId, new StringResourceModel(status, item, new Model<>(status))));
         } catch (BeansException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            LOG.error("Errore retrieving target key value", e);
+            LOG.error("Error retrieving target key value", e);
         }
     }
 }

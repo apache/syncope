@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +43,14 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -57,8 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -111,7 +111,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
             throw sce;
         }
-
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
 
@@ -119,7 +118,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -147,12 +147,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
-
         try {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -232,29 +232,29 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         TaskUtils taskUtil = taskUtilsFactory.getInstance(task);
+        String executor = AuthContextUtils.getUsername();
 
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
                 PropagationTaskTO taskTO = binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false);
-                PropagationTaskInfo taskInfo = new PropagationTaskInfo();
+                PropagationTaskInfo taskInfo = new PropagationTaskInfo(((PropagationTask) task).getResource());
                 taskInfo.setKey(taskTO.getKey());
                 taskInfo.setOperation(taskTO.getOperation());
                 taskInfo.setConnObjectKey(taskTO.getConnObjectKey());
                 taskInfo.setOldConnObjectKey(taskTO.getOldConnObjectKey());
                 taskInfo.setAttributes(taskTO.getAttributes());
-                taskInfo.setResource(taskTO.getResource());
                 taskInfo.setObjectClassName(taskTO.getObjectClassName());
                 taskInfo.setAnyTypeKind(taskTO.getAnyTypeKind());
                 taskInfo.setAnyType(taskTO.getAnyType());
                 taskInfo.setEntityKey(taskTO.getEntityKey());
 
-                TaskExec propExec = taskExecutor.execute(taskInfo);
+                TaskExec propExec = taskExecutor.execute(taskInfo, executor);
                 result = binder.getExecTO(propExec);
                 break;
 
             case NOTIFICATION:
-                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
+                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task, executor);
                 result = binder.getExecTO(notExec);
                 break;
 
@@ -272,7 +272,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                             (SchedTask) task,
                             startAt,
                             confParamOps.get(AuthContextUtils.getDomain(),
-                                    "tasks.interruptMaxRetries", 1L, Long.class));
+                                    "tasks.interruptMaxRetries", 1L, Long.class), executor);
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
@@ -294,6 +294,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 result.setRefKey(task.getKey());
                 result.setRefDesc(binder.buildRefDesc(task));
                 result.setStart(new Date());
+                result.setExecutor(executor);
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
                 break;
@@ -387,7 +388,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
-            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
+            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);
 
             try {

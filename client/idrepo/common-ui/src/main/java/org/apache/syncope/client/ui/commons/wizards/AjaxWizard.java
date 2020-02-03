@@ -22,12 +22,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
@@ -51,6 +51,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -86,7 +87,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      * @param id The component id.
      * @param item model object.
      * @param model wizard model
-     * @param mode <tt>true</tt> if edit mode.
+     * @param mode {@code true} if edit mode.
      * @param pageRef caller page reference.
      */
     public AjaxWizard(
@@ -123,7 +124,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     /**
      * Add object outside the main container.
      * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide <tt>outer</tt> as id.
+     * Be sure to provide {@code outer} as id.
      *
      * @param childs components to be added.
      * @return the current panel instance.
@@ -158,7 +159,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     protected abstract void onCancelInternal();
 
-    protected abstract void sendError(String message);
+    protected abstract void sendError(Exception exception);
 
     protected abstract void sendWarning(String message);
 
@@ -175,9 +176,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     protected abstract long getMaxWaitTimeInSeconds();
 
-    /**
-     * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()
-     */
     @Override
     public final void onCancel() {
         AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
@@ -190,15 +188,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             }
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
-            sendError(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            sendError(e);
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 
-    /**
-     * @see org.apache.wicket.extensions.wizard.Wizard#onFinish()
-     */
     @Override
     public final void onFinish() {
         AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
@@ -219,13 +213,12 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             sendWarning(getString("timeout"));
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (CaptchaNotMatchingException ce) {
-            LOG.error("Wizard error on finish: captcha not matching");
-            sendError(getString(Constants.CAPTCHA_ERROR));
+            LOG.error("Wizard error on finish: captcha not matching", ce);
+            sendError(new WicketRuntimeException(getString(Constants.CAPTCHA_ERROR)));
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
-            sendError(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName() : e.getMessage());
+            sendError(e);
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
@@ -265,8 +258,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             return item;
         }
 
-        public AjaxRequestTarget getTarget() {
-            return target;
+        public Optional<AjaxRequestTarget> getTarget() {
+            return Optional.ofNullable(target);
         }
 
         public WizardModalPanel<?> getModalPanel() {
@@ -391,8 +384,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     private Serializable onApply(final AjaxRequestTarget target) throws TimeoutException {
         try {
-            Future<Pair<Serializable, Serializable>> executor =
-                    execute(new ApplyFuture(target));
+            Future<Pair<Serializable, Serializable>> executor = execute(new ApplyFuture(target));
 
             Pair<Serializable, Serializable> res =
                     executor.get(getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
@@ -406,7 +398,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             if (e.getCause() instanceof CaptchaNotMatchingException) {
                 throw (CaptchaNotMatchingException) e.getCause();
             }
-            throw new RuntimeException(e);
+            throw new WicketRuntimeException(e);
         }
     }
 

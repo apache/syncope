@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -150,7 +151,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     public <T extends SchemaTO> List<T> search(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
 
-        List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses == null ? 0 : anyTypeClasses.size());
+        List<AnyTypeClass> classes = new ArrayList<>(Optional.ofNullable(anyTypeClasses).map(List::size).orElse(0));
         if (anyTypeClasses != null) {
             anyTypeClasses.remove(AnyTypeKind.USER.name());
             anyTypeClasses.remove(AnyTypeKind.GROUP.name());
@@ -228,7 +229,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case VIRTUAL:
                 VirSchema virSchema = virSchemaDAO.find(schemaTO.getKey());
                 if (virSchema == null) {
-                    throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + "'");
+                    throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + '\'');
                 }
 
                 virSchemaDAO.save(binder.update((VirSchemaTO) schemaTO, virSchema));
@@ -237,7 +238,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case DERIVED:
                 DerSchema derSchema = derSchemaDAO.find(schemaTO.getKey());
                 if (derSchema == null) {
-                    throw new NotFoundException("Derived schema '" + schemaTO.getKey() + "'");
+                    throw new NotFoundException("Derived schema '" + schemaTO.getKey() + '\'');
                 }
 
                 derSchemaDAO.save(binder.update((DerSchemaTO) schemaTO, derSchema));
@@ -247,7 +248,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             default:
                 PlainSchema plainSchema = plainSchemaDAO.find(schemaTO.getKey());
                 if (plainSchema == null) {
-                    throw new NotFoundException("Schema '" + schemaTO.getKey() + "'");
+                    throw new NotFoundException("Schema '" + schemaTO.getKey() + '\'');
                 }
 
                 plainSchemaDAO.save(binder.update((PlainSchemaTO) schemaTO, plainSchema));

@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 @PasswordRuleConfClass(DefaultPasswordRuleConf.class)
@@ -49,4 +50,8 @@ public class TestPasswordRule implements PasswordRule {
         // nothing to do
     }
 
+    @Override
+    public void enforce(LinkedAccount account) {
+        // nothing to do
+    }
 }

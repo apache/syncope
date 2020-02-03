@@ -22,13 +22,10 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavi
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -55,11 +52,6 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class AbstractMappingPanel extends Panel {
 
     private static final long serialVersionUID = -8295587900937040104L;
-
-    /**
-     * Any type rest client.
-     */
-    protected final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     /**
      * Any type class rest client.
@@ -128,7 +120,7 @@ public abstract class AbstractMappingPanel extends Panel {
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
-        Collections.sort(model.getObject(), (left, right) -> {
+        model.getObject().sort((left, right) -> {
             int compared;
             if (left == null && right == null) {
                 compared = 0;
@@ -149,17 +141,17 @@ public abstract class AbstractMappingPanel extends Panel {
             } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
                 compared = 1;
             } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                    && (right.getPurpose() == MappingPurpose.PULL
-                    || right.getPurpose() == MappingPurpose.NONE)) {
+                && (right.getPurpose() == MappingPurpose.PULL
+                || right.getPurpose() == MappingPurpose.NONE)) {
                 compared = -1;
             } else if (left.getPurpose() == MappingPurpose.PULL
-                    && right.getPurpose() == MappingPurpose.PROPAGATION) {
+                && right.getPurpose() == MappingPurpose.PROPAGATION) {
                 compared = 1;
             } else if (left.getPurpose() == MappingPurpose.PULL
-                    && right.getPurpose() == MappingPurpose.NONE) {
+                && right.getPurpose() == MappingPurpose.NONE) {
                 compared = -1;
             } else if (left.getPurpose() == MappingPurpose.NONE
-                    && right.getPurpose() != MappingPurpose.NONE) {
+                && right.getPurpose() != MappingPurpose.NONE) {
                 compared = 1;
             } else {
                 compared = left.getIntAttrName().compareTo(right.getIntAttrName());
@@ -186,7 +178,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         "intAttrName",
                         new PropertyModel<>(itemTO, "intAttrName"),
                         false);
-                intAttrName.setChoices(Collections.<String>emptyList());
+                intAttrName.setChoices(List.of());
                 intAttrName.setRequired(true).hideLabel();
                 item.add(intAttrName);
                 // -------------------------------
@@ -228,7 +220,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         "mandatoryCondition",
                         new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
-                mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                mandatory.setChoices(List.of("true", "false"));
                 mandatory.setEnabled(!itemTO.isConnObjectKey());
                 item.add(mandatory);
                 // -------------------------------
@@ -396,7 +388,7 @@ public abstract class AbstractMappingPanel extends Panel {
      * @param connObjectKey connObjectKey checkbox.
      * @param password password checkbox.
      */
-    private void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
+    private static void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
         if (password.getModelObject()) {
             connObjectKey.setReadOnly(true);
             connObjectKey.setModelObject(false);

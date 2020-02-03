@@ -19,7 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
@@ -70,17 +70,31 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @Autowired
     private PropagationTaskExecutor taskExecutor;
 
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_LIST + "')")
+    @Transactional(readOnly = true)
+    public List<RealmTO> search(final String keyword) {
+        Set<String> bases = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_LIST);
+
+        return realmDAO.findMatching(keyword).stream().
+                filter(realm -> bases.stream().anyMatch(base -> realm.getFullPath().startsWith(base))).
+                flatMap(realm -> realmDAO.findDescendants(realm).stream()).
+                distinct().
+                map(realm -> binder.getRealmTO(realm, true)).
+                sorted(Comparator.comparing(RealmTO::getFullPath)).
+                collect(Collectors.toList());
+    }
+
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<RealmTO> list(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
-            LOG.error("Could not find realm '" + fullPath + "'");
+            LOG.error("Could not find realm '" + fullPath + '\'');
 
             throw new NotFoundException(fullPath);
         }
 
-        final boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.REALM_LIST);
+        boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.REALM_LIST);
         return realmDAO.findDescendants(realm).stream().
                 map(descendant -> binder.getRealmTO(descendant, admin)).collect(Collectors.toList());
     }
@@ -118,11 +132,11 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         Realm realm = realmDAO.save(binder.create(parent, realmTO));
-
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false);
+        PropagationReporter propagationReporter =
+                taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm, true));
@@ -135,16 +149,16 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         if (realm == null) {
-            LOG.error("Could not find realm '" + realmTO.getFullPath() + "'");
+            LOG.error("Could not find realm '" + realmTO.getFullPath() + '\'');
 
             throw new NotFoundException(realmTO.getFullPath());
         }
-
-        PropagationByResource propByRes = binder.update(realm, realmTO);
+        PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false);
+        PropagationReporter propagationReporter =
+                taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm, true));
@@ -157,7 +171,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
-            LOG.error("Could not find realm '" + fullPath + "'");
+            LOG.error("Could not find realm '" + fullPath + '\'');
 
             throw new NotFoundException(fullPath);
         }
@@ -166,10 +180,10 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw SyncopeClientException.build(ClientExceptionType.HasChildren);
         }
 
-        Set<String> adminRealms = Collections.singleton(realm.getFullPath());
-        AnyCond keyCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+        Set<String> adminRealms = Set.of(realm.getFullPath());
+        AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
-        SearchCond allMatchingCond = SearchCond.getLeafCond(keyCond);
+        SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
         int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
         int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
@@ -181,11 +195,11 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             containedAnys.getElements().add(anyObjects + " anyObject(s)");
             throw containedAnys;
         }
-
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, false);
+        PropagationReporter propagationReporter =
+                taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm, true));
@@ -223,5 +237,4 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         throw new UnresolvedReferenceException();
     }
-
 }

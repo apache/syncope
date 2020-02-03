@@ -25,7 +25,7 @@ import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 
 public class ConfirmPasswordResetProducer extends AbstractProducer {
@@ -38,12 +38,12 @@ public class ConfirmPasswordResetProducer extends AbstractProducer {
     @Override
     public void process(final Exchange exchange) throws Exception {
         if (getAnyTypeKind() == AnyTypeKind.USER) {
-            WorkflowResult<Pair<UserUR, Boolean>> updated =
-                    (WorkflowResult<Pair<UserUR, Boolean>>) exchange.getIn().getBody();
+            UserWorkflowResult<Pair<UserUR, Boolean>> updated =
+                    (UserWorkflowResult<Pair<UserUR, Boolean>>) exchange.getIn().getBody();
 
             List<PropagationTaskInfo> taskInfos = getPropagationManager().getUserUpdateTasks(updated);
 
-            getPropagationTaskExecutor().execute(taskInfos, false);
+            getPropagationTaskExecutor().execute(taskInfos, false, getExecutor());
         }
     }
 }

@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.api.dao.search;
 
 import java.io.Serializable;
+import java.util.Optional;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -47,7 +49,7 @@ public class OrderByClause implements Serializable {
     }
 
     public Direction getDirection() {
-        return direction == null ? Direction.ASC : direction;
+        return Optional.ofNullable(direction).orElse(Direction.ASC);
     }
 
     public void setDirection(final Direction direction) {

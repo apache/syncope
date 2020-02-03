@@ -19,9 +19,9 @@
 package org.apache.syncope.common.lib;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -37,26 +38,29 @@ import org.apache.syncope.common.lib.to.UserTO;
 public final class EntityTOUtils {
 
     public static Map<String, Attr> buildAttrMap(final Collection<Attr> attrs) {
-        Map<String, Attr> result = new HashMap<>(attrs.size());
-        attrs.forEach(attrTO -> result.put(attrTO.getSchema(), attrTO));
-
-        return Collections.unmodifiableMap(result);
+        return attrs.stream().collect(Collectors.toUnmodifiableMap(
+                Attr::getSchema, Function.identity(), (exist, repl) -> repl));
     }
 
     public static Map<Pair<String, String>, RelationshipTO> buildRelationshipMap(
             final Collection<RelationshipTO> relationships) {
 
-        Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(relationships.size());
-        relationships.forEach(rel -> result.put(Pair.of(rel.getType(), rel.getOtherEndKey()), rel));
-
-        return Collections.unmodifiableMap(result);
+        return relationships.stream().collect(Collectors.toUnmodifiableMap(
+                rel -> Pair.of(rel.getType(), rel.getOtherEndKey()), Function.identity(), (exist, repl) -> repl));
     }
 
     public static Map<String, MembershipTO> buildMembershipMap(final Collection<MembershipTO> memberships) {
-        Map<String, MembershipTO> result = new HashMap<>(memberships.size());
-        memberships.forEach(memb -> result.put(memb.getGroupKey(), memb));
+        return memberships.stream().collect(Collectors.toUnmodifiableMap(
+                MembershipTO::getGroupKey, Function.identity(), (exist, repl) -> repl));
+    }
 
-        return Collections.unmodifiableMap(result);
+    public static Map<Pair<String, String>, LinkedAccountTO> buildLinkedAccountMap(
+            final Collection<LinkedAccountTO> accounts) {
+
+        return accounts.stream().collect(Collectors.toUnmodifiableMap(
+                account -> Pair.of(account.getResource(), account.getConnObjectKeyValue()),
+                Function.identity(),
+                (exist, repl) -> repl));
     }
 
     public static <A extends AnyTO, C extends AnyCR> void toAnyCR(final A anyTO, final C anyCR) {

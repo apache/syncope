@@ -28,6 +28,7 @@ import org.xml.sax.SAXException;
  *
  * @see org.apache.syncope.core.persistence.api.entity.Report
  */
+@FunctionalInterface
 public interface Reportlet {
 
     /**

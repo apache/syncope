@@ -32,14 +32,14 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.JSONAny;
-import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAnyCheck;
+import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
+import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
 
 @Entity
 @Table(name = JPAAnyObject.TABLE)
 @EntityListeners({ JPAJSONAnyObjectListener.class })
-@JPAJSONAnyCheck
-public class JPAJSONAnyObject extends JPAAnyObject implements JSONAny<AnyObject>, AnyObject {
+@JPAJSONAttributableCheck
+public class JPAJSONAnyObject extends JPAAnyObject implements JSONAttributable<AnyObject>, AnyObject {
 
     private static final long serialVersionUID = -8543654943709531885L;
 

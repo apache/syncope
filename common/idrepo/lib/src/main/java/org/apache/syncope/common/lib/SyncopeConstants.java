@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -34,13 +33,13 @@ public final class SyncopeConstants {
 
     public static final String REALM_ANYTYPE = "REALM";
 
-    public static final Set<String> FULL_ADMIN_REALMS = Collections.singleton("/");
+    public static final Set<String> FULL_ADMIN_REALMS = Set.of("/");
 
     public static final String UNAUTHENTICATED = "unauthenticated";
 
     public static final String ENUM_VALUES_SEPARATOR = ";";
 
-    public static final String NAME_PATTERN = "[\\p{L}\\p{gc=Mn}\\p{gc=Me}\\p{gc=Mc}\\p{Digit}\\p{gc=Pc} \\-@.]+";
+    public static final String NAME_PATTERN = "[\\p{L}\\p{gc=Mn}\\p{gc=Me}\\p{gc=Mc}\\p{Digit}\\p{gc=Pc} \\-@.~]+";
 
     public static final String[] DATE_PATTERNS = {
         "yyyy-MM-dd'T'HH:mm:ssZ",
@@ -62,6 +61,8 @@ public final class SyncopeConstants {
     public static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
+
+    public static final String ENCRYPTED_DECODE_CONVERSION_PATTERN = "ENCRYPTED_DECODE_CONVERSION_PATTERN";
 
     public static final String DOUBLE_DASH = "--";
 

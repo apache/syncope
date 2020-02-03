@@ -89,7 +89,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
             add(new Label("anyType.label", anyTypeLabel));
 
             if (typeExtensionTO.getAnyType() == null) {
-                List<String> anyTypes = new AnyTypeRestClient().list();
+                List<String> anyTypes = AnyTypeRestClient.list();
                 anyTypes.remove(AnyTypeKind.GROUP.name());
                 anyTypes.removeAll(anyTypes.stream().
                         filter(anyType -> groupTO.getTypeExtension(anyType).isPresent()).collect(Collectors.toList()));
@@ -108,11 +108,11 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
             add(new Label("auxClasses.label", auxClassesLabel));
 
-            List<String> anyTypeClasses = new AnyTypeClassRestClient().list().stream().
+            List<String> anyTypeClasses = AnyTypeClassRestClient.list().stream().
                     map(EntityTO::getKey).collect(Collectors.toList());
             AjaxPalettePanel<String> auxClassesPalette = new AjaxPalettePanel.Builder<String>().build(
                     "auxClasses.palette",
-                    new PropertyModel<List<String>>(typeExtensionTO, "auxClasses"),
+                    new PropertyModel<>(typeExtensionTO, "auxClasses"),
                     new ListModel<>(anyTypeClasses));
             add(auxClassesPalette.hideLabel().setOutputMarkupId(true));
         }

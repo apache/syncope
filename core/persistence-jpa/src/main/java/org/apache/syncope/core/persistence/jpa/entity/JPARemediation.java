@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -135,16 +137,12 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
 
     @Override
     public Date getInstant() {
-        return instant == null
-                ? null
-                : new Date(instant.getTime());
+        return Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public void setInstant(final Date instant) {
-        this.instant = instant == null
-                ? null
-                : new Date(instant.getTime());
+        this.instant = Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override

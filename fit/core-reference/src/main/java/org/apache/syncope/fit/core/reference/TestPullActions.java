@@ -46,7 +46,7 @@ public class TestPullActions implements PullActions {
 
         Optional<Attr> attrTO = anyCR.getPlainAttrs().stream().
                 filter(attr -> "fullname".equals(attr.getSchema())).findFirst();
-        if (!attrTO.isPresent()) {
+        if (attrTO.isEmpty()) {
             attrTO = Optional.of(new Attr());
             attrTO.get().setSchema("fullname");
             anyCR.getPlainAttrs().add(attrTO.get());

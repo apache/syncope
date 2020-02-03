@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser.pages;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DomainDropDown;
@@ -69,7 +68,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
     public SelfConfirmPasswordReset(final PageParameters parameters) {
         super(parameters);
 
-        if (parameters == null || parameters.get("token").isEmpty()) {
+        if (parameters != null || parameters.get("token").isEmpty()) {
             LOG.debug("No token parameter found in the request url");
             parameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
             setResponsePage(getApplication().getHomePage(), parameters);
@@ -138,9 +137,7 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
                     setResponsePage(getApplication().getHomePage(), parameters);
                 } catch (SyncopeClientException sce) {
                     LOG.error("Unable to complete the 'Password Reset Confirmation' process", sce);
-                    SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
-                            ? sce.getClass().getName()
-                            : sce.getMessage());
+                    SyncopeEnduserSession.get().onException(sce);
                     ((BaseEnduserWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                 }
             }

@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -63,10 +62,6 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
     private static final long serialVersionUID = 5952696913893950460L;
 
-    private final SAML2IdPsRestClient restClient = new SAML2IdPsRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final SAML2IdPsDirectoryPanel directoryPanel;
 
     private final IModel<List<String>> idpActions = new LoadableDetachableModel<List<String>>() {
@@ -75,7 +70,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(SAML2SPImplementationType.IDP_ACTIONS).stream().
+            return ImplementationRestClient.list(SAML2SPImplementationType.IDP_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -86,7 +81,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(SAML2SPImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).stream().
+            return ImplementationRestClient.list(SAML2SPImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -122,8 +117,8 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
     }
 
     @Override
-    protected void sendError(final String message) {
-        SyncopeConsoleSession.get().error(message);
+    protected void sendError(final Exception exception) {
+        SyncopeConsoleSession.get().onException(exception);
     }
 
     @Override
@@ -134,6 +129,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
     @Override
     protected Future<Pair<Serializable, Serializable>> execute(
             final Callable<Pair<Serializable, Serializable>> future) {
+
         return SyncopeConsoleSession.get().execute(future);
     }
 
@@ -174,7 +170,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             AjaxDropDownChoicePanel<SAML2BindingType> bindingType =
                     new AjaxDropDownChoicePanel<>("field", "bindingType",
                             new PropertyModel<>(idpTO, "bindingType"), false);
-            bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
+            bindingType.setChoices(List.of(SAML2BindingType.values()));
             fields.add(bindingType);
 
             AjaxTextFieldPanel requestedAuthnContextProvider = new AjaxTextFieldPanel(
@@ -201,7 +197,6 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                 protected void populateItem(final ListItem<Component> item) {
                     item.add(item.getModelObject());
                 }
-
             });
         }
     }
@@ -227,8 +222,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                     new StringResourceModel("connObjectKeyValidation", directoryPanel).getString());
         }
 
-        restClient.update(modelObject);
+        SAML2IdPsRestClient.update(modelObject);
         return modelObject;
     }
-
 }

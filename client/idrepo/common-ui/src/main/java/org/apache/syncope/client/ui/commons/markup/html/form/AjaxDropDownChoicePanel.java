@@ -21,7 +21,6 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -29,7 +28,7 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<T> implements Cloneable {
 
@@ -44,8 +43,8 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
 
         super(id, name, model);
 
-        field = new BootstrapSelect<>("dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<>());
-        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
+        field = new BootstrapSelect<>("dropDownChoiceField", model, List.of(), new ChoiceRenderer<>());
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {

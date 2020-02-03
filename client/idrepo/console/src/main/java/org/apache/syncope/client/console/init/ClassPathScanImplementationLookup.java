@@ -23,13 +23,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.pages.BaseExtPage;
@@ -37,13 +38,7 @@ import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.annotations.Resource;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
-import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAditionalActionLinksProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
-import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
-import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
@@ -64,12 +59,11 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
-import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 
 public class ClassPathScanImplementationLookup {
 
@@ -104,22 +98,6 @@ public class ClassPathScanImplementationLookup {
         });
     }
 
-    private ExternalResourceProvider resourceProvider = new IdRepoExternalResourceProvider();
-
-    private AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps =
-            new IdRepoAnyWizardBuilderAdditionalSteps();
-
-    private StatusProvider statusProvider = new IdRepoStatusProvider();
-
-    private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider = new IdRepoVirSchemaDetailsPanelProvider();
-
-    private AnyDirectoryPanelAditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider =
-            new IdRepoAnyDirectoryPanelAditionalActionLinksProvider();
-
-    private ImplementationInfoProvider implementationInfoProvider = new IdRepoImplementationInfoProvider(this);
-
-    private PolicyTabProvider policyTabProvider = new IdRepoPolicyTabProvider();
-
     private List<Class<? extends BasePage>> pages;
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
@@ -153,7 +131,7 @@ public class ClassPathScanImplementationLookup {
      *
      * @return basePackage for classpath scanning
      */
-    protected String getBasePackage() {
+    protected static String getBasePackage() {
         return DEFAULT_BASE_PACKAGE;
     }
 
@@ -191,14 +169,14 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(AnyWizardBuilderAdditionalSteps.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(StatusProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(VirSchemaDetailsPanelProvider.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AnyDirectoryPanelAditionalActionLinksProvider.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AnyDirectoryPanelAdditionalActionLinksProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ImplementationInfoProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PolicyTabProvider.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
-                        bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                        Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
                 if (!isAbstractClazz) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {
@@ -251,61 +229,6 @@ public class ClassPathScanImplementationLookup {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     Resource.class.getName(), clazz.getName());
                         }
-                    } else if (ExternalResourceProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoExternalResourceProvider.class)
-                                && !clazz.isInstance(resourceProvider)) {
-
-                            resourceProvider = (ExternalResourceProvider) clazz.
-                                    getConstructor().newInstance();
-                        }
-                    } else if (AnyWizardBuilderAdditionalSteps.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoAnyWizardBuilderAdditionalSteps.class)
-                                && !clazz.isInstance(anyWizardBuilderAdditionalSteps)) {
-
-                            anyWizardBuilderAdditionalSteps = (AnyWizardBuilderAdditionalSteps) clazz.
-                                    getConstructor().newInstance();
-                        }
-                    } else if (StatusProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoStatusProvider.class)
-                                && !clazz.isInstance(statusProvider)) {
-
-                            statusProvider = (StatusProvider) clazz.
-                                    getConstructor().newInstance();
-                        }
-                    } else if (VirSchemaDetailsPanelProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoVirSchemaDetailsPanelProvider.class)
-                                && !clazz.isInstance(virSchemaDetailsPanelProvider)) {
-
-                            virSchemaDetailsPanelProvider = (VirSchemaDetailsPanelProvider) clazz.
-                                    getConstructor().newInstance();
-                        }
-                    } else if (AnyDirectoryPanelAditionalActionLinksProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoAnyDirectoryPanelAditionalActionLinksProvider.class)
-                                && !clazz.isInstance(anyDirectoryPanelAditionalActionLinksProvider)) {
-
-                            anyDirectoryPanelAditionalActionLinksProvider =
-                                    (AnyDirectoryPanelAditionalActionLinksProvider) clazz.
-                                            getConstructor().newInstance();
-
-                        }
-                    } else if (ImplementationInfoProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoImplementationInfoProvider.class)
-                                && !clazz.isInstance(implementationInfoProvider)) {
-
-                            implementationInfoProvider =
-                                    (ImplementationInfoProvider) clazz.
-                                            getConstructor(ClassPathScanImplementationLookup.class).newInstance(this);
-
-                        }
-                    } else if (PolicyTabProvider.class.isAssignableFrom(clazz)) {
-                        if (!clazz.equals(IdRepoPolicyTabProvider.class)
-                                && !clazz.isInstance(policyTabProvider)) {
-
-                            policyTabProvider =
-                                    (PolicyTabProvider) clazz.
-                                            getConstructor().newInstance();
-
-                        }
                     }
                 }
             } catch (Throwable t) {
@@ -315,29 +238,19 @@ public class ClassPathScanImplementationLookup {
         pages = Collections.unmodifiableList(pages);
         previewers = Collections.unmodifiableList(previewers);
 
-        idmPages.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(IdMPage.class).priority(),
-                o2.getAnnotation(IdMPage.class).priority()));
+        idmPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         idmPages = Collections.unmodifiableList(idmPages);
 
-        amPages.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(IdMPage.class).priority(),
-                o2.getAnnotation(IdMPage.class).priority()));
+        amPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         amPages = Collections.unmodifiableList(amPages);
 
-        extPages.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(ExtPage.class).priority(),
-                o2.getAnnotation(ExtPage.class).priority()));
+        extPages.sort(Comparator.comparing(o -> o.getAnnotation(ExtPage.class).priority()));
         extPages = Collections.unmodifiableList(extPages);
 
-        extWidgets.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(ExtWidget.class).priority(),
-                o2.getAnnotation(ExtWidget.class).priority()));
+        extWidgets.sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
         extWidgets = Collections.unmodifiableList(extWidgets);
 
-        extAlertWidgets.sort((o1, o2) -> ObjectUtils.compare(
-                o1.getAnnotation(ExtWidget.class).priority(),
-                o2.getAnnotation(ExtWidget.class).priority()));
+        extAlertWidgets.sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
         extAlertWidgets = Collections.unmodifiableList(extAlertWidgets);
 
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
@@ -361,21 +274,6 @@ public class ClassPathScanImplementationLookup {
         LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
         LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
         LOG.debug("Wicket Resources found: {}", resources);
-
-        LOG.debug("{}: {}", ExternalResourceProvider.class.getSimpleName(),
-                resourceProvider.getClass().getSimpleName());
-        LOG.debug("{}: {}", AnyWizardBuilderAdditionalSteps.class.getSimpleName(),
-                anyWizardBuilderAdditionalSteps.getClass().getSimpleName());
-        LOG.debug("{}: {}", StatusProvider.class.getSimpleName(),
-                statusProvider.getClass().getSimpleName());
-        LOG.debug("{}: {}", VirSchemaDetailsPanelProvider.class.getSimpleName(),
-                virSchemaDetailsPanelProvider.getClass().getSimpleName());
-        LOG.debug("{}: {}", AnyDirectoryPanelAditionalActionLinksProvider.class.getSimpleName(),
-                anyDirectoryPanelAditionalActionLinksProvider.getClass().getSimpleName());
-        LOG.debug("{}: {}", ImplementationInfoProvider.class.getSimpleName(),
-                implementationInfoProvider.getClass().getSimpleName());
-        LOG.debug("{}: {}", PolicyTabProvider.class.getSimpleName(),
-                policyTabProvider.getClass().getSimpleName());
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -442,33 +340,5 @@ public class ClassPathScanImplementationLookup {
 
     public List<Class<? extends AbstractResource>> getResources() {
         return resources;
-    }
-
-    public ExternalResourceProvider getResourceProvider() {
-        return resourceProvider;
-    }
-
-    public AnyWizardBuilderAdditionalSteps getAnyWizardBuilderAdditionalSteps() {
-        return anyWizardBuilderAdditionalSteps;
-    }
-
-    public StatusProvider getStatusProvider() {
-        return statusProvider;
-    }
-
-    public VirSchemaDetailsPanelProvider getVirSchemaDetailsPanelProvider() {
-        return virSchemaDetailsPanelProvider;
-    }
-
-    public AnyDirectoryPanelAditionalActionLinksProvider getAnyDirectoryPanelAditionalActionLinksProvider() {
-        return anyDirectoryPanelAditionalActionLinksProvider;
-    }
-
-    public ImplementationInfoProvider getImplementationInfoProvider() {
-        return implementationInfoProvider;
-    }
-
-    public PolicyTabProvider getPolicyTabProvider() {
-        return policyTabProvider;
     }
 }

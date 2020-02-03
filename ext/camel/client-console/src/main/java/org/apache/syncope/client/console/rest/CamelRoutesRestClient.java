@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.CamelMetrics;
@@ -30,21 +29,21 @@ public class CamelRoutesRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2018208424159468912L;
 
-    public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
+    public static List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
         return isCamelEnabledFor(anyTypeKind)
                 ? getService(CamelRouteService.class).list(anyTypeKind)
-                : Collections.<CamelRouteTO>emptyList();
+                : List.of();
     }
 
-    public CamelRouteTO read(final AnyTypeKind anyTypeKind, final String key) {
+    public static CamelRouteTO read(final AnyTypeKind anyTypeKind, final String key) {
         return getService(CamelRouteService.class).read(anyTypeKind, key);
     }
 
-    public void update(final AnyTypeKind anyTypeKind, final CamelRouteTO routeTO) {
+    public static void update(final AnyTypeKind anyTypeKind, final CamelRouteTO routeTO) {
         getService(CamelRouteService.class).update(anyTypeKind, routeTO);
     }
 
-    public boolean isCamelEnabledFor(final AnyTypeKind anyTypeKind) {
+    public static boolean isCamelEnabledFor(final AnyTypeKind anyTypeKind) {
         return anyTypeKind == AnyTypeKind.USER
                 ? SyncopeConsoleSession.get().getPlatformInfo().
                         getProvisioningInfo().getUserProvisioningManager().contains("Camel")
@@ -56,7 +55,7 @@ public class CamelRoutesRestClient extends BaseRestClient {
 
     }
 
-    public CamelMetrics metrics() {
+    public static CamelMetrics metrics() {
         return getService(CamelRouteService.class).metrics();
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Future;
 import org.identityconnectors.common.security.GuardedString;
@@ -129,7 +128,7 @@ public class AsyncConnectorFacade {
 
     @Async
     public Future<Set<ObjectClassInfo>> getObjectClassInfo(final ConnectorFacade connector) {
-        Set<ObjectClassInfo> result = Collections.emptySet();
+        Set<ObjectClassInfo> result = Set.of();
 
         try {
             result = connector.schema().getObjectClassInfo();

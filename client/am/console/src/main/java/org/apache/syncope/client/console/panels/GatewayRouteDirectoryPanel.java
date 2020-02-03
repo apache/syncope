@@ -21,11 +21,9 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
@@ -82,13 +80,12 @@ public class GatewayRouteDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    restClient.push();
+                    GatewayRouteRestClient.push();
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While pushing to SRA", e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -124,7 +121,7 @@ public class GatewayRouteDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final GatewayRouteTO ignore) {
                 send(GatewayRouteDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.read(model.getObject().getKey()), target));
+                                GatewayRouteRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.GATEWAY_ROUTE_UPDATE);
 
@@ -149,13 +146,12 @@ public class GatewayRouteDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final GatewayRouteTO ignore) {
                 GatewayRouteTO route = model.getObject();
                 try {
-                    restClient.delete(route.getKey());
+                    GatewayRouteRestClient.delete(route.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", route.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -166,7 +162,7 @@ public class GatewayRouteDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -179,7 +175,7 @@ public class GatewayRouteDirectoryPanel
         return AMConstants.PREF_GATEWAYROUTE_PAGINATOR_ROWS;
     }
 
-    protected final class GatewayRouteProvider extends DirectoryDataProvider<GatewayRouteTO> {
+    protected static final class GatewayRouteProvider extends DirectoryDataProvider<GatewayRouteTO> {
 
         private static final long serialVersionUID = 5282134321828253058L;
 
@@ -193,14 +189,14 @@ public class GatewayRouteDirectoryPanel
 
         @Override
         public Iterator<? extends GatewayRouteTO> iterator(final long first, final long count) {
-            List<GatewayRouteTO> list = restClient.list();
-            Collections.sort(list, comparator);
+            List<GatewayRouteTO> list = GatewayRouteRestClient.list();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return GatewayRouteRestClient.list().size();
         }
 
         @Override

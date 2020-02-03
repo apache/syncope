@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "anyType")
@@ -66,4 +68,31 @@ public class AnyTypeTO implements EntityTO {
         return classes;
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AnyTypeTO other = (AnyTypeTO) obj;
+        return new EqualsBuilder().
+                append(key, other.key).
+                append(kind, other.kind).
+                append(classes, other.classes).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(kind).
+                append(classes).
+                build();
+    }
 }

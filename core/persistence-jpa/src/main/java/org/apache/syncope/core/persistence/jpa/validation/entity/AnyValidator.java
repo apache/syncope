@@ -33,10 +33,10 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 @SuppressWarnings("rawtypes")
 public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
 
-    private boolean raiseNotAllowedViolation(
-            final ConstraintValidatorContext context,
-            final String schema,
-            final Group group) {
+    private static boolean raiseNotAllowedViolation(
+        final ConstraintValidatorContext context,
+        final String schema,
+        final Group group) {
 
         if (group == null) {
             context.buildConstraintViolationWithTemplate(

@@ -44,70 +44,70 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void users() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = UTILITY_UI.findComponentByProp("username", CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(CONTAINER
+        FormTester formTester = TESTER.newFormTester(CONTAINER
                 + "searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 2);
 
-        UTILITY_UI.getTester().executeAjaxEvent(CONTAINER + "searchContainer:resultTable:tablePanel:batchLink",
+        TESTER.executeAjaxEvent(CONTAINER + "searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(CONTAINER
+        TESTER.assertComponent(CONTAINER
                 + "searchContainer:resultTable:batchModal:form:content:content:container", WebMarkupContainer.class);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("username", CONTAINER
+        assertNotNull(findComponentByProp("username", CONTAINER
                 + "searchContainer:resultTable:batchModal:form:content:content:container", "rossini"));
     }
 
     @Test
     public void userResource() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = UTILITY_UI.findComponentByProp("username", CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         // manage resource
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:5:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
                 + "action:action");
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        component = UTILITY_UI.findComponentByProp("resource",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "resource-csv");
         assertNotNull(component);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 0);
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
                 + "form:content:status:secondLevelContainer:second:container", "resource-csv"));
     }
 
@@ -121,258 +121,258 @@ public class BatchesITCase extends AbstractConsoleITCase {
         userStatusBatch(0, Constants.SYNCOPE);
     }
 
-    private void userStatusBatch(final int index, final String resource) {
+    private static void userStatusBatch(final int index, final String resource) {
         // suspend 
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = UTILITY_UI.findComponentByProp("username", CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         // enable
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:"
                 + "action:action");
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        component = UTILITY_UI.findComponentByProp("resource",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
-        component = UTILITY_UI.getTester().getComponentFromLastRenderedPage(component.getPageRelativePath()
+        component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath()
                 + ":cells:1:cell:check");
         assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
         assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", index);
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         // suspend link
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL
+        TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:"
                 + "second:container:actions:actionRepeater:0:action:action",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL
+        TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
                 Constants.ON_CLICK);
 
-        component = UTILITY_UI.findComponentByProp("resource",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
-        component = UTILITY_UI.getTester().getComponentFromLastRenderedPage(component.getPageRelativePath()
+        component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath()
                 + ":cells:1:cell:check");
         assertEquals(Status.SUSPENDED, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
         assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         // re-activate
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        component = UTILITY_UI.findComponentByProp("username", CONTAINER
+        component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         // enable
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:"
                 + "action:action");
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", index);
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         // suspend link
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL
+        TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:"
                 + "second:container:actions:actionRepeater:1:action:action",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL
+        TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
                 Constants.ON_CLICK);
 
-        component = UTILITY_UI.findComponentByProp("resource",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
-        component = UTILITY_UI.getTester().getComponentFromLastRenderedPage(component.getPageRelativePath()
+        component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath()
                 + ":cells:1:cell:check");
         assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
         assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL
+        TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
     }
 
     @Test
     public void groupResource() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
-        Component component = UTILITY_UI.findComponentByProp("name", CONTAINER
+        Component component = findComponentByProp("name", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         // manage resource
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:6:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:5:"
                 + "action:action");
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:"
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:2:header:orderByLink", true);
 
-        component = UTILITY_UI.findComponentByProp("resource",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "resource-ldap");
         assertNotNull(component);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 0);
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
                 + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-ldap"));
     }
 
     @Test
     public void printerResource() {
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
-        Component component = UTILITY_UI.findComponentByProp("key", CONTAINER
+        Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         // manage resource
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:2:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:"
                 + "action:action");
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        UTILITY_UI.getTester().clickLink(TAB_PANEL
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:"
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:2:header:orderByLink", true);
 
-        component = UTILITY_UI.findComponentByProp("resource",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "resource-db-scripted");
         assertNotNull(component);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 0);
 
-        UTILITY_UI.getTester().executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(UTILITY_UI.findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
                 + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-db-scripted"));
     }
 
     @Test
     public void executePropagationTask() {
-        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
 
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "resource-testdb");
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:container:content:togglePanelContainer:container:actions:propagation");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 0);
 
-        UTILITY_UI.getTester().executeAjaxEvent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"
                 + "second:container:selectedObjects:body:rows:1:cells:1:cell", Label.class);
     }

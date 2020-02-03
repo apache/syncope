@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.notifications;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +62,7 @@ public class MailTemplateDirectoryPanel
 
     private static final long serialVersionUID = -3789392431954221446L;
 
-    protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public MailTemplateDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);
@@ -110,7 +109,9 @@ public class MailTemplateDirectoryPanel
     @Override
     protected List<IColumn<MailTemplateTO, String>> getColumns() {
         List<IColumn<MailTemplateTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this),
+                Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         return columns;
     }
 
@@ -166,8 +167,7 @@ public class MailTemplateDirectoryPanel
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                            getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -188,7 +188,7 @@ public class MailTemplateDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     protected final class MailTemplateProvider extends DirectoryDataProvider<MailTemplateTO> {
@@ -199,14 +199,14 @@ public class MailTemplateDirectoryPanel
 
         public MailTemplateProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<MailTemplateTO> iterator(final long first, final long count) {
             final List<MailTemplateTO> list = restClient.listTemplates();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
@@ -256,8 +256,7 @@ public class MailTemplateDirectoryPanel
                     modal.close(target);
                 } catch (Exception e) {
                     LOG.error("While updating template for {}", content.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

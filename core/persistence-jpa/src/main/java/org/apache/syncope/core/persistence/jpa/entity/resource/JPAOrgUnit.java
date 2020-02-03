@@ -78,21 +78,18 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
 
     @Override
     public ObjectClass getObjectClass() {
-        return objectClass == null
-                ? null
-                : new ObjectClass(objectClass);
+        return Optional.ofNullable(objectClass).map(ObjectClass::new).orElse(null);
     }
 
     @Override
     public void setObjectClass(final ObjectClass objectClass) {
-        this.objectClass = objectClass == null ? null : objectClass.getObjectClassValue();
+        this.objectClass = Optional.ofNullable(objectClass).map(ObjectClass::getObjectClassValue).orElse(null);
     }
 
     @Override
     public SyncToken getSyncToken() {
-        return serializedSyncToken == null
-                ? null
-                : POJOHelper.deserialize(serializedSyncToken, SyncToken.class);
+        return Optional.ofNullable(serializedSyncToken)
+            .map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
     }
 
     @Override
@@ -102,7 +99,7 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
 
     @Override
     public void setSyncToken(final SyncToken syncToken) {
-        this.serializedSyncToken = syncToken == null ? null : POJOHelper.serialize(syncToken);
+        this.serializedSyncToken = Optional.ofNullable(syncToken).map(POJOHelper::serialize).orElse(null);
     }
 
     @Override

@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class VirSchemaITCase extends AbstractITCase {
@@ -46,15 +47,11 @@ public class VirSchemaITCase extends AbstractITCase {
     public void search() {
         List<VirSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
         assertFalse(schemas.isEmpty());
-        schemas.forEach(schemaTO -> {
-            assertNotNull(schemaTO);
-        });
+        schemas.forEach(Assertions::assertNotNull);
 
         schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).keyword("rvirtual*").build());
         assertFalse(schemas.isEmpty());
-        schemas.forEach(schemaTO -> {
-            assertNotNull(schemaTO);
-        });
+        schemas.forEach(Assertions::assertNotNull);
     }
 
     @Test

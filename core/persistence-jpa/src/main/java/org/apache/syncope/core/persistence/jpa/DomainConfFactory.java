@@ -22,7 +22,9 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -58,24 +60,24 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         this.env = env;
     }
 
-    private void unregisterSingleton(final String name) {
+    private static void unregisterSingleton(final String name) {
         if (ApplicationContextProvider.getBeanFactory().containsSingleton(name)) {
             ApplicationContextProvider.getBeanFactory().destroySingleton(name);
         }
     }
 
-    private void registerSingleton(final String name, final Object bean) {
+    private static void registerSingleton(final String name, final Object bean) {
         unregisterSingleton(name);
         ApplicationContextProvider.getBeanFactory().registerSingleton(name, bean);
     }
 
-    private void unregisterBeanDefinition(final String name) {
+    private static void unregisterBeanDefinition(final String name) {
         if (ApplicationContextProvider.getBeanFactory().containsBeanDefinition(name)) {
             ApplicationContextProvider.getBeanFactory().removeBeanDefinition(name);
         }
     }
 
-    private void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
+    private static void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
         unregisterBeanDefinition(name);
         ApplicationContextProvider.getBeanFactory().registerBeanDefinition(name, beanDefinition);
     }
@@ -133,9 +135,10 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
                 addPropertyValue("jpaVendorAdapter", vendorAdapter).
                 addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf");
         if (env.containsProperty("openjpaMetaDataFactory")) {
-            emf.addPropertyValue("jpaPropertyMap", Collections.singletonMap(
+            emf.addPropertyValue("jpaPropertyMap", Map.of(
                     "openjpa.MetaDataFactory",
-                    env.getProperty("openjpaMetaDataFactory").replace("##orm##", domain.getOrm())));
+                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory"))
+                        .replace("##orm##", domain.getOrm())));
         }
         registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
         ApplicationContextProvider.getBeanFactory().getBean(domain.getKey() + "EntityManagerFactory");

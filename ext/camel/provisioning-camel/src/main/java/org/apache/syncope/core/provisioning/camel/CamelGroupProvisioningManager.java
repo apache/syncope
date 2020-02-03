@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class CamelGroupProvisioningManager
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("excludedResources", Collections.<String>emptySet());
+        props.put("excludedResources", Set.of());
         props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:createGroup", req, props);
@@ -86,7 +85,7 @@ public class CamelGroupProvisioningManager
 
     @Override
     public Pair<GroupUR, List<PropagationStatus>> update(final GroupUR groupUR, final boolean nullPriorityAsync) {
-        return update(groupUR, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(groupUR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -114,7 +113,7 @@ public class CamelGroupProvisioningManager
 
     @Override
     public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
+        return delete(key, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

@@ -19,6 +19,8 @@
 package org.apache.syncope.client.ui.commons.ajax.markup.html;
 
 import java.util.Collection;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
@@ -32,7 +34,7 @@ public class LabelInfo extends Label {
 
     public LabelInfo(final String id, final String title) {
         super(id, StringUtils.EMPTY);
-        this.title = title == null ? StringUtils.EMPTY : StringUtils.abbreviate(title, 30);
+        this.title = Optional.ofNullable(title).map(s -> StringUtils.abbreviate(s, 30)).orElse(StringUtils.EMPTY);
     }
 
     public LabelInfo(final String id, final Collection<String> title) {

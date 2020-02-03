@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.io.Serializable;
 
+@FunctionalInterface
 public interface Entity extends Serializable {
 
     String getKey();

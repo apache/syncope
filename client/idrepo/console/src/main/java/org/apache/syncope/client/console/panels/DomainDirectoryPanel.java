@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
@@ -58,7 +56,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
     @SpringBean
     private DomainOps domainOps;
 
-    private final BaseModal<Domain> utilityModal = new BaseModal<>("outer");
+    private final BaseModal<Domain> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public DomainDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
@@ -142,8 +140,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
                     target.add(container);
                 } catch (KeymasterException e) {
                     LOG.error("While deleting {}", domain.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -164,7 +161,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
 
     }
 
@@ -183,7 +180,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
         @Override
         public Iterator<? extends Domain> iterator(final long first, final long count) {
             List<Domain> list = domainOps.list();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

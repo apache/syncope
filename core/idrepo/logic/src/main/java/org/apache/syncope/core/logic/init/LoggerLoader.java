@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.init;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,6 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
-import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -41,6 +41,7 @@ import org.apache.syncope.core.logic.MemoryAppender;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,21 +65,19 @@ public class LoggerLoader implements SyncopeCoreLoader {
         return 300;
     }
 
-    private ColumnConfig[] buildColumnConfigs(final LoggerContext ctx) {
-        ColumnConfig[] columnConfigs = {
-            ColumnConfig.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),
-            ColumnConfig.newBuilder().setUnicode(false).
+    private static ColumnMapping[] buildColumnMappings(final LoggerContext ctx) {
+        return new ColumnMapping[] {
+            ColumnMapping.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setType(Timestamp.class).build(),
+            ColumnMapping.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
-            ColumnConfig.newBuilder().setUnicode(false).
+            ColumnMapping.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
-            ColumnConfig.newBuilder().setUnicode(false).
-            setConfiguration(ctx.getConfiguration()).setName("MESSAGE").setPattern("%message").build(),
-            ColumnConfig.newBuilder().setUnicode(false).
+            ColumnMapping.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName(AuditDAO.MESSAGE_COLUMN).setPattern("%message").build(),
+            ColumnMapping.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
-
-        return columnConfigs;
     }
 
     @Override
@@ -87,9 +86,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
 
         ctx.getConfiguration().getAppenders().entrySet().stream().
                 filter(entry -> (entry.getValue() instanceof MemoryAppender)).
-                forEach(entry -> {
-                    memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
-                });
+                forEach(entry -> memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue()));
 
         // Audit table and DataSource for the given domain
         Appender appender = ctx.getConfiguration().getAppender("audit_for_" + domain);
@@ -99,9 +96,8 @@ public class LoggerLoader implements SyncopeCoreLoader {
                     setIgnoreExceptions(false).
                     setConnectionSource(new DataSourceConnectionSource(domain, datasource)).
                     setBufferSize(0).
-                    setTableName("SYNCOPEAUDIT").
-                    setColumnConfigs(buildColumnConfigs(ctx)).
-                    setColumnMappings(new ColumnMapping[0]).
+                    setTableName(AuditDAO.TABLE).
+                    setColumnMappings(buildColumnMappings(ctx)).
                     build();
             appender.start();
             ctx.getConfiguration().addAppender(appender);
@@ -112,22 +108,20 @@ public class LoggerLoader implements SyncopeCoreLoader {
             ctx.getConfiguration().addLogger(logConf.getName(), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            auditAppenders(domain).forEach(auditAppender -> {
-                auditAppender.getEvents().stream().
-                        map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
-                        forEachOrdered(domainAuditLoggerName -> {
-                            LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
-                            boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
-                            if (isRootLogConf) {
-                                eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
-                            }
-                            addAppenderToContext(ctx, auditAppender, eventLogConf);
-                            eventLogConf.setLevel(Level.DEBUG);
-                            if (isRootLogConf) {
-                                ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
-                            }
-                        });
-            });
+            auditAppenders(domain).forEach(auditAppender -> auditAppender.getEvents().stream().
+                    map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
+                    forEachOrdered(domainAuditLoggerName -> {
+                        LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+                        boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
+                        if (isRootLogConf) {
+                            eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
+                        }
+                        addAppenderToContext(ctx, auditAppender, eventLogConf);
+                        eventLogConf.setLevel(Level.DEBUG);
+                        if (isRootLogConf) {
+                            ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
+                        }
+                    }));
 
             AuthContextUtils.callAsAdmin(domain, () -> {
                 loggerAccessor.synchronizeLog4J(ctx);
@@ -158,7 +152,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
         }).collect(Collectors.toList());
     }
 
-    public void addAppenderToContext(
+    public static void addAppenderToContext(
             final LoggerContext ctx,
             final AuditAppender auditAppender,
             final LoggerConfig eventLogConf) {

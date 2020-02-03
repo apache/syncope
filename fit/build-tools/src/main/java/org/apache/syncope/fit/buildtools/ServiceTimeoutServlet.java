@@ -36,15 +36,15 @@ public class ServiceTimeoutServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP
-     * <code>GET</code> and
-     * <code>POST</code> methods.
+     * {@code GET} and
+     * {@code POST} methods.
      *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(final HttpServletRequest request, final HttpServletResponse response)
+    protected static void processRequest(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("text/html;charset=UTF-8");
@@ -62,7 +62,7 @@ public class ServiceTimeoutServlet extends HttpServlet {
 
     /**
      * Handles the HTTP
-     * <code>GET</code> method.
+     * {@code GET} method.
      *
      * @param request servlet request
      * @param response servlet response
@@ -78,7 +78,7 @@ public class ServiceTimeoutServlet extends HttpServlet {
 
     /**
      * Handles the HTTP
-     * <code>POST</code> method.
+     * {@code POST} method.
      *
      * @param request servlet request
      * @param response servlet response

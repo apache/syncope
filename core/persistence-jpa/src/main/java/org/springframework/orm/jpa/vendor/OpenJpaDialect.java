@@ -87,7 +87,7 @@ public class OpenJpaDialect extends DefaultJpaDialect {
      * @param em the generic {@code EntityManager} instance
      * @return the OpenJPA-specific variant of {@code EntityManager}
      */
-    protected OpenJPAEntityManager getOpenJPAEntityManager(final EntityManager em) {
+    protected static OpenJPAEntityManager getOpenJPAEntityManager(final EntityManager em) {
         return OpenJPAPersistence.cast(em);
     }
 

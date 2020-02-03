@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
         this.sCondWrapper = sCondWrapper;
 
-        this.excluded = new ArrayList<>(Arrays.asList(excluded));
+        this.excluded = new ArrayList<>(List.of(excluded));
         this.excluded.add("serialVersionUID");
         this.excluded.add("class");
 
@@ -187,17 +186,17 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             switch (type) {
                                 case PLAIN:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 case DERIVED:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 case VIRTUAL:
                                     choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 default:
@@ -213,7 +212,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
                                 "value",
                                 new PropertyModel<>(bean.getObject(), fieldName),
-                                new ListModel(Arrays.asList(listItemType.getEnumConstants()))).hideLabel();
+                                new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(bean.getObject(), fieldName)).build(
@@ -232,8 +231,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private FieldPanel buildSinglePanel(
-            final Serializable bean, final Class<?> type, final String fieldName, final String id) {
+    private static FieldPanel buildSinglePanel(
+        final Serializable bean, final Class<?> type, final String fieldName, final String id) {
         FieldPanel result = null;
         PropertyModel model = new PropertyModel(bean, fieldName);
         if (ClassUtils.isAssignable(Boolean.class, type)) {
@@ -246,7 +245,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         } else if (type.isEnum()) {
             result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(
-                    Arrays.asList(type.getEnumConstants()));
+                    List.of(type.getEnumConstants()));
         }
 
         // treat as String if nothing matched above

@@ -60,7 +60,7 @@ public class InvalidEntityException extends ValidationException {
     }
 
     /**
-     * Constructs a map of violations out of given <tt>ConstraintViolation</tt> set.
+     * Constructs a map of violations out of given {@code ConstraintViolation} set.
      *
      * @param entityClassSimpleName simple class name of invalid entity
      * @param violations as returned by bean validation
@@ -116,9 +116,8 @@ public class InvalidEntityException extends ValidationException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        violations.forEach((key, value) -> {
-            sb.append(key.getSimpleName()).append(' ').append(value.toString()).append(", ");
-        });
+        violations.forEach(
+                (key, value) -> sb.append(key.getSimpleName()).append(' ').append(value.toString()).append(", "));
         sb.delete(sb.lastIndexOf(", "), sb.length());
 
         return sb.toString();

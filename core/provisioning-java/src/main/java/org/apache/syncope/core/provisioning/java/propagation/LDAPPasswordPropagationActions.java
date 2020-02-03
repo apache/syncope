@@ -74,7 +74,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                     byte[] decodedPassword = DatatypeConverter.parseHexBinary(password);
                     String base64EncodedPassword = Base64.getEncoder().encodeToString(decodedPassword);
 
-                    String cipherPlusPassword = ("{" + cipherAlgorithm.toLowerCase() + "}" + base64EncodedPassword);
+                    String cipherPlusPassword = ('{' + cipherAlgorithm.toLowerCase() + '}' + base64EncodedPassword);
 
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(
                             new GuardedString(cipherPlusPassword.toCharArray()));
@@ -89,7 +89,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
         }
     }
 
-    private String getCipherAlgorithm(final ConnInstance connInstance) {
+    private static String getCipherAlgorithm(final ConnInstance connInstance) {
         Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
                 filter(property -> "passwordHashAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
@@ -99,7 +99,8 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                 : CLEARTEXT;
     }
 
-    private boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
+    private static boolean cipherAlgorithmMatches(final String connectorAlgorithm,
+                                                  final CipherAlgorithm userAlgorithm) {
         if (userAlgorithm == null) {
             return false;
         }
@@ -109,8 +110,8 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
         }
 
         // Special check for "SHA" and "SSHA" (user pulled from LDAP)
-        if (("SHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SHA"))
-                || ("SSHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SSHA"))) {
+        if ("SHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SHA")
+            || "SSHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SSHA")) {
 
             return true;
         }

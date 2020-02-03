@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -65,7 +66,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
     protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
 
-    protected abstract class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
+    protected abstract static class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
@@ -74,13 +75,13 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         public TasksProvider(final int paginatorRows, final TaskType id) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.ASCENDING);
+            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             this.id = id;
         }
 
         @Override
         public long size() {
-            return restClient.count(id);
+            return TaskRestClient.count(id);
         }
 
         @Override

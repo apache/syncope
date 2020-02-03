@@ -54,7 +54,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
     @Lazy
     private ExternalResourceDAO resourceDAO;
 
-    private <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
+    private static <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
         return AccountPolicy.class.isAssignableFrom(reference)
                 ? JPAAccountPolicy.class
                 : PasswordPolicy.class.isAssignableFrom(reference)

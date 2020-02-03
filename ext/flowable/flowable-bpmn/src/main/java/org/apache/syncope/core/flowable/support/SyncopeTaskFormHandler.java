@@ -44,8 +44,8 @@ public class SyncopeTaskFormHandler extends DefaultTaskFormHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeTaskFormHandler.class);
 
-    protected Optional<AbstractFormType> parseFormPropertyType(
-            final FormProperty formProperty, final ExpressionManager expressionManager) {
+    protected static Optional<AbstractFormType> parseFormPropertyType(
+        final FormProperty formProperty, final ExpressionManager expressionManager) {
 
         AbstractFormType formType = null;
 
@@ -89,7 +89,7 @@ public class SyncopeTaskFormHandler extends DefaultTaskFormHandler {
             formPropertyHandler.setName(formProperty.getName());
 
             AbstractFormType type = parseFormPropertyType(formProperty, expressionManager).
-                    orElse(formTypes.parseFormPropertyType(formProperty));
+                orElseGet(() -> formTypes.parseFormPropertyType(formProperty));
             formPropertyHandler.setType(type);
             formPropertyHandler.setRequired(formProperty.isRequired());
             formPropertyHandler.setReadable(formProperty.isReadable());

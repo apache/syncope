@@ -23,6 +23,7 @@ import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public class AjaxDateFieldPanel extends DateFieldPanel {
 
@@ -36,7 +37,7 @@ public class AjaxDateFieldPanel extends DateFieldPanel {
         super(id, name, model, datePattern);
 
         field = new AjaxDatePicker("field", model, getLocale(), datePattern.getPattern());
-        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
     }
 
     @Override

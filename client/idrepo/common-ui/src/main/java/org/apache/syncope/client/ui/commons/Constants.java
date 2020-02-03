@@ -57,6 +57,8 @@ public final class Constants {
 
     public static final String ON_CHANGE = "change";
 
+    public static final String ON_KEYDOWN = "keydown";
+
     public static final String ON_BLUR = "blur";
 
     public static final String PNG_EXT = ".png";
@@ -74,6 +76,10 @@ public final class Constants {
     public static final String UNEXPECTED_CONDITION_ERROR = "unexpected_condition_error";
 
     public static final String ERROR = "error";
+
+    public static final String OUTER = "outer";
+
+    public static final String ACTION = "action";
 
     public static final String BEFORE_LOGOUT_PAGE = "beforeLogoutPage";
 
@@ -102,6 +108,8 @@ public final class Constants {
     public static final String NOTIFICATION_MSG_PARAM = "notificationMessage";
 
     public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";
+
+    public static final String ENDUSER_ANYLAYOUT = "enduser.anylayout";
 
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
         return getJEXLPopover(caller, placement, caller.getString("jexl_ex1"), caller.getString("jexl_ex2"));

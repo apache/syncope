@@ -34,6 +34,8 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
+    <ianal.skip>true</ianal.skip>
+
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
@@ -122,7 +124,7 @@ under the License.
           <container>
             <containerId>tomcat9x</containerId>
             <zipUrlInstaller>
-              <url>http://central.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
+              <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
               <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
@@ -155,7 +157,7 @@ under the License.
             <deployable>
               <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
               <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
-              <pingTimeout>60000</pingTimeout>
+              <pingTimeout>${cargo.deployable.ping.timeout}</pingTimeout>
               <properties>
                 <context>syncope</context>
               </properties>
@@ -175,14 +177,6 @@ under the License.
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
-        </configuration>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
         </configuration>
       </plugin>
     </plugins>

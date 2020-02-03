@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,6 +75,7 @@ import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -154,7 +154,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String username = queryForObject(
-                jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+                jdbcTemplate, MAX_WAIT_SECONDS, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
         assertEquals(userTO.getUsername(), username);
 
         UserUR userUR = new UserUR();
@@ -185,11 +185,11 @@ public class UserIssuesITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
 
         userUR.setKey(userTO.getKey());
-        userUR.setUsername(new StringReplacePatchItem.Builder().value("1" + userTO.getUsername()).build());
+        userUR.setUsername(new StringReplacePatchItem.Builder().value('1' + userTO.getUsername()).build());
 
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
-        assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
+        assertEquals('1' + inUserTO.getUsername(), userTO.getUsername());
     }
 
     @Test
@@ -602,9 +602,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
         ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
                 filter(item -> ("description".equals(item.getExtAttrName()))).
-                forEachOrdered(item -> {
-                    item.setExtAttrName("uniqueMember");
-                });
+                forEachOrdered(item -> item.setExtAttrName("uniqueMember"));
         resourceService.update(ldap);
 
         // 1. create group with LDAP resource
@@ -655,9 +653,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 7. restore original resource-ldap group mapping
         ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
                 filter(item -> ("uniqueMember".equals(item.getExtAttrName()))).
-                forEachOrdered(item -> {
-                    item.setExtAttrName("description");
-                });
+                forEachOrdered(item -> item.setExtAttrName("description"));
         resourceService.update(ldap);
     }
 
@@ -797,7 +793,7 @@ public class UserIssuesITCase extends AbstractITCase {
         }
         assertNotNull(logicActions);
 
-        RealmTO realm = realmService.list("/even/two").get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
         assertNotNull(realm);
         realm.getActions().add(logicActions.getKey());
         realmService.update(realm);
@@ -849,7 +845,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
         userTO = result.getEntity();
-        assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
+        assertEquals(Set.of(RESOURCE_NAME_WS1), userTO.getResources());
         assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertTrue(result.getPropagationStatuses().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
@@ -1227,7 +1223,7 @@ public class UserIssuesITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.list("/even/two").get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
         String oldPasswordPolicy = realm.getPasswordPolicy();
         realm.setPasswordPolicy(passwordPolicy.getKey());
         realmService.update(realm);
@@ -1365,7 +1361,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. remove user
         userService.delete(user.getKey());
 
-        // 5. verify that user is not in LDAP anynmore
+        // 5. verify that user is not in LDAP anymore
         assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
     }
 
@@ -1553,6 +1549,6 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
         assertFalse(userTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
-        assertFalse(userTO.getRoles().contains("Other"),"Should not contain removed roles");
+        assertFalse(userTO.getRoles().contains("Other"), "Should not contain removed roles");
     }
 }

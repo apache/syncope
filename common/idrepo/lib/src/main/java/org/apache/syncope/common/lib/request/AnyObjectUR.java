@@ -20,9 +20,10 @@ package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Arrays;
+
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -60,7 +61,7 @@ public class AnyObjectUR extends AnyUR {
         }
 
         public Builder relationships(final RelationshipUR... relationships) {
-            getInstance().getRelationships().addAll(Arrays.asList(relationships));
+            getInstance().getRelationships().addAll(List.of(relationships));
             return this;
         }
 
@@ -75,7 +76,7 @@ public class AnyObjectUR extends AnyUR {
         }
 
         public Builder memberships(final MembershipUR... memberships) {
-            getInstance().getMemberships().addAll(Arrays.asList(memberships));
+            getInstance().getMemberships().addAll(List.of(memberships));
             return this;
         }
 

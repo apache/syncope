@@ -22,7 +22,6 @@ import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -100,8 +99,7 @@ public class TypeExtensionDirectoryPanel
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Group update failure", e);
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
-
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
@@ -166,7 +164,7 @@ public class TypeExtensionDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.emptyList();
+        return List.of();
     }
 
     protected class TypeExtensionDataProvider extends DirectoryDataProvider<TypeExtensionTO> {
@@ -198,13 +196,13 @@ public class TypeExtensionDirectoryPanel
 
     @Override
     protected void customActionCallback(final AjaxRequestTarget target) {
-        // change modal foter visibility
+        // change modal footer visibility
         send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
     }
 
     @Override
     protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
-        // change modal foter visibility
+        // change modal footer visibility
         send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
     }
 

@@ -20,24 +20,18 @@ package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -66,97 +60,14 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem();
     }
 
-    public static List<? extends Item> getPropagationItems(final List<? extends Item> items) {
-        return items.stream().
-                filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
-                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
+    public static Stream<? extends Item> getPropagationItems(final Stream<? extends Item> items) {
+        return items.filter(
+                item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH);
     }
 
-    public static List<? extends Item> getPullItems(final List<? extends Item> items) {
-        return items.stream().
-                filter(item -> item.getPurpose() == MappingPurpose.PULL
-                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
-    }
-
-    private static Name getName(final String evalConnObjectLink, final String connObjectKey) {
-        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
-        // otherwise evaluated connObjectLink expression is taken as Name().
-        Name name;
-        if (StringUtils.isBlank(evalConnObjectLink)) {
-            // add connObjectKey as __NAME__ attribute ...
-            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
-            name = new Name(connObjectKey);
-        } else {
-            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
-            name = new Name(evalConnObjectLink);
-
-            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("connObjectKey will be used just as __UID__ attribute");
-        }
-
-        return name;
-    }
-
-    /**
-     * Build __NAME__ for propagation.
-     * First look if there is a defined connObjectLink for the given resource (and in
-     * this case evaluate as JEXL); otherwise, take given connObjectKey.
-     *
-     * @param any given any object
-     * @param provision external resource
-     * @param connObjectKey connector object key
-     * @return the value to be propagated as __NAME__
-     */
-    public static Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
-        if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", provision.getResource());
-        }
-
-        // Evaluate connObjectKey expression
-        String connObjectLink = provision == null || provision.getMapping() == null
-                ? null
-                : provision.getMapping().getConnObjectLink();
-        String evalConnObjectLink = null;
-        if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(any, jexlContext);
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addDerAttrsToContext(any, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
-        }
-
-        return getName(evalConnObjectLink, connObjectKey);
-    }
-
-    /**
-     * Build __NAME__ for propagation.
-     * First look if there is a defined connObjectLink for the given resource (and in
-     * this case evaluate as JEXL); otherwise, take given connObjectKey.
-     *
-     * @param realm given any object
-     * @param orgUnit external resource
-     * @param connObjectKey connector object key
-     * @return the value to be propagated as __NAME__
-     */
-    public static Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
-        if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", orgUnit.getResource());
-        }
-
-        // Evaluate connObjectKey expression
-        String connObjectLink = orgUnit == null
-                ? null
-                : orgUnit.getConnObjectLink();
-        String evalConnObjectLink = null;
-        if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(realm, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
-        }
-
-        return getName(evalConnObjectLink, connObjectKey);
+    public static Stream<? extends Item> getPullItems(final Stream<? extends Item> items) {
+        return items.filter(
+                item -> item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH);
     }
 
     public static List<ItemTransformer> getItemTransformers(final Item item) {
@@ -189,24 +100,27 @@ public final class MappingUtils {
     /**
      * Build options for requesting all mapped connector attributes.
      *
-     * @param iterator items
+     * @param items items
+     * @param moreAttrsToGet additional attributes to get
      * @return options for requesting all mapped connector attributes
      * @see OperationOptions
      */
-    public static OperationOptions buildOperationOptions(final Iterator<? extends Item> iterator) {
+    public static OperationOptions buildOperationOptions(
+            final Stream<? extends Item> items,
+            final String... moreAttrsToGet) {
+
         OperationOptionsBuilder builder = new OperationOptionsBuilder();
 
         Set<String> attrsToGet = new HashSet<>();
         attrsToGet.add(Name.NAME);
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
-
-        while (iterator.hasNext()) {
-            Item item = iterator.next();
-            if (item.getPurpose() != MappingPurpose.NONE) {
-                attrsToGet.add(item.getExtAttrName());
-            }
+        if (!ArrayUtils.isEmpty(moreAttrsToGet)) {
+            attrsToGet.addAll(List.of(moreAttrsToGet));
         }
+
+        items.filter(item -> item.getPurpose() != MappingPurpose.NONE).
+                forEach(item -> attrsToGet.add(item.getExtAttrName()));
 
         builder.setAttributesToGet(attrsToGet);
         // -------------------------------------

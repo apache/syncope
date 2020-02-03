@@ -20,10 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -85,7 +83,8 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<PrivilegeTO, String>> getColumns() {
         final List<IColumn<PrivilegeTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
 
         return columns;
@@ -115,13 +114,12 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final PrivilegeTO ignore) {
                 try {
                     application.getPrivileges().remove(model.getObject());
-                    restClient.update(application);
+                    ApplicationRestClient.update(application);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -132,7 +130,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionType> getBatches() {
-        return Collections.<ActionType>emptyList();
+        return List.of();
     }
 
     @Override
@@ -161,7 +159,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<PrivilegeTO> iterator(final long first, final long count) {
             List<PrivilegeTO> list = application.getPrivileges();
-            Collections.sort(list, comparator);
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 

@@ -23,9 +23,11 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
@@ -41,9 +43,12 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
-import org.apache.syncope.fit.ui.UtilityUIT;
 import org.apache.wicket.util.tester.FormTester;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
@@ -56,7 +61,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     protected static UserService userService;
 
-    protected static UtilityUIT UTILITY_UI;
+    protected static SecurityQuestionService securityQuestionService;
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class })
     @Configuration
@@ -69,7 +74,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
         @Bean
         public List<WicketApplicationInitConfiguration> configurations() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         @Bean
@@ -104,22 +109,18 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     @BeforeAll
     public static void setUp() {
-        synchronized (LOG) {
-            if (UTILITY_UI == null) {
-                AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-                ctx.register(SyncopeEnduserWebApplicationTestConfig.class);
-                ctx.register(SyncopeWebApplication.class);
-                ctx.refresh();
+        Locale.setDefault(Locale.ENGLISH);
 
-                UTILITY_UI = new UtilityUIT(new WicketTester(ctx.getBean(SyncopeWebApplication.class)));
-            }
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(SyncopeEnduserWebApplicationTestConfig.class);
+        ctx.register(SyncopeWebApplication.class);
+        ctx.refresh();
 
-            if (SYNCOPE_SERVICE == null) {
-                SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
-                        setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
-                        getService(SyncopeService.class);
-            }
-        }
+        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
+
+        SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
+                setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
+                getService(SyncopeService.class);
     }
 
     @BeforeAll
@@ -135,15 +136,56 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
         userService = adminClient.getService(UserService.class);
+
+        // create test user for must change password
+        userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
+                password("password123").
+                mustChangePassword(true).
+                plainAttr(attr("fullname", "mustchangepassword@apache.org")).
+                plainAttr(attr("firstname", "mustchangepassword@apache.org")).
+                plainAttr(attr("surname", "surname")).
+                plainAttr(attr("ctype", "a type")).
+                plainAttr(attr("userId", "mustchangepassword@apache.org")).
+                plainAttr(attr("email", "mustchangepassword@apache.org")).
+                plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
+                build());
+
+        // create test user for self password reset
+        userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
+                password("password123").
+                plainAttr(attr("fullname", "selfpwdreset@apache.org")).
+                plainAttr(attr("firstname", "selfpwdreset@apache.org")).
+                plainAttr(attr("surname", "surname")).
+                plainAttr(attr("ctype", "a type")).
+                plainAttr(attr("userId", "selfpwdreset@apache.org")).
+                plainAttr(attr("email", "selfpwdreset@apache.org")).
+                plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
+                build());
+
+        // create test user for self update
+        userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
+                password("password123").
+                plainAttr(attr("fullname", "selfupdate@apache.org")).
+                plainAttr(attr("firstname", "selfupdate@apache.org")).
+                plainAttr(attr("surname", "surname")).
+                plainAttr(attr("ctype", "a type")).
+                plainAttr(attr("userId", "selfupdate@apache.org")).
+                build());
+
+        securityQuestionService = adminClient.getService(SecurityQuestionService.class);
     }
 
     protected void doLogin(final String user, final String passwd) {
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("login");
+        FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");
+    }
+
+    protected static Attr attr(final String schema, final String value) {
+        return new Attr.Builder(schema).value(value).build();
     }
 }

@@ -29,10 +29,21 @@ import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
 class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GuardedStringSerializer.class);
+
+    private static final String READONLY = "readOnly";
+
+    private static final String DISPOSED = "disposed";
+
+    private static final String ENCRYPTED_BYTES = "encryptedBytes";
+
+    private static final String BASE64_SHA1_HASH = "base64SHA1Hash";
+
+    private static final String LOG_ERROR_MESSAGE = "Could not get field value";
 
     @Override
     public void serialize(final GuardedString source, final JsonGenerator jgen, final SerializerProvider sp)
@@ -42,38 +53,38 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
         boolean readOnly = false;
         try {
-            Field field = GuardedString.class.getDeclaredField("readOnly");
-            field.setAccessible(true);
+            Field field = GuardedString.class.getDeclaredField(READONLY);
+            ReflectionUtils.makeAccessible(field);
             readOnly = field.getBoolean(source);
         } catch (Exception e) {
-            LOG.error("Could not get field value", e);
+            LOG.error(LOG_ERROR_MESSAGE, e);
         }
-        jgen.writeBooleanField("readOnly", readOnly);
+        jgen.writeBooleanField(READONLY, readOnly);
 
         boolean disposed = false;
         try {
-            Field field = GuardedString.class.getDeclaredField("disposed");
-            field.setAccessible(true);
+            Field field = GuardedString.class.getDeclaredField(DISPOSED);
+            ReflectionUtils.makeAccessible(field);
             disposed = field.getBoolean(source);
         } catch (Exception e) {
-            LOG.error("Could not get field value", e);
+            LOG.error(LOG_ERROR_MESSAGE, e);
         }
-        jgen.writeBooleanField("disposed", disposed);
+        jgen.writeBooleanField(DISPOSED, disposed);
 
         byte[] encryptedBytes =
                 EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(SecurityUtil.decrypt(source).getBytes());
-        jgen.writeStringField("encryptedBytes", Base64.getEncoder().encodeToString(encryptedBytes));
+        jgen.writeStringField(ENCRYPTED_BYTES, Base64.getEncoder().encodeToString(encryptedBytes));
 
         String base64SHA1Hash = null;
         try {
-            Field field = GuardedString.class.getDeclaredField("base64SHA1Hash");
-            field.setAccessible(true);
+            Field field = GuardedString.class.getDeclaredField(BASE64_SHA1_HASH);
+            ReflectionUtils.makeAccessible(field);
             base64SHA1Hash = field.get(source).toString();
         } catch (Exception e) {
-            LOG.error("Could not get field value", e);
+            LOG.error(LOG_ERROR_MESSAGE, e);
         }
         if (base64SHA1Hash != null) {
-            jgen.writeStringField("base64SHA1Hash", base64SHA1Hash);
+            jgen.writeStringField(BASE64_SHA1_HASH, base64SHA1Hash);
         }
 
         jgen.writeEndObject();

@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -57,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -91,6 +91,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
 
     @Override
     protected AnyUtils init() {
@@ -133,13 +136,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
         Set<String> authRealms = authorizations.containsKey(IdRepoEntitlement.GROUP_READ)
                 ? authorizations.get(IdRepoEntitlement.GROUP_READ)
-                : Collections.emptySet();
+                : Set.of();
 
         boolean authorized = authRealms.stream().anyMatch(realm -> group.getRealm().getFullPath().startsWith(realm)
                 || realm.equals(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
         if (!authorized) {
             authorized = findDynRealms(group.getKey()).stream().
-                    filter(dynRealm -> authRealms.contains(dynRealm)).
+                    filter(authRealms::contains).
                     count() > 0;
         }
         if (authRealms.isEmpty() || !authorized) {
@@ -169,14 +172,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public List<Group> findOwnedByUser(final String userKey) {
         User owner = userDAO.find(userKey);
         if (owner == null) {
-            return Collections.<Group>emptyList();
+            return List.of();
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils().anyClass().getSimpleName()).
-                append(" e WHERE e.userOwner=:owner ");
-        userDAO.findAllGroupKeys(owner).forEach(groupKey -> {
-            queryString.append("OR e.groupOwner.id='").append(groupKey).append("' ");
-        });
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils().anyClass().getSimpleName())
+                .append(" e WHERE e.userOwner=:owner ");
+        userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString
+                .append("OR e.groupOwner.id='").append(groupKey).append("' "));
 
         TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
@@ -189,7 +191,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public List<Group> findOwnedByGroup(final String groupKey) {
         Group owner = find(groupKey);
         if (owner == null) {
-            return Collections.<Group>emptyList();
+            return List.of();
         }
 
         TypedQuery<Group> query = entityManager().createQuery(
@@ -229,12 +231,19 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return query.getResultList();
     }
 
+    @Override
+    public List<String> findAllKeys(final int page, final int itemsPerPage) {
+        return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
+    }
+
     private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
         AssignableCond cond = new AssignableCond();
         cond.setRealmFullPath(groupRealm.getFullPath());
         cond.setFromGroup(true);
 
-        return SearchCond.getAndCond(SearchCond.getLeafCond(cond), SearchCondConverter.convert(baseCondFIQL));
+        return SearchCond.getAnd(
+                SearchCond.getLeaf(cond),
+                SearchCondConverter.convert(searchCondVisitor, baseCondFIQL));
     }
 
     @Override
@@ -254,7 +263,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                         cond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.USER);
 
                 matching.forEach(user -> {
@@ -278,7 +287,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                         cond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.ANY_OBJECT);
 
                 matching.forEach(anyObject -> {
@@ -367,9 +376,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                     ? (String) ((Object[]) key)[0]
                     : ((String) key)).
                     filter(anyObject -> !result.contains((String) anyObject)).
-                    forEach(anyObject -> {
-                        result.add((String) anyObject);
-                    });
+                    forEach(anyObject -> result.add((String) anyObject));
         });
 
         return result;
@@ -499,7 +506,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @SuppressWarnings("unchecked")
     public List<String> findUDynMembers(final Group group) {
         if (group.getUDynMembership() == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         Query query = entityManager().createNativeQuery(

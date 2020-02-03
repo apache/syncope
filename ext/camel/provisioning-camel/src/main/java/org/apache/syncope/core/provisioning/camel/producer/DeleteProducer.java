@@ -20,10 +20,10 @@ package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -61,19 +61,25 @@ public class DeleteProducer extends AbstractProducer {
             PropagationReporter reporter;
             switch (getAnyTypeKind()) {
                 case USER:
-                    PropagationByResource propByRes = new PropagationByResource();
+                    PropagationByResource<String> propByRes = new PropagationByResource<>();
                     propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(key));
+
+                    PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+                    userDAO.findLinkedAccounts(key).forEach(account -> propByLinkedAccount.add(
+                            ResourceOperation.DELETE,
+                            Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+
                     // Note here that we can only notify about "delete", not any other
                     // task defined in workflow process definition: this because this
                     // information could only be available after uwfAdapter.delete(), which
                     // will also effectively remove user from db, thus making virtually
                     // impossible by NotificationManager to fetch required user information
-                    taskInfos = getPropagationManager().getDeleteTasks(
-                            AnyTypeKind.USER,
+                    taskInfos = getPropagationManager().getUserDeleteTasks(
                             key,
                             propByRes,
+                            propByLinkedAccount,
                             excludedResources);
-                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.setProperty("statuses", reporter.getStatuses());
                     break;
 
@@ -81,28 +87,31 @@ public class DeleteProducer extends AbstractProducer {
                     taskInfos = new ArrayList<>();
                     // Generate propagation tasks for deleting users from group resources, if they are on those
                     // resources only because of the reason being deleted (see SYNCOPE-357)
-                    for (Map.Entry<String, PropagationByResource> entry
-                            : groupDataBinder.findUsersWithTransitiveResources(key).entrySet()) {
-
-                        taskInfos.addAll(getPropagationManager().getDeleteTasks(
-                                AnyTypeKind.USER,
-                                entry.getKey(),
-                                entry.getValue(),
-                                excludedResources));
-                    }
-                    groupDataBinder.findAnyObjectsWithTransitiveResources(key).forEach((k, pbr) -> {
-                        taskInfos.addAll(getPropagationManager().getDeleteTasks(
-                                AnyTypeKind.ANY_OBJECT,
-                                k,
-                                pbr,
-                                excludedResources));
-                    }); // Generate propagation tasks for deleting this group from resources
+                    groupDataBinder.findUsersWithTransitiveResources(key).
+                            forEach((anyKey, anyPropByRes) -> taskInfos.addAll(
+                            getPropagationManager().getDeleteTasks(
+                                    AnyTypeKind.USER,
+                                    anyKey,
+                                    anyPropByRes,
+                                    null,
+                                    excludedResources)));
+                    groupDataBinder.findAnyObjectsWithTransitiveResources(key).
+                            forEach((anyKey, anyPropByRes) -> {
+                                taskInfos.addAll(getPropagationManager().getDeleteTasks(
+                                        AnyTypeKind.ANY_OBJECT,
+                                        anyKey,
+                                        anyPropByRes,
+                                        null,
+                                        excludedResources));
+                            });
+                    // Generate propagation tasks for deleting this group from resources
                     taskInfos.addAll(getPropagationManager().getDeleteTasks(
                             AnyTypeKind.GROUP,
                             key,
                             null,
+                            null,
                             null));
-                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.setProperty("statuses", reporter.getStatuses());
                     break;
 
@@ -111,8 +120,9 @@ public class DeleteProducer extends AbstractProducer {
                             AnyTypeKind.ANY_OBJECT,
                             key,
                             null,
+                            null,
                             excludedResources);
-                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
+                    reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
                     exchange.setProperty("statuses", reporter.getStatuses());
                     break;
 

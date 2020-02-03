@@ -200,7 +200,7 @@ public class StatusPanel extends Panel {
         return initialStatusBeanMap;
     }
 
-    protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs(
+    protected static Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs(
             final String anyKey,
             final String resource,
             final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> objects) {
@@ -216,7 +216,7 @@ public class StatusPanel extends Panel {
         return null;
     }
 
-    class RemoteAnyPanel extends RemoteObjectPanel {
+    static class RemoteAnyPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 
@@ -237,7 +237,7 @@ public class StatusPanel extends Panel {
 
         @Override
         protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
-            return StatusPanel.this.getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
+            return StatusPanel.getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
         }
     }
 }

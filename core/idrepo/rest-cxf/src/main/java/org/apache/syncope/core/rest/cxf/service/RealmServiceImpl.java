@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.logic.RealmLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,9 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
     private RealmLogic logic;
 
     @Override
-    public List<RealmTO> list() {
-        return list(StringUtils.EMPTY);
+    public List<RealmTO> search(final RealmQuery query) {
+        String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
+        return logic.search(keyword);
     }
 
     @Override

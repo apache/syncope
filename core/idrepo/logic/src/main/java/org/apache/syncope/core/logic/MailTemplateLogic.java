@@ -53,7 +53,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     @Autowired
     private EntityFactory entityFactory;
 
-    private MailTemplateTO getMailTemplateTO(final String key) {
+    private static MailTemplateTO getMailTemplateTO(final String key) {
         MailTemplateTO mailTemplateTO = new MailTemplateTO();
         mailTemplateTO.setKey(key);
         return mailTemplateTO;
@@ -64,7 +64,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     public MailTemplateTO read(final String key) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + "'");
+            LOG.error("Could not find mail template '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -95,7 +95,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     public String getFormat(final String key, final MailTemplateFormat format) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + "'");
+            LOG.error("Could not find mail template '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -116,7 +116,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     public void setFormat(final String key, final MailTemplateFormat format, final String template) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + "'");
+            LOG.error("Could not find mail template '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -134,7 +134,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     public MailTemplateTO delete(final String key) {
         MailTemplate mailTemplate = mailTemplateDAO.find(key);
         if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + "'");
+            LOG.error("Could not find mail template '" + key + '\'');
 
             throw new NotFoundException(key);
         }

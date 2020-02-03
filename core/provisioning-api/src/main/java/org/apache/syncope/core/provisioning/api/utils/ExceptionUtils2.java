@@ -31,9 +31,8 @@ public final class ExceptionUtils2 {
     public static String getFullStackTrace(final Throwable t) {
         StringBuilder result = new StringBuilder();
 
-        for (Throwable throwable : ExceptionUtils.getThrowableList(t)) {
-            result.append(ExceptionUtils.getStackTrace(throwable)).append("\n\n");
-        }
+        ExceptionUtils.getThrowableList(t).
+                forEach(throwable -> result.append(ExceptionUtils.getStackTrace(throwable)).append("\n\n"));
 
         return result.toString();
     }

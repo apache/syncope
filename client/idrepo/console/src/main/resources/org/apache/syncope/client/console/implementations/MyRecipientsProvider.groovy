@@ -26,6 +26,6 @@ class MyRecipientsProvider implements RecipientsProvider {
   
   @Override
   Set<String> provideRecipients(Notification notification) {
-    return Collections.emptyList();
+    return List.of();
   }
 }

@@ -99,7 +99,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         loadRoutes(domain, datasource, anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
     }
 
-    private String nodeToString(final Node content, final DOMImplementationLS domImpl) {
+    private static String nodeToString(final Node content, final DOMImplementationLS domImpl) {
         StringWriter writer = new StringWriter();
         try {
             LSSerializer serializer = domImpl.createLSSerializer();
@@ -113,7 +113,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         return writer.toString();
     }
 
-    private String nodeToString(final Node content, final TransformerFactory tf) {
+    private static String nodeToString(final Node content, final TransformerFactory tf) {
         String output = StringUtils.EMPTY;
 
         try {
@@ -129,8 +129,8 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         return output;
     }
 
-    private void loadRoutes(
-            final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
+    private static void loadRoutes(
+        final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         boolean shouldLoadRoutes = jdbcTemplate.queryForList(
@@ -146,6 +146,12 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
                 if (IS_JBOSS) {
                     tf = TransformerFactory.newInstance();
                     tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                    try {
+                        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                        tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+                    } catch (IllegalArgumentException ex) {
+                        LOG.debug("The JAXP parser does not support the following attribute: ", ex);
+                    }
                     tf.setURIResolver((href, base) -> null);
 
                     Document doc = StaxUtils.read(resource.getInputStream());

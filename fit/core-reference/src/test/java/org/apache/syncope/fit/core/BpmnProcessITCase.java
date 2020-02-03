@@ -44,9 +44,7 @@ public class BpmnProcessITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
         bpmnProcessService.list().stream().
                 filter(BpmnProcess::isUserWorkflow).findAny().
-                ifPresent(process -> {
-                    userWorkflowKey = process.getKey();
-                });
+                ifPresent(process -> userWorkflowKey = process.getKey());
         assertNotNull(userWorkflowKey);
     }
 

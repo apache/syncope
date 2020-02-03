@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.rest;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
@@ -35,7 +34,7 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     public static final Comparator<String> KEY_COMPARATOR = new AnyTypeKeyComparator();
 
-    public AnyTypeTO read(final String key) {
+    public static AnyTypeTO read(final String key) {
         AnyTypeTO type = null;
 
         try {
@@ -47,12 +46,12 @@ public class AnyTypeRestClient extends BaseRestClient {
         return type;
     }
 
-    public List<AnyTypeTO> listAnyTypes() {
-        List<AnyTypeTO> types = Collections.emptyList();
+    public static List<AnyTypeTO> listAnyTypes() {
+        List<AnyTypeTO> types = List.of();
 
         try {
             types = getService(AnyTypeService.class).list();
-            Collections.sort(types, new AnyTypeComparator());
+            types.sort(new AnyTypeComparator());
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
@@ -60,21 +59,21 @@ public class AnyTypeRestClient extends BaseRestClient {
         return types;
     }
 
-    public List<String> list() {
+    public static List<String> list() {
         List<String> types = getSyncopeService().platform().getAnyTypes();
-        Collections.sort(types, new AnyTypeKeyComparator());
+        types.sort(new AnyTypeKeyComparator());
         return types;
     }
 
-    public void create(final AnyTypeTO anyTypeTO) {
+    public static void create(final AnyTypeTO anyTypeTO) {
         getService(AnyTypeService.class).create(anyTypeTO);
     }
 
-    public void update(final AnyTypeTO anyTypeTO) {
+    public static void update(final AnyTypeTO anyTypeTO) {
         getService(AnyTypeService.class).update(anyTypeTO);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(AnyTypeService.class).delete(key);
     }
 

@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -37,10 +38,10 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -95,24 +96,30 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         return userRequestHandler.getUserRequests(userKey, page, size, orderByClauses);
     }
 
-    protected UserRequest doStart(final String bpmnProcess, final User user) {
+    protected UserRequest doStart(
+            final String bpmnProcess,
+            final User user,
+            final WorkflowTaskExecInput inputVariables) {
         // check if BPMN process exists
         bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, new NullOutputStream());
 
-        return userRequestHandler.start(bpmnProcess, user);
+        return userRequestHandler.start(bpmnProcess, user, inputVariables);
     }
 
     @PreAuthorize("isAuthenticated()")
-    public UserRequest start(final String bpmnProcess) {
-        return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()));
+    public UserRequest start(final String bpmnProcess, final WorkflowTaskExecInput inputVariables) {
+        return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()), inputVariables);
     }
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.USER_REQUEST_START + "')")
-    public UserRequest start(final String bpmnProcess, final String userKey) {
-        return doStart(bpmnProcess, userDAO.authFind(userKey));
+    public UserRequest start(
+            final String bpmnProcess,
+            final String userKey,
+            final WorkflowTaskExecInput inputVariables) {
+        return doStart(bpmnProcess, userDAO.authFind(userKey), inputVariables);
     }
 
-    protected void securityChecks(final String username, final String entitlement, final String errorMessage) {
+    protected static void securityChecks(final String username, final String entitlement, final String errorMessage) {
         if (!AuthContextUtils.getUsername().equals(username)
                 && !AuthContextUtils.getAuthorities().stream().
                         anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {
@@ -167,7 +174,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             final int size,
             final List<OrderByClause> orderByClauses) {
         evaluateKey(userKey);
-        
+
         return userRequestHandler.getForms(userKey, page, size, orderByClauses);
     }
 
@@ -183,18 +190,18 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     "Submitting forms for user" + form.getUsername() + " not allowed");
         }
 
-        WorkflowResult<UserUR> wfResult = userRequestHandler.submitForm(form);
-
+        UserWorkflowResult<UserUR> wfResult = userRequestHandler.submitForm(form);
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)
         if (wfResult.getPropByRes() != null && !wfResult.getPropByRes().isEmpty()) {
             List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
-                    new WorkflowResult<>(
+                    new UserWorkflowResult<>(
                             Pair.of(wfResult.getResult(), Boolean.TRUE),
                             wfResult.getPropByRes(),
+                            wfResult.getPropByLinkedAccount(),
                             wfResult.getPerformedTasks()));
 
-            taskExecutor.execute(taskInfos, false);
+            taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
         }
 
         UserTO userTO;

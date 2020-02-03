@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -122,7 +120,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override
@@ -130,7 +128,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
-                new StringResourceModel("key", this), "key"));
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("content", this), "content", "content"));
 
@@ -158,13 +156,12 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    SecurityQuestionRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -173,7 +170,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         return panel;
     }
 
-    protected final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {
+    protected static final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -186,14 +183,14 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list = restClient.list();
-            Collections.sort(list, comparator);
+            final List<SecurityQuestionTO> list = SecurityQuestionRestClient.list();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return SecurityQuestionRestClient.list().size();
         }
 
         @Override

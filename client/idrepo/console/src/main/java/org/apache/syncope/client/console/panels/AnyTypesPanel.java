@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,10 +75,10 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                restClient.create(modelObject);
+                                AnyTypeRestClient.create(modelObject);
                                 SyncopeConsoleSession.get().refreshAuth(null);
                             } else {
-                                restClient.update(modelObject);
+                                AnyTypeRestClient.update(modelObject);
                             }
 
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -87,8 +86,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating {}", modelObject, e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -112,7 +110,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     @Override
@@ -140,7 +138,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("key".equals(fieldName)) {
+                            if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
                                         ? "col-xs-1"
                                         : css + " col-xs-1";
@@ -176,15 +174,14 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
                 try {
-                    restClient.delete(model.getObject().getKey());
+                    AnyTypeRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().refreshAuth(null);
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -193,7 +190,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
         return panel;
     }
 
-    protected final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
+    protected static final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -206,14 +203,14 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
         @Override
         public Iterator<AnyTypeTO> iterator(final long first, final long count) {
-            final List<AnyTypeTO> list = restClient.listAnyTypes();
-            Collections.sort(list, comparator);
+            final List<AnyTypeTO> list = AnyTypeRestClient.listAnyTypes();
+            list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.list().size();
+            return AnyTypeRestClient.list().size();
         }
 
         @Override

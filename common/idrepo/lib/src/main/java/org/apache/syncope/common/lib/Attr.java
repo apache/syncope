@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
@@ -52,7 +51,7 @@ public class Attr implements Serializable {
         }
 
         public Builder values(final String... values) {
-            instance.getValues().addAll(Arrays.asList(values));
+            instance.getValues().addAll(List.of(values));
             return this;
         }
 

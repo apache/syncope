@@ -20,7 +20,7 @@ package org.apache.syncope.core.spring.security;
 
 import java.util.Collection;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +68,7 @@ public final class AuthContextUtils {
                     collect(Collectors.toSet());
         }
 
-        return Collections.emptySet();
+        return Set.of();
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
@@ -81,7 +81,7 @@ public final class AuthContextUtils {
                             SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms));
         }
 
-        return Collections.emptyMap();
+        return Map.of();
     }
 
     public static String getDomain() {

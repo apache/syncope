@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.util.Charsets;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -38,8 +37,6 @@ import org.apache.wicket.model.Model;
 public class NewBpmnProcess extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -4886361549305302161L;
-
-    private final BpmnProcessRestClient restClient = new BpmnProcessRestClient();
 
     private final Form<?> form;
 
@@ -60,7 +57,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    restClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
+                    BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
                             IOUtils.toString(
                                     getClass().getResourceAsStream("empty.bpmn20.xml"),
                                     Charsets.UTF_8.name()).replaceAll("%KEY%", key.getModelObject()));
@@ -71,9 +68,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While creating new BPMN process", e);
-                    SyncopeConsoleSession.get().error(
-                            StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

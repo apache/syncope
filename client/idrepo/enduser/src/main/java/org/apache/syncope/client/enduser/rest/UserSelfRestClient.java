@@ -34,7 +34,7 @@ public class UserSelfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
-    public ProvisioningResult<UserTO> create(final UserCR createReq) {
+    public static ProvisioningResult<UserTO> create(final UserCR createReq) {
         Response response = getService(UserSelfService.class).create(createReq);
         return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         });
@@ -58,8 +58,11 @@ public class UserSelfRestClient extends BaseRestClient {
         return update(etag, userUR);
     }
 
-    public void changePassword(final String password) {
+    public static void changePassword(final String password) {
         getService(UserSelfService.class).mustChangePassword(password);
     }
 
+    public static void requestPasswordReset(final String username, final String securityAnswer) {
+        getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
+    }
 }

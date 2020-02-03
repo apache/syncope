@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -56,6 +58,8 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
     private String template;
 
+    private String lastExecutor;
+    
     @Override
     public String getKey() {
         return key;
@@ -108,19 +112,19 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
     }
 
     public Date getLastExec() {
-        return lastExec == null ? null : new Date(lastExec.getTime());
+        return Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public void setLastExec(final Date lastExec) {
-        this.lastExec = lastExec == null ? null : new Date(lastExec.getTime());
+        this.lastExec = Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public Date getNextExec() {
-        return nextExec == null ? null : new Date(nextExec.getTime());
+        return Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public void setNextExec(final Date nextExec) {
-        this.nextExec = nextExec == null ? null : new Date(nextExec.getTime());
+        this.nextExec = Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
     }
 
     public boolean isActive() {
@@ -139,6 +143,14 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.template = template;
     }
 
+    public String getLastExecutor() {
+        return lastExecutor;
+    }
+
+    public void setLastExecutor(final String lastExecutor) {
+        this.lastExecutor = lastExecutor;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -153,6 +165,7 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
                 append(nextExec).
                 append(active).
                 append(template).
+                append(lastExecutor).
                 build();
     }
 
@@ -180,6 +193,7 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
                 append(nextExec, other.nextExec).
                 append(active, other.active).
                 append(template, other.template).
+                append(lastExecutor, other.lastExecutor).
                 build();
     }
 }

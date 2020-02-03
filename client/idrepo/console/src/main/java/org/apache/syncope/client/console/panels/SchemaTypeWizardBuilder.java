@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -59,8 +59,6 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
 
     private static final long serialVersionUID = -3893521796674873644L;
 
-    private final SchemaRestClient restClient = new SchemaRestClient();
-
     private final SchemaType schemaType;
 
     private final ListModel<MutablePair<Locale, String>> translations = new ListModel<>(new ArrayList<>());
@@ -80,9 +78,9 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                 collect(Collectors.toMap(MutablePair::getKey, MutablePair::getValue)));
 
         if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-            restClient.create(schemaType, modelObject);
+            SchemaRestClient.create(schemaType, modelObject);
         } else {
-            restClient.update(schemaType, modelObject);
+            SchemaRestClient.update(schemaType, modelObject);
         }
 
         return null;
@@ -102,7 +100,7 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
         public Details(final SchemaTO modelObject) {
             AjaxDropDownChoicePanel<SchemaType> kind =
                     new AjaxDropDownChoicePanel<>("kind", getString("kind"), new Model<>());
-            kind.setChoices(Arrays.asList(SchemaType.values()));
+            kind.setChoices(List.of(SchemaType.values()));
             kind.setOutputMarkupId(true);
             kind.setModelObject(schemaType);
             kind.setEnabled(false);
@@ -137,9 +135,8 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
             setOutputMarkupId(true);
 
             translations.getObject().clear();
-            modelObject.getLabels().forEach((locale, display) -> {
-                translations.getObject().add(MutablePair.of(locale, display));
-            });
+            modelObject.getLabels().forEach(
+                    (locale, display) -> translations.getObject().add(MutablePair.of(locale, display)));
 
             ListView<MutablePair<Locale, String>> labels =
                     new ListView<MutablePair<Locale, String>>("labels", translations) {
@@ -175,9 +172,8 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                             LOG.error("Invalid Locale: {}", validatable.getValue(), e);
                             validatable.error(new ValidationError("Invalid Locale: " + validatable.getValue()));
 
-                            RequestCycle.get().find(AjaxRequestTarget.class).ifPresent(target -> {
-                                target.add(Labels.this);
-                            });
+                            RequestCycle.get().find(AjaxRequestTarget.class).
+                                    ifPresent(target -> target.add(Labels.this));
                         }
                     });
                     item.add(locale);

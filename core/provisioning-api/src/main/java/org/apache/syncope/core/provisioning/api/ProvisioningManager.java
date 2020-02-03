@@ -24,10 +24,9 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
-public interface ProvisioningManager<T extends AnyTO, C extends AnyCR, U extends AnyUR> {
+public interface ProvisioningManager<C extends AnyCR, U extends AnyUR> {
 
     Pair<String, List<PropagationStatus>> create(C anyCR, boolean nullPriorityAsync);
 

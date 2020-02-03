@@ -23,8 +23,9 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -34,7 +35,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
-import org.apache.syncope.fit.ui.UtilityUIT;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -44,8 +44,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 public abstract class AbstractConsoleITCase extends AbstractUITCase {
-
-    protected static UtilityUIT UTILITY_UI;
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class })
     @Configuration
@@ -58,7 +56,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
         @Bean
         public List<WicketApplicationInitConfiguration> configurations() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         @Bean
@@ -93,29 +91,26 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
     @BeforeAll
     public static void setUp() {
-        synchronized (LOG) {
-            if (UTILITY_UI == null) {
-                AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-                ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
-                ctx.register(SyncopeWebApplication.class);
-                ctx.refresh();
+        Locale.setDefault(Locale.ENGLISH);
 
-                UTILITY_UI = new UtilityUIT(new WicketTester(ctx.getBean(SyncopeWebApplication.class)));
-            }
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
+        ctx.register(SyncopeWebApplication.class);
+        ctx.register(SyncopeIdMConsoleContext.class);
+        ctx.refresh();
 
-            if (SYNCOPE_SERVICE == null) {
-                SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
-                        setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
-                        getService(SyncopeService.class);
-            }
-        }
+        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
+
+        SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
+                setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
+                getService(SyncopeService.class);
     }
 
     protected void doLogin(final String user, final String passwd) {
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("login");
+        FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");

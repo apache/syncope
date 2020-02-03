@@ -60,6 +60,7 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
             final ActionLink<T> link,
             final ActionLink.ActionType type,
             final String entitlements) {
+
         return add(link, type, entitlements, false);
     }
 
@@ -69,7 +70,7 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
             final String entitlements,
             final boolean onConfirm) {
 
-        final Action<T> action = new Action<>(link, type);
+        Action<T> action = new Action<>(link, type);
         action.setEntitlements(entitlements);
         action.setOnConfirm(onConfirm);
         actions.add(action);
@@ -81,8 +82,12 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
         return action;
     }
 
+    public List<Action<T>> getActions() {
+        return actions;
+    }
+
     public ActionsPanel<T> clone(final String componentId, final IModel<T> model) {
-        final ActionsPanel<T> panel = new ActionsPanel<>(componentId, model);
+        ActionsPanel<T> panel = new ActionsPanel<>(componentId, model);
         panel.actions.addAll(actions);
         return panel;
     }
@@ -95,10 +100,8 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
      * @return Actions panel.
      */
     public ActionsPanel<T> cloneWithLabels(final String componentId, final IModel<T> model) {
-        final ActionsPanel<T> panel = new ActionsPanel<>(componentId, model);
-        for (Action<T> action : actions) {
-            panel.actions.add(action.showLabel());
-        }
+        ActionsPanel<T> panel = new ActionsPanel<>(componentId, model);
+        actions.forEach(action -> panel.actions.add(action.showLabel()));
         return panel;
     }
 

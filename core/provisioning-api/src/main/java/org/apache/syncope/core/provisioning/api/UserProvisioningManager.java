@@ -26,10 +26,9 @@ import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 
-public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserCR, UserUR> {
+public interface UserProvisioningManager extends ProvisioningManager<UserCR, UserUR> {
 
     Pair<String, List<PropagationStatus>> activate(StatusR statusR, boolean nullPriorityAsync);
 

@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.fit.buildtools.cxf;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotFoundException;
@@ -34,23 +37,35 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private static final Map<UUID, User> USERS = new HashMap<UUID, User>();
+    private static final Map<UUID, UserMetadata> USERS = new HashMap<>();
 
     @Context
     private UriInfo uriInfo;
 
     @Override
     public List<User> list() {
-        return new ArrayList<>(USERS.values());
+        return USERS.values().stream().
+                filter(meta -> !meta.isDeleted()).
+                map(UserMetadata::getUser).
+                collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserMetadata> changelog(final Date from) {
+        Stream<UserMetadata> users = USERS.values().stream();
+        if (from != null) {
+            users = users.filter(meta -> meta.getLastChangeDate().after(from));
+        }
+        return users.collect(Collectors.toList());
     }
 
     @Override
     public User read(final UUID key) {
-        User user = USERS.get(key);
-        if (user == null) {
+        UserMetadata meta = USERS.get(key);
+        if (meta == null || meta.isDeleted()) {
             throw new NotFoundException(key.toString());
         }
-        return user;
+        return meta.getUser();
     }
 
     @Override
@@ -58,66 +73,81 @@ public class UserServiceImpl implements UserService {
         if (user.getKey() == null) {
             user.setKey(UUID.randomUUID());
         }
-        if (USERS.containsKey(user.getKey())) {
+        if (user.getStatus() == null) {
+            user.setStatus(User.Status.ACTIVE);
+        }
+
+        UserMetadata meta = USERS.get(user.getKey());
+        if (meta != null && !meta.isDeleted()) {
             throw new ClientErrorException("User already exists: " + user.getKey(), Response.Status.CONFLICT);
         }
-        USERS.put(user.getKey(), user);
+
+        meta = new UserMetadata();
+        meta.setLastChangeDate(new Date());
+        meta.setUser(user);
+        USERS.put(user.getKey(), meta);
 
         return Response.created(uriInfo.getAbsolutePathBuilder().path(user.getKey().toString()).build()).build();
     }
 
     @Override
     public void update(final UUID key, final User updatedUser) {
-        if (!USERS.containsKey(key)) {
-            throw new NotFoundException(updatedUser.getKey().toString());
+        UserMetadata meta = USERS.get(key);
+        if (meta == null || meta.isDeleted()) {
+            throw new NotFoundException(key.toString());
         }
-        User user = USERS.get(key);
+
         if (updatedUser.getUsername() != null) {
-            user.setUsername(updatedUser.getUsername());
+            meta.getUser().setUsername(updatedUser.getUsername());
         }
         if (updatedUser.getPassword() != null) {
-            user.setPassword(updatedUser.getPassword());
+            meta.getUser().setPassword(updatedUser.getPassword());
         }
         if (updatedUser.getFirstName() != null) {
-            user.setFirstName(updatedUser.getFirstName());
+            meta.getUser().setFirstName(updatedUser.getFirstName());
         }
         if (updatedUser.getSurname() != null) {
-            user.setSurname(updatedUser.getSurname());
+            meta.getUser().setSurname(updatedUser.getSurname());
         }
         if (updatedUser.getEmail() != null) {
-            user.setEmail(updatedUser.getEmail());
+            meta.getUser().setEmail(updatedUser.getEmail());
         }
+        if (updatedUser.getStatus() != null) {
+            meta.getUser().setStatus(updatedUser.getStatus());
+        }
+
+        meta.setLastChangeDate(new Date());
     }
 
     @Override
     public void delete(final UUID key) {
-        if (!USERS.containsKey(key)) {
+        UserMetadata meta = USERS.get(key);
+        if (meta == null || meta.isDeleted()) {
             throw new NotFoundException(key.toString());
         }
-        USERS.remove(key);
+
+        meta.setDeleted(true);
+        meta.setLastChangeDate(new Date());
     }
 
     @Override
     public User authenticate(final String username, final String password) {
-        User user = null;
-        for (User entry : USERS.values()) {
-            if (username.equals(entry.getUsername())) {
-                user = entry;
-            }
-        }
-        if (user == null) {
+        Optional<User> user = USERS.values().stream().
+                filter(meta -> !meta.isDeleted() && username.equals(meta.getUser().getUsername())).
+                findFirst().map(UserMetadata::getUser);
+
+        if (!user.isPresent()) {
             throw new NotFoundException(username);
         }
-        if (!password.equals(user.getPassword())) {
+        if (!password.equals(user.get().getPassword())) {
             throw new ForbiddenException();
         }
 
-        return user;
+        return user.get();
     }
 
     @Override
     public void clear() {
         USERS.clear();
     }
-
 }

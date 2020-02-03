@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @SpringJUnitConfig(locations = { "classpath:springTest.xml" })
 public class ImplementationManagerTest {
 
-    private DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
+    private static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
         DefaultPasswordRuleConf baseDefaultPasswordRuleConf = new DefaultPasswordRuleConf();
         baseDefaultPasswordRuleConf.setAlphanumericRequired(false);
         baseDefaultPasswordRuleConf.setDigitRequired(false);
@@ -98,7 +98,7 @@ public class ImplementationManagerTest {
 
             assertTrue(
                     errorMessages.isEmpty(),
-                    errorMessages.stream().collect(Collectors.joining(System.lineSeparator())));
+                () -> errorMessages.stream().collect(Collectors.joining(System.lineSeparator())));
         });
     }
 }

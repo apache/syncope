@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -71,10 +72,6 @@ public class Topology extends BasePage {
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     private final int origX = 3100;
 
     private final int origY = 2800;
@@ -93,7 +90,7 @@ public class Topology extends BasePage {
 
         @Override
         protected List<ResourceTO> load() {
-            return resourceRestClient.list();
+            return ResourceRestClient.list();
         }
     };
 
@@ -106,7 +103,7 @@ public class Topology extends BasePage {
         protected Map<String, List<ConnInstanceTO>> load() {
             final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
 
-            connectorRestClient.getAllConnectors().forEach(conn -> {
+            ConnectorRestClient.getAllConnectors().forEach(conn -> {
                 final List<ConnInstanceTO> conns;
                 if (res.containsKey(conn.getLocation())) {
                     conns = res.get(conn.getLocation());
@@ -339,9 +336,9 @@ public class Topology extends BasePage {
                             hpos = 0.0;
                         }
 
-                        int x = (int) Math.round((parent == null ? origX : parent.getX())
+                        int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
-                        int y = (int) Math.round((parent == null ? origY : parent.getY())
+                        int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
                                 + 100 * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
                         topologynode.setConnectionDisplayName(conn.getBundleName());
@@ -377,9 +374,8 @@ public class Topology extends BasePage {
         // Add Resources
         // -----------------------------------------
         final Collection<String> adminConns = new HashSet<>();
-        connModel.getObject().values().forEach(connInstances -> {
-            adminConns.addAll(connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        });
+        connModel.getObject().values().forEach(connInstances -> adminConns.addAll(
+                connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList())));
 
         final Set<String> adminRes = new HashSet<>();
         final List<String> connToBeProcessed = new ArrayList<>();
@@ -435,9 +431,9 @@ public class Topology extends BasePage {
                             hpos = 0.0;
                         }
 
-                        int x = (int) Math.round((parent == null ? origX : parent.getX())
+                        int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
-                        int y = (int) Math.round((parent == null ? origY : parent.getY())
+                        int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
                                 + ky * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
                         topologynode.setX(x);
@@ -472,9 +468,7 @@ public class Topology extends BasePage {
                 final StringBuilder jsPlumbConf = new StringBuilder();
                 jsPlumbConf.append(String.format(Locale.US, "activate(%.2f);", 0.68f));
 
-                createConnections(connections).forEach(str -> {
-                    jsPlumbConf.append(str);
-                });
+                createConnections(connections).forEach(jsPlumbConf::append);
 
                 response.render(OnDomReadyHeaderItem.forScript(jsPlumbConf.toString()));
             }
@@ -528,17 +522,11 @@ public class Topology extends BasePage {
         newlyCreatedContainer.add(newlyCreated);
     }
 
-    private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
+    private static List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
-        targets.forEach((key, value) -> {
-            value.forEach((label, node) -> {
-                list.add(String.format("connect('%s','%s','%s');",
-                        key,
-                        label,
-                        node.getKind()));
-            });
-        });
+        targets.forEach((key, value) -> value.forEach((label, node) -> list.add(
+                String.format("connect('%s','%s','%s');", key, label, node.getKind()))));
         return list;
     }
 

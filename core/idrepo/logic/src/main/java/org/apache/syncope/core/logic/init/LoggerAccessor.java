@@ -74,7 +74,7 @@ public class LoggerAccessor {
                     logConf.setLevel(syncopeLoggers.get(loggerName).getLevel().getLevel());
                     syncopeLoggers.remove(loggerName);
                 } else if (!loggerName.startsWith(LoggerType.AUDIT.getPrefix())
-                        || !loggerName.startsWith(AuthContextUtils.getDomain() + "." + LoggerType.AUDIT.getPrefix())) {
+                        || !loggerName.startsWith(AuthContextUtils.getDomain() + '.' + LoggerType.AUDIT.getPrefix())) {
 
                     Logger syncopeLogger = entityFactory.newEntity(Logger.class);
                     syncopeLogger.setKey(loggerName);

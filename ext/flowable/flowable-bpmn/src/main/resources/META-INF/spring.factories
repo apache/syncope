@@ -15,5 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  org.apache.syncope.core.flowable.FlowableLiquibaseEnvironmentPostProcessor
+
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   org.apache.syncope.core.flowable.WorkflowFlowableContext

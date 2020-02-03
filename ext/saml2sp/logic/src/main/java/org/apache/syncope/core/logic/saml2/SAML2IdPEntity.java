@@ -31,6 +31,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -95,7 +97,7 @@ public class SAML2IdPEntity {
             for (X509Data x509Data : key.getKeyInfo().getX509Datas()) {
                 for (org.opensaml.xmlsec.signature.X509Certificate cert : x509Data.getX509Certificates()) {
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(
-                            Base64.getMimeDecoder().decode(cert.getValue()))) {
+                            Base64.getMimeDecoder().decode(Objects.requireNonNull(cert.getValue())))) {
                         chain.add(X509Certificate.class.cast(cf.generateCertificate(bais)));
                     }
                 }

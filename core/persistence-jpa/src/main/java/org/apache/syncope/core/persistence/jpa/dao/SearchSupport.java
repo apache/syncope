@@ -117,12 +117,12 @@ public class SearchSupport {
 
     public SearchView relationship() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + "m", field().name + "_" + kind + "relationship");
+        return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "relationship");
     }
 
     public SearchView membership() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + "m", field().name + "_" + kind + "membership");
+        return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "membership");
     }
 
     public SearchView dyngroupmembership() {
@@ -142,11 +142,11 @@ public class SearchSupport {
         return new SearchView("svdp", field().name + "_dynpriv");
     }
 
-    public SearchView dynrolemembership() {
+    public static SearchView dynrolemembership() {
         return new SearchView("svdr", JPARoleDAO.DYNMEMB_TABLE);
     }
 
-    public SearchView dynrealmmembership() {
+    public static SearchView dynrealmmembership() {
         return new SearchView("svdrealm", JPADynRealmDAO.DYNMEMB_TABLE);
     }
 

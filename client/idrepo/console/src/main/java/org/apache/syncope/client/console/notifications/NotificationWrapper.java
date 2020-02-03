@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.notifications;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.search.SearchClause;
@@ -51,11 +51,8 @@ public class NotificationWrapper implements Serializable {
 
     public List<Pair<String, List<SearchClause>>> getAboutClauses() {
         if (this.aboutClauses == null) {
-            this.aboutClauses = new ArrayList<>();
-            SearchUtils.getSearchClauses(this.notificationTO.getAbouts()).entrySet().
-                    forEach(entry -> {
-                        this.aboutClauses.add(Pair.of(entry.getKey(), (entry.getValue())));
-                    });
+            this.aboutClauses = SearchUtils.getSearchClauses(this.notificationTO.getAbouts()).entrySet().stream().
+                    map(entry -> Pair.of(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         }
 
         return this.aboutClauses;

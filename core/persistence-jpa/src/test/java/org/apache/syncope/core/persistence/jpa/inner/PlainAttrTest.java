@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,9 +30,14 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 import javax.validation.ValidationException;
+
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -41,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +64,9 @@ public class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Tag("plainAttrTable")
     @Test
@@ -226,6 +236,56 @@ public class PlainAttrTest extends AbstractTest {
         assertEquals(1, obscure.getValues().size());
         assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
                 encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().get(0).getStringValue());
+    }
+
+    @Test
+    public void encryptedWithKeyAsSysProp() throws Exception {
+        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
+        assertNotNull(obscureSchema);
+
+        PlainSchema obscureWithKeyAsSysprop = entityFactory.newEntity(PlainSchema.class);
+        obscureWithKeyAsSysprop.setKey("obscureWithKeyAsSysprop");
+        obscureWithKeyAsSysprop.setAnyTypeClass(obscureSchema.getAnyTypeClass());
+        obscureWithKeyAsSysprop.setType(AttrSchemaType.Encrypted);
+        obscureWithKeyAsSysprop.setCipherAlgorithm(obscureSchema.getCipherAlgorithm());
+        obscureWithKeyAsSysprop.setSecretKey("${obscureSecretKey}");
+
+        obscureWithKeyAsSysprop = plainSchemaDAO.save(obscureWithKeyAsSysprop);
+
+        System.setProperty("obscureSecretKey", obscureSchema.getSecretKey());
+
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setSchema(obscureWithKeyAsSysprop);
+        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+
+        assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
+                encode("testvalue", obscureSchema.getCipherAlgorithm()), attr.getValues().get(0).getStringValue());
+    }
+
+    @Test
+    public void encryptedWithDecodeConversionPattern() throws Exception {
+        PlainSchema obscureWithDecodeConversionPattern = entityFactory.newEntity(PlainSchema.class);
+        obscureWithDecodeConversionPattern.setKey("obscureWithDecodeConversionPattern");
+        obscureWithDecodeConversionPattern.setAnyTypeClass(anyTypeClassDAO.find("other"));
+        obscureWithDecodeConversionPattern.setType(AttrSchemaType.Encrypted);
+        obscureWithDecodeConversionPattern.setCipherAlgorithm(CipherAlgorithm.AES);
+        obscureWithDecodeConversionPattern.setSecretKey(SecureRandomUtils.generateRandomUUID().toString());
+
+        obscureWithDecodeConversionPattern = plainSchemaDAO.save(obscureWithDecodeConversionPattern);
+
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setSchema(obscureWithDecodeConversionPattern);
+        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        
+        assertEquals(Encryptor.getInstance(obscureWithDecodeConversionPattern.getSecretKey()).
+                encode("testvalue", obscureWithDecodeConversionPattern.getCipherAlgorithm()),
+                attr.getValues().get(0).getStringValue());
+
+        obscureWithDecodeConversionPattern.setConversionPattern(SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN);
+        plainSchemaDAO.save(obscureWithDecodeConversionPattern);
+
+        assertNotEquals("testvalue", attr.getValues().get(0).getStringValue());
+        assertEquals("testvalue", attr.getValuesAsStrings().get(0));
     }
 
     @Test

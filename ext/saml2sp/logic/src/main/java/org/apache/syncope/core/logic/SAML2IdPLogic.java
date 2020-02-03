@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -75,14 +77,13 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             try {
                 idpEntity = cache.put(idp);
             } catch (Exception e) {
-                LOG.error("Could not build SAML 2.0 IdP with key ", idp.getEntityID(), e);
+                LOG.error("Could not build SAML 2.0 IdP with key {}", idp.getEntityID(), e);
             }
         }
 
-        idpTO.setLogoutSupported(idpEntity == null
-                ? false
-                : idpEntity.getSLOLocation(SAML2BindingType.POST) != null
-                || idpEntity.getSLOLocation(SAML2BindingType.REDIRECT) != null);
+        idpTO.setLogoutSupported(Optional.ofNullable(idpEntity)
+            .filter(entity -> entity.getSLOLocation(SAML2BindingType.POST) != null
+            || entity.getSLOLocation(SAML2BindingType.REDIRECT) != null).isPresent());
         return idpTO;
     }
 
@@ -99,7 +100,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         SAML2IdP idp = idpDAO.find(key);
         if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
         }
 
         return complete(idp, binder.getIdPTO(idp));
@@ -143,13 +144,13 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             idpTO.setUseDeflateEncoding(false);
 
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                saml2rw.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
+                SAML2ReaderWriter.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
                 idpTO.setMetadata(Base64.getEncoder().encodeToString(baos.toByteArray()));
             }
 
             ItemTO connObjectKeyItem = new ItemTO();
             connObjectKeyItem.setIntAttrName("username");
-            connObjectKeyItem.setExtAttrName("NameID");
+            connObjectKeyItem.setExtAttrName(NameID.DEFAULT_ELEMENT_LOCAL_NAME);
             idpTO.setConnObjectKeyItem(connObjectKeyItem);
 
             SAML2IdPEntity idp = cache.put(idpEntityDescriptor, idpTO);
@@ -196,7 +197,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         SAML2IdP saml2Idp = idpDAO.find(saml2IdpTO.getKey());
         if (saml2Idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + '\'');
         }
 
         SAML2IdPEntity idpEntity = cache.get(saml2Idp.getEntityID());
@@ -227,7 +228,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         SAML2IdP idp = idpDAO.find(key);
         if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
+            throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
         }
 
         idpDAO.delete(key);

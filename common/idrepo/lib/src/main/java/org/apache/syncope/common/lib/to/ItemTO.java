@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "item")
@@ -36,7 +38,7 @@ public class ItemTO implements EntityTO {
     private String key;
 
     /**
-     * Attribute schema to be mapped. Consider that we can associate tha same attribute schema more than once, with
+     * Attribute schema to be mapped. Consider other we can associate tha same attribute schema more than once, with
      * different aliases, to different resource attributes.
      */
     private String intAttrName;
@@ -157,5 +159,47 @@ public class ItemTO implements EntityTO {
     @JsonProperty("transformers")
     public List<String> getTransformers() {
         return transformers;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ItemTO other = (ItemTO) obj;
+        return new EqualsBuilder().
+                append(connObjectKey, other.connObjectKey).
+                append(password, other.password).
+                append(key, other.key).
+                append(intAttrName, other.intAttrName).
+                append(extAttrName, other.extAttrName).
+                append(mandatoryCondition, other.mandatoryCondition).
+                append(purpose, other.purpose).
+                append(propagationJEXLTransformer, other.propagationJEXLTransformer).
+                append(pullJEXLTransformer, other.pullJEXLTransformer).
+                append(transformers, other.transformers).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(key).
+                append(intAttrName).
+                append(extAttrName).
+                append(connObjectKey).
+                append(password).
+                append(mandatoryCondition).
+                append(purpose).
+                append(propagationJEXLTransformer).
+                append(pullJEXLTransformer).
+                append(transformers).
+                build();
     }
 }

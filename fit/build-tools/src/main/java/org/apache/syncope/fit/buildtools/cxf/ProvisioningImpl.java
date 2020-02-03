@@ -25,9 +25,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.jws.WebService;
@@ -106,9 +106,7 @@ public class ProvisioningImpl implements Provisioning {
 
         List<WSAttribute> schema = schema();
         Set<String> schemaNames = new HashSet<>();
-        schema.forEach(attr -> {
-            schemaNames.add(attr.getName());
-        });
+        schema.forEach(attr -> schemaNames.add(attr.getName()));
         schemaNames.add("__NAME__");
         schemaNames.add("__PASSWORD__");
 
@@ -132,7 +130,7 @@ public class ProvisioningImpl implements Provisioning {
 
                     if (!attr.isKey() || !accountid.equals(value)) {
                         if (set.length() > 0) {
-                            set.append(",");
+                            set.append(',');
                         }
 
                         if (null == attr.getName()) {
@@ -151,7 +149,7 @@ public class ProvisioningImpl implements Provisioning {
                             }
                         }
 
-                        set.append(value == null ? null : "'" + value + "'");
+                        set.append(Optional.ofNullable(value).map(s -> '\'' + s + '\'').orElse(null));
                     }
                 }
             }
@@ -185,7 +183,8 @@ public class ProvisioningImpl implements Provisioning {
         Connection conn = null;
         try {
 
-            String queryString = "SELECT * FROM user" + (query == null ? "" : " WHERE " + query.toString());
+            String queryString = "SELECT * FROM user" + (Optional.ofNullable(query)
+                .map(operand -> " WHERE " + operand.toString()).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
                     replaceAll("__UID__", "userId").
@@ -194,7 +193,7 @@ public class ProvisioningImpl implements Provisioning {
             LOG.debug("Execute query: {}", queryString);
 
             if (queryString == null || queryString.length() == 0) {
-                throw new SQLException("Invalid query [" + queryString + "]");
+                throw new SQLException("Invalid query [" + queryString + ']');
             }
 
             conn = DataSourceUtils.getConnection(dataSource);
@@ -239,9 +238,7 @@ public class ProvisioningImpl implements Provisioning {
 
         final List<WSAttribute> schema = schema();
         final Set<String> schemaNames = new HashSet<>();
-        schema.forEach(attr -> {
-            schemaNames.add(attr.getName());
-        });
+        schema.forEach(attr -> schemaNames.add(attr.getName()));
         schemaNames.add("__NAME__");
         schemaNames.add("__PASSWORD__");
 
@@ -268,7 +265,7 @@ public class ProvisioningImpl implements Provisioning {
                         }
 
                         if (keys.length() > 0) {
-                            keys.append(",");
+                            keys.append(',');
                         }
 
                         if (null == attr.getName()) {
@@ -288,17 +285,17 @@ public class ProvisioningImpl implements Provisioning {
                         }
 
                         if (values.length() > 0) {
-                            values.append(",");
+                            values.append(',');
                         }
 
-                        values.append(value == null ? null : "'" + value + "'");
+                        values.append(Optional.ofNullable(value).map(s -> '\'' + s + '\'').orElse(null));
 
                         if (attr.isKey() && !attr.getValues().isEmpty()) {
                             accountid = attr.getValues().get(0).toString();
                         }
                     }
                 }
-                query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ")";
+                query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ')';
                 LOG.debug("Execute query: " + query);
                 statement.executeUpdate(query);
             }
@@ -327,7 +324,7 @@ public class ProvisioningImpl implements Provisioning {
 
         LOG.debug("sync request received");
 
-        return Collections.<WSChange>emptyList();
+        return List.of();
     }
 
     @Override

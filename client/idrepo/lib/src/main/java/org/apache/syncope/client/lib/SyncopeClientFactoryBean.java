@@ -22,10 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
@@ -88,7 +89,7 @@ public class SyncopeClientFactoryBean {
 
     private JAXRSClientFactoryBean restClientFactoryBean;
 
-    protected JacksonJaxbJsonProvider defaultJsonProvider() {
+    protected static JacksonJaxbJsonProvider defaultJsonProvider() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
         objectMapper.configure(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -96,7 +97,7 @@ public class SyncopeClientFactoryBean {
     }
 
     @SuppressWarnings({ "rawtypes" })
-    protected JAXBElementProvider<?> defaultJAXBProvider() {
+    protected static JAXBElementProvider<?> defaultJAXBProvider() {
         JAXBElementProvider<?> defaultJAXBProvider = new JAXBElementProvider();
 
         DocumentDepthProperties depthProperties = new DocumentDepthProperties();
@@ -114,7 +115,7 @@ public class SyncopeClientFactoryBean {
         return defaultJAXBProvider;
     }
 
-    protected RestClientExceptionMapper defaultExceptionMapper() {
+    protected static RestClientExceptionMapper defaultExceptionMapper() {
         return new RestClientExceptionMapper();
     }
 
@@ -128,7 +129,7 @@ public class SyncopeClientFactoryBean {
         defaultRestClientFactoryBean.setAddress(address);
 
         if (StringUtils.isNotBlank(domain)) {
-            defaultRestClientFactoryBean.getHeaders().put(RESTHeaders.DOMAIN, Collections.singletonList(domain));
+            defaultRestClientFactoryBean.getHeaders().put(RESTHeaders.DOMAIN, List.of(domain));
         }
 
         defaultRestClientFactoryBean.setThreadSafe(true);
@@ -149,9 +150,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JacksonJaxbJsonProvider getJsonProvider() {
-        return jsonProvider == null
-                ? defaultJsonProvider()
-                : jsonProvider;
+        return Optional.ofNullable(jsonProvider).orElseGet(SyncopeClientFactoryBean::defaultJsonProvider);
     }
 
     public void setJsonProvider(final JacksonJaxbJsonProvider jsonProvider) {
@@ -170,9 +169,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public RestClientExceptionMapper getExceptionMapper() {
-        return exceptionMapper == null
-                ? defaultExceptionMapper()
-                : exceptionMapper;
+        return Optional.ofNullable(exceptionMapper).orElseGet(SyncopeClientFactoryBean::defaultExceptionMapper);
     }
 
     public SyncopeClientFactoryBean setExceptionMapper(final RestClientExceptionMapper exceptionMapper) {
@@ -190,9 +187,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public ContentType getContentType() {
-        return contentType == null
-                ? ContentType.JSON
-                : contentType;
+        return Optional.ofNullable(contentType).orElse(ContentType.JSON);
     }
 
     public SyncopeClientFactoryBean setContentType(final ContentType contentType) {
@@ -215,9 +210,9 @@ public class SyncopeClientFactoryBean {
     }
 
     /**
-     * Sets the given service instance for transparent gzip <tt>Content-Encoding</tt> handling.
+     * Sets the given service instance for transparent gzip {@code Content-Encoding} handling.
      *
-     * @param useCompression whether transparent gzip <tt>Content-Encoding</tt> handling is to be enabled
+     * @param useCompression whether transparent gzip {@code Content-Encoding} handling is to be enabled
      * @return the current instance
      */
     public SyncopeClientFactoryBean setUseCompression(final boolean useCompression) {
@@ -234,8 +229,9 @@ public class SyncopeClientFactoryBean {
      *
      * @param tlsClientParameters client TLS configuration
      */
-    public void setTlsClientParameters(final TLSClientParameters tlsClientParameters) {
+    public SyncopeClientFactoryBean setTlsClientParameters(final TLSClientParameters tlsClientParameters) {
         this.tlsClientParameters = tlsClientParameters;
+        return this;
     }
 
     public TLSClientParameters getTlsClientParameters() {
@@ -243,9 +239,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JAXRSClientFactoryBean getRestClientFactoryBean() {
-        return restClientFactoryBean == null
-                ? defaultRestClientFactoryBean()
-                : restClientFactoryBean;
+        return Optional.ofNullable(restClientFactoryBean).orElseGet(this::defaultRestClientFactoryBean);
     }
 
     public SyncopeClientFactoryBean setRestClientFactoryBean(final JAXRSClientFactoryBean restClientFactoryBean) {

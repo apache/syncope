@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -54,10 +55,10 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
     }
 
     @Override
-    protected Details<GroupTO> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
-        final Details<GroupTO> details = super.addOptionalDetailsPanel(modelObject);
-        if (templatable instanceof RealmTO) {
-            details.disableRealmSpecification();
+    protected Optional<Details<GroupTO>> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
+        Optional<Details<GroupTO>> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO && details.isPresent()) {
+            details.get().disableRealmSpecification();
         }
         return details;
     }

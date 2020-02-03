@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -47,12 +46,6 @@ public class ProvisionAuxClassesPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisionAuxClassesPanel.class);
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     private final ProvisionTO provision;
 
     public ProvisionAuxClassesPanel(final String id, final ProvisionTO provision) {
@@ -70,19 +63,19 @@ public class ProvisionAuxClassesPanel extends Panel {
         IModel<List<String>> model;
         List<String> choices;
         if (provision == null) {
-            model = new ListModel<>(Collections.<String>emptyList());
-            choices = Collections.emptyList();
+            model = new ListModel<>(List.of());
+            choices = List.of();
         } else {
             model = new PropertyModel<>(provision, "auxClasses");
             choices = new ArrayList<>();
 
             try {
-                anyType = anyTypeRestClient.read(provision.getAnyType());
+                anyType = AnyTypeRestClient.read(provision.getAnyType());
             } catch (Exception e) {
                 LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
             }
             if (anyType != null) {
-                for (AnyTypeClassTO aux : anyTypeClassRestClient.list()) {
+                for (AnyTypeClassTO aux : AnyTypeClassRestClient.list()) {
                     if (!anyType.getClasses().contains(aux.getKey())) {
                         choices.add(aux.getKey());
                     }
@@ -100,16 +93,15 @@ public class ProvisionAuxClassesPanel extends Panel {
                 "uidOnCreate", new ResourceModel("uidOnCreate", "uidOnCreate").getObject(),
                 new PropertyModel<>(provision, "uidOnCreate"));
         uidOnCreate.setChoices(getSchemas(anyType, model.getObject()));
-        uidOnCreate.setOutputMarkupId(true).
-                setEnabled(provision != null);
+        uidOnCreate.setOutputMarkupId(true).setEnabled(provision != null);
         addOrReplace(uidOnCreate);
     }
 
-    private List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
+    private static List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
         List<String> classes = new ArrayList<>(anyType.getClasses());
         classes.addAll(anyTypeClasses);
 
-        return schemaRestClient.<PlainSchemaTO>getSchemas(
+        return SchemaRestClient.<PlainSchemaTO>getSchemas(
                 SchemaType.PLAIN, null, classes.toArray(new String[] {})).
                 stream().map(EntityTO::getKey).collect(Collectors.toList());
     }

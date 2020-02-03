@@ -146,6 +146,5 @@ public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchCondi
             this.result = SpecialAttr.DYNREALMS.toString();
             return condition(FiqlParser.NEQ, dynRealm, (Object[]) moreDynRealms);
         }
-
     }
 }

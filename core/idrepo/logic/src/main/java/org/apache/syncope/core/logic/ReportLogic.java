@@ -23,11 +23,11 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.Response;
@@ -99,12 +99,12 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -125,12 +125,12 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
-
         try {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -176,7 +176,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     startAt,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class));
+                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                    AuthContextUtils.getUsername());
 
             scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {
@@ -194,7 +195,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         result.setStart(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
-
+        result.setExecutor(AuthContextUtils.getUsername());
         return result;
     }
 
@@ -215,7 +216,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
-    public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
+    public static void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
         // streaming SAX handler from a compressed byte array stream
@@ -351,7 +352,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
-            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
+            item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);
 
             try {
@@ -372,9 +373,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
-        return report == null
-                ? null
-                : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
+        return Optional.ofNullable(report)
+                .map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")

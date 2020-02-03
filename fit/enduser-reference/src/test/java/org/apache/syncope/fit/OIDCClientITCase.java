@@ -95,7 +95,7 @@ public class OIDCClientITCase extends AbstractITCase {
         oidcProviderService.create(keycloak);
     }
 
-    private void sso(final String baseURL) throws IOException {
+    private static void sso(final String baseURL) throws IOException {
         CloseableHttpClient httpclient = HttpClients.custom().setMaxConnPerRoute(100).build();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());

@@ -42,7 +42,7 @@ under the License.
       <extension>
         <groupId>org.apache.maven.archetype</groupId>
         <artifactId>archetype-packaging</artifactId>
-        <version>3.1.0</version>
+        <version>3.1.2</version>
       </extension>
     </extensions>
 
@@ -51,7 +51,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-archetype-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.2</version>
           <extensions>true</extensions>
         </plugin>
       </plugins>
@@ -145,6 +145,14 @@ under the License.
         <excludes>
           <exclude>META-INF/spring-persistence.xml</exclude>
         </excludes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../core/persistence-jpa-json/src/main/resources/</directory>
+        <includes>
+          <include>META-INF/*</include>
+          <include>audit/*</include>
+        </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
       </resource>
       <resource>

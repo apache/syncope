@@ -97,7 +97,7 @@ public class PolicyTest extends AbstractTest {
                 POJOHelper.deserialize(pushCR.getImplementation().getBody(), DefaultPushCorrelationRuleConf.class);
         assertNotNull(pushCRConf);
         assertEquals(1, pushCRConf.getSchemas().size());
-        assertTrue(pushCRConf.getSchemas().contains("email"));
+        assertTrue(pushCRConf.getSchemas().contains("surname"));
 
         AuthenticationPolicy authenticationPolicy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
         assertNotNull(authenticationPolicy);

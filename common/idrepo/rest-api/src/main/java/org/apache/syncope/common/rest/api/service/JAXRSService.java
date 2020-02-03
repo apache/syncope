@@ -36,10 +36,16 @@ public interface JAXRSService {
 
     String PARAM_ENTITY_KEY = "entityKey";
 
+    String PARAM_USER = "user";
+
+    String PARAM_REALM = "realm";
+
     String PARAM_DETAILS = "details";
 
     String PARAM_CONNID_PAGED_RESULTS_COOKIE = "connIdPagedResultsCookie";
 
     String PARAM_MAX = "max";
+
+    String PARAM_ANYTYPEKEY = "anyTypeKey";
 
 }

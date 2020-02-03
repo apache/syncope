@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +30,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
-import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -196,11 +195,10 @@ public class UserRequestFormDirectoryPanel
 
                             UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
                         } catch (SyncopeClientException e) {
-                            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-
                 }));
 
                 manageFormModal.header(new Model<>(getString("form.manage", new Model<>(model.getObject()))));
@@ -248,8 +246,8 @@ public class UserRequestFormDirectoryPanel
                         model.getObject(),
                         previousUserTO,
                         newUserTO,
-                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
-                        FormLayoutInfoUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getLeft(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyLayoutUtils.fetch(List.of(AnyTypeKind.USER.name())).getUser(),
                         pageRef
                 ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
 
@@ -281,8 +279,6 @@ public class UserRequestFormDirectoryPanel
 
         private static final long serialVersionUID = -2311716167583335852L;
 
-        private final UserRequestRestClient restClient = new UserRequestRestClient();
-
         public UserRequestFormProvider(final int paginatorRows) {
             super(paginatorRows);
 
@@ -292,12 +288,12 @@ public class UserRequestFormDirectoryPanel
         @Override
         public Iterator<UserRequestForm> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return UserRequestRestClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.countForms();
+            return UserRequestRestClient.countForms();
         }
 
         @Override
@@ -316,22 +312,22 @@ public class UserRequestFormDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     private void claimForm(final String taskId) {
         try {
-            restClient.claimForm(taskId);
+            UserRequestRestClient.claimForm(taskId);
         } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+            SyncopeConsoleSession.get().onException(scee);
         }
     }
 
     private void unclaimForm(final String taskId) {
         try {
-            restClient.unclaimForm(taskId);
+            UserRequestRestClient.unclaimForm(taskId);
         } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+            SyncopeConsoleSession.get().onException(scee);
         }
     }
 
@@ -374,7 +370,8 @@ public class UserRequestFormDirectoryPanel
                 result.setEntity(inner);
             } else {
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), userUR);
-                restClient.getForm(result.getEntity().getKey()).ifPresent(form -> claimForm(form.getTaskId()));
+                UserRequestRestClient.getForm(result.getEntity().getKey())
+                        .ifPresent(form -> claimForm(form.getTaskId()));
             }
 
             return result;

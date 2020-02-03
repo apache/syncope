@@ -126,10 +126,11 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         assertNotNull(taskTO.getExecutions());
 
         int preSyncSize = taskTO.getExecutions().size();
-        ExecTO execution = taskService.execute(
-                new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build());
+        ExecuteQuery query = new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build();
+        ExecTO execution = taskService.execute(query);
         assertEquals(initialStatus, execution.getStatus());
-
+        assertNotNull(execution.getExecutor());
+        
         int i = 0;
 
         // wait for completion (executions incremented)
@@ -172,14 +173,14 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
         List<Future<ExecTO>> futures = new ArrayList<>();
 
-        for (String key : taskKeys) {
+        taskKeys.forEach(key -> {
             futures.add(service.submit(new ThreadExec(taskService, type, key, maxWaitSeconds, dryRun)));
             // avoid flooding the test server
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
             }
-        }
+        });
 
         for (Future<ExecTO> future : futures) {
             future.get(100, TimeUnit.SECONDS);

@@ -26,9 +26,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.GroupTO;
 
-public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupCR, GroupUR> {
+public interface GroupProvisioningManager extends ProvisioningManager<GroupCR, GroupUR> {
 
     Pair<String, List<PropagationStatus>> create(
             GroupCR groupCR,

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -38,17 +38,13 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private final AnyTypeClassTO anyTypeClassTO;
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
+    private final List<String> availablePlainSchemas = SchemaRestClient.getPlainSchemaNames();
 
-    private final List<String> availablePlainSchemas = schemaRestClient.getPlainSchemaNames();
+    private final List<String> availableDerSchemas = SchemaRestClient.getDerSchemaNames();
 
-    private final List<String> availableDerSchemas = schemaRestClient.getDerSchemaNames();
+    private final List<String> availableVirSchemas = SchemaRestClient.getVirSchemaNames();
 
-    private final List<String> availableVirSchemas = schemaRestClient.getVirSchemaNames();
-
-    private static final List<String> LAYOUT_PARAMETERS =
-            Arrays.asList(new String[] { "admin.user.layout", "self.user.layout",
-        "admin.group.layout", "self.group.layout", "admin.membership.layout", "self.membership.layout" });
+    private static final List<String> LAYOUT_PARAMETERS = List.of(Constants.ENDUSER_ANYLAYOUT);
 
     public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
         super(id);
@@ -61,8 +57,10 @@ public class AnyTypeClassDetailsPanel extends Panel {
         antTypeClassForm.setOutputMarkupId(true);
         add(antTypeClassForm);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(
-                this.anyTypeClassTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                Constants.KEY_FIELD_NAME,
+                getString(Constants.KEY_FIELD_NAME),
+                new PropertyModel<>(this.anyTypeClassTO, Constants.KEY_FIELD_NAME));
         key.addRequiredLabel();
         key.setEnabled(anyTypeClassTO.getKey() == null || this.anyTypeClassTO.getKey().isEmpty());
         antTypeClassForm.add(key);
@@ -103,7 +101,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
     }
 
     private void buildAvailableSchemas(final String key) {
-        new AnyTypeClassRestClient().list().stream().
+        AnyTypeClassRestClient.list().stream().
                 filter(item -> key == null || !item.getKey().equals(key)).
                 forEach(item -> {
                     availablePlainSchemas.removeAll(item.getPlainSchemas());

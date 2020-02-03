@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.flowable;
 
-import java.util.Arrays;
+import java.util.List;
+
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
@@ -108,7 +109,7 @@ public class WorkflowFlowableContext {
     /**
      * This is called to generate unique identifiers for database entities used by Flowable.
      *
-     * Consider to switch to {@link import org.flowable.common.engine.impl.persistence.StrongUuidGenerator} in
+     * Consider to switch to {@link org.flowable.common.engine.impl.persistence.StrongUuidGenerator} in
      * high-demanding production environments.
      *
      * @return {@link IdGenerator} used by Flowable
@@ -129,7 +130,7 @@ public class WorkflowFlowableContext {
         conf.setJpaCloseEntityManager(false);
         conf.setHistoryLevel(historyLevel);
         conf.setIdmEngineConfigurator(syncopeIdmEngineConfigurator());
-        conf.setCustomPreVariableTypes(Arrays.asList(syncopeEntitiesVariableType()));
+        conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType()));
         conf.setFormHandlerHelper(syncopeFormHandlerHelper());
         conf.setIdGenerator(idGenerator());
         return conf;

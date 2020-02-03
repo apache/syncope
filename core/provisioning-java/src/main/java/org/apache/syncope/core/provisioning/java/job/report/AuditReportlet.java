@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.provisioning.java.AuditEntry;
+import org.apache.syncope.core.persistence.api.dao.AuditDAO;
+import org.apache.syncope.core.persistence.api.entity.AuditEntry;
+import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
@@ -49,17 +49,17 @@ public class AuditReportlet extends AbstractReportlet {
     private DataSource datasource;
 
     private void doExtractConf(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
-        status.set("Fetching " + conf.getSize() + " rows from the SYNCOPEAUDIT table");
+        status.set("Fetching " + conf.getSize() + " rows from the " + AuditDAO.TABLE + " table");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         jdbcTemplate.setMaxRows(conf.getSize());
         List<Map<String, Object>> rows = jdbcTemplate.
-                queryForList("SELECT * FROM SYNCOPEAUDIT ORDER BY EVENT_DATE DESC");
+                queryForList("SELECT * FROM " + AuditDAO.TABLE + " ORDER BY EVENT_DATE DESC");
 
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();
         for (Map<String, Object> row : rows) {
-            AuditEntry auditEntry = POJOHelper.deserialize(row.get("MESSAGE").toString(), AuditEntry.class);
+            AuditEntry auditEntry = POJOHelper.deserialize(row.get("MESSAGE").toString(), AuditEntryImpl.class);
 
             atts.clear();
             if (StringUtils.isNotBlank(auditEntry.getWho())) {
@@ -88,8 +88,7 @@ public class AuditReportlet extends AbstractReportlet {
             handler.endElement("", "", "logger");
 
             if (auditEntry.getBefore() != null) {
-                char[] before = ToStringBuilder.reflectionToString(
-                        auditEntry.getBefore(), ToStringStyle.JSON_STYLE).toCharArray();
+                char[] before = POJOHelper.serialize(auditEntry.getBefore()).toCharArray();
                 handler.startElement("", "", "before", null);
                 handler.characters(before, 0, before.length);
                 handler.endElement("", "", "before");
@@ -98,8 +97,7 @@ public class AuditReportlet extends AbstractReportlet {
             if (auditEntry.getInput() != null) {
                 handler.startElement("", "", "inputs", null);
                 for (Object inputObj : auditEntry.getInput()) {
-                    char[] input = ToStringBuilder.reflectionToString(
-                            inputObj, ToStringStyle.JSON_STYLE).toCharArray();
+                    char[] input = POJOHelper.serialize(inputObj).toCharArray();
                     handler.startElement("", "", "input", null);
                     handler.characters(input, 0, input.length);
                     handler.endElement("", "", "input");
@@ -108,8 +106,7 @@ public class AuditReportlet extends AbstractReportlet {
             }
 
             if (auditEntry.getOutput() != null) {
-                char[] output = ToStringBuilder.reflectionToString(
-                        auditEntry.getOutput(), ToStringStyle.JSON_STYLE).toCharArray();
+                char[] output = POJOHelper.serialize(auditEntry.getOutput()).toCharArray();
                 handler.startElement("", "", "output", null);
                 handler.characters(output, 0, output.length);
                 handler.endElement("", "", "output");
@@ -147,5 +144,4 @@ public class AuditReportlet extends AbstractReportlet {
 
         doExtractConf(handler, status);
     }
-
 }

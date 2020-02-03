@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -36,7 +36,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final PolicyComparator COMPARATOR = new PolicyComparator();
 
-    public <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
+    public static <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(type, key);
@@ -47,26 +47,26 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
+    public static <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
         try {
             return getService(PolicyService.class).<T>list(type).stream().
                     sorted(COMPARATOR).
                     collect(Collectors.toList());
         } catch (Exception ignore) {
             LOG.debug("No policy found", ignore);
-            return Collections.<T>emptyList();
+            return List.of();
         }
     }
 
-    public <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
+    public static <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
         getService(PolicyService.class).create(type, policy);
     }
 
-    public <T extends PolicyTO> void updatePolicy(final PolicyType type, final T policy) {
+    public static <T extends PolicyTO> void updatePolicy(final PolicyType type, final T policy) {
         getService(PolicyService.class).update(type, policy);
     }
 
-    public void delete(final PolicyType type, final String key) {
+    public static void delete(final PolicyType type, final String key) {
         getService(PolicyService.class).delete(type, key);
     }
 
@@ -76,7 +76,8 @@ public class PolicyRestClient extends BaseRestClient {
 
         @Override
         public int compare(final PolicyTO left, final PolicyTO right) {
-            return left == null ? -1 : right == null ? 1 : left.getDescription().compareTo(right.getDescription());
+            return Optional.ofNullable(left).map(to -> Optional.ofNullable(right)
+                .map(policyTO -> to.getDescription().compareTo(policyTO.getDescription())).orElse(1)).orElse(-1);
         }
 
     }

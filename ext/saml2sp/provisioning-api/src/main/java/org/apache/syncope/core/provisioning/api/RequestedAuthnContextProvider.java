@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api;
 
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 
+@FunctionalInterface
 public interface RequestedAuthnContextProvider {
 
     RequestedAuthnContext provide();

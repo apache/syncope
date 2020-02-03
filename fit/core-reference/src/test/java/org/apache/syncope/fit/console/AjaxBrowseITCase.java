@@ -31,55 +31,55 @@ import org.apache.syncope.client.console.topology.Topology;
 import org.junit.jupiter.api.Test;
 
 // Please, keep the class name as is in order to respect the execution order. It seems that from wicket 7.5.0 the 
-// session creted never expire and the unsuccessfulLogin test fail
+// session created never expire and the unsuccessfulLogin test fail
 public class AjaxBrowseITCase extends AbstractConsoleITCase {
 
     @Test
     public void loginPage() {
-        UTILITY_UI.getTester().startPage(Login.class);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
     }
 
     @Test
     public void successfulLogin() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().assertRenderedPage(Dashboard.class);
+        TESTER.assertRenderedPage(Dashboard.class);
     }
 
     @Test
     public void unsuccessfulLogin() {
         doLogin(ADMIN_UNAME, ADMIN_PWD + 1);
-        UTILITY_UI.getTester().assertRenderedPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
     }
 
     @Test
     public void browsingBookmarkablePageLink() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
 
-        UTILITY_UI.getTester().assertRenderedPage(Dashboard.class);
+        TESTER.assertRenderedPage(Dashboard.class);
 
-        UTILITY_UI.getTester().clickLink("body:realmsLI:realms");
-        UTILITY_UI.getTester().assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
 
-        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
-        UTILITY_UI.getTester().assertRenderedPage(Topology.class);
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.assertRenderedPage(Topology.class);
 
-        UTILITY_UI.getTester().clickLink("body:reportsLI:reports");
-        UTILITY_UI.getTester().assertRenderedPage(Reports.class);
+        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.assertRenderedPage(Reports.class);
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:logsLI:logs");
-        UTILITY_UI.getTester().assertRenderedPage(Logs.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        TESTER.assertRenderedPage(Logs.class);
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:typesLI:types");
-        UTILITY_UI.getTester().assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:securityLI:security");
-        UTILITY_UI.getTester().assertRenderedPage(Security.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.assertRenderedPage(Security.class);
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:policiesLI:policies");
-        UTILITY_UI.getTester().assertRenderedPage(Policies.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.assertRenderedPage(Policies.class);
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-        UTILITY_UI.getTester().assertRenderedPage(Notifications.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.assertRenderedPage(Notifications.class);
     }
 }

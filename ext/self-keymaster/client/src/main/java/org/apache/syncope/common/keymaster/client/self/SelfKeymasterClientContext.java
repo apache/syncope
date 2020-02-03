@@ -19,7 +19,9 @@
 package org.apache.syncope.common.keymaster.client.self;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.util.Arrays;
+
+import java.util.List;
+
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -27,6 +29,7 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -47,6 +50,7 @@ public class SelfKeymasterClientContext {
 
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
     @Bean
+    @ConditionalOnMissingBean(name = "selfKeymasterRESTClientFactoryBean")
     public JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean() {
         JAXRSClientFactoryBean restClientFactoryBean = new JAXRSClientFactoryBean();
         restClientFactoryBean.setAddress(address);
@@ -54,27 +58,31 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setPassword(password);
         restClientFactoryBean.setThreadSafe(true);
         restClientFactoryBean.setInheritHeaders(true);
-        restClientFactoryBean.setFeatures(Arrays.asList(new LoggingFeature()));
+        restClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
         restClientFactoryBean.setProviders(
-                Arrays.asList(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
+            List.of(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
         return restClientFactoryBean;
     }
 
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
     @Bean
+    @ConditionalOnMissingBean(name = "selfConfParamOps")
     public ConfParamOps selfConfParamOps() {
         return new SelfKeymasterConfParamOps(selfKeymasterRESTClientFactoryBean());
     }
 
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
     @Bean
+    @ConditionalOnMissingBean(name = "selfServiceOps")
     public ServiceOps selfServiceOps() {
         return new SelfKeymasterServiceOps(selfKeymasterRESTClientFactoryBean(), 5);
     }
 
     @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
     @Bean
+    @ConditionalOnMissingBean(name = "domainOps")
     public DomainOps domainOps() {
         return new SelfKeymasterDomainOps(selfKeymasterRESTClientFactoryBean());
     }
 }
+

@@ -22,11 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,8 +85,8 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
-import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
@@ -104,7 +104,6 @@ import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
-import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
@@ -115,24 +114,26 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.fit.core.UserITCase;
-import org.identityconnectors.common.security.Encryptor;
-import org.junit.jupiter.api.BeforeAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.fit.core.CoreITContext;
+import org.apache.syncope.fit.core.UserITCase;
+import org.identityconnectors.common.security.Encryptor;
+import org.junit.jupiter.api.BeforeAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig({ CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
+
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -190,9 +191,15 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_DBSCRIPTED = "resource-db-scripted";
 
+    protected static final String RESOURCE_NAME_REST = "rest-target-resource";
+
     protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
 
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
+
+    protected static final String PRINTER = "PRINTER";
+
+    protected static final int MAX_WAIT_SECONDS = 50;
 
     protected static String ANONYMOUS_UNAME;
 
@@ -238,11 +245,7 @@ public abstract class AbstractITCase {
 
     protected static ResourceService resourceService;
 
-    protected static ResourceHistoryService resourceHistoryService;
-
     protected static ConnectorService connectorService;
-
-    protected static ConnectorHistoryService connectorHistoryService;
 
     protected static LoggerService loggerService;
 
@@ -283,6 +286,8 @@ public abstract class AbstractITCase {
     protected static OIDCProviderService oidcProviderService;
 
     protected static SCIMConfService scimConfService;
+
+    protected static AuditService auditService;
 
     @BeforeAll
     public static void securitySetup() {
@@ -332,9 +337,7 @@ public abstract class AbstractITCase {
         userWorkflowTaskService = adminClient.getService(UserWorkflowTaskService.class);
         groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
-        resourceHistoryService = adminClient.getService(ResourceHistoryService.class);
         connectorService = adminClient.getService(ConnectorService.class);
-        connectorHistoryService = adminClient.getService(ConnectorHistoryService.class);
         loggerService = adminClient.getService(LoggerService.class);
         reportTemplateService = adminClient.getService(ReportTemplateService.class);
         reportService = adminClient.getService(ReportService.class);
@@ -355,6 +358,7 @@ public abstract class AbstractITCase {
         oidcClientService = adminClient.getService(OIDCClientService.class);
         oidcProviderService = adminClient.getService(OIDCProviderService.class);
         scimConfService = adminClient.getService(SCIMConfService.class);
+        auditService = adminClient.getService(AuditService.class);
     }
 
     @Autowired
@@ -445,7 +449,7 @@ public abstract class AbstractITCase {
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
         if (staticRecipients != null) {
-            notification.getStaticRecipients().addAll(Arrays.asList(staticRecipients));
+            notification.getStaticRecipients().addAll(List.of(staticRecipients));
         }
 
         notification.setSender(sender);
@@ -576,7 +580,7 @@ public abstract class AbstractITCase {
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").get().getValues().get(0)
-                + ":" + ldapConn.getConf("port").get().getValues().get(0) + "/");
+                + ':' + ldapConn.getConf("port").get().getValues().get(0) + '/');
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL,
                 bindDn == null ? ldapConn.getConf("principal").get().getValues().get(0) : bindDn);
@@ -616,13 +620,34 @@ public abstract class AbstractITCase {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
 
             List<ModificationItem> items = new ArrayList<>();
-            attributes.forEach((key, value) -> {
-                items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(key, value)));
-            });
+            attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(key, value))));
 
             ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
         } catch (Exception e) {
             LOG.error("While updating {} with {}", objectDn, attributes, e);
+        } finally {
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    protected void removeLdapRemoteObject(
+            final String bindDn,
+            final String bindPwd,
+            final String objectDn) {
+
+        InitialDirContext ctx = null;
+        try {
+            ctx = getLdapResourceDirContext(bindDn, bindPwd);
+
+            ctx.destroySubcontext(objectDn);
+        } catch (Exception e) {
+            LOG.error("While removing {}", objectDn, e);
         } finally {
             if (ctx != null) {
                 try {

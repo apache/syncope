@@ -43,116 +43,116 @@ public class TopologyITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
-        UTILITY_UI.getTester().assertRenderedPage(Topology.class);
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.assertRenderedPage(Topology.class);
     }
 
     @Test
     public void showTopology() {
-        UTILITY_UI.getTester().assertComponent("body:syncope", WebMarkupContainer.class);
-        UTILITY_UI.getTester().assertComponent("body:resources:1", WebMarkupContainer.class);
-        UTILITY_UI.getTester().assertComponent("body:resources:2:resources:0", WebMarkupContainer.class);
+        TESTER.assertComponent("body:syncope", WebMarkupContainer.class);
+        TESTER.assertComponent("body:resources:1", WebMarkupContainer.class);
+        TESTER.assertComponent("body:resources:2:resources:0", WebMarkupContainer.class);
     }
 
     @Test
     public void showTopologyToggleMenu() {
-        UTILITY_UI.getTester().executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.executeAjaxEvent("body:resources:2:resources:0:res", Constants.ON_CLICK);
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:delete",
                 AjaxLink.class);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:edit",
                 AjaxLink.class);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:propagation",
                 AjaxLink.class);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:pull",
                 AjaxLink.class);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:push",
                 AjaxLink.class);
-        UTILITY_UI.getTester().executeAjaxEvent("body:syncope", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:tasks",
                 AjaxLink.class);
-        UTILITY_UI.getTester().executeAjaxEvent("body:conns:0:conns:3:conn", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.executeAjaxEvent("body:conns:0:conns:3:conn", Constants.ON_CLICK);
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create",
                 AjaxLink.class);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:delete",
                 AjaxLink.class);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:edit",
                 AjaxLink.class);
     }
 
     @Test
     public void resourceBatchAction() {
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "ws-target-resource-1");
+        Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:container:content:togglePanelContainer:container:actions:reconciliation");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:1:outer", Modal.class);
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer", Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester("body:toggle:outerObjectsRepeater:1:outer:form");
+        FormTester formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:1:outer:form");
         formTester.setValue("content:anyTypes:dropDownChoiceField", "0");
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:anyTypes:dropDownChoiceField",
                 Constants.ON_CHANGE);
         formTester.setValue("content:anyTypes:dropDownChoiceField", "0");
 
-        component = UTILITY_UI.findComponentByProp("key",
+        component = findComponentByProp("key",
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
 
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:1:outer:dialog:footer:buttons:0:button", Constants.ON_CLICK);
     }
 
     @Test
     public void editProvisioning() {
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "ws-target-resource-1");
+        Component component = findComponentByProp("key", "body:resources", "ws-target-resource-1");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:group:beans:0:fields:0", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:toggle:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:view:mapping:mappingContainer:mappings:1:itemTransformers:icon",
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:"
                 + "wizard:form:view:mapping:mappingContainer:mappings:0:itemTransformers:alertsLink");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:outerObjectsRepeater:0:outer:container:content:togglePanelContainer:"
                 + "form:classes:paletteField", NonI18nPalette.class);
@@ -162,72 +162,72 @@ public class TopologyITCase extends AbstractConsoleITCase {
     public void createNewResurceAndProvisionRules() {
         final String res = UUID.randomUUID().toString();
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:conns:0:conns:0:conn", Constants.ON_CLICK);
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create", Constants.ON_CLICK);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:0:outer:form:content:form");
 
         formTester.setValue("view:container:key:textField", res);
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
+        formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
         formTester.submit("buttons:next");
 
         // click on finish to create the external resource 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         // ajax event required to retrieve AjaxRequestTarget (used into finish custom event)
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:0:outer:form:content:form:buttons:finish", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.cleanupFeedbackMessages();
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
 
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", res);
+        Component component = findComponentByProp("key", "body:resources", res);
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
         // -- create new provision rules for the current resource
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:add");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:objectTypeToggle:container:"
                 + "content:togglePanelContainer:objectTypeForm");
         formTester.select("type:dropDownChoiceField", 1);
         formTester.submit("changeit");
-        UTILITY_UI.getTester().assertNoErrorMessage();
-        UTILITY_UI.getTester().assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
 
         // choose object class
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
-        UTILITY_UI.getTester().assertNoErrorMessage();
-        UTILITY_UI.getTester().assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
 
         // aux classes
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
-        UTILITY_UI.getTester().assertNoErrorMessage();
-        UTILITY_UI.getTester().assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
 
         // set a new mapping rule
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:view:mapping:mappingContainer:addMappingBtn", Constants.ON_CLICK);
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
 
         formTester.setValue("view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", "true");
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form"
                 + ":view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", Constants.ON_CHANGE);
 
@@ -236,106 +236,106 @@ public class TopologyITCase extends AbstractConsoleITCase {
         formTester.setValue("view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", "true");
 
         formTester.submit("buttons:next");
-        UTILITY_UI.getTester().assertNoErrorMessage();
-        UTILITY_UI.getTester().assertNoInfoMessage();
+        TESTER.assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
 
         // finish
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         // ajax event required to retrieve AjaxRequestTarget (used into finish custom event)
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:buttons:finish", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", AjaxSubmitLink.class);
 
         // save
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.cleanupFeedbackMessages();
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertNoErrorMessage();
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        TESTER.assertNoErrorMessage();
+        assertSuccessMessage();
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:group:beans:0:fields:0", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:toggle:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:0", WebMarkupContainer.class);
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:buttons:cancel", Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().clickLink("body:toggle:outerObjectsRepeater:3:outer:dialog:footer:buttons:0:button");
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:dialog:footer:buttons:0:button");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink("body:toggle:container:content:togglePanelContainer:container:actions:delete");
+        TESTER.cleanupFeedbackMessages();
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:delete");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
-        component = UTILITY_UI.findComponentByProp("key", "body:resources", res);
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
+        component = findComponentByProp("key", "body:resources", res);
         assertNull(component);
     }
 
     @Test
     public void executePullTask() {
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "resource-testdb");
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
 
-        component = UTILITY_UI.findComponentByProp("name",
+        component = findComponentByProp("name",
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "TestDB Task");
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:3:action:action");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:startAt:container:content:togglePanelContainer:startAtForm:startAt");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
 
-        component = UTILITY_UI.findComponentByProp("name",
+        component = findComponentByProp("name",
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "TestDB Task");
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertLabel(
+        TESTER.assertLabel(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:title",
                 "Executions of task &#039;TestDB Task&#039;");
 
         int iteration = 0;
         do {
             try {
-                component = UTILITY_UI.findComponentByProp("status",
+                component = findComponentByProp("status",
                         "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
                         + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
                         + "tablePanel:groupForm:checkgroup:dataTable", "SUCCESS");
@@ -348,7 +348,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 } catch (Exception ignore) {
                 }
 
-                UTILITY_UI.getTester().executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                         + "secondLevelContainer:second:executions:firstLevelContainer:first:container:content:"
                         + "searchContainer:tablehandling:actionRepeater:0:action:action", Constants.ON_CLICK);
 
@@ -356,240 +356,240 @@ public class TopologyITCase extends AbstractConsoleITCase {
             }
         } while (iteration < 10);
 
-        component = UTILITY_UI.findComponentByProp("status",
+        component = findComponentByProp("status",
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
                 + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable", "SUCCESS");
         assertNotNull(component);
 
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:second:"
                 + "executions:firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "secondLevelContainer:second:executions:secondLevelContainer:title", Label.class);
     }
 
     @Test
     public void readPropagationTaskExecutions() {
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "resource-testdb");
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:container:content:togglePanelContainer:container:actions:propagation");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 WebMarkupContainer.class);
 
-        component = UTILITY_UI.findComponentByProp("operation",
+        component = findComponentByProp("operation",
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", ResourceOperation.CREATE);
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:2:action:action");
 
-        UTILITY_UI.getTester().clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
 
-        component = UTILITY_UI.findComponentByProp("key", "body:resources", "resource-testdb");
+        component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:container:content:togglePanelContainer:container:actions:propagation");
 
-        component = UTILITY_UI.findComponentByPropNotNull("start",
+        component = findComponentByPropNotNull("start",
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable");
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertLabel(
+        TESTER.assertLabel(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:title",
                 "CREATE __ACCOUNT__");
 
-        component = UTILITY_UI.findComponentByProp("status",
+        component = findComponentByProp("status",
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "secondLevelContainer:second:executions:firstLevelContainer:first:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "FAILURE");
 
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"
                 + "second:executions:firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "secondLevelContainer:second:executions:secondLevelContainer:title", Label.class);
     }
 
     @Test
     public void editPushTask() {
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "resource-ldap");
+        Component component = findComponentByProp("key", "body:resources", "resource-ldap");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink("body:toggle:container:content:togglePanelContainer:container:actions:push");
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:push");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:1:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
         formTester.setValue("view:description:textField", "test");
         formTester.submit("buttons:next");
 
-        UTILITY_UI.getTester().assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+        TESTER.assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:wizard:form:view:filters:0:filters:tabs:0:body:"
                 + "content:searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panel:container:"
                 + "value:textField", "_NO_ONE_");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:"
                 + "tasks:firstLevelContainer:first:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void createSchedTask() {
-        UTILITY_UI.getTester().executeAjaxEvent("body:syncope", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink("body:toggle:container:content:togglePanelContainer:container:actions:tasks");
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:tasks");
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:add");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
         formTester.select("view:jobDelegate:dropDownChoiceField", 0);
 
         formTester.submit("buttons:next");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
 
         formTester.submit("buttons:finish");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void addGroupTemplate() {
-        Component component = UTILITY_UI.findComponentByProp("key", "body:resources", "resource-testdb");
+        Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
-        UTILITY_UI.getTester().executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
+        TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:4:action:action");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:toggleTemplates", TogglePanel.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:container:"
                 + "content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
 
         formTester.setValue("type:dropDownChoiceField", "1");
         formTester.submit("changeit");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:2:outer", Modal.class);
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:2:outer", Modal.class);
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+        formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:wizard:form");
         formTester.setValue("view:name:textField", "'k' + name");
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1", Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+                + "body:rows:2", Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:4:action:action");
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:toggleTemplates", TogglePanel.class);
 
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:toggleTemplates", TogglePanel.class);
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:container:"
                 + "content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
 
         formTester.setValue("type:dropDownChoiceField", "1");
         formTester.submit("changeit");
 
-        UTILITY_UI.getTester().assertComponent("body:toggle:outerObjectsRepeater:2:outer", Modal.class);
+        TESTER.assertComponent("body:toggle:outerObjectsRepeater:2:outer", Modal.class);
 
-        UTILITY_UI.getTester().assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+        TESTER.assertModelValue("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:wizard:form:view:name:textField",
                 "'k' + name");
 
-        formTester = UTILITY_UI.getTester().newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+        formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "firstLevelContainer:first:container:content:wizard:form");
         formTester.setValue("view:name:textField", "");
         formTester.submit("buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void reloadConnectors() {
-        UTILITY_UI.getTester().executeAjaxEvent("body:syncope", Constants.ON_CLICK);
-        UTILITY_UI.getTester().assertComponent(
+        TESTER.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
+        TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:reload",
                 AjaxLink.class);
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
-        UTILITY_UI.getTester().clickLink("body:toggle:container:content:togglePanelContainer:container:actions:reload");
+        TESTER.cleanupFeedbackMessages();
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:reload");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
     }
 }

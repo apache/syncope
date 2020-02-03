@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.notifications;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -77,14 +77,6 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     private final NotificationRestClient restClient = new NotificationRestClient();
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
-    private final LoggerRestClient loggerRestClient = new LoggerRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     /**
      * Construct.
      *
@@ -102,9 +94,9 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
         final boolean createFlag = modelObject.getInnerObject().getKey() == null;
         if (createFlag) {
-            restClient.create(modelObject.getInnerObject());
+            NotificationRestClient.create(modelObject.getInnerObject());
         } else {
-            restClient.update(modelObject.getInnerObject());
+            NotificationRestClient.update(modelObject.getInnerObject());
         }
 
         return null;
@@ -150,7 +142,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
                     "traceLevel", getString("traceLevel"),
                     new PropertyModel<>(notificationTO, "traceLevel"));
-            traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
+            traceLevel.setChoices(List.of(TraceLevel.values()));
             traceLevel.addRequiredLabel();
             add(traceLevel);
 
@@ -164,7 +156,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     }
 
-    public class Events extends WizardStep {
+    public static class Events extends WizardStep {
 
         private static final long serialVersionUID = -7709805590497687958L;
 
@@ -173,26 +165,26 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             add(new EventCategoryPanel(
                     "eventSelection",
-                    loggerRestClient.listEvents(),
+                    LoggerRestClient.listEvents(),
                     new PropertyModel<List<String>>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;
 
                 @Override
                 protected List<String> getListAuthRoles() {
-                    return Collections.emptyList();
+                    return List.of();
                 }
 
                 @Override
                 protected List<String> getChangeAuthRoles() {
-                    return Collections.emptyList();
+                    return List.of();
                 }
             });
         }
 
     }
 
-    public class About extends Panel {
+    public static class About extends Panel {
 
         private static final long serialVersionUID = -9149543787708482882L;
 
@@ -216,7 +208,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                         }
 
                     });
-            type.setChoices(new AnyTypeRestClient().list());
+            type.setChoices(AnyTypeRestClient.list());
             type.addRequiredLabel();
             add(type);
 
@@ -331,7 +323,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
     }
 
-    public class Recipients extends WizardStep {
+    public static class Recipients extends WizardStep {
 
         private static final long serialVersionUID = -7709805590497687958L;
 
@@ -341,7 +333,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
+                return ImplementationRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -391,26 +383,25 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
     }
 
-    private List<String> getSchemas() {
+    private static List<String> getSchemas() {
         AnyTypeTO type = null;
         try {
-            type = anyTypeRestClient.read(AnyTypeKind.USER.name());
+            type = AnyTypeRestClient.read(AnyTypeKind.USER.name());
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
 
-        String[] anyTypeClasses = type == null
-                ? new String[0]
-                : type.getClasses().toArray(new String[] {});
+        String[] anyTypeClasses = Optional.ofNullable(type)
+            .map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[]{})).orElseGet(() -> new String[0]);
 
         List<String> result = new ArrayList<>();
         result.add("username");
 
-        result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
+        result.addAll(SchemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
+        result.addAll(SchemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
+        result.addAll(SchemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
 
         Collections.sort(result);

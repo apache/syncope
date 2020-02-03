@@ -35,17 +35,17 @@ public class NotificationsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-        UTILITY_UI.getTester().assertRenderedPage(Notifications.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.assertRenderedPage(Notifications.class);
     }
 
-    private void createNotification(final String sender, final String subject) {
-        UTILITY_UI.getTester().clickLink("body:content:tabbedPanel:panel:container:content:add");
+    private static void createNotification(final String sender, final String subject) {
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
                 Modal.class);
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
         formTester.select("content:form:view:template:dropDownChoiceField", 2);
@@ -53,16 +53,16 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.setValue("content:form:view:sender:textField", sender);
         formTester.setValue("content:form:view:subject:textField", subject);
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
-        UTILITY_UI.getTester().assertNoErrorMessage();
+        TESTER.assertNoErrorMessage();
 
         // -------------------------------
         // recipients
         // -------------------------------
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:form:"
                 + "view:staticRecipients:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
         formTester.setValue("content:form:view:staticRecipients:multiValueContainer:innerForm:content:view:0:panel:"
@@ -70,17 +70,17 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.setValue("content:form:view:selfAsRecipient:checkboxField", true);
         formTester.setValue("content:form:view:recipientAttrName:textField", "email");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
-        UTILITY_UI.getTester().assertNoErrorMessage();
+        TESTER.assertNoErrorMessage();
 
         // -------------------------------
         // generate event to populate eventsPanel
         // -------------------------------
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
-        UTILITY_UI.getTester().executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:"
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:"
                 + "content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField",
                 Constants.ON_CHANGE);
         // -------------------------------
@@ -89,7 +89,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         // select event template
         // -------------------------------
         formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
-        UTILITY_UI.getTester().executeAjaxEvent(
+        TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
                 + "form:view:eventSelection:eventsContainer:eventsPanel:successGroup",
                 Constants.ON_CLICK);
@@ -98,25 +98,24 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
         formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");
-        UTILITY_UI.getTester().assertNoErrorMessage();
+        TESTER.assertNoErrorMessage();
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:finish");
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
     }
 
     @Test
     public void read() {
-        assertNull(UTILITY_UI.findComponentByProp(KEY,
+        assertNull(findComponentByProp(KEY,
                 "body:content:tabbedPanel:panel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", 1));
     }
@@ -129,88 +128,88 @@ public class NotificationsITCase extends AbstractConsoleITCase {
     @Test
     public void update() {
         createNotification("update@syncope.org", "createToUpdate");
-        Component result = UTILITY_UI.findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
+        Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToUpdate");
 
         // edit notification
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = UTILITY_UI.getTester().newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void execute() {
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
 
-        Component result = UTILITY_UI.findComponentByProp("subject",
+        Component result = findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "Password Reset request");
 
         // notification tasks link
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", WebMarkupContainer.class);
 
-        result = UTILITY_UI.findComponentByProp("subject",
+        result = findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
         // execute task
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
                 + "firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:3:action:action");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
 
-        result = UTILITY_UI.findComponentByProp("subject", "body:content:tabbedPanel:panel:container:content:"
+        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "Password Reset request");
 
         // notification tasks link
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        result = UTILITY_UI.findComponentByProp("subject",
+        result = findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
         // view task
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink(
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
                 + "firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
                 + "container:actions:actions:actionRepeater:0:action:action");
 
-        UTILITY_UI.getTester().assertLabel(
+        TESTER.assertLabel(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
                 + "secondLevelContainer:title", "Executions");
 
-        UTILITY_UI.getTester().clickLink(
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
                 + "secondLevelContainer:back");
 
-        assertNotNull(UTILITY_UI.findComponentByProp("subject",
+        assertNotNull(findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81"));
@@ -219,26 +218,26 @@ public class NotificationsITCase extends AbstractConsoleITCase {
     @Test
     public void delete() {
         createNotification("delete@syncope.org", "createToDelete");
-        Component result = UTILITY_UI.findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
+        Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToDelete");
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().getRequest().addParameter("confirm", "true");
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.getRequest().addParameter("confirm", "true");
 
         // delete task
-        UTILITY_UI.getTester().clickLink(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"));
 
-        UTILITY_UI.getTester().executeAjaxEvent(UTILITY_UI.getTester().getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"),
                 Constants.ON_CLICK);
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        assertNull(UTILITY_UI.findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
+        assertNull(findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToDelete"));
     }
 }

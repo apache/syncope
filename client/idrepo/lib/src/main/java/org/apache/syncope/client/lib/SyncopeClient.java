@@ -22,7 +22,6 @@ import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,7 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
@@ -118,14 +118,14 @@ public class SyncopeClient {
             restClientFactory.setPassword(((BasicAuthenticationHandler) handler).getPassword());
 
             String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
-            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
+            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
 
             restClientFactory.setUsername(null);
             restClientFactory.setPassword(null);
         } else if (handler instanceof JWTAuthenticationHandler) {
             restClientFactory.getHeaders().put(
                     HttpHeaders.AUTHORIZATION,
-                    Collections.singletonList("Bearer " + ((JWTAuthenticationHandler) handler).getJwt()));
+                    List.of("Bearer " + ((JWTAuthenticationHandler) handler).getJwt()));
         }
     }
 
@@ -140,7 +140,7 @@ public class SyncopeClient {
      */
     public void refresh() {
         String jwt = getService(AccessTokenService.class).refresh().getHeaderString(RESTHeaders.TOKEN);
-        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
+        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
     }
 
     /**
@@ -186,6 +186,15 @@ public class SyncopeClient {
      */
     public static AnyObjectFiqlSearchConditionBuilder getAnyObjectSearchConditionBuilder(final String type) {
         return new AnyObjectFiqlSearchConditionBuilder(type);
+    }
+
+    /**
+     * Returns a new instance of {@link ConnObjectTOFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
+     *
+     * @return default instance of {@link ConnObjectTOFiqlSearchConditionBuilder}
+     */
+    public static ConnObjectTOFiqlSearchConditionBuilder getConnObjectTOFiqlSearchConditionBuilder() {
+        return new ConnObjectTOFiqlSearchConditionBuilder();
     }
 
     /**
@@ -296,7 +305,7 @@ public class SyncopeClient {
      * @param values HTTP header values
      * @return given service instance, with given header set
      */
-    public <T> T header(final T service, final String key, final Object... values) {
+    public static <T> T header(final T service, final String key, final Object... values) {
         WebClient.client(service).header(key, values);
         return service;
     }
@@ -309,7 +318,7 @@ public class SyncopeClient {
      * @param preference preference to be set via {@code Prefer} header
      * @return given service instance, with {@code Prefer} header set
      */
-    public <T> T prefer(final T service, final Preference preference) {
+    public static <T> T prefer(final T service, final Preference preference) {
         return header(service, RESTHeaders.PREFER, preference.toString());
     }
 
@@ -322,7 +331,7 @@ public class SyncopeClient {
      * requested
      * @return service instance of the given reference class, with related header set
      */
-    public <T> T nullPriorityAsync(final T service, final boolean nullPriorityAsync) {
+    public static <T> T nullPriorityAsync(final T service, final boolean nullPriorityAsync) {
         return header(service, RESTHeaders.NULL_PRIORITY_ASYNC, nullPriorityAsync);
     }
 
@@ -335,7 +344,7 @@ public class SyncopeClient {
      * @param ifNot if true then {@code If-None-Match} is set, {@code If-Match} otherwise
      * @return given service instance, with {@code If-Match} or {@code If-None-Match} set
      */
-    private <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
+    private static <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
         WebClient.client(service).match(etag, ifNot);
         return service;
     }
@@ -348,7 +357,7 @@ public class SyncopeClient {
      * @param etag ETag value
      * @return given service instance, with {@code If-Match} set
      */
-    public <T> T ifMatch(final T service, final EntityTag etag) {
+    public static <T> T ifMatch(final T service, final EntityTag etag) {
         return match(service, etag, false);
     }
 
@@ -360,7 +369,7 @@ public class SyncopeClient {
      * @param etag ETag value
      * @return given service instance, with {@code If-None-Match} set
      */
-    public <T> T ifNoneMatch(final T service, final EntityTag etag) {
+    public static <T> T ifNoneMatch(final T service, final EntityTag etag) {
         return match(service, etag, true);
     }
 
@@ -371,7 +380,7 @@ public class SyncopeClient {
      * @param service service class instance
      * @return {@code ETag} header value from latest service run (if available)
      */
-    public <T> EntityTag getLatestEntityTag(final T service) {
+    public static <T> EntityTag getLatestEntityTag(final T service) {
         return WebClient.client(service).getResponse().getEntityTag();
     }
 

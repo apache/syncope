@@ -36,7 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +77,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         notificationTO.setTraceLevel(notification.getTraceLevel());
         notificationTO.setActive(notification.isActive());
 
-        notification.getAbouts().forEach(about -> {
-            notificationTO.getAbouts().put(about.getAnyType().getKey(), about.get());
-        });
+        notification.getAbouts().forEach(about -> notificationTO.getAbouts().
+                put(about.getAnyType().getKey(), about.get()));
 
         if (notification.getRecipientsProvider() != null) {
             notificationTO.setRecipientsProvider(notification.getRecipientsProvider().getKey());

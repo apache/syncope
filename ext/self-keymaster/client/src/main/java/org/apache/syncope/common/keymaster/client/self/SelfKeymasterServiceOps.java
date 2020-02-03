@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
@@ -59,7 +59,7 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     @Override
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         try {
-            return client(NetworkServiceService.class, Collections.emptyMap()).list(serviceType);
+            return client(NetworkServiceService.class, Map.of()).list(serviceType);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     @Override
     public NetworkService get(final NetworkService.Type serviceType) {
         try {
-            return client(NetworkServiceService.class, Collections.emptyMap()).get(serviceType);
+            return client(NetworkServiceService.class, Map.of()).get(serviceType);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {

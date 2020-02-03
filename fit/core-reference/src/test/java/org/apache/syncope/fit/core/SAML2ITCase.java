@@ -42,9 +42,7 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -167,9 +165,7 @@ public class SAML2ITCase extends AbstractITCase {
             return;
         }
 
-        saml2IdPService.list().forEach(idp -> {
-            saml2IdPService.delete(idp.getKey());
-        });
+        saml2IdPService.list().forEach(idp -> saml2IdPService.delete(idp.getKey()));
 
         Files.delete(keystorePath);
         Files.delete(truststorePath);
@@ -203,7 +199,7 @@ public class SAML2ITCase extends AbstractITCase {
             assertTrue(signature.checkSignatureValue((X509Certificate) keystore.getCertificate("sp")));
         } catch (Exception e) {
             LOG.error("During SAML 2.0 SP metadata parsing", e);
-            fail(e.getMessage());
+            fail(e::getMessage);
         }
     }
 
@@ -466,13 +462,13 @@ public class SAML2ITCase extends AbstractITCase {
         }
     }
 
-    private org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
+    private static org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
         return createResponse(inResponseTo, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
     }
 
-    private org.opensaml.saml.saml2.core.Response createResponse(
-            final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
-            final String issuer) throws Exception {
+    private static org.opensaml.saml.saml2.core.Response createResponse(
+        final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
+        final String issuer) throws Exception {
 
         Status status = SAML2PResponseComponentBuilder.createStatus(
                 SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null);
@@ -498,8 +494,8 @@ public class SAML2ITCase extends AbstractITCase {
         conditions.setNotAfter(new DateTime().plusMinutes(5));
 
         AudienceRestrictionBean audienceRestriction = new AudienceRestrictionBean();
-        audienceRestriction.setAudienceURIs(Collections.singletonList("http://recipient.apache.org/"));
-        conditions.setAudienceRestrictions(Collections.singletonList(audienceRestriction));
+        audienceRestriction.setAudienceURIs(List.of("http://recipient.apache.org/"));
+        conditions.setAudienceRestrictions(List.of(audienceRestriction));
         callbackHandler.setConditions(conditions);
 
         SAMLCallback samlCallback = new SAMLCallback();
@@ -581,7 +577,7 @@ public class SAML2ITCase extends AbstractITCase {
             basedir = new File(".").getCanonicalPath();
         }
 
-        List<String> fileNames = Arrays.asList("fediz.xml", "fediz_realmb.xml");
+        List<String> fileNames = List.of("fediz.xml", "fediz_realmb.xml");
         for (String fileName : fileNames) {
             Path path = FileSystems.getDefault().getPath(basedir, "/src/test/resources/" + fileName);
             String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);

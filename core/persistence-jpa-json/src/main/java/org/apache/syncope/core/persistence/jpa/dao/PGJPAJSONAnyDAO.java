@@ -18,12 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
-import javax.persistence.Query;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -56,10 +51,10 @@ public class PGJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                     + (schemaInfo.getRight() ? "LOWER(" : "")
                     + (schema.isUniqueConstraint() ? "attrs -> 'uniqueValue'" : "attrValues")
                     + " ->> '" + schemaInfo.getLeft()
-                    + "'" + (schemaInfo.getRight() ? ")" : "")
+                    + '\'' + (schemaInfo.getRight() ? ")" : "")
                     + " = "
                     + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + "?"
+                    + '?'
                     + (schemaInfo.getRight() ? ")" : "");
         } else {
             PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -69,30 +64,7 @@ public class PGJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
             } else {
                 ((JSONPlainAttr) container).add(attrValue);
             }
-            return "plainAttrs @> '" + POJOHelper.serialize(Arrays.asList(container)) + "'::jsonb";
+            return "plainAttrs @> '" + POJOHelper.serialize(List.of(container)).replace("'", "''") + "'::jsonb";
         }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected List<Object> findByDerAttrValue(
-            final String table,
-            final Map<String, List<Object>> clauses) {
-
-        StringJoiner actualClauses = new StringJoiner(" AND id IN ");
-        List<Object> queryParams = new ArrayList<>();
-
-        clauses.forEach((clause, parameters) -> {
-            actualClauses.add(clause);
-            queryParams.addAll(parameters);
-        });
-
-        Query query = entityManager().createNativeQuery(
-                "SELECT DISTINCT id FROM " + table + " u WHERE id IN " + actualClauses.toString());
-        for (int i = 0; i < queryParams.size(); i++) {
-            query.setParameter(i + 1, queryParams.get(i));
-        }
-
-        return query.getResultList();
     }
 }

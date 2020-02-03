@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -103,7 +103,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         dst.getLabels().removeIf(label -> !src.getLabels().containsKey(label.getLocale()));
     }
 
-    private <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
+    private static <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
         dst.getLabels().putAll(src.getLabels().stream().
                 collect(Collectors.toMap(SchemaLabel::getLocale, SchemaLabel::getDisplay)));
     }
@@ -177,7 +177,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         boolean hasAttrs = false;
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
             AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-            hasAttrs |= plainSchemaDAO.findAttrs(schema, anyUtils.plainAttrClass()).isEmpty();
+            hasAttrs |= plainSchemaDAO.hasAttrs(schema, anyUtils.plainAttrClass());
         }
 
         if (hasAttrs) {
@@ -206,7 +206,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     public PlainSchemaTO getPlainSchemaTO(final String key) {
         PlainSchema schema = plainSchemaDAO.find(key);
         if (schema == null) {
-            throw new NotFoundException("Schema '" + key + "'");
+            throw new NotFoundException("Schema '" + key + '\'');
         }
 
         PlainSchemaTO schemaTO = new PlainSchemaTO();
@@ -295,7 +295,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     public DerSchemaTO getDerSchemaTO(final String key) {
         DerSchema schema = derSchemaDAO.find(key);
         if (schema == null) {
-            throw new NotFoundException("Derived schema '" + key + "'");
+            throw new NotFoundException("Derived schema '" + key + '\'');
         }
 
         DerSchemaTO schemaTO = new DerSchemaTO();
@@ -372,7 +372,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     public VirSchemaTO getVirSchemaTO(final String key) {
         VirSchema schema = virSchemaDAO.find(key);
         if (schema == null) {
-            throw new NotFoundException("Virtual Schema '" + key + "'");
+            throw new NotFoundException("Virtual Schema '" + key + '\'');
         }
 
         VirSchemaTO schemaTO = new VirSchemaTO();

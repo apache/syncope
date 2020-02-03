@@ -21,7 +21,7 @@ under the License.
      
   <route id="createGroup">
     <from uri="direct:createGroup"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
@@ -40,7 +40,7 @@ under the License.
                
   <route id="createGroupPull">
     <from uri="direct:createGroupInPull"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
@@ -59,7 +59,7 @@ under the License.
          
   <route id="updateGroup">
     <from uri="direct:updateGroup"/>
-    <setProperty propertyName="actual">
+    <setProperty name="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>

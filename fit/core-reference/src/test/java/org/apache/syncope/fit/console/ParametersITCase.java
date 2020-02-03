@@ -34,97 +34,96 @@ public class ParametersITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        UTILITY_UI.getTester().clickLink("body:keymasterLI:keymasterUL:parametersLI:parameters");
-        UTILITY_UI.getTester().assertRenderedPage(Parameters.class);
+        TESTER.clickLink("body:keymasterLI:keymasterUL:parametersLI:parameters");
+        TESTER.assertRenderedPage(Parameters.class);
     }
 
     @Test
     public void readParameter() {
-        UTILITY_UI.getTester().assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
-        assertNotNull(UTILITY_UI.findComponentByProp(SCHEMA, "body:content:parametersPanel", "authentication.statuses"));
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        assertNotNull(findComponentByProp(SCHEMA, "body:content:parametersPanel", "authentication.statuses"));
     }
 
     @Test
     public void createParameter() {
-        UTILITY_UI.getTester().assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:parametersPanel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.clickLink("body:content:parametersPanel:container:content:add");
+        TESTER.assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester =
-                UTILITY_UI.getTester().newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
+                TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:schema:textField", "testParam");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:textField", "test");
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Parameters.class);
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
+        TESTER.assertRenderedPage(Parameters.class);
     }
 
     @Test
     public void updateParameter() {
-        UTILITY_UI.getTester().assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        Component result = UTILITY_UI.findComponentByProp(SCHEMA, "body:content:parametersPanel",
+        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel",
                 "notification.maxRetries");
         assertNotNull(result);
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester =
-                UTILITY_UI.getTester().newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
+                TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:spinner", "70");
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
-        UTILITY_UI.getTester().assertRenderedPage(Parameters.class);
+        TESTER.assertRenderedPage(Parameters.class);
     }
 
     @Test
     public void deleteParameter() {
-        UTILITY_UI.getTester().assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        UTILITY_UI.getTester().clickLink("body:content:parametersPanel:container:content:add");
-        UTILITY_UI.getTester().assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.clickLink("body:content:parametersPanel:container:content:add");
+        TESTER.assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester =
-                UTILITY_UI.getTester().newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
+                TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = UTILITY_UI.getTester().newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:schema:textField", "deleteParam");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:textField", "test");
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
 
-        Component result = UTILITY_UI.findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
+        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
         assertNotNull(result);
 
-        UTILITY_UI.getTester().executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
-        UTILITY_UI.getTester().clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        UTILITY_UI.getTester().assertInfoMessages("Operation successfully executed");
-        UTILITY_UI.getTester().cleanupFeedbackMessages();
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
     }
 }

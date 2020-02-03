@@ -26,27 +26,27 @@ public class GatewayRouteRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public List<GatewayRouteTO> list() {
+    public static List<GatewayRouteTO> list() {
         return getService(GatewayRouteService.class).list();
     }
 
-    public GatewayRouteTO read(final String key) {
+    public static GatewayRouteTO read(final String key) {
         return getService(GatewayRouteService.class).read(key);
     }
 
-    public void create(final GatewayRouteTO route) {
+    public static void create(final GatewayRouteTO route) {
         getService(GatewayRouteService.class).create(route);
     }
 
-    public void update(final GatewayRouteTO route) {
+    public static void update(final GatewayRouteTO route) {
         getService(GatewayRouteService.class).update(route);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(GatewayRouteService.class).delete(key);
     }
 
-    public void push() {
+    public static void push() {
         getService(GatewayRouteService.class).pushToSRA();
     }
 }

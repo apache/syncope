@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.rest;
 import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.rest.api.service.SAML2IdPService;
@@ -29,24 +31,29 @@ public class SAML2IdPsRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -5084300184764037527L;
 
-    public List<SAML2IdPTO> list() {
+    public static List<SAML2IdPTO> list() {
         return getService(SAML2IdPService.class).list();
     }
 
-    public void importIdPs(final InputStream input) {
-        SyncopeConsoleSession.get().
-                getService(MediaType.APPLICATION_XML_TYPE, SAML2IdPService.class).importFromMetadata(input);
+    public static void importIdPs(final InputStream input) {
+        SAML2IdPService service = getService(SAML2IdPService.class);
+        Client client = WebClient.client(service);
+        client.type(MediaType.APPLICATION_XML);
+
+        service.importFromMetadata(input);
+
+        SyncopeConsoleSession.get().resetClient(SAML2IdPService.class);
     }
 
-    public SAML2IdPTO read(final String key) {
+    public static SAML2IdPTO read(final String key) {
         return getService(SAML2IdPService.class).read(key);
     }
 
-    public void update(final SAML2IdPTO idp) {
+    public static void update(final SAML2IdPTO idp) {
         getService(SAML2IdPService.class).update(idp);
     }
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(SAML2IdPService.class).delete(key);
     }
 }

@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -60,7 +62,7 @@ public class MembershipTO implements Serializable, Attributable {
         }
 
         public Builder plainAttrs(final Attr... plainAttrs) {
-            instance.getPlainAttrs().addAll(Arrays.asList(plainAttrs));
+            instance.getPlainAttrs().addAll(List.of(plainAttrs));
             return this;
         }
 
@@ -80,7 +82,7 @@ public class MembershipTO implements Serializable, Attributable {
         }
 
         public Builder virAttrs(final Attr... virAttrs) {
-            instance.getVirAttrs().addAll(Arrays.asList(virAttrs));
+            instance.getVirAttrs().addAll(List.of(virAttrs));
             return this;
         }
 
@@ -187,5 +189,13 @@ public class MembershipTO implements Serializable, Attributable {
                 append(derAttrs, other.derAttrs).
                 append(virAttrs, other.virAttrs).
                 build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+            append(this.groupKey).
+            append(this.groupName).
+            build();
     }
 }

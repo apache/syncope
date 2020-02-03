@@ -19,7 +19,11 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Base64;
+import java.util.Optional;
+
 import javax.xml.bind.DatatypeConverter;
+
+import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -31,7 +35,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -78,17 +82,14 @@ public class LDAPPasswordPullActions implements PullActions {
 
         if (anyUR instanceof UserUR) {
             PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
-            parseEncodedPassword(modPassword == null ? null : modPassword.getValue());
+            parseEncodedPassword(Optional.ofNullable(modPassword).map(AbstractPatchItem::getValue).orElse(null));
         }
     }
 
     private void parseEncodedPassword(final String password) {
         if (password != null && password.startsWith("{")) {
             int closingBracketIndex = password.indexOf('}');
-            String digest = password.substring(1, password.indexOf('}'));
-            if (digest != null) {
-                digest = digest.toUpperCase();
-            }
+            String digest = password.substring(1, password.indexOf('}')).toUpperCase();
             try {
                 encodedPassword = password.substring(closingBracketIndex + 1);
                 cipher = CipherAlgorithm.valueOf(digest);

@@ -48,7 +48,7 @@ public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
             isValid = false;
 
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid group name")).
+                    getTemplate(EntityViolationType.InvalidName, group.getName())).
                     addPropertyNode("name").addConstraintViolation();
         }
 

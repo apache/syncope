@@ -20,9 +20,8 @@ package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -35,30 +34,30 @@ public class RoleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public void delete(final String key) {
+    public static void delete(final String key) {
         getService(RoleService.class).delete(key);
     }
 
-    public RoleTO read(final String key) {
+    public static RoleTO read(final String key) {
         return getService(RoleService.class).read(key);
     }
 
-    public void update(final RoleTO roleTO) {
+    public static void update(final RoleTO roleTO) {
         getService(RoleService.class).update(roleTO);
     }
 
-    public void create(final RoleTO roleTO) {
+    public static void create(final RoleTO roleTO) {
         getService(RoleService.class).create(roleTO);
     }
 
-    public List<RoleTO> list() {
+    public static List<RoleTO> list() {
         return getService(RoleService.class).list();
     }
 
-    public String readConsoleLayoutInfo(final String roleKey) {
+    public static String readAnyLayout(final String roleKey) {
         try {
             return IOUtils.toString(InputStream.class.cast(
-                    getService(RoleService.class).getConsoleLayoutInfo(roleKey).getEntity()),
+                    getService(RoleService.class).getAnyLayout(roleKey).getEntity()),
                     StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.error("Error retrieving console layout info for role {}", roleKey, e);
@@ -66,18 +65,16 @@ public class RoleRestClient extends BaseRestClient {
         }
     }
 
-    public void setConsoleLayoutInfo(final String roleKey, final String content) {
-        getService(RoleService.class).setConsoleLayoutInfo(
+    public static void setAnyLayout(final String roleKey, final String content) {
+        getService(RoleService.class).setAnyLayout(
                 roleKey, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
-    public void removeConsoleLayoutInfo(final String roleKey) {
-        getService(RoleService.class).removeConsoleLayoutInfo(roleKey);
+    public static void removeAnyLayout(final String roleKey) {
+        getService(RoleService.class).removeAnyLayout(roleKey);
     }
 
-    public List<String> getAllAvailableEntitlements() {
-        List<String> entitlements = new ArrayList<>(getSyncopeService().platform().getEntitlements());
-        Collections.sort(entitlements);
-        return entitlements;
+    public static List<String> getAllAvailableEntitlements() {
+        return getSyncopeService().platform().getEntitlements().stream().sorted().collect(Collectors.toList());
     }
 }

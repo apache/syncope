@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.widgets;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -104,14 +103,14 @@ public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
 
         @Override
         protected Collection<ActionLink.ActionType> getBatches() {
-            return Collections.<ActionLink.ActionType>emptyList();
+            return List.of();
         }
 
         @Override
         protected List<IColumn<Misaligned, String>> getColumns() {
             List<IColumn<Misaligned, String>> columns = new ArrayList<>();
 
-            columns.add(new PropertyColumn<>(new ResourceModel("key"), "name", "name"));
+            columns.add(new PropertyColumn<>(new ResourceModel(Constants.KEY_FIELD_NAME), "name", "name"));
 
             columns.add(new AbstractColumn<Misaligned, String>(Model.of(Constants.SYNCOPE)) {
 
@@ -161,7 +160,7 @@ public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
 
         @Override
         public Iterator<Misaligned> iterator(final long first, final long count) {
-            Collections.sort(misaligned, comparator);
+            misaligned.sort(comparator);
             return misaligned.subList((int) first, (int) first + (int) count).iterator();
         }
 

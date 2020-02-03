@@ -72,7 +72,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     @Autowired
     private TemplateUtils templateUtils;
 
-    private List<LogicActions> getActions(final Realm realm) {
+    private static List<LogicActions> getActions(final Realm realm) {
         List<LogicActions> actions = new ArrayList<>();
 
         realm.getActions().forEach(impl -> {
@@ -86,6 +86,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         return actions;
     }
 
+    @SuppressWarnings("unchecked")
     protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
         Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
@@ -121,6 +122,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         return Pair.of(anyCR, actions);
     }
 
+    @SuppressWarnings("unchecked")
     protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
         Realm realm = realmDAO.findByFullPath(realmPath);
         if (realm == null) {
@@ -129,18 +131,19 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
             throw sce;
         }
 
-        U mod = input;
+        U update = input;
 
         List<LogicActions> actions = getActions(realm);
         for (LogicActions action : actions) {
-            mod = action.beforeUpdate(mod);
+            update = action.beforeUpdate(update);
         }
 
-        LOG.debug("Input: {}\nOutput: {}\n", input, mod);
+        LOG.debug("Input: {}\nOutput: {}\n", input, update);
 
-        return Pair.of(mod, actions);
+        return Pair.of(update, actions);
     }
 
+    @SuppressWarnings("unchecked")
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
         Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
@@ -161,6 +164,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         return Pair.of(any, actions);
     }
 
+    @SuppressWarnings("unchecked")
     protected ProvisioningResult<TO> afterCreate(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 
@@ -208,6 +212,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     protected ProvisioningResult<TO> afterDelete(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 
@@ -225,7 +230,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     }
 
     protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             AnyDAO<?> anyDAO = this instanceof UserLogic
                     ? userDAO
@@ -233,7 +238,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
                             ? groupDAO
                             : anyObjectDAO;
             authorized = anyDAO.findDynRealms(key).stream().
-                    anyMatch(dynRealm -> effectiveRealms.contains(dynRealm));
+                    anyMatch(effectiveRealms::contains);
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(

@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
-import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -37,12 +35,10 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements ConnInstanceDAO {
-
-    @Autowired
-    private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
 
     @Autowired
     @Lazy
@@ -51,11 +47,13 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
     @Autowired
     private ConnectorRegistry connRegistry;
 
+    @Transactional(readOnly = true)
     @Override
     public ConnInstance find(final String key) {
         return entityManager().find(JPAConnInstance.class, key);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ConnInstance authFind(final String key) {
         ConnInstance connInstance = find(key);
@@ -81,7 +79,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
     public List<ConnInstance> findAll() {
         final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
         if (authRealms == null || authRealms.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         TypedQuery<ConnInstance> query = entityManager().createQuery(
@@ -117,8 +115,6 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
         connInstance.getResources().stream().
                 map(Entity::getKey).collect(Collectors.toList()).
                 forEach(resource -> resourceDAO.delete(resource));
-
-        connInstanceHistoryConfDAO.deleteByEntity(connInstance);
 
         entityManager().remove(connInstance);
 

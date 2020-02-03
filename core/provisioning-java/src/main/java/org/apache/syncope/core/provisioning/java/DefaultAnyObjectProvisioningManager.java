@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,8 +42,12 @@ import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import javax.annotation.Resource;
 
 public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisioningManager {
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     @Autowired
     protected AnyObjectWorkflowAdapter awfAdapter;
@@ -65,7 +68,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public Pair<String, List<PropagationStatus>> create(
             final AnyObjectCR anyObjectCR, final boolean nullPriorityAsync) {
 
-        return create(anyObjectCR, Collections.<String>emptySet(), nullPriorityAsync);
+        return create(anyObjectCR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -82,7 +85,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 created.getPropByRes(),
                 anyObjectCR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
@@ -91,7 +94,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public Pair<AnyObjectUR, List<PropagationStatus>> update(
             final AnyObjectUR anyObjectUR, final boolean nullPriorityAsync) {
 
-        return update(anyObjectUR, Collections.<String>emptySet(), nullPriorityAsync);
+        return update(anyObjectUR, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -107,16 +110,17 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 false,
                 null,
                 updated.getPropByRes(),
+                null,
                 anyObjectUR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
     public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
+        return delete(key, Set.of(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -124,7 +128,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public List<PropagationStatus> delete(
             final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, anyObjectDAO.findAllResourceKeys(key));
 
         // Note here that we can only notify about "delete", not any other
@@ -136,8 +140,9 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
+                null,
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         try {
             awfAdapter.delete(key);
@@ -162,7 +167,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public List<PropagationStatus> provision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
@@ -172,8 +177,9 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 propByRes,
                 null,
+                null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }
@@ -182,17 +188,18 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     public List<PropagationStatus> deprovision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
+                null,
                 anyObjectDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
 
         return propagationReporter.getStatuses();
     }

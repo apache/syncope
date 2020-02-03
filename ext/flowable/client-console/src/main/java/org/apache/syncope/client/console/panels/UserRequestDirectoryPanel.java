@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -93,14 +91,13 @@ public class UserRequestDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequest ignore) {
                 try {
-                    restClient.cancelRequest(model.getObject().getExecutionId(), null);
+                    UserRequestRestClient.cancelRequest(model.getObject().getExecutionId(), null);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     UserRequestDirectoryPanel.this.getTogglePanel().close(target);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                            ? e.getClass().getName() : e.getMessage());
                     LOG.error("While canceling execution {}", model.getObject().getExecutionId(), e);
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -121,14 +118,12 @@ public class UserRequestDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return List.of();
     }
 
     protected static class UserRequestProvider extends DirectoryDataProvider<UserRequest> {
 
         private static final long serialVersionUID = -1392420250782313734L;
-
-        private final UserRequestRestClient restClient = new UserRequestRestClient();
 
         public UserRequestProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -139,12 +134,13 @@ public class UserRequestDirectoryPanel
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getUserRequests((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return UserRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
+                paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.countUserRequests();
+            return UserRequestRestClient.countUserRequests();
         }
 
         @Override

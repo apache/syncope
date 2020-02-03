@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -31,13 +30,14 @@ import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
@@ -46,7 +46,11 @@ public class Roles extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    private static final int MAX_ROLE_LIST_SIZE = 30;
+
     private final List<String> allRoles;
+
+    protected WebMarkupContainer dynrolesContainer;
 
     public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
         if (!(modelObject.getInnerObject() instanceof UserTO)) {
@@ -62,12 +66,12 @@ public class Roles extends WizardStep implements ICondition {
             add(new Label("changed", StringUtils.EMPTY));
         }
 
-        final UserTO entityTO = UserTO.class.cast(modelObject.getInnerObject());
+        UserTO entityTO = UserTO.class.cast(modelObject.getInnerObject());
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
         // -----------------------------------------------------------------
-        final ActionPermissions permissions = new ActionPermissions();
+        ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER,
                 new org.apache.wicket.authroles.authorization.strategies.role.Roles(IdRepoEntitlement.ROLE_LIST));
@@ -77,16 +81,41 @@ public class Roles extends WizardStep implements ICondition {
 
         allRoles = SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)
-                ? new RoleRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList())
-                : Collections.<String>emptyList();
-        Collections.sort(allRoles);
+                ? RoleRestClient.list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
+                : List.of();
 
-        add(new AjaxPalettePanel.Builder<String>().build("roles",
-                new PropertyModel<List<String>>(entityTO, "roles"),
-                new ListModel<>(allRoles)).hideLabel().setOutputMarkupId(true));
+        add(new AjaxPalettePanel.Builder<String>().
+                withFilter().
+                setAllowOrder(true).
+                build("roles",
+                        new PropertyModel<>(modelObject.getInnerObject(), "roles"),
+                        new AjaxPalettePanel.Builder.Query<String>() {
 
-        add(new AjaxPalettePanel.Builder<String>().build("dynroles",
-                new PropertyModel<List<String>>(entityTO, "dynRoles"),
+                    private static final long serialVersionUID = 3900199363626636719L;
+
+                    @Override
+                    public List<String> execute(final String filter) {
+                        if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
+                            return allRoles.size() > MAX_ROLE_LIST_SIZE
+                                    ? allRoles.subList(0, MAX_ROLE_LIST_SIZE)
+                                    : allRoles;
+
+                        }
+                        return allRoles.stream().
+                                filter(role -> StringUtils.containsIgnoreCase(role, filter)).
+                                collect(Collectors.toList());
+                    }
+                }).
+                hideLabel().
+                setOutputMarkupId(true));
+
+        dynrolesContainer = new WebMarkupContainer("dynrolesContainer");
+        dynrolesContainer.setOutputMarkupId(true);
+        dynrolesContainer.setOutputMarkupPlaceholderTag(true);
+        add(dynrolesContainer);
+
+        dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
+                new PropertyModel<>(entityTO, "dynRoles"),
                 new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 

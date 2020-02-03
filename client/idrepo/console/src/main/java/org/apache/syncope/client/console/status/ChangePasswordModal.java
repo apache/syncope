@@ -98,9 +98,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
             }
         } catch (Exception e) {
             LOG.error("While updating password for user {}", inner, e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName()
-                    : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         super.onSubmit(target);
     }

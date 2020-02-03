@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.pages;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -44,8 +43,6 @@ public class SCIMConfPage extends BaseExtPage {
 
     private static final long serialVersionUID = -8156063343062111770L;
 
-    private final SCIMConfRestClient restClient = new SCIMConfRestClient();
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final WebMarkupContainer content;
@@ -61,7 +58,7 @@ public class SCIMConfPage extends BaseExtPage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        updateSCIMGeneralConfContent(restClient.get());
+        updateSCIMGeneralConfContent(SCIMConfRestClient.get());
     }
 
     private WebMarkupContainer updateSCIMGeneralConfContent(final SCIMConf scimConf) {
@@ -78,15 +75,14 @@ public class SCIMConfPage extends BaseExtPage {
                     if (modal.getContent() instanceof ResultPage) {
                         Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
                         try {
-                            restClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
+                            SCIMConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
 
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);
                             target.add(content);
                         } catch (Exception e) {
                             LOG.error("While setting SCIM configuration", e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }

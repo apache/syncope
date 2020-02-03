@@ -21,11 +21,11 @@ package org.apache.syncope.client.console.wizards.any;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,13 +85,9 @@ public class Relationships extends WizardStep implements ICondition {
 
     private final PageReference pageRef;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
-
-    private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
         super();
@@ -129,29 +125,28 @@ public class Relationships extends WizardStep implements ICondition {
         final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().map(relationship -> {
-            return new AbstractTab(new ResourceModel("relationship", relationship)) {
+        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().
+                map(relationship -> new AbstractTab(new ResourceModel("relationship", relationship)) {
 
-                private static final long serialVersionUID = 1037272333056449378L;
+            private static final long serialVersionUID = 1037272333056449378L;
 
-                @Override
-                public Panel getPanel(final String panelId) {
-                    return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
-                            setItems(relationships.get(relationship)).
-                            includes("otherEndType", "otherEndKey", "otherEndName").
-                            addAction(new ActionLink<RelationshipTO>() {
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
+                        setItems(relationships.get(relationship)).
+                        includes("otherEndType", "otherEndKey", "otherEndName").
+                        addAction(new ActionLink<RelationshipTO>() {
 
-                                private static final long serialVersionUID = -6847033126124401556L;
+                            private static final long serialVersionUID = -6847033126124401556L;
 
-                                @Override
-                                public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
-                                    removeRelationships(relationships, modelObject);
-                                    send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
-                                }
-                            }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
-                            build(panelId);
-                }
-            };
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
+                                removeRelationships(relationships, modelObject);
+                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
+                            }
+                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
+                        build(panelId);
+            }
         }).collect(Collectors.toList())) {
 
             private static final long serialVersionUID = 1037272333056449379L;
@@ -191,7 +186,8 @@ public class Relationships extends WizardStep implements ICondition {
                 : Collections.<RelationshipTO>emptyList();
     }
 
-    private void addRelationship(final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
+    private static void addRelationship(final Map<String, List<RelationshipTO>> relationships,
+                                        final RelationshipTO... rels) {
 
         for (RelationshipTO relationship : rels) {
             final List<RelationshipTO> listrels;
@@ -206,7 +202,7 @@ public class Relationships extends WizardStep implements ICondition {
     }
 
     private void addNewRelationships(final RelationshipTO... rels) {
-        getCurrentRelationships().addAll(Arrays.asList(rels));
+        getCurrentRelationships().addAll(List.of(rels));
     }
 
     private void removeRelationships(
@@ -227,7 +223,7 @@ public class Relationships extends WizardStep implements ICondition {
     @Override
     public boolean evaluate() {
         // [SYNCOPE-1171] - skip current step when the are no relationships types in Syncope
-        return !relationshipTypeRestClient.list().isEmpty();
+        return !RelationshipTypeRestClient.list().isEmpty();
     }
 
     public class Specification extends Panel {
@@ -244,7 +240,7 @@ public class Relationships extends WizardStep implements ICondition {
             super("specification");
             rel = new RelationshipTO();
 
-            final List<String> availableRels = relationshipTypeRestClient.list().stream().
+            final List<String> availableRels = RelationshipTypeRestClient.list().stream().
                     map(EntityTO::getKey).collect(Collectors.toList());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
@@ -252,7 +248,7 @@ public class Relationships extends WizardStep implements ICondition {
             type.setChoices(availableRels);
             add(type.setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes = anyTypeRestClient.listAnyTypes().stream().
+            final List<AnyTypeTO> availableTypes = AnyTypeRestClient.listAnyTypes().stream().
                     filter(anyType -> anyType.getKind() != AnyTypeKind.GROUP
                     && anyType.getKind() != AnyTypeKind.USER).collect(Collectors.toList());
 
@@ -273,7 +269,7 @@ public class Relationships extends WizardStep implements ICondition {
 
                 @Override
                 public void setObject(final AnyTypeTO object) {
-                    rel.setOtherEndType(object == null ? null : object.getKey());
+                    rel.setOtherEndType(Optional.ofNullable(object).map(AnyTypeTO::getKey).orElse(null));
                 }
             }, false);
             otherType.setChoices(availableTypes);
@@ -346,11 +342,11 @@ public class Relationships extends WizardStep implements ICondition {
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 
                         anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
-                                anyTypeClassRestClient.list(anyType.getClasses()),
+                                AnyTypeClassRestClient.list(anyType.getClasses()),
                                 anyType.getKey(),
                                 pageRef).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                        is("key").notNullValue().query()).
+                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()).
                                 setWizardInModal(true).build("searchResultPanel");
                         fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }

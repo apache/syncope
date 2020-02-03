@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.HttpMethod;
@@ -68,9 +67,9 @@ public class GatewayRouteTest extends AbstractTest {
         GatewayRoute route = entityFactory.newEntity(GatewayRoute.class);
         route.setName("just for test");
         route.setTarget(URI.create("http://httpbin.org:80"));
-        route.setPredicates(Arrays.asList(new GatewayRoutePredicate.Builder().
+        route.setPredicates(List.of(new GatewayRoutePredicate.Builder().
                 factory(PredicateFactory.METHOD).args(HttpMethod.GET).build()));
-        route.setFilters(Arrays.asList(new GatewayRouteFilter.Builder().
+        route.setFilters(List.of(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.ADD_REQUEST_HEADER).args("X-Request-Foo, Bar").build()));
         route.setStatus(GatewayRouteStatus.DRAFT);
 

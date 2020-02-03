@@ -19,11 +19,9 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -33,8 +31,7 @@ import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponent
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -45,10 +42,6 @@ import org.apache.wicket.model.PropertyModel;
 public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5979623248182851337L;
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final Map<String, String> anyTypes = new HashMap<>();
 
@@ -66,7 +59,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
                 setNullValid(false);
-        resource.setChoices(resourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        resource.setChoices(ResourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList()));
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
         if (resource.getModelObject() != null) {
@@ -133,7 +126,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
     private String getAdminRealm(final String connectorKey) {
         String adminRealm = null;
         try {
-            adminRealm = connectorRestClient.read(connectorKey).getAdminRealm();
+            adminRealm = ConnectorRestClient.read(connectorKey).getAdminRealm();
         } catch (Exception e) {
             LOG.error("Could not read Admin Realm for External Resource {}", selectedResource.getKey());
         }
@@ -144,30 +137,22 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
     private void populateAnyTypes(final String resourceKey) {
         anyTypes.clear();
         if (resourceKey != null) {
-            ResourceTO resource = resourceRestClient.read(resourceKey);
+            ResourceTO resource = ResourceRestClient.read(resourceKey);
             String adminRealm = getAdminRealm(resource.getConnector());
 
             if (SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_READ, adminRealm)) {
                 selectedResource = resource;
-                selectedResource.getProvisions().forEach(provisionTO -> {
-                    anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());
-                });
+                selectedResource.getProvisions().forEach(
+                        provisionTO -> anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass()));
             }
         }
     }
 
     private List<String> getExtAttrNames() {
-        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(selectedResource.getConnector());
-        connInstanceTO.getConf().addAll(selectedResource.getConfOverride());
-
-        Optional<ConnIdObjectClassTO> connIdObjectClass =
-                connectorRestClient.buildObjectClassInfo(connInstanceTO, false).stream().
-                        filter(object -> object.getType().equals(anyTypes.get(anyType.getModelObject()))).
-                        findAny();
-
-        return connIdObjectClass.isPresent()
-                ? connIdObjectClass.get().getAttributes()
-                : Collections.<String>emptyList();
+        return ConnectorRestClient.getExtAttrNames(
+                SyncopeConstants.ROOT_REALM,
+                anyTypes.get(anyType.getModelObject()),
+                selectedResource.getConnector(),
+                selectedResource.getConfOverride());
     }
 }

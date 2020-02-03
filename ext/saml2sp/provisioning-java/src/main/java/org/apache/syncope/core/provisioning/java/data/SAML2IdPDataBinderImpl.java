@@ -42,8 +42,8 @@ import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +102,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
                 if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
-                    invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
+                    invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
                     boolean allowed = true;
                     if (intAttrName.getSchemaType() != null
@@ -162,7 +162,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
                         }
                     } else {
                         LOG.error("'{}' not allowed", itemTO.getIntAttrName());
-                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                        invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not allowed");
                     }
                 }
             }
@@ -239,7 +239,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         return saml2IdPDAO.save(idp);
     }
 
-    private void populateItems(final SAML2IdP idp, final SAML2IdPTO idpTO) {
+    private static void populateItems(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         idp.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());

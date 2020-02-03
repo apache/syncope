@@ -193,7 +193,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     ? UnmatchingRule.PROVISION : pullTaskTO.getUnmatchingRule());
 
             // validate JEXL expressions from templates and proceed if fine
-            templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+            TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
             pullTaskTO.getTemplates().forEach((type, template) -> {
                 AnyType anyType = anyTypeDAO.find(type);
                 if (anyType == null) {
@@ -294,9 +294,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     @Override
     public String buildRefDesc(final Task task) {
-        return taskUtilsFactory.getInstance(task).getType().name() + " "
+        return taskUtilsFactory.getInstance(task).getType().name() + ' '
                 + "Task "
-                + task.getKey() + " "
+                + task.getKey() + ' '
                 + (task instanceof SchedTask
                         ? SchedTask.class.cast(task).getName()
                         : task instanceof PropagationTask
@@ -312,7 +312,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         execTO.setMessage(execution.getMessage());
         execTO.setStart(execution.getStart());
         execTO.setEnd(execution.getEnd());
-
+        execTO.setExecutor(execution.getExecutor());
+        
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
             execTO.setJobType(JobType.TASK);
             execTO.setRefKey(execution.getTask().getKey());
@@ -330,7 +331,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         schedTaskTO.setActive(schedTask.isActive());
 
         schedTaskTO.setLastExec(schedTaskTO.getStart());
-
+       
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(schedTask).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
@@ -371,6 +372,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             taskTO.setLatestExecStatus(latestExec.getStatus());
             taskTO.setStart(latestExec.getStart());
             taskTO.setEnd(latestExec.getEnd());
+            taskTO.setLastExecutor(latestExec.getExecutor());
         }
 
         if (details) {
@@ -412,7 +414,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
                 fill(pullTaskTO, pullTask);
 
-                pullTaskTO.setDestinationRealm(pullTask.getDestinatioRealm().getFullPath());
+                pullTaskTO.setDestinationRealm(pullTask.getDestinationRealm().getFullPath());
                 pullTaskTO.setMatchingRule(pullTask.getMatchingRule() == null
                         ? MatchingRule.UPDATE : pullTask.getMatchingRule());
                 pullTaskTO.setUnmatchingRule(pullTask.getUnmatchingRule() == null
@@ -423,9 +425,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     pullTaskTO.setReconFilterBuilder(pullTask.getReconFilterBuilder().getKey());
                 }
 
-                pullTask.getTemplates().forEach(template -> {
-                    pullTaskTO.getTemplates().put(template.getAnyType().getKey(), template.get());
-                });
+                pullTask.getTemplates().
+                        forEach(template -> pullTaskTO.getTemplates().
+                        put(template.getAnyType().getKey(), template.get()));
 
                 pullTaskTO.setRemediation(pullTask.isRemediation());
                 break;
@@ -442,9 +444,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 pushTaskTO.setUnmatchingRule(pushTask.getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
 
-                pushTask.getFilters().forEach(filter -> {
-                    pushTaskTO.getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
-                });
+                pushTask.getFilters().
+                        forEach(filter -> pushTaskTO.getFilters().
+                        put(filter.getAnyType().getKey(), filter.getFIQLCond()));
                 break;
 
             case NOTIFICATION:

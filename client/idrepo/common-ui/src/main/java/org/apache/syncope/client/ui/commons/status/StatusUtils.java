@@ -49,11 +49,9 @@ public final class StatusUtils implements Serializable {
 
         if (connObjectTO != null) {
             Boolean enabled = isEnabled(connObjectTO);
-            statusBean.setStatus(enabled == null
-                    ? (notUser ? Status.ACTIVE : Status.UNDEFINED)
-                    : enabled
-                            ? Status.ACTIVE
-                            : Status.SUSPENDED);
+            statusBean.setStatus(Optional.ofNullable(enabled).map(aBoolean -> aBoolean
+                    ? Status.ACTIVE
+                    : Status.SUSPENDED).orElseGet(() -> (notUser ? Status.ACTIVE : Status.UNDEFINED)));
 
             statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
         }
@@ -70,11 +68,8 @@ public final class StatusUtils implements Serializable {
 
         if (connObjectTO != null) {
             Boolean enabled = isEnabled(connObjectTO);
-            statusBean.setStatus(enabled == null
-                    ? Status.ACTIVE
-                    : enabled
-                            ? Status.ACTIVE
-                            : Status.SUSPENDED);
+            statusBean.setStatus(Optional.ofNullable(enabled)
+                    .filter(aBoolean -> !aBoolean).map(aBoolean -> Status.SUSPENDED).orElse(Status.ACTIVE));
 
             statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
         }
@@ -90,7 +85,7 @@ public final class StatusUtils implements Serializable {
     }
 
     private static String getConnObjectLink(final ConnObjectTO objectTO) {
-        Optional<Attr> name = objectTO == null ? null : objectTO.getAttr(ConnIdSpecialName.NAME);
+        Optional<Attr> name = Optional.ofNullable(objectTO).map(to -> to.getAttr(ConnIdSpecialName.NAME)).orElse(null);
         return name != null && name.isPresent() && name.get().getValues() != null && !name.get().getValues().isEmpty()
                 ? name.get().getValues().get(0)
                 : null;
@@ -146,7 +141,7 @@ public final class StatusUtils implements Serializable {
             case CREATED:
                 alt = "created icon";
                 title = "Created";
-                clazz = Constants.UNDEFINED_ICON;
+                clazz = Constants.CREATED_ICON;
                 break;
 
             case SUSPENDED:
@@ -208,7 +203,7 @@ public final class StatusUtils implements Serializable {
         return getLabel(componentId, alt, title, clazz);
     }
 
-    private static Label getLabel(final String componentId, final String alt, final String title, final String clazz) {
+    public static Label getLabel(final String componentId, final String alt, final String title, final String clazz) {
         return new Label(componentId, StringUtils.EMPTY) {
 
             private static final long serialVersionUID = 4755868673082976208L;

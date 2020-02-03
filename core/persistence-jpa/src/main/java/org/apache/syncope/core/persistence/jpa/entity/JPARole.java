@@ -89,7 +89,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     private JPADynRoleMembership dynMembership;
 
     @Lob
-    private String consoleLayoutInfo;
+    private String anyLayout;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -140,13 +140,13 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     }
 
     @Override
-    public String getConsoleLayoutInfo() {
-        return consoleLayoutInfo;
+    public String getAnyLayout() {
+        return anyLayout;
     }
 
     @Override
-    public void setConsoleLayoutInfo(final String consoleLayoutInfo) {
-        this.consoleLayoutInfo = consoleLayoutInfo;
+    public void setAnyLayout(final String anyLayout) {
+        this.anyLayout = anyLayout;
     }
 
     @Override

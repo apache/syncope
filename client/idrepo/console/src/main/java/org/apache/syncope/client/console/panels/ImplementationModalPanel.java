@@ -51,8 +51,6 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final ImplementationRestClient restClient = new ImplementationRestClient();
-
     private final ImplementationTO implementation;
 
     private final ViewMode viewMode;
@@ -70,7 +68,9 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
         this.create = implementation.getKey() == null;
 
         add(new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<>(implementation, "key"), false).
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME,
+                new PropertyModel<>(implementation, Constants.KEY_FIELD_NAME), false).
                 addRequiredLabel().setEnabled(create));
 
         List<String> classes = SyncopeWebApplication.get().getImplementationInfoProvider().
@@ -184,20 +184,17 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
-                restClient.create(implementation);
+                ImplementationRestClient.create(implementation);
             } else {
-                restClient.update(implementation);
+                ImplementationRestClient.update(implementation);
             }
 
             modal.close(target);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("While creating or updating Implementation", e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                    ? e.getClass().getName()
-                    : e.getMessage());
+            SyncopeConsoleSession.get().onException(e);
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
-
 }

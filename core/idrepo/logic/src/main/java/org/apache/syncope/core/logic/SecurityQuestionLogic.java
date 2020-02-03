@@ -58,7 +58,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     public SecurityQuestionTO read(final String key) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
         if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + key + "'");
+            LOG.error("Could not find security question '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -75,7 +75,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     public SecurityQuestionTO update(final SecurityQuestionTO securityQuestionTO) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionTO.getKey());
         if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + securityQuestionTO.getKey() + "'");
+            LOG.error("Could not find security question '" + securityQuestionTO.getKey() + '\'');
 
             throw new NotFoundException(securityQuestionTO.getKey());
         }
@@ -90,7 +90,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     public SecurityQuestionTO delete(final String key) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
         if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + key + "'");
+            LOG.error("Could not find security question '" + key + '\'');
 
             throw new NotFoundException(key);
         }
@@ -111,7 +111,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         }
 
         if (user.getSecurityQuestion() == null) {
-            LOG.error("Could not find security question for user '" + username + "'");
+            LOG.error("Could not find security question for user '" + username + '\'');
 
             throw new NotFoundException("Security question for user " + username);
         }

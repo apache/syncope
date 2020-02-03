@@ -21,16 +21,18 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+import javax.persistence.TypedQuery;
+
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
@@ -42,7 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -50,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -114,6 +117,21 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return key;
     }
 
+    @SuppressWarnings("unchecked")
+    protected List<String> findAllKeys(final String table, final int page, final int itemsPerPage) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + table + " ORDER BY id", String.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        List<String> result = new ArrayList<>();
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEach(actualKey -> result.add(actualKey.toString()));
+        return result;
+    }
+
     protected Date findLastChange(final String key, final String table) {
         Query query = entityManager().createNativeQuery(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
@@ -129,10 +147,20 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             lastChangeDate = (Date) result.get(0)[1];
         }
 
-        return lastChangeDate == null ? creationDate : lastChangeDate;
+        return Optional.ofNullable(lastChangeDate).orElse(creationDate);
     }
 
     protected abstract void securityChecks(A any);
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<A> findByKeys(final List<String> keys) {
+        Class<A> entityClass = anyUtils().anyClass();
+        TypedQuery<A> query = entityManager().createQuery(
+                "SELECT e FROM " + entityClass.getSimpleName() + " e WHERE e.id IN (:keys)", entityClass);
+        query.setParameter("keys", keys);
+        return query.getResultList();
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -144,7 +172,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         A any = find(key);
         if (any == null) {
             throw new NotFoundException(StringUtils.substringBefore(
-                    StringUtils.substringAfter(getClass().getSimpleName(), "JPA"), "DAO") + " " + key);
+                    StringUtils.substringAfter(getClass().getSimpleName(), "JPA"), "DAO") + ' ' + key);
         }
 
         securityChecks(any);
@@ -165,7 +193,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 + " AND "
                 + (ignoreCaseMatch ? "LOWER(" : "") + "e.stringValue" + (ignoreCaseMatch ? ")" : "")
                 + " = "
-                + (ignoreCaseMatch ? "LOWER(" : "") + ":stringValue" + (ignoreCaseMatch ? ")" : "") + ")"
+                + (ignoreCaseMatch ? "LOWER(" : "") + ":stringValue" + (ignoreCaseMatch ? ")" : "") + ')'
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
                 + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
@@ -182,7 +210,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         String entityName = schema.isUniqueConstraint()
@@ -212,24 +240,24 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public A findByPlainAttrUniqueValue(
+    public Optional<A> findByPlainAttrUniqueValue(
             final PlainSchema schema,
-            final PlainAttrValue attrUniqueValue,
+            final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
         if (schema == null) {
             LOG.error("No PlainSchema");
-            return null;
+            return Optional.empty();
         }
         if (!schema.isUniqueConstraint()) {
             LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
-            return null;
+            return Optional.empty();
         }
 
         List<A> result = findByPlainAttrValue(schema, attrUniqueValue, ignoreCaseMatch);
         return result.isEmpty()
-                ? null
-                : result.get(0);
+                ? Optional.empty()
+                : Optional.of(result.get(0));
     }
 
     /**
@@ -239,7 +267,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
      * @param literals literals/tokens
      * @return split value
      */
-    private List<String> split(final String attrValue, final List<String> literals) {
+    private static List<String> split(final String attrValue, final List<String> literals) {
         final List<String> attrValues = new ArrayList<>();
 
         if (literals.isEmpty()) {
@@ -278,12 +306,12 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         }
 
         // Sort literals in order to process later literals included into others
-        Collections.sort(literals, (l1, l2) -> {
+        literals.sort((l1, l2) -> {
             if (l1 == null && l2 == null) {
                 return 0;
             } else if (l1 != null && l2 == null) {
                 return -1;
-            } else if (l1 == null && l2 != null) {
+            } else if (l1 == null) {
                 return 1;
             } else if (l1.length() == l2.length()) {
                 return 0;
@@ -299,7 +327,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         if (attrValues.size() != identifiers.size()) {
             LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
-            return Collections.emptySet();
+            return Set.of();
         }
 
         // clauses to be used with INTERSECTed queries
@@ -311,7 +339,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // Contains used identifiers in order to avoid replications
         Set<String> used = new HashSet<>();
 
-        // Create several clauses: one for eanch identifiers
+        // Create several clauses: one for each identifiers
         for (int i = 0; i < identifiers.size(); i++) {
             if (!used.contains(identifiers.get(i))) {
                 // verify schema existence and get schema type
@@ -322,10 +350,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                     // clear builder
                     bld.delete(0, bld.length());
 
-                    bld.append("(");
+                    bld.append('(');
 
                     // set schema key
-                    bld.append("s.id = '").append(identifiers.get(i)).append("'");
+                    bld.append("s.id = '").append(identifiers.get(i)).append('\'');
 
                     bld.append(" AND ");
 
@@ -335,10 +363,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
                     bld.append(" AND ");
 
-                    // use a value clause different for eanch different schema type
+                    // use a value clause different for each different schema type
                     switch (schema.getType()) {
                         case Boolean:
-                            bld.append("v.booleanValue = '").append(attrValues.get(i)).append("'");
+                            bld.append("v.booleanValue = '").append(attrValues.get(i)).append('\'');
                             break;
                         case Long:
                             bld.append("v.longValue = ").append(attrValues.get(i));
@@ -347,15 +375,15 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                             bld.append("v.doubleValue = ").append(attrValues.get(i));
                             break;
                         case Date:
-                            bld.append("v.dateValue = '").append(attrValues.get(i)).append("'");
+                            bld.append("v.dateValue = '").append(attrValues.get(i)).append('\'');
                             break;
                         default:
                             if (ignoreCaseMatch) {
                                 bld.append("LOWER(v.stringValue) = '").
-                                        append(attrValues.get(i).toLowerCase()).append("'");
+                                        append(attrValues.get(i).toLowerCase()).append('\'');
                             } else {
                                 bld.append("v.stringValue = '").
-                                        append(attrValues.get(i)).append("'");
+                                        append(attrValues.get(i)).append('\'');
                             }
                     }
 
@@ -377,7 +405,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     public List<A> findByDerAttrValue(final DerSchema schema, final String value, final boolean ignoreCaseMatch) {
         if (schema == null) {
             LOG.error("No DerSchema");
-            return Collections.<A>emptyList();
+            return List.of();
         }
 
         // query string
@@ -428,9 +456,9 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     public SearchCond getAllMatchingCond() {
-        AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
+        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         idCond.setSchema("id");
-        return SearchCond.getLeafCond(idCond);
+        return SearchCond.getLeaf(idCond);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -457,38 +485,29 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         // schemas given by type extensions
         Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
-            ((User) any).getMemberships().forEach(memb -> {
-                memb.getRightEnd().getTypeExtensions().forEach(typeExtension -> {
-                    typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
-                });
-            });
+            ((User) any).getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().
+                    forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
         } else if (any instanceof AnyObject) {
-            ((AnyObject) any).getMemberships().forEach(memb -> {
-                memb.getRightEnd().getTypeExtensions().stream().
-                        filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
-                        forEachOrdered((typeExtension) -> {
-                            typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
-                        });
-            });
+            ((AnyObject) any).getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
+                    filter(typeExt -> any.getType().equals(typeExt.getAnyType())).
+                    forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
         }
 
         typeExtensionClasses.entrySet().stream().map(entry -> {
             result.getForMemberships().put(entry.getKey(), new HashSet<>());
             return entry;
-        }).forEachOrdered((entry) -> {
-            entry.getValue().forEach(typeClass -> {
-                if (reference.equals(PlainSchema.class)) {
-                    result.getForMemberships().get(entry.getKey()).
-                            addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-                } else if (reference.equals(DerSchema.class)) {
-                    result.getForMemberships().get(entry.getKey()).
-                            addAll((Collection<? extends S>) typeClass.getDerSchemas());
-                } else if (reference.equals(VirSchema.class)) {
-                    result.getForMemberships().get(entry.getKey()).
-                            addAll((Collection<? extends S>) typeClass.getVirSchemas());
-                }
-            });
-        });
+        }).forEach(entry -> entry.getValue().forEach(typeClass -> {
+            if (reference.equals(PlainSchema.class)) {
+                result.getForMemberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+            } else if (reference.equals(DerSchema.class)) {
+                result.getForMemberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
+            } else if (reference.equals(VirSchema.class)) {
+                result.getForMemberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getVirSchemas());
+            }
+        }));
 
         return result;
     }
@@ -520,7 +539,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered((actualKey) -> {
+                forEach((actualKey) -> {
                     DynRealm dynRealm = dynRealmDAO.find(actualKey.toString());
                     if (dynRealm == null) {
                         LOG.error("Could not find dynRealm with id {}, even though returned by the native query",

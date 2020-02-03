@@ -52,8 +52,6 @@ public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final RealmRestClient realmRestClient = new RealmRestClient();
-
     private final TemplatesTogglePanel templates;
 
     private final RealmChoicePanel realmChoicePanel;
@@ -74,8 +72,9 @@ public class Realms extends BasePage {
             @Override
             protected Serializable onApplyInternal(
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
+
                 targetObject.getTemplates().put(type, anyTO);
-                new RealmRestClient().update(RealmTO.class.cast(targetObject));
+                RealmRestClient.update(RealmTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -159,14 +158,18 @@ public class Realms extends BasePage {
                 final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
                 templateModal.setFormModel(model);
                 templateModal.header(newItemEvent.getResourceModel());
-                newItemEvent.getTarget().add(templateModal.setContent(modalPanel));
+                newItemEvent.getTarget().ifPresent(t -> t.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                templateModal.close(newItemEvent.getTarget());
+                if (newItemEvent.getTarget().isPresent()) {
+                    templateModal.close(newItemEvent.getTarget().get());
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                ((BaseWebPage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget());
-                templateModal.close(newItemEvent.getTarget());
+                if (newItemEvent.getTarget().isPresent()) {
+                    ((BasePage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget().get());
+                    templateModal.close(newItemEvent.getTarget().get());
+                }
             }
         }
     }
@@ -234,7 +237,7 @@ public class Realms extends BasePage {
                     if (realmTO.getKey() == null) {
                         throw new Exception("Root realm cannot be deleted");
                     }
-                    realmRestClient.delete(realmTO.getFullPath());
+                    RealmRestClient.delete(realmTO.getFullPath());
                     RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                     target.add(realmChoicePanel.reloadRealmTree(target));
 

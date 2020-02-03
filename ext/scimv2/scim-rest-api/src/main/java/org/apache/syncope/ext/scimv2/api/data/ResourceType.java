@@ -21,7 +21,6 @@ package org.apache.syncope.ext.scimv2.api.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 
@@ -29,7 +28,7 @@ public class ResourceType extends SCIMBean {
 
     private static final long serialVersionUID = -6559584102333757279L;
 
-    private final List<String> schemas = Arrays.asList(Resource.ResourceType.schema());
+    private final List<String> schemas = List.of(Resource.ResourceType.schema());
 
     private final String id;
 

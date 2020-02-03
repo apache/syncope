@@ -73,10 +73,6 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<>());
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
     public TopologyWebSocketBehavior() {
         // Handling with timeout as per SYNCOPE-1379
         try {
@@ -256,7 +252,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         }
     }
 
-    abstract class Checker implements Callable<String> {
+    abstract static class Checker implements Callable<String> {
 
         protected final String key;
 
@@ -290,9 +286,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
             ThreadContext.setSession(session);
 
             try {
-                final ConnInstanceTO connector = connectorRestClient.read(key);
+                final ConnInstanceTO connector = ConnectorRestClient.read(key);
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        connectorRestClient.check(connector).getLeft()
+                        ConnectorRestClient.check(connector).getLeft()
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);
@@ -316,9 +312,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
             ThreadContext.setSession(session);
 
             try {
-                final ResourceTO resource = resourceRestClient.read(key);
+                final ResourceTO resource = ResourceRestClient.read(key);
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        resourceRestClient.check(resource).getLeft()
+                        ResourceRestClient.check(resource).getLeft()
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);

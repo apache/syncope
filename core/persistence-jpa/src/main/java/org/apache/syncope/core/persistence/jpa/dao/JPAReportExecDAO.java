@@ -81,7 +81,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    private static String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         for (OrderByClause clause : orderByClauses) {

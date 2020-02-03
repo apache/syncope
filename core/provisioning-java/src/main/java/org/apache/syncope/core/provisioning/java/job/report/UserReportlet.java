@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,7 +36,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -45,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -71,9 +70,12 @@ public class UserReportlet extends AbstractReportlet {
     @Autowired
     private AnyObjectDataBinder anyObjectDataBinder;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     private UserReportletConf conf;
 
-    private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
+    private static void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
         if (anyTO.getResources().isEmpty()) {
@@ -94,9 +96,9 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-            final Collection<String> attrs, final Collection<String> derAttrs, final Collection<String> virAttrs)
-            throws SAXException {
+    private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
+                                            final Collection<String> attrs, final Collection<String> derAttrs,
+                                            final Collection<String> virAttrs) throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
@@ -347,7 +349,7 @@ public class UserReportlet extends AbstractReportlet {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? userDAO.count()
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
+                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()), AnyTypeKind.USER);
     }
 
     @Override
@@ -379,10 +381,10 @@ public class UserReportlet extends AbstractReportlet {
             } else {
                 users = searchDAO.search(
                         SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(this.conf.getMatchingCond()),
+                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
-                        Collections.<OrderByClause>emptyList(),
+                        List.of(),
                         AnyTypeKind.USER);
             }
 

@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -87,7 +86,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         while (selection.hasNext()) {
             modelStringBuffer.append(renderer.getIdValue(selection.next(), i++));
             if (selection.hasNext()) {
-                modelStringBuffer.append(",");
+                modelStringBuffer.append(',');
             }
         }
 
@@ -119,7 +118,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
     public List<T> getSelectedList() {
         IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
         if (ids.length == 0) {
-            return Collections.<T>emptyList();
+            return List.of();
         }
 
         List<T> selected = new ArrayList<>(ids.length);
@@ -140,7 +139,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         Collection<? extends T> choices = getPalette().getChoices();
 
         if (choices.size() - ids.length == 0) {
-            return Collections.<T>emptyList();
+            return List.of();
         }
 
         List<T> unselected = new ArrayList<>(Math.max(1, choices.size() - ids.length));

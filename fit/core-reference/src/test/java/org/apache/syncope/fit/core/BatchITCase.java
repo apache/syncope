@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +32,6 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -71,9 +69,7 @@ import org.junit.jupiter.api.Test;
 
 public class BatchITCase extends AbstractITCase {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    private String requestBody(final String boundary) throws JsonProcessingException, JAXBException {
+    private static String requestBody(final String boundary) throws JsonProcessingException, JAXBException {
         List<BatchRequestItem> reqItems = new ArrayList<>();
 
         // 1. create user as JSON
@@ -85,9 +81,9 @@ public class BatchITCase extends AbstractITCase {
         createUser.setMethod(HttpMethod.POST);
         createUser.setRequestURI("/users");
         createUser.setHeaders(new HashMap<>());
-        createUser.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_JSON));
-        createUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, Arrays.asList(MediaType.APPLICATION_JSON));
-        createUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Arrays.asList(createUserPayload.length()));
+        createUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));
+        createUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON));
+        createUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(createUserPayload.length()));
         createUser.setContent(createUserPayload);
         reqItems.add(createUser);
 
@@ -103,9 +99,9 @@ public class BatchITCase extends AbstractITCase {
         createGroup.setMethod(HttpMethod.POST);
         createGroup.setRequestURI("/groups");
         createGroup.setHeaders(new HashMap<>());
-        createGroup.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_XML));
-        createGroup.getHeaders().put(HttpHeaders.CONTENT_TYPE, Arrays.asList(MediaType.APPLICATION_XML));
-        createGroup.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Arrays.asList(createGroupPayload.length()));
+        createGroup.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_XML));
+        createGroup.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_XML));
+        createGroup.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(createGroupPayload.length()));
         createGroup.setContent(createGroupPayload);
         reqItems.add(createGroup);
 
@@ -119,10 +115,10 @@ public class BatchITCase extends AbstractITCase {
         updateUser.setMethod(HttpMethod.PATCH);
         updateUser.setRequestURI("/users/" + userCR.getUsername());
         updateUser.setHeaders(new HashMap<>());
-        updateUser.getHeaders().put(RESTHeaders.PREFER, Arrays.asList(Preference.RETURN_NO_CONTENT.toString()));
-        updateUser.getHeaders().put(HttpHeaders.ACCEPT, Arrays.asList(MediaType.APPLICATION_JSON));
-        updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, Arrays.asList(MediaType.APPLICATION_JSON));
-        updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, Arrays.asList(updateUserPayload.length()));
+        updateUser.getHeaders().put(RESTHeaders.PREFER, List.of(Preference.RETURN_NO_CONTENT.toString()));
+        updateUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));
+        updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON));
+        updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(updateUserPayload.length()));
         updateUser.setContent(updateUserPayload);
         reqItems.add(updateUser);
 
@@ -150,7 +146,7 @@ public class BatchITCase extends AbstractITCase {
         return body;
     }
 
-    private void check(final List<BatchResponseItem> resItems) throws IOException, JAXBException {
+    private static void check(final List<BatchResponseItem> resItems) throws IOException, JAXBException {
         assertEquals(6, resItems.size());
 
         assertEquals(Response.Status.CREATED.getStatusCode(), resItems.get(0).getStatus());
@@ -269,7 +265,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
-    private BatchRequest batchRequest() {
+    private static BatchRequest batchRequest() {
         BatchRequest batchRequest = adminClient.batch();
 
         // 1. create user as JSON

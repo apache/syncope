@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +37,7 @@ import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PreferenceManager implements Serializable {
+public final class PreferenceManager implements Serializable {
 
     private static final long serialVersionUID = 3581434664555284193L;
 
@@ -53,7 +52,7 @@ public class PreferenceManager implements Serializable {
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
     };
 
-    private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
+    private static final List<Integer> PAGINATOR_CHOICES = List.of(10, 25, 50);
 
     private static final CookieUtils COOKIE_UTILS;
 
@@ -63,17 +62,17 @@ public class PreferenceManager implements Serializable {
         COOKIE_UTILS = new CookieUtils(cookieDefaults);
     }
 
-    public List<Integer> getPaginatorChoices() {
+    public static List<Integer> getPaginatorChoices() {
         return PAGINATOR_CHOICES;
     }
 
-    private Map<String, String> getPrefs(final String value) {
+    private static Map<String, String> getPrefs(final String value) {
         Map<String, String> prefs;
         try {
             if (StringUtils.isNotBlank(value)) {
                 prefs = MAPPER.readValue(value, MAP_TYPE_REF);
             } else {
-                throw new Exception("Invalid cookie value '" + value + "'");
+                throw new Exception("Invalid cookie value '" + value + '\'');
             }
         } catch (Exception e) {
             LOG.debug("No preferences found", e);
@@ -83,14 +82,14 @@ public class PreferenceManager implements Serializable {
         return prefs;
     }
 
-    private String setPrefs(final Map<String, String> prefs) throws IOException {
+    private static String setPrefs(final Map<String, String> prefs) throws IOException {
         StringWriter writer = new StringWriter();
         MAPPER.writeValue(writer, prefs);
 
         return writer.toString();
     }
 
-    public String get(final Request request, final String key) {
+    public static String get(final Request request, final String key) {
         String result = null;
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -102,7 +101,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public Integer getPaginatorRows(final Request request, final String key) {
+    public static Integer getPaginatorRows(final Request request, final String key) {
         Integer result = getPaginatorChoices().get(0);
 
         String value = get(request, key);
@@ -113,20 +112,20 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public List<String> getList(final Request request, final String key) {
+    public static List<String> getList(final Request request, final String key) {
         final List<String> result = new ArrayList<>();
 
         final String compound = get(request, key);
 
         if (StringUtils.isNotBlank(compound)) {
             String[] items = compound.split(";");
-            result.addAll(Arrays.asList(items));
+            result.addAll(List.of(items));
         }
 
         return result;
     }
 
-    public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
+    public static void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
         Map<String, String> current = new HashMap<>();
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -135,18 +134,16 @@ public class PreferenceManager implements Serializable {
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        prefs.forEach((key, values) -> {
-            current.put(key, StringUtils.join(values, ";"));
-        });
+        prefs.forEach((key, values) -> current.put(key, StringUtils.join(values, ";")));
 
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
         } catch (IOException e) {
-            LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
+            LOG.error("Could not save {} info: {}", PreferenceManager.class.getSimpleName(), current, e);
         }
     }
 
-    public void set(final Request request, final Response response, final String key, final String value) {
+    public static void set(final Request request, final Response response, final String key, final String value) {
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<>();
@@ -160,15 +157,21 @@ public class PreferenceManager implements Serializable {
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
         } catch (IOException e) {
-            LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
+            LOG.error("Could not save {} info: {}", PreferenceManager.class.getSimpleName(), current, e);
         }
     }
 
-    public void setList(final Request request, final Response response, final String key, final List<String> values) {
+    public static void setList(
+            final Request request, final Response response, final String key, final List<String> values) {
         set(request, response, key, StringUtils.join(values, ";"));
     }
 
-    public void setList(final Request request, final Response response, final Map<String, List<String>> prefs) {
+    public static void setList(
+            final Request request, final Response response, final Map<String, List<String>> prefs) {
         set(request, response, prefs);
+    }
+
+    private PreferenceManager() {
+        // private constructor for static utility class
     }
 }

@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -62,16 +64,12 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
 
     @Override
     public Date getExpiryTime() {
-        return expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     @Override
     public void setExpiryTime(final Date expiryTime) {
-        this.expiryTime = expiryTime == null
-                ? null
-                : new Date(expiryTime.getTime());
+        this.expiryTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     @Override

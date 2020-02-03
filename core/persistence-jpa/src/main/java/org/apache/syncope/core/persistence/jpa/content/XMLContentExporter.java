@@ -32,7 +32,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,6 +50,8 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -90,19 +91,19 @@ public class XMLContentExporter implements ContentExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
+    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = SetUtils.hashSet(
         "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
         JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
-    }));
+    );
 
     private static final Map<String, String> TABLES_TO_BE_FILTERED =
-            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
+            Map.of("TASK", "DTYPE <> 'PropagationTask'");
 
     private static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
-            Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
+            Map.of("SYNCOPEGROUP", Set.of("USEROWNER_ID"));
 
     @Autowired
     private DomainHolder domainHolder;
@@ -110,12 +111,13 @@ public class XMLContentExporter implements ContentExporter {
     @Autowired
     private RealmDAO realmDAO;
 
-    private boolean isTableAllowed(final String tableName) {
+    private static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
                 allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
-    private List<String> sortByForeignKeys(final String dbSchema, final Connection conn, final Set<String> tableNames)
+    private static List<String> sortByForeignKeys(final String dbSchema, final Connection conn,
+                                                  final Set<String> tableNames)
             throws SQLException {
 
         Set<MultiParentNode<String>> roots = new HashSet<>();
@@ -185,7 +187,7 @@ public class XMLContentExporter implements ContentExporter {
         return sortedTableNames;
     }
 
-    private String getValues(final ResultSet rs, final String columnName, final Integer columnType)
+    private static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
             throws SQLException {
 
         String res = null;
@@ -259,7 +261,7 @@ public class XMLContentExporter implements ContentExporter {
                     String columnName = pkeyRS.getString("COLUMN_NAME");
                     if (columnName != null) {
                         if (orderBy.length() > 0) {
-                            orderBy.append(",");
+                            orderBy.append(',');
                         }
 
                         orderBy.append(columnName);
@@ -312,15 +314,13 @@ public class XMLContentExporter implements ContentExporter {
             if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
                 List<Map<String, String>> realmRows = new ArrayList<>(rows);
                 rows.clear();
-                realmDAO.findAll().forEach(realm -> {
-                    realmRows.stream().filter(row -> {
-                        String id = row.get("ID");
-                        if (id == null) {
-                            id = row.get("id");
-                        }
-                        return realm.getKey().equals(id);
-                    }).findFirst().ifPresent(row -> rows.add(row));
-                });
+                realmDAO.findAll().forEach(realm -> realmRows.stream().filter(row -> {
+                    String id = row.get("ID");
+                    if (id == null) {
+                        id = row.get("id");
+                    }
+                    return realm.getKey().equals(id);
+                }).findFirst().ifPresent(rows::add));
             }
 
             for (Map<String, String> row : rows) {

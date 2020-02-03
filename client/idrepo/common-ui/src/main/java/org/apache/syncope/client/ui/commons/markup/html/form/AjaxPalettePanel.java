@@ -20,7 +20,6 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +28,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -109,7 +110,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             @Override
             protected Recorder<T> newRecorderComponent() {
-                return new Recorder<T>("recorder", this) {
+                Recorder<T> recorder = new Recorder<T>("recorder", this) {
 
                     private static final long serialVersionUID = -9169109967480083523L;
 
@@ -118,7 +119,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         final IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
                         final Collection<? extends T> choices = getPalette().getChoices();
                         final List<T> unselected = new ArrayList<>(choices.size());
-                        final List<String> ids = Arrays.asList(getValue().split(","));
+                        final List<String> ids = List.of(getValue().split(","));
 
                         choices.forEach(choice -> {
                             final String choiceId = renderer.getIdValue(choice, 0);
@@ -138,9 +139,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
                         // reduce number of method calls by building a lookup table
                         final Map<T, String> idForChoice = new HashMap<>(choices.size());
-                        choices.forEach(choice -> {
-                            idForChoice.put(choice, renderer.getIdValue(choice, 0));
-                        });
+                        choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
                         final String value = getValue();
                         int start = value.indexOf(';') + 1;
@@ -158,6 +157,17 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         return selected;
                     }
                 };
+                recorder.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = -6139318907146065915L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        processInput();
+                    }
+                });
+
+                return recorder;
             }
         };
 
@@ -200,6 +210,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         target.add(palette);
     }
 
+    @Override
+    public AbstractFieldPanel<List<T>> setReadOnly(final boolean readOnly) {
+        palette.setEnabled(!readOnly);
+        return this;
+    }
+
     public static class Builder<T extends Serializable> implements Serializable {
 
         private static final long serialVersionUID = 991248996001040352L;
@@ -216,9 +232,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         private boolean filtered;
 
-        private final AjaxPaletteConf conf = new AjaxPaletteConf();
-
-        private String filter = conf.getDefaultFilter();
+        private String filter = AjaxPaletteConf.getDefaultFilter();
 
         private String name;
 
@@ -319,9 +333,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final List<T> selected = new ArrayList<>();
 
             final Map<T, String> idForChoice = new HashMap<>();
-            choices.forEach(choice -> {
-                idForChoice.put(choice, renderer.getIdValue(choice, 0));
-            });
+            choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
             for (final String id : Strings.split(selection, ',')) {
                 final Iterator<T> iter = choices.iterator();
@@ -344,9 +356,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final List<T> selected = new ArrayList<>(choices.size());
 
             final Map<T, String> idForChoice = new HashMap<>();
-            choices.forEach(choice -> {
-                idForChoice.put(choice, renderer.getIdValue(choice, 0));
-            });
+            choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
             final Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE);
 

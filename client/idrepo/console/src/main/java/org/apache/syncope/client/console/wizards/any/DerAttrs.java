@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
@@ -58,7 +59,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             final List<String> anyTypeClasses,
             final List<String> whichDerAttrs) {
 
-        super(modelObject, anyTypeClasses, whichDerAttrs);
+        super(modelObject, AjaxWizard.Mode.CREATE, anyTypeClasses, whichDerAttrs);
         setTitleModel(new ResourceModel("attributes.derived"));
 
         add(new Accordion("derSchemas", Collections.<ITab>singletonList(new AbstractTab(
@@ -72,7 +73,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
-        add(new ListView<MembershipTO>("membershipsDerSchemas", membershipTOs) {
+        add(new ListView<MembershipTO>("membershipsDerSchemas", memberships) {
 
             private static final long serialVersionUID = 6741044372185745296L;
 

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.rest;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +42,7 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
-    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
+    public static <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
         final AnyTypeService client = getService(AnyTypeService.class);
 
         final List<String> classes = new ArrayList<>();
@@ -58,18 +57,16 @@ public class SchemaRestClient extends BaseRestClient {
                 break;
 
             default:
-                new AnyTypeRestClient().listAnyTypes().stream().filter(
+                AnyTypeRestClient.listAnyTypes().stream().filter(
                         anyTypeTO -> (anyTypeTO.getKind() != AnyTypeKind.USER
                         && anyTypeTO.getKind() != AnyTypeKind.GROUP)).
-                        forEach((anyTypeTO) -> {
-                            classes.addAll(anyTypeTO.getClasses());
-                        });
+                        forEach((anyTypeTO) -> classes.addAll(anyTypeTO.getClasses()));
         }
         return getSchemas(schemaType, null, classes.toArray(new String[] {}));
     }
 
-    public <T extends SchemaTO> List<T> getSchemas(
-            final SchemaType schemaType, final String keyword, final String... anyTypeClasses) {
+    public static <T extends SchemaTO> List<T> getSchemas(
+        final SchemaType schemaType, final String keyword, final String... anyTypeClasses) {
 
         SchemaQuery.Builder builder = new SchemaQuery.Builder().type(schemaType);
         if (StringUtils.isNotBlank(keyword)) {
@@ -88,8 +85,8 @@ public class SchemaRestClient extends BaseRestClient {
         return schemas;
     }
 
-    public List<String> getSchemaNames(final SchemaType schemaType) {
-        List<String> schemaNames = Collections.emptyList();
+    public static List<String> getSchemaNames(final SchemaType schemaType) {
+        List<String> schemaNames = List.of();
 
         try {
             schemaNames = getSchemas(schemaType, null, new String[0]).stream().
@@ -101,44 +98,44 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    public List<String> getPlainSchemaNames() {
+    public static List<String> getPlainSchemaNames() {
         return getSchemaNames(SchemaType.PLAIN);
     }
 
-    public List<String> getDerSchemaNames() {
+    public static List<String> getDerSchemaNames() {
         return getSchemaNames(SchemaType.DERIVED);
     }
 
-    public List<String> getVirSchemaNames() {
+    public static List<String> getVirSchemaNames() {
         return getSchemaNames(SchemaType.VIRTUAL);
     }
 
-    public PlainSchemaTO read(final SchemaType schemaType, final String key) {
+    public static PlainSchemaTO read(final SchemaType schemaType, final String key) {
         return getService(SchemaService.class).read(schemaType, key);
 
     }
 
-    public void create(final SchemaType schemaType, final SchemaTO modelObject) {
+    public static void create(final SchemaType schemaType, final SchemaTO modelObject) {
         getService(SchemaService.class).create(schemaType, modelObject);
     }
 
-    public void update(final SchemaType schemaType, final SchemaTO modelObject) {
+    public static void update(final SchemaType schemaType, final SchemaTO modelObject) {
         getService(SchemaService.class).update(schemaType, modelObject);
     }
 
-    public PlainSchemaTO deletePlainSchema(final String name) {
+    public static PlainSchemaTO deletePlainSchema(final String name) {
         PlainSchemaTO response = getService(SchemaService.class).read(SchemaType.PLAIN, name);
         getService(SchemaService.class).delete(SchemaType.PLAIN, name);
         return response;
     }
 
-    public DerSchemaTO deleteDerSchema(final String name) {
+    public static DerSchemaTO deleteDerSchema(final String name) {
         DerSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.DERIVED, name);
         getService(SchemaService.class).delete(SchemaType.DERIVED, name);
         return schemaTO;
     }
 
-    public VirSchemaTO deleteVirSchema(final String name) {
+    public static VirSchemaTO deleteVirSchema(final String name) {
         VirSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.VIRTUAL, name);
         getService(SchemaService.class).delete(SchemaType.VIRTUAL, name);
         return schemaTO;

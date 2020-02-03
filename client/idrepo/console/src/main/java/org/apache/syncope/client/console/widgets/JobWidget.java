@@ -23,9 +23,9 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -125,8 +125,6 @@ public class JobWidget extends BaseWidget {
         }
     };
 
-    private final NotificationRestClient notificationRestClient = new NotificationRestClient();
-
     private final TaskRestClient taskRestClient = new TaskRestClient();
 
     private final ReportRestClient reportRestClient = new ReportRestClient();
@@ -218,20 +216,20 @@ public class JobWidget extends BaseWidget {
         add(actionTogglePanel);
     }
 
-    private List<JobTO> getUpdatedAvailable() {
+    private static List<JobTO> getUpdatedAvailable() {
         List<JobTO> updatedAvailable = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.NOTIFICATION_LIST)) {
-            JobTO notificationJob = notificationRestClient.getJob();
+            JobTO notificationJob = NotificationRestClient.getJob();
             if (notificationJob != null) {
                 updatedAvailable.add(notificationJob);
             }
         }
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.TASK_LIST)) {
-            updatedAvailable.addAll(taskRestClient.listJobs());
+            updatedAvailable.addAll(TaskRestClient.listJobs());
         }
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_LIST)) {
-            updatedAvailable.addAll(reportRestClient.listJobs());
+            updatedAvailable.addAll(ReportRestClient.listJobs());
         }
 
         return updatedAvailable;
@@ -333,7 +331,7 @@ public class JobWidget extends BaseWidget {
 
         @Override
         protected Collection<ActionLink.ActionType> getBatches() {
-            return Collections.<ActionLink.ActionType>emptyList();
+            return List.of();
         }
 
         @Override
@@ -393,7 +391,7 @@ public class JobWidget extends BaseWidget {
                             break;
 
                         case REPORT:
-                            ReportTO reportTO = reportRestClient.read(jobTO.getRefKey());
+                            ReportTO reportTO = ReportRestClient.read(jobTO.getRefKey());
 
                             ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, pageRef);
                             rwb.setEventSink(AvailableJobsPanel.this);
@@ -411,11 +409,11 @@ public class JobWidget extends BaseWidget {
                         case TASK:
                             ProvisioningTaskTO schedTaskTO;
                             try {
-                                schedTaskTO = taskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
+                                schedTaskTO = TaskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
                             } catch (Exception e) {
                                 LOG.debug("Failed to read {} as {}, attempting {}",
                                         jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
-                                schedTaskTO = taskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
+                                schedTaskTO = TaskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
                             }
 
                             SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
@@ -459,7 +457,7 @@ public class JobWidget extends BaseWidget {
 
                             case REPORT:
 
-                                final ReportTO reportTO = reportRestClient.read(jobTO.getRefKey());
+                                final ReportTO reportTO = ReportRestClient.read(jobTO.getRefKey());
 
                                 target.add(AvailableJobsPanel.this.reportModal.setContent(
                                         new ReportletDirectoryPanel(reportModal, jobTO.getRefKey(), pageRef)));
@@ -506,11 +504,11 @@ public class JobWidget extends BaseWidget {
                                     break;
 
                                 case REPORT:
-                                    reportRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    ReportRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
                                     break;
 
                                 case TASK:
-                                    taskRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    TaskRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
                                     break;
 
                                 default:
@@ -521,8 +519,7 @@ public class JobWidget extends BaseWidget {
                         }
                     } catch (SyncopeClientException e) {
                         LOG.error("While deleting object {}", jobTO.getRefKey(), e);
-                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                getName() : e.getMessage());
+                        SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
@@ -542,11 +539,13 @@ public class JobWidget extends BaseWidget {
         @SuppressWarnings("unchecked")
         public void onEvent(final IEvent<?> event) {
             if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-                final AjaxRequestTarget target = AjaxWizard.NewItemEvent.class.cast(event.getPayload()).getTarget();
+                Optional<AjaxRequestTarget> target = ((AjaxWizard.NewItemEvent<?>) event.getPayload()).getTarget();
 
-                if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
+                if (target.isPresent()
+                        && event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
                         || event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                    jobModal.close(target);
+
+                    jobModal.close(target.get());
                 }
             }
 
@@ -568,7 +567,7 @@ public class JobWidget extends BaseWidget {
 
         @Override
         public Iterator<JobTO> iterator(final long first, final long count) {
-            Collections.sort(available, comparator);
+            available.sort(comparator);
             return available.subList((int) first, (int) first + (int) count).iterator();
         }
 
@@ -615,7 +614,7 @@ public class JobWidget extends BaseWidget {
 
         @Override
         protected Collection<ActionLink.ActionType> getBatches() {
-            return Collections.<ActionLink.ActionType>emptyList();
+            return List.of();
         }
 
         @Override
@@ -666,7 +665,7 @@ public class JobWidget extends BaseWidget {
 
             @Override
             public Iterator<ExecTO> iterator(final long first, final long count) {
-                Collections.sort(recent, comparator);
+                recent.sort(comparator);
                 return recent.subList((int) first, (int) first + (int) count).iterator();
             }
 

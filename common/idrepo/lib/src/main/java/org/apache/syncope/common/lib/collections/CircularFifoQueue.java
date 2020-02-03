@@ -175,14 +175,14 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
     }
 
     /**
-     * {@inheritDoc}
+     *
      * <p>
      * A {@code CircularFifoQueue} can never be full, thus this returns always
      * {@code false}.
      *
      * @return always returns {@code false}
      */
-    public boolean isFull() {
+    public static boolean isFull() {
         return false;
     }
 

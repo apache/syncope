@@ -95,7 +95,9 @@ public abstract class ExecutionsDirectoryPanel
     protected List<IColumn<ExecTO, String>> getColumns() {
         final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this),
+                Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
 
         columns.add(new DatePropertyColumn<>(new StringResourceModel("start", this), "start", "start"));
 
@@ -132,19 +134,19 @@ public abstract class ExecutionsDirectoryPanel
                     restClient.deleteExecution(taskExecutionTO.getKey());
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
-                } catch (SyncopeClientException scce) {
-                    SyncopeConsoleSession.get().error(scce.getMessage());
+                } catch (SyncopeClientException e) {
+                    SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
-        addFurtherAcions(panel, model);
+        addFurtherActions(panel, model);
 
         return panel;
     }
 
-    protected void addFurtherAcions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
+    protected void addFurtherActions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
     }
 
     @Override
@@ -179,7 +181,7 @@ public abstract class ExecutionsDirectoryPanel
 
         @Override
         public Iterator<ExecTO> iterator(final long first, final long count) {
-            int page = ((int) first / paginatorRows);
+            int page = (int) first / paginatorRows;
             return restClient.listExecutions(
                     taskKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();

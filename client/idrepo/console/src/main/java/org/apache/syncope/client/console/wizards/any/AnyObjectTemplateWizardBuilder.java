@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -56,10 +57,10 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
     }
 
     @Override
-    protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
-        final Details<AnyObjectTO> details = super.addOptionalDetailsPanel(modelObject);
-        if (templatable instanceof RealmTO) {
-            details.disableRealmSpecification();
+    protected Optional<Details<AnyObjectTO>> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
+        Optional<Details<AnyObjectTO>> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO && details.isPresent()) {
+            details.get().disableRealmSpecification();
         }
         return details;
     }

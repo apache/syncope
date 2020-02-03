@@ -48,17 +48,16 @@ public class ElasticsearchInit {
     public void init() {
         Implementation reindex = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).
                 stream().
-                filter(impl -> impl.getEngine() == ImplementationEngine.JAVA
-                && ES_REINDEX.equals(impl.getBody())).
-                findAny().orElse(null);
-        if (reindex == null) {
-            reindex = entityFactory.newEntity(Implementation.class);
-            reindex.setKey(ES_REINDEX);
-            reindex.setEngine(ImplementationEngine.JAVA);
-            reindex.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
-            reindex.setBody(ES_REINDEX);
-            reindex = implementationDAO.save(reindex);
-        }
+                filter(impl -> impl.getEngine() == ImplementationEngine.JAVA && ES_REINDEX.equals(impl.getBody())).
+                findAny().
+                orElseGet(() -> {
+                    Implementation impl = entityFactory.newEntity(Implementation.class);
+                    impl.setKey(ES_REINDEX);
+                    impl.setEngine(ImplementationEngine.JAVA);
+                    impl.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
+                    impl.setBody(ES_REINDEX);
+                    return implementationDAO.save(impl);
+                });
 
         SchedTaskTO task = new SchedTaskTO();
         task.setJobDelegate(reindex.getKey());

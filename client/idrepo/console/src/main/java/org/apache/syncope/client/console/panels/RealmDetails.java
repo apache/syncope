@@ -32,6 +32,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -54,18 +55,14 @@ public class RealmDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
-    private final PolicyRestClient policyRestClient = new PolicyRestClient();
-
-    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
-
     private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(policyTO -> policyTO.getKey(), policyTO -> policyTO.getDescription()));
+            return PolicyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 
@@ -75,8 +72,8 @@ public class RealmDetails extends Panel {
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.getPolicies(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(policyTO -> policyTO.getKey(), policyTO -> policyTO.getDescription()));
+            return PolicyRestClient.getPolicies(PolicyType.PASSWORD).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
 
@@ -86,7 +83,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected List<String> load() {
-            return implRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
+            return ImplementationRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
                     map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };

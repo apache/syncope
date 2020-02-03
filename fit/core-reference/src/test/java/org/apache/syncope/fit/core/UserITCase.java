@@ -30,13 +30,13 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -85,6 +85,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -99,7 +100,7 @@ import org.junit.jupiter.api.Test;
 
 public class UserITCase extends AbstractITCase {
 
-    private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
+    private static boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return Boolean.parseBoolean(connObjectTO.getAttr(attrName).get().getValues().get(0));
     }
 
@@ -202,7 +203,7 @@ public class UserITCase extends AbstractITCase {
 
             UserTO userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);
-            assertEquals(Collections.singleton(resourceTO.getKey()), userTO.getResources());
+            assertEquals(Set.of(resourceTO.getKey()), userTO.getResources());
         } finally {
             resourceService.delete(resourceTO.getKey());
         }
@@ -583,10 +584,10 @@ public class UserITCase extends AbstractITCase {
         assertFalse(userTO.getDerAttrs().isEmpty());
 
         Attr userIdAttr = userTO.getPlainAttr("userId").get();
-        assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
+        assertEquals(List.of(newUserId), userIdAttr.getValues());
 
         Attr fullNameAttr = userTO.getPlainAttr("fullname").get();
-        assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
+        assertEquals(List.of(newFullName), fullNameAttr.getValues());
 
         // update by username
         userUR = new UserUR();
@@ -856,13 +857,11 @@ public class UserITCase extends AbstractITCase {
         assertEquals(2, loginDate.getValues().size());
     }
 
-    private void verifyAsyncResult(final List<PropagationStatus> statuses) {
+    private static void verifyAsyncResult(final List<PropagationStatus> statuses) {
         assertEquals(3, statuses.size());
 
-        Map<String, PropagationStatus> byResource = new HashMap<>(3);
-        statuses.forEach(status -> {
-            byResource.put(status.getResource(), status);
-        });
+        Map<String, PropagationStatus> byResource = statuses.stream().collect(
+                Collectors.toMap(PropagationStatus::getResource, Function.identity()));
         assertEquals(ExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
         assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.CREATED
                 || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.SUCCESS);
@@ -873,7 +872,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void async() {
         SyncopeClient asyncClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        UserService asyncService = asyncClient.nullPriorityAsync(asyncClient.getService(UserService.class), true);
+        UserService asyncService = SyncopeClient.nullPriorityAsync(asyncClient.getService(UserService.class), true);
 
         UserCR userCR = getUniqueSample("async@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
@@ -964,7 +963,7 @@ public class UserITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.list("/even/two").get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
         String oldAccountPolicy = realm.getAccountPolicy();
         realm.setAccountPolicy(accountPolicy.getKey());
         String oldPasswordPolicy = realm.getPasswordPolicy();
@@ -1036,10 +1035,9 @@ public class UserITCase extends AbstractITCase {
         BatchRequest batchRequest = adminClient.batch();
 
         UserService batchUserService = batchRequest.getService(UserService.class);
-        users.forEach(user -> {
-            batchUserService.status(new StatusR.Builder().key(user).type(StatusRType.SUSPEND).onSyncope(true).
-                    build());
-        });
+        users.forEach(user -> batchUserService.status(new StatusR.Builder().key(user).type(StatusRType.SUSPEND).
+                onSyncope(true).
+                build()));
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
         assertEquals(10, batchResponseItems.stream().
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
@@ -1048,10 +1046,9 @@ public class UserITCase extends AbstractITCase {
         assertEquals("suspended", userService.read(users.get(3)).getStatus());
 
         UserService batchUserService2 = batchRequest.getService(UserService.class);
-        users.forEach(user -> {
-            batchUserService2.status(new StatusR.Builder().key(user).type(StatusRType.REACTIVATE).onSyncope(true).
-                    build());
-        });
+        users.forEach(user -> batchUserService2.status(new StatusR.Builder().key(user).type(StatusRType.REACTIVATE).
+                onSyncope(true).
+                build()));
         batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
         assertEquals(10, batchResponseItems.stream().
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
@@ -1060,9 +1057,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals("active", userService.read(users.get(3)).getStatus());
 
         UserService batchUserService3 = batchRequest.getService(UserService.class);
-        users.forEach(user -> {
-            batchUserService3.delete(user);
-        });
+        users.forEach(batchUserService3::delete);
         batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
         assertEquals(10, batchResponseItems.stream().
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
@@ -1308,7 +1303,7 @@ public class UserITCase extends AbstractITCase {
     public void restResource() {
         UserCR userCR = getUniqueSample("rest@syncope.apache.org");
         userCR.getResources().clear();
-        userCR.getResources().add("rest-target-resource");
+        userCR.getResources().add(RESOURCE_NAME_REST);
 
         // 1. create
         ProvisioningResult<UserTO> result = userService.create(userCR).readEntity(
@@ -1316,13 +1311,13 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
         assertEquals("surname", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
 
         // verify user exists on the backend REST service
         WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + result.getEntity().getKey());
         Response response = webClient.get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
 
         // 2. update
@@ -1334,12 +1329,12 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
         assertEquals("surname2", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
 
         // verify user still exists on the backend REST service
         response = webClient.get();
-        assertEquals(200, response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
 
         // 3. delete
@@ -1348,10 +1343,10 @@ public class UserITCase extends AbstractITCase {
         });
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
 
         // verify user was removed by the backend REST service
-        assertEquals(404, webClient.get().getStatus());
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), webClient.get().getStatus());
     }
 
     @Test
@@ -1385,7 +1380,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals("InvalidPassword: Password pwned", e.getElements().iterator().next());
         }
 
-        userCR.setPassword("1" + RandomStringUtils.randomAlphanumeric(10));
+        userCR.setPassword('1' + RandomStringUtils.randomAlphanumeric(10));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
     }

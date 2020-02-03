@@ -29,7 +29,7 @@ import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
@@ -82,12 +82,12 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
     @Transactional(readOnly = true)
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
-        AttributeCond userIdCond = new AttributeCond();
+        AttrCond userIdCond = new AttrCond();
         userIdCond.setSchema("userId");
-        userIdCond.setType(AttributeCond.Type.EQ);
+        userIdCond.setType(AttrCond.Type.EQ);
         userIdCond.setExpression(jwtClaims.getSubject());
 
-        List<User> matching = searchDAO.search(SearchCond.getLeafCond(userIdCond), AnyTypeKind.USER);
+        List<User> matching = searchDAO.search(SearchCond.getLeaf(userIdCond), AnyTypeKind.USER);
         if (matching.size() == 1) {
             User user = matching.get(0);
             Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(user.getUsername());

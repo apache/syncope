@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import java.util.Optional;
+
 import javax.persistence.Column;
 
 import javax.persistence.Lob;
@@ -35,6 +37,9 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
 
     @NotNull
     protected String status;
+
+    @NotNull
+    protected String executor;
 
     /**
      * Any information to be accompanied to this execution's result.
@@ -68,40 +73,42 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
     }
 
     @Override
+    public String getExecutor() {
+        return this.executor;
+    }
+
+    @Override
+    public void setExecutor(final String executor) {
+        this.executor = executor;
+    }
+
+    @Override
     public String getMessage() {
         return message;
     }
 
     @Override
     public void setMessage(final String message) {
-        this.message = message == null ? null : message.replace('\0', '\n');
+        this.message = Optional.ofNullable(message).map(s -> s.replace('\0', '\n')).orElse(null);
     }
 
     @Override
     public Date getStart() {
-        return start == null
-                ? null
-                : new Date(start.getTime());
+        return Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public void setStart(final Date start) {
-        this.start = start == null
-                ? null
-                : new Date(start.getTime());
+        this.start = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public Date getEnd() {
-        return end == null
-                ? null
-                : new Date(end.getTime());
+        return Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public void setEnd(final Date end) {
-        this.end = end == null
-                ? null
-                : new Date(end.getTime());
+        this.end = Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
     }
 }

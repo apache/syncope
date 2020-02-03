@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -32,8 +32,8 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
     private static final long serialVersionUID = 1775967163571699258L;
 
-    private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
-            new String[] { "key", "status", "token", "username", "name" }));
+    private static final Set<String> INLINE_PROPS = Set.of(
+            Constants.KEY_FIELD_NAME, "status", "token", "username", "name");
 
     public SortableAnyProviderComparator(final SortableDataProvider<T, String> provider) {
         super(provider);
@@ -60,9 +60,6 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
             this.anyTO = anyTO;
         }
 
-        /**
-         * @see UserAttrColumn constructor
-         */
         @Override
         public Comparable getObject() {
             int hashPos = provider.getSort().getProperty().indexOf('#');
@@ -103,7 +100,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
             Comparable result = null;
 
-            List<String> values = attr == null ? null : attr.getValues();
+            List<String> values = Optional.ofNullable(attr).map(Attr::getValues).orElse(null);
             if (values != null && !values.isEmpty()) {
                 result = values.iterator().next();
             }

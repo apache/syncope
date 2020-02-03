@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -33,11 +34,13 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,13 +73,13 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected ProvisioningManager<?, ?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
         return groupProvisioningManager;
     }
 
     @Override
-    protected AnyTO getAnyTO(final String key) {
-        return groupDataBinder.getGroupTO(key);
+    protected AnyTO getAnyTO(final Any<?> any) {
+        return groupDataBinder.getGroupTO((Group) any, true);
     }
 
     @Override
@@ -91,10 +94,10 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         Map.Entry<String, List<PropagationStatus>> created = groupProvisioningManager.create(
                 groupCR,
                 groupOwnerMap,
-                Collections.singleton(profile.getTask().getResource().getKey()),
+                Set.of(profile.getTask().getResource().getKey()),
                 true);
 
-        return getAnyTO(created.getKey());
+        return groupDataBinder.getGroupTO(created.getKey());
     }
 
     @Override
@@ -107,7 +110,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         GroupUR groupUR = GroupUR.class.cast(req);
 
         Pair<GroupUR, List<PropagationStatus>> updated = groupProvisioningManager.update(
-                groupUR, Collections.singleton(profile.getTask().getResource().getKey()), true);
+                groupUR, Set.of(profile.getTask().getResource().getKey()), true);
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {

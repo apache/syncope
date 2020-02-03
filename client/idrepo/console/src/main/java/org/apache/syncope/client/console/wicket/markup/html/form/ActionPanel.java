@@ -54,7 +54,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
     private final Action<T> action;
 
     public ActionPanel(final IModel<T> model, final Action<T> action) {
-        this("action", model, action);
+        this(Constants.ACTION, model, action);
     }
 
     public ActionPanel(final String componentId, final IModel<T> model, final Action<T> action) {
@@ -74,7 +74,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
         if (action.getLink() == null || action.getType() == ActionType.NOT_FOUND) {
             enabled = true;
-            actionLink = new IndicatingAjaxLink<Void>("action") {
+            actionLink = new IndicatingAjaxLink<Void>(Constants.ACTION) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -90,13 +90,13 @@ public final class ActionPanel<T extends Serializable> extends Panel {
         } else if (action.getType() == ActionType.EXTERNAL_EDITOR) {
             enabled = action.getLink().isEnabled(obj);
             actionLink = new BookmarkablePageLink<>(
-                    "action", action.getLink().getPageClass(), action.getLink().getPageParameters()).
+                    Constants.ACTION, action.getLink().getPageClass(), action.getLink().getPageParameters()).
                     setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         } else {
             enabled = action.getLink().isEnabled(obj);
 
             actionLink = action.isOnConfirm()
-                    ? new IndicatingOnConfirmAjaxLink<Void>("action", enabled) {
+                    ? new IndicatingOnConfirmAjaxLink<Void>(Constants.ACTION, enabled) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -112,7 +112,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
                             ? StringUtils.EMPTY : Constants.VEIL_INDICATOR_MARKUP_ID;
                 }
             }
-                    : new IndicatingAjaxLink<Void>("action") {
+                    : new IndicatingAjaxLink<Void>(Constants.ACTION) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 

@@ -19,15 +19,14 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
@@ -38,7 +37,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
 
-    public Pair<Boolean, String> check(final ResourceTO resourceTO) {
+    public static Pair<Boolean, String> check(final ResourceTO resourceTO) {
         boolean check = false;
         String errorMessage = null;
         try {
@@ -52,28 +51,25 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(check, errorMessage);
     }
 
-    public ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
+    public static ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
-    public Pair<String, List<ConnObjectTO>> listConnObjects(
+    public Pair<String, List<ConnObjectTO>> searchConnObjects(
             final String resource,
             final String anyTypeKey,
-            final int size,
-            final String pagedResultCookie,
-            final SortParam<String> sort) {
-
-        ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().
-                pagedResultsCookie(pagedResultCookie).
-                size(size).
-                orderBy(toOrderBy(sort));
+            final ConnObjectTOQuery.Builder queryBuilder,
+            final SortParam<String> sortParam) {
 
         final List<ConnObjectTO> result = new ArrayList<>();
         String nextPageResultCookie = null;
 
         PagedConnObjectTOResult list;
         try {
-            list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
+            if (sortParam != null) {
+                queryBuilder.orderBy(toOrderBy(sortParam));
+            }
+            list = getService(ResourceService.class).searchConnObjects(resource, anyTypeKey, queryBuilder.build());
             result.addAll(list.getResult());
             nextPageResultCookie = list.getPagedResultsCookie();
         } catch (Exception e) {
@@ -83,15 +79,15 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(nextPageResultCookie, result);
     }
 
-    public ResourceTO read(final String name) {
+    public static ResourceTO read(final String name) {
         return getService(ResourceService.class).read(name);
     }
 
-    public List<ResourceTO> list() {
-        List<ResourceTO> resources = Collections.emptyList();
+    public static List<ResourceTO> list() {
+        List<ResourceTO> resources = List.of();
         try {
             resources = getService(ResourceService.class).list();
-            Collections.sort(resources, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
+            resources.sort(Comparator.comparing(ResourceTO::getKey));
         } catch (Exception e) {
             LOG.error("Could not fetch the Resource list", e);
         }
@@ -99,25 +95,25 @@ public class ResourceRestClient extends BaseRestClient {
         return resources;
     }
 
-    public ResourceTO create(final ResourceTO resourceTO) {
+    public static ResourceTO create(final ResourceTO resourceTO) {
         ResourceService service = getService(ResourceService.class);
         Response response = service.create(resourceTO);
         return getObject(service, response.getLocation(), ResourceTO.class);
     }
 
-    public void update(final ResourceTO resourceTO) {
+    public static void update(final ResourceTO resourceTO) {
         getService(ResourceService.class).update(resourceTO);
     }
 
-    public void delete(final String name) {
+    public static void delete(final String name) {
         getService(ResourceService.class).delete(name);
     }
 
-    public void setLatestSyncToken(final String key, final String anyType) {
+    public static void setLatestSyncToken(final String key, final String anyType) {
         getService(ResourceService.class).setLatestSyncToken(key, anyType);
     }
 
-    public void removeSyncToken(final String key, final String anyType) {
+    public static void removeSyncToken(final String key, final String anyType) {
         getService(ResourceService.class).removeSyncToken(key, anyType);
     }
 }

@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,8 +65,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     @Autowired
     private AnyTypeDAO anyTypeDAO;
 
+    @Autowired
+    private SearchCondVisitor searchCondVisitor;
+
     private void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
             sce.getElements().add(dynMembershipFIQL);
@@ -78,7 +82,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         DynGroupMembership<?> dynMembership;
-        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && !group.getADynMembership(anyType).isPresent()) {
+        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType).isEmpty()) {
             dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
             dynMembership.setGroup(group);
             ((ADynGroupMembership) dynMembership).setAnyType(anyType);
@@ -186,11 +190,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     @Override
-    public PropagationByResource update(final Group toBeUpdated, final GroupUR groupUR) {
+    public PropagationByResource<String> update(final Group toBeUpdated, final GroupUR groupUR) {
         // Re-merge any pending change from workflow tasks
         Group group = groupDAO.save(toBeUpdated);
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -299,7 +303,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
         // remove all type extensions not contained in the TO
         group.getTypeExtensions().
-                removeIf(typeExt -> !groupUR.getTypeExtension(typeExt.getAnyType().getKey()).isPresent());
+                removeIf(typeExt -> groupUR.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -355,10 +359,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 group.getResources(),
                 details);
 
-        if (details) {
-            // dynamic realms
-            groupTO.getDynRealms().addAll(groupDAO.findDynRealms(group.getKey()));
-        }
+        // dynamic realms
+        groupTO.getDynRealms().addAll(groupDAO.findDynRealms(group.getKey()));
 
         // Static user and AnyType membership counts
         groupTO.setStaticUserMembershipCount(groupDAO.countUMembers(group));
@@ -371,13 +373,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
         }
-        group.getADynMemberships().forEach(memb -> {
-            groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond());
-        });
+        group.getADynMemberships().
+                forEach(memb -> groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
 
-        group.getTypeExtensions().forEach(typeExt -> {
-            groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt));
-        });
+        group.getTypeExtensions().
+                forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
         return groupTO;
     }
@@ -388,10 +388,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         return getGroupTO(groupDAO.authFind(key), true);
     }
 
-    private void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
+    private static void populateTransitiveResources(
+            final Group group, final Any<?> any, final Map<String, PropagationByResource<String>> result) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
         group.getResources().forEach(resource -> {
             if (!any.getResources().contains(resource)) {
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
@@ -405,28 +405,26 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
     @Transactional(readOnly = true)
     @Override
-    public Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(final String groupKey) {
+    public Map<String, PropagationByResource<String>> findAnyObjectsWithTransitiveResources(final String groupKey) {
         Group group = groupDAO.authFind(groupKey);
 
-        Map<String, PropagationByResource> result = new HashMap<>();
+        Map<String, PropagationByResource<String>> result = new HashMap<>();
 
-        groupDAO.findAMemberships(group).forEach((membership) -> {
-            populateTransitiveResources(group, membership.getLeftEnd(), result);
-        });
+        groupDAO.findAMemberships(group).
+                forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
 
         return result;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Map<String, PropagationByResource> findUsersWithTransitiveResources(final String groupKey) {
+    public Map<String, PropagationByResource<String>> findUsersWithTransitiveResources(final String groupKey) {
         Group group = groupDAO.authFind(groupKey);
 
-        Map<String, PropagationByResource> result = new HashMap<>();
+        Map<String, PropagationByResource<String>> result = new HashMap<>();
 
-        groupDAO.findUMemberships(group).forEach((membership) -> {
-            populateTransitiveResources(group, membership.getLeftEnd(), result);
-        });
+        groupDAO.findUMemberships(group).
+                forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
 
         return result;
     }

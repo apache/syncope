@@ -49,8 +49,6 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
     private static final long serialVersionUID = 3739399543837732640L;
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     private final ResourceTO resourceTO;
 
     private final String adminRealm;
@@ -75,7 +73,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
             clazz = new AjaxTextFieldPanel(
                     "clazz", "clazz", new PropertyModel<>(resourceProvision, "objectClass"));
             clazz.setRequired(true);
-            clazz.setChoices(connectorRestClient.getObjectClasses(resourceTO.getConnector()));
+            clazz.setChoices(ConnectorRestClient.getObjectClasses(resourceTO.getConnector()));
             container.add(clazz);
 
             AjaxCheckBoxPanel ignoreCaseMatch = new AjaxCheckBoxPanel(
@@ -135,7 +133,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
     /**
      * AccountLink specification step.
      */
-    private final class ConnObjectLink extends WizardStep {
+    private static final class ConnObjectLink extends WizardStep {
 
         private static final long serialVersionUID = 2359955465172450478L;
 

@@ -102,9 +102,9 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
     public List<String> getValuesAsStrings() {
         List<String> result;
         if (getUniqueValue() == null) {
-            result = getValues().stream().map(value -> value.getValueAsString()).collect(Collectors.toList());
+            result = getValues().stream().map(PlainAttrValue::getValueAsString).collect(Collectors.toList());
         } else {
-            result = Collections.singletonList(getUniqueValue().getValueAsString());
+            result = List.of(getUniqueValue().getValueAsString());
         }
 
         return Collections.unmodifiableList(result);

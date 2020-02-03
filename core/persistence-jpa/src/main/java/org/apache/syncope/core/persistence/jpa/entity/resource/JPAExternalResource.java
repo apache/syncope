@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -126,16 +124,16 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @NotNull
     private TraceLevel provisioningTraceLevel = TraceLevel.FAILURES;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAPullPolicy pullPolicy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAPushPolicy pushPolicy;
 
     /**
@@ -212,7 +210,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public List<? extends Provision> getProvisions() {
-        return provisions == null ? Collections.emptyList() : provisions;
+        return provisions == null ? List.of() : provisions;
     }
 
     @Override
@@ -335,7 +333,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public Set<ConnConfProperty> getConfOverride() {
         Set<ConnConfProperty> confOverride = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
-            confOverride.addAll(Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
+            confOverride.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
         }
 
         return confOverride;

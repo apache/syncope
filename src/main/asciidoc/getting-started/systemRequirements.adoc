@@ -37,16 +37,15 @@ Apache Syncope {docVersion} requires the latest JDK 11 that is available.
 Apache Syncope {docVersion} is verified with the following Java EE containers:
 
  . http://tomcat.apache.org/download-90.cgi[Apache Tomcat 9^]
- . https://javaee.github.io/glassfish/[Glassfish 5^]
  . http://www.payara.fish/[Payara Server 5^]
- . http://www.wildfly.org/[Wildfly 15^]
+ . http://www.wildfly.org/[Wildfly 18^]
 
 === Internal Storage
 
 Apache Syncope {docVersion} is verified with the recent versions of the following DBMSes, for internal storage:
 
- . http://www.postgresql.org/[PostgreSQL^] (>= 10.3, JDBC driver >= {postgresqlJDBC})
- . https://mariadb.org/[MariaDB^] (>= 10.3.7, JDBC driver >= {mariadbJDBC})
- . http://www.mysql.com/[MySQL^] (>= 5.7, JDBC driver >= {mysqlJDBC})
+ . http://www.postgresql.org/[PostgreSQL^] (>= {postgresql}, JDBC driver >= {postgresqlJDBC})
+ . https://mariadb.org/[MariaDB^] (>= {mariadb}, JDBC driver >= {mariadbJDBC})
+ . http://www.mysql.com/[MySQL^] (>= {mysql}, JDBC driver >= {mysqlJDBC})
  . https://www.oracle.com/database/index.html[Oracle Database^] (>= 11g, JDBC driver >= ojdbc8 12.2.0.1)
  . http://www.microsoft.com/en-us/server-cloud/products/sql-server/[MS SQL Server^] (>= 2017, JDBC driver >= {sqlserverJDBC}8)

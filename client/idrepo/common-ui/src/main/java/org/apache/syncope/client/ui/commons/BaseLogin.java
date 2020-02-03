@@ -22,14 +22,17 @@ import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -47,6 +50,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -126,7 +131,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                getLanguageOnChangeComponents().forEach(target::add);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -134,10 +139,10 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                getLanguageOnChangeComponents().forEach(target::add);
             }
         });
-        form.add(languageSelect);
+        form.add(languageSelect.setOutputMarkupId(true));
 
         DomainDropDown domainSelect = new DomainDropDown("domain", domains);
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
@@ -146,7 +151,7 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                getDomainOnChangeComponents().forEach(target::add);
             }
         }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -154,10 +159,10 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
+                getDomainOnChangeComponents().forEach(target::add);
             }
         });
-        form.add(domainSelect);
+        form.add(domainSelect.setOutputMarkupId(true));
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
@@ -186,6 +191,14 @@ public abstract class BaseLogin extends WebPage {
         form.add(ssoLogins);
 
         add(form);
+    }
+
+    protected Collection<Component> getLanguageOnChangeComponents() {
+        return List.of(form);
+    }
+
+    protected Collection<Component> getDomainOnChangeComponents() {
+        return List.of(form);
     }
 
     @Override
@@ -255,8 +268,23 @@ public abstract class BaseLogin extends WebPage {
                 }
             });
 
-            // set default value to English
-            getModel().setObject(Locale.ENGLISH);
+            // set default language selection
+            List<Locale> filtered = List.of();
+
+            String acceptLanguage = ((ServletWebRequest) RequestCycle.get().getRequest()).
+                    getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+            if (StringUtils.isNotBlank(acceptLanguage)) {
+                try {
+                    filtered = Locale.filter(Locale.LanguageRange.parse(acceptLanguage), getSupportedLocales());
+                } catch (Exception e) {
+                    LOG.debug("Could not parse {} HTTP header value '{}'",
+                            HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage, e);
+                }
+            }
+
+            getModel().setObject(filtered.isEmpty()
+                    ? Locale.ENGLISH
+                    : filtered.get(0));
         }
     }
 }

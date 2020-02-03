@@ -33,7 +33,7 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
-    <root level="ERROR">
+    <root level="WARN">
       <appenderRef ref="main"/>
     </root>
   </loggers>

@@ -57,10 +57,6 @@ mechanism to work properly;
 Suspended Users are anyway not allowed to authenticate.
 * `log.lastlogindate` - whether the system updates the `lastLoginDate` field of users upon authentication;
 * `return.password.value` - whether the hashed password value shall be returned when reading users;
-* `connector.conf.history.size` - how many previous configurations shall be kept for each Connector Instance,
-for usage with <<connectors-resources-history, connectors and resources configuration history management>>;
-* `resource.conf.history.size` - how many previous configurations shall be kept for each External Resource,
-for usage with <<connectors-resources-history, connectors and resources configuration history management>>;
 * `connector.test.timeout` - timeout (in seconds) to check connector connection in <<Admin Console>>;
 `0` to skip any check;
 

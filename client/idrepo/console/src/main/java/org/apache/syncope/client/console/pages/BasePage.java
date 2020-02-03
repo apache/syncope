@@ -122,7 +122,7 @@ public class BasePage extends BaseWebPage {
             public void onClick() {
                 try {
                     HttpResourceStream stream =
-                            new HttpResourceStream(new SyncopeRestClient().exportInternalStorageContent());
+                            new HttpResourceStream(SyncopeRestClient.exportInternalStorageContent());
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null
@@ -133,7 +133,7 @@ public class BasePage extends BaseWebPage {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    SyncopeConsoleSession.get().onException(e);
                 }
             }
         };
@@ -525,11 +525,11 @@ public class BasePage extends BaseWebPage {
         response.render(new PriorityHeaderItem(META_IE_EDGE));
     }
 
-    private String getLIContainerId(final String linkId) {
+    private static String getLIContainerId(final String linkId) {
         return linkId + "LI";
     }
 
-    private String getULContainerId(final String linkId) {
+    private static String getULContainerId(final String linkId) {
         return linkId + "UL";
     }
 
@@ -539,7 +539,7 @@ public class BasePage extends BaseWebPage {
      * @param modal window
      * @param container container
      */
-    public void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
+    public static void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;

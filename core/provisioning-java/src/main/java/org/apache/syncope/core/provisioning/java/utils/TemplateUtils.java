@@ -34,12 +34,12 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class TemplateUtils {
     @Autowired
     private GroupDAO groupDAO;
 
-    private Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
+    private static Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
         Attr result = new Attr();
         result.setSchema(template.getSchema());
 
@@ -69,7 +69,7 @@ public class TemplateUtils {
         return result;
     }
 
-    private void fill(final RealmMember realmMember, final RealmMember template) {
+    private static void fill(final RealmMember realmMember, final RealmMember template) {
         MapContext jexlContext = new MapContext();
         JexlUtils.addFieldsToContext(realmMember, jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
@@ -123,28 +123,22 @@ public class TemplateUtils {
         realmMember.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+    private static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
                 filter(relationship -> !any.getRelationship(
                 relationship.getOtherEndKey(), relationship.getOtherEndKey()).isPresent()).
-                forEachOrdered(relationship -> {
-                    any.getRelationships().add(relationship);
-                });
+                forEachOrdered(relationship -> any.getRelationships().add(relationship));
     }
 
-    private void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+    private static void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getMemberships().stream().
                 filter(membership -> !any.getMembership(membership.getGroupKey()).isPresent()).
-                forEachOrdered(membership -> {
-                    any.getMemberships().add(membership);
-                });
+                forEachOrdered(membership -> any.getMemberships().add(membership));
     }
 
     @Transactional(readOnly = true)
     public void apply(final RealmMember realmMember, final Optional<? extends AnyTemplate> template) {
-        if (template.isPresent()) {
-            apply(realmMember, template.get().get());
-        }
+        template.ifPresent(anyTemplate -> apply(realmMember, anyTemplate.get()));
     }
 
     @Transactional(readOnly = true)
@@ -225,23 +219,19 @@ public class TemplateUtils {
         }
     }
 
-    public void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
+    public static void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
         SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
 
         templates.values().forEach(value -> {
             value.getPlainAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
                     && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered(attrTO -> {
-                        sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-                    });
+                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
 
             value.getVirAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
                     && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered((attrTO) -> {
-                        sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-                    });
+                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
 
             if (value instanceof UserTO) {
                 UserTO template = (UserTO) value;

@@ -22,13 +22,14 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -36,13 +37,50 @@ import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask> extends AbstractSchedTaskJobDelegate {
+
+    private static final String USER = "USER";
+
+    private static final String GROUP = "GROUP";
+
+    private static final String LINKED_ACCOUNT = "LINKED_ACCOUNT";
+
+    /**
+     * Helper method to invoke logging per provisioning result, for the given trace level.
+     *
+     * @param results provisioning results
+     * @param level trace level
+     * @return report as string
+     */
+    public static String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
+        StringBuilder sb = new StringBuilder();
+
+        results.stream().map(result -> {
+            if (level == TraceLevel.SUMMARY) {
+                // No per entry log in this case.
+                return null;
+            } else if (level == TraceLevel.FAILURES && result.getStatus() == ProvisioningReport.Status.FAILURE) {
+                // only report failures
+                return String.format("Failed %s (key/name): %s/%s with message: %s",
+                        result.getOperation(), result.getKey(), result.getName(), result.getMessage());
+            } else {
+                // All
+                return String.format("%s %s (key/name): %s/%s %s",
+                        result.getOperation(), result.getStatus(), result.getKey(), result.getName(),
+                        StringUtils.isBlank(result.getMessage())
+                        ? StringUtils.EMPTY
+                        : "with message: " + result.getMessage());
+            }
+        }).filter(Objects::nonNull).forEach(report -> sb.append(report).append('\n'));
+
+        return sb.toString();
+    }
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -53,6 +91,9 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     @Autowired
     protected ConnectorFactory connFactory;
 
+    /**
+     * AnyTypeDAO DAO
+     */
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
 
@@ -69,7 +110,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     protected PolicyDAO policyDAO;
 
     /**
-     * Create a textual report of the provisionig operation, based on the trace level.
+     * Create a textual report of the provisioning operation, based on the trace level.
      *
      * @param provResults Provisioning results
      * @param resource Provisioning resource
@@ -127,27 +168,36 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         List<ProvisioningReport> aFailDelete = new ArrayList<>();
         List<ProvisioningReport> aSuccNone = new ArrayList<>();
         List<ProvisioningReport> aIgnore = new ArrayList<>();
+        List<ProvisioningReport> laSuccCreate = new ArrayList<>();
+        List<ProvisioningReport> laFailCreate = new ArrayList<>();
+        List<ProvisioningReport> laSuccUpdate = new ArrayList<>();
+        List<ProvisioningReport> laFailUpdate = new ArrayList<>();
+        List<ProvisioningReport> laSuccDelete = new ArrayList<>();
+        List<ProvisioningReport> laFailDelete = new ArrayList<>();
+        List<ProvisioningReport> laSuccNone = new ArrayList<>();
+        List<ProvisioningReport> laIgnore = new ArrayList<>();
 
         for (ProvisioningReport provResult : provResults) {
-            AnyType anyType = anyTypeDAO.find(provResult.getAnyType());
-
             switch (provResult.getStatus()) {
                 case SUCCESS:
                     switch (provResult.getOperation()) {
                         case CREATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccCreate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccCreate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccCreate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccCreate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccCreate.add(provResult);
                                 }
@@ -155,19 +205,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case UPDATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccUpdate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccUpdate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccUpdate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccUpdate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccUpdate.add(provResult);
                                 }
@@ -175,19 +228,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case DELETE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccDelete.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccDelete.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccDelete.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccDelete.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccDelete.add(provResult);
                                 }
@@ -195,19 +251,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case NONE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccNone.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uSuccNone.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laSuccNone.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gSuccNone.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aSuccNone.add(provResult);
                                 }
@@ -221,19 +280,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 case FAILURE:
                     switch (provResult.getOperation()) {
                         case CREATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailCreate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uFailCreate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laFailCreate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gFailCreate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aFailCreate.add(provResult);
                                 }
@@ -241,19 +303,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case UPDATE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailUpdate.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uFailUpdate.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laFailUpdate.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gFailUpdate.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aFailUpdate.add(provResult);
                                 }
@@ -261,19 +326,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                             break;
 
                         case DELETE:
-                            if (anyType == null) {
+                            if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailDelete.add(provResult);
                             } else {
-                                switch (anyType.getKind()) {
+                                switch (provResult.getAnyType()) {
                                     case USER:
                                         uFailDelete.add(provResult);
+                                        break;
+
+                                    case LINKED_ACCOUNT:
+                                        laFailDelete.add(provResult);
                                         break;
 
                                     case GROUP:
                                         gFailDelete.add(provResult);
                                         break;
 
-                                    case ANY_OBJECT:
                                     default:
                                         aFailDelete.add(provResult);
                                 }
@@ -285,19 +353,22 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                     break;
 
                 case IGNORE:
-                    if (anyType == null) {
+                    if (StringUtils.isBlank(provResult.getAnyType())) {
                         rIgnore.add(provResult);
                     } else {
-                        switch (anyType.getKind()) {
+                        switch (provResult.getAnyType()) {
                             case USER:
                                 uIgnore.add(provResult);
+                                break;
+
+                            case LINKED_ACCOUNT:
+                                laIgnore.add(provResult);
                                 break;
 
                             case GROUP:
                                 gIgnore.add(provResult);
                                 break;
 
-                            case ANY_OBJECT:
                             default:
                                 aIgnore.add(provResult);
                         }
@@ -324,6 +395,16 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                     append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
                     append(' ').
                     append("[no operation/ignored]: ").append(uSuccNone.size()).append('/').append(uIgnore.size()).
+                    append('\n');
+
+            report.append("Accounts ").
+                    append("[created/failures]: ").append(laSuccCreate.size()).append('/').append(laFailCreate.size()).
+                    append(' ').
+                    append("[updated/failures]: ").append(laSuccUpdate.size()).append('/').append(laFailUpdate.size()).
+                    append(' ').
+                    append("[deleted/failures]: ").append(laSuccDelete.size()).append('/').append(laFailDelete.size()).
+                    append(' ').
+                    append("[no operation/ignored]: ").append(laSuccNone.size()).append('/').append(laIgnore.size()).
                     append('\n');
         }
         if (includeGroup) {
@@ -363,58 +444,71 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             if (includeUser) {
                 if (!uFailCreate.isEmpty()) {
                     report.append("\n\nUsers failed to create: ");
-                    report.append(ProvisioningReport.generate(uFailCreate, traceLevel));
+                    report.append(generate(uFailCreate, traceLevel));
                 }
                 if (!uFailUpdate.isEmpty()) {
                     report.append("\nUsers failed to update: ");
-                    report.append(ProvisioningReport.generate(uFailUpdate, traceLevel));
+                    report.append(generate(uFailUpdate, traceLevel));
                 }
                 if (!uFailDelete.isEmpty()) {
                     report.append("\nUsers failed to delete: ");
-                    report.append(ProvisioningReport.generate(uFailDelete, traceLevel));
+                    report.append(generate(uFailDelete, traceLevel));
+                }
+
+                if (!laFailCreate.isEmpty()) {
+                    report.append("\n\nAccounts failed to create: ");
+                    report.append(generate(laFailCreate, traceLevel));
+                }
+                if (!laFailUpdate.isEmpty()) {
+                    report.append("\nAccounts failed to update: ");
+                    report.append(generate(laFailUpdate, traceLevel));
+                }
+                if (!laFailDelete.isEmpty()) {
+                    report.append("\nAccounts failed to delete: ");
+                    report.append(generate(laFailDelete, traceLevel));
                 }
             }
 
             if (includeGroup) {
                 if (!gFailCreate.isEmpty()) {
                     report.append("\n\nGroups failed to create: ");
-                    report.append(ProvisioningReport.generate(gFailCreate, traceLevel));
+                    report.append(generate(gFailCreate, traceLevel));
                 }
                 if (!gFailUpdate.isEmpty()) {
                     report.append("\nGroups failed to update: ");
-                    report.append(ProvisioningReport.generate(gFailUpdate, traceLevel));
+                    report.append(generate(gFailUpdate, traceLevel));
                 }
                 if (!gFailDelete.isEmpty()) {
                     report.append("\nGroups failed to delete: ");
-                    report.append(ProvisioningReport.generate(gFailDelete, traceLevel));
+                    report.append(generate(gFailDelete, traceLevel));
                 }
             }
 
             if (includeAnyObject && !aFailCreate.isEmpty()) {
                 report.append("\nAny objects failed to create: ");
-                report.append(ProvisioningReport.generate(aFailCreate, traceLevel));
+                report.append(generate(aFailCreate, traceLevel));
             }
             if (includeAnyObject && !aFailUpdate.isEmpty()) {
                 report.append("\nAny objects failed to update: ");
-                report.append(ProvisioningReport.generate(aFailUpdate, traceLevel));
+                report.append(generate(aFailUpdate, traceLevel));
             }
             if (includeAnyObject && !aFailDelete.isEmpty()) {
                 report.append("\nAny objects failed to delete: ");
-                report.append(ProvisioningReport.generate(aFailDelete, traceLevel));
+                report.append(generate(aFailDelete, traceLevel));
             }
 
             if (includeRealm) {
                 if (!rFailCreate.isEmpty()) {
                     report.append("\nRealms failed to create: ");
-                    report.append(ProvisioningReport.generate(rFailCreate, traceLevel));
+                    report.append(generate(rFailCreate, traceLevel));
                 }
                 if (!rFailUpdate.isEmpty()) {
                     report.append("\nRealms failed to update: ");
-                    report.append(ProvisioningReport.generate(rFailUpdate, traceLevel));
+                    report.append(generate(rFailUpdate, traceLevel));
                 }
                 if (!rFailDelete.isEmpty()) {
                     report.append("\nRealms failed to delete: ");
-                    report.append(ProvisioningReport.generate(rFailDelete, traceLevel));
+                    report.append(generate(rFailDelete, traceLevel));
                 }
             }
         }
@@ -424,89 +518,110 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             if (includeUser) {
                 if (!uSuccCreate.isEmpty()) {
                     report.append("\n\nUsers created:\n").
-                            append(ProvisioningReport.generate(uSuccCreate, traceLevel));
+                            append(generate(uSuccCreate, traceLevel));
                 }
                 if (!uSuccUpdate.isEmpty()) {
                     report.append("\nUsers updated:\n").
-                            append(ProvisioningReport.generate(uSuccUpdate, traceLevel));
+                            append(generate(uSuccUpdate, traceLevel));
                 }
                 if (!uSuccDelete.isEmpty()) {
                     report.append("\nUsers deleted:\n").
-                            append(ProvisioningReport.generate(uSuccDelete, traceLevel));
+                            append(generate(uSuccDelete, traceLevel));
                 }
                 if (!uSuccNone.isEmpty()) {
                     report.append("\nUsers no operation:\n").
-                            append(ProvisioningReport.generate(uSuccNone, traceLevel));
+                            append(generate(uSuccNone, traceLevel));
                 }
                 if (!uIgnore.isEmpty()) {
                     report.append("\nUsers ignored:\n").
-                            append(ProvisioningReport.generate(uIgnore, traceLevel));
+                            append(generate(uIgnore, traceLevel));
+                }
+
+                if (!laSuccCreate.isEmpty()) {
+                    report.append("\n\nAccounts created:\n").
+                            append(generate(laSuccCreate, traceLevel));
+                }
+                if (!laSuccUpdate.isEmpty()) {
+                    report.append("\nAccounts updated:\n").
+                            append(generate(laSuccUpdate, traceLevel));
+                }
+                if (!laSuccDelete.isEmpty()) {
+                    report.append("\nAccounts deleted:\n").
+                            append(generate(laSuccDelete, traceLevel));
+                }
+                if (!laSuccNone.isEmpty()) {
+                    report.append("\nAccounts no operation:\n").
+                            append(generate(laSuccNone, traceLevel));
+                }
+                if (!laIgnore.isEmpty()) {
+                    report.append("\nAccounts ignored:\n").
+                            append(generate(laIgnore, traceLevel));
                 }
             }
             if (includeGroup) {
                 if (!gSuccCreate.isEmpty()) {
                     report.append("\n\nGroups created:\n").
-                            append(ProvisioningReport.generate(gSuccCreate, traceLevel));
+                            append(generate(gSuccCreate, traceLevel));
                 }
                 if (!gSuccUpdate.isEmpty()) {
                     report.append("\nGroups updated:\n").
-                            append(ProvisioningReport.generate(gSuccUpdate, traceLevel));
+                            append(generate(gSuccUpdate, traceLevel));
                 }
                 if (!gSuccDelete.isEmpty()) {
                     report.append("\nGroups deleted:\n").
-                            append(ProvisioningReport.generate(gSuccDelete, traceLevel));
+                            append(generate(gSuccDelete, traceLevel));
                 }
                 if (!gSuccNone.isEmpty()) {
                     report.append("\nGroups no operation:\n").
-                            append(ProvisioningReport.generate(gSuccNone, traceLevel));
+                            append(generate(gSuccNone, traceLevel));
                 }
                 if (!gIgnore.isEmpty()) {
                     report.append("\nGroups ignored:\n").
-                            append(ProvisioningReport.generate(gIgnore, traceLevel));
+                            append(generate(gIgnore, traceLevel));
                 }
             }
             if (includeAnyObject) {
                 if (!aSuccCreate.isEmpty()) {
                     report.append("\n\nAny objects created:\n").
-                            append(ProvisioningReport.generate(aSuccCreate, traceLevel));
+                            append(generate(aSuccCreate, traceLevel));
                 }
                 if (!aSuccUpdate.isEmpty()) {
                     report.append("\nAny objects updated:\n").
-                            append(ProvisioningReport.generate(aSuccUpdate, traceLevel));
+                            append(generate(aSuccUpdate, traceLevel));
                 }
                 if (!aSuccDelete.isEmpty()) {
                     report.append("\nAny objects deleted:\n").
-                            append(ProvisioningReport.generate(aSuccDelete, traceLevel));
+                            append(generate(aSuccDelete, traceLevel));
                 }
                 if (!aSuccNone.isEmpty()) {
                     report.append("\nAny objects no operation:\n").
-                            append(ProvisioningReport.generate(aSuccNone, traceLevel));
+                            append(generate(aSuccNone, traceLevel));
                 }
                 if (!aIgnore.isEmpty()) {
                     report.append("\nAny objects ignored:\n").
-                            append(ProvisioningReport.generate(aIgnore, traceLevel));
+                            append(generate(aIgnore, traceLevel));
                 }
             }
             if (includeRealm) {
                 if (!rSuccCreate.isEmpty()) {
                     report.append("\n\nRealms created:\n").
-                            append(ProvisioningReport.generate(rSuccCreate, traceLevel));
+                            append(generate(rSuccCreate, traceLevel));
                 }
                 if (!rSuccUpdate.isEmpty()) {
                     report.append("\nRealms updated:\n").
-                            append(ProvisioningReport.generate(rSuccUpdate, traceLevel));
+                            append(generate(rSuccUpdate, traceLevel));
                 }
                 if (!rSuccDelete.isEmpty()) {
                     report.append("\nRealms deleted:\n").
-                            append(ProvisioningReport.generate(rSuccDelete, traceLevel));
+                            append(generate(rSuccDelete, traceLevel));
                 }
                 if (!rSuccNone.isEmpty()) {
                     report.append("\nRealms no operation:\n").
-                            append(ProvisioningReport.generate(rSuccNone, traceLevel));
+                            append(generate(rSuccNone, traceLevel));
                 }
                 if (!rIgnore.isEmpty()) {
                     report.append("\nRealms ignored:\n").
-                            append(ProvisioningReport.generate(rIgnore, traceLevel));
+                            append(generate(rIgnore, traceLevel));
                 }
             }
         }

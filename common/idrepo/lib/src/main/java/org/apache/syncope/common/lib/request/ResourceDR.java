@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
@@ -66,7 +65,7 @@ public class ResourceDR implements Serializable {
         }
 
         public Builder resources(final String... resources) {
-            instance.getResources().addAll(Arrays.asList(resources));
+            instance.getResources().addAll(List.of(resources));
             return this;
         }
 

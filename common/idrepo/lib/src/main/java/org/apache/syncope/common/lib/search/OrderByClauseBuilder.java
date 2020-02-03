@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.search;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Simple builder for generating <tt>orderby</tt> values.
+ * Simple builder for generating {@code orderby} values.
  */
 public class OrderByClauseBuilder {
 

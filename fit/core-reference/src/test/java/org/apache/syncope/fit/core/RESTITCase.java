@@ -100,7 +100,7 @@ public class RESTITCase extends AbstractITCase {
     @Test
     public void noContent() throws IOException {
         SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        GroupService noContentService = noContentclient.prefer(
+        GroupService noContentService = SyncopeClient.prefer(
                 noContentclient.getService(GroupService.class), Preference.RETURN_NO_CONTENT);
 
         GroupCR groupCR = GroupITCase.getSample("noContent");
@@ -142,7 +142,7 @@ public class RESTITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertNotNull(userTO.getKey());
 
-        EntityTag etag = adminClient.getLatestEntityTag(userService);
+        EntityTag etag = SyncopeClient.getLatestEntityTag(userService);
         assertNotNull(etag);
         assertTrue(StringUtils.isNotBlank(etag.getValue()));
 
@@ -152,10 +152,10 @@ public class RESTITCase extends AbstractITCase {
         userTO = userService.update(userUR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertTrue(userTO.getUsername().endsWith("XX"));
-        EntityTag etag1 = adminClient.getLatestEntityTag(userService);
+        EntityTag etag1 = SyncopeClient.getLatestEntityTag(userService);
         assertFalse(etag.getValue().equals(etag1.getValue()));
 
-        UserService ifMatchService = adminClient.ifMatch(adminClient.getService(UserService.class), etag);
+        UserService ifMatchService = SyncopeClient.ifMatch(adminClient.getService(UserService.class), etag);
         userUR.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "YY").build());
         try {
             ifMatchService.update(userUR);

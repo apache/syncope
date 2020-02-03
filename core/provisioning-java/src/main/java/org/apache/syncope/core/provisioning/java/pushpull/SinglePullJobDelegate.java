@@ -19,12 +19,11 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.collections.IteratorChain;
+import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -33,26 +32,25 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.quartz.JobExecutionException;
@@ -66,7 +64,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
     private ImplementationDAO implementationDAO;
 
     @Autowired
-    private TemplateUtils templateUtils;
+    private RealmDAO realmDAO;
 
     @Override
     public List<ProvisioningReport> pull(
@@ -74,7 +72,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             final Connector connector,
             final String connObjectKey,
             final String connObjectValue,
-            final Realm realm,
             final PullTaskTO pullTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", provision.getResource());
@@ -94,13 +91,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
         });
 
         try {
-            Set<MappingItem> linkinMappingItems = virSchemaDAO.findByProvision(provision).stream().
-                    map(virSchema -> virSchema.asLinkingMappingItem()).collect(Collectors.toSet());
-            Iterator<MappingItem> mapItems = new IteratorChain<>(
-                    provision.getMapping().getItems().iterator(),
-                    linkinMappingItems.iterator());
-            OperationOptions options = MappingUtils.buildOperationOptions(mapItems);
-
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
             pullTask.setResource(provision.getResource());
             pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
@@ -112,10 +102,10 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             pullTask.setPerformUpdate(pullTaskTO.isPerformUpdate());
             pullTask.setPerformDelete(pullTaskTO.isPerformDelete());
             pullTask.setSyncStatus(pullTaskTO.isSyncStatus());
-            pullTask.setDestinationRealm(realm);
+            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
             pullTask.setRemediation(pullTaskTO.isRemediation());
             // validate JEXL expressions from templates and proceed if fine
-            templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+            TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
             pullTaskTO.getTemplates().forEach((type, template) -> {
                 AnyType anyType = anyTypeDAO.find(type);
                 if (anyType == null) {
@@ -161,22 +151,21 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             handler.setPullExecutor(this);
 
             // execute filtered pull
+            Set<String> moreAttrsToGet = new HashSet<>();
+            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+
+            Stream<? extends Item> mapItems = Stream.concat(
+                    MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
+                    virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+
             connector.filteredReconciliation(
                     provision.getObjectClass(),
-                    new AccountReconciliationFilterBuilder(connObjectKey, connObjectValue),
+                    new SingleReconciliationFilterBuilder(connObjectKey, connObjectValue),
                     handler,
-                    options);
+                    MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0])));
 
-            Optional<? extends Provision> userProvision = provision.getResource().getProvision(anyTypeDAO.findUser());
-            boolean userIgnoreCaseMatch = userProvision.isPresent()
-                    ? userProvision.get().isIgnoreCaseMatch()
-                    : false;
-            Optional<? extends Provision> groupProvision = provision.getResource().getProvision(anyTypeDAO.findGroup());
-            boolean groupIgnoreCaseMatch = groupProvision.isPresent()
-                    ? groupProvision.get().isIgnoreCaseMatch()
-                    : false;
             try {
-                setGroupOwners(ghandler, userIgnoreCaseMatch, groupIgnoreCaseMatch);
+                setGroupOwners(ghandler);
             } catch (Exception e) {
                 LOG.error("While setting group owners", e);
             }
@@ -193,13 +182,13 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
         }
     }
 
-    class AccountReconciliationFilterBuilder implements ReconFilterBuilder {
+    static class SingleReconciliationFilterBuilder implements ReconFilterBuilder {
 
         private final String key;
 
         private final String value;
 
-        AccountReconciliationFilterBuilder(final String key, final String value) {
+        SingleReconciliationFilterBuilder(final String key, final String value) {
             this.key = key;
             this.value = value;
         }

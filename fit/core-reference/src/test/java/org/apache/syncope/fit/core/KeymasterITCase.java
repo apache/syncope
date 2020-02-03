@@ -29,8 +29,6 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.security.AccessControlException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +50,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Test;
 
 public class KeymasterITCase extends AbstractITCase {
@@ -81,7 +80,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(false, booleanValue);
 
         List<String> stringValues =
-                Arrays.asList(confParamOps.get(
+                List.of(confParamOps.get(
                         SyncopeConstants.MASTER_DOMAIN, "authentication.attributes", null, String[].class));
         assertNotNull(stringValues);
         List<String> actualStringValues = new ArrayList<>();
@@ -124,7 +123,7 @@ public class KeymasterITCase extends AbstractITCase {
         stringValues.add("stringValue2");
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, key, stringValues);
         List<String> actualStringValues =
-                Arrays.asList(confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, null, String[].class));
+                List.of(confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, null, String[].class));
         assertEquals(stringValues, actualStringValues);
 
         confParamOps.remove(SyncopeConstants.MASTER_DOMAIN, key);
@@ -155,7 +154,7 @@ public class KeymasterITCase extends AbstractITCase {
         int i = 0;
         int maxit = maxWaitSeconds;
 
-        List<NetworkService> list = Collections.emptyList();
+        List<NetworkService> list = List.of();
         do {
             try {
                 Thread.sleep(1000);
@@ -273,6 +272,14 @@ public class KeymasterITCase extends AbstractITCase {
         assertNotNull(user);
         assertEquals("monteverdi", user.getUsername());
 
+        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         users = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
         assertNotNull(users);
@@ -288,16 +295,12 @@ public class KeymasterITCase extends AbstractITCase {
 
     @Test
     public void domainCreateMaster() {
-        assertThrows(KeymasterException.class, () -> {
-            domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build());
-        });
+        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
     }
 
     @Test
     public void domainCreateDuplicateKey() {
-        assertThrows(KeymasterException.class, () -> {
-            domainOps.create(new Domain.Builder("Two").build());
-        });
+        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder("Two").build()));
     }
 
     @Test

@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import javax.ws.rs.core.Response
 import org.apache.cxf.jaxrs.client.WebClient
 import org.identityconnectors.common.security.GuardedString
-import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationOptions
 
 // Parameters:
 // The connector sends the following:
@@ -54,11 +54,10 @@ def buildConnectorObject(node) {
   return [
     __UID__:node.get("key").textValue(), 
     __NAME__:node.get("key").textValue(),
+    __ENABLE__:node.get("status").textValue().equals("ACTIVE"),
+    __PASSWORD__:new GuardedString(node.get("password").textValue().toCharArray()),
     key:node.get("key").textValue(),
     username:node.get("username").textValue(),
-    password:node.has("password") && node.get("password").textValue() != null
-    ? new GuardedString(node.get("password").textValue().toCharArray()) 
-  : null,
     firstName:node.get("firstName").textValue(),
     surname:node.get("surname").textValue(),
     email:node.get("email").textValue()
@@ -92,9 +91,18 @@ def result = []
 
 switch (objectClass) {
 case "__ACCOUNT__":
-  if (query == null || (!query.get("left").equals("__UID__") && !query.get("conditionType").equals("EQUALS"))) {
+  if (query == null 
+    || (!query.get("left").equals("__UID__") && !query.get("left").equals("key")
+      && !query.get("conditionType").equals("EQUALS"))) {
+
     webClient.path("/users");
+
+    log.ok("Sending GET to {0}", webClient.getCurrentURI().toASCIIString());
+
     Response response = webClient.get();    
+
+    log.ok("LIST response: {0} {1}", response.getStatus(), response.getHeaders());
+
     ArrayNode nodes = mapper.readTree(response.getEntity());
     
     // beware: this is not enforcing any server-side pagination feature
@@ -103,7 +111,13 @@ case "__ACCOUNT__":
     }
   } else {
     webClient.path("/users/" + query.get("right"));
+
+    log.ok("Sending GET to {0}", webClient.getCurrentURI().toASCIIString());
+
     Response response = webClient.get();
+
+    log.ok("READ response: {0} {1}", response.getStatus(), response.getHeaders());
+
     if (response.getStatus() == 200) {
       ObjectNode node = mapper.readTree(response.getEntity());
       result.add(buildConnectorObject(node));

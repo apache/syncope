@@ -24,7 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -91,7 +94,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
             @Override
             protected List<String> load() {
-                return new ConnectorRestClient().getExtAttrNames(
+                return ConnectorRestClient.getExtAttrNames(
                         adminRealm,
                         provision.getObjectClass(),
                         resourceTO.getConnector(),
@@ -123,13 +126,13 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
         Set<String> choices = new HashSet<>();
         if (SyncopeConstants.REALM_ANYTYPE.equals(provision.getAnyType())) {
-            choices.add("key");
+            choices.add(Constants.KEY_FIELD_NAME);
             choices.add("name");
             choices.add("fullpath");
         } else {
             AnyTypeTO anyType = null;
             try {
-                anyType = anyTypeRestClient.read(provision.getAnyType());
+                anyType = AnyTypeRestClient.read(provision.getAnyType());
             } catch (Exception e) {
                 LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
             }
@@ -137,14 +140,14 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
             if (anyType != null) {
                 try {
-                    anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyType.getClasses()));
+                    anyTypeClassTOs.addAll(AnyTypeClassRestClient.list(anyType.getClasses()));
                 } catch (Exception e) {
                     LOG.error("Could not read AnyType classes for {}", anyType.getClasses(), e);
                 }
             }
             provision.getAuxClasses().forEach(auxClass -> {
                 try {
-                    anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
+                    anyTypeClassTOs.add(AnyTypeClassRestClient.read(auxClass));
                 } catch (Exception e) {
                     LOG.error("Could not read AnyTypeClass for {}", auxClass, e);
                 }

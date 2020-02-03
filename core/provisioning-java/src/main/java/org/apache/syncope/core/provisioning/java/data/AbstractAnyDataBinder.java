@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -37,7 +28,6 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -76,17 +66,29 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 abstract class AbstractAnyDataBinder {
 
@@ -168,7 +170,7 @@ abstract class AbstractAnyDataBinder {
         return schema;
     }
 
-    private void fillAttr(
+    protected void fillAttr(
             final List<String> values,
             final AnyUtils anyUtils,
             final PlainSchema schema,
@@ -179,9 +181,9 @@ abstract class AbstractAnyDataBinder {
         // otherwise only the fist one - if provided - is considered
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
-                : (values.isEmpty()
-                ? Collections.<String>emptyList()
-                : Collections.singletonList(values.get(0)));
+                : (values.isEmpty() || values.get(0) == null
+                ? List.of()
+                : List.of(values.get(0)));
 
         valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {
@@ -204,7 +206,7 @@ abstract class AbstractAnyDataBinder {
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        MappingUtils.getPropagationItems(provision.getMapping().getItems()).forEach(mapItem -> {
+        MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             IntAttrName intAttrName = null;
             try {
                 intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
@@ -216,10 +218,15 @@ abstract class AbstractAnyDataBinder {
                         ? ((PlainSchema) intAttrName.getSchema()).getType()
                         : AttrSchemaType.String;
 
-                Pair<AttrSchemaType, List<PlainAttrValue>> intValues =
-                        mappingManager.getIntValues(provision, mapItem, intAttrName, schemaType, any);
+                Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(provision,
+                        mapItem,
+                        intAttrName,
+                        schemaType,
+                        any,
+                        AccountGetter.DEFAULT,
+                        PlainAttrGetter.DEFAULT);
                 if (intValues.getRight().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
+                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any, derAttrHandler)) {
 
                     missingAttrNames.add(mapItem.getIntAttrName());
                 }
@@ -257,7 +264,7 @@ abstract class AbstractAnyDataBinder {
 
         if (attr == null
                 && !schema.isReadonly()
-                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)) {
+                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any, derAttrHandler)) {
 
             LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
 
@@ -270,17 +277,16 @@ abstract class AbstractAnyDataBinder {
 
         // Check if there is some mandatory schema defined for which no value has been provided
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
-        allowedPlainSchemas.getForSelf().forEach(schema -> {
-            checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing);
-        });
+        allowedPlainSchemas.getForSelf().forEach(schema -> checkMandatory(
+                schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
         if (any instanceof GroupableRelatable) {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
                 GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
                 Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
-                schemas.forEach(schema -> {
-                    checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
-                            any, reqValMissing);
-                });
+                schemas
+                        .forEach(schema -> checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership)
+                        .orElse(null),
+                        any, reqValMissing));
             });
         }
 
@@ -295,7 +301,7 @@ abstract class AbstractAnyDataBinder {
             final PlainAttr<?> attr,
             final AnyUtils anyUtils,
             final Collection<ExternalResource> resources,
-            final PropagationByResource propByRes,
+            final PropagationByResource<String> propByRes,
             final SyncopeClientException invalidValues) {
 
         switch (patch.getOperation()) {
@@ -336,28 +342,26 @@ abstract class AbstractAnyDataBinder {
         resources.stream().
                 filter(resource -> resource.getProvision(any.getType()).isPresent()
                 && resource.getProvision(any.getType()).get().getMapping() != null).
-                forEach(resource -> {
-                    MappingUtils.getPropagationItems(
-                            resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
-                            filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
-                            forEach(item -> {
-                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                forEach(resource -> MappingUtils.getPropagationItems(
+                resource.getProvision(any.getType()).get().getMapping().getItems().stream()).
+                filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
+                forEach(item -> {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
-                                if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                                    propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
-                                }
-                            });
-                });
+                    if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                        propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                    }
+                }));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected PropagationByResource fill(
+    protected PropagationByResource<String> fill(
             final Any any,
             final AnyUR anyUR,
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
-        PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         // 1. anyTypeClasses
         for (StringPatchItem patch : anyUR.getAuxClasses()) {
@@ -417,7 +421,6 @@ abstract class AbstractAnyDataBinder {
                         ((PlainAttr) attr).setOwner(any);
                         attr.setSchema(schema);
                         any.add(attr);
-
                     }
                 }
                 if (attr != null) {
@@ -547,7 +550,7 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected void fillTO(
+    protected static void fillTO(
             final AnyTO anyTO,
             final String realmFullPath,
             final Collection<? extends AnyTypeClass> auxClasses,
@@ -561,55 +564,47 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
 
-        plainAttrs.forEach(plainAttr -> {
-            anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings()).build());
-        });
+        plainAttrs
+                .forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey())
+                .values(plainAttr.getValuesAsStrings()).build()));
 
-        derAttrs.forEach((schema, value) -> {
-            anyTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).value(value).build());
-        });
+        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs()
+                .add(new Attr.Builder(schema.getKey()).value(value).build()));
 
-        virAttrs.forEach((schema, values) -> {
-            anyTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).values(values).build());
-        });
+        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs()
+                .add(new Attr.Builder(schema.getKey()).values(values).build()));
 
         anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
     }
 
-    protected RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
+    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
         return new RelationshipTO.Builder().
                 type(relationshipType).otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
                 build();
     }
 
-    protected MembershipTO getMembershipTO(
+    protected static MembershipTO getMembershipTO(
             final Collection<? extends PlainAttr<?>> plainAttrs,
             final Map<DerSchema, String> derAttrs,
             final Map<VirSchema, List<String>> virAttrs,
             final Membership<? extends Any<?>> membership) {
 
-        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
-                groupName(membership.getRightEnd().getName()).
-                build();
+        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
+                .groupName(membership.getRightEnd().getName())
+                .build();
 
-        plainAttrs.forEach(plainAttr -> {
-            membershipTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings()).
-                    build());
-        });
+        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs()
+                .add(new Attr.Builder(plainAttr.getSchema().getKey())
+                        .values(plainAttr.getValuesAsStrings()).
+                        build()));
 
-        derAttrs.forEach((schema, value) -> {
-            membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
-                    value(value).
-                    build());
-        });
+        derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
+                value(value).
+                build()));
 
-        virAttrs.forEach((schema, values) -> {
-            membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
-                    values(values).
-                    build());
-        });
+        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
+                values(values).
+                build()));
 
         return membershipTO;
     }
@@ -623,8 +618,8 @@ abstract class AbstractAnyDataBinder {
                 ifPresent(provision -> {
                     MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
                             orElseThrow(() -> new NotFoundException(
-                            "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
-                            + " on resource '" + resource.getKey() + "'"));
+                            "ConnObjectKey mapping for " + any.getType().getKey() + ' ' + any.getKey()
+                            + " on resource '" + resource.getKey() + '\''));
 
                     mappingManager.getConnObjectKeyValue(any, provision).
                             ifPresent(value -> connObjectKeys.put(resource.getKey(), value));

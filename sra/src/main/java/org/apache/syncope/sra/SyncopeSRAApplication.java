@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.sra;
 
+import java.util.Objects;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.EnvironmentAware;
@@ -34,8 +37,8 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
-import org.springframework.web.util.pattern.PathPatternParser;
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import reactor.core.publisher.Flux;
 
 @PropertySource("classpath:sra.properties")
@@ -60,21 +63,23 @@ public class SyncopeSRAApplication implements EnvironmentAware {
 
     @Bean
     public RouteLocator routes(final RouteLocatorBuilder builder) {
-        return () -> Flux.fromIterable(provider.fetch()).map(routeBuilder -> routeBuilder.build());
+        return () -> Flux.fromIterable(provider.fetch()).map(Route.AbstractBuilder::build);
     }
 
     @Bean
-    public SecurityWebFilterChain springSecurityFilterChain(final ServerHttpSecurity http) {
-        http.csrf().disable().securityMatcher(
-                new PathPatternParserServerWebExchangeMatcher(new PathPatternParser().parse("/management/**"))).
-                authorizeExchange().anyExchange().hasRole(IdRepoEntitlement.ANONYMOUS).and().httpBasic();
-        return http.build();
+    public SecurityWebFilterChain actuatorSecurityFilterChain(final ServerHttpSecurity http) {
+        ServerWebExchangeMatcher actuatorMatcher = EndpointRequest.toAnyEndpoint();
+        return http.securityMatcher(actuatorMatcher).
+                authorizeExchange().anyExchange().authenticated().
+                and().httpBasic().
+                and().csrf().requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(actuatorMatcher)).
+                and().build();
     }
 
     @Bean
     public MapReactiveUserDetailsService userDetailsService() {
         UserDetails user = User.builder().
-                username(env.getProperty("anonymousUser")).
+                username(Objects.requireNonNull(env.getProperty("anonymousUser"))).
                 password("{noop}" + env.getProperty("anonymousKey")).
                 roles(IdRepoEntitlement.ANONYMOUS).
                 build();

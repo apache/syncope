@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.rest;
 
 import java.util.List;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 
@@ -29,8 +30,7 @@ public class RealmRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
-    public List<RealmTO> list() {
-        return getService(RealmService.class).list();
+    public static List<RealmTO> list() {
+        return getService(RealmService.class).list(SyncopeConstants.ROOT_REALM);
     }
-
 }

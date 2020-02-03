@@ -21,20 +21,15 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -50,10 +45,6 @@ public abstract class AbstractSearchPanel extends Panel {
     private static final long serialVersionUID = 5922413053568696414L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
-
-    protected AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
-    protected SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     protected IModel<List<String>> dnames;
 
@@ -93,6 +84,10 @@ public abstract class AbstractSearchPanel extends Panel {
 
         protected boolean enableSearch = false;
 
+        protected SearchClausePanel.Customizer customizer = new SearchClausePanel.Customizer() {
+            private static final long serialVersionUID = 2177241588084108076L;
+        };
+
         protected IEventSink resultContainer;
 
         public Builder(final IModel<List<SearchClause>> model) {
@@ -106,6 +101,11 @@ public abstract class AbstractSearchPanel extends Panel {
 
         public Builder<T> enableSearch() {
             this.enableSearch = true;
+            return this;
+        }
+
+        public Builder<T> customizer(final SearchClausePanel.Customizer customizer) {
+            this.customizer = customizer;
             return this;
         }
 
@@ -143,10 +143,12 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
 
-        final SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
+        SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 required,
-                types, anames, dnames, groupInfo, roleNames, privilegeNames, resourceNames);
+                types,
+                builder.customizer,
+                anames, dnames, groupInfo, roleNames, privilegeNames, resourceNames);
 
         if (enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);
@@ -173,18 +175,6 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return SearchableFields.get(typeKind.getTOClass());
-            }
-        };
-
-        anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected Map<String, PlainSchemaTO> load() {
-                return schemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
-                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
             }
         };
 

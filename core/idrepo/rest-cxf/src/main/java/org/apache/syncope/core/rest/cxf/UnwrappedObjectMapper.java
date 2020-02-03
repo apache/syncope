@@ -50,7 +50,7 @@ public class UnwrappedObjectMapper extends ObjectMapper {
      * @param value the potential Map to unwrap
      * @return the unwrapped map or the original value
      */
-    private Object unwrapMap(final Object value) {
+    private static Object unwrapMap(final Object value) {
         if (value instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) value;
             if (map.size() == 1) {

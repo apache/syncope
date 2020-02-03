@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
@@ -110,9 +111,11 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             return;
         }
 
+        String executor = context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY);
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStart(new Date());
         execution.setTask(task);
+        execution.setExecutor(executor);
 
         status.set("Initialization completed");
 
@@ -172,7 +175,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      * Template method to determine whether this job's task execution has to be persisted or not.
      *
      * @param execution task execution
-     * @return wether to persist or not
+     * @return whether to persist or not
      */
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;

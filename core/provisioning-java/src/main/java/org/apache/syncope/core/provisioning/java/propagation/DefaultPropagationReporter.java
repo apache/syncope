@@ -59,11 +59,11 @@ public class DefaultPropagationReporter implements PropagationReporter {
         status.setFailureReason(failureReason);
 
         if (beforeObj != null) {
-            status.setBeforeObj(ConnObjectUtils.getConnObjectTO(beforeObj));
+            status.setBeforeObj(ConnObjectUtils.getConnObjectTO(beforeObj.getAttributes()));
         }
 
         if (afterObj != null) {
-            status.setAfterObj(ConnObjectUtils.getConnObjectTO(afterObj));
+            status.setAfterObj(ConnObjectUtils.getConnObjectTO(afterObj.getAttributes()));
         }
 
         add(status);

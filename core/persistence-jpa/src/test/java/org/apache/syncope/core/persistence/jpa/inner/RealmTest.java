@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,9 +79,7 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findInvalidPath() {
-        assertThrows(MalformedPathException.class, () -> {
-            realmDAO.findByFullPath("even/two");
-        });
+        assertThrows(MalformedPathException.class, () -> realmDAO.findByFullPath("even/two"));
     }
 
     @Test
@@ -99,9 +98,7 @@ public class RealmTest extends AbstractTest {
         List<Realm> list = realmDAO.findAll();
         assertNotNull(list);
         assertFalse(list.isEmpty());
-        list.forEach(realm -> {
-            assertNotNull(realm);
-        });
+        list.forEach(Assertions::assertNotNull);
     }
 
     @Test

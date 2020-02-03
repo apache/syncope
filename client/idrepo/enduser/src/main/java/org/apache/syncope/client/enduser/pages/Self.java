@@ -21,7 +21,7 @@ package org.apache.syncope.client.enduser.pages;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
-import org.apache.syncope.client.enduser.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.enduser.layout.AnyLayoutUtils;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -92,18 +92,18 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
     }
 
     protected final AjaxWizard<AnyWrapper<UserTO>> buildWizard(final UserTO userTO, final AjaxWizard.Mode mode) {
-        final String formLayoutConfParam = confParamOps.get(
+        String formLayoutConfParam = confParamOps.get(
                 SyncopeEnduserSession.get().getDomain(),
-                "enduser.form.layout.info",
-                FormLayoutInfoUtils.getDefaultValue(),
+                Constants.ENDUSER_ANYLAYOUT,
+                AnyLayoutUtils.getDefaultValue(),
                 String.class);
 
-        final UserFormLayoutInfo formLayoutInfo =
+        UserFormLayoutInfo formLayoutInfo =
                 StringUtils.isBlank(formLayoutConfParam)
                 ? new UserFormLayoutInfo()
-                : FormLayoutInfoUtils.fromJsonString(formLayoutConfParam);
+                : AnyLayoutUtils.fromJsonString(formLayoutConfParam);
 
-        wizardBuilder = (AjaxWizardBuilder<AnyWrapper<UserTO>>) FormLayoutInfoUtils.instantiate(
+        wizardBuilder = (AjaxWizardBuilder<AnyWrapper<UserTO>>) AnyLayoutUtils.newUserWizardBuilder(
                 userTO,
                 SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getUserClasses(),
                 formLayoutInfo,
@@ -112,7 +112,7 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
         return wizardBuilder.build(WIZARD_ID, mode);
     }
 
-    private UserTO buildNewUserTO(final PageParameters parameters) {
+    private static UserTO buildNewUserTO(final PageParameters parameters) {
         final UserTO userTO = new UserTO();
 
         if (parameters != null) {
