@@ -98,6 +98,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
             AnySelectionDirectoryPanel.ItemSelection payload =
                 (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
+            
             final AnyTO sel = payload.getSelection();
             this.wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
         }

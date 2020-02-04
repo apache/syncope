@@ -61,12 +61,12 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
 
     private final Panel parentPanel;
 
-    private final BaseModal modal;
+    private final BaseModal<?> modal;
 
     private MergeLinkedAccountsWizardModel model;
 
     public MergeLinkedAccountsWizardBuilder(final IModel<UserTO> model, final PageReference pageRef,
-                                            final Panel parentPanel, final BaseModal modal) {
+                                            final Panel parentPanel, final BaseModal<?> modal) {
         super(model.getObject(), pageRef);
         this.parentPanel = parentPanel;
         this.modal = modal;
