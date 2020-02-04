@@ -21,7 +21,7 @@ before_install:
   - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
 install: travis_wait 30 mvn --quiet -T 1C -P all,skipTests,without-eclipse
 script:
-  - mvn -Pall,without-eclipse -pl !syncope-fit-enduser-reference verify -Dinvoker.streamLogs=true
+  - mvn -Pall,without-eclipse -pl !fit/enduser-reference verify -Dinvoker.streamLogs=true
 after_failure:
   - cat target/log/*
   - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
