@@ -199,8 +199,8 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      */
     public boolean removeAll(final Collection<T> keys) {
         return toBeCreated.removeAll(keys)
-                | toBeUpdated.removeAll(keys)
-                | toBeDeleted.removeAll(keys);
+                || toBeUpdated.removeAll(keys)
+                || toBeDeleted.removeAll(keys);
     }
 
     /**
@@ -213,8 +213,8 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      */
     public boolean retainAll(final Collection<T> keys) {
         return toBeCreated.retainAll(keys)
-                | toBeUpdated.retainAll(keys)
-                | toBeDeleted.retainAll(keys);
+                || toBeUpdated.retainAll(keys)
+                || toBeDeleted.retainAll(keys);
     }
 
     public boolean contains(final ResourceOperation type, final T key) {

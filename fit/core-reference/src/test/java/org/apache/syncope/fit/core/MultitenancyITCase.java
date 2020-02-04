@@ -57,6 +57,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -126,14 +127,16 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @Test
     public void readRealm() {
-        List<RealmTO> realms = adminClient.getService(RealmService.class).list();
+        List<RealmTO> realms = adminClient.getService(RealmService.class).
+                search(new RealmQuery.Builder().keyword("*").build());
         assertEquals(1, realms.size());
         assertEquals(SyncopeConstants.ROOT_REALM, realms.get(0).getName());
     }
 
     @Test
     public void createUser() {
-        assertNull(adminClient.getService(RealmService.class).list().get(0).getPasswordPolicy());
+        assertNull(adminClient.getService(RealmService.class).
+                search(new RealmQuery.Builder().keyword("*").build()).get(0).getPasswordPolicy());
 
         UserTO user = new UserTO();
         user.setRealm(SyncopeConstants.ROOT_REALM);

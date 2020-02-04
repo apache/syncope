@@ -28,8 +28,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -113,6 +115,11 @@ public class DBPasswordPullActionsTest extends AbstractTest {
         connConfProperty.getValues().add(digest);
 
         dBPasswordPullActions.beforeProvision(profile, syncDelta, userTO);
+        userTO.setPassword(password);
+        connConfProperty.getValues().clear();
+        connConfProperty.getValues().add(digest);
+
+        dBPasswordPullActions.beforeProvision(profile, syncDelta, userTO);
 
         assertEquals(CipherAlgorithm.valueOf(digest), ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
         assertEquals(password, ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
@@ -124,7 +131,10 @@ public class DBPasswordPullActionsTest extends AbstractTest {
         userPatch.setPassword(new PasswordPatch.Builder().value("an0therTestP4ss").build());
 
         dBPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userPatch);
+        userPatch = new UserPatch();
+        userPatch.setPassword(new PasswordPatch.Builder().value("an0therTestP4ss").build());
 
+        dBPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userPatch);
         assertEquals(cipher, ReflectionTestUtils.getField(dBPasswordPullActions, "cipher"));
         assertEquals(encodedPassword, ReflectionTestUtils.getField(dBPasswordPullActions, "encodedPassword"));
     }

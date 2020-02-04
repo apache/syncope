@@ -65,7 +65,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             final List<String> anyTypeClasses,
             final List<String> whichVirAttrs) {
 
-        super(modelObject, anyTypeClasses, whichVirAttrs);
+        super(modelObject, mode, anyTypeClasses, whichVirAttrs);
         this.mode = mode;
         this.modelObject = modelObject;
 

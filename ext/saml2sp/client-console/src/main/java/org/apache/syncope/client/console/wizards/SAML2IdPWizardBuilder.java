@@ -133,7 +133,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
             AjaxTextFieldPanel requestedAuthnContextProviderClassName = new AjaxTextFieldPanel(
                     "field", "requestedAuthnContextProviderClassName",
-                    new PropertyModel<String>(idpTO, "requestedAuthnContextProviderClassName"));
+                    new PropertyModel<>(idpTO, "requestedAuthnContextProviderClassName"));
             requestedAuthnContextProviderClassName.setChoices(
                     new ArrayList<>(restClient.getRequestedAuthnContextProviderClasses()));
             fields.add(requestedAuthnContextProviderClassName);
@@ -155,7 +155,6 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                 protected void populateItem(final ListItem<Component> item) {
                     item.add(item.getModelObject());
                 }
-
             });
         }
     }
@@ -184,5 +183,4 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
         restClient.update(modelObject);
         return modelObject;
     }
-
 }

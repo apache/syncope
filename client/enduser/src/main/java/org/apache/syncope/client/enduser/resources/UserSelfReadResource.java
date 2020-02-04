@@ -140,12 +140,11 @@ public class UserSelfReadResource extends BaseUserSelfResource {
     }
 
     private void customizeAttrTOs(final Set<AttrTO> attrs, final CustomAttributesInfo customAttributesInfo) {
-        if (customAttributesInfo != null
-                && !customAttributesInfo.getAttributes().isEmpty()) {
-
+        if (customAttributesInfo != null && !customAttributesInfo.getAttributes().isEmpty()) {
             attrs.removeAll(attrs.stream().
                     filter(attr -> !customAttributesInfo.getAttributes().containsKey(attr.getSchema())).
                     collect(Collectors.toList()));
+        } else if (customAttributesInfo != null) {
             attrs.clear();
         }
     }

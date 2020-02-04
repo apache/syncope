@@ -38,17 +38,17 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
         Object value = null;
         if (tree.has("value")) {
             JsonNode node = tree.get("value");
-            value = node.isNull()
-                    ? null
-                    : node.isBoolean()
-                    ? node.asBoolean()
-                    : node.isDouble()
-                    ? node.asDouble()
-                    : node.isLong()
-                    ? node.asLong()
-                    : node.isInt()
-                    ? node.asInt()
-                    : node.asText();
+            if (node.isBoolean()) {
+                value = node.asBoolean();
+            } else if (node.isDouble()) {
+                value = node.asDouble();
+            } else if (node.isLong()) {
+                value = node.asLong();
+            } else if (node.isInt()) {
+                value = node.asInt();
+            } else {
+                value = node.asText();
+            }
 
             if (value instanceof String) {
                 String base64 = (String) value;

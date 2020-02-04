@@ -353,6 +353,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
         }
 
+        if (!provision.getMapping().getConnObjectKeyItem().isPresent()) {
+            throw new NotFoundException(
+                    "ConnObjectKey cannot be determines for mapping " + provision.getMapping().getKey());
+        }
+
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         try {
             List<ProvisioningReport> results = singlePullExecutor.pull(
@@ -477,7 +482,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 spec.getArrayElementSeparator(),
                 csvSchema(spec),
                 null,
-                os)) {
+                os,
+                columns.toArray(new String[columns.size()]))) {
 
             return streamPushExecutor.push(
                     anyType,

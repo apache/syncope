@@ -113,42 +113,42 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
 
         public OP(final OIDCProviderTO opTO) {
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "name", new PropertyModel<String>(opTO, "name"), false);
+                    "name", "name", new PropertyModel<>(opTO, "name"), false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
 
             AjaxTextFieldPanel clientID = new AjaxTextFieldPanel(
-                    "clientID", "clientID", new PropertyModel<String>(opTO, "clientID"), false);
+                    "clientID", "clientID", new PropertyModel<>(opTO, "clientID"), false);
             clientID.addRequiredLabel();
             clientID.setEnabled(true);
             add(clientID);
 
             AjaxTextFieldPanel clientSecret = new AjaxTextFieldPanel(
-                    "clientSecret", "clientSecret", new PropertyModel<String>(opTO, "clientSecret"), false);
+                    "clientSecret", "clientSecret", new PropertyModel<>(opTO, "clientSecret"), false);
             clientSecret.addRequiredLabel();
             clientSecret.setEnabled(true);
             add(clientSecret);
 
             AjaxCheckBoxPanel createUnmatching = new AjaxCheckBoxPanel(
-                    "createUnmatching", "createUnmatching", new PropertyModel<Boolean>(opTO, "createUnmatching"),
+                    "createUnmatching", "createUnmatching", new PropertyModel<>(opTO, "createUnmatching"),
                     false);
             add(createUnmatching);
 
             AjaxCheckBoxPanel selfRegUnmatching = new AjaxCheckBoxPanel(
-                    "selfRegUnmatching", "selfRegUnmatching", new PropertyModel<Boolean>(opTO, "selfRegUnmatching"),
+                    "selfRegUnmatching", "selfRegUnmatching", new PropertyModel<>(opTO, "selfRegUnmatching"),
                     false);
             add(selfRegUnmatching);
 
             AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
-                    "updateMatching", "updateMatching", new PropertyModel<Boolean>(opTO, "updateMatching"), false);
+                    "updateMatching", "updateMatching", new PropertyModel<>(opTO, "updateMatching"), false);
             add(updateMatching);
 
             AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
                     setName(new StringResourceModel("actionsClassNames", directoryPanel).getString()).
                     build("actionsClassNames",
-                            new PropertyModel<List<String>>(opTO, "actionsClassNames"),
+                            new PropertyModel<>(opTO, "actionsClassNames"),
                             new ListModel<>(actionsClasses.getObject()));
             actionsClassNames.setOutputMarkupId(true);
             add(actionsClassNames);
@@ -160,7 +160,6 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
         private static final long serialVersionUID = -7087008312629522790L;
 
         public OPContinue(final OIDCProviderTO opTO) {
-
             final WebMarkupContainer content = new WebMarkupContainer("content");
             this.setOutputMarkupId(true);
             content.setOutputMarkupId(true);
@@ -168,40 +167,40 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
 
             UrlValidator urlValidator = new UrlValidator();
             final AjaxTextFieldPanel issuer = new AjaxTextFieldPanel(
-                    "issuer", "issuer", new PropertyModel<String>(opTO, "issuer"));
+                    "issuer", "issuer", new PropertyModel<>(opTO, "issuer"));
             issuer.addValidator(urlValidator);
             issuer.addRequiredLabel();
             content.add(issuer);
 
             final AjaxCheckBoxPanel hasDiscovery = new AjaxCheckBoxPanel(
-                    "hasDiscovery", "hasDiscovery", new PropertyModel<Boolean>(opTO, "hasDiscovery"));
+                    "hasDiscovery", "hasDiscovery", new PropertyModel<>(opTO, "hasDiscovery"));
             content.add(hasDiscovery);
 
             final AjaxTextFieldPanel authorizationEndpoint = new AjaxTextFieldPanel("authorizationEndpoint",
-                    "authorizationEndpoint", new PropertyModel<String>(opTO, "authorizationEndpoint"));
+                    "authorizationEndpoint", new PropertyModel<>(opTO, "authorizationEndpoint"));
             authorizationEndpoint.addRequiredLabel();
             authorizationEndpoint.addValidator(urlValidator);
             content.add(authorizationEndpoint);
 
             final AjaxTextFieldPanel userinfoEndpoint = new AjaxTextFieldPanel("userinfoEndpoint",
-                    "userinfoEndpoint", new PropertyModel<String>(opTO, "userinfoEndpoint"));
+                    "userinfoEndpoint", new PropertyModel<>(opTO, "userinfoEndpoint"));
             userinfoEndpoint.addValidator(urlValidator);
             content.add(userinfoEndpoint);
 
             final AjaxTextFieldPanel tokenEndpoint = new AjaxTextFieldPanel("tokenEndpoint",
-                    "tokenEndpoint", new PropertyModel<String>(opTO, "tokenEndpoint"));
+                    "tokenEndpoint", new PropertyModel<>(opTO, "tokenEndpoint"));
             tokenEndpoint.addRequiredLabel();
             tokenEndpoint.addValidator(urlValidator);
             content.add(tokenEndpoint);
 
             final AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel("jwksUri",
-                    "jwksUri", new PropertyModel<String>(opTO, "jwksUri"));
+                    "jwksUri", new PropertyModel<>(opTO, "jwksUri"));
             jwksUri.addRequiredLabel();
             jwksUri.addValidator(urlValidator);
             content.add(jwksUri);
 
             final AjaxTextFieldPanel endSessionEndpoint = new AjaxTextFieldPanel("endSessionEndpoint",
-                    "endSessionEndpoint", new PropertyModel<String>(opTO, "endSessionEndpoint"));
+                    "endSessionEndpoint", new PropertyModel<>(opTO, "endSessionEndpoint"));
             endSessionEndpoint.addValidator(urlValidator);
             content.add(endSessionEndpoint);
 
@@ -226,7 +225,6 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
                     target.add(visibleParam);
                 }
             });
-
         }
 
         public OPContinue(final OIDCProviderTO opTO, final boolean readOnly) {
@@ -237,32 +235,32 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
             add(content);
 
             final AjaxTextFieldPanel issuer = new AjaxTextFieldPanel(
-                    "issuer", "issuer", new PropertyModel<String>(opTO, "issuer"));
+                    "issuer", "issuer", new PropertyModel<>(opTO, "issuer"));
             issuer.setReadOnly(readOnly);
             content.add(issuer);
 
             final AjaxCheckBoxPanel hasDiscovery = new AjaxCheckBoxPanel(
-                    "hasDiscovery", "hasDiscovery", new PropertyModel<Boolean>(opTO, "hasDiscovery"));
+                    "hasDiscovery", "hasDiscovery", new PropertyModel<>(opTO, "hasDiscovery"));
             hasDiscovery.setReadOnly(readOnly);
             content.add(hasDiscovery);
 
             final AjaxTextFieldPanel authorizationEndpoint = new AjaxTextFieldPanel("authorizationEndpoint",
-                    "authorizationEndpoint", new PropertyModel<String>(opTO, "authorizationEndpoint"));
+                    "authorizationEndpoint", new PropertyModel<>(opTO, "authorizationEndpoint"));
             authorizationEndpoint.setReadOnly(readOnly);
             content.add(authorizationEndpoint);
 
             final AjaxTextFieldPanel userinfoEndpoint = new AjaxTextFieldPanel("userinfoEndpoint",
-                    "userinfoEndpoint", new PropertyModel<String>(opTO, "userinfoEndpoint"));
+                    "userinfoEndpoint", new PropertyModel<>(opTO, "userinfoEndpoint"));
             userinfoEndpoint.setReadOnly(readOnly);
             content.add(userinfoEndpoint);
 
             final AjaxTextFieldPanel tokenEndpoint = new AjaxTextFieldPanel("tokenEndpoint",
-                    "tokenEndpoint", new PropertyModel<String>(opTO, "tokenEndpoint"));
+                    "tokenEndpoint", new PropertyModel<>(opTO, "tokenEndpoint"));
             tokenEndpoint.setReadOnly(readOnly);
             content.add(tokenEndpoint);
 
             final AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel("jwksUri",
-                    "jwksUri", new PropertyModel<String>(opTO, "jwksUri"));
+                    "jwksUri", new PropertyModel<>(opTO, "jwksUri"));
             jwksUri.setReadOnly(readOnly);
             content.add(jwksUri);
 
@@ -302,5 +300,4 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCProviderTO>
             setSummaryModel(Model.of(StringUtils.EMPTY));
         }
     }
-
 }

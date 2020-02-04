@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -49,7 +50,8 @@ public class RealmResource extends BaseResource {
                 return response;
             }
 
-            final List<RealmTO> realmTOs = SyncopeEnduserSession.get().getService(RealmService.class).list();
+            List<RealmTO> realmTOs = SyncopeEnduserSession.get().
+                    getService(RealmService.class).list(SyncopeConstants.ROOT_REALM);
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
 
@@ -72,5 +74,4 @@ public class RealmResource extends BaseResource {
 
         return response;
     }
-
 }

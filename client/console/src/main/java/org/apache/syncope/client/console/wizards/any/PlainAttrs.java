@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +64,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             final List<String> anyTypeClasses,
             final List<String> whichPlainAttrs) throws IllegalArgumentException {
 
-        super(modelObject, anyTypeClasses, whichPlainAttrs);
+        super(modelObject, mode, anyTypeClasses, whichPlainAttrs);
 
         if (modelObject.getInnerObject() instanceof UserTO) {
             fileKey = UserTO.class.cast(modelObject.getInnerObject()).getUsername();
@@ -226,10 +225,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             super(id, schemas, attributableTO);
 
-            add(new ListView<AttrTO>("schemas",
-                    new ListModel<AttrTO>(new ArrayList<AttrTO>(
-                            attributableTO.getObject().getPlainAttrs().stream().sorted(attrComparator).
-                                    collect(Collectors.toList())))) {
+            add(new ListView<AttrTO>("schemas", new ListModel<AttrTO>(attributableTO.getObject().
+                    getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList()))) {
 
                 private static final long serialVersionUID = 5306618783986001008L;
 
@@ -239,8 +236,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     AttrTO attrTO = item.getModelObject();
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (mode == AjaxWizard.Mode.TEMPLATE
-                            || !schemas.get(attrTO.getSchema()).isMultivalue()) {
+                    if (mode == AjaxWizard.Mode.TEMPLATE || !schemas.get(attrTO.getSchema()).isMultivalue()) {
                         FieldPanel.class.cast(panel).setNewModel(attributableTO.getObject(), attrTO.getSchema());
                     } else {
                         // SYNCOPE-1476 set form as multipart to properly manage membership attributes

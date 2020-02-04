@@ -20,13 +20,13 @@ import groovy.transform.CompileStatic
 import java.util.Collections
 import org.apache.syncope.common.lib.patch.AnyPatch
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.to.ProvisioningReport
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
 import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions
 import org.identityconnectors.framework.common.objects.SyncDelta
 import org.quartz.JobExecutionException

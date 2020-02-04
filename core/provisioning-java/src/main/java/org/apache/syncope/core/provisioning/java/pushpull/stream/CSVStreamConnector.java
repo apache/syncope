@@ -27,12 +27,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -70,6 +72,8 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
 
     private final OutputStream out;
 
+    private final List<String> columns;
+
     private MappingIterator<Map<String, String>> reader;
 
     private SequenceWriter writer;
@@ -79,13 +83,17 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             final String arrayElementsSeparator,
             final CsvSchema.Builder schemaBuilder,
             final InputStream in,
-            final OutputStream out) {
+            final OutputStream out,
+            final String... columns) {
 
         this.keyColumn = keyColumn;
         this.arrayElementsSeparator = arrayElementsSeparator;
         this.schemaBuilder = schemaBuilder;
         this.in = in;
         this.out = out;
+        this.columns = ArrayUtils.isEmpty(columns)
+                ? Collections.emptyList()
+                : Stream.of(columns).collect(Collectors.toList());
     }
 
     @Override
@@ -108,13 +116,13 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
     }
 
     public List<String> getColumns(final CSVPullSpec spec) throws IOException {
-        List<String> columns = new ArrayList<>();
+        List<String> fromSpec = new ArrayList<>();
         ((CsvSchema) reader().getParserSchema()).forEach(column -> {
             if (!spec.getIgnoreColumns().contains(column.getName())) {
-                columns.add(column.getName());
+                fromSpec.add(column.getName());
             }
         });
-        return columns;
+        return fromSpec;
     }
 
     public SequenceWriter writer() throws IOException {
@@ -146,11 +154,23 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
         synchronized (schemaBuilder) {
             if (schemaBuilder.size() == 0) {
                 attrs.stream().filter(attr -> !AttributeUtil.isSpecial(attr)).map(Attribute::getName).
+                        sorted((c1, c2) -> {
+                            // sort according to the passed columns, leave any additional column at the end
+                            int index1 = columns.indexOf(c1);
+                            if (index1 == -1) {
+                                index1 = Integer.MAX_VALUE;
+                            }
+                            int index2 = columns.indexOf(c2);
+                            if (index2 == -1) {
+                                index2 = Integer.MAX_VALUE;
+                            }
+                            return Integer.compare(index1, index2);
+                        }).
                         forEachOrdered(schemaBuilder::addColumn);
             }
         }
 
-        Map<String, String> row = new HashMap<>();
+        Map<String, String> row = new LinkedHashMap<>();
         attrs.stream().filter(attr -> !AttributeUtil.isSpecial(attr)).forEach(attr -> {
             if (CollectionUtils.isEmpty(attr.getValue()) || attr.getValue().get(0) == null) {
                 row.put(attr.getName(), null);

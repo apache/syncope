@@ -41,6 +41,8 @@ public interface RealmDAO extends DAO<Realm> {
 
     List<Realm> findByResource(ExternalResource resource);
 
+    List<Realm> findMatching(String keyword);
+
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
     List<Realm> findByLogicActions(Implementation logicActions);

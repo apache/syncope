@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
+@SuppressWarnings("squid:S1948")
 public class PropagationTaskInfo extends PropagationTaskTO {
 
     private static final long serialVersionUID = -2879861567335503099L;

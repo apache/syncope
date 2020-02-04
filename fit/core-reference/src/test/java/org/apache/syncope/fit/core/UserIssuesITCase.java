@@ -75,6 +75,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -815,7 +816,7 @@ public class UserIssuesITCase extends AbstractITCase {
         }
         assertNotNull(logicActions);
 
-        RealmTO realm = realmService.list("/even/two").iterator().next();
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
         assertNotNull(realm);
         realm.getActions().add(logicActions.getKey());
         realmService.update(realm);
@@ -1240,7 +1241,7 @@ public class UserIssuesITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.list("/even/two").get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
         String oldPasswordPolicy = realm.getPasswordPolicy();
         realm.setPasswordPolicy(passwordPolicy.getKey());
         realmService.update(realm);
@@ -1569,6 +1570,6 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
         assertFalse(userTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
-        assertFalse(userTO.getRoles().contains("Other"),"Should not contain removed roles");
+        assertFalse(userTO.getRoles().contains("Other"), "Should not contain removed roles");
     }
 }

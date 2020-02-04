@@ -52,10 +52,12 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * JEXL <a href="http://commons.apache.org/jexl/reference/index.html">reference</a> is available.
  */
+@SuppressWarnings({ "squid:S3008", "squid:S3776", "squid:S1141" })
 public final class JexlUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtils.class);
@@ -164,17 +166,19 @@ public final class JexlUtils {
                 Object fieldValue = null;
                 if (fd.getLeft().getReadMethod() == null) {
                     if (fd.getRight() != null) {
-                        fd.getRight().setAccessible(true);
+                        ReflectionUtils.makeAccessible(fd.getRight());
                         fieldValue = fd.getRight().get(object);
                     }
                 } else {
                     fieldValue = fd.getLeft().getReadMethod().invoke(object);
                 }
-                fieldValue = fieldValue == null
-                        ? StringUtils.EMPTY
-                        : (fieldType.equals(Date.class)
-                        ? FormatUtils.format((Date) fieldValue, false)
-                        : fieldValue);
+                if (fieldValue == null) {
+                    fieldValue = StringUtils.EMPTY;
+                } else {
+                    fieldValue = fieldType.equals(Date.class)
+                            ? FormatUtils.format((Date) fieldValue, false)
+                            : fieldValue;
+                }
 
                 jexlContext.set(fieldName, fieldValue);
 
@@ -197,11 +201,14 @@ public final class JexlUtils {
 
     public static void addAttrTOsToContext(final Collection<AttrTO> attrs, final JexlContext jexlContext) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
-            Object value = attr.getValues().isEmpty()
-                    ? StringUtils.EMPTY
-                    : attr.getValues().size() == 1
-                    ? attr.getValues().get(0)
-                    : attr.getValues();
+            Object value;
+            if (attr.getValues().isEmpty()) {
+                value = StringUtils.EMPTY;
+            } else {
+                value = attr.getValues().size() == 1
+                        ? attr.getValues().get(0)
+                        : attr.getValues();
+            }
 
             LOG.debug("Add attribute {} with value {}", attr.getSchema(), value);
 
@@ -214,11 +221,14 @@ public final class JexlUtils {
 
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             List<String> attrValues = attr.getValuesAsStrings();
-            Object value = attrValues.isEmpty()
-                    ? StringUtils.EMPTY
-                    : attrValues.size() == 1
-                    ? attrValues.get(0)
-                    : attrValues;
+            Object value;
+            if (attrValues.isEmpty()) {
+                value = StringUtils.EMPTY;
+            } else {
+                value = attrValues.size() == 1
+                        ? attrValues.get(0)
+                        : attrValues;
+            }
 
             LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), value);
 

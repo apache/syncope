@@ -22,6 +22,7 @@ import java.util.function.BiFunction;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
+@SuppressWarnings("squid:S1214")
 public interface PlainAttrGetter extends BiFunction<Attributable<? extends PlainAttr<?>>, String, PlainAttr<?>> {
 
     PlainAttrGetter DEFAULT = (attributable, schema) -> attributable.getPlainAttr(schema).orElse(null);

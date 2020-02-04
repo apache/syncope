@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands.realm;
 
 import java.util.List;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 
@@ -28,7 +29,7 @@ public class RealmSyncopeOperations {
     private final RealmService realmService = SyncopeServices.get(RealmService.class);
 
     public List<RealmTO> list() {
-        return realmService.list();
+        return realmService.list(SyncopeConstants.ROOT_REALM);
     }
 
     public boolean exists(final String realm) {
