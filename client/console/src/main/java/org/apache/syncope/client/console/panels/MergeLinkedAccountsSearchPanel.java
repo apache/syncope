@@ -32,6 +32,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
@@ -101,6 +102,14 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
             
             final AnyTO sel = payload.getSelection();
             this.wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
+
+            String tableId = ((Component) event.getSource()).
+                get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
+                getMarkupId();
+            String rowId = "dataTableRowId" + sel.getKey();
+            String js = "$('#" + tableId + " tr').removeClass('active');";
+            js += "$('#" + tableId + " tr[id=" + rowId + "]').addClass('active');";
+            payload.getTarget().prependJavaScript(js);
         }
     }
 
