@@ -175,7 +175,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             }
         };
 
-        add(palette.setOutputMarkupId(true));
+        add(palette.setLabel(new ResourceModel(name)).setOutputMarkupId(true));
 
         final Form<?> form = new Form<>("form");
         add(form.setEnabled(builder.filtered).setVisible(builder.filtered));
@@ -212,6 +212,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public void reload(final AjaxRequestTarget target) {
         target.add(palette);
+    }
+
+    @Override
+    public AbstractFieldPanel<List<T>> setRequired(final boolean required) {
+        palette.setRequired(required);
+        return super.setRequired(required);
     }
 
     public static class Builder<T extends Serializable> implements Serializable {
