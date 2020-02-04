@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.commons;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -29,6 +31,9 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 
 public interface StatusProvider extends Serializable {
+
+    Optional<Pair<ConnObjectTO, ConnObjectTO>> get(
+            String anyTypeKey, String connObjectKeyValue, String resource);
 
     List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(AnyTO any, Collection<String> resources);
 

@@ -19,13 +19,13 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.status.ReconStatusPanel;
+import org.apache.syncope.client.console.status.LinkedAccountStatusPanel;
 import org.apache.syncope.client.console.status.ReconTaskPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -44,10 +44,13 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -92,21 +95,19 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
         wizard = new LinkedAccountWizardBuilder(model, pageRef);
 
-        final ListViewPanel.Builder<LinkedAccountTO> builder = new ListViewPanel.Builder<LinkedAccountTO>(
+        ListViewPanel.Builder<LinkedAccountTO> builder = new ListViewPanel.Builder<LinkedAccountTO>(
                 LinkedAccountTO.class, pageRef) {
 
             private static final long serialVersionUID = -5322423525438435153L;
 
             @Override
-            protected LinkedAccountTO getActualItem(
-                    final LinkedAccountTO item, final List<LinkedAccountTO> list) {
-
+            protected LinkedAccountTO getActualItem(final LinkedAccountTO item, final List<LinkedAccountTO> list) {
                 return item == null
                         ? null
                         : list.stream().filter(
                                 in -> ((item.getKey() == null && in.getKey() == null)
-                                || (in.getKey() != null && in.getKey().
-                                equals(item.getKey())))).findAny().orElse(null);
+                                || (in.getKey() != null && in.getKey().equals(item.getKey())))).
+                                findAny().orElse(null);
             }
 
             @Override
@@ -137,6 +138,19 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
             }
 
             @Override
+            protected Component getValueComponent(final String key, final LinkedAccountTO bean) {
+                if ("suspended".equalsIgnoreCase(key)) {
+                    Label label = new Label("field", StringUtils.EMPTY);
+                    if (bean.isSuspended()) {
+                        label.add(new AttributeModifier("class", "glyphicon glyphicon-ok"));
+                        label.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
+                    }
+                    return label;
+                }
+                return super.getValueComponent(key, bean);
+            }
+
+            @Override
             protected ActionLinksTogglePanel<LinkedAccountTO> getTogglePanel() {
                 return actionTogglePanel;
             }
@@ -156,11 +170,10 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
-                mlp.next(linkedAccountTO.getResource(),
-                        new ReconStatusPanel(
-                                linkedAccountTO.getResource(),
-                                model.getObject().getType(),
-                                model.getObject().getKey()),
+                mlp.next(linkedAccountTO.getResource(), new LinkedAccountStatusPanel(
+                        linkedAccountTO.getResource(),
+                        model.getObject().getType(),
+                        linkedAccountTO.getConnObjectKeyValue()),
                         target);
                 target.add(mlp);
 
@@ -181,11 +194,9 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                         send(LinkedAccountModalPanel.this, Broadcast.DEPTH,
                                 new AjaxWizard.NewItemActionEvent<>(linkedAccountTO, 1, target).
                                         setResourceModel(new StringResourceModel("inner.edit.linkedAccount",
-                                                LinkedAccountModalPanel.this,
-                                                Model.of(linkedAccountTO))));
-
+                                                LinkedAccountModalPanel.this, Model.of(linkedAccountTO))));
                     } catch (SyncopeClientException e) {
-                        LOG.error("While contacting linked account", e);
+                        LOG.error("While attempting to create new linked account", e);
                         SyncopeConsoleSession.get().onException(e);
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -193,7 +204,37 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                     send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
                             new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 }
-            }, ActionLink.ActionType.EDIT, IdRepoEntitlement.USER_READ);
+            }, ActionLink.ActionType.EDIT, IdRepoEntitlement.USER_UPDATE);
+
+            builder.addAction(new ActionLink<LinkedAccountTO>() {
+
+                private static final long serialVersionUID = 2555747430358755813L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                    try {
+                        linkedAccountTO.setSuspended(!linkedAccountTO.isSuspended());
+                        LinkedAccountUR linkedAccountUR = new LinkedAccountUR.Builder().
+                                operation(PatchOperation.ADD_REPLACE).
+                                linkedAccountTO(linkedAccountTO).build();
+
+                        UserUR req = new UserUR();
+                        req.setKey(model.getObject().getKey());
+                        req.getLinkedAccounts().add(linkedAccountUR);
+                        model.setObject(userRestClient.update(model.getObject().getETagValue(), req).getEntity());
+
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    } catch (SyncopeClientException e) {
+                        LOG.error("While toggling status of linked account", e);
+                        SyncopeConsoleSession.get().onException(e);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+
+                    checkAddButton();
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    send(LinkedAccountModalPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload<>(target));
+                }
+            }, ActionLink.ActionType.ENABLE, IdRepoEntitlement.USER_UPDATE);
         }
 
         builder.addAction(new ActionLink<LinkedAccountTO>() {
@@ -219,31 +260,34 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                 send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
                         new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
             }
-        }, ActionLink.ActionType.RECONCILIATION_PUSH, IdRepoEntitlement.USER_READ).
-                addAction(new ActionLink<LinkedAccountTO>() {
+        }, ActionLink.ActionType.RECONCILIATION_PUSH,
+                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
 
-                    private static final long serialVersionUID = 2555747430358755813L;
+        builder.addAction(new ActionLink<LinkedAccountTO>() {
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
-                        mlp.next("PULL " + linkedAccountTO.getResource(),
-                                new ReconTaskPanel(
-                                        linkedAccountTO.getResource(),
-                                        new PullTaskTO(),
-                                        model.getObject().getType(),
-                                        null,
-                                        linkedAccountTO.getConnObjectKeyValue(),
-                                        true,
-                                        mlp,
-                                        pageRef),
-                                target);
-                        target.add(mlp);
+            private static final long serialVersionUID = 2555747430358755813L;
 
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                        send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
-                                new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
-                    }
-                }, ActionLink.ActionType.RECONCILIATION_PULL, IdRepoEntitlement.USER_READ);
+            @Override
+            public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                mlp.next("PULL " + linkedAccountTO.getResource(),
+                        new ReconTaskPanel(
+                                linkedAccountTO.getResource(),
+                                new PullTaskTO(),
+                                model.getObject().getType(),
+                                null,
+                                linkedAccountTO.getConnObjectKeyValue(),
+                                true,
+                                mlp,
+                                pageRef),
+                        target);
+                target.add(mlp);
+
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+            }
+        }, ActionLink.ActionType.RECONCILIATION_PULL,
+                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
 
         if (!recounciliationOnly) {
             builder.addAction(new ActionLink<LinkedAccountTO>() {
@@ -253,14 +297,14 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
                     try {
-                        LinkedAccountUR linkedAccountPatch = new LinkedAccountUR.Builder().
+                        LinkedAccountUR linkedAccountUR = new LinkedAccountUR.Builder().
                                 operation(PatchOperation.DELETE).
                                 linkedAccountTO(linkedAccountTO).build();
-                        linkedAccountPatch.setLinkedAccountTO(linkedAccountTO);
-                        UserUR patch = new UserUR();
-                        patch.setKey(model.getObject().getKey());
-                        patch.getLinkedAccounts().add(linkedAccountPatch);
-                        model.setObject(userRestClient.update(model.getObject().getETagValue(), patch).getEntity());
+
+                        UserUR req = new UserUR();
+                        req.setKey(model.getObject().getKey());
+                        req.getLinkedAccounts().add(linkedAccountUR);
+                        model.setObject(userRestClient.update(model.getObject().getETagValue(), req).getEntity());
                         linkedAccountTOs.remove(linkedAccountTO);
 
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -293,8 +337,8 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
                 // this opens the wizard (set above) in CREATE mode
                 send(list, Broadcast.DEPTH, new AjaxWizard.NewItemActionEvent<>(new LinkedAccountTO(), target).
-                        setResourceModel(new StringResourceModel("inner.create.linkedAccount",
-                                LinkedAccountModalPanel.this)));
+                        setResourceModel(
+                                new StringResourceModel("inner.create.linkedAccount", LinkedAccountModalPanel.this)));
             }
         };
         list.addOrReplaceInnerObject(addAjaxLink.setEnabled(!recounciliationOnly).setVisible(!recounciliationOnly));
@@ -303,9 +347,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
     }
 
     private void sortLinkedAccounts() {
-        Collections.sort(linkedAccountTOs,
-                (o1, o2) -> AnyTypeRestClient.KEY_COMPARATOR.compare(
-                        o1.getConnObjectKeyValue(), o2.getConnObjectKeyValue()));
+        linkedAccountTOs.sort(Comparator.comparing(LinkedAccountTO::getConnObjectKeyValue));
     }
 
     private void checkAddButton() {

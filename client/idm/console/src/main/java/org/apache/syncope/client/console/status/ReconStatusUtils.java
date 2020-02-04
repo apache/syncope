@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
@@ -35,6 +36,19 @@ public final class ReconStatusUtils implements Serializable {
     private static final long serialVersionUID = -5411720003057109354L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ReconStatusUtils.class);
+
+    public static Optional<ReconStatus> getReconStatus(
+            final String anyTypeKey, final String connObjectKeyValue, final String resource) {
+
+        ReconStatus result = null;
+        try {
+            result = ReconciliationRestClient.status(
+                    new ReconQuery.Builder(anyTypeKey, resource).connObjectKeyValue(connObjectKeyValue).build());
+        } catch (Exception e) {
+            LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, connObjectKeyValue, resource, e);
+        }
+        return Optional.ofNullable(result);
+    }
 
     public static List<Pair<String, ReconStatus>> getReconStatuses(
             final String anyTypeKey, final String anyKey, final Collection<String> resources) {

@@ -124,5 +124,4 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
             return userTO;
         }
     }
-
 }

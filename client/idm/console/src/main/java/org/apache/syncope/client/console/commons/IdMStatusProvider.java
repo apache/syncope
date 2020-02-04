@@ -21,7 +21,9 @@ package org.apache.syncope.client.console.commons;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
@@ -34,6 +36,14 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 public class IdMStatusProvider implements StatusProvider {
 
     private static final long serialVersionUID = 1875374599950896631L;
+
+    @Override
+    public Optional<Pair<ConnObjectTO, ConnObjectTO>> get(
+            final String anyTypeKey, final String connObjectKeyValue, final String resource) {
+
+        return ReconStatusUtils.getReconStatus(anyTypeKey, connObjectKeyValue, resource).
+                map(status -> Pair.of(status.getOnSyncope(), status.getOnResource()));
+    }
 
     @Override
     public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
