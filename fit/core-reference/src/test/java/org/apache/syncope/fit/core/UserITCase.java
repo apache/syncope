@@ -963,7 +963,7 @@ public class UserITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
         String oldAccountPolicy = realm.getAccountPolicy();
         realm.setAccountPolicy(accountPolicy.getKey());
         String oldPasswordPolicy = realm.getPasswordPolicy();

@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
@@ -114,16 +113,17 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @Test
     public void readRealm() {
-        List<RealmTO> realms = adminClient.getService(RealmService.class).
+        PagedResult<RealmTO> realms = adminClient.getService(RealmService.class).
                 search(new RealmQuery.Builder().keyword("*").build());
-        assertEquals(1, realms.size());
-        assertEquals(SyncopeConstants.ROOT_REALM, realms.get(0).getName());
+        assertEquals(1, realms.getTotalCount());
+        assertEquals(1, realms.getResult().size());
+        assertEquals(SyncopeConstants.ROOT_REALM, realms.getResult().get(0).getName());
     }
 
     @Test
     public void createUser() {
         assertNull(adminClient.getService(RealmService.class).
-                search(new RealmQuery.Builder().keyword("*").build()).get(0).getPasswordPolicy());
+                search(new RealmQuery.Builder().keyword("*").build()).getResult().get(0).getPasswordPolicy());
 
         UserCR userCR = new UserCR();
         userCR.setRealm(SyncopeConstants.ROOT_REALM);

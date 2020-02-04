@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -58,8 +59,8 @@ public class RealmITCase extends AbstractITCase {
 
     @Test
     public void search() {
-        List<RealmTO> match = realmService.search(new RealmQuery.Builder().keyword("*o*").build());
-        assertTrue(match.stream().allMatch(realm -> realm.getName().contains("o")));
+        PagedResult<RealmTO> match = realmService.search(new RealmQuery.Builder().keyword("*o*").build());
+        assertTrue(match.getResult().stream().allMatch(realm -> realm.getName().contains("o")));
     }
 
     @Test

@@ -42,6 +42,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -58,21 +59,23 @@ import org.apache.syncope.common.rest.api.beans.RealmQuery;
 public interface RealmService extends JAXRSService {
 
     /**
-     * Returns a paged list of existing realms matching the given query.
+     * Returns a list of existing realms matching the given query (not including descendant realms) and the total number
+     * of descedant realms.
      *
      * @param query query conditions
-     * @return paged list of existing realms matching the given query
+     * @return list of existing realms matching the given query (not including descendant realms) and the total number
+     * of descedant realms
      */
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<RealmTO> search(@BeanParam RealmQuery query);
+    PagedResult<RealmTO> search(@BeanParam RealmQuery query);
 
     /**
-     * Returns realms rooted at the given path.
+     * Returns realms rooted at the given path, including descendant realms.
      *
      * @param fullPath full path of the root realm where to read from
-     * @return realms rooted at the given path
+     * @return realms rooted at the given path, including descendant realms
      */
     @GET
     @Path("{fullPath:.*}")

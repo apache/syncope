@@ -793,7 +793,7 @@ public class UserIssuesITCase extends AbstractITCase {
         }
         assertNotNull(logicActions);
 
-        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
         assertNotNull(realm);
         realm.getActions().add(logicActions.getKey());
         realmService.update(realm);
@@ -1223,7 +1223,7 @@ public class UserIssuesITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).get(0);
+        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
         String oldPasswordPolicy = realm.getPasswordPolicy();
         realm.setPasswordPolicy(passwordPolicy.getKey());
         realmService.update(realm);

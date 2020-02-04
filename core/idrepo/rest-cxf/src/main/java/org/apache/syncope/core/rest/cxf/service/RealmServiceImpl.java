@@ -22,7 +22,9 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -39,9 +41,11 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
     private RealmLogic logic;
 
     @Override
-    public List<RealmTO> search(final RealmQuery query) {
+    public PagedResult<RealmTO> search(final RealmQuery query) {
         String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
-        return logic.search(keyword);
+
+        Pair<Integer, List<RealmTO>> result = logic.search(keyword);
+        return buildPagedResult(result.getRight(), 1, result.getRight().size(), result.getLeft());
     }
 
     @Override
