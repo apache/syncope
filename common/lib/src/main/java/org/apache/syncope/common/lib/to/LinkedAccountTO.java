@@ -86,6 +86,7 @@ public class LinkedAccountTO implements EntityTO {
 
     private final Set<String> privileges = new HashSet<>();
 
+    @Override
     public String getKey() {
         return key;
     }
