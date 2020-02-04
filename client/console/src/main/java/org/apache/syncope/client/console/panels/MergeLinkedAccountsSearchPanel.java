@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -36,7 +35,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -46,7 +44,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import java.util.ArrayList;
 
-public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondition {
+public class MergeLinkedAccountsSearchPanel extends WizardStep {
     private static final long serialVersionUID = 1221037007528732347L;
 
     private final WebMarkupContainer ownerContainer;
@@ -61,8 +59,8 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
 
     private final Fragment userSearchFragment;
 
-    private MergeLinkedAccountsWizardModel wizardModel;
-    
+    private final MergeLinkedAccountsWizardModel wizardModel;
+
     public MergeLinkedAccountsSearchPanel(final MergeLinkedAccountsWizardModel model, final PageReference pageRef) {
         super();
         setOutputMarkupId(true);
@@ -99,23 +97,16 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep implements ICondi
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
             AnySelectionDirectoryPanel.ItemSelection payload =
                 (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
-            
+
             final AnyTO sel = payload.getSelection();
             this.wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
 
             String tableId = ((Component) event.getSource()).
                 get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
                 getMarkupId();
-            String rowId = "dataTableRowId" + sel.getKey();
             String js = "$('#" + tableId + " tr').removeClass('active');";
-            js += "$('#" + tableId + " tr[id=" + rowId + "]').addClass('active');";
+            js += "$('#" + tableId + " td[title=" + sel.getKey() + "]').parent().addClass('active');";
             payload.getTarget().prependJavaScript(js);
         }
-    }
-
-    @Override
-    public boolean evaluate() {
-        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-            isActionAuthorized(this, RENDER);
     }
 }

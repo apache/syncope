@@ -125,6 +125,16 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
                         model.getMergingUser().getKey());
                     if (connObjectKeyValue != null) {
                         model.setResource(resource);
+                        String tableId = MergeLinkedAccountsResourcesPanel.this.
+                            get("resources:container:content:searchContainer:resultTable"
+                                + ":tablePanel:groupForm:checkgroup:dataTable").
+                            getMarkupId();
+                        String js = "$('#" + tableId + "').removeClass('active');";
+                        js += "$('#" + tableId + " tbody tr td div').filter(function() "
+                            + "{return $(this).text() === \"" + resource.getKey() + "\";})"
+                            + ".parent().parent().addClass('active');";
+                        target.prependJavaScript(js);
+
                     } else {
                         error("Unable to determine connector object key");
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

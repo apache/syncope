@@ -26,7 +26,6 @@ import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.navigation.paging.AjaxDataNavigationToolbar;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -123,10 +122,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
     @Override
     protected Item<T> newRowItem(final String id, final int index, final IModel<T> model) {
-        String componentId = "dataTableRowId" + EntityTO.class.cast(model.getObject()).getKey();
-        final OddEvenItem<T> item = new OddEvenItem<>(componentId, index, model);
-        item.setMarkupId(componentId);
-        item.setOutputMarkupId(true);
+        final OddEvenItem<T> item = new OddEvenItem<>(id, index, model);
 
         if (togglePanel != null) {
             final ActionsPanel<T> actions = getActions(model);

@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsResourcesPanel;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsReviewPanel;
 import org.apache.syncope.client.console.panels.MergeLinkedAccountsSearchPanel;
+import org.apache.syncope.client.console.panels.UserDirectoryPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -43,7 +44,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
 import javax.ws.rs.HttpMethod;
@@ -59,14 +59,14 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final Panel parentPanel;
+    private final UserDirectoryPanel parentPanel;
 
     private final BaseModal<?> modal;
 
     private MergeLinkedAccountsWizardModel model;
 
     public MergeLinkedAccountsWizardBuilder(final IModel<UserTO> model, final PageReference pageRef,
-                                            final Panel parentPanel, final BaseModal<?> modal) {
+                                            final UserDirectoryPanel parentPanel, final BaseModal<?> modal) {
         super(model.getObject(), pageRef);
         this.parentPanel = parentPanel;
         this.modal = modal;
@@ -92,6 +92,7 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
                     mergeAccounts();
                     this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
                     ((BasePage) this.parentPanel.getPage()).getNotificationPanel().refresh(target);
+                    parentPanel.updateResultTable(target);
                     modal.close(target);
                 } catch (Exception e) {
                     this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
