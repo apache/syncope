@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -38,24 +39,38 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.JoinTable;
+import javax.persistence.Table;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.PluralAttribute;
 import javax.sql.DataSource;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.XMLConstants;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
@@ -76,8 +91,10 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -238,11 +255,44 @@ public class XMLContentExporter implements ContentExporter {
         return res;
     }
 
+    private String columnName(final Supplier<Stream<Attribute<?, ?>>> attrs, final String columnName) {
+        String name = attrs.get().map(attr -> {
+            if (attr.getName().equalsIgnoreCase(columnName)) {
+                return attr.getName();
+            }
+
+            Field field = (Field) attr.getJavaMember();
+            Column column = field.getAnnotation(Column.class);
+            if (column != null && column.name().equalsIgnoreCase(columnName)) {
+                return column.name();
+            }
+
+            return null;
+        }).filter(Objects::nonNull).findFirst().orElse(columnName);
+
+        if (StringUtils.endsWithIgnoreCase(name, "_ID")) {
+            String left = StringUtils.substringBefore(name, "_");
+            String prefix = attrs.get().filter(attr -> left.equalsIgnoreCase(attr.getName())).findFirst().
+                    map(Attribute::getName).orElse(left);
+            name = prefix + "_id";
+        }
+
+        return name;
+    }
+
+    private boolean isTask(final String tableName) {
+        return "TASK".equalsIgnoreCase(tableName);
+    }
+
+    @SuppressWarnings("unchecked")
     private void exportTable(
             final TransformerHandler handler,
             final Connection conn,
             final String tableName,
-            final String whereClause) throws SQLException, SAXException {
+            final String whereClause,
+            final BidiMap<String, EntityType<?>> entities,
+            final Set<EntityType<?>> taskEntities,
+            final Map<String, Pair<String, String>> relationTables) throws SQLException, SAXException {
 
         LOG.debug("Export table {}", tableName);
 
@@ -290,6 +340,19 @@ public class XMLContentExporter implements ContentExporter {
 
             List<Map<String, String>> rows = new ArrayList<>();
 
+            Optional<EntityType<?>> entity = entities.entrySet().stream().
+                    filter(entry -> entry.getKey().equalsIgnoreCase(tableName)).
+                    findFirst().
+                    map(Map.Entry::getValue);
+
+            String outputTableName = entity.isPresent()
+                    ? entities.getKey(entity.get())
+                    : relationTables.keySet().stream().filter(key -> tableName.equalsIgnoreCase(key)).findFirst().
+                            orElse(tableName);
+            if (isTask(tableName)) {
+                outputTableName = "Task";
+            }
+
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Map<String, String> row = new HashMap<>();
@@ -305,8 +368,28 @@ public class XMLContentExporter implements ContentExporter {
                     if (value != null && (!COLUMNS_TO_BE_NULLIFIED.containsKey(tableName)
                             || !COLUMNS_TO_BE_NULLIFIED.get(tableName).contains(columnName))) {
 
-                        row.put(columnName, value);
-                        LOG.debug("Add for table {}: {}=\"{}\"", tableName, columnName, value);
+                        String name = columnName;
+                        if (entity.isPresent()) {
+                            name = columnName(
+                                    () -> (Stream<Attribute<?, ?>>) entity.get().getAttributes().stream(), columnName);
+                        }
+
+                        if (isTask(tableName)) {
+                            name = columnName(
+                                    () -> taskEntities.stream().flatMap(e -> e.getAttributes().stream()), columnName);
+                        }
+
+                        if (relationTables.containsKey(outputTableName)) {
+                            Pair<String, String> relationColumns = relationTables.get(outputTableName);
+                            if (name.equalsIgnoreCase(relationColumns.getLeft())) {
+                                name = relationColumns.getLeft();
+                            } else if (name.equalsIgnoreCase(relationColumns.getRight())) {
+                                name = relationColumns.getRight();
+                            }
+                        }
+
+                        row.put(name, value);
+                        LOG.debug("Add for table {}: {}=\"{}\"", outputTableName, name, value);
                     }
                 }
             }
@@ -327,8 +410,8 @@ public class XMLContentExporter implements ContentExporter {
                 AttributesImpl attrs = new AttributesImpl();
                 row.forEach((key, value) -> attrs.addAttribute("", "", key, "CDATA", value));
 
-                handler.startElement("", "", tableName, attrs);
-                handler.endElement("", "", tableName);
+                handler.startElement("", "", outputTableName, attrs);
+                handler.endElement("", "", outputTableName);
             }
         } finally {
             if (rs != null) {
@@ -346,6 +429,60 @@ public class XMLContentExporter implements ContentExporter {
                 }
             }
         }
+    }
+
+    private Set<EntityType<?>> taskEntities(final Set<EntityType<?>> entityTypes) {
+        return entityTypes.stream().filter(e -> e.getName().endsWith("Task")).collect(Collectors.toSet());
+    }
+
+    private BidiMap<String, EntityType<?>> entities(final Set<EntityType<?>> entityTypes) {
+        BidiMap<String, EntityType<?>> entities = new DualHashBidiMap<>();
+        entityTypes.forEach(entity -> {
+            Table table = entity.getBindableJavaType().getAnnotation(Table.class);
+            if (table != null) {
+                entities.put(table.name(), entity);
+            }
+        });
+
+        return entities;
+    }
+
+    private Map<String, Pair<String, String>> relationTables(final BidiMap<String, EntityType<?>> entities) {
+        Map<String, Pair<String, String>> relationTables = new HashMap<>();
+        entities.values().stream().forEach(e -> e.getAttributes().stream().
+                filter(a -> a.getPersistentAttributeType() != Attribute.PersistentAttributeType.BASIC).
+                forEach(a -> {
+                    String attrName = a.getName();
+
+                    Field field = (Field) a.getJavaMember();
+                    Column column = field.getAnnotation(Column.class);
+                    if (column != null) {
+                        attrName = column.name();
+                    }
+
+                    CollectionTable collectionTable = field.getAnnotation(CollectionTable.class);
+                    if (collectionTable != null) {
+                        relationTables.put(
+                                collectionTable.name(),
+                                Pair.of(attrName, collectionTable.joinColumns()[0].name()));
+                    }
+
+                    JoinTable joinTable = field.getAnnotation(JoinTable.class);
+                    if (joinTable != null) {
+                        String tableName = joinTable.name();
+                        if (StringUtils.isBlank(tableName)) {
+                            tableName = entities.getKey(e) + "_"
+                                    + entities.getKey((EntityType) ((PluralAttribute) a).getElementType());
+                        }
+
+                        relationTables.put(
+                                tableName,
+                                Pair.of(joinTable.joinColumns()[0].name(),
+                                        joinTable.inverseJoinColumns()[0].name()));
+                    }
+                }));
+
+        return relationTables;
     }
 
     @Override
@@ -409,10 +546,17 @@ public class XMLContentExporter implements ContentExporter {
 
             LOG.debug("Tables to be exported {}", tableNames);
 
+            EntityManagerFactory emf = EntityManagerFactoryUtils.findEntityManagerFactory(
+                    ApplicationContextProvider.getBeanFactory(), domain);
+            Set<EntityType<?>> entityTypes = emf == null ? Collections.emptySet() : emf.getMetamodel().getEntities();
+            BidiMap<String, EntityType<?>> entities = entities(entityTypes);
+
             // then sort tables based on foreign keys and dump
             for (String tableName : sortByForeignKeys(schema, conn, tableNames)) {
                 try {
-                    exportTable(handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
+                    exportTable(
+                            handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()),
+                            entities, taskEntities(entityTypes), relationTables(entities));
                 } catch (Exception e) {
                     LOG.error("Failure exporting table {}", tableName, e);
                 }
