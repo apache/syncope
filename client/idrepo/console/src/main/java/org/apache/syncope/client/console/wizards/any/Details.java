@@ -19,11 +19,14 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -31,8 +34,10 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.link.AbstractLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,27 +59,46 @@ public class Details<T extends AnyTO> extends WizardStep {
             final PageReference pageRef) {
 
         this.pageRef = pageRef;
-
+        final List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
         final T inner = wrapper.getInnerObject();
+        final Fragment fragment;
 
         if (templateMode) {
             realm = new AjaxTextFieldPanel(
                     "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
+            fragment = new Fragment("realmsFragment", "realmsTemplateFragment", this);
         } else {
-            final List<RealmTO> realms = pageRef.getPage() instanceof Realms
-                    ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
-                    : RealmRestClient.list();
+            boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
+            final AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
+            settings.setShowListOnEmptyInput(!isSearchEnabled);
 
-            realm = new AjaxDropDownChoicePanel<>(
-                    "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
+            realm = new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
+                    new PropertyModel<>(inner, "realm"), settings) {
 
-            ((AjaxDropDownChoicePanel<String>) realm).setChoices(
-                    realms.stream().map(RealmTO::getFullPath).collect(Collectors.toList()));
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    return (isSearchEnabled
+                            ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
+                            : pageRef.getPage() instanceof Realms
+                            ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
+                            : RealmRestClient.list()).
+                            stream().filter(realm -> authRealms.stream().anyMatch(
+                            authRealm -> realm.getFullPath().startsWith(authRealm))).
+                            map(item -> item.getFullPath()).collect(Collectors.toList()).iterator();
+                }
+            };
+
+            fragment = new Fragment("realmsFragment", "realmsSearchFragment", this);
         }
-        add(realm);
+        fragment.addOrReplace(realm);
+        addOrReplace(fragment);
         add(getGeneralStatusInformation("generalStatusInformation", inner).
                 setEnabled(includeStatusPanel).setVisible(includeStatusPanel).setRenderBodyOnly(true));
+
     }
 
     public Details<T> disableRealmSpecification() {

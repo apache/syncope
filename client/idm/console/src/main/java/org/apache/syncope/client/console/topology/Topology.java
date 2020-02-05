@@ -42,6 +42,7 @@ import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizar
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.WebMarkupContainerNoVeil;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -53,7 +54,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -597,20 +597,6 @@ public class Topology extends BasePage {
                     resourceCreateEvent.getKey(),
                     resourceCreateEvent.getParent(),
                     resourceCreateEvent.getKind()));
-        }
-    }
-
-    private static class WebMarkupContainerNoVeil extends WebMarkupContainer implements IAjaxIndicatorAware {
-
-        private static final long serialVersionUID = 6883930486048460708L;
-
-        WebMarkupContainerNoVeil(final String id) {
-            super(id);
-        }
-
-        @Override
-        public String getAjaxIndicatorMarkupId() {
-            return StringUtils.EMPTY;
         }
     }
 }

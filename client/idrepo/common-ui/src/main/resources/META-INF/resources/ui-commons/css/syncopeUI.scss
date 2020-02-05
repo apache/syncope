@@ -1112,23 +1112,12 @@ div#tablehandling ul.menu li a {
   padding: 0px !important;
 }
 
-.realm-live-search .dropdown-menu li a {
-  height: 22px;
+.realm-choice #realm-choice-field {
+  padding-right: 20px;
 }
 
-.realm-live-search #bs-select-1-0 {
-  display: none;
-}
-
-.realm-live-search.dropdown.bootstrap-select .bs-caret {
-    display: none;
-}
-.realm-live-search.bootstrap-select>.dropdown-toggle {
-    width: 50px;
-    background: transparent;
-    border: none;
-    color: #3c8dbc;
-    float: right;
+.realm-choice #realm-choice-folder {
+  color: #3c8dbc;
 }
 
 /* Form wrappers
