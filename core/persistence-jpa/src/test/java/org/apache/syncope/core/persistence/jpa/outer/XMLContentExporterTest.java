@@ -53,8 +53,6 @@ public class XMLContentExporterTest extends AbstractTest {
         String exported = baos.toString(Charset.defaultCharset());
         assertTrue(StringUtils.isNotBlank(exported));
 
-        System.out.println("EEEEEEEEEEEEEE\n" + exported);
-        
         List<String> realms = IOUtils.readLines(
                 IOUtils.toInputStream(exported, Charset.defaultCharset()), Charset.defaultCharset()).stream().
                 filter(row -> row.trim().startsWith("<Realm")).collect(Collectors.toList());
