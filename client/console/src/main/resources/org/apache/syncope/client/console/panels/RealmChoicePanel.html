@@ -20,13 +20,18 @@ under the License.
   <wicket:panel>
     <div wicket:id="container" class="realm-header">
       <div class="realm-label">
-        <label wicket:id="realmLabel"/>: <label wicket:id="realm"/>
+        <label wicket:id="realmLabel"/>: <label wicket:id="realm"/> 
       </div>
       <span wicket:id="realmsFragment"></span>
 
-      <wicket:fragment wicket:id="realmsSearchFragment">
+      <wicket:fragment wicket:id="realmsSearchFragment"> 
         <div class="realm-choice">
-          <select wicket:id="realmsLiveSearch" class="realm-live-search"></select> 
+          <div id="realm-choice-field" class="input-group">
+            <span class="input-group-addon"> 
+              <i id="realm-choice-folder" class="glyphicon glyphicon-folder-open"></i>
+            </span>
+            <input type="text" class="form-control" wicket:id="searchRealms" wicket:message="placeholder:search"/>
+          </div>
         </div>
       </wicket:fragment>
       <wicket:fragment wicket:id="realmsListFragment">
