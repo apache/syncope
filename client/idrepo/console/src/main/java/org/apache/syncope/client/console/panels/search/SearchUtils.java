@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -49,9 +51,20 @@ public final class SearchUtils implements Serializable {
 
     private static final long serialVersionUID = 398381905376547084L;
 
+    public static final Function<SearchClause, CompleteCondition> NO_CUSTOM_CONDITION = clause -> null;
+
     private static final Logger LOG = LoggerFactory.getLogger(SearchUtils.class);
 
-    public static final Function<SearchClause, CompleteCondition> NO_CUSTOM_CONDITION = clause -> null;
+    private static final BidiMap<String, String> ENCODINGS = new DualHashBidiMap<String, String>() {
+
+        private static final long serialVersionUID = 5636572627689425575L;
+
+        {
+            put(",", "%252C");
+            put(";", "%253B");
+            put("+", "%252B");
+        }
+    };
 
     private static Pattern getTypeConditionPattern(final String type) {
         return Pattern.compile(String.format(";\\$type==%s|\\$type==%s;", type, type));
@@ -115,7 +128,9 @@ public final class SearchUtils implements Serializable {
 
         String property = sc.getCondition().getKeySet().iterator().next();
         clause.setProperty(property);
-        String value = sc.getCondition().get(property).replace("%252C", ",").replace("%253B", ";");
+
+        String value = ENCODINGS.values().stream().
+                reduce(sc.getCondition().get(property), (s, v) -> s.replace(v, ENCODINGS.getKey(v)));
         clause.setValue(value);
 
         LOG.debug("Condition: " + sc.getCondition());
@@ -224,7 +239,8 @@ public final class SearchUtils implements Serializable {
             if (clause.getType() != null) {
                 String value = clause.getValue() == null
                         ? null
-                        : clause.getValue().replace(",", "%252C").replace(";", "%253B");
+                        : ENCODINGS.keySet().stream().
+                                reduce(clause.getValue(), (s, k) -> s.replace(k, ENCODINGS.get(k)));
 
                 switch (clause.getType()) {
                     case GROUP_MEMBER:
