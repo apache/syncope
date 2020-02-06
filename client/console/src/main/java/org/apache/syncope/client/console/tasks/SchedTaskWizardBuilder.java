@@ -74,23 +74,12 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private CrontabPanel crontabPanel;
 
-    private String realmQuery;
-
-    private boolean isSearchEnabled;
-
-    private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-            return searchRealms().stream().map(RealmTO::getFullPath).sorted().collect(Collectors.toList());
-        }
-    };
+    private final boolean isSearchEnabled;
 
     public SchedTaskWizardBuilder(final TaskType type, final T taskTO, final PageReference pageRef) {
         super(taskTO, pageRef);
         this.type = type;
+        this.isSearchEnabled = RealmsUtils.enableSearchRealm();
     }
 
     @Override
@@ -119,7 +108,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         return wizardModel;
     }
 
-    private List<RealmTO> searchRealms() {
+    private List<RealmTO> searchRealms(final String realmQuery) {
         return isSearchEnabled
                 ? realmRestClient.search(RealmsUtils.buildQuery(realmQuery)).getResult()
                 : realmRestClient.list();
@@ -174,7 +163,6 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         };
 
         public Profile(final SchedTaskTO taskTO) {
-            isSearchEnabled = RealmsUtils.enableSearchRealm();
             AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<>(taskTO, "name"),
                     false);
             name.addRequiredLabel();
@@ -255,9 +243,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    realmQuery = input;
                     return (RealmsUtils.checkInput(input)
-                            ? searchRealms().stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            ? searchRealms(input).stream().map(RealmTO::getFullPath).collect(Collectors.toList())
                             : Collections.<String>emptyList()).iterator();
                 }
             };
@@ -288,9 +275,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    realmQuery = input;
                     return (RealmsUtils.checkInput(input)
-                            ? searchRealms().stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            ? searchRealms(input).stream().map(RealmTO::getFullPath).collect(Collectors.toList())
                             : Collections.<String>emptyList()).iterator();
                 }
             };
@@ -315,7 +301,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
                     build("actions",
-                            new PropertyModel<List<String>>(taskTO, "actions"),
+                            new PropertyModel<>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
                                     ? pushActions.getObject() : pullActions.getObject()));
             actions.setOutputMarkupId(true);

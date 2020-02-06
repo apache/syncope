@@ -122,13 +122,12 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             form.add(new Label("realm", ""));
         } else {
             boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
-            final AutoCompleteSettings settings = new AutoCompleteSettings();
+            AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
             settings.setShowListOnEmptyInput(!isSearchEnabled);
 
-            final AjaxSearchFieldPanel realm =
-                    new AjaxSearchFieldPanel("realm", "destinationRealm",
-                            new PropertyModel<String>(taskTO, "destinationRealm"), settings) {
+            AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel(
+                    "realm", "destinationRealm", new PropertyModel<String>(taskTO, "destinationRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -212,7 +211,8 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
-                    LOG.error("While attempting reconciliation on {}", reconQuery, form.getModelObject(), e);
+                    LOG.error("While attempting reconciliation using query {} on {}",
+                            reconQuery, form.getModelObject(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 multiLevelPanelRef.prev(target);

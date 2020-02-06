@@ -26,6 +26,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDown
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -95,7 +96,7 @@ public class RealmChoicePanel extends Panel {
 
     private List<RealmTO> realmsChoices;
 
-    private boolean isSearchEnabled;
+    private final boolean isSearchEnabled;
 
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
@@ -125,7 +126,7 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<Pair<String, RealmTO>> load() {
-                Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap(isSearchEnabled);
+                Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
                 List<Pair<String, RealmTO>> full = new ArrayList<>();
                 if (isSearchEnabled) {
                     full = map.entrySet().stream().map(
@@ -391,24 +392,19 @@ public class RealmChoicePanel extends Panel {
         return this;
     }
 
-    private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final boolean enableSearch) {
-        List<RealmTO> realmsToList = enableSearch
-                ? realmRestClient.search(new RealmQuery.Builder().
-                        keyword(searchQuery.contains("*")
-                                ? searchQuery
-                                : "*" + searchQuery + "*").build()).getResult()
+    private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
+        List<RealmTO> realmsToList = isSearchEnabled
+                ? realmRestClient.search(RealmsUtils.buildQuery(searchQuery)).getResult()
                 : realmRestClient.list();
 
         return reloadRealmParentMap(realmsToList.stream().
                 sorted(Comparator.comparing(RealmTO::getName)).
-                collect(Collectors.toList()), enableSearch);
+                collect(Collectors.toList()));
     }
 
-    private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(
-            final List<RealmTO> realms,
-            final boolean enableSearch) {
+    private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
         tree.clear();
-        if (!enableSearch) {
+        if (!isSearchEnabled) {
             tree.put(null, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<>()));
         }
 
@@ -428,7 +424,7 @@ public class RealmChoicePanel extends Panel {
             } else if (cache.containsKey(realm.getParent())) {
                 cache.get(realm.getParent()).add(realm);
             } else {
-                cache.put(realm.getParent(), new ArrayList<>(Collections.singleton(realm)));
+                cache.put(realm.getParent(), Arrays.asList(realm));
             }
         });
         return tree;

@@ -34,65 +34,38 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
-import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 
 public class ConnectorDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -2435937897614232137L;
-
     private final RealmRestClient realmRestClient = new RealmRestClient();
-
-    private String realmQuery;
-
-    private boolean isSearchEnabled;
-
-    private final LoadableDetachableModel<List<String>> realms;
 
     public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
         super();
         setOutputMarkupId(true);
 
-        final List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
-        isSearchEnabled = RealmsUtils.enableSearchRealm();
-
-        realms = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                List<RealmTO> realmList = searchRealms();
-                return realmList.stream().
-                        filter(realm -> authRealms.stream().
-                        anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
-                        map(RealmTO::getFullPath).
-                        sorted().
-                        collect(Collectors.toList());
-            }
-        };
+        boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
         settings.setShowListOnEmptyInput(!isSearchEnabled);
 
-        AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel("adminRealm", "adminRealm",
-                new PropertyModel<>(connInstanceTO, "adminRealm"), settings) {
+        AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel(
+                "adminRealm", "adminRealm", new PropertyModel<>(connInstanceTO, "adminRealm"), settings) {
 
             private static final long serialVersionUID = -6390474600233486704L;
 
             @Override
             protected Iterator<String> getChoices(final String input) {
-                realmQuery = input;
                 return (isSearchEnabled
-                        ? searchRealms()
+                        ? realmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
                         : realmRestClient.list()).
-                        stream().filter(realm -> authRealms.stream().anyMatch(
+                        stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().anyMatch(
                         authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(item -> item.getFullPath()).collect(Collectors.toList()).iterator();
             }
@@ -124,9 +97,7 @@ public class ConnectorDetailsPanel extends WizardStep {
         List<String> bundleNames = new ArrayList<>();
         bundles.stream().
                 filter(bundle -> (!bundleNames.contains(bundle.getBundleName()))).
-                forEachOrdered(bundle -> {
-                    bundleNames.add(bundle.getBundleName());
-                });
+                forEachOrdered(bundle -> bundleNames.add(bundle.getBundleName()));
 
         bundleName.setChoices(bundleNames);
         bundleName.addRequiredLabel();
@@ -170,39 +141,32 @@ public class ConnectorDetailsPanel extends WizardStep {
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "connRequestTimeout", "connRequestTimeout", Integer.class,
-                new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout")));
+                new PropertyModel<>(connInstanceTO, "connRequestTimeout")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "poolMaxObjects", "poolMaxObjects", Integer.class,
-                new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects")));
+                new PropertyModel<>(connInstanceTO.getPoolConf(), "maxObjects")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "poolMinIdle", "poolMinIdle", Integer.class,
-                new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle")));
+                new PropertyModel<>(connInstanceTO.getPoolConf(), "minIdle")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(
                 "poolMaxIdle", "poolMaxIdle", Integer.class,
-                new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle")));
+                new PropertyModel<>(connInstanceTO.getPoolConf(), "maxIdle")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
                 "poolMaxWait", "poolMaxWait", Long.class,
-                new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait")));
+                new PropertyModel<>(connInstanceTO.getPoolConf(), "maxWait")));
 
         add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
                 "poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
-                new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis")));
+                new PropertyModel<>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis")));
     }
 
     private List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        return bundles.stream().filter(object
-                -> object.getLocation().equals(connInstanceTO.getLocation())
+        return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())
                 && object.getBundleName().equals(connInstanceTO.getBundleName())).
                 map(ConnBundleTO::getVersion).collect(Collectors.toList());
-    }
-
-    private List<RealmTO> searchRealms() {
-        return isSearchEnabled
-                ? realmRestClient.search(RealmsUtils.buildQuery(realmQuery)).getResult()
-                : realmRestClient.list();
     }
 }

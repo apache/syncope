@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -62,13 +63,12 @@ public class Details<T extends AnyTO> extends WizardStep {
         final List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
         final T inner = wrapper.getInnerObject();
         final Fragment fragment;
-        
+
         if (templateMode) {
             realm = new AjaxTextFieldPanel(
                     "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
             fragment = new Fragment("realmsFragment", "realmsTemplateFragment", this);
-
         } else {
             boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
             final AutoCompleteSettings settings = new AutoCompleteSettings();
@@ -115,11 +115,9 @@ public class Details<T extends AnyTO> extends WizardStep {
         List<RealmTO> realms = new ArrayList<>();
 
         realmLinks.stream().
-                map(link -> link.getDefaultModelObject()).
+                map(Component::getDefaultModelObject).
                 filter(modelObject -> modelObject instanceof RealmTO).
-                forEachOrdered(modelObject -> {
-                    realms.add((RealmTO) modelObject);
-                });
+                forEachOrdered(modelObject -> realms.add((RealmTO) modelObject));
 
         return realms;
     }
