@@ -26,6 +26,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDown
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -420,7 +421,7 @@ public class RealmChoicePanel extends Panel {
             } else if (cache.containsKey(realm.getParent())) {
                 cache.get(realm.getParent()).add(realm);
             } else {
-                cache.put(realm.getParent(), List.of(realm));
+                cache.put(realm.getParent(), Arrays.asList(realm));
             }
         });
         return tree;
