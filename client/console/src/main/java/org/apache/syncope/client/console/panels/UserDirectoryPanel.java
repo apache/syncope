@@ -357,7 +357,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
                         modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
                         modal.show(true);
-                    }}, ActionType.MERGE_ACCOUNTS,
+                    }
+                    }, ActionType.MERGE_ACCOUNTS,
                     String.format("%s,%s,%s,%s", StandardEntitlement.USER_READ, StandardEntitlement.USER_UPDATE,
                         StandardEntitlement.USER_DELETE, StandardEntitlement.RESOURCE_GET_CONNOBJECT));
             }
