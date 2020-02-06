@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -38,7 +37,7 @@ public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneabl
 
     private static final long serialVersionUID = 6890905510177974519L;
 
-    private List<String> choices = Collections.emptyList();
+    private List<String> choices = List.of();
 
     private final IAutoCompleteRenderer<String> renderer;
 

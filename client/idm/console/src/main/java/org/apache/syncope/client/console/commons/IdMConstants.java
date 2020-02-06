@@ -24,9 +24,7 @@ public final class IdMConstants {
 
     public static final String PREF_RESOURCE_STATUS_PAGINATOR_ROWS = "resource.status.paginator.rows";
 
-    public static final String PREF_CONNECTOR_HISTORY_CONF_PAGINATOR_ROWS = "connectorhistoryconf.paginator.rows";
-
-    public static final String PREF_RESOURCE_HISTORY_CONF_PAGINATOR_ROWS = "resourcehistoryconf.paginator.rows";
+    public static final String PREF_RESOURCES_PAGINATOR_ROWS = "resources.paginator.rows";
 
     public static final String PREF_REMEDIATION_PAGINATOR_ROWS = "remediation.paginator.rows";
 

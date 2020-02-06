@@ -124,6 +124,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     realm,
                     altDefaultModal,
                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
+                    this,
                     pageRef).forEach(panel::add);
 
             panel.add(new ActionLink<AnyObjectTO>() {

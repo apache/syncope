@@ -225,6 +225,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     realm,
                     altDefaultModal,
                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
+                    this,
                     pageRef).forEach(panel::add);
 
             panel.add(new ActionLink<UserTO>() {
@@ -259,61 +260,61 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
         if (wizardInModal) {
             panel.add(new ActionLink<UserTO>() {
 
-                          private static final long serialVersionUID = -1978723352517770644L;
+                private static final long serialVersionUID = -1978723352517770644L;
 
-                          @Override
-                          public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                              model.setObject(restClient.read(model.getObject().getKey()));
-                              target.add(altDefaultModal.setContent(new AuditHistoryModal<UserTO>(
-                                  altDefaultModal,
-                                  AuditElements.EventCategoryType.LOGIC,
-                                  "UserLogic",
-                                  model.getObject(),
-                                  IdRepoEntitlement.USER_UPDATE,
-                                  pageRef) {
+                @Override
+                public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                    model.setObject(restClient.read(model.getObject().getKey()));
+                    target.add(altDefaultModal.setContent(new AuditHistoryModal<UserTO>(
+                            altDefaultModal,
+                            AuditElements.EventCategoryType.LOGIC,
+                            "UserLogic",
+                            model.getObject(),
+                            IdRepoEntitlement.USER_UPDATE,
+                            pageRef) {
 
-                                  private static final long serialVersionUID = 959378158400669867L;
+                        private static final long serialVersionUID = 959378158400669867L;
 
-                                  @Override
-                                  protected void restore(final String json, final AjaxRequestTarget target) {
-                                      // The original audit record masks the password and the security
-                                      // answer; so we cannot use the audit record to resurrect the entry
-                                      // based on mask data.
-                                      //
-                                      // The method behavior below will reset the audit record such
-                                      // that the current security answer and the password for the object
-                                      // are always maintained, and such properties for the
-                                      // user cannot be restored using audit records.
-                                      UserTO original = model.getObject();
-                                      try {
-                                          UserTO updated = MAPPER.readValue(json, UserTO.class);
-                                          UserUR updateReq = AnyOperations.diff(updated, original, false);
-                                          updateReq.setPassword(null);
-                                          updateReq.setSecurityAnswer(null);
-                                          ProvisioningResult<UserTO> result =
-                                              restClient.update(original.getETagValue(), updateReq);
-                                          model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+                        @Override
+                        protected void restore(final String json, final AjaxRequestTarget target) {
+                            // The original audit record masks the password and the security
+                            // answer; so we cannot use the audit record to resurrect the entry
+                            // based on mask data.
+                            //
+                            // The method behavior below will reset the audit record such
+                            // that the current security answer and the password for the object
+                            // are always maintained, and such properties for the
+                            // user cannot be restored using audit records.
+                            UserTO original = model.getObject();
+                            try {
+                                UserTO updated = MAPPER.readValue(json, UserTO.class);
+                                UserUR updateReq = AnyOperations.diff(updated, original, false);
+                                updateReq.setPassword(null);
+                                updateReq.setSecurityAnswer(null);
+                                ProvisioningResult<UserTO> result =
+                                        restClient.update(original.getETagValue(), updateReq);
+                                model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                                          SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                          target.add(container);
-                                      } catch (Exception e) {
-                                          LOG.error("While restoring user {}", model.getObject().getKey(), e);
-                                          SyncopeConsoleSession.get().onException(e);
-                                      }
-                                      ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                                  }
-                              }));
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                                target.add(container);
+                            } catch (Exception e) {
+                                LOG.error("While restoring user {}", model.getObject().getKey(), e);
+                                SyncopeConsoleSession.get().onException(e);
+                            }
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        }
+                    }));
 
-                              altDefaultModal.header(new Model<>(
-                                  getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                    altDefaultModal.header(new Model<>(
+                            getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
-                              altDefaultModal.show(true);
-                          }
-                      }, ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
-                setRealms(realm, model.getObject().getDynRealms());
+                    altDefaultModal.show(true);
+                }
+            }, ActionType.VIEW_AUDIT_HISTORY,
+                    String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
+                    setRealms(realm, model.getObject().getDynRealms());
         }
-        
+
         panel.add(new ActionLink<UserTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;

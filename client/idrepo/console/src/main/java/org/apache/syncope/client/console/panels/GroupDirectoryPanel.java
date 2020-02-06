@@ -298,6 +298,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 realm,
                 altDefaultModal,
                 getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
+                this,
                 pageRef).forEach(panel::add);
 
         panel.add(new ActionLink<GroupTO>() {

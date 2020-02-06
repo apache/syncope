@@ -92,6 +92,12 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
+    public Response getConnObjectKeyValue(final String key, final String anyTypeKey, final String anyKey) {
+        String connObjectKeyValue = logic.getConnObjectKeyValue(key, anyTypeKey, anyKey);
+        return Response.noContent().header(RESTHeaders.CONNOBJECT_KEY, connObjectKeyValue).build();
+    }
+
+    @Override
     public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String value) {
         return SyncopeConstants.UUID_PATTERN.matcher(value).matches()
                 ? logic.readConnObjectByAnyKey(key, anyTypeKey, value)

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +88,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 false);
         connObjectKeyField.setOutputMarkupId(true);
         connObjectKeyField.addRequiredLabel();
-        connObjectKeyField.setChoices(Collections.<String>emptyList());
+        connObjectKeyField.setChoices(List.of());
         connObjectKeyField.setEnabled(false);
         add(connObjectKeyField);
 

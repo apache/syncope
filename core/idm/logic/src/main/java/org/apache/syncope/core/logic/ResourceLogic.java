@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
@@ -97,6 +98,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private OutboundMatcher outboundMatcher;
+
+    @Autowired
+    private MappingManager mappingManager;
 
     @Autowired
     private ConnectorFactory connFactory;
@@ -279,6 +283,27 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resource.getProvision(anyType).
                 orElseThrow(() -> new NotFoundException(
                 "Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + "'"));
+    }
+
+    @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
+    public String getConnObjectKeyValue(
+            final String key,
+            final String anyTypeKey,
+            final String anyKey) {
+
+        Provision provision = getProvision(key, anyTypeKey);
+
+        // 1. find any
+        Any<?> any = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao().authFind(anyKey);
+        if (any == null) {
+            throw new NotFoundException(provision.getAnyType() + " " + anyKey);
+        }
+
+        // 2.get ConnObjectKey value
+        return mappingManager.getConnObjectKeyValue(any, provision).
+                orElseThrow(() -> new NotFoundException(
+                "No ConnObjectKey value found for " + anyTypeKey + " " + anyKey + " on resource '" + key + "'"));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")

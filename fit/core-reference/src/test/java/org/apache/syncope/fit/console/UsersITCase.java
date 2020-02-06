@@ -76,7 +76,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL 
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:1:action:action");
 
@@ -93,9 +93,8 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL 
-                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:9:action:action");
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:10:action:action");
 
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
@@ -582,7 +581,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:10:action:action", IndicatingOnConfirmAjaxLink.class);
+                + "actions:actions:actionRepeater:11:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 
     @Test
@@ -719,7 +718,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL 
+        TESTER.clickLink(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:2:action:action");
 

@@ -19,6 +19,9 @@
 package org.apache.syncope.client.console.commons;
 
 import java.util.List;
+import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
+import org.apache.syncope.client.console.panels.GroupDirectoryPanel;
+import org.apache.syncope.client.console.panels.UserDirectoryPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -39,6 +42,7 @@ public class IdRepoAnyDirectoryPanelAdditionalActionLinksProvider
             final String realm,
             final BaseModal<AnyWrapper<UserTO>> modal,
             final String header,
+            final UserDirectoryPanel parentPanel,
             final PageReference pageRef) {
 
         return List.of();
@@ -50,6 +54,7 @@ public class IdRepoAnyDirectoryPanelAdditionalActionLinksProvider
             final String realm,
             final BaseModal<AnyWrapper<GroupTO>> modal,
             final String header,
+            final GroupDirectoryPanel parentPanel,
             final PageReference pageRef) {
 
         return List.of();
@@ -62,6 +67,7 @@ public class IdRepoAnyDirectoryPanelAdditionalActionLinksProvider
             final String realm,
             final BaseModal<AnyWrapper<AnyObjectTO>> modal,
             final String header,
+            final AnyObjectDirectoryPanel parentPanel,
             final PageReference pageRef) {
 
         return List.of();

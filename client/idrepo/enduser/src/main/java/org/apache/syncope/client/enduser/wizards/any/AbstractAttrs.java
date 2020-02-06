@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.wizards.any;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -75,7 +74,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
         super();
         this.anyTypeClasses = anyTypeClasses;
         this.attrs = new ListModel<>(List.of());
-        this.membershipTOs = new ListModel<>(Collections.<MembershipTO>emptyList());
+        this.membershipTOs = new ListModel<>(List.of());
 
         this.setOutputMarkupId(true);
 

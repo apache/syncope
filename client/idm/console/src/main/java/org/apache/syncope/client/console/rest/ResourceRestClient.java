@@ -26,6 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -53,6 +54,20 @@ public class ResourceRestClient extends BaseRestClient {
 
     public static ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
+    }
+
+    public static String getConnObjectKeyValue(final String resource, final String anyTypeKey, final String anyKey) {
+        try {
+            Response response = getService(ResourceService.class).getConnObjectKeyValue(resource, anyTypeKey, anyKey);
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                return response.getHeaderString(RESTHeaders.CONNOBJECT_KEY);
+            }
+        } catch (Exception e) {
+            LOG.debug("Error fetching connector object key", e);
+        }
+        LOG.error("Unable to determine connector object key value for resource {}, {} and {}",
+            resource, anyTypeKey, anyKey);
+        return null;
     }
 
     public Pair<String, List<ConnObjectTO>> searchConnObjects(

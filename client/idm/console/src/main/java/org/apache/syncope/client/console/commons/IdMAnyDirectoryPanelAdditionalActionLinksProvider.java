@@ -20,23 +20,30 @@ package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
+import org.apache.syncope.client.console.panels.GroupDirectoryPanel;
 import org.apache.syncope.client.console.panels.LinkedAccountModalPanel;
+import org.apache.syncope.client.console.panels.UserDirectoryPanel;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardBuilder;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
         implements AnyDirectoryPanelAdditionalActionLinksProvider {
@@ -49,6 +56,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             final String realm,
             final BaseModal<AnyWrapper<UserTO>> modal,
             final String header,
+            final UserDirectoryPanel parentPanel,
             final PageReference pageRef) {
 
         List<Action<UserTO>> actions = new ArrayList<>();
@@ -124,11 +132,31 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
                 modal.show(true);
             }
         }, ActionLink.ActionType.MANAGE_ACCOUNTS);
-        manageAccounts.setEntitlements(
-                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE));
+        manageAccounts.setEntitlements(String.format("%s,%s,%s",
+                IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE, IdMEntitlement.RESOURCE_GET_CONNOBJECT));
         manageAccounts.setOnConfirm(false);
         manageAccounts.setRealms(realm, model.getObject().getDynRealms());
         actions.add(manageAccounts);
+
+        Action<UserTO> mergeAccounts = new Action<>(new ActionLink<UserTO>() {
+
+            private static final long serialVersionUID = 8011039414597736111L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                model.setObject(new UserRestClient().read(model.getObject().getKey()));
+                MergeLinkedAccountsWizardBuilder builder =
+                        new MergeLinkedAccountsWizardBuilder(model, pageRef, parentPanel, modal);
+                builder.setEventSink(builder);
+                target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
+                modal.show(true);
+            }
+        }, ActionLink.ActionType.MERGE_ACCOUNTS);
+        mergeAccounts.setEntitlements(String.format("%s,%s,%s,%s",
+                IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE, IdRepoEntitlement.USER_DELETE,
+                IdMEntitlement.RESOURCE_GET_CONNOBJECT));
+        actions.add(mergeAccounts);
 
         return actions;
     }
@@ -139,6 +167,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             final String realm,
             final BaseModal<AnyWrapper<GroupTO>> modal,
             final String header,
+            final GroupDirectoryPanel parentPanel,
             final PageReference pageRef) {
 
         List<Action<GroupTO>> actions = new ArrayList<>();
@@ -181,6 +210,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             final String realm,
             final BaseModal<AnyWrapper<AnyObjectTO>> modal,
             final String header,
+            final AnyObjectDirectoryPanel parentPanel,
             final PageReference pageRef) {
 
         List<Action<AnyObjectTO>> actions = new ArrayList<>();

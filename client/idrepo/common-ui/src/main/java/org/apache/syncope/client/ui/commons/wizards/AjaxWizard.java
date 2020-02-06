@@ -81,6 +81,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     private final PageReference pageRef;
 
+    private AjaxWizardMgtButtonBar<T> buttonBar;
+
     /**
      * Construct.
      *
@@ -154,7 +156,12 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     @Override
     protected Component newButtonBar(final String id) {
-        return new AjaxWizardMgtButtonBar<>(id, this, mode);
+        this.buttonBar = new AjaxWizardMgtButtonBar<>(id, this, mode);
+        return this.buttonBar;
+    }
+
+    public AjaxWizardMgtButtonBar<T> getButtonBar() {
+        return buttonBar;
     }
 
     protected abstract void onCancelInternal();

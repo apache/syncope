@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -211,7 +210,7 @@ public class ReconciliationWidget extends BaseWidget {
             execResult = parseReconciliationReportExec();
         } catch (Exception e) {
             LOG.error("Could not parse the reconciliation report result", e);
-            execResult = Pair.of(Collections.<ProgressBean>emptyList(), new ReconciliationReport(new Date()));
+            execResult = Pair.of(List.of(), new ReconciliationReport(new Date()));
         }
         final List<ProgressBean> progressBeans = execResult.getLeft();
         final ReconciliationReport report = execResult.getRight();

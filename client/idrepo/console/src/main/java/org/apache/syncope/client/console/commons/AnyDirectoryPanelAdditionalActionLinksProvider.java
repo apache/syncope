@@ -20,6 +20,9 @@ package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
+import org.apache.syncope.client.console.panels.GroupDirectoryPanel;
+import org.apache.syncope.client.console.panels.UserDirectoryPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -36,6 +39,7 @@ public interface AnyDirectoryPanelAdditionalActionLinksProvider extends Serializ
             String realm,
             BaseModal<AnyWrapper<UserTO>> modal,
             String header,
+            UserDirectoryPanel parentPanel,
             PageReference pageRef);
 
     List<Action<GroupTO>> get(
@@ -43,6 +47,7 @@ public interface AnyDirectoryPanelAdditionalActionLinksProvider extends Serializ
             String realm,
             BaseModal<AnyWrapper<GroupTO>> modal,
             String header,
+            GroupDirectoryPanel parentPanel,
             PageReference pageRef);
 
     List<Action<AnyObjectTO>> get(
@@ -51,5 +56,6 @@ public interface AnyDirectoryPanelAdditionalActionLinksProvider extends Serializ
             String realm,
             BaseModal<AnyWrapper<AnyObjectTO>> modal,
             String header,
+            AnyObjectDirectoryPanel parentPanel,
             PageReference pageRef);
 }

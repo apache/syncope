@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,11 +182,12 @@ public class Relationships extends WizardStep implements ICondition {
     private List<RelationshipTO> getCurrentRelationships() {
         return anyTO instanceof GroupableRelatableTO
                 ? GroupableRelatableTO.class.cast(anyTO).getRelationships()
-                : Collections.<RelationshipTO>emptyList();
+                : List.of();
     }
 
-    private static void addRelationship(final Map<String, List<RelationshipTO>> relationships,
-                                        final RelationshipTO... rels) {
+    private static void addRelationship(
+            final Map<String, List<RelationshipTO>> relationships,
+            final RelationshipTO... rels) {
 
         for (RelationshipTO relationship : rels) {
             final List<RelationshipTO> listrels;

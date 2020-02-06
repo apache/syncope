@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWizardStep<S> {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAttrs.class);
 
     private static final long serialVersionUID = -5387344116983102292L;
@@ -63,7 +63,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
 
         super(modelObject.getInnerObject(), mode, anyTypeClasses, whichAttrs, null);
 
-        this.memberships = new ListModel<>(Collections.<MembershipTO>emptyList());
+        this.memberships = new ListModel<>(List.of());
 
         this.setOutputMarkupId(true);
     }
@@ -113,7 +113,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
             Optional<TypeExtensionTO> typeExtension = groupTO.getTypeExtension(anyType);
             if (typeExtension.isEmpty()) {
                 LOG.trace("Unable to locate type extension for " + anyType);
-                return Collections.emptyList();
+                return List.of();
             }
             return typeExtension.get().getAuxClasses();
 
