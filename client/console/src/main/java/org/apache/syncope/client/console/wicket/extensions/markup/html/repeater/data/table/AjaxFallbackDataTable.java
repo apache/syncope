@@ -119,6 +119,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
         return null;
     }
 
+
     @Override
     protected Item<T> newRowItem(final String id, final int index, final IModel<T> model) {
         final OddEvenItem<T> item = new OddEvenItem<>(id, index, model);
