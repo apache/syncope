@@ -21,6 +21,7 @@ package org.apache.syncope.fit.console;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -31,15 +32,21 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.extensions.wizard.NextButton;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.OddEvenItem;
+import org.apache.wicket.util.tester.FormTester;
+import org.apache.wicket.util.tester.WicketTesterHelper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,10 +55,19 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
     private static final String RESULT_DATA_TABLE = "searchResult:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:";
 
+    private static final String RESOURCES_DATA_TABLE = "view:resources:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:";
+
     private static final String SELECT_USER_ACTION = "searchResult:outerObjectsRepeater:1:outer:container:content:"
         + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action";
+
+    private static final String SELECT_RESOURCE_ACTION = "view:resources:outerObjectsRepeater:1:outer:container:content:"
+        + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action";
+
+    private static final String PARENT_FORM = "outerObjectsRepeater:0:outer:form:";
+
+    private static final String FORM = PARENT_FORM + "content:form:";
     
-    private static final String SEARCH_PANEL = "outerObjectsRepeater:0:outer:form:content:form:view:ownerContainer:search:";
+    private static final String SEARCH_PANEL = FORM + "view:ownerContainer:search:";
 
     private static final String USER_SEARCH_PANEL = SEARCH_PANEL + "usersearch:";
 
@@ -109,8 +125,11 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
             + "actions:actions:actionRepeater:8:action:action");
 
-        // Add new search clause and construct filter query
+
+        // Search for user
         TESTER.executeAjaxEvent(USER_SEARCH_FORM + "content:panelPlus:add", Constants.ON_CLICK);
+        FormTester formTester = TESTER.newFormTester(USER_SEARCH_FORM);
+
         DropDownChoice type = (DropDownChoice) TESTER.getComponentFromLastRenderedPage(USER_SEARCH_FORM + "content:view:0:panel:container:type:dropDownChoiceField");
         TESTER.executeAjaxEvent(USER_SEARCH_FORM + "content:view:0:panel:container:type:dropDownChoiceField", Constants.ON_CHANGE);
         type.setModelValue(new String[]{"ATTRIBUTE"});
@@ -119,14 +138,14 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         TextField property = (TextField) TESTER.getComponentFromLastRenderedPage(USER_SEARCH_FORM + "content:view:0:panel:container:property:textField");
         assertNotNull(property);
         property.setModelValue(new String[]{"username"});
-
+        
         TextField value = (TextField) TESTER.getComponentFromLastRenderedPage(USER_SEARCH_FORM + "content:view:0:panel:container:value:textField");
         assertNotNull(value);
         value.setModelValue(new String[]{user.getUsername()});
-
-        // Search
-        TESTER.executeAjaxEvent(USER_SEARCH_FORM
-            + "content:view:0:panel:container:operatorContainer:operator:search", Constants.ON_CLICK);
+        
+        TESTER.cleanupFeedbackMessages();
+        formTester.submit("content:view:0:panel:container:operatorContainer:operator:search");
+        TESTER.assertNoErrorMessage();
 
         // Locate result in data table
         Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL + RESULT_DATA_TABLE, user.getUsername());
@@ -139,8 +158,26 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         // Select user
         TESTER.clickLink(TAB_PANEL + SEARCH_PANEL + SELECT_USER_ACTION);
 
-        // Move onto the next step in the wizard...
+        // move onto the next panel
+        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM + "view").setEnabled(false);
+        formTester = TESTER.newFormTester(TAB_PANEL + FORM);
+        formTester.submit("buttons:next");
+        
+        // Select a resource
+        comp = findComponentByProp ("key", TAB_PANEL + FORM + RESOURCES_DATA_TABLE + "body:rows", "resource-ldap");
+        assertNotNull(comp);
+        TESTER.executeAjaxEvent(comp.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + FORM + SELECT_RESOURCE_ACTION);
 
+        // move onto the next panel
+        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM + "view").setEnabled(false);
+        formTester = TESTER.newFormTester(TAB_PANEL + FORM);
+        formTester.submit("buttons:next");
+        
+        // Finish merge
+        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM + "view").setEnabled(false);
+        formTester = TESTER.newFormTester(TAB_PANEL + FORM);
+        formTester.submit("buttons:finish");
 
         UserService userService = SyncopeConsoleSession.get().getService(UserService.class);
 

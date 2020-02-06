@@ -41,6 +41,7 @@ import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -53,6 +54,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> implements IEventSink {
     private static final long serialVersionUID = -9142332740863374891L;
@@ -87,18 +89,20 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
             ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().ifPresent(modal::close);
         }
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            ((AjaxWizard.NewItemFinishEvent<?>) event.getPayload()).getTarget().ifPresent(target -> {
-                try {
-                    mergeAccounts();
-                    this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
+            Optional<AjaxRequestTarget> targetResult = ((AjaxWizard.NewItemFinishEvent<?>)
+                event.getPayload()).getTarget();
+            try {
+                mergeAccounts();
+                this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
+                targetResult.ifPresent(target -> {
                     ((BasePage) this.parentPanel.getPage()).getNotificationPanel().refresh(target);
                     parentPanel.updateResultTable(target);
                     modal.close(target);
-                } catch (Exception e) {
-                    this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                }
-            });
+                });
+            }  catch (Exception e) {
+                this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
+                targetResult.ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
+            }
         }
     }
 
