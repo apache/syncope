@@ -70,7 +70,7 @@ public class Details<T extends AnyTO> extends WizardStep {
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
             fragment = new Fragment("realmsFragment", "realmsTemplateFragment", this);
         } else {
-            boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
+            boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
             final AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
             settings.setShowListOnEmptyInput(!isSearchEnabled);

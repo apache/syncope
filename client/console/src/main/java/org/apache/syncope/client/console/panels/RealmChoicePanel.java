@@ -26,7 +26,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDown
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -103,7 +102,7 @@ public class RealmChoicePanel extends Panel {
         this.pageRef = pageRef;
         availableRealms = SyncopeConsoleSession.get().getAuthRealms();
         tree = new HashMap<>();
-        isSearchEnabled = RealmsUtils.enableSearchRealm();
+        isSearchEnabled = RealmsUtils.isSearchEnabled();
 
         realmTree = new LoadableDetachableModel<List<Pair<String, RealmTO>>>() {
 
@@ -424,7 +423,7 @@ public class RealmChoicePanel extends Panel {
             } else if (cache.containsKey(realm.getParent())) {
                 cache.get(realm.getParent()).add(realm);
             } else {
-                cache.put(realm.getParent(), Arrays.asList(realm));
+                cache.put(realm.getParent(), Stream.of(realm).collect(Collectors.toList()));
             }
         });
         return tree;
