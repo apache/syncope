@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -73,16 +74,21 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
     @Transactional(readOnly = true)
-    public List<RealmTO> search(final String keyword) {
+    public Pair<Integer, List<RealmTO>> search(final String keyword) {
         Set<String> bases = AuthContextUtils.getAuthorizations().get(StandardEntitlement.REALM_LIST);
 
-        return realmDAO.findMatching(keyword).stream().
+        Set<Realm> match = realmDAO.findMatching(keyword).stream().
                 filter(realm -> bases.stream().anyMatch(base -> realm.getFullPath().startsWith(base))).
-                flatMap(realm -> realmDAO.findDescendants(realm).stream()).
-                distinct().
-                map(realm -> binder.getRealmTO(realm, true)).
-                sorted(Comparator.comparing(RealmTO::getFullPath)).
-                collect(Collectors.toList());
+                collect(Collectors.toSet());
+
+        int descendants = Math.toIntExact(
+                match.stream().flatMap(realm -> realmDAO.findDescendants(realm).stream()).distinct().count());
+
+        return Pair.of(
+                descendants,
+                match.stream().map(realm -> binder.getRealmTO(realm, true)).
+                        sorted(Comparator.comparing(RealmTO::getFullPath)).
+                        collect(Collectors.toList()));
     }
 
     @PreAuthorize("isAuthenticated()")

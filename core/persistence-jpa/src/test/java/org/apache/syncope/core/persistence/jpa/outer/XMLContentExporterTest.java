@@ -55,11 +55,11 @@ public class XMLContentExporterTest extends AbstractTest {
 
         List<String> realms = IOUtils.readLines(
                 IOUtils.toInputStream(exported, Charset.defaultCharset()), Charset.defaultCharset()).stream().
-                filter(row -> StringUtils.startsWithIgnoreCase(row.trim(), "<REALM")).collect(Collectors.toList());
+                filter(row -> row.trim().startsWith("<Realm")).collect(Collectors.toList());
         assertEquals(4, realms.size());
-        assertTrue(StringUtils.containsIgnoreCase(realms.get(0), "NAME=\"/\""));
-        assertTrue(StringUtils.containsIgnoreCase(realms.get(1), "NAME=\"odd\""));
-        assertTrue(StringUtils.containsIgnoreCase(realms.get(2), "NAME=\"even\""));
-        assertTrue(StringUtils.containsIgnoreCase(realms.get(3), "NAME=\"two\""));
+        assertTrue(realms.get(0).contains("name=\"/\""));
+        assertTrue(realms.get(1).contains("name=\"odd\""));
+        assertTrue(realms.get(2).contains("name=\"even\""));
+        assertTrue(realms.get(3).contains("name=\"two\""));
     }
 }

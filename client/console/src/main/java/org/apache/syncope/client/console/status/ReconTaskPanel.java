@@ -19,11 +19,14 @@
 package org.apache.syncope.client.console.status;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
@@ -32,6 +35,7 @@ import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
@@ -45,6 +49,7 @@ import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -116,8 +121,29 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         if (taskTO instanceof PushTaskTO) {
             form.add(new Label("realm", ""));
         } else {
-            AjaxDropDownChoicePanel<String> realm = new AjaxDropDownChoicePanel<>(
-                    "realm", "destinationRealm", new PropertyModel<>(taskTO, "destinationRealm"), false);
+            boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
+            final AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
+            settings.setShowListOnEmptyInput(!isSearchEnabled);
+
+            final AjaxSearchFieldPanel realm =
+                    new AjaxSearchFieldPanel("realm", "destinationRealm",
+                            new PropertyModel<String>(taskTO, "destinationRealm"), settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    return (RealmsUtils.checkInput(input)
+                            ? (isSearchEnabled
+                                    ? realmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
+                                    : realmRestClient.list())
+                            : Collections.<RealmTO>emptyList()).stream().
+                            sorted(Comparator.comparing(RealmTO::getName)).
+                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                }
+            };
+
             form.add(realm);
             realm.addRequiredLabel();
             realm.setOutputMarkupId(true);
@@ -125,11 +151,6 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             if (isOnSyncope) {
                 realm.getField().setModelObject(SyncopeConstants.ROOT_REALM);
                 realm.setVisible(false);
-            } else {
-                realm.setChoices(realmRestClient.list().stream().
-                        sorted(Comparator.comparing(RealmTO::getName)).
-                        map(RealmTO::getFullPath).
-                        collect(Collectors.toList()));
             }
         }
 

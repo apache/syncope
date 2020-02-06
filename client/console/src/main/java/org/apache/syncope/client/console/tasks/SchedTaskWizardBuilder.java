@@ -21,9 +21,11 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
@@ -31,6 +33,7 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormCompo
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -46,6 +49,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -60,6 +64,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
 
+    private final RealmRestClient realmRestClient = new RealmRestClient();
+
     private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
     private final TaskType type;
@@ -68,17 +74,17 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private CrontabPanel crontabPanel;
 
+    private String realmQuery;
+
+    private boolean isSearchEnabled;
+
     private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            List<String> result = new RealmRestClient().list().stream().
-                    map(RealmTO::getFullPath).collect(Collectors.toList());
-            Collections.sort(result);
-
-            return result;
+            return searchRealms().stream().map(RealmTO::getFullPath).sorted().collect(Collectors.toList());
         }
     };
 
@@ -111,6 +117,12 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         }
         wizardModel.add(new Schedule(modelObject));
         return wizardModel;
+    }
+
+    private List<RealmTO> searchRealms() {
+        return isSearchEnabled
+                ? realmRestClient.search(RealmsUtils.buildQuery(realmQuery)).getResult()
+                : realmRestClient.list();
     }
 
     public class Profile extends WizardStep {
@@ -162,6 +174,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         };
 
         public Profile(final SchedTaskTO taskTO) {
+            isSearchEnabled = RealmsUtils.enableSearchRealm();
             AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<>(taskTO, "name"),
                     false);
             name.addRequiredLabel();
@@ -230,14 +243,28 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                 }
             });
 
-            AjaxDropDownChoicePanel<String> destinationRealm = new AjaxDropDownChoicePanel<>(
-                    "destinationRealm", "destinationRealm",
-                    new PropertyModel<String>(taskTO, "destinationRealm"), false).
-                    setChoices(realms);
+            final AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
+            settings.setShowListOnEmptyInput(!isSearchEnabled);
+
+            final AjaxSearchFieldPanel destinationRealm =
+                    new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
+                            new PropertyModel<String>(taskTO, "destinationRealm"), settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    realmQuery = input;
+                    return (RealmsUtils.checkInput(input)
+                            ? searchRealms().stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            : Collections.<String>emptyList()).iterator();
+                }
+            };
+
             if (taskTO instanceof PullTaskTO) {
                 destinationRealm.addRequiredLabel();
             }
-            destinationRealm.setNullValid(!(taskTO instanceof PullTaskTO));
             pullTaskSpecifics.add(destinationRealm);
 
             AjaxCheckBoxPanel remediation = new AjaxCheckBoxPanel(
@@ -254,14 +281,23 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                 pushTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            AjaxDropDownChoicePanel<String> sourceRealm = new AjaxDropDownChoicePanel<>(
-                    "sourceRealm", "sourceRealm",
-                    new PropertyModel<String>(taskTO, "sourceRealm"), false).
-                    setChoices(realms);
+            final AjaxSearchFieldPanel sourceRealm = new AjaxSearchFieldPanel("sourceRealm", "sourceRealm",
+                    new PropertyModel<String>(taskTO, "sourceRealm"), settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    realmQuery = input;
+                    return (RealmsUtils.checkInput(input)
+                            ? searchRealms().stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            : Collections.<String>emptyList()).iterator();
+                }
+            };
+
             if (taskTO instanceof PushTaskTO) {
                 sourceRealm.addRequiredLabel();
             }
-            sourceRealm.setNullValid(!(taskTO instanceof PushTaskTO));
             pushTaskSpecifics.add(sourceRealm);
 
             // ------------------------------
