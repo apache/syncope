@@ -159,7 +159,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         beans = new ListView<T>("beans", listOfItems) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -9112553137618363167L;
 
             @Override
             protected void populateItem(final ListItem<T> beanItem) {
@@ -219,7 +219,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     private ListView<String> header(final List<String> labels) {
         return new ListView<String>("names", labels) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -9112553137618363167L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {

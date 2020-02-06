@@ -52,6 +52,19 @@ public final class StatusUtils implements Serializable {
 
     private static final ReconciliationRestClient RECONCILIATION_REST_CLIENT = new ReconciliationRestClient();
 
+    public static Optional<ReconStatus> getReconStatus(
+            final String anyTypeKey, final String connObjectKeyValue, final String resource) {
+
+        ReconStatus result = null;
+        try {
+            result = RECONCILIATION_REST_CLIENT.status(
+                    new ReconQuery.Builder(anyTypeKey, resource).connObjectKeyValue(connObjectKeyValue).build());
+        } catch (Exception e) {
+            LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, connObjectKeyValue, resource, e);
+        }
+        return Optional.ofNullable(result);
+    }
+
     public static List<Pair<String, ReconStatus>> getReconStatuses(
             final String anyTypeKey, final String anyKey, final Collection<String> resources) {
 

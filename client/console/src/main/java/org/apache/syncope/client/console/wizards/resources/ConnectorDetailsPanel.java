@@ -19,13 +19,16 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -33,6 +36,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -42,6 +46,12 @@ public class ConnectorDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -2435937897614232137L;
 
+    private final RealmRestClient realmRestClient = new RealmRestClient();
+
+    private String realmQuery;
+
+    private boolean isSearchEnabled;
+
     private final LoadableDetachableModel<List<String>> realms;
 
     public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
@@ -49,13 +59,16 @@ public class ConnectorDetailsPanel extends WizardStep {
         setOutputMarkupId(true);
 
         final List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
+        isSearchEnabled = RealmsUtils.enableSearchRealm();
+
         realms = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                return new RealmRestClient().list().stream().
+                List<RealmTO> realmList = searchRealms();
+                return realmList.stream().
                         filter(realm -> authRealms.stream().
                         anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(RealmTO::getFullPath).
@@ -64,9 +77,27 @@ public class ConnectorDetailsPanel extends WizardStep {
             }
         };
 
-        AjaxDropDownChoicePanel<String> realm = new AjaxDropDownChoicePanel<>(
-                "adminRealm", "adminRealm", new PropertyModel<>(connInstanceTO, "adminRealm"), false);
-        realm.setChoices(realms);
+        final AutoCompleteSettings settings = new AutoCompleteSettings();
+        settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
+        settings.setShowListOnEmptyInput(!isSearchEnabled);
+
+        AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel("adminRealm", "adminRealm",
+                new PropertyModel<>(connInstanceTO, "adminRealm"), settings) {
+
+            private static final long serialVersionUID = -6390474600233486704L;
+
+            @Override
+            protected Iterator<String> getChoices(final String input) {
+                realmQuery = input;
+                return (isSearchEnabled
+                        ? searchRealms()
+                        : realmRestClient.list()).
+                        stream().filter(realm -> authRealms.stream().anyMatch(
+                        authRealm -> realm.getFullPath().startsWith(authRealm))).
+                        map(item -> item.getFullPath()).collect(Collectors.toList()).iterator();
+            }
+        };
+
         realm.setOutputMarkupId(true);
         realm.addRequiredLabel();
         add(realm);
@@ -167,5 +198,11 @@ public class ConnectorDetailsPanel extends WizardStep {
                 -> object.getLocation().equals(connInstanceTO.getLocation())
                 && object.getBundleName().equals(connInstanceTO.getBundleName())).
                 map(ConnBundleTO::getVersion).collect(Collectors.toList());
+    }
+
+    private List<RealmTO> searchRealms() {
+        return isSearchEnabled
+                ? realmRestClient.search(RealmsUtils.buildQuery(realmQuery)).getResult()
+                : realmRestClient.list();
     }
 }
