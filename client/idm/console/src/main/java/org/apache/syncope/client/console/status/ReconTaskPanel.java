@@ -113,7 +113,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         if (taskTO instanceof PushTaskTO) {
             form.add(new Label("realm", ""));
         } else {
-            boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
+            boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
             settings.setShowListOnEmptyInput(!isSearchEnabled);

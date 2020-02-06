@@ -20,7 +20,6 @@ package org.apache.syncope.client.console;
 
 import java.security.AccessControlException;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.xml.ws.WebServiceException;
-import org.apache.commons.collections4.list.SetUniqueList;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -252,11 +250,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public List<String> getAuthRealms() {
-        List<String> sortable = new ArrayList<>();
-        List<String> available = SetUniqueList.setUniqueList(sortable);
-        auth.values().forEach(available::addAll);
-        Collections.sort(sortable);
-        return sortable;
+        return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
     }
 
     public boolean owns(final String entitlements, final String... realms) {

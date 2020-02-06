@@ -68,7 +68,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
     public SchedTaskWizardBuilder(final TaskType type, final T taskTO, final PageReference pageRef) {
         super(taskTO, pageRef);
         this.type = type;
-        this.isSearchEnabled = RealmsUtils.enableSearchRealm();
+        this.isSearchEnabled = RealmsUtils.isSearchEnabled();
     }
 
     @Override

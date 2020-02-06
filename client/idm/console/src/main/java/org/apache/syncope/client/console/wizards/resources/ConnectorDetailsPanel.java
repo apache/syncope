@@ -48,7 +48,7 @@ public class ConnectorDetailsPanel extends WizardStep {
         super();
         setOutputMarkupId(true);
 
-        boolean isSearchEnabled = RealmsUtils.enableSearchRealm();
+        boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(!isSearchEnabled);

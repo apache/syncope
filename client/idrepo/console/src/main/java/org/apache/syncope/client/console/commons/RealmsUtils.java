@@ -27,17 +27,17 @@ import org.apache.syncope.common.rest.api.beans.RealmQuery;
 public final class RealmsUtils {
 
     public static final int REALMS_VIEW_SIZE = 20;
-    
+
     private RealmsUtils() {
         // private constructor for static utility class
     }
 
-    public static boolean enableSearchRealm() {
+    public static boolean isSearchEnabled() {
         return new RealmRestClient().search(
                 new RealmQuery.Builder().keyword(
                         SyncopeConsoleSession.get().getAuthRealms().contains(SyncopeConstants.ROOT_REALM)
                         ? SyncopeConstants.ROOT_REALM
-                        : SyncopeConsoleSession.get().getAuthRealms().iterator().next()).build()).
+                        : SyncopeConsoleSession.get().getAuthRealms().get(0)).build()).
                 getTotalCount() > REALMS_VIEW_SIZE;
     }
 
