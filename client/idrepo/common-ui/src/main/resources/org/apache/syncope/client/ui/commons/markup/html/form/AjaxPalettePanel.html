@@ -20,10 +20,12 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
     <form wicket:id="form">
-      <div class="form-group input-group">
+      <div class="input-group margin-bottom">
         <span wicket:id="filter">[FILTER]</span>
-        <span class="input-group-addon">
-          <a href="#" wicket:id="search"><i class="glyphicon glyphicon-search"></i></a>
+        <span class="input-group-btn">
+          <button type="button" class="btn btn-default btn-flat" wicket:id="search">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+          </button>
         </span>
       </div>
     </form>

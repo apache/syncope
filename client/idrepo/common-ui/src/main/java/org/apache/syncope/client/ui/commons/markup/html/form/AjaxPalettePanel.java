@@ -32,7 +32,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.extensions.markup.html.form.palette.component.Recorder;
 import org.apache.wicket.markup.html.basic.Label;
@@ -173,23 +173,23 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         add(palette.setLabel(new ResourceModel(name)).setOutputMarkupId(true));
 
-        final Form<?> form = new Form<>("form");
+        Form<?> form = new Form<>("form");
         add(form.setEnabled(builder.filtered).setVisible(builder.filtered));
 
-        final AjaxTextFieldPanel filter = new AjaxTextFieldPanel("filter", "filter", queryFilter, false);
-        filter.hideLabel().setOutputMarkupId(true);
-        form.add(filter);
+        AjaxTextFieldPanel filter = new AjaxTextFieldPanel("filter", "filter", queryFilter, false);
+        form.add(filter.hideLabel().setOutputMarkupId(true));
 
-        form.add(new AjaxSubmitLink("search") {
+        AjaxButton search = new AjaxButton("search") {
 
-            private static final long serialVersionUID = -1765773642975892072L;
+            private static final long serialVersionUID = 8390605330558248736L;
 
             @Override
-            protected void onAfterSubmit(final AjaxRequestTarget target) {
-                super.onAfterSubmit(target);
+            protected void onSubmit(final AjaxRequestTarget target) {
                 target.add(palette);
             }
-        });
+        };
+        search.setOutputMarkupId(true);
+        form.add(search);
     }
 
     public LoadableDetachableModel<List<T>> getChoicesModel() {
