@@ -238,11 +238,13 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             AjaxRequestTarget target = payload.getTarget();
 
             keyword = payload.getKeyword();
-            if (!keyword.startsWith("*")) {
-                keyword = '*' + keyword;
-            }
-            if (!keyword.endsWith("*")) {
-                keyword = keyword + '*';
+            if (StringUtils.isNotBlank(keyword)) {
+                if (!StringUtils.startsWith(keyword, "*")) {
+                    keyword = "*" + keyword;
+                }
+                if (!StringUtils.endsWith(keyword, "*")) {
+                    keyword = keyword + "*";
+                }
             }
 
             updateResultTable(target);

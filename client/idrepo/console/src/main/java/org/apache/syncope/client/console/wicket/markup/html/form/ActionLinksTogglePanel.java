@@ -126,8 +126,12 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
     }
 
     public void toggleWithContent(
-            final AjaxRequestTarget target, final ActionsPanel<T> actionsPanel, final T modelObject) {
+            final AjaxRequestTarget target,
+            final ActionsPanel<T> actionsPanel,
+            final T modelObject) {
+
         updateHeader(target, modelObject);
+
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
@@ -138,7 +142,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             }
         });
 
-        final Fragment frag = new Fragment("actions", "actionsFragment", this);
+        Fragment frag = new Fragment("actions", "actionsFragment", this);
         frag.setOutputMarkupId(true);
         frag.add(actionsPanel);
 

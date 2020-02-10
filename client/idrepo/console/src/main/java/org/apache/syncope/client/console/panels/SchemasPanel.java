@@ -24,14 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.attributes.AjaxCallListener;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -44,71 +39,37 @@ public class SchemasPanel extends Panel {
 
     private static final long serialVersionUID = -1140213992451232279L;
 
-    private static final String SEARCH_SUBMIT_LINK = "searchSubmitLink";
-
-    private final PageReference pageReference;
+    private final PageReference pageRef;
 
     public SchemasPanel(final String id, final PageReference pageRef) {
         super(id);
 
-        this.pageReference = pageRef;
+        this.pageRef = pageRef;
 
-        final Model<String> keywordModel = new Model<>(StringUtils.EMPTY);
+        Model<String> keywordModel = new Model<>(StringUtils.EMPTY);
 
         WebMarkupContainer searchBoxContainer = new WebMarkupContainer("searchBox");
         add(searchBoxContainer);
 
-        final Form<?> form = new Form<>("form");
+        Form<?> form = new Form<>("form");
         searchBoxContainer.add(form);
 
-        final AjaxTextFieldPanel searchPanel = new AjaxTextFieldPanel(
-                "filter", "filter", keywordModel, true);
-        form.add(searchPanel.hideLabel().setOutputMarkupId(true));
+        AjaxTextFieldPanel filter = new AjaxTextFieldPanel("filter", "filter", keywordModel, true);
+        form.add(filter.hideLabel().setOutputMarkupId(true));
 
-        final AjaxSubmitLink submitLink = new AjaxSubmitLink("search") {
+        AjaxButton search = new AjaxButton("search") {
 
-            private static final long serialVersionUID = -1765773642975892072L;
+            private static final long serialVersionUID = 8390605330558248736L;
 
             @Override
-            protected void onAfterSubmit(final AjaxRequestTarget target) {
-                super.onAfterSubmit(target);
-
-                send(SchemasPanel.this, Broadcast.DEPTH,
+            protected void onSubmit(final AjaxRequestTarget target) {
+                send(SchemasPanel.this, Broadcast.DEPTH, 
                         new SchemaTypePanel.SchemaSearchEvent(target, keywordModel.getObject()));
             }
         };
-        submitLink.setOutputMarkupId(true);
-        submitLink.setMarkupId(SEARCH_SUBMIT_LINK);
-        form.add(submitLink);
-
-        searchPanel.getField().add(AttributeModifier.replace(
-                "onkeydown",
-                Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
-
-        searchPanel.getField().add(new AjaxEventBehavior("onkeydown") {
-
-            private static final long serialVersionUID = -7133385027739964990L;
-
-            @Override
-            protected void onEvent(final AjaxRequestTarget target) {
-                target.appendJavaScript("$('#" + SEARCH_SUBMIT_LINK + "').click();");
-            }
-
-            @Override
-            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-                super.updateAjaxAttributes(attributes);
-
-                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
-
-                    private static final long serialVersionUID = 7160235486520935153L;
-
-                    @Override
-                    public CharSequence getPrecondition(final Component component) {
-                        return "if (Wicket.Event.keyCode(attrs.event)  == 13) { return true; } else { return false; }";
-                    }
-                });
-            }
-        });
+        search.setOutputMarkupId(true);
+        form.add(search);
+        form.setDefaultButton(search);
 
         Accordion accordion = new Accordion("accordionPanel", buildTabList());
         accordion.setOutputMarkupId(true);
@@ -125,7 +86,7 @@ public class SchemasPanel extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new SchemaTypePanel(panelId, schemaType, pageReference);
+                    return new SchemaTypePanel(panelId, schemaType, pageRef);
                 }
             });
         }
