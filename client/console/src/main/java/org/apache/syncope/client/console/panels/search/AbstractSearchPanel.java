@@ -95,6 +95,9 @@ public abstract class AbstractSearchPanel extends Panel {
         protected boolean enableSearch = false;
 
         protected SearchClausePanel.Customizer customizer = new SearchClausePanel.Customizer() {
+
+            private static final long serialVersionUID = 4449199405807453441L;
+
         };
 
         protected IEventSink resultContainer;

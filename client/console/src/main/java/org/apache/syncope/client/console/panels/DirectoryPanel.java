@@ -272,11 +272,11 @@ public abstract class DirectoryPanel<
         }
     }
 
-    private void updateResultTable(final boolean create) {
+    protected void updateResultTable(final boolean create) {
         updateResultTable(create, rows);
     }
 
-    private void updateResultTable(final boolean create, final int rows) {
+    protected void updateResultTable(final boolean create, final int rows) {
         dataProvider = dataProvider();
 
         final int currentPage = resultTable != null
@@ -298,9 +298,9 @@ public abstract class DirectoryPanel<
                 return DirectoryPanel.this.getTogglePanel();
             }
 
-        }.
-                setColumns(getColumns()).
-                setRowsPerPage(rows).setBatches(getBatches(), restClient, itemKeyFieldName).
+        }.setColumns(getColumns()).
+                setRowsPerPage(rows).
+                setBatches(getBatches(), restClient, itemKeyFieldName).
                 setContainer(container);
 
         if (!checkBoxEnabled) {
