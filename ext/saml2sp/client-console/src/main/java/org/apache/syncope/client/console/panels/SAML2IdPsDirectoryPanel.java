@@ -105,25 +105,6 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             }
         });
 
-        // need to override to change the menu header
-        actionTogglePanel = new ActionLinksTogglePanel<SAML2IdPTO>("outer", pageRef) {
-
-            private static final long serialVersionUID = -7688359318035249200L;
-
-            @Override
-            public void toggleWithContent(
-                    final AjaxRequestTarget target,
-                    final ActionsPanel<SAML2IdPTO> actionsPanel,
-                    final SAML2IdPTO modelObject) {
-
-                super.toggleWithContent(target, actionsPanel, modelObject);
-                setHeader(target, StringUtils.abbreviate(modelObject.getName(), 25));
-                this.toggle(target, true);
-            }
-
-        };
-        addOuterObject(actionTogglePanel);
-
         addOuterObject(metadataModal);
         setWindowClosedReloadCallback(metadataModal);
         metadataModal.size(Modal.Size.Large);
@@ -169,6 +150,24 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     @Override
     protected SAML2IdPsProvider dataProvider() {
         return new SAML2IdPsProvider(rows);
+    }
+
+    @Override
+    protected ActionLinksTogglePanel<SAML2IdPTO> actionTogglePanel() {
+        return new ActionLinksTogglePanel<SAML2IdPTO>(Constants.OUTER, pageRef) {
+
+            private static final long serialVersionUID = -7688359318035249200L;
+
+            @Override
+            public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
+                if (modelObject instanceof SAML2IdPTO) {
+                    setHeader(target,
+                            StringUtils.abbreviate(((SAML2IdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
+                } else {
+                    super.updateHeader(target, modelObject);
+                }
+            }
+        };
     }
 
     @Override
