@@ -91,24 +91,6 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
 
-        actionTogglePanel = new ActionLinksTogglePanel<OIDCProviderTO>("outer", pageRef) {
-
-            private static final long serialVersionUID = -7688359318035249200L;
-
-            @Override
-            public void toggleWithContent(
-                    final AjaxRequestTarget target,
-                    final ActionsPanel<OIDCProviderTO> actionsPanel,
-                    final OIDCProviderTO modelObject) {
-
-                super.toggleWithContent(target, actionsPanel, modelObject);
-                setHeader(target, StringUtils.abbreviate(modelObject.getName(), 25));
-                this.toggle(target, true);
-            }
-
-        };
-        addOuterObject(actionTogglePanel);
-
         templateModal = new BaseModal<Serializable>("outer") {
 
             private static final long serialVersionUID = 5787433530654262016L;
@@ -125,7 +107,6 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
-//                target.add(content);
                 templateModal.show(false);
             }
         });
@@ -142,6 +123,24 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
+    protected ActionLinksTogglePanel<OIDCProviderTO> actionTogglePanel() {
+        return new ActionLinksTogglePanel<OIDCProviderTO>(Constants.OUTER, pageRef) {
+
+            private static final long serialVersionUID = -7688359318035249200L;
+
+            @Override
+            public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
+                if (object instanceof OIDCProviderTO) {
+                    setHeader(target,
+                            StringUtils.abbreviate(((OIDCProviderTO) object).getName(), HEADER_FIRST_ABBREVIATION));
+                } else {
+                    super.updateHeader(target, object);
+                }
+            }
+        };
+    }
+
+    @Override
     protected String paginatorRowsKey() {
         return PREF_OIDC_PROVIDERS_PAGINATOR_ROWS;
 
@@ -150,10 +149,10 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
     @Override
     protected List<IColumn<OIDCProviderTO, String>> getColumns() {
         List<IColumn<OIDCProviderTO, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<OIDCProviderTO>(new ResourceModel("key"), "key", "key"));
-        columns.add(new PropertyColumn<OIDCProviderTO, String>(new ResourceModel("name"), "name", "name"));
-        columns.add(new PropertyColumn<OIDCProviderTO, String>(new ResourceModel("issuer"), "issuer", "issuer"));
-        columns.add(new PropertyColumn<OIDCProviderTO, String>(new ResourceModel("clientID"), "clientID", "clientID"));
+        columns.add(new KeyPropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn<>(new ResourceModel("issuer"), "issuer", "issuer"));
+        columns.add(new PropertyColumn<>(new ResourceModel("clientID"), "clientID", "clientID"));
         return columns;
 
     }
@@ -161,7 +160,6 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
         return List.of();
-
     }
 
     @Override

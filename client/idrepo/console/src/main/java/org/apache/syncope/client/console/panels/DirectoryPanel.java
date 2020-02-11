@@ -104,7 +104,7 @@ public abstract class DirectoryPanel<
 
     protected final BaseModal<W> displayAttributeModal = new BaseModal<>(Constants.OUTER);
 
-    protected ActionLinksTogglePanel<T> actionTogglePanel;
+    protected final ActionLinksTogglePanel<T> actionTogglePanel;
 
     /**
      * Create simple unfiltered search result panel.
@@ -145,7 +145,7 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
-        actionTogglePanel = new ActionLinksTogglePanel<>(Constants.OUTER, builder.getPageRef());
+        actionTogglePanel = actionTogglePanel();
         addOuterObject(actionTogglePanel);
 
         addOuterObject(altDefaultModal);
@@ -354,12 +354,12 @@ public abstract class DirectoryPanel<
         return model == null ? new ActionsPanel<>("actions", new Model<>()) : new ActionsPanel<>("actions", model);
     }
 
-    protected ActionLinksTogglePanel<T> getTogglePanel() {
-        return actionTogglePanel;
+    protected ActionLinksTogglePanel<T> actionTogglePanel() {
+        return new ActionLinksTogglePanel<>(Constants.OUTER, pageRef);
     }
 
-    protected void setTogglePanel(final ActionLinksTogglePanel<T> actionTogglePanel) {
-        this.actionTogglePanel = actionTogglePanel;
+    protected ActionLinksTogglePanel<T> getTogglePanel() {
+        return actionTogglePanel;
     }
 
     public static class EventDataWrapper {
