@@ -310,8 +310,6 @@ public class JobWidget extends BaseWidget {
                 }
             }.disableCheckBoxes().hidePaginator());
 
-            super.setTogglePanel(actionTogglePanel);
-
             this.reportModal = JobWidget.this.reportModal;
             setWindowClosedReloadCallback(reportModal);
 
