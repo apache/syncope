@@ -124,6 +124,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
         return "SUCCESS";
     }
 
+    @SuppressWarnings("deprecation")
     private void removeIndexIfExists(final AnyTypeKind kind) throws IOException {
         if (client.indices().exists(
                 new GetIndexRequest().indices(elasticsearchUtils.getContextDomainName(kind)), RequestOptions.DEFAULT)) {
@@ -135,6 +136,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void createIndex(final AnyTypeKind kind)
             throws InterruptedException, ExecutionException, IOException {
 
