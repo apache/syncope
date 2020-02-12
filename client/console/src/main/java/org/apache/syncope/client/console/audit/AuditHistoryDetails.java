@@ -20,12 +20,13 @@ package org.apache.syncope.client.console.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.Serializable;
 import java.util.Date;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
-import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -38,7 +39,7 @@ import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AuditHistoryDetails<T extends EntityTO> extends MultilevelPanel.SecondLevel {
+public abstract class AuditHistoryDetails<T extends Serializable> extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -7400543686272100483L;
 
@@ -46,19 +47,16 @@ public abstract class AuditHistoryDetails<T extends EntityTO> extends Multilevel
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final String KEY_CURRENT = "current";
-
     public AuditHistoryDetails(
             final MultilevelPanel mlp,
-            final AuditEntryTO selected,
-            final T currentEntity,
+            final AuditEntry selected,
+            final EntityTO currentEntity,
             final String auditRestoreEntitlement,
             final PageReference pageRef) {
 
         super();
 
-        AuditEntryTO current = new AuditEntryTO();
-        current.setKey(KEY_CURRENT);
+        AuditEntry current = new AuditEntry();
         if (currentEntity instanceof AbstractAnnotatedBean) {
             current.setWho(((AbstractAnnotatedBean) currentEntity).getCreator());
             current.setDate(((AbstractAnnotatedBean) currentEntity).getCreationDate());
@@ -112,7 +110,7 @@ public abstract class AuditHistoryDetails<T extends EntityTO> extends Multilevel
 
     protected abstract void restore(String json, AjaxRequestTarget target);
 
-    private Model<String> toJSON(final AuditEntryTO auditEntry, final Class<T> reference) {
+    private Model<String> toJSON(final AuditEntry auditEntry, final Class<T> reference) {
         try {
             String content = auditEntry.getBefore() == null
                     ? MAPPER.readTree(auditEntry.getOutput()).get("entity").toPrettyString()

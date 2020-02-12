@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.logic.audit.AuditAppender;
+import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
@@ -239,7 +240,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(ImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
 
-                if (AuditAppender.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                if (AuditAppender.class.isAssignableFrom(clazz)
+                        && !JdbcAuditAppender.class.equals(clazz) && !isAbstractClazz) {
+
                     classNames.get(ImplementationType.AUDIT_APPENDER).add(clazz.getName());
                     auditAppenderClasses.add(clazz);
                 }

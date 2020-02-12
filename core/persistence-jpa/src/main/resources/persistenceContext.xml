@@ -40,7 +40,7 @@ under the License.
   <bean class="${group.dao:org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO}"/>
   <bean class="${anyObject.dao:org.apache.syncope.core.persistence.jpa.dao.JPAAnyObjectDAO}"/>
   <bean class="${conf.dao:org.apache.syncope.core.persistence.jpa.dao.JPAConfDAO}"/>
-  <bean class="${audit.dao:org.apache.syncope.core.persistence.jpa.dao.JPAAuditDAO}"/>
+  <bean class="${logger.dao:org.apache.syncope.core.persistence.jpa.dao.JPALoggerDAO}"/>
 
   <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 

@@ -155,9 +155,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
                 } finally {
-                    nullPriorityFutures.forEach(future -> {
-                        future.cancel(true);
-                    });
+                    nullPriorityFutures.forEach(future -> future.cancel(true));
                     nullPriorityFutures.clear();
                     nullPriority.clear();
                 }

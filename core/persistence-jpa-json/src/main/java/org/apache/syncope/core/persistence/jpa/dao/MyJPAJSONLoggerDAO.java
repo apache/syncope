@@ -23,20 +23,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class MyJPAJSONAuditDAO extends AbstractJPAJSONAuditDAO {
+public class MyJPAJSONLoggerDAO extends AbstractJPAJSONLoggerDAO {
 
     private static class MyMessageCriteriaBuilder extends JSONMessageCriteriaBuilder {
 
         @Override
         protected String doBuild(final List<ObjectNode> containers) {
-            query.append('(').append(MESSAGE_COLUMN).append(" -> '$.before' LIKE '%").append(entityKey).
-                    append("%' OR ").append(MESSAGE_COLUMN).append(" -> '$.input' LIKE '%").append(entityKey).
-                    append("%' OR ").append(MESSAGE_COLUMN).append(" -> '$.output' LIKE '%").append(entityKey).
+            query.append('(').append(AUDIT_MESSAGE_COLUMN).append(" -> '$.before' LIKE '%").append(entityKey).
+                    append("%' OR ").append(AUDIT_MESSAGE_COLUMN).append(" -> '$.input' LIKE '%").append(entityKey).
+                    append("%' OR ").append(AUDIT_MESSAGE_COLUMN).append(" -> '$.output' LIKE '%").append(entityKey).
                     append("%')");
 
             if (!containers.isEmpty()) {
                 query.append(" AND (").
-                        append(containers.stream().map(container -> "JSON_CONTAINS(" + MESSAGE_COLUMN + ", '"
+                        append(containers.stream().map(container -> "JSON_CONTAINS(" + AUDIT_MESSAGE_COLUMN + ", '"
                         + POJOHelper.serialize(container).replace("'", "''")
                         + "')").collect(Collectors.joining(" OR "))).
                         append(')');

@@ -35,46 +35,41 @@ public class SyslogRewriteAuditAppender extends DefaultRewriteAuditAppender {
     @Override
     public Set<AuditLoggerName> getEvents() {
         Set<AuditLoggerName> events = new HashSet<>();
-        events.add(
-                new AuditLoggerName(
-                        AuditElements.EventCategoryType.LOGIC,
-                        ResourceLogic.class.getSimpleName(),
-                        null,
-                        "update",
-                        AuditElements.Result.SUCCESS));
-        events.add(
-                new AuditLoggerName(
-                        AuditElements.EventCategoryType.LOGIC,
-                        ConnectorLogic.class.getSimpleName(),
-                        null,
-                        "update",
-                        AuditElements.Result.SUCCESS));
-        events.add(
-                new AuditLoggerName(
-                        AuditElements.EventCategoryType.LOGIC,
-                        ResourceLogic.class.getSimpleName(),
-                        null,
-                        "delete",
-                        AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ConnectorLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "delete",
+                AuditElements.Result.SUCCESS));
         return events;
     }
 
     @Override
-    public void initTargetAppender() {
+    protected void initTargetAppender() {
         targetAppender = SyslogAppender.newSyslogAppenderBuilder().
                 setName(getTargetAppenderName()).
                 withHost("localhost").
                 withPort(514).
                 withProtocol(Protocol.UDP).
-                setLayout(PatternLayout.newBuilder().
-                        withPattern("%d{ISO8601} %-5level %logger - %msg%n").
-                        build()).
+                setLayout(PatternLayout.newBuilder().withPattern("%d{ISO8601} %-5level %logger - %msg%n").build()).
                 setFacility(Facility.LOCAL1).
                 build();
     }
 
     @Override
     public String getTargetAppenderName() {
-        return "audit_for_" + domainName + "_syslog";
+        return "audit_for_" + domain + "_syslog";
     }
 }

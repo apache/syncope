@@ -25,5 +25,5 @@ user.dao=org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO
 group.dao=org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO
 anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.JPAAnyObjectDAO
 conf.dao=org.apache.syncope.core.persistence.jpa.dao.JPAConfDAO
-audit.dao=org.apache.syncope.core.persistence.jpa.dao.JPAAuditDAO
+logger.dao=org.apache.syncope.core.persistence.jpa.dao.JPALoggerDAO
 openjpa.RemoteCommitProvider=${OPENJPA_REMOTE_COMMIT}

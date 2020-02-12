@@ -64,6 +64,7 @@ import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class LoggerITCase extends AbstractITCase {
@@ -98,15 +99,12 @@ public class LoggerITCase extends AbstractITCase {
         List<LoggerTO> loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
-        loggers.forEach(logger -> {
-            assertNotNull(logger);
-        });
+        loggers.forEach(Assertions::assertNotNull);
     }
 
     @Test
     public void listAudits() throws ParseException {
         List<LoggerTO> audits = loggerService.list(LoggerType.AUDIT);
-
         assertNotNull(audits);
         assertFalse(audits.isEmpty());
         for (LoggerTO audit : audits) {

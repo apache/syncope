@@ -64,18 +64,6 @@ public final class POJOHelper {
         return result;
     }
 
-    public static String serializeWithDefaultPrettyPrinter(final Object object) {
-        String result = null;
-
-        try {
-            result = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
-        } catch (Exception e) {
-            LOG.error("During serialization", e);
-        }
-
-        return result;
-    }
-
     public static <T extends Object> T deserialize(final String serialized, final Class<T> reference) {
         T result = null;
 

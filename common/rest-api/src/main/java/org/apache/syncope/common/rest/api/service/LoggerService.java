@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -36,12 +37,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 
 /**
  * REST operations for logging and auditing.
@@ -83,6 +87,17 @@ public interface LoggerService extends JAXRSService {
     @Path("events")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<EventCategory> events();
+
+    /**
+     * Returns a paged list of audit entries matching the given query.
+     *
+     * @param auditQuery query conditions
+     * @return paged list of audit entries matching the given query
+     */
+    @GET
+    @Path("AUDIT/entries")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    PagedResult<AuditEntry> search(@BeanParam AuditQuery auditQuery);
 
     /**
      * Returns logger with matching type and name.

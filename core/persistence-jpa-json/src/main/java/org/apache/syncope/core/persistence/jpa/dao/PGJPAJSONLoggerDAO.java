@@ -21,23 +21,23 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.core.persistence.jpa.dao.AbstractJPAJSONAuditDAO.JSONMessageCriteriaBuilder;
+import org.apache.syncope.core.persistence.jpa.dao.AbstractJPAJSONLoggerDAO.JSONMessageCriteriaBuilder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class PGJPAJSONAuditDAO extends AbstractJPAJSONAuditDAO {
+public class PGJPAJSONLoggerDAO extends AbstractJPAJSONLoggerDAO {
 
     private static class PGMessageCriteriaBuilder extends JSONMessageCriteriaBuilder {
 
         @Override
         protected String doBuild(final List<ObjectNode> containers) {
-            query.append('(').append(MESSAGE_COLUMN).append(" ->> 'before' LIKE '%").append(entityKey).
-                    append("%' OR ").append(MESSAGE_COLUMN).append(" ->> 'input' LIKE '%").append(entityKey).
-                    append("%' OR ").append(MESSAGE_COLUMN).append(" ->> 'output' LIKE '%").append(entityKey).
+            query.append('(').append(AUDIT_MESSAGE_COLUMN).append(" ->> 'before' LIKE '%").append(entityKey).
+                    append("%' OR ").append(AUDIT_MESSAGE_COLUMN).append(" ->> 'input' LIKE '%").append(entityKey).
+                    append("%' OR ").append(AUDIT_MESSAGE_COLUMN).append(" ->> 'output' LIKE '%").append(entityKey).
                     append("%')");
 
             if (!containers.isEmpty()) {
                 query.append(" AND (").
-                        append(containers.stream().map(container -> MESSAGE_COLUMN + " @> '"
+                        append(containers.stream().map(container -> AUDIT_MESSAGE_COLUMN + " @> '"
                         + POJOHelper.serialize(container).replace("'", "''")
                         + "'::jsonb").collect(Collectors.joining(" OR "))).
                         append(')');
@@ -49,7 +49,7 @@ public class PGJPAJSONAuditDAO extends AbstractJPAJSONAuditDAO {
 
     @Override
     protected String select() {
-        return MESSAGE_COLUMN + "::text";
+        return AUDIT_MESSAGE_COLUMN + "::text";
     }
 
     @Override
