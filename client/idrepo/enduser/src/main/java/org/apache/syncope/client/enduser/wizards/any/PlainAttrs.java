@@ -413,21 +413,17 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     }
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-
-                    panel = new MultiFieldPanel.Builder<>(new ListModel<String>() {
-
-                        private static final long serialVersionUID = -1765231556272935141L;
-
-                        @Override
-                        public List<String> getObject() {
-                            return attributableTO.getObject().getPlainAttr(attrTO.getSchema()).get().getValues();
-                        }
-                    }).build("panel",
-                            attrTO.getSchema(),
-                            FieldPanel.class.cast(panel));
-                    // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                    ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
-
+                    if (schemas.get(attrTO.getSchema()).isMultivalue()) {
+                        panel = new MultiFieldPanel.Builder<>(
+                                new PropertyModel<>(
+                                        attributableTO.getObject().getPlainAttr(attrTO.getSchema()), "values"))
+                                .build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
+                        // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
+                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
+                    } else {
+                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
+                    }
+                    
                     item.add(panel);
                 }
             });
