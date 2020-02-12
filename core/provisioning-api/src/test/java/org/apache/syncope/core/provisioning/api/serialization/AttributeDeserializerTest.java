@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +64,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(jp.readValueAsTree()).thenReturn(tree);
         when(tree.get("name")).thenReturn(node2);
         when(tree.get("value")).thenReturn(node);
-        when(node.iterator()).thenReturn(Collections.singletonList(node).iterator());
+        when(node.iterator()).thenReturn(List.of(node).iterator());
     }
 
     @Test
@@ -81,7 +83,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asBoolean()).thenReturn(Boolean.TRUE);
         attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(Collections.singletonList(Boolean.TRUE.toString()).get(0), attr.getValue().get(0));
+        assertEquals(List.of(Boolean.TRUE.toString()).get(0), attr.getValue().get(0));
     }
 
     @Test
@@ -93,7 +95,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asDouble()).thenReturn(number);
         attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(Collections.singletonList(number).get(0), attr.getValue().get(0));
+        assertEquals(List.of(number).get(0), attr.getValue().get(0));
     }
 
     @Test
@@ -105,7 +107,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asLong()).thenReturn(number);
         attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(Collections.singletonList(number.toString()).get(0), attr.getValue().get(0));
+        assertEquals(List.of(number.toString()).get(0), attr.getValue().get(0));
     }
 
     @Test
@@ -116,7 +118,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asInt()).thenReturn(number);
         attr = deserializer.deserialize(jp, ct);
         assertEquals(attr.getName(), name);
-        assertEquals(Collections.singletonList(number.toString()).get(0), attr.getValue().get(0));
+        assertEquals(List.of(number.toString()).get(0), attr.getValue().get(0));
     }
 
     @Test
@@ -126,6 +128,6 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asText()).thenReturn(text);
         attr = deserializer.deserialize(jp, ct);
         assertEquals(attr.getName(), name);
-        assertEquals(Collections.singletonList(text).get(0), attr.getValue().get(0));
+        assertEquals(List.of(text).get(0), attr.getValue().get(0));
     }
 }

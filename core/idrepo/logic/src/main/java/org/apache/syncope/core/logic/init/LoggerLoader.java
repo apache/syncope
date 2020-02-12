@@ -18,35 +18,30 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.db.ColumnMapping;
-import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
-import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.MemoryAppender;
+import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -58,6 +53,9 @@ public class LoggerLoader implements SyncopeCoreLoader {
     @Autowired
     private ImplementationLookup implementationLookup;
 
+    @Value("${enable.jdbcAuditAppender:true}")
+    private boolean enableJdbcAuditAppender;
+
     private final Map<String, MemoryAppender> memoryAppenders = new HashMap<>();
 
     @Override
@@ -65,69 +63,45 @@ public class LoggerLoader implements SyncopeCoreLoader {
         return 300;
     }
 
-    private static ColumnMapping[] buildColumnMappings(final LoggerContext ctx) {
-        return new ColumnMapping[] {
-            ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setType(Timestamp.class).build(),
-            ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
-            ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
-            ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName(AuditDAO.MESSAGE_COLUMN).setPattern("%message").build(),
-            ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
-        };
-    }
-
     @Override
     public void load(final String domain, final DataSource datasource) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         ctx.getConfiguration().getAppenders().entrySet().stream().
-                filter(entry -> (entry.getValue() instanceof MemoryAppender)).
+                filter(entry -> entry.getValue() instanceof MemoryAppender).
                 forEach(entry -> memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue()));
 
-        // Audit table and DataSource for the given domain
-        Appender appender = ctx.getConfiguration().getAppender("audit_for_" + domain);
-        if (appender == null) {
-            appender = JdbcAppender.newBuilder().
-                    setName("audit_for_" + domain).
-                    setIgnoreExceptions(false).
-                    setConnectionSource(new DataSourceConnectionSource(domain, datasource)).
-                    setBufferSize(0).
-                    setTableName(AuditDAO.TABLE).
-                    setColumnMappings(buildColumnMappings(ctx)).
-                    build();
-            appender.start();
-            ctx.getConfiguration().addAppender(appender);
+        if (enableJdbcAuditAppender) {
+            JdbcAuditAppender jdbcAuditAppender = (JdbcAuditAppender) ApplicationContextProvider.getBeanFactory().
+                    createBean(JdbcAuditAppender.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+            jdbcAuditAppender.init(domain);
 
             LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
-            logConf.addAppender(appender, Level.DEBUG, null);
+            logConf.addAppender(jdbcAuditAppender.getTargetAppender(), Level.DEBUG, null);
             logConf.setLevel(Level.DEBUG);
             ctx.getConfiguration().addLogger(logConf.getName(), logConf);
-
-            // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            auditAppenders(domain).forEach(auditAppender -> auditAppender.getEvents().stream().
-                    map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
-                    forEachOrdered(domainAuditLoggerName -> {
-                        LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
-                        boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
-                        if (isRootLogConf) {
-                            eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
-                        }
-                        addAppenderToContext(ctx, auditAppender, eventLogConf);
-                        eventLogConf.setLevel(Level.DEBUG);
-                        if (isRootLogConf) {
-                            ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
-                        }
-                    }));
-
-            AuthContextUtils.callAsAdmin(domain, () -> {
-                loggerAccessor.synchronizeLog4J(ctx);
-                return null;
-            });
         }
+
+        // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
+        auditAppenders(domain).forEach(auditAppender -> auditAppender.getEvents().stream().
+                map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toLoggerName())).
+                forEach(domainAuditLoggerName -> {
+                    LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+                    boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
+                    if (isRootLogConf) {
+                        eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
+                    }
+                    addAppenderToContext(ctx, auditAppender, eventLogConf);
+                    eventLogConf.setLevel(Level.DEBUG);
+                    if (isRootLogConf) {
+                        ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
+                    }
+                }));
+
+        AuthContextUtils.callAsAdmin(domain, () -> {
+            loggerAccessor.synchronizeLog4J(ctx);
+            return null;
+        });
 
         ctx.updateLoggers();
     }
@@ -145,8 +119,7 @@ public class LoggerLoader implements SyncopeCoreLoader {
             } else {
                 auditAppender = (AuditAppender) ApplicationContextProvider.getBeanFactory().
                         createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                auditAppender.setDomainName(domain);
-                auditAppender.init();
+                auditAppender.init(domain);
             }
             return auditAppender;
         }).collect(Collectors.toList());
@@ -163,39 +136,13 @@ public class LoggerLoader implements SyncopeCoreLoader {
         }
         targetAppender.start();
         ctx.getConfiguration().addAppender(targetAppender);
-        if (auditAppender.isRewriteEnabled()) {
-            RewriteAppender rewriteAppender = ctx.getConfiguration().getAppender(auditAppender.
-                    getTargetAppenderName() + "_rewrite");
-            if (rewriteAppender == null) {
-                rewriteAppender = auditAppender.getRewriteAppender();
-            }
-            rewriteAppender.start();
-            ctx.getConfiguration().addAppender(rewriteAppender);
-            eventLogConf.addAppender(rewriteAppender, Level.DEBUG, null);
+
+        Optional<RewriteAppender> rewriteAppender = auditAppender.getRewriteAppender();
+        if (rewriteAppender.isPresent()) {
+            rewriteAppender.get().start();
+            eventLogConf.addAppender(rewriteAppender.get(), Level.DEBUG, null);
         } else {
             eventLogConf.addAppender(targetAppender, Level.DEBUG, null);
-        }
-    }
-
-    private static class DataSourceConnectionSource extends AbstractConnectionSource {
-
-        private final String description;
-
-        private final DataSource dataSource;
-
-        DataSourceConnectionSource(final String domain, final DataSource dataSource) {
-            this.description = "dataSource{ domain=" + domain + ", value=" + dataSource + " }";
-            this.dataSource = dataSource;
-        }
-
-        @Override
-        public Connection getConnection() throws SQLException {
-            return DataSourceUtils.getConnection(dataSource);
-        }
-
-        @Override
-        public String toString() {
-            return this.description;
         }
     }
 }

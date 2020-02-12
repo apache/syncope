@@ -38,25 +38,23 @@ public class TestFileAuditAppender extends DefaultAuditAppender {
     @Override
     public Set<AuditLoggerName> getEvents() {
         Set<AuditLoggerName> events = new HashSet<>();
-        events.add(
-                new AuditLoggerName(
-                        AuditElements.EventCategoryType.LOGIC,
-                        ResourceLogic.class.getSimpleName(),
-                        null,
-                        "create",
-                        AuditElements.Result.SUCCESS));
-        events.add(
-                new AuditLoggerName(
-                        AuditElements.EventCategoryType.LOGIC,
-                        ConnectorLogic.class.getSimpleName(),
-                        null,
-                        "update",
-                        AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "create",
+                AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ConnectorLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS));
         return events;
     }
 
     @Override
-    public void initTargetAppender() {
+    protected void initTargetAppender() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         // get log file path from existing file appender
         RollingRandomAccessFileAppender mainFile =
@@ -79,6 +77,6 @@ public class TestFileAuditAppender extends DefaultAuditAppender {
 
     @Override
     public String getTargetAppenderName() {
-        return "audit_for_" + domainName + "_norewrite_file";
+        return "audit_for_" + domain + "_norewrite_file";
     }
 }

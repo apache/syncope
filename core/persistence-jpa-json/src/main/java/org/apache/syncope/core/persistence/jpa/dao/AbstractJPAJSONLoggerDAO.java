@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.springframework.util.CollectionUtils;
 
-public abstract class AbstractJPAJSONAuditDAO extends JPAAuditDAO {
+public abstract class AbstractJPAJSONLoggerDAO extends JPALoggerDAO {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

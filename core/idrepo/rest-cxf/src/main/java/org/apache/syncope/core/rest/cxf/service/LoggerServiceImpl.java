@@ -21,13 +21,17 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.text.ParseException;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.core.logic.LoggerLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +62,11 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
 
             case AUDIT:
                 try {
-                    logic.disableAudit(AuditLoggerName.fromLoggerName(name));
-                } catch (IllegalArgumentException | ParseException e) {
-                    throw new BadRequestException(e);
-                }
-                break;
+                logic.disableAudit(AuditLoggerName.fromLoggerName(name));
+            } catch (IllegalArgumentException | ParseException e) {
+                throw new BadRequestException(e);
+            }
+            break;
 
             default:
                 throw new BadRequestException();
@@ -107,11 +111,11 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
 
             case AUDIT:
                 try {
-                    logic.enableAudit(AuditLoggerName.fromLoggerName(logger.getKey()));
-                } catch (Exception e) {
-                    throw new BadRequestException(e);
-                }
-                break;
+                logic.enableAudit(AuditLoggerName.fromLoggerName(logger.getKey()));
+            } catch (Exception e) {
+                throw new BadRequestException(e);
+            }
+            break;
 
             default:
                 throw new BadRequestException();
@@ -121,5 +125,21 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     @Override
     public List<EventCategory> events() {
         return logic.listAuditEvents();
+    }
+
+    @Override
+    public PagedResult<AuditEntry> search(final AuditQuery auditQuery) {
+        Pair<Integer, List<AuditEntry>> result = logic.search(
+                auditQuery.getEntityKey(),
+                auditQuery.getPage(),
+                auditQuery.getSize(),
+                auditQuery.getType(),
+                auditQuery.getCategory(),
+                auditQuery.getSubcategory(),
+                auditQuery.getEvents(),
+                auditQuery.getResult(),
+                getOrderByClauses(auditQuery.getOrderBy()));
+
+        return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
     }
 }

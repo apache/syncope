@@ -26,10 +26,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.log.EventCategory;
@@ -54,6 +56,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
@@ -72,6 +75,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
+import org.apache.syncope.core.provisioning.api.data.LoggerDataBinder;
 
 @Component
 public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
@@ -90,6 +94,9 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private LoggerDataBinder binder;
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
@@ -115,12 +122,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     private List<LoggerTO> list(final LoggerType type) {
-        return loggerDAO.findAll(type).stream().map(logger -> {
-            LoggerTO loggerTO = new LoggerTO();
-            loggerTO.setKey(logger.getKey());
-            loggerTO.setLevel(logger.getLevel());
-            return loggerTO;
-        }).collect(Collectors.toList());
+        return loggerDAO.findAll(type).stream().map(binder::getLoggerTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_LIST + "') and authentication.details.domain == "
@@ -173,12 +175,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     public LoggerTO readAudit(final String name) {
         return listAudits().stream().
                 filter(logger -> logger.toLoggerName().equals(name)).findFirst().
-                map(logger -> {
-                    LoggerTO loggerTO = new LoggerTO();
-                    loggerTO.setKey(logger.toLoggerName());
-                    loggerTO.setLevel(LoggerLevel.DEBUG);
-                    return loggerTO;
-                }).orElseThrow(() -> new NotFoundException("Audit " + name));
+                map(binder::getLoggerTO).orElseThrow(() -> new NotFoundException("Audit " + name));
     }
 
     private LoggerTO setLevel(final String name, final Level level, final LoggerType expectedType) {
@@ -231,11 +228,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         logConf.setLevel(level);
         ctx.updateLoggers();
 
-        LoggerTO result = new LoggerTO();
-        result.setKey(syncopeLogger.getKey());
-        result.setLevel(syncopeLogger.getLevel());
-
-        return result;
+        return binder.getLoggerTO(syncopeLogger);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_SET_LEVEL + "') and authentication.details.domain == "
@@ -264,9 +257,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             throwInvalidLogger(expectedType);
         }
 
-        LoggerTO loggerToDelete = new LoggerTO();
-        loggerToDelete.setKey(syncopeLogger.getKey());
-        loggerToDelete.setLevel(syncopeLogger.getLevel());
+        LoggerTO loggerToDelete = binder.getLoggerTO(syncopeLogger);
 
         // remove SyncopeLogger from local storage, so that LoggerLoader won't load this next time
         loggerDAO.delete(syncopeLogger);
@@ -403,6 +394,25 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         return new ArrayList<>(events);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SEARCH + "')")
+    @Transactional(readOnly = true)
+    public Pair<Integer, List<AuditEntry>> search(
+            final String entityKey,
+            final int page,
+            final int size,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final List<String> events,
+            final AuditElements.Result result,
+            final List<OrderByClause> orderByClauses) {
+
+        int count = loggerDAO.countAuditEntries(entityKey);
+        List<AuditEntry> matching = loggerDAO.findAuditEntries(
+                entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
+        return Pair.of(count, matching);
     }
 
     @Override

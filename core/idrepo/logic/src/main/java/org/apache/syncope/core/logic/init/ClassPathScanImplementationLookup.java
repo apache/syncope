@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.audit.AuditAppender;
+import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
@@ -131,7 +132,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
-                    Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
+                        Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (JWTSSOProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
@@ -231,7 +232,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
 
-                if (AuditAppender.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                if (AuditAppender.class.isAssignableFrom(clazz)
+                        && !JdbcAuditAppender.class.equals(clazz) && !isAbstractClazz) {
+
                     classNames.get(IdRepoImplementationType.AUDIT_APPENDER).add(clazz.getName());
                     auditAppenderClasses.add(clazz);
                 }

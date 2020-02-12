@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +32,8 @@ public class VirAttrCacheValueTest extends AbstractTest {
     @Test
     public void test() {
         Object nullObj = null;
-        VirAttrCacheValue cacheValue = new VirAttrCacheValue(Collections.singletonList("testValue"));
-        VirAttrCacheValue cacheValue2 = new VirAttrCacheValue(Collections.emptyList());
+        VirAttrCacheValue cacheValue = new VirAttrCacheValue(List.of("testValue"));
+        VirAttrCacheValue cacheValue2 = new VirAttrCacheValue(List.of());
 
         cacheValue.forceExpiring();
         cacheValue2.forceExpiring();

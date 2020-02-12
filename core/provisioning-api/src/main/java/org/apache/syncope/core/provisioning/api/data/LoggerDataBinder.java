@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.AuditEntryTO;
-import org.apache.syncope.core.persistence.api.entity.AuditEntry;
+import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.core.persistence.api.entity.Logger;
 
-public interface AuditDataBinder {
+public interface LoggerDataBinder {
 
-    AuditEntryTO getAuditTO(String key, AuditEntry auditEntry);
+    LoggerTO getLoggerTO(Logger logger);
+
+    LoggerTO getLoggerTO(AuditLoggerName auditLoggerName);
 }

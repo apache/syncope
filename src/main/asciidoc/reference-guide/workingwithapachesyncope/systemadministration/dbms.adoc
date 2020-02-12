@@ -91,7 +91,7 @@ any.search.visitor=org.apache.syncope.core.persistence.api.search.SearchCondVisi
 user.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONUserDAO
 group.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONGroupDAO
 anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONAnyObjectDAO
-audit.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAuditDAO
+logger.dao=org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONLoggerDAO
 ....
 
 In `provisioning.properties`, replace as follows:
@@ -224,7 +224,7 @@ any.search.visitor=org.apache.syncope.core.persistence.api.search.SearchCondVisi
 user.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONUserDAO
 group.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONGroupDAO
 anyObject.dao=org.apache.syncope.core.persistence.jpa.dao.JPAJSONAnyObjectDAO
-audit.dao=org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAuditDAO
+logger.dao=org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONLoggerDAO
 ....
 
 In `provisioning.properties`, replace as follows:

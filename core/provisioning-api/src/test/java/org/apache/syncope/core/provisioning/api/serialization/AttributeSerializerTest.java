@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -50,31 +50,31 @@ public class AttributeSerializerTest extends AbstractTest {
         verify(jgen).writeFieldName("value");
         verify(jgen).writeNull();
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(new GuardedString()));
+        when(source.getValue()).thenAnswer(ic -> List.of(new GuardedString()));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeObject(any(GuardedString.class));
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(9000));
+        when(source.getValue()).thenAnswer(ic -> List.of(9000));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(anyInt());
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(9000L));
+        when(source.getValue()).thenAnswer(ic -> List.of(9000L));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(anyLong());
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(9000.1));
+        when(source.getValue()).thenAnswer(ic -> List.of(9000.1));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeNumber(anyDouble());
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(Boolean.TRUE));
+        when(source.getValue()).thenAnswer(ic -> List.of(Boolean.TRUE));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeBoolean(anyBoolean());
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList(new byte[] { 9, 0, 0, 0 }));
+        when(source.getValue()).thenAnswer(ic -> List.of(new byte[] { 9, 0, 0, 0 }));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeString(anyString());
 
-        when(source.getValue()).thenAnswer(ic -> Collections.singletonList("test"));
+        when(source.getValue()).thenAnswer(ic -> List.of("test"));
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeString(eq("test"));
     }

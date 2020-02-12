@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.audit;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,14 +27,14 @@ import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.rest.AuditHistoryRestClient;
+import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.to.AuditEntryTO;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -47,8 +48,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends DirectoryPanel<
-        AuditEntryTO, AuditEntryTO, AuditHistoryDirectoryPanel<T>.AuditHistoryProvider, AuditHistoryRestClient>
+public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends DirectoryPanel<
+        AuditEntry, AuditEntry, AuditHistoryDirectoryPanel<T>.AuditHistoryProvider, LoggerRestClient>
         implements ModalPanel {
 
     private static final long serialVersionUID = -8248734710505211261L;
@@ -65,7 +66,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
 
     private final String category;
 
-    private final T entity;
+    private final EntityTO entity;
 
     private final String auditRestoreEntitlement;
 
@@ -74,7 +75,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
             final MultilevelPanel mlp,
             final AuditElements.EventCategoryType type,
             final String category,
-            final T entity,
+            final EntityTO entity,
             final String auditRestoreEntitlement,
             final PageReference pageRef) {
 
@@ -89,7 +90,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
         this.auditRestoreEntitlement = auditRestoreEntitlement;
         this.pageRef = pageRef;
 
-        this.restClient = new AuditHistoryRestClient();
+        this.restClient = new LoggerRestClient();
         initResultTable();
     }
 
@@ -104,30 +105,30 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
     }
 
     @Override
-    protected List<IColumn<AuditEntryTO, String>> getColumns() {
-        List<IColumn<AuditEntryTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<AuditEntry, String>> getColumns() {
+        List<IColumn<AuditEntry, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(new StringResourceModel("who", this), "who"));
         columns.add(new DatePropertyColumn<>(new StringResourceModel("date", this), null, "date"));
         return columns;
     }
 
     @Override
-    protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<AuditEntryTO, String> resultTableBuilder) {
+    protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<AuditEntry, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, mlp);
     }
 
     protected abstract void restore(String json, AjaxRequestTarget target);
 
     @Override
-    protected ActionsPanel<AuditEntryTO> getActions(final IModel<AuditEntryTO> model) {
-        final ActionsPanel<AuditEntryTO> panel = super.getActions(model);
+    protected ActionsPanel<AuditEntry> getActions(final IModel<AuditEntry> model) {
+        final ActionsPanel<AuditEntry> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AuditEntryTO>() {
+        panel.add(new ActionLink<AuditEntry>() {
 
             private static final long serialVersionUID = -6745431735457245600L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final AuditEntryTO modelObject) {
+            public void onClick(final AjaxRequestTarget target, final AuditEntry modelObject) {
                 AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
 
                 mlp.next(
@@ -159,7 +160,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
         return List.of();
     }
 
-    protected class AuditHistoryProvider extends DirectoryDataProvider<AuditEntryTO> {
+    protected class AuditHistoryProvider extends DirectoryDataProvider<AuditEntry> {
 
         private static final long serialVersionUID = 415113175628260864L;
 
@@ -174,7 +175,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
         }
 
         @Override
-        public Iterator<AuditEntryTO> iterator(final long first, final long count) {
+        public Iterator<AuditEntry> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
             return restClient.search(
                     entity.getKey(),
@@ -189,7 +190,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends EntityTO> extends Dir
         }
 
         @Override
-        public IModel<AuditEntryTO> model(final AuditEntryTO auditEntryBean) {
+        public IModel<AuditEntry> model(final AuditEntry auditEntryBean) {
             return new CompoundPropertyModel<>(auditEntryBean);
         }
     }

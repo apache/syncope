@@ -23,12 +23,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.dao.AuditDAO;
-import org.apache.syncope.core.persistence.api.entity.AuditEntry;
-import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
+import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
@@ -49,17 +48,17 @@ public class AuditReportlet extends AbstractReportlet {
     private DataSource datasource;
 
     private void doExtractConf(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
-        status.set("Fetching " + conf.getSize() + " rows from the " + AuditDAO.TABLE + " table");
+        status.set("Fetching " + conf.getSize() + " rows from the " + LoggerDAO.AUDIT_TABLE + " table");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         jdbcTemplate.setMaxRows(conf.getSize());
         List<Map<String, Object>> rows = jdbcTemplate.
-                queryForList("SELECT * FROM " + AuditDAO.TABLE + " ORDER BY EVENT_DATE DESC");
+                queryForList("SELECT * FROM " + LoggerDAO.AUDIT_TABLE + " ORDER BY EVENT_DATE DESC");
 
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();
         for (Map<String, Object> row : rows) {
-            AuditEntry auditEntry = POJOHelper.deserialize(row.get("MESSAGE").toString(), AuditEntryImpl.class);
+            AuditEntry auditEntry = POJOHelper.deserialize(row.get("MESSAGE").toString(), AuditEntry.class);
 
             atts.clear();
             if (StringUtils.isNotBlank(auditEntry.getWho())) {
@@ -94,12 +93,11 @@ public class AuditReportlet extends AbstractReportlet {
                 handler.endElement("", "", "before");
             }
 
-            if (auditEntry.getInput() != null) {
+            if (!auditEntry.getInputs().isEmpty()) {
                 handler.startElement("", "", "inputs", null);
-                for (Object inputObj : auditEntry.getInput()) {
-                    char[] input = POJOHelper.serialize(inputObj).toCharArray();
+                for (String input : auditEntry.getInputs()) {
                     handler.startElement("", "", "input", null);
-                    handler.characters(input, 0, input.length);
+                    handler.characters(input.toCharArray(), 0, input.length());
                     handler.endElement("", "", "input");
                 }
                 handler.endElement("", "", "inputs");

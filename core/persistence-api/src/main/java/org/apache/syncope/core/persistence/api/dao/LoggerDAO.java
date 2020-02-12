@@ -19,10 +19,17 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 
 public interface LoggerDAO extends DAO<Logger> {
+
+    String AUDIT_TABLE = "SYNCOPEAUDIT";
+
+    String AUDIT_MESSAGE_COLUMN = "MESSAGE";
 
     Logger find(String key);
 
@@ -33,4 +40,17 @@ public interface LoggerDAO extends DAO<Logger> {
     void delete(String key);
 
     void delete(Logger logger);
+
+    List<AuditEntry> findAuditEntries(
+            String entityKey,
+            int page,
+            int size,
+            AuditElements.EventCategoryType type,
+            String category,
+            String subcategory,
+            List<String> events,
+            AuditElements.Result result,
+            List<OrderByClause> orderByClauses);
+
+    int countAuditEntries(String entityKey);
 }

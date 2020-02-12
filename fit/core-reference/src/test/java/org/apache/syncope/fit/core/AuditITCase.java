@@ -31,8 +31,8 @@ import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AuditEntryTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -47,8 +47,8 @@ import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
 
-    private static AuditEntryTO query(final AuditQuery query, final int maxWaitSeconds, final boolean failIfEmpty) {
-        List<AuditEntryTO> results = query(query, maxWaitSeconds);
+    private static AuditEntry query(final AuditQuery query, final int maxWaitSeconds, final boolean failIfEmpty) {
+        List<AuditEntry> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
             if (failIfEmpty) {
                 fail("Timeout when executing query for key " + query.getEntityKey());
@@ -58,15 +58,15 @@ public class AuditITCase extends AbstractITCase {
         return results.get(0);
     }
 
-    private static List<AuditEntryTO> query(final AuditQuery query, final int maxWaitSeconds) {
+    private static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
         int i = 0;
-        List<AuditEntryTO> results = List.of();
+        List<AuditEntry> results = List.of();
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-            results = auditService.search(query).getResult();
+            results = loggerService.search(query).getResult();
             i++;
         } while (results.isEmpty() && i < maxWaitSeconds);
         return results;
@@ -78,7 +78,7 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(userTO.getKey());
 
         AuditQuery query = new AuditQuery.Builder(userTO.getKey()).build();
-        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
         PagedResult<UserTO> usersTOs = userService.search(
@@ -100,8 +100,8 @@ public class AuditITCase extends AbstractITCase {
 
         AuditQuery query = new AuditQuery.Builder(userTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
-        AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, true);
-        assertEquals(userTO.getKey(), entry.getKey());
+        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        assertNotNull(entry);
         userService.delete(userTO.getKey());
     }
 
@@ -119,8 +119,8 @@ public class AuditITCase extends AbstractITCase {
                 event("create").
                 result(AuditElements.Result.SUCCESS).
                 build();
-        AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, true);
-        assertEquals(userTO.getKey(), entry.getKey());
+        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        assertNotNull(entry);
         userService.delete(userTO.getKey());
     }
 
@@ -131,8 +131,8 @@ public class AuditITCase extends AbstractITCase {
 
         AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
-        AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, true);
-        assertEquals(groupTO.getKey(), entry.getKey());
+        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        assertNotNull(entry);
         groupService.delete(groupTO.getKey());
     }
 
@@ -142,7 +142,7 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(groupTO.getKey());
 
         AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).build();
-        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
         PagedResult<GroupTO> groups = groupService.search(
@@ -163,8 +163,8 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(anyObjectTO.getKey());
         AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
-        AuditEntryTO entry = query(query, MAX_WAIT_SECONDS, true);
-        assertEquals(anyObjectTO.getKey(), entry.getKey());
+        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        assertNotNull(entry);
         anyObjectService.delete(anyObjectTO.getKey());
     }
 
@@ -174,7 +174,7 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(anyObjectTO);
 
         AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).build();
-        List<AuditEntryTO> entries = query(query, MAX_WAIT_SECONDS);
+        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
         PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
@@ -199,7 +199,7 @@ public class AuditITCase extends AbstractITCase {
                 event("update").
                 result(AuditElements.Result.SUCCESS).
                 build();
-        List<AuditEntryTO> entries = query(query, 0);
+        List<AuditEntry> entries = query(query, 0);
         int pre = entries.size();
 
         ConnInstanceTO ldapConn = connectorService.read(connectorKey, null);

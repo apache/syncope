@@ -25,13 +25,9 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.message.SimpleMessage;
-import org.apache.logging.log4j.status.StatusLogger;
 
-@Plugin(name = "TestRewritePolicy", category = Core.CATEGORY_NAME, elementType = "rewritePolicy",
-        printObject = true)
+@Plugin(name = "TestRewritePolicy", category = Core.CATEGORY_NAME, elementType = "rewritePolicy", printObject = true)
 public class TestRewritePolicy implements RewritePolicy {
-
-    protected static final StatusLogger LOGGER = StatusLogger.getLogger();
 
     @Override
     public LogEvent rewrite(final LogEvent event) {
@@ -42,5 +38,4 @@ public class TestRewritePolicy implements RewritePolicy {
     public static TestRewritePolicy createPolicy() {
         return new TestRewritePolicy();
     }
-
 }

@@ -18,46 +18,44 @@
  */
 package org.apache.syncope.core.logic.audit;
 
-import java.util.Set;
+import java.util.Optional;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
 import org.apache.logging.log4j.core.config.AppenderRef;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.AbstractAuditAppender;
 
 /**
- * Default (abstract) implementation of custom rewriting audit appender; it provides rewrite appender definition and
- * a default "pass-through" policy.
+ * Default (abstract) implementation of rewrite audit appender, allowing the logging event to be manipulated
+ * before it is processed.
+ * It provides rewrite appender definition and a default "pass-through" policy.
  * It is bound to an empty collection of events, i.e. it does not create any logger.
- * This class shall be extended by rewriting appenders; for non-rewriting, extend {@link DefaultAuditAppender} instead.
+ * This class shall be extended by rewrite appenders; for non-rewrite, extend {@link DefaultAuditAppender} instead.
+ *
+ * @see RewriteAppender
  */
-public abstract class DefaultRewriteAuditAppender extends AbstractAuditAppender {
+public abstract class DefaultRewriteAuditAppender extends DefaultAuditAppender {
+
+    protected RewriteAppender rewriteAppender;
 
     @Override
-    public void init() {
-        initTargetAppender();
-        initRewriteAppender();
-    }
+    public void init(final String domain) {
+        super.init(domain);
 
-    @Override
-    public void initRewriteAppender() {
-        rewriteAppender = RewriteAppender.createAppender(getTargetAppenderName() + "_rewrite",
+        rewriteAppender = RewriteAppender.createAppender(
+                getTargetAppenderName() + "_rewrite",
                 "true",
                 new AppenderRef[] { AppenderRef.createAppenderRef(getTargetAppenderName(), Level.DEBUG, null) },
                 ((LoggerContext) LogManager.getContext(false)).getConfiguration(), getRewritePolicy(), null);
     }
 
-    @Override
-    public Set<AuditLoggerName> getEvents() {
-        return Set.of();
-    }
-
-    @Override
-    public RewritePolicy getRewritePolicy() {
+    protected RewritePolicy getRewritePolicy() {
         return PassThroughAuditRewritePolicy.createPolicy();
     }
 
+    @Override
+    public Optional<RewriteAppender> getRewriteAppender() {
+        return Optional.of(rewriteAppender);
+    }
 }

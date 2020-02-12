@@ -105,7 +105,6 @@ public class LoggerITCase extends AbstractITCase {
     @Test
     public void listAudits() throws ParseException {
         List<LoggerTO> audits = loggerService.list(LoggerType.AUDIT);
-
         assertNotNull(audits);
         assertFalse(audits.isEmpty());
         for (LoggerTO audit : audits) {

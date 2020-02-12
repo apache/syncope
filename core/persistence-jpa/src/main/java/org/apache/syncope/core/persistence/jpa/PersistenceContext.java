@@ -25,8 +25,8 @@ import javax.persistence.ValidationMode;
 import javax.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -182,13 +182,13 @@ public class PersistenceContext implements EnvironmentAware {
         return (AnyObjectDAO) Class.forName(env.getProperty("anyObject.dao")).getConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "auditDAO")
+    @ConditionalOnMissingBean(name = "loggerDAO")
     @Bean
-    public AuditDAO auditDAO()
+    public LoggerDAO loggerDAO()
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
             IllegalArgumentException, InvocationTargetException {
 
-        return (AuditDAO) Class.forName(env.getProperty("audit.dao")).getConstructor().newInstance();
+        return (LoggerDAO) Class.forName(env.getProperty("logger.dao")).getConstructor().newInstance();
     }
 
     @Bean

@@ -39,5 +39,4 @@ public class PassThroughAuditRewritePolicy implements RewritePolicy {
     public static PassThroughAuditRewritePolicy createPolicy() {
         return new PassThroughAuditRewritePolicy();
     }
-
 }

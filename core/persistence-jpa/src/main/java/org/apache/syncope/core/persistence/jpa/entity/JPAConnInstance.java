@@ -246,5 +246,4 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
         checkType(poolConf, JPAConnPoolConf.class);
         this.poolConf = (JPAConnPoolConf) poolConf;
     }
-
 }

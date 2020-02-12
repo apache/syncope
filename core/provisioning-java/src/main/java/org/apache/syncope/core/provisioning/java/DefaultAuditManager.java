@@ -18,8 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.core.persistence.api.entity.AuditEntry;
-import org.apache.syncope.core.provisioning.api.AuditEntryImpl;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -28,6 +34,7 @@ import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +42,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-
 @Transactional(readOnly = true)
 public class DefaultAuditManager implements AuditManager {
+
+    private static final String MASKED_VALUE = "<MASKED>";
+
+    private static Object maskSensitive(final Object object) {
+        Object masked;
+
+        if (object instanceof UserTO) {
+            masked = SerializationUtils.clone((UserTO) object);
+            if (((UserTO) masked).getPassword() != null) {
+                ((UserTO) masked).setPassword(MASKED_VALUE);
+            }
+            if (((UserTO) masked).getSecurityAnswer() != null) {
+                ((UserTO) masked).setSecurityAnswer(MASKED_VALUE);
+            }
+        } else if (object instanceof UserCR) {
+            masked = SerializationUtils.clone((UserCR) object);
+            if (((UserCR) masked).getPassword() != null) {
+                ((UserCR) masked).setPassword(MASKED_VALUE);
+            }
+            if (((UserCR) masked).getSecurityAnswer() != null) {
+                ((UserCR) masked).setSecurityAnswer(MASKED_VALUE);
+            }
+        } else if (object instanceof UserUR && ((UserUR) object).getPassword() != null) {
+            masked = SerializationUtils.clone((UserUR) object);
+            ((UserUR) masked).getPassword().setValue(MASKED_VALUE);
+        } else {
+            masked = object;
+        }
+
+        return masked;
+    }
 
     @Autowired
     private LoggerDAO loggerDAO;
@@ -51,11 +87,11 @@ public class DefaultAuditManager implements AuditManager {
             final String subcategory,
             final String event) {
 
-        AuditEntry auditEntry = AuditEntryImpl.builder().
-                who(who).
-                logger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS)).
-                date(new Date()).
-                build();
+        AuditEntry auditEntry = new AuditEntry();
+        auditEntry.setWho(who);
+        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
+        auditEntry.setDate(new Date());
+
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         boolean auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
@@ -64,11 +100,8 @@ public class DefaultAuditManager implements AuditManager {
             return true;
         }
 
-        auditEntry = AuditEntryImpl.builder()
-                .who(who)
-                .logger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE))
-                .date(new Date())
-                .build();
+        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
+
         syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
         auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
 
@@ -108,14 +141,22 @@ public class DefaultAuditManager implements AuditManager {
             throwable = (Throwable) output;
         }
 
-        AuditEntry auditEntry = AuditEntryImpl.builder().
-                who(who).
-                logger(new AuditLoggerName(type, category, subcategory, event, condition)).
-                before(before).
-                output(throwable == null ? output : throwable.getMessage()).
-                input(input).
-                date(new Date()).
-                build();
+        AuditEntry auditEntry = new AuditEntry();
+        auditEntry.setWho(who);
+        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, condition));
+        auditEntry.setDate(new Date());
+        auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
+        if (throwable == null) {
+            auditEntry.setOutput(POJOHelper.serialize((maskSensitive(output))));
+        } else {
+            auditEntry.setOutput(throwable.getMessage());
+            auditEntry.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
+        }
+        if (input != null) {
+            auditEntry.getInputs().addAll(Arrays.stream(input).
+                    map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
+                    collect(Collectors.toList()));
+        }
 
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());

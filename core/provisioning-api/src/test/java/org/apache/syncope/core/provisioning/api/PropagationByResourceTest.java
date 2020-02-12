@@ -26,7 +26,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -156,15 +155,15 @@ public class PropagationByResourceTest extends AbstractTest {
 
         ReflectionTestUtils.setField(propagationByResource, "toBeDeleted", matchingList);
         assertEquals(matchingList, propagationByResource.get(ResourceOperation.DELETE));
-        assertEquals(Collections.<String>emptySet(), propagationByResource.get(ResourceOperation.CREATE));
-        assertEquals(Collections.<String>emptySet(), propagationByResource.get(ResourceOperation.UPDATE));
-        assertEquals(Collections.<String>emptySet(), propagationByResource.get(ResourceOperation.NONE));
+        assertEquals(Set.of(), propagationByResource.get(ResourceOperation.CREATE));
+        assertEquals(Set.of(), propagationByResource.get(ResourceOperation.UPDATE));
+        assertEquals(Set.of(), propagationByResource.get(ResourceOperation.NONE));
 
     }
 
     @Test
     public void asMap() {
-        assertEquals(Collections.emptyMap(), propagationByResource.asMap());
+        assertEquals(Map.of(), propagationByResource.asMap());
     }
 
     @Test
@@ -173,8 +172,8 @@ public class PropagationByResourceTest extends AbstractTest {
         keys.add("testKey1");
         keys.add("testKey2");
 
-        propagationByResource.set(ResourceOperation.CREATE, Collections.<String>emptySet());
-        assertEquals(Collections.emptySet(), ReflectionTestUtils.getField(propagationByResource, "toBeCreated"));
+        propagationByResource.set(ResourceOperation.CREATE, Set.of());
+        assertEquals(Set.of(), ReflectionTestUtils.getField(propagationByResource, "toBeCreated"));
         propagationByResource.set(ResourceOperation.CREATE, keys);
         assertEquals(keys, ReflectionTestUtils.getField(propagationByResource, "toBeCreated"));
         propagationByResource.set(ResourceOperation.UPDATE, keys);

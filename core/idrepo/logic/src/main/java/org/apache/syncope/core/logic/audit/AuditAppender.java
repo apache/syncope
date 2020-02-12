@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.logic.audit;
 
+import java.util.Optional;
 import java.util.Set;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
-import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 
 /**
@@ -32,21 +32,17 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
  */
 public interface AuditAppender {
 
-    void init();
+    void init(String domain);
 
-    Set<AuditLoggerName> getEvents();
+    default Set<AuditLoggerName> getEvents() {
+        return Set.of();
+    }
 
     Appender getTargetAppender();
 
-    RewritePolicy getRewritePolicy();
-
     String getTargetAppenderName();
 
-    void setDomainName(String name);
-
-    String getDomainName();
-
-    boolean isRewriteEnabled();
-
-    RewriteAppender getRewriteAppender();
+    default Optional<RewriteAppender> getRewriteAppender() {
+        return Optional.empty();
+    }
 }

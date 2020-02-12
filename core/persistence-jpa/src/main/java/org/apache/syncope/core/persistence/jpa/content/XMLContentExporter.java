@@ -109,11 +109,11 @@ public class XMLContentExporter implements ContentExporter {
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
     private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = SetUtils.hashSet(
-        "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
-        JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
-        JPAURelationship.TABLE, JPAUMembership.TABLE,
-        JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
-        JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
+            "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
+            JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
+            JPAURelationship.TABLE, JPAUMembership.TABLE,
+            JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
+            JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
     );
 
     private static final Map<String, String> TABLES_TO_BE_FILTERED =
@@ -134,7 +134,7 @@ public class XMLContentExporter implements ContentExporter {
     }
 
     private static List<String> sortByForeignKeys(final String dbSchema, final Connection conn,
-                                                  final Set<String> tableNames)
+            final Set<String> tableNames)
             throws SQLException {
 
         Set<MultiParentNode<String>> roots = new HashSet<>();
@@ -548,7 +548,7 @@ public class XMLContentExporter implements ContentExporter {
 
             EntityManagerFactory emf = EntityManagerFactoryUtils.findEntityManagerFactory(
                     ApplicationContextProvider.getBeanFactory(), domain);
-            Set<EntityType<?>> entityTypes = emf == null ? Collections.emptySet() : emf.getMetamodel().getEntities();
+            Set<EntityType<?>> entityTypes = emf == null ? Set.of() : emf.getMetamodel().getEntities();
             BidiMap<String, EntityType<?>> entities = entities(entityTypes);
 
             // then sort tables based on foreign keys and dump

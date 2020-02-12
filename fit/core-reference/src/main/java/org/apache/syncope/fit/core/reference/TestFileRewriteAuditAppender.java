@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -36,19 +36,16 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
 
     @Override
     public Set<AuditLoggerName> getEvents() {
-        Set<AuditLoggerName> events = new HashSet<>();
-        events.add(
-                new AuditLoggerName(
-                        AuditElements.EventCategoryType.LOGIC,
-                        ResourceLogic.class.getSimpleName(),
-                        null,
-                        "update",
-                        AuditElements.Result.SUCCESS));
-        return events;
+        return Collections.singleton(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS));
     }
 
     @Override
-    public void initTargetAppender() {
+    protected void initTargetAppender() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         // get log file path from existing file appender
@@ -68,11 +65,11 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
 
     @Override
     public String getTargetAppenderName() {
-        return "audit_for_" + domainName + "_file";
+        return "audit_for_" + domain + "_file";
     }
 
     @Override
-    public RewritePolicy getRewritePolicy() {
+    protected RewritePolicy getRewritePolicy() {
         return TestRewritePolicy.createPolicy();
     }
 }

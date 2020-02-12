@@ -18,17 +18,84 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.jpa.entity.JPALogger;
-import org.springframework.stereotype.Repository;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
+
+    protected static class MessageCriteriaBuilder {
+
+        protected final StringBuilder query = new StringBuilder();
+
+        protected MessageCriteriaBuilder entityKey(final String entityKey) {
+            query.append(' ').append(AUDIT_MESSAGE_COLUMN).
+                    append(" LIKE '%key%").append(entityKey).append("%'");
+            return this;
+        }
+
+        public MessageCriteriaBuilder type(final AuditElements.EventCategoryType type) {
+            if (type != null) {
+                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                        append(" LIKE '%\"type\":\"").append(type.name()).append("\"%'");
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder category(final String category) {
+            if (StringUtils.isNotBlank(category)) {
+                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                        append(" LIKE '%\"category\":\"").append(category).append("\"%'");
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder subcategory(final String subcategory) {
+            if (StringUtils.isNotBlank(subcategory)) {
+                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                        append(" LIKE '%\"subcategory\":\"").append(subcategory).append("\"%'");
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder events(final List<String> events) {
+            if (!events.isEmpty()) {
+                query.append(" AND ( ").
+                        append(events.stream().
+                                map(event -> AUDIT_MESSAGE_COLUMN + " LIKE '%\"event\":\"" + event + "\"%'").
+                                collect(Collectors.joining(" OR "))).
+                        append(" )");
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder result(final AuditElements.Result result) {
+            if (result != null) {
+                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                        append(" LIKE '%\"result\":\"").append(result.name()).append("\"%' ");
+            }
+            return this;
+        }
+
+        public String build() {
+            return query.toString();
+        }
+    }
 
     @Override
     public Logger find(final String key) {
@@ -65,5 +132,75 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
         }
 
         delete(logger);
+    }
+
+    protected MessageCriteriaBuilder messageCriteriaBuilder(final String entityKey) {
+        return new MessageCriteriaBuilder().entityKey(entityKey);
+    }
+
+    @Override
+    public int countAuditEntries(final String entityKey) {
+        String queryString = "SELECT COUNT(0) FROM " + AUDIT_TABLE
+                + " WHERE " + messageCriteriaBuilder(entityKey).build();
+        Query countQuery = entityManager().createNativeQuery(queryString);
+
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
+    protected String select() {
+        return AUDIT_MESSAGE_COLUMN;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<AuditEntry> findAuditEntries(
+            final String entityKey,
+            final int page,
+            final int itemsPerPage,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final List<String> events,
+            final AuditElements.Result result,
+            final List<OrderByClause> orderByClauses) {
+
+        String queryString = "SELECT " + select()
+                + " FROM " + AUDIT_TABLE
+                + " WHERE " + messageCriteriaBuilder(entityKey).
+                        type(type).
+                        category(category).
+                        subcategory(subcategory).
+                        result(result).
+                        events(events).
+                        build();
+        if (!orderByClauses.isEmpty()) {
+            queryString += " ORDER BY " + orderByClauses.stream().
+                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
+                    collect(Collectors.joining(","));
+        }
+
+        Query query = entityManager().createNativeQuery(queryString);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Object> entries = query.getResultList();
+        return entries.stream().map(row -> {
+            String value;
+            if (row instanceof Clob) {
+                Clob clob = (Clob) row;
+                try {
+                    value = clob.getSubString(1, (int) clob.length());
+                } catch (SQLException e) {
+                    LOG.error("Unexpected error reading Audit Entry for entity key {}", entityKey, e);
+                    return null;
+                }
+            } else {
+                value = row.toString();
+            }
+            return POJOHelper.deserialize(value, AuditEntry.class);
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 }

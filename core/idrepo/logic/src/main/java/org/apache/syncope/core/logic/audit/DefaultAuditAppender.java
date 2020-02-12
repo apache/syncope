@@ -18,36 +18,31 @@
  */
 package org.apache.syncope.core.logic.audit;
 
-import java.util.Set;
-import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.AbstractAuditAppender;
+import org.apache.logging.log4j.core.Appender;
 
 /**
  * Default (abstract) implementation of custom audit appender.
+ *
  * It is bound to an empty collection of events, i.e. it does not create any logger.
- * This class shall be extended by non-rewriting appenders; for rewriting, extend
+ * This class shall be extended by non-rewrite appenders; for rewrite, extend
  * {@link DefaultRewriteAuditAppender} instead.
  */
-public abstract class DefaultAuditAppender extends AbstractAuditAppender {
+public abstract class DefaultAuditAppender implements AuditAppender {
+
+    protected String domain;
+
+    protected Appender targetAppender;
 
     @Override
-    public void init() {
+    public void init(final String domain) {
+        this.domain = domain;
         initTargetAppender();
     }
 
-    @Override
-    public Set<AuditLoggerName> getEvents() {
-        return Set.of();
-    }
+    protected abstract void initTargetAppender();
 
     @Override
-    public void initRewriteAppender() {
+    public Appender getTargetAppender() {
+        return targetAppender;
     }
-
-    @Override
-    public RewritePolicy getRewritePolicy() {
-        return null;
-    }
-
 }
