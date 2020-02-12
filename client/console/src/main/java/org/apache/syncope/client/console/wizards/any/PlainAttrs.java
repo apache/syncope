@@ -25,9 +25,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
-import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -170,11 +167,11 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        Map<String, AttrTO> attrMap =
-                GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()
-                ? EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO).
-                        getMembership(membershipTO.getGroupKey()).get().getPlainAttrs())
-                : new HashMap<>();
+        Map<String, AttrTO> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
+                isPresent()
+                        ? EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO).
+                                getMembership(membershipTO.getGroupKey()).get().getPlainAttrs())
+                        : new HashMap<>();
 
         List<AttrTO> attrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             AttrTO attrTO = new AttrTO();
@@ -233,30 +230,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 @Override
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<AttrTO> item) {
-                    AttrTO attrTO = item.getModelObject();
-
-                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (mode == AjaxWizard.Mode.TEMPLATE || !schemas.get(attrTO.getSchema()).isMultivalue()) {
-                        FieldPanel.class.cast(panel).setNewModel(attributableTO.getObject(), attrTO.getSchema());
-                    } else {
-                        // SYNCOPE-1476 set form as multipart to properly manage membership attributes
-                        panel = new MultiFieldPanel.Builder<>(new ListModel<String>() {
-
-                            private static final long serialVersionUID = -1765231556272935141L;
-
-                            @Override
-                            public List<String> getObject() {
-                                return attributableTO.getObject().getPlainAttr(attrTO.getSchema()).get().getValues();
-                            }
-                        }).build("panel",
-                                attrTO.getSchema(),
-                                FieldPanel.class.cast(panel)).setFormAsMultipart(true);
-                        // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
-                    }
-                    item.add(panel);
-
-                    setExternalAction(attrTO, panel);
+                    setPanel(schemas, item, false);
                 }
             });
         }
