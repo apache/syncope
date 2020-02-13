@@ -23,9 +23,4 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
 public interface ProvisionSorter extends Comparator<Provision> {
 
-    @Override
-    default int compare(Provision provision1, Provision provision2) {
-        return 0;
-    }
-
 }
