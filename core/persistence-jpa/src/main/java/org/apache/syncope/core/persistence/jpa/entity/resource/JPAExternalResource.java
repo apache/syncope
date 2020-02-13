@@ -340,7 +340,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public void setProvisionSorter(Implementation provisionSorter) {
+    public void setProvisionSorter(final Implementation provisionSorter) {
         checkType(provisionSorter, JPAImplementation.class);
         checkImplementationType(provisionSorter, ImplementationType.PROVISION_SORTER);
         this.provisionSorter = (JPAImplementation) provisionSorter;
