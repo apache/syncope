@@ -27,7 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
@@ -42,7 +44,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -72,6 +73,21 @@ import org.apache.wicket.model.PropertyModel;
 public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private static final long serialVersionUID = -527351923968737757L;
+
+    protected static final AttributeModifier PREVENT_DEFAULT_RETURN = AttributeModifier.replace(
+            "onkeydown",
+            Model.of("if (event.keyCode == 13) { event.preventDefault(); }"));
+
+    protected static final Consumer<AjaxRequestAttributes> AJAX_SUBMIT_ON_RETURN =
+            attributes -> attributes.getAjaxCallListeners().add(new AjaxCallListener() {
+
+                private static final long serialVersionUID = 7160235486520935153L;
+
+                @Override
+                public CharSequence getPrecondition(final Component component) {
+                    return "return (Wicket.Event.keyCode(attrs.event) == 13);";
+                }
+            });
 
     public interface Customizer extends Serializable {
 
@@ -110,6 +126,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
     }
 
+    private final String realm;
+
     private final boolean required;
 
     private final IModel<List<SearchClause.Type>> types;
@@ -120,7 +138,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final Pair<IModel<Map<String, String>>, Integer> groupInfo;
+    private final Pair<IModel<List<String>>, Integer> groupInfo;
 
     private final IModel<List<String>> roleNames;
 
@@ -148,12 +166,13 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final String id,
             final String name,
             final Model<SearchClause> clause,
+            final String realm,
             final boolean required,
             final IModel<List<SearchClause.Type>> types,
             final Customizer customizer,
             final IModel<Map<String, PlainSchemaTO>> anames,
             final IModel<List<String>> dnames,
-            final Pair<IModel<Map<String, String>>, Integer> groupInfo,
+            final Pair<IModel<List<String>>, Integer> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> privilegeNames,
             final IModel<List<String>> resourceNames) {
@@ -162,6 +181,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         this.clause = clause == null ? new Model<>(null) : clause;
 
+        this.realm = realm;
         this.required = required;
         this.types = types;
         this.customizer = customizer;
@@ -257,8 +277,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return names.stream().sorted().collect(Collectors.toList());
 
                     case GROUP_MEMBERSHIP:
-                        return groupInfo.getLeft().getObject().values().stream().
-                                sorted().collect(Collectors.toList());
+                        return groupInfo.getLeft().getObject();
 
                     case ROLE_MEMBERSHIP:
                         return roleNames.getObject().stream().
@@ -291,11 +310,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.searchButton.setEnabled(true);
         this.searchButton.setVisible(true);
 
-        field.add(AttributeModifier.replace(
-                "onkeydown",
-                Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
-
-        field.add(new AjaxEventBehavior("keydown") {
+        field.add(PREVENT_DEFAULT_RETURN);
+        field.add(new AjaxEventBehavior(Constants.ON_KEYDOWN) {
 
             private static final long serialVersionUID = -7133385027739964990L;
 
@@ -311,16 +327,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
-
-                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
-
-                    private static final long serialVersionUID = 7160235486520935153L;
-
-                    @Override
-                    public CharSequence getPrecondition(final Component component) {
-                        return "if (Wicket.Event.keyCode(attrs.event)  == 13) { return true; } else { return false; }";
-                    }
-                });
+                AJAX_SUBMIT_ON_RETURN.accept(attributes);
             }
         });
     }
@@ -356,13 +363,13 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     @Override
     public FieldPanel<SearchClause> settingsDependingComponents() {
-        final SearchClause searchClause = this.clause.getObject();
+        SearchClause searchClause = this.clause.getObject();
 
-        final WebMarkupContainer operatorContainer = new WebMarkupContainer("operatorContainer");
+        WebMarkupContainer operatorContainer = new WebMarkupContainer("operatorContainer");
         operatorContainer.setOutputMarkupId(true);
         field.add(operatorContainer);
 
-        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+        BootstrapToggleConfig config = new BootstrapToggleConfig().
                 withOnStyle(BootstrapToggleConfig.Style.info).
                 withOffStyle(BootstrapToggleConfig.Style.warning).
                 withSize(BootstrapToggleConfig.Size.mini);
@@ -396,7 +403,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
-                final CheckBox checkBox = super.newCheckBox(id, model);
+                CheckBox checkBox = super.newCheckBox(id, model);
                 checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = 1L;
@@ -415,76 +422,71 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             operatorContainer.add(searchButtonFragment);
         }
 
-        final AjaxTextFieldPanel property = new AjaxTextFieldPanel(
-                "property",
-                "property",
-                new PropertyModel<>(searchClause, "property"),
-                false);
+        AjaxTextFieldPanel property = new AjaxTextFieldPanel(
+                "property", "property", new PropertyModel<>(searchClause, "property"), false);
         property.hideLabel().setOutputMarkupId(true).setEnabled(true);
         property.setChoices(properties.getObject());
         field.add(property);
 
-        property.getField().add(AttributeModifier.replace(
-                "onkeydown",
-                Model.of("if(event.keyCode == 13) { event.preventDefault(); }")));
+        property.getField().add(PREVENT_DEFAULT_RETURN);
+        property.getField().add(new IndicatorAjaxEventBehavior(Constants.ON_KEYUP) {
 
-        property.getField().add(new IndicatorAjaxEventBehavior("onkeyup") {
-
-            private static final long serialVersionUID = -7866120562087857309L;
+            private static final long serialVersionUID = -957948639666058749L;
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
-                    return;
-                }
+                if (field.getModel().getObject() != null
+                        && field.getModel().getObject().getType() == Type.GROUP_MEMBERSHIP) {
 
-                if (field.getModel().getObject().getType() == Type.GROUP_MEMBERSHIP) {
                     String[] inputAsArray = property.getField().getInputAsArray();
-
-                    if (StringUtils.isBlank(property.getField().getInput()) || inputAsArray.length == 0) {
+                    if (ArrayUtils.isEmpty(inputAsArray)) {
                         property.setChoices(properties.getObject());
-                    } else {
-                        String inputValue = (inputAsArray.length > 1 && inputAsArray[1] != null)
+                    } else if (groupInfo.getRight() > Constants.MAX_GROUP_LIST_SIZE) {
+                        String inputValue = inputAsArray.length > 1 && inputAsArray[1] != null
                                 ? inputAsArray[1]
                                 : property.getField().getInput();
-                        inputValue = (inputValue.startsWith("*") && !inputValue.endsWith("*"))
-                                ? inputValue + "*"
-                                : (!inputValue.startsWith("*") && inputValue.endsWith("*"))
-                                ? "*" + inputValue
-                                : (inputValue.startsWith("*") && inputValue.endsWith("*")
-                                ? inputValue : "*" + inputValue + "*");
-
-                        if (groupInfo.getRight() > AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY) {
-                            property.setChoices(groupRestClient.search(
-                                    SyncopeConstants.ROOT_REALM,
-                                    SyncopeClient.getGroupSearchConditionBuilder().
-                                            is("name").equalToIgnoreCase(inputValue).
-                                            query(),
-                                    1,
-                                    AnyObjectSearchPanel.MAX_GROUP_LIST_CARDINALITY,
-                                    new SortParam<>("name", true),
-                                    null).stream().map(GroupTO::getName).collect(Collectors.toList()));
+                        if (!inputValue.startsWith("*")) {
+                            inputValue = "*" + inputValue;
                         }
+                        if (!inputValue.endsWith("*")) {
+                            inputValue = inputValue + "*";
+                        }
+                        property.setChoices(groupRestClient.search(
+                                realm,
+                                SyncopeClient.getGroupSearchConditionBuilder().
+                                        is("name").equalToIgnoreCase(inputValue).
+                                        query(),
+                                1,
+                                Constants.MAX_GROUP_LIST_SIZE,
+                                new SortParam<>("name", true),
+                                null).stream().map(GroupTO::getName).collect(Collectors.toList()));
                     }
+                }
+            }
+        });
+        property.getField().add(new IndicatorAjaxEventBehavior(Constants.ON_KEYDOWN) {
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                target.focusComponent(null);
+                property.getField().inputChanged();
+                property.getField().validate();
+                if (property.getField().isValid()) {
+                    property.getField().valid();
+                    property.getField().updateModel();
                 }
             }
 
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
-                attributes.getAjaxCallListeners().clear();
-            }
-        }, new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-
+                AJAX_SUBMIT_ON_RETURN.accept(attributes);
             }
         });
 
-        final AjaxDropDownChoicePanel<SearchClause.Comparator> comparator = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<SearchClause.Comparator> comparator = new AjaxDropDownChoicePanel<>(
                 "comparator", "comparator", new PropertyModel<>(searchClause, "comparator"));
         comparator.setChoices(comparators);
         comparator.setNullValid(false).hideLabel().setOutputMarkupId(true);
@@ -492,16 +494,13 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         comparator.setChoiceRenderer(getComparatorRender(field.getModel()));
         field.add(comparator);
 
-        final AjaxTextFieldPanel value = new AjaxTextFieldPanel(
+        AjaxTextFieldPanel value = new AjaxTextFieldPanel(
                 "value", "value", new PropertyModel<>(searchClause, "value"), false);
         value.hideLabel().setOutputMarkupId(true);
         field.add(value);
 
-        value.getField().add(AttributeModifier.replace(
-                "onkeydown",
-                Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
-
-        value.getField().add(new IndicatorAjaxEventBehavior("keydown") {
+        value.getField().add(PREVENT_DEFAULT_RETURN);
+        value.getField().add(new IndicatorAjaxEventBehavior(Constants.ON_KEYDOWN) {
 
             private static final long serialVersionUID = -7133385027739964990L;
 
@@ -519,16 +518,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                 super.updateAjaxAttributes(attributes);
-
-                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
-
-                    private static final long serialVersionUID = 7160235486520935153L;
-
-                    @Override
-                    public CharSequence getPrecondition(final Component component) {
-                        return "if (Wicket.Event.keyCode(attrs.event)  == 13) { return true; } else { return false; }";
-                    }
-                });
+                AJAX_SUBMIT_ON_RETURN.accept(attributes);
             }
         });
 
@@ -898,7 +888,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     @Override
     public FieldPanel<SearchClause> clone() {
         SearchClausePanel panel = new SearchClausePanel(
-                getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
+                getId(), name, null, realm, required, types, customizer, anames, dnames, groupInfo,
                 roleNames, privilegeNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
@@ -906,46 +896,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             panel.enableSearch(resultContainer);
         }
         return panel;
-    }
-
-    private class DefaultChoiceRender implements IChoiceRenderer<String> {
-
-        private static final long serialVersionUID = -8034248752951761058L;
-
-        @Override
-        public Object getDisplayValue(final String object) {
-            return object;
-        }
-
-        @Override
-        public String getIdValue(final String object, final int index) {
-            return object;
-        }
-
-        @Override
-        public String getObject(final String id, final IModel<? extends List<? extends String>> choices) {
-            return id;
-        }
-    }
-
-    private class GroupChoiceRender extends DefaultChoiceRender {
-
-        private static final long serialVersionUID = -8034248752951761058L;
-
-        @Override
-        public String getIdValue(final String object, final int index) {
-            return object;
-        }
-
-        @Override
-        public String getObject(final String id, final IModel<? extends List<? extends String>> choices) {
-            return id;
-        }
-
-        @Override
-        public Object getDisplayValue(final String object) {
-            return groupInfo.getLeft().getObject().get(object);
-        }
     }
 
     public static class SearchEvent implements Serializable {

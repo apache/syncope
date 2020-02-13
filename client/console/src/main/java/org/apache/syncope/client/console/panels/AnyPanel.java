@@ -56,7 +56,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,10 +207,9 @@ public class AnyPanel extends Panel implements ModalPanel {
         // ------------------------
         // Accordion
         // ------------------------
-        final Model<Integer> model = Model.of(-1);
-        final StringResourceModel searchResult = new StringResourceModel("search.result", this, new Model<>(anyTypeTO));
-        final Accordion accordion = new Accordion("accordionPanel",
-                Collections.<ITab>singletonList(new AbstractTab(searchResult) {
+        Model<Integer> model = Model.of(-1);
+        Accordion accordion = new Accordion("accordionPanel",
+                Collections.singletonList(new AbstractTab(new ResourceModel("search.result")) {
 
                     protected static final long serialVersionUID = 1037272333056449377L;
 
@@ -240,7 +239,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                     public void onClick(final AjaxRequestTarget target) {
                         model.setObject(model.getObject() == 0 ? -1 : 0);
                     }
-                }.setBody(searchResult);
+                }.setBody(tab.getTitle()).setEscapeModelStrings(false);
             }
         };
         accordion.setOutputMarkupId(true);
@@ -321,7 +320,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("username");
 
                 panel = new UserSearchPanel.Builder(
-                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
+                        new ListModel<>(clauses)).realm(realmTO.getFullPath()).required(true).enableSearch().build(id);
                 break;
 
             case GROUP:
@@ -330,7 +329,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("name");
 
                 panel = new GroupSearchPanel.Builder(
-                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
+                        new ListModel<>(clauses)).realm(realmTO.getFullPath()).required(true).enableSearch().build(id);
                 break;
 
             case ANY_OBJECT:
@@ -339,7 +338,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("name");
 
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
-                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
+                        new ListModel<>(clauses)).realm(realmTO.getFullPath()).required(true).enableSearch().build(id);
                 break;
 
             default:

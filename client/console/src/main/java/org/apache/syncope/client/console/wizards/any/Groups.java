@@ -60,8 +60,6 @@ public class Groups extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private static final int MAX_GROUP_LIST_CARDINALITY = 30;
-
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
     private final List<DynRealmTO> allDynRealms = new DynRealmRestClient().list();
@@ -156,7 +154,7 @@ public class Groups extends WizardStep implements ICondition {
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             isAssignable().and().is("name").equalTo(filter).query(),
-                                    1, MAX_GROUP_LIST_CARDINALITY,
+                                    1, Constants.MAX_GROUP_LIST_SIZE,
                                     new SortParam<>("name", true),
                                     null)).stream().map(input -> {
 
@@ -235,14 +233,14 @@ public class Groups extends WizardStep implements ICondition {
         }
 
         /**
-         * Retrieve the first MAX_GROUP_LIST_CARDINALITY assignable.
+         * Retrieve the first MAX_GROUP_LIST_SIZE assignable.
          */
         private void reloadObject() {
             groups = groupRestClient.search(
                     realm,
                     SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
                     1,
-                    MAX_GROUP_LIST_CARDINALITY,
+                    Constants.MAX_GROUP_LIST_SIZE,
                     new SortParam<>("name", true),
                     null);
         }

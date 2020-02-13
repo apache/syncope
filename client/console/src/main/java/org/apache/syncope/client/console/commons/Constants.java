@@ -57,6 +57,8 @@ public final class Constants {
 
     public static final String ON_CHANGE = "change";
 
+    public static final String ON_KEYUP = "keyup";
+
     public static final String ON_KEYDOWN = "keydown";
 
     public static final String ON_BLUR = "blur";
@@ -198,6 +200,10 @@ public final class Constants {
     public static final String UNDEFINED_ICON = "glyphicon glyphicon-question-sign";
 
     public static final String NOT_FOUND_ICON = "glyphicon glyphicon-remove-circle";
+
+    public static final int MAX_GROUP_LIST_SIZE = 30;
+
+    public static final int MAX_ROLE_LIST_SIZE = 30;
 
     /**
      * ConnId's GuardedString is not in the classpath.

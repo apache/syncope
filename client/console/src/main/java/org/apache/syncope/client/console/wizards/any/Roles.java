@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -44,8 +45,6 @@ import org.apache.wicket.model.util.ListModel;
 public class Roles extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
-
-    private static final int MAX_ROLE_LIST_SIZE = 30;
 
     private final List<String> allRoles;
 
@@ -95,8 +94,8 @@ public class Roles extends WizardStep implements ICondition {
                     @Override
                     public List<String> execute(final String filter) {
                         if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
-                            return allRoles.size() > MAX_ROLE_LIST_SIZE
-                                    ? allRoles.subList(0, MAX_ROLE_LIST_SIZE)
+                            return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
+                                    ? allRoles.subList(0, Constants.MAX_ROLE_LIST_SIZE)
                                     : allRoles;
 
                         }
