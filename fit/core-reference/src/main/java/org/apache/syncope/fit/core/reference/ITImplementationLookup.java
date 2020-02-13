@@ -61,6 +61,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValida
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
+import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -232,6 +233,10 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = ITImplementationLookup.AUDITAPPENDER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
             put(ImplementationType.AUDIT_APPENDER, classNames);
+
+            classNames = new HashSet<>();
+            classNames.add(DefaultProvisionSorter.class.getName());
+            put(ImplementationType.PROVISION_SORTER, classNames);
         }
     };
 

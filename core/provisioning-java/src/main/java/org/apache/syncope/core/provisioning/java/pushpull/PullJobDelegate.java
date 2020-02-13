@@ -272,6 +272,14 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
+        if (pullTask.getResource().getProvisionSorter() != null) {
+            try {
+                pullTask.getResource().getProvisions().sort(ImplementationManager.
+                        build(pullTask.getResource().getProvisionSorter()));
+            } catch (Exception e) {
+                LOG.error("While building {}", pullTask.getResource().getProvisionSorter(), e);
+            }
+        }
         // ...then provisions for any types
         SyncopePullResultHandler handler;
         GroupPullResultHandler ghandler = buildGroupHandler();

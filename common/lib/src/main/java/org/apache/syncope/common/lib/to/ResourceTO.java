@@ -80,6 +80,8 @@ public class ResourceTO implements EntityTO {
 
     private String pushPolicy;
 
+    private String provisionSorter;
+
     private final List<ConnConfProperty> confOverride = new ArrayList<>();
 
     private boolean overrideCapabilities = false;
@@ -193,6 +195,14 @@ public class ResourceTO implements EntityTO {
 
     public void setPushPolicy(final String pushPolicy) {
         this.pushPolicy = pushPolicy;
+    }
+
+    public String getProvisionSorter() {
+        return provisionSorter;
+    }
+
+    public void setProvisionSorter(final String provisionSorter) {
+        this.provisionSorter = provisionSorter;
     }
 
     @JsonIgnore
