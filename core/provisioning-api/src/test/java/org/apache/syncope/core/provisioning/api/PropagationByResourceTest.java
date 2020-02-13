@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -37,7 +38,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class PropagationByResourceTest extends AbstractTest {
 
-    private final String key = "testKey";
+    private static final String KEY = "testKey";
 
     private final PropagationByResource<String> propagationByResource = new PropagationByResource<>();
 
@@ -48,6 +49,7 @@ public class PropagationByResourceTest extends AbstractTest {
             @Mock Set<String> toBeDeleted,
             @Mock Map<String, String> oldConnObjectKeys,
             @Mock PropagationByResource<String> propByRes) {
+
         ReflectionTestUtils.setField(propagationByResource, "toBeCreated", toBeCreated);
         ReflectionTestUtils.setField(propagationByResource, "toBeUpdated", toBeUpdated);
         ReflectionTestUtils.setField(propagationByResource, "toBeDeleted", toBeDeleted);
@@ -75,20 +77,20 @@ public class PropagationByResourceTest extends AbstractTest {
         verify(toBeDeleted).addAll(any());
 
         String oldConnObjectKey = "oldConnObjectKey";
-        propagationByResource.addOldConnObjectKey(key, oldConnObjectKey);
-        verify(oldConnObjectKeys).put(key, oldConnObjectKey);
-        propagationByResource.addOldConnObjectKey(key, null);
-        verify(oldConnObjectKeys, times(0)).put(key, null);
+        propagationByResource.addOldConnObjectKey(KEY, oldConnObjectKey);
+        verify(oldConnObjectKeys).put(KEY, oldConnObjectKey);
+        propagationByResource.addOldConnObjectKey(KEY, null);
+        verify(oldConnObjectKeys, times(0)).put(KEY, null);
         propagationByResource.addOldConnObjectKey(null, null);
         verify(oldConnObjectKeys, times(0)).put(null, null);
     }
 
     @Test
     public void add() {
-        assertTrue(propagationByResource.add(ResourceOperation.CREATE, key));
-        assertTrue(propagationByResource.add(ResourceOperation.UPDATE, key));
-        assertTrue(propagationByResource.add(ResourceOperation.DELETE, key));
-        assertFalse(propagationByResource.add(ResourceOperation.NONE, key));
+        assertTrue(propagationByResource.add(ResourceOperation.CREATE, KEY));
+        assertTrue(propagationByResource.add(ResourceOperation.UPDATE, KEY));
+        assertTrue(propagationByResource.add(ResourceOperation.DELETE, KEY));
+        assertFalse(propagationByResource.add(ResourceOperation.NONE, KEY));
     }
 
     @Test
@@ -105,10 +107,10 @@ public class PropagationByResourceTest extends AbstractTest {
 
     @Test
     public void remove() {
-        assertFalse(propagationByResource.remove(ResourceOperation.CREATE, key));
-        assertFalse(propagationByResource.remove(ResourceOperation.UPDATE, key));
-        assertFalse(propagationByResource.remove(ResourceOperation.DELETE, key));
-        assertFalse(propagationByResource.remove(ResourceOperation.NONE, key));
+        assertFalse(propagationByResource.remove(ResourceOperation.CREATE, KEY));
+        assertFalse(propagationByResource.remove(ResourceOperation.UPDATE, KEY));
+        assertFalse(propagationByResource.remove(ResourceOperation.DELETE, KEY));
+        assertFalse(propagationByResource.remove(ResourceOperation.NONE, KEY));
     }
 
     @Test
@@ -135,23 +137,23 @@ public class PropagationByResourceTest extends AbstractTest {
 
     @Test
     public void contains() {
-        assertFalse(propagationByResource.contains(ResourceOperation.CREATE, key));
-        assertFalse(propagationByResource.contains(ResourceOperation.UPDATE, key));
-        assertFalse(propagationByResource.contains(ResourceOperation.DELETE, key));
-        assertFalse(propagationByResource.contains(ResourceOperation.NONE, key));
+        assertFalse(propagationByResource.contains(ResourceOperation.CREATE, KEY));
+        assertFalse(propagationByResource.contains(ResourceOperation.UPDATE, KEY));
+        assertFalse(propagationByResource.contains(ResourceOperation.DELETE, KEY));
+        assertFalse(propagationByResource.contains(ResourceOperation.NONE, KEY));
 
         Set<String> matchingList = new HashSet<>();
-        matchingList.add(key);
-        assertFalse(propagationByResource.contains(key));
+        matchingList.add(KEY);
+        assertFalse(propagationByResource.contains(KEY));
 
         ReflectionTestUtils.setField(propagationByResource, "toBeDeleted", matchingList);
-        assertTrue(propagationByResource.contains(key));
+        assertTrue(propagationByResource.contains(KEY));
     }
 
     @Test
     public void get() {
         Set<String> matchingList = new HashSet<>();
-        matchingList.add(key);
+        matchingList.add(KEY);
 
         ReflectionTestUtils.setField(propagationByResource, "toBeDeleted", matchingList);
         assertEquals(matchingList, propagationByResource.get(ResourceOperation.DELETE));
@@ -180,5 +182,23 @@ public class PropagationByResourceTest extends AbstractTest {
         assertEquals(keys, ReflectionTestUtils.getField(propagationByResource, "toBeUpdated"));
         propagationByResource.set(ResourceOperation.DELETE, keys);
         assertEquals(keys, ReflectionTestUtils.getField(propagationByResource, "toBeDeleted"));
+    }
+
+    @Test
+    public void byLinkedAccount() {
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
+        propByLinkedAccount.add(ResourceOperation.CREATE, Pair.of("resource1", "connObjectKey1"));
+        propByLinkedAccount.add(ResourceOperation.CREATE, Pair.of("resource2", "connObjectKey2"));
+
+        assertEquals(2, propByLinkedAccount.asMap().size());
+        assertEquals(ResourceOperation.CREATE, propByLinkedAccount.asMap().get(Pair.of("resource1", "connObjectKey1")));
+        assertEquals(ResourceOperation.CREATE, propByLinkedAccount.asMap().get(Pair.of("resource2", "connObjectKey2")));
+
+        Set<String> noPropResourceKeys = Set.of("resource2");
+        propByLinkedAccount.get(ResourceOperation.CREATE).
+                removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+
+        assertEquals(1, propByLinkedAccount.asMap().size());
+        assertEquals(ResourceOperation.CREATE, propByLinkedAccount.asMap().get(Pair.of("resource1", "connObjectKey1")));
     }
 }

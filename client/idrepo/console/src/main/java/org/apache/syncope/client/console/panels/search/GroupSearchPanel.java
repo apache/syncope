@@ -71,13 +71,13 @@ public class GroupSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<Map<String, String>>() {
+        this.groupNames = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected Map<String, String> load() {
-                return Map.of();
+            protected List<String> load() {
+                return List.of();
             }
         };
 

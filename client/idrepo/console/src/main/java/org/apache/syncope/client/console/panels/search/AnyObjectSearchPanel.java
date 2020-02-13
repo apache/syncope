@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -37,8 +37,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
     private static final long serialVersionUID = -1769527800450203738L;
-
-    public static final int MAX_GROUP_LIST_CARDINALITY = 30;
 
     public static class Builder extends AbstractSearchPanel.Builder<AnyObjectSearchPanel> {
 
@@ -79,18 +77,19 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<Map<String, String>>() {
+        this.groupNames = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected Map<String, String> load() {
-                return groupRestClient.search(SyncopeConstants.ROOT_REALM,
+            protected List<String> load() {
+                return groupRestClient.search(
+                        realm,
                         null,
                         1,
-                        MAX_GROUP_LIST_CARDINALITY,
+                        Constants.MAX_GROUP_LIST_SIZE,
                         new SortParam<>("name", true),
-                        null).stream().collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName));
+                        null).stream().map(GroupTO::getName).collect(Collectors.toList());
             }
         };
 

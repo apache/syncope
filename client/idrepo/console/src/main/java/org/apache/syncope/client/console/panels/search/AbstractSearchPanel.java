@@ -54,7 +54,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<SearchClause.Type>> types;
 
-    protected IModel<Map<String, String>> groupNames;
+    protected IModel<List<String>> groupNames;
 
     protected IModel<List<String>> roleNames;
 
@@ -63,6 +63,8 @@ public abstract class AbstractSearchPanel extends Panel {
     protected IModel<List<SearchClause>> model;
 
     protected WebMarkupContainer searchFormContainer;
+
+    protected final String realm;
 
     protected final AnyTypeKind typeKind;
 
@@ -80,6 +82,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
         protected final IModel<List<SearchClause>> model;
 
+        protected String realm = SyncopeConstants.ROOT_REALM;
+
         protected boolean required = true;
 
         protected boolean enableSearch = false;
@@ -94,6 +98,11 @@ public abstract class AbstractSearchPanel extends Panel {
 
         public Builder(final IModel<List<SearchClause>> model) {
             this.model = model;
+        }
+
+        public Builder<T> realm(final String realm) {
+            this.realm = realm;
+            return this;
         }
 
         public Builder<T> enableSearch(final IEventSink resultContainer) {
@@ -128,12 +137,13 @@ public abstract class AbstractSearchPanel extends Panel {
 
         super(id);
         populate();
-        Pair<IModel<Map<String, String>>, Integer> groupInfo =
+        Pair<IModel<List<String>>, Integer> groupInfo =
                 SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
                 ? Pair.of(groupNames, groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null))
                 : Pair.of(groupNames, 0);
 
         this.model = builder.model;
+        this.realm = builder.realm;
         this.typeKind = kind;
         this.type = type;
         this.required = builder.required;
@@ -147,6 +157,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
         SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
+                realm,
                 required,
                 types,
                 builder.customizer,
@@ -156,7 +167,7 @@ public abstract class AbstractSearchPanel extends Panel {
             searchClausePanel.enableSearch(builder.resultContainer);
         }
 
-        final MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<SearchClause>(model) {
+        MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<SearchClause>(model) {
 
             private static final long serialVersionUID = 1343431509987473047L;
 

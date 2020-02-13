@@ -155,7 +155,7 @@ public class Groups extends AbstractGroups {
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
                                             isAssignable().and().is("name").equalTo(filter).query(),
-                                    1, MAX_GROUP_LIST_CARDINALITY,
+                                    1, Constants.MAX_GROUP_LIST_SIZE,
                                     new SortParam<>("name", true),
                                     null)).stream().map(input -> new MembershipTO.Builder(input.getKey())
                             .groupName(input.getName()).build()).collect(Collectors.toList());
@@ -215,7 +215,7 @@ public class Groups extends AbstractGroups {
         }
 
         /**
-         * Retrieve the first MAX_GROUP_LIST_CARDINALITY assignable.
+         * Retrieve the first MAX_GROUP_LIST_SIZE assignable.
          */
         @Override
         protected void reloadObject() {
@@ -223,7 +223,7 @@ public class Groups extends AbstractGroups {
                     realm,
                     SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
                     1,
-                    MAX_GROUP_LIST_CARDINALITY,
+                    Constants.MAX_GROUP_LIST_SIZE,
                     new SortParam<>("name", true),
                     null);
         }
