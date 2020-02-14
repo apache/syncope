@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -82,7 +83,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             @Override
             protected List<String> load() {
                 return groupRestClient.search(
-                        realm,
+                        SyncopeConstants.ROOT_REALM,
                         null,
                         1,
                         Constants.MAX_GROUP_LIST_SIZE,
