@@ -56,6 +56,17 @@ public class ResourceDetailsPanel extends WizardStep {
         }
     };
 
+    private final IModel<List<String>> provisionSorters = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            return ImplementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+        }
+    };
+
     public ResourceDetailsPanel(final ResourceTO resourceTO, final boolean createFlag) {
         super();
         setOutputMarkupId(true);
@@ -101,6 +112,11 @@ public class ResourceDetailsPanel extends WizardStep {
                 new PropertyModel<>(resourceTO, "createTraceLevel"),
                 false).
                 setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
+
+        container.add(new AjaxDropDownChoicePanel<>(
+                "provisionSorter", "provisionSorter",
+                new PropertyModel<>(resourceTO, "provisionSorter"), false).
+                setChoices(provisionSorters));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "updateTraceLevel",

@@ -62,6 +62,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValida
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
+import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -152,6 +153,9 @@ public class ITImplementationLookup implements ImplementationLookup {
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES = new HashSet<>(
             List.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
 
+    private static final Set<Class<?>> PROVISION_SORTER_CLASSES = new HashSet<>(
+            List.of(DefaultProvisionSorter.class));
+
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<String, Set<String>>() {
 
         private static final long serialVersionUID = 3109256773218160485L;
@@ -232,6 +236,10 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = ITImplementationLookup.AUDITAPPENDER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.AUDIT_APPENDER, classNames);
+
+            classNames = ITImplementationLookup.PROVISION_SORTER_CLASSES.stream().
+                    map(Class::getName).collect(Collectors.toSet());
+            put(IdMImplementationType.PROVISION_SORTER, classNames);
         }
     };
 

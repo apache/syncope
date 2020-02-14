@@ -68,7 +68,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
     @Override
     public String getGroovyTemplateClassName(final String implementationType) {
-        String templateClassName = null;
+        String templateClassName;
 
         switch (implementationType) {
             case IdMImplementationType.ITEM_TRANSFORMER:
@@ -99,6 +99,10 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
                 templateClassName = "MyPushCorrelationRule";
                 break;
 
+            case IdMImplementationType.PROVISION_SORTER:
+                templateClassName = "MyProvisionSorter";                
+                break;
+                
             default:
                 templateClassName = super.getGroovyTemplateClassName(implementationType);
         }
@@ -108,7 +112,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
     @Override
     public Class<?> getClass(final String implementationType, final String name) {
-        Class<?> clazz = null;
+        Class<?> clazz;
         switch (implementationType) {
             case IdMImplementationType.PULL_CORRELATION_RULE:
                 clazz = lookup.getPullCorrelationRuleConfs().get(name);

@@ -42,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
+import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -142,6 +143,10 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
                 case IdRepoImplementationType.RECIPIENTS_PROVIDER:
                     base = RecipientsProvider.class;
+                    break;
+
+                case IdMImplementationType.PROVISION_SORTER:
+                    base = ProvisionSorter.class;
                     break;
 
                 default:

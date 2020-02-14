@@ -358,6 +358,18 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setPushPolicy(resourceTO.getPushPolicy() == null
                 ? null : (PushPolicy) policyDAO.find(resourceTO.getPushPolicy()));
 
+        if (resourceTO.getProvisionSorter() == null) {
+            resource.setProvisionSorter(null);
+        } else {
+            Implementation provisionSorter = implementationDAO.find(resourceTO.getProvisionSorter());
+            if (provisionSorter == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        resourceTO.getProvisionSorter());
+            } else {
+                resource.setProvisionSorter(provisionSorter);
+            }
+        }
+
         resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
 
         resource.setOverrideCapabilities(resourceTO.isOverrideCapabilities());
@@ -674,6 +686,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.setPushPolicy(resource.getPushPolicy() == null
                 ? null : resource.getPushPolicy().getKey());
+
+        resourceTO.setProvisionSorter(resource.getProvisionSorter() == null
+                ? null : resource.getProvisionSorter().getKey());
 
         resourceTO.getConfOverride().addAll(resource.getConfOverride());
         Collections.sort(resourceTO.getConfOverride());

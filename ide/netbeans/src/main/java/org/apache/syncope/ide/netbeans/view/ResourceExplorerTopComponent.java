@@ -183,7 +183,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     getLastSelectedPathComponent();
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
             String parentNodeName = Optional.ofNullable(parentNode)
-                .map(node -> String.valueOf(node.getUserObject())).orElse(null);
+                    .map(node -> String.valueOf(node.getUserObject())).orElse(null);
             if (selectedNode.isLeaf() && StringUtils.isNotBlank(parentNodeName)) {
                 String leafNodeName = (String) selectedNode.getUserObject();
                 DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode) parentNode.getParent();
@@ -298,7 +298,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
         mailTemplateList
-            .forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
+                .forEach(mailTemplate -> this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey())));
         treeModel.reload();
     }
 
@@ -444,6 +444,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
                             case IdRepoImplementationType.RECIPIENTS_PROVIDER:
                                 templateClassName = "MyRecipientsProvider";
+                                break;
+
+                            case IdMImplementationType.PROVISION_SORTER:
+                                templateClassName = "MyProvisionSorter";
                                 break;
 
                             default:
@@ -719,8 +723,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 componentClosed();
                 componentOpened();
             }
-
         };
     }
-
 }

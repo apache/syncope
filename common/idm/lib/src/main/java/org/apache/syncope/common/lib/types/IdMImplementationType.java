@@ -37,6 +37,8 @@ public final class IdMImplementationType {
 
     public static final String PUSH_CORRELATION_RULE = "PUSH_CORRELATION_RULE";
 
+    public static final String PROVISION_SORTER = "PROVISION_SORTER";
+
     private static final Map<String, String> VALUES = Map.ofEntries(
             Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
             Pair.of(RECON_FILTER_BUILDER, "org.apache.syncope.core.persistence.api.dao.Reportlet"),
@@ -44,7 +46,8 @@ public final class IdMImplementationType {
             Pair.of(PULL_ACTIONS, "org.apache.syncope.core.persistence.api.dao.PasswordRule"),
             Pair.of(PUSH_ACTIONS, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
             Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.LogicActions"),
-            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.attrvalue.validation.Validator"));
+            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.attrvalue.validation.Validator"),
+            Pair.of(PROVISION_SORTER, "org.apache.syncope.core.provisioning.api.ProvisionSorter"));
 
     public static Map<String, String> values() {
         return VALUES;

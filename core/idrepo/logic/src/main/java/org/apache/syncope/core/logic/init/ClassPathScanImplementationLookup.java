@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
+import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
@@ -237,6 +238,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
                     classNames.get(IdRepoImplementationType.AUDIT_APPENDER).add(clazz.getName());
                     auditAppenderClasses.add(clazz);
+                }
+
+                if (ProvisionSorter.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(IdMImplementationType.PROVISION_SORTER).add(bd.getBeanClassName());
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);

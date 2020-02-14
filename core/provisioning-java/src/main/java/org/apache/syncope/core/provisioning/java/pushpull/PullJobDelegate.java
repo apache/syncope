@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -49,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
@@ -62,6 +64,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
+import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
@@ -270,89 +273,99 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
+        ProvisionSorter provisionSorter = new DefaultProvisionSorter();
+        if (pullTask.getResource().getProvisionSorter() != null) {
+            try {
+                provisionSorter = ImplementationManager.build(pullTask.getResource().getProvisionSorter());
+            } catch (Exception e) {
+                LOG.error("While building {}", pullTask.getResource().getProvisionSorter(), e);
+            }
+        }
         // ...then provisions for any types
         SyncopePullResultHandler handler;
         GroupPullResultHandler ghandler = buildGroupHandler();
-        for (Provision provision : pullTask.getResource().getProvisions()) {
-            if (provision.getMapping() != null) {
-                status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
+        for (Provision provision : pullTask.getResource().getProvisions().stream().
+                filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
+                collect(Collectors.toList())) {
 
-                switch (provision.getAnyType().getKind()) {
-                    case USER:
-                        handler = buildUserHandler();
-                        break;
+            status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
 
-                    case GROUP:
-                        handler = ghandler;
-                        break;
+            switch (provision.getAnyType().getKind()) {
+                case USER:
+                    handler = buildUserHandler();
+                    break;
 
-                    case ANY_OBJECT:
-                    default:
-                        handler = buildAnyObjectHandler();
-                }
-                handler.setProfile(profile);
-                handler.setPullExecutor(this);
+                case GROUP:
+                    handler = ghandler;
+                    break;
 
-                try {
-                    Set<String> moreAttrsToGet = new HashSet<>();
-                    actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
-
-                    Stream<? extends Item> mapItems = Stream.concat(
-                            MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                            virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
-
-                    OperationOptions options = MappingUtils.buildOperationOptions(
-                            mapItems, moreAttrsToGet.toArray(new String[0]));
-
-                    switch (pullTask.getPullMode()) {
-                        case INCREMENTAL:
-                            if (!dryRun) {
-                                latestSyncTokens.put(provision.getObjectClass(), provision.getSyncToken());
-                            }
-
-                            connector.sync(
-                                    provision.getObjectClass(),
-                                    provision.getSyncToken(),
-                                    handler,
-                                    options);
-
-                            if (!dryRun) {
-                                provision.setSyncToken(latestSyncTokens.get(provision.getObjectClass()));
-                                resourceDAO.save(provision.getResource());
-                            }
-                            break;
-
-                        case FILTERED_RECONCILIATION:
-                            connector.filteredReconciliation(
-                                    provision.getObjectClass(),
-                                    ImplementationManager.build(pullTask.getReconFilterBuilder()),
-                                    handler,
-                                    options);
-                            break;
-
-                        case FULL_RECONCILIATION:
-                        default:
-                            connector.fullReconciliation(
-                                    provision.getObjectClass(),
-                                    handler,
-                                    options);
-                            break;
-                    }
-
-                    if (provision.getUidOnCreate() != null) {
-                        AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
-                        profile.getResults().stream().
-                                filter(result -> result.getUidValue() != null && result.getKey() != null
-                                && result.getOperation() == ResourceOperation.CREATE
-                                && result.getAnyType().equals(provision.getAnyType().getKey())).
-                                forEach(result -> {
-                                    anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
-                                });
-                    }
-                } catch (Throwable t) {
-                    throw new JobExecutionException("While pulling from connector", t);
-                }
+                case ANY_OBJECT:
+                default:
+                    handler = buildAnyObjectHandler();
             }
+            handler.setProfile(profile);
+            handler.setPullExecutor(this);
+
+            try {
+                Set<String> moreAttrsToGet = new HashSet<>();
+                actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+
+                Stream<? extends Item> mapItems = Stream.concat(
+                        MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
+                        virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+
+                OperationOptions options = MappingUtils.buildOperationOptions(
+                        mapItems, moreAttrsToGet.toArray(new String[0]));
+
+                switch (pullTask.getPullMode()) {
+                    case INCREMENTAL:
+                        if (!dryRun) {
+                            latestSyncTokens.put(provision.getObjectClass(), provision.getSyncToken());
+                        }
+
+                        connector.sync(
+                                provision.getObjectClass(),
+                                provision.getSyncToken(),
+                                handler,
+                                options);
+
+                        if (!dryRun) {
+                            provision.setSyncToken(latestSyncTokens.get(provision.getObjectClass()));
+                            resourceDAO.save(provision.getResource());
+                        }
+                        break;
+
+                    case FILTERED_RECONCILIATION:
+                        connector.filteredReconciliation(
+                                provision.getObjectClass(),
+                                ImplementationManager.build(pullTask.getReconFilterBuilder()),
+                                handler,
+                                options);
+                        break;
+
+                    case FULL_RECONCILIATION:
+                    default:
+                        connector.fullReconciliation(
+                                provision.getObjectClass(),
+                                handler,
+                                options);
+                        break;
+                }
+
+                if (provision.getUidOnCreate() != null) {
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
+                    profile.getResults().stream().
+                            filter(result -> result.getUidValue() != null && result.getKey() != null
+                            && result.getOperation() == ResourceOperation.CREATE
+                            && result.getAnyType().equals(provision.getAnyType().getKey())).
+                            forEach(result -> {
+                                anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
+                            });
+                }
+            } catch (Throwable t) {
+                throw new JobExecutionException("While pulling from connector", t);
+            }
+
         }
         try {
             setGroupOwners(ghandler);
