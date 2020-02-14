@@ -16,29 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.provisioning.api;
 
-import javax.xml.bind.annotation.XmlEnum;
+import java.util.Comparator;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
-@XmlEnum
-public enum ImplementationType {
-
-    JWT_SSO_PROVIDER,
-    REPORTLET,
-    ACCOUNT_RULE,
-    PASSWORD_RULE,
-    ITEM_TRANSFORMER,
-    TASKJOB_DELEGATE,
-    RECON_FILTER_BUILDER,
-    LOGIC_ACTIONS,
-    PROPAGATION_ACTIONS,
-    PULL_ACTIONS,
-    PUSH_ACTIONS,
-    PULL_CORRELATION_RULE,
-    PUSH_CORRELATION_RULE,
-    VALIDATOR,
-    RECIPIENTS_PROVIDER,
-    AUDIT_APPENDER,
-    PROVISION_SORTER;
+public interface ProvisionSorter extends Comparator<Provision> {
 
 }

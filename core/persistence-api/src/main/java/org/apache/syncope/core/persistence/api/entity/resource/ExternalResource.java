@@ -63,6 +63,10 @@ public interface ExternalResource extends ProvidedKeyEntity {
     void setPullPolicy(PullPolicy pullPolicy);
 
     PushPolicy getPushPolicy();
+    
+    Implementation getProvisionSorter();
+
+    void setProvisionSorter(Implementation provisionSorter);
 
     void setPushPolicy(PushPolicy pushPolicy);
 

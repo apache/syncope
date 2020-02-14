@@ -138,6 +138,9 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPushPolicy pushPolicy;
 
+    @ManyToOne
+    private JPAImplementation provisionSorter;
+
     /**
      * Configuration properties that are overridden from the connector instance.
      */
@@ -329,6 +332,18 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public void setPushPolicy(final PushPolicy pushPolicy) {
         checkType(pushPolicy, JPAPushPolicy.class);
         this.pushPolicy = (JPAPushPolicy) pushPolicy;
+    }
+
+    @Override
+    public Implementation getProvisionSorter() {
+        return provisionSorter;
+    }
+
+    @Override
+    public void setProvisionSorter(final Implementation provisionSorter) {
+        checkType(provisionSorter, JPAImplementation.class);
+        checkImplementationType(provisionSorter, ImplementationType.PROVISION_SORTER);
+        this.provisionSorter = (JPAImplementation) provisionSorter;
     }
 
     @Override

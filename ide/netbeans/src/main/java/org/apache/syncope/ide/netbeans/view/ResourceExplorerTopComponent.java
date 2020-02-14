@@ -478,6 +478,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                                     templateClassName = "MyRecipientsProvider";
                                     break;
 
+                                case PROVISION_SORTER:
+                                    templateClassName = "MyProvisionSorter";
+                                    break;
+
                                 default:
                             }
                             newNode.setBody(IOUtils.toString(

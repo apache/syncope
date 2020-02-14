@@ -236,6 +236,10 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                     templateClassName = "MyRecipientsProvider";
                     break;
 
+                case PROVISION_SORTER:
+                    templateClassName = "MyProvisionSorter";
+                    break;
+
                 default:
             }
 

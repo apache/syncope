@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,29 +17,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+import groovy.transform.CompileStatic
+import org.apache.syncope.core.persistence.api.ProvisionSorter
+import org.apache.syncope.core.persistence.api.entity.resource.Provision
 
-import javax.xml.bind.annotation.XmlEnum;
 
-@XmlEnum
-public enum ImplementationType {
-
-    JWT_SSO_PROVIDER,
-    REPORTLET,
-    ACCOUNT_RULE,
-    PASSWORD_RULE,
-    ITEM_TRANSFORMER,
-    TASKJOB_DELEGATE,
-    RECON_FILTER_BUILDER,
-    LOGIC_ACTIONS,
-    PROPAGATION_ACTIONS,
-    PULL_ACTIONS,
-    PUSH_ACTIONS,
-    PULL_CORRELATION_RULE,
-    PUSH_CORRELATION_RULE,
-    VALIDATOR,
-    RECIPIENTS_PROVIDER,
-    AUDIT_APPENDER,
-    PROVISION_SORTER;
-
+@CompileStatic
+class MyProvisionSorter implements ProvisionSorter {
+ 
+  @Override
+  int compare(Provision provision1, Provision provision2) {
+    return 0;
+  }
+  
 }
