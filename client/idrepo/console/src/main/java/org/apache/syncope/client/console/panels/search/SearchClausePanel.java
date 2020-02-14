@@ -42,6 +42,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -124,8 +125,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
     }
 
-    private final String realm;
-
     private final boolean required;
 
     private final IModel<List<SearchClause.Type>> types;
@@ -164,7 +163,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final String id,
             final String name,
             final Model<SearchClause> clause,
-            final String realm,
             final boolean required,
             final IModel<List<SearchClause.Type>> types,
             final Customizer customizer,
@@ -179,7 +177,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         this.clause = clause == null ? new Model<>(null) : clause;
 
-        this.realm = realm;
         this.required = required;
         this.types = types;
         this.customizer = customizer;
@@ -450,7 +447,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                             inputValue = inputValue + "*";
                         }
                         property.setChoices(groupRestClient.search(
-                                realm,
+                                SyncopeConstants.ROOT_REALM,
                                 SyncopeClient.getGroupSearchConditionBuilder().
                                         is("name").equalToIgnoreCase(inputValue).
                                         query(),
@@ -886,7 +883,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     @Override
     public FieldPanel<SearchClause> clone() {
         SearchClausePanel panel = new SearchClausePanel(
-                getId(), name, null, realm, required, types, customizer, anames, dnames, groupInfo,
+                getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
                 roleNames, privilegeNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());

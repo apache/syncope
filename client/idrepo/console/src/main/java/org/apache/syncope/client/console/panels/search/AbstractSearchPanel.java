@@ -64,8 +64,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected WebMarkupContainer searchFormContainer;
 
-    protected final String realm;
-
     protected final AnyTypeKind typeKind;
 
     protected final String type;
@@ -82,8 +80,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
         protected final IModel<List<SearchClause>> model;
 
-        protected String realm = SyncopeConstants.ROOT_REALM;
-
         protected boolean required = true;
 
         protected boolean enableSearch = false;
@@ -98,11 +94,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
         public Builder(final IModel<List<SearchClause>> model) {
             this.model = model;
-        }
-
-        public Builder<T> realm(final String realm) {
-            this.realm = realm;
-            return this;
         }
 
         public Builder<T> enableSearch(final IEventSink resultContainer) {
@@ -143,7 +134,6 @@ public abstract class AbstractSearchPanel extends Panel {
                 : Pair.of(groupNames, 0);
 
         this.model = builder.model;
-        this.realm = builder.realm;
         this.typeKind = kind;
         this.type = type;
         this.required = builder.required;
@@ -157,7 +147,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
         SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
-                realm,
                 required,
                 types,
                 builder.customizer,

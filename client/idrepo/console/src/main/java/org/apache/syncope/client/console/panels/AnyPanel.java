@@ -319,7 +319,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("username");
 
                 panel = new UserSearchPanel.Builder(
-                        new ListModel<>(clauses)).realm(realmTO.getFullPath()).required(true).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
                 break;
 
             case GROUP:
@@ -328,7 +328,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("name");
 
                 panel = new GroupSearchPanel.Builder(
-                        new ListModel<>(clauses)).realm(realmTO.getFullPath()).required(true).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
                 break;
 
             case ANY_OBJECT:
@@ -337,7 +337,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("name");
 
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
-                        new ListModel<>(clauses)).realm(realmTO.getFullPath()).required(true).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
                 break;
 
             default:
