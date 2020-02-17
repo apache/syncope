@@ -224,13 +224,13 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public void delete(final Realm realm) {
-        findDescendants(realm).stream().map(toBeDeleted -> {
+        findDescendants(realm).forEach(toBeDeleted -> {
             roleDAO.findByRealm(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
-            return toBeDeleted;
-        }).map(toBeDeleted -> {
+
             toBeDeleted.setParent(null);
-            return toBeDeleted;
-        }).forEachOrdered(toBeDeleted -> entityManager().remove(toBeDeleted));
+
+            entityManager().remove(toBeDeleted);
+        });
     }
 
     @Override
