@@ -170,7 +170,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
             // 2. take into account realms and ordering
-            OrderBySupport obs = parseOrderBy(kind, svs, orderBy);
+            OrderBySupport obs = parseOrderBy(svs, orderBy);
             if (queryString.charAt(0) == '(') {
                 queryString.insert(0, buildSelect(obs));
                 queryString.append(buildWhere(svs, queryInfo.getRight(), obs));
@@ -382,12 +382,20 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
     }
 
+    protected void parseOrderByForCustom(
+            final SearchSupport svs,
+            final OrderByClause clause,
+            final OrderBySupport.Item item,
+            final OrderBySupport obs) {
+
+        // do nothing by default, meant for subclasses
+    }
+
     private OrderBySupport parseOrderBy(
-            final AnyTypeKind kind,
             final SearchSupport svs,
             final List<OrderByClause> orderBy) {
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(svs.anyTypeKind);
 
         OrderBySupport obs = new OrderBySupport();
 
@@ -396,38 +404,42 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         orderBy.forEach(clause -> {
             OrderBySupport.Item item = new OrderBySupport.Item();
 
-            if (anyUtils.getField(clause.getField()) == null) {
-                PlainSchema schema = schemaDAO.find(clause.getField());
-                if (schema != null) {
-                    if (schema.isUniqueConstraint()) {
-                        orderByUniquePlainSchemas.add(schema.getKey());
-                    } else {
-                        orderByNonUniquePlainSchemas.add(schema.getKey());
+            parseOrderByForCustom(svs, clause, item, obs);
+
+            if (item.isEmpty()) {
+                if (anyUtils.getField(clause.getField()) == null) {
+                    PlainSchema schema = schemaDAO.find(clause.getField());
+                    if (schema != null) {
+                        if (schema.isUniqueConstraint()) {
+                            orderByUniquePlainSchemas.add(schema.getKey());
+                        } else {
+                            orderByNonUniquePlainSchemas.add(schema.getKey());
+                        }
+                        if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
+                            SyncopeClientException invalidSearch =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                            invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
+                                    + "remove one from " + (orderByUniquePlainSchemas.size() > 1
+                                    ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
+                            throw invalidSearch;
+                        }
+                        parseOrderByForPlainSchema(svs, obs, item, clause, schema, clause.getField());
                     }
-                    if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
-                        SyncopeClientException invalidSearch =
-                                SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
-                        invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
-                                + "remove one from " + (orderByUniquePlainSchemas.size() > 1
-                                ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
-                        throw invalidSearch;
+                } else {
+                    // Manage difference among external key attribute and internal JPA @Id
+                    String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
+
+                    // Adjust field name to column name
+                    if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
+                        fieldName += "_id";
                     }
-                    parseOrderByForPlainSchema(svs, obs, item, clause, schema, clause.getField());
+
+                    obs.views.add(svs.field());
+
+                    item.select = svs.field().alias + '.' + fieldName;
+                    item.where = StringUtils.EMPTY;
+                    item.orderBy = svs.field().alias + '.' + fieldName + ' ' + clause.getDirection().name();
                 }
-            } else {
-                // Manage difference among external key attribute and internal JPA @Id
-                String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
-
-                // Adjust field name to column name
-                if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
-                    fieldName += "_id";
-                }
-
-                obs.views.add(svs.field());
-
-                item.select = svs.field().alias + '.' + fieldName;
-                item.where = StringUtils.EMPTY;
-                item.orderBy = svs.field().alias + '.' + fieldName + ' ' + clause.getDirection().name();
             }
 
             if (item.isEmpty()) {

@@ -115,7 +115,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
                     -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
-        result.sort(comparator);
         return result.iterator();
     }
 

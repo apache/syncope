@@ -51,6 +51,7 @@ public class ProvisioningReportsPanel extends Panel {
                 return new ListViewPanel.Builder<>(ProvisioningReport.class, pageRef).
                         setItems(success).
                         withChecks(ListViewPanel.CheckAvailability.NONE).
+                        setCaptionVisible(false).
                         includes("name", "message").
                         build(panelId);
             }
@@ -69,6 +70,7 @@ public class ProvisioningReportsPanel extends Panel {
                 return new ListViewPanel.Builder<>(ProvisioningReport.class, pageRef).
                         setItems(failure).
                         withChecks(ListViewPanel.CheckAvailability.NONE).
+                        setCaptionVisible(false).
                         includes("name", "message").
                         build(panelId);
             }
@@ -87,6 +89,7 @@ public class ProvisioningReportsPanel extends Panel {
                 return new ListViewPanel.Builder<>(ProvisioningReport.class, pageRef).
                         setItems(ignore).
                         withChecks(ListViewPanel.CheckAvailability.NONE).
+                        setCaptionVisible(false).
                         includes("name", "message").
                         build(panelId);
             }
