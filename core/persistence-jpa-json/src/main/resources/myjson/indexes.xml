@@ -43,4 +43,7 @@ under the License.
   <entry key="ARelationship_AnyObjectIndex">CREATE INDEX ARelationship_AnyObjectIndex ON ARelationship(left_anyObject_id)</entry>
 
   <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
+  <entry key="TaskExec_TaskIdIndex">CREATE INDEX TaskExec_TaskIdIndex ON TaskExec(task_id)</entry>
+  <entry key="AnyTemplatePullTask_PullTaskIndex">CREATE INDEX AnyTemplatePullTask_PullTaskIndex ON AnyTemplatePullTask(pullTask_id)</entry>
+  <entry key="NotificationTask_recipientsIndex">CREATE INDEX NotificationTask_recipientsIndex ON NotificationTask_recipients(notificationTask_id)</entry>
 </properties>
