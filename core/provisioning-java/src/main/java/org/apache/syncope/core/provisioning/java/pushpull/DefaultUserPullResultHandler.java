@@ -346,6 +346,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     action.beforeProvision(profile, delta, accountTO);
                 }
             }
+            report.setName(accountTO.getConnObjectKeyValue());
 
             UserPatch patch = new UserPatch();
             patch.setKey(user.getKey());
@@ -362,12 +363,12 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         null,
                         Collections.singleton(profile.getTask().getResource().getKey()),
                         true);
-                resultStatus = Result.SUCCESS;
 
                 LinkedAccountTO created = userDAO.find(patch.getKey()).
                         getLinkedAccount(accountTO.getResource(), accountTO.getConnObjectKeyValue()).
                         map(acct -> userDataBinder.getLinkedAccountTO(acct)).
                         orElse(null);
+
                 output = created;
                 resultStatus = Result.SUCCESS;
 
