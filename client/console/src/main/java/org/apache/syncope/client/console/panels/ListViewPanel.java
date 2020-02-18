@@ -41,6 +41,7 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckGroup;
@@ -105,7 +106,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             final CheckAvailability check,
             final boolean reuseItem,
             final boolean wizardInModal,
+            final boolean captionVisible,
             final IModel<? extends Collection<T>> model) {
+
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
@@ -113,9 +116,15 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         this.check = Model.of(check);
 
-        addInnerObject(new Label("caption", new ResourceModel("listview.caption", StringUtils.EMPTY)));
+        WebMarkupContainer captionContainer = new WebMarkupContainer("captionContainer");
+        captionContainer.setOutputMarkupPlaceholderTag(true);
+        captionContainer.setVisible(captionVisible);
+        addInnerObject(captionContainer);
 
-        final CheckGroup<T> checkGroup = new CheckGroup<>("group", model);
+        Label caption = new Label("caption", new ResourceModel("listview.caption", StringUtils.EMPTY));
+        captionContainer.add(caption);
+
+        CheckGroup<T> checkGroup = new CheckGroup<>("group", model);
         checkGroup.setOutputMarkupId(true);
         checkGroup.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
@@ -274,6 +283,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         private boolean reuseItem = true;
 
+        private boolean captionVisible = true;
+
         private final Class<T> reference;
 
         public Builder(final Class<T> reference, final PageReference pageRef) {
@@ -323,8 +334,14 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             return this;
         }
 
-        public void setReuseItem(final boolean reuseItem) {
+        public Builder<T> setReuseItem(final boolean reuseItem) {
             this.reuseItem = reuseItem;
+            return this;
+        }
+
+        public Builder<T> setCaptionVisible(final boolean captionVisible) {
+            this.captionVisible = captionVisible;
+            return this;
         }
 
         /**
@@ -407,7 +424,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         @Override
         protected WizardMgtPanel<T> newInstance(final String id, final boolean wizardInModal) {
             return new ListViewPanel<T>(
-                    id, items, reference, includes, actions, check, reuseItem, wizardInModal, model) {
+                    id, items, reference, includes, actions, check, reuseItem, wizardInModal, captionVisible, model) {
 
                 private static final long serialVersionUID = -1715389337530657988L;
 

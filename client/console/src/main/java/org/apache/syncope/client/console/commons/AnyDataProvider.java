@@ -114,7 +114,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             }
         }
 
-        Collections.sort(result, comparator);
         return result.iterator();
     }
 
