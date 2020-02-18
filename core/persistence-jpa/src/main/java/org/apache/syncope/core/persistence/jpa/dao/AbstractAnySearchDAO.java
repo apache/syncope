@@ -20,8 +20,9 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Optional;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
@@ -302,7 +303,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
                 collect(Collectors.toList());
 
-        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys);
+        // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual sql query results
+        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
+                sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).collect(Collectors.toList());
 
         keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
                 forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
