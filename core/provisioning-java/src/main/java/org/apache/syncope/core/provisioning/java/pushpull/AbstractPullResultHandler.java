@@ -214,6 +214,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     action.beforeProvision(profile, delta, anyCR);
                 }
             }
+            result.setName(getName(anyTO));
 
             Object output;
             Result resultStatus;

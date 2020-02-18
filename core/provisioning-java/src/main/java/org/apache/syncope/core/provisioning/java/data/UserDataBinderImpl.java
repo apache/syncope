@@ -283,12 +283,13 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     user.add(relationship);
                 }
             } else {
-                LOG.error("{} cannot be assigned to {}", otherEnd, user);
+                LOG.error("{} cannot be related to {}", otherEnd, user);
 
-                SyncopeClientException unassignabled =
+                SyncopeClientException unrelatable =
                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                scce.addException(unassignabled);
+                unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                        + " cannot be related");
+                scce.addException(unrelatable);
             }
         });
 
@@ -314,7 +315,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                 SyncopeClientException unassignable =
                         SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                unassignable.getElements().add("Cannot be assigned: " + group);
+                unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
                 scce.addException(unassignable);
             }
         });
@@ -466,12 +467,13 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                         user.add(newRelationship);
                     } else {
-                        LOG.error("{} cannot be assigned to {}", otherEnd, user);
+                        LOG.error("{} cannot be related to {}", otherEnd, user);
 
-                        SyncopeClientException unassignable =
+                        SyncopeClientException unrelatable =
                                 SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        unassignable.getElements().add("Cannot be assigned: " + otherEnd);
-                        scce.addException(unassignable);
+                        unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                                + " cannot be related");
+                        scce.addException(unrelatable);
                     }
                 }
             }
@@ -576,10 +578,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, user);
 
-                    SyncopeClientException unassignabled =
+                    SyncopeClientException unassignable =
                             SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignabled.getElements().add("Cannot be assigned: " + group);
-                    scce.addException(unassignabled);
+                    unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
+                    scce.addException(unassignable);
                 }
             }
         });
