@@ -53,9 +53,10 @@ jobs:
       ######################################################
     - stage: fit
       name: "Full Integration Tests: Apache Tomcat / H2 / JSON Content-Type"
-      env: JAVAEE_CONTAINER=Tomcat
-      env: DBMS=H2
-      env: jaxrsContentType=application/json
+      env:
+       - JAVAEE_CONTAINER=Tomcat
+       - DBMS=H2
+       - jaxrsContentType=application/json
       script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       after_failure:
        - cat fit/core-reference/target/log/*
