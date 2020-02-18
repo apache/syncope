@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-sudo: false
 language: java
 jdk:
   - openjdk11
@@ -26,8 +25,6 @@ cache:
     - $HOME/.m2
 git:
   depth: 2
-matrix:
-  fast_finish: true
 env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
@@ -43,21 +40,24 @@ stages:
 jobs:
   include:
     - stage: build
-      script: mvn -T 1C --quiet -P skipTests,all
       name: "Build"
+      script: mvn -T 1C --quiet -P skipTests,all
       #######################################################
     - stage: validate
-      script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check --quiet
       name: "Checkstyle, Legal Files, Modernizer and Release Audit Tool (RAT) Analysis"
+      script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check --quiet
       ######################################################
     - stage: test
-      script: mvn -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dskip.sass=true
       name: "Unit Tests"
+      script: mvn -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dskip.sass=true
       ######################################################
     - stage: fit
-      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -P all -T 1C -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-      name: "Full Integration Tests via JSON Content-Type"
-      #####################################################
-  after_failure:
-    - cat fit/core-reference/target/log/*
-    - cat fit/core-reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+      name: "Full Integration Tests: Apache Tomcat / H2 / JSON Content-Type"
+      env: JAVAEE_CONTAINER=Tomcat
+      env: DBMS=H2
+      env: jaxrsContentType=application/json
+      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      after_failure:
+       - cat fit/core-reference/target/log/*
+       - cat fit/core-reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+    #####################################################
