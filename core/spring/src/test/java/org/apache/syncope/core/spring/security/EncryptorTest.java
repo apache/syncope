@@ -26,56 +26,59 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test class to test all encryption algorithms.
- */
 public class EncryptorTest {
 
-    private final String password = "password";
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    private final Encryptor encryptor = Encryptor.getInstance();
+    private static final String PASSWORD_VALUE = "password";
 
-    /**
-     * Verify all algorithms.
-     */
     @Test
-    public void testEncoder() throws Exception {
+    public void encoder() throws Exception {
         for (CipherAlgorithm cipherAlgorithm : CipherAlgorithm.values()) {
-            final String encPassword = encryptor.encode(password, cipherAlgorithm);
+            String encPassword = ENCRYPTOR.encode(PASSWORD_VALUE, cipherAlgorithm);
 
             assertNotNull(encPassword);
-            assertTrue(encryptor.verify(password, cipherAlgorithm, encPassword));
-            assertFalse(encryptor.verify("pass", cipherAlgorithm, encPassword));
+            assertTrue(ENCRYPTOR.verify(PASSWORD_VALUE, cipherAlgorithm, encPassword));
+            assertFalse(ENCRYPTOR.verify(PASSWORD_VALUE + "diff", cipherAlgorithm, encPassword));
 
             // check that same password encoded with BCRYPT or Salted versions results in different digest
-            if (cipherAlgorithm.equals(CipherAlgorithm.BCRYPT) || cipherAlgorithm.getAlgorithm().startsWith("S-")) {
-                final String encSamePassword = encryptor.encode(password, cipherAlgorithm);
+            if (cipherAlgorithm == CipherAlgorithm.BCRYPT || cipherAlgorithm.isSalted()) {
+                String encSamePassword = ENCRYPTOR.encode(PASSWORD_VALUE, cipherAlgorithm);
                 assertNotNull(encSamePassword);
                 assertFalse(encSamePassword.equals(encPassword));
-                assertTrue(encryptor.verify(password, cipherAlgorithm, encSamePassword));
+                assertTrue(ENCRYPTOR.verify(PASSWORD_VALUE, cipherAlgorithm, encSamePassword));
             }
         }
     }
 
     @Test
-    public void testDecodeDefaultAESKey() throws Exception {
-        String decPassword = encryptor.decode("9Pav+xl+UyHt02H9ZBytiA==", CipherAlgorithm.AES);
-        assertEquals(password, decPassword);
+    public void decodeDefaultAESKey() throws Exception {
+        String decPassword = ENCRYPTOR.decode("9Pav+xl+UyHt02H9ZBytiA==", CipherAlgorithm.AES);
+        assertEquals(PASSWORD_VALUE, decPassword);
     }
 
     @Test
-    public void testSmallKey() throws Exception {
+    public void smallKey() throws Exception {
         Encryptor smallKeyEncryptor = Encryptor.getInstance("123");
-        String encPassword = smallKeyEncryptor.encode(password, CipherAlgorithm.AES);
+        String encPassword = smallKeyEncryptor.encode(PASSWORD_VALUE, CipherAlgorithm.AES);
         String decPassword = smallKeyEncryptor.decode(encPassword, CipherAlgorithm.AES);
-        assertEquals(password, decPassword);
+        assertEquals(PASSWORD_VALUE, decPassword);
     }
 
     @Test
-    public void testSaltedHash() throws Exception {
-        String encPassword = encryptor.encode(password, CipherAlgorithm.SSHA256);
+    public void saltedHash() throws Exception {
+        String encPassword = ENCRYPTOR.encode(PASSWORD_VALUE, CipherAlgorithm.SSHA256);
         assertNotNull(encPassword);
 
-        assertTrue(encryptor.verify(password, CipherAlgorithm.SSHA256, encPassword));
+        assertTrue(ENCRYPTOR.verify(PASSWORD_VALUE, CipherAlgorithm.SSHA256, encPassword));
+    }
+
+    @Test
+    public void verifySaltedFromExternal() throws Exception {
+        // generated via https://github.com/peppelinux/pySSHA-slapd with command:
+        // python3 pySSHA/ssha.py -p password -enc sha256 -s 666ac543 \
+        //  | sed 's/{.*}//' | xargs echo -n | base64 -d | xxd -p | tr -d $'\n'  | xargs echo
+        String encPassword = "b098017d584647e3fa1f3e0eb437648aefa84093c15e0d3efb752a4183cfdcf3666ac543";
+        assertTrue(ENCRYPTOR.verify(PASSWORD_VALUE, CipherAlgorithm.SSHA256, encPassword));
     }
 }

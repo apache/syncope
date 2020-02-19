@@ -173,62 +173,58 @@ public final class Encryptor {
             throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
-        String encodedValue = null;
+        String encoded = null;
 
         if (value != null) {
             if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-                final byte[] cleartext = value.getBytes(StandardCharsets.UTF_8);
-
-                final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
+                Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-                encodedValue = new String(Base64.getEncoder().encode(cipher.doFinal(cleartext)));
+                encoded = Base64.getEncoder().encodeToString(cipher.doFinal(value.getBytes(StandardCharsets.UTF_8)));
             } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
-                encodedValue = BCrypt.hashpw(value, BCrypt.gensalt());
+                encoded = BCrypt.hashpw(value, BCrypt.gensalt());
             } else {
-                encodedValue = getDigester(cipherAlgorithm).digest(value);
+                encoded = getDigester(cipherAlgorithm).digest(value);
             }
         }
 
-        return encodedValue;
+        return encoded;
     }
 
-    public boolean verify(final String value, final CipherAlgorithm cipherAlgorithm, final String encodedValue) {
-        boolean res = false;
+    public boolean verify(final String value, final CipherAlgorithm cipherAlgorithm, final String encoded) {
+        boolean verified = false;
 
         try {
             if (value != null) {
                 if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-                    res = encode(value, cipherAlgorithm).equals(encodedValue);
+                    verified = encode(value, cipherAlgorithm).equals(encoded);
                 } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
-                    res = BCrypt.checkpw(value, encodedValue);
+                    verified = BCrypt.checkpw(value, encoded);
                 } else {
-                    res = getDigester(cipherAlgorithm).matches(value, encodedValue);
+                    verified = getDigester(cipherAlgorithm).matches(value, encoded);
                 }
             }
         } catch (Exception e) {
             LOG.error("Could not verify encoded value", e);
         }
 
-        return res;
+        return verified;
     }
 
-    public String decode(final String encodedValue, final CipherAlgorithm cipherAlgorithm)
+    public String decode(final String encoded, final CipherAlgorithm cipherAlgorithm)
             throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
-        String value = null;
+        String decoded = null;
 
-        if (encodedValue != null && cipherAlgorithm == CipherAlgorithm.AES) {
-            final byte[] encoded = encodedValue.getBytes(StandardCharsets.UTF_8);
-
-            final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
+        if (encoded != null && cipherAlgorithm == CipherAlgorithm.AES) {
+            Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
-            value = new String(cipher.doFinal(Base64.getDecoder().decode(encoded)), StandardCharsets.UTF_8);
+            decoded = new String(cipher.doFinal(Base64.getDecoder().decode(encoded)), StandardCharsets.UTF_8);
         }
 
-        return value;
+        return decoded;
     }
 
     private StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {
