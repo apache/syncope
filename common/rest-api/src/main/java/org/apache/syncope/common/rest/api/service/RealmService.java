@@ -60,7 +60,7 @@ public interface RealmService extends JAXRSService {
 
     /**
      * Returns a list of existing realms matching the given query (not including descendant realms) and the total number
-     * of descedant realms.
+     * of descendant realms.
      *
      * @param query query conditions
      * @return list of existing realms matching the given query (not including descendant realms) and the total number
@@ -86,7 +86,7 @@ public interface RealmService extends JAXRSService {
      * Creates a new realm under the given path.
      *
      * @param parentPath full path of the parent realm
-     * @param realmTO new realm.
+     * @param realmTO new realm
      * @return Response object featuring Location header of created realm as well as the realm itself
      * enriched with propagation status information
      */

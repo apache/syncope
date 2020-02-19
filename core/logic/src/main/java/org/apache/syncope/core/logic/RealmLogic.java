@@ -74,11 +74,19 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<RealmTO>> search(final String keyword) {
-        Set<String> bases = AuthContextUtils.getAuthorizations().get(StandardEntitlement.REALM_LIST);
+    public Pair<Integer, List<RealmTO>> search(final String keyword, final String base) {
+        Realm baseRealm = base == null ? realmDAO.getRoot() : realmDAO.findByFullPath(base);
+        if (baseRealm == null) {
+            LOG.error("Could not find realm '" + base + "'");
+
+            throw new NotFoundException(base);
+        }
+
+        Set<String> roots = AuthContextUtils.getAuthorizations().get(StandardEntitlement.REALM_LIST).stream().
+                filter(auth -> auth.startsWith(baseRealm.getFullPath())).collect(Collectors.toSet());
 
         Set<Realm> match = realmDAO.findMatching(keyword).stream().
-                filter(realm -> bases.stream().anyMatch(base -> realm.getFullPath().startsWith(base))).
+                filter(realm -> roots.stream().anyMatch(root -> realm.getFullPath().startsWith(root))).
                 collect(Collectors.toSet());
 
         int descendants = Math.toIntExact(

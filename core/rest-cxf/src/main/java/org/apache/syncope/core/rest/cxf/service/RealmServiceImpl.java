@@ -44,7 +44,7 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
     public PagedResult<RealmTO> search(final RealmQuery query) {
         String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
 
-        Pair<Integer, List<RealmTO>> result = logic.search(keyword);
+        Pair<Integer, List<RealmTO>> result = logic.search(keyword, query.getBase());
         return buildPagedResult(result.getRight(), 1, result.getRight().size(), result.getLeft());
     }
 
