@@ -51,4 +51,8 @@ public enum CipherAlgorithm {
     public boolean isInvertible() {
         return invertible;
     }
+
+    public boolean isSalted() {
+        return algorithm.startsWith("S-");
+    }
 }
