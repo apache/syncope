@@ -36,12 +36,19 @@ public class RealmQuery implements Serializable {
             return this;
         }
 
+        public Builder base(final String base) {
+            instance.setBase(base);
+            return this;
+        }
+
         public RealmQuery build() {
             return instance;
         }
     }
 
     private String keyword;
+
+    private String base;
 
     public String getKeyword() {
         return keyword;
@@ -50,6 +57,15 @@ public class RealmQuery implements Serializable {
     @QueryParam("keyword")
     public void setKeyword(final String keyword) {
         this.keyword = keyword;
+    }
+
+    public String getBase() {
+        return base;
+    }
+
+    @QueryParam("base")
+    public void setBase(final String base) {
+        this.base = base;
     }
 
     @Override
@@ -67,6 +83,7 @@ public class RealmQuery implements Serializable {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(keyword, other.keyword).
+                append(base, other.base).
                 build();
     }
 
@@ -75,6 +92,7 @@ public class RealmQuery implements Serializable {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(keyword).
+                append(base).
                 build();
     }
 }
