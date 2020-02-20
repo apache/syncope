@@ -413,7 +413,7 @@ under the License.
     <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.1.RELEASE</spring-cloud-gateway.version>
 
-    <openjpa.version>3.1.0</openjpa.version>
+    <openjpa.version>3.1.1</openjpa.version>
     <hikaricp.version>3.4.2</hikaricp.version>
     <hibernate-validator.version>6.1.2.Final</hibernate-validator.version>
 
