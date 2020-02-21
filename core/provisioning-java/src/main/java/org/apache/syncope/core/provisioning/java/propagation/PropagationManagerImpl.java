@@ -516,7 +516,7 @@ public class PropagationManagerImpl implements PropagationManager {
                         any.getType(), resource);
             } else {
                 Pair<String, Set<Attribute>> preparedAttrs =
-                        mappingManager.prepareAttrs(any, password, changePwd, enable, provision);
+                        mappingManager.prepareAttrsFromAny(any, password, changePwd, enable, provision);
                 if (vAttrMap.containsKey(resourceKey)) {
                     preparedAttrs.getRight().addAll(vAttrMap.get(resourceKey));
                 }
@@ -574,7 +574,8 @@ public class PropagationManagerImpl implements PropagationManager {
                             deleteOnResource,
                             mappingItems,
                             Pair.of(account.getConnObjectKeyValue(),
-                                    mappingManager.prepareAttrs(user, account, password, changePwd, provision)));
+                                    mappingManager.prepareAttrsFromLinkedAccount(
+                                            user, account, password, true, provision)));
                     tasks.add(accountTask);
 
                     LOG.debug("PropagationTask created for Linked Account {}: {}",
@@ -622,7 +623,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 task.setOperation(operation);
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
-                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrs(realm, orgUnit);
+                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, orgUnit);
                 task.setConnObjectKey(preparedAttrs.getLeft());
                 task.setAttributes(POJOHelper.serialize(preparedAttrs.getRight()));
 

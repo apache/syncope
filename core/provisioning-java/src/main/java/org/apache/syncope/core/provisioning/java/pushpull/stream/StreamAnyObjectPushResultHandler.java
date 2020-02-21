@@ -52,7 +52,8 @@ public class StreamAnyObjectPushResultHandler extends DefaultAnyObjectPushResult
 
         Stream<? extends Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
-        Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrs(any, null, false, enabled, provision);
+        Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
+                any, null, false, enabled, provision);
 
         PropagationTaskInfo propagationTask = propagationManager.newTask(
                 derAttrHandler,

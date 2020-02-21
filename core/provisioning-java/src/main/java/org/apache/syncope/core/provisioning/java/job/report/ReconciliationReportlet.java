@@ -303,7 +303,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     } else {
                         // 3. found but misaligned?
                         Pair<String, Set<Attribute>> preparedAttrs =
-                                mappingManager.prepareAttrs(any, null, false, null, provision);
+                                mappingManager.prepareAttrsFromAny(any, null, false, null, provision);
                         preparedAttrs.getRight().add(AttributeBuilder.build(
                                 Uid.NAME, preparedAttrs.getLeft()));
                         preparedAttrs.getRight().add(AttributeBuilder.build(

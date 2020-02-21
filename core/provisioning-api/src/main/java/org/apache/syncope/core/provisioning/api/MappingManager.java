@@ -106,7 +106,7 @@ public interface MappingManager {
      * @param provision provision information
      * @return connObjectLink + prepared attributes
      */
-    Pair<String, Set<Attribute>> prepareAttrs(
+    Pair<String, Set<Attribute>> prepareAttrsFromAny(
             Any<?> any, String password, boolean changePwd, Boolean enable, Provision provision);
 
     /**
@@ -114,12 +114,12 @@ public interface MappingManager {
      *
      * @param user given user
      * @param account linked account
-     * @param password clear-text password
+     * @param password user's clear-text password, to use as default value in case
      * @param changePwd whether password should be included for propagation attributes or not
      * @param provision provision information
      * @return prepared attributes
      */
-    Set<Attribute> prepareAttrs(
+    Set<Attribute> prepareAttrsFromLinkedAccount(
             User user, LinkedAccount account, String password, boolean changePwd, Provision provision);
 
     /**
@@ -129,7 +129,7 @@ public interface MappingManager {
      * @param orgUnit provision information
      * @return connObjectLink + prepared attributes
      */
-    Pair<String, Set<Attribute>> prepareAttrs(Realm realm, OrgUnit orgUnit);
+    Pair<String, Set<Attribute>> prepareAttrsFromRealm(Realm realm, OrgUnit orgUnit);
 
     /**
      * Set attribute values, according to the given {@link Item}, to any object from attribute received from

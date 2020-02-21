@@ -270,7 +270,7 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<String, Set<Attribute>> prepareAttrs(
+    public Pair<String, Set<Attribute>> prepareAttrsFromAny(
             final Any<?> any,
             final String password,
             final boolean changePwd,
@@ -335,7 +335,7 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public Set<Attribute> prepareAttrs(
+    public Set<Attribute> prepareAttrsFromLinkedAccount(
             final User user,
             final LinkedAccount account,
             final String password,
@@ -396,6 +396,12 @@ public class MappingManagerImpl implements MappingManager {
         if (account.isSuspended() != null) {
             attributes.add(AttributeBuilder.buildEnabled(!BooleanUtils.negate(account.isSuspended())));
         }
+        if (!changePwd) {
+            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
+            if (pwdAttr != null) {
+                attributes.remove(pwdAttr);
+            }
+        }
 
         return attributes;
     }
@@ -422,7 +428,7 @@ public class MappingManagerImpl implements MappingManager {
     }
 
     @Override
-    public Pair<String, Set<Attribute>> prepareAttrs(final Realm realm, final OrgUnit orgUnit) {
+    public Pair<String, Set<Attribute>> prepareAttrsFromRealm(final Realm realm, final OrgUnit orgUnit) {
         LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, orgUnit);
 
         Set<Attribute> attributes = new HashSet<>();
@@ -470,21 +476,38 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKeyValue[0], attributes);
     }
 
+    protected String decodePassword(final Account account) {
+        try {
+            return ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+        } catch (Exception e) {
+            LOG.error("Could not decode password for {}", account, e);
+            return null;
+        }
+    }
+
     protected String getPasswordAttrValue(final Provision provision, final Account account, final String defaultValue) {
-        String passwordAttrValue = defaultValue;
-        if (StringUtils.isBlank(passwordAttrValue)) {
-            if (account.canDecodePassword()) {
-                try {
-                    passwordAttrValue = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
-                } catch (Exception e) {
-                    LOG.error("Could not decode password for {}", account, e);
-                }
-            } else if (provision.getResource().isRandomPwdIfNotProvided()) {
-                try {
-                    passwordAttrValue = passwordGenerator.generate(provision.getResource());
-                } catch (InvalidPasswordRuleConf e) {
-                    LOG.error("Could not generate policy-compliant random password for {}", account, e);
-                }
+        String passwordAttrValue;
+        if (account instanceof LinkedAccount) {
+            if (((LinkedAccount) account).getPassword() != null) {
+                passwordAttrValue = decodePassword(account);
+            } else {
+                passwordAttrValue = defaultValue;
+            }
+        } else {
+            if (StringUtils.isNotBlank(defaultValue)) {
+                passwordAttrValue = defaultValue;
+            } else if (account.canDecodePassword()) {
+                passwordAttrValue = decodePassword(account);
+            } else {
+                passwordAttrValue = null;
+            }
+        }
+
+        if (passwordAttrValue == null && provision.getResource().isRandomPwdIfNotProvided()) {
+            try {
+                passwordAttrValue = passwordGenerator.generate(provision.getResource());
+            } catch (InvalidPasswordRuleConf e) {
+                LOG.error("Could not generate policy-compliant random password for {}", account, e);
             }
         }
 
@@ -853,8 +876,8 @@ public class MappingManagerImpl implements MappingManager {
     public Optional<String> getConnObjectKeyValue(final Any<?> any, final Provision provision) {
         Optional<? extends MappingItem> connObjectKeyItem = provision.getMapping().getConnObjectKeyItem();
         if (connObjectKeyItem.isEmpty()) {
-             LOG.error("Unable to locate conn object key item for " + provision.getMapping().getKey());
-             return Optional.empty();
+            LOG.error("Unable to locate conn object key item for " + provision.getMapping().getKey());
+            return Optional.empty();
         }
         MappingItem mapItem = connObjectKeyItem.get();
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues;
@@ -883,8 +906,7 @@ public class MappingManagerImpl implements MappingManager {
             LOG.error("Unable to locate conn object key item for " + orgUnit.getKey());
             return Optional.empty();
         }
-        OrgUnitItem orgUnitItem = connObjectKeyItem.get();
-        return Optional.ofNullable(getIntValue(realm, orgUnitItem));
+        return Optional.ofNullable(getIntValue(realm, connObjectKeyItem.get()));
     }
 
     @Transactional(readOnly = true)
