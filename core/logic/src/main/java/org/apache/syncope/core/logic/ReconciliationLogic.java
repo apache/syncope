@@ -180,7 +180,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final MappingItem connObjectKeyItem,
             final Provision provision) {
 
-        Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrs(any, null, false, true, provision);
+        Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
+                any, null, false, true, provision);
         return getOnSyncope(connObjectKeyItem, prepared.getLeft(), prepared.getRight());
     }
 
@@ -189,7 +190,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final MappingItem connObjectKeyItem,
             final Provision provision) {
 
-        Set<Attribute> attrs = mappingManager.prepareAttrs(account.getOwner(), account, null, false, provision);
+        Set<Attribute> attrs = mappingManager.prepareAttrsFromLinkedAccount(
+                account.getOwner(), account, null, false, provision);
         return getOnSyncope(connObjectKeyItem, account.getConnObjectKeyValue(), attrs);
     }
 

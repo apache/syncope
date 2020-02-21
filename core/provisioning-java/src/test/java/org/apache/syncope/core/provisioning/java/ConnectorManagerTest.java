@@ -33,13 +33,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional("Master")
 public class ConnectorManagerTest extends AbstractTest {
 
-    private ConnectorManager connManager;
-
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    private ConnectorManager connManager;
 
     @BeforeEach
     public void before() {
@@ -60,7 +60,6 @@ public class ConnectorManagerTest extends AbstractTest {
                 filter(resource -> resource.getConnector().getLocation().startsWith("file")).count();
 
         assertEquals(expected,
-                ApplicationContextProvider.getBeanFactory().
-                        getBeanNamesForType(Connector.class, false, true).length);
+                ApplicationContextProvider.getBeanFactory().getBeanNamesForType(Connector.class, false, true).length);
     }
 }
