@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
@@ -51,9 +52,9 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
                 new PropertyModel<>(linkedAccountTO, "username"),
                 false);
         usernameField.setOutputMarkupId(true);
-        FieldPanel.class.cast(usernameField).setReadOnly(true);
+        FieldPanel.class.cast(usernameField).setReadOnly(StringUtils.isBlank(linkedAccountTO.getUsername()));
         LinkedAccountPlainAttrProperty property = new LinkedAccountPlainAttrProperty();
-        property.setOverridable(false);
+        property.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getUsername()));
         property.setSchema("username");
         property.getValues().add(linkedAccountTO.getUsername());
         usernameField.showExternAction(checkboxToggle(property, usernameField));
@@ -66,9 +67,9 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
         passwordField.setOutputMarkupId(true);
         passwordField.setRequired(true);
         passwordField.setMarkupId("password");
-        FieldPanel.class.cast(passwordField).setReadOnly(true);
+        FieldPanel.class.cast(passwordField).setReadOnly(StringUtils.isBlank(linkedAccountTO.getPassword()));
         property = new LinkedAccountPlainAttrProperty();
-        property.setOverridable(false);
+        property.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getPassword()));
         property.setSchema("password");
         property.getValues().add(linkedAccountTO.getPassword());
         passwordField.showExternAction(checkboxToggle(property, passwordField));
