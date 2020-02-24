@@ -452,7 +452,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.6.0</junit.version>
-    <mockito.version>3.2.4</mockito.version>
+    <mockito.version>3.3.0</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -897,7 +897,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.uuid</groupId>
         <artifactId>java-uuid-generator</artifactId>
-        <version>3.3.0</version>
+        <version>4.0</version>
       </dependency>
 
       <dependency>
