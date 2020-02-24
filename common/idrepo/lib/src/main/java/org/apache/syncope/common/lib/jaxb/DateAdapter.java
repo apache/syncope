@@ -16,17 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-@XmlSchema(
-        namespace = SyncopeConstants.NS,
-        xmlns = { @XmlNs(prefix = SyncopeConstants.NS_PREFIX,
-                    namespaceURI = SyncopeConstants.NS) })
-@XmlJavaTypeAdapters({ @XmlJavaTypeAdapter(type = Date.class, value = DateAdapter.class), })
-package org.apache.syncope.common.lib.log;
+package org.apache.syncope.common.lib.jaxb;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlNs;
-import javax.xml.bind.annotation.XmlSchema;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.jaxb.DateAdapter;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import org.apache.commons.lang3.time.FastDateFormat;
+
+public class DateAdapter extends XmlAdapter<String, Date> {
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    @Override
+    public Date unmarshal(final String value) throws Exception {
+        return FastDateFormat.getInstance(DATE_FORMAT).parse(value);
+    }
+
+    @Override
+    public String marshal(final Date value) throws Exception {
+        return FastDateFormat.getInstance(DATE_FORMAT).format(value);
+    }
+}
