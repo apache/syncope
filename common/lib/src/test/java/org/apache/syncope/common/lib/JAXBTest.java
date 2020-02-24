@@ -19,10 +19,13 @@
 package org.apache.syncope.common.lib;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -34,6 +37,7 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -117,5 +121,23 @@ public class JAXBTest {
 
         Object actual = unmarshaller.unmarshal(new StringReader(writer.toString()));
         assertEquals(original, actual);
+    }
+
+    @Test
+    public void issueSYNCOPE1541() throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(ExecTO.class);
+        Marshaller marshaller = context.createMarshaller();
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.set(Calendar.MILLISECOND, 0);
+
+        ExecTO exec = new ExecTO();
+        exec.setStart(cal.getTime());
+
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(exec, writer);
+
+        assertTrue(writer.toString().contains(".000"));
     }
 }

@@ -17,6 +17,11 @@
  * under the License.
  */
 @XmlSchema(namespace = SyncopeConstants.NS)
+@XmlJavaTypeAdapters({ @XmlJavaTypeAdapter(type = Date.class, value = DateAdapter.class), })
 package org.apache.syncope.common.lib;
 
+import java.util.Date;
 import javax.xml.bind.annotation.XmlSchema;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;
+import org.apache.syncope.common.lib.jaxb.DateAdapter;
