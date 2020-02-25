@@ -61,7 +61,7 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
     @Override
     protected WizardModel buildModelSteps(final LinkedAccountTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new LinkedAccountDetailsPanel(modelObject));
-        wizardModel.add(new LinkedAccountCredentialsPanel(modelObject));
+        wizardModel.add(new LinkedAccountCredentialsPanel(new EntityWrapper<>(modelObject)));
         wizardModel.add(new LinkedAccountPlainAttrsPanel(new EntityWrapper<>(modelObject), model.getObject()));
         wizardModel.add(new LinkedAccountPrivilegesPanel(modelObject));
         return wizardModel;
@@ -73,10 +73,10 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
 
         LinkedAccountUR linkedAccountPatch = new LinkedAccountUR.Builder().linkedAccountTO(modelObject).build();
         linkedAccountPatch.setLinkedAccountTO(modelObject);
-        UserUR patch = new UserUR();
-        patch.setKey(model.getObject().getKey());
-        patch.getLinkedAccounts().add(linkedAccountPatch);
-        model.setObject(userRestClient.update(model.getObject().getETagValue(), patch).getEntity());
+        UserUR req = new UserUR();
+        req.setKey(model.getObject().getKey());
+        req.getLinkedAccounts().add(linkedAccountPatch);
+        model.setObject(userRestClient.update(model.getObject().getETagValue(), req).getEntity());
 
         return modelObject;
     }

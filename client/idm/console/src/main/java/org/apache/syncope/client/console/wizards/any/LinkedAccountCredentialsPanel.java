@@ -42,39 +42,42 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
 
     private static final long serialVersionUID = 5116461957402341603L;
 
-    public LinkedAccountCredentialsPanel(final LinkedAccountTO linkedAccountTO) {
+    private final LinkedAccountTO linkedAccountTO;
+
+    public LinkedAccountCredentialsPanel(final EntityWrapper<LinkedAccountTO> modelObject) {
         super();
         setOutputMarkupId(true);
+
+        linkedAccountTO = modelObject.getInnerObject();
 
         AjaxTextFieldPanel usernameField = new AjaxTextFieldPanel(
                 "username",
                 "username",
-                new PropertyModel<>(linkedAccountTO, "username"),
-                false);
-        usernameField.setOutputMarkupId(true);
+                new PropertyModel<>(linkedAccountTO, "username"));
         FieldPanel.class.cast(usernameField).setReadOnly(StringUtils.isBlank(linkedAccountTO.getUsername()));
-        LinkedAccountPlainAttrProperty property = new LinkedAccountPlainAttrProperty();
-        property.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getUsername()));
-        property.setSchema("username");
-        property.getValues().add(linkedAccountTO.getUsername());
-        usernameField.showExternAction(checkboxToggle(property, usernameField));
-        add(usernameField);
+        LinkedAccountPlainAttrProperty usernameProperty = new LinkedAccountPlainAttrProperty();
+        usernameProperty.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getUsername()));
+        usernameProperty.setSchema("username");
+        usernameProperty.getValues().add(linkedAccountTO.getUsername());
+        usernameField.showExternAction(checkboxToggle(usernameProperty, usernameField));
+        add(usernameField.setOutputMarkupId(true));
 
         AjaxPasswordFieldPanel passwordField = new AjaxPasswordFieldPanel(
                 "password",
                 "password",
-                new PropertyModel<>(linkedAccountTO, "password"));
-        passwordField.setOutputMarkupId(true);
-        passwordField.setRequired(true);
+                new PropertyModel<>(linkedAccountTO, "password"),
+                false);
         passwordField.setMarkupId("password");
+        passwordField.setPlaceholder("password");
+        passwordField.setRequired(true);
         FieldPanel.class.cast(passwordField).setReadOnly(StringUtils.isBlank(linkedAccountTO.getPassword()));
-        property = new LinkedAccountPlainAttrProperty();
-        property.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getPassword()));
-        property.setSchema("password");
-        property.getValues().add(linkedAccountTO.getPassword());
-        passwordField.showExternAction(checkboxToggle(property, passwordField));
-        ((PasswordTextField) passwordField.getField()).setResetPassword(true);
-        add(passwordField);
+        LinkedAccountPlainAttrProperty passwordProperty = new LinkedAccountPlainAttrProperty();
+        passwordProperty.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getPassword()));
+        passwordProperty.setSchema("password");
+        passwordProperty.getValues().add(linkedAccountTO.getPassword());
+        passwordField.showExternAction(checkboxToggle(passwordProperty, passwordField));
+        ((PasswordTextField) passwordField.getField()).setResetPassword(false);
+        add(passwordField.setOutputMarkupId(true));
     }
 
     private FormComponent<?> checkboxToggle(
@@ -98,7 +101,14 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        panel.setReadOnly(!model.getObject());
+                        FieldPanel.class.cast(panel).setReadOnly(!model.getObject());
+                        if (!model.getObject()) {
+                            if (property.getSchema().equals("password")) {
+                                linkedAccountTO.setPassword(null);
+                            } else if (property.getSchema().equals("username")) {
+                                linkedAccountTO.setUsername(null);
+                            }
+                        }
                         target.add(panel);
                     }
                 });
