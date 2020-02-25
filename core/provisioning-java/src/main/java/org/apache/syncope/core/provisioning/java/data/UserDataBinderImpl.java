@@ -182,7 +182,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     }.get();
 
             account.setUsername(accountTO.getUsername());
-            if (StringUtils.isNotBlank(accountTO.getPassword())) {
+            if (StringUtils.isBlank(accountTO.getPassword())) {
+                account.setEncodedPassword(null, null);
+            } else if (!accountTO.getPassword().equals(account.getPassword())) {
                 account.setPassword(accountTO.getPassword(), CipherAlgorithm.AES);
             }
             account.setSuspended(accountTO.isSuspended());
@@ -367,13 +369,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         setRealm(user, userUR);
 
         // password
-        if (userUR.getPassword() != null && StringUtils.isNotBlank(userUR.getPassword().getValue())) {
-            if (userUR.getPassword().isOnSyncope()) {
-                setPassword(user, userUR.getPassword().getValue(), scce);
-                user.setChangePwdDate(new Date());
-            }
+        if (userUR.getPassword() != null) {
+            if (userUR.getPassword().getOperation() == PatchOperation.DELETE) {
+                user.setEncodedPassword(null, null);
+                propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
+            } else if (StringUtils.isNotBlank(userUR.getPassword().getValue())) {
+                if (userUR.getPassword().isOnSyncope()) {
+                    setPassword(user, userUR.getPassword().getValue(), scce);
+                    user.setChangePwdDate(new Date());
+                }
 
-            propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
+                propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
+            }
         }
 
         // username
@@ -618,11 +625,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         invalidValues);
             }
         });
-        user.getLinkedAccounts().forEach(account -> {
-            propByLinkedAccount.add(
-                    ResourceOperation.CREATE,
-                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
-        });
+        user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
+                ResourceOperation.CREATE,
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         // finalize resource management
         reasons.entrySet().stream().
