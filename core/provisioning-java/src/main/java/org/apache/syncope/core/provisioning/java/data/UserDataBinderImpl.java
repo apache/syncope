@@ -181,7 +181,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     }.get();
 
             account.setUsername(accountTO.getUsername());
-            if (StringUtils.isNotBlank(accountTO.getPassword())) {
+            if (StringUtils.isBlank(accountTO.getPassword())) {
+                account.setEncodedPassword(null, null);
+            } else if (!accountTO.getPassword().equals(account.getPassword())) {
                 account.setPassword(accountTO.getPassword(), CipherAlgorithm.AES);
             }
             account.setSuspended(accountTO.isSuspended());
@@ -366,13 +368,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         setRealm(user, userPatch);
 
         // password
-        if (userPatch.getPassword() != null && StringUtils.isNotBlank(userPatch.getPassword().getValue())) {
-            if (userPatch.getPassword().isOnSyncope()) {
-                setPassword(user, userPatch.getPassword().getValue(), scce);
-                user.setChangePwdDate(new Date());
-            }
+        if (userPatch.getPassword() != null) {
+            if (userPatch.getPassword().getOperation() == PatchOperation.DELETE) {
+                user.setEncodedPassword(null, null);
+                propByRes.addAll(ResourceOperation.UPDATE, userPatch.getPassword().getResources());
+            } else if (StringUtils.isNotBlank(userPatch.getPassword().getValue())) {
+                if (userPatch.getPassword().isOnSyncope()) {
+                    setPassword(user, userPatch.getPassword().getValue(), scce);
+                    user.setChangePwdDate(new Date());
+                }
 
-            propByRes.addAll(ResourceOperation.UPDATE, userPatch.getPassword().getResources());
+                propByRes.addAll(ResourceOperation.UPDATE, userPatch.getPassword().getResources());
+            }
         }
 
         // username
@@ -620,11 +627,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         invalidValues);
             }
         });
-        user.getLinkedAccounts().forEach(account -> {
-            propByLinkedAccount.add(
-                    ResourceOperation.CREATE,
-                    Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
-        });
+        user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
+                ResourceOperation.CREATE,
+                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         // finalize resource management
         reasons.entrySet().stream().
