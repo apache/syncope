@@ -81,7 +81,6 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                 new AnyTypeRestClient().read(userTO.getType()).getClasses(),
                 AnyLayoutUtils.fetch(Arrays.asList(userTO.getType())).getUser().getWhichPlainAttrs(),
                 modelObject);
-        System.out.println("CCCCCCCCCCC");
 
         this.linkedAccountTO = modelObject.getInnerObject();
         this.fixedAttrs.addAll(this.linkedAccountTO.getPlainAttrs().stream().
