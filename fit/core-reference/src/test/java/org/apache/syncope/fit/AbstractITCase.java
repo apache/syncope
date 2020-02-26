@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit;
 
+import static de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType.java;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -53,6 +54,7 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -484,6 +486,13 @@ public abstract class AbstractITCase {
                 });
     }
 
+    protected ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
+        UserTO before = userService.read(userTO.getKey());
+        return userService.update(AnyOperations.diff(userTO, before, false)).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                });
+    }
+
     protected ProvisioningResult<UserTO> deleteUser(final String key) {
         return userService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -616,7 +625,8 @@ public abstract class AbstractITCase {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
 
             List<ModificationItem> items = new ArrayList<>();
-            attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(key, value))));
+            attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                    new BasicAttribute(key, value))));
 
             ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
         } catch (Exception e) {

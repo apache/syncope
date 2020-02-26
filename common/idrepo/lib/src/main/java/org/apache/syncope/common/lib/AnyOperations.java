@@ -330,7 +330,6 @@ public final class AnyOperations {
                 EntityTOUtils.buildLinkedAccountMap(original.getLinkedAccounts());
 
         updatedAccounts.entrySet().stream().
-                filter(entry -> (!originalAccounts.containsKey(entry.getKey()))).
                 forEachOrdered(entry -> {
                     result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                             operation(PatchOperation.ADD_REPLACE).

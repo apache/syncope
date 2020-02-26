@@ -152,6 +152,46 @@ public class LinkedAccountITCase extends AbstractITCase {
     }
 
     @Test
+    public void createWithLinkedAccountThenUpdateUsingPutThenRemove() throws NamingException {
+        // 1. create user with linked account
+        UserCR userCR = UserITCase.getSample(
+                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+        String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
+        String privilege = applicationService.read("mightyApp").getPrivileges().get(0).getKey();
+
+        LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
+        account.setUsername("LinkedUsername");
+        account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
+        account.getPrivileges().add(privilege);
+        userCR.getLinkedAccounts().add(account);
+
+        UserTO user = createUser(userCR).getEntity();
+        assertNotNull(user.getKey());
+        assertEquals(1, user.getLinkedAccounts().size());
+        assertEquals(privilege, user.getLinkedAccounts().get(0).getPrivileges().iterator().next());
+        assertEquals("LinkedUsername", user.getLinkedAccounts().get(0).getUsername());
+        assertEquals("LINKED_SURNAME", account.getPlainAttr("surname").get().getValues().get(0));
+
+        // 2. update linked account
+        account.getPlainAttrs().clear();
+        account.setUsername("LinkedUsernameUpdated");
+        account.getPlainAttrs().add(attr("email", "UPDATED_EMAIL@syncope.apache.org"));
+        account.getPlainAttrs().add(attr("surname", "UPDATED_SURNAME"));
+        user.getLinkedAccounts().clear();
+        user.getLinkedAccounts().add(account);
+
+        user = updateUser(user).getEntity();
+        assertEquals(1, user.getLinkedAccounts().size());
+        assertEquals("LinkedUsernameUpdated", user.getLinkedAccounts().get(0).getUsername());
+        assertEquals("UPDATED_SURNAME", account.getPlainAttr("surname").get().getValues().get(0));
+
+        // 3. remove linked account from user
+        user.getLinkedAccounts().clear();
+        user = updateUser(user).getEntity();
+        assertTrue(user.getLinkedAccounts().isEmpty());
+    }
+
+    @Test
     public void createWithoutLinkedAccountThenAdd() throws NamingException {
         // 1. create user without linked account
         UserCR userCR = UserITCase.getSample(
@@ -195,6 +235,62 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertNotNull(ldapObj);
         assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
         assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
+    }
+
+    @Test
+    public void createWithoutLinkedAccountThenAddAndUpdatePassword() throws NamingException {
+        // 1. set the return value parameter to true
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "return.password.value", true);
+
+        // 2. create user without linked account
+        UserCR userCR = UserITCase.getSample(
+                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+        String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
+
+        UserTO user = createUser(userCR).getEntity();
+        assertNotNull(user.getKey());
+        assertTrue(user.getLinkedAccounts().isEmpty());
+
+        // 3. add linked account to user without password
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getKey());
+
+        LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
+        userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
+
+        user = updateUser(userUR).getEntity();
+        assertEquals(1, user.getLinkedAccounts().size());
+        assertNull(user.getLinkedAccounts().get(0).getPassword());
+
+        // 4. update linked account with adding a password
+        account.setPassword("Password123");
+        userUR = new UserUR();
+        userUR.setKey(user.getKey());
+        userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
+        user = updateUser(userUR).getEntity();
+        assertNotNull(user.getLinkedAccounts().get(0).getPassword());
+
+        // 5. update linked account  password
+        String beforeUpdatePassword = user.getLinkedAccounts().get(0).getPassword();
+        account.setPassword("Password123Updated");
+        userUR = new UserUR();
+        userUR.setKey(user.getKey());
+
+        userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
+        user = updateUser(userUR).getEntity();
+        assertNotNull(user.getLinkedAccounts().get(0).getPassword());
+        assertNotEquals(beforeUpdatePassword, user.getLinkedAccounts().get(0).getPassword());
+
+        // 6. set linked account password to null
+        account.setPassword(null);
+        userUR = new UserUR();
+        userUR.setKey(user.getKey());
+
+        userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
+        user = updateUser(userUR).getEntity();
+        assertNull(user.getLinkedAccounts().get(0).getPassword());
+
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "return.password.value", false);
     }
 
     @Test
