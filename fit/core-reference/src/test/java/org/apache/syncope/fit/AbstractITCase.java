@@ -469,6 +469,12 @@ public abstract class AbstractITCase {
                 });
     }
 
+    protected ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
+        return userService.update(userTO).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                });
+    }
+
     protected ProvisioningResult<UserTO> deleteUser(final String key) {
         return userService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
