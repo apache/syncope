@@ -42,6 +42,10 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
 
     private static final long serialVersionUID = 5116461957402341603L;
 
+    private String usernameValue;
+
+    private String passwordValue;
+
     private final LinkedAccountTO linkedAccountTO;
 
     public LinkedAccountCredentialsPanel(final EntityWrapper<LinkedAccountTO> modelObject) {
@@ -68,7 +72,6 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
                 new PropertyModel<>(linkedAccountTO, "password"),
                 false);
         passwordField.setMarkupId("password");
-        passwordField.setPlaceholder("password");
         passwordField.setRequired(true);
         FieldPanel.class.cast(passwordField).setReadOnly(StringUtils.isBlank(linkedAccountTO.getPassword()));
         LinkedAccountPlainAttrProperty passwordProperty = new LinkedAccountPlainAttrProperty();
@@ -102,10 +105,18 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         FieldPanel.class.cast(panel).setReadOnly(!model.getObject());
-                        if (!model.getObject()) {
+                        if (model.getObject()) {
                             if (property.getSchema().equals("password")) {
+                                linkedAccountTO.setPassword(passwordValue);
+                            } else if (property.getSchema().equals("username")) {
+                                linkedAccountTO.setUsername(usernameValue);
+                            }
+                        } else {
+                            if (property.getSchema().equals("password")) {
+                                passwordValue = linkedAccountTO.getPassword();
                                 linkedAccountTO.setPassword(null);
                             } else if (property.getSchema().equals("username")) {
+                                usernameValue = linkedAccountTO.getUsername();
                                 linkedAccountTO.setUsername(null);
                             }
                         }
