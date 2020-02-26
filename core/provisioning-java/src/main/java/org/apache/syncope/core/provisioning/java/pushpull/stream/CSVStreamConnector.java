@@ -245,20 +245,30 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
         SearchResult result = new SearchResult();
 
         try {
-            while (reader().hasNext()) {
+            for (int record = 1; reader().hasNext(); record++) {
                 Map<String, String> row = reader().next();
 
-                ConnectorObjectBuilder builder = new ConnectorObjectBuilder();
-                builder.setObjectClass(objectClass);
-                builder.setUid(row.get(keyColumn));
-                builder.setName(row.get(keyColumn));
+                String keyValue = row.get(keyColumn);
+                if (StringUtils.isBlank(keyValue)) {
+                    keyValue = "Record " + record;
+                }
+
+                ConnectorObjectBuilder builder = new ConnectorObjectBuilder().
+                        setObjectClass(objectClass).
+                        setUid(keyValue).
+                        setName(keyValue);
 
                 row.forEach((key, value) -> builder.addAttribute(arrayElementsSeparator == null
                         ? AttributeBuilder.build(key, value)
                         : AttributeBuilder.build(key,
                                 (Object[]) StringUtils.splitByWholeSeparator(value, arrayElementsSeparator))));
 
-                handler.handle(builder.build());
+                ConnectorObject obj = builder.build();
+                if (filter == null || filter.accept(obj)) {
+                    handler.handle(obj);
+                } else {
+                    LOG.debug("Found but not passing the provided filter {}: {}", filter, obj);
+                }
             }
         } catch (IOException e) {
             LOG.error("Could not read CSV from provided stream", e);
