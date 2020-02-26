@@ -23,7 +23,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,15 +77,17 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
 
         super(userTO,
                 AjaxWizard.Mode.EDIT,
-                new AnyTypeRestClient().read(userTO.getType()).getClasses(),
+                AnyTypeRestClient.read(userTO.getType()).getClasses(),
                 AnyLayoutUtils.fetch(List.of(userTO.getType())).getUser().getWhichPlainAttrs(),
                 modelObject);
 
         this.linkedAccountTO = modelObject.getInnerObject();
-        this.fixedAttrs.addAll(this.linkedAccountTO.getPlainAttrs());
+        this.fixedAttrs.addAll(this.linkedAccountTO.getPlainAttrs().stream().
+                filter(attrTO -> checkIsReadonlyAttr(attrTO.getSchema())).
+                collect(Collectors.toList()));
         this.userTO = userTO;
 
-        add(new Accordion("plainSchemas", Collections.<ITab>singletonList(new AbstractTab(
+        add(new Accordion("plainSchemas", List.of(new AbstractTab(
                 new ResourceModel("attributes.accordion", "Plain Attributes")) {
 
             private static final long serialVersionUID = -7078941093668723016L;
@@ -166,11 +167,12 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
     }
 
     private void updateAccountPlainSchemas(final LinkedAccountPlainAttrProperty property, final Boolean modelObject) {
-        Set<Attr> withoutCurrentSChema = new HashSet<>(linkedAccountTO.getPlainAttrs().stream().
-                filter(attr -> !attr.getSchema().equals(property.getSchema())).
+        Set<Attr> withoutCurrentSchema = new HashSet<>(linkedAccountTO.getPlainAttrs().stream().
+                filter(attrTO -> !attrTO.getSchema().equals(property.getSchema())
+                && checkIsReadonlyAttr(attrTO.getSchema())).
                 collect(Collectors.toSet()));
         linkedAccountTO.getPlainAttrs().clear();
-        linkedAccountTO.getPlainAttrs().addAll(withoutCurrentSChema);
+        linkedAccountTO.getPlainAttrs().addAll(withoutCurrentSchema);
         if (modelObject) {
             linkedAccountTO.getPlainAttrs().add(
                     fixedAttrs.stream().filter(attrTO -> attrTO.getSchema().equals(property.getSchema())).findFirst().
@@ -187,19 +189,24 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
     @Override
     protected void setAttrs() {
         List<Attr> attrs = new ArrayList<>();
-        setFixedAttr(schemas.values());
+        List<PlainSchemaTO> notReadonlyValues = schemas.values().stream().
+                filter(schema -> checkIsReadonlyAttr(schema.getKey())).
+                collect(Collectors.toList());
+        setFixedAttr(notReadonlyValues);
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(fixedAttrs);
 
-        attrs.addAll(schemas.values().stream().map(schema -> {
-            Attr attrTO = new Attr();
-            attrTO.setSchema(schema.getKey());
-            if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                attrTO.getValues().add("");
-            } else {
-                attrTO = attrMap.get(schema.getKey());
-            }
-            return attrTO;
-        }).collect(Collectors.toList()));
+        attrs.addAll(notReadonlyValues.stream().
+                map(schema -> {
+                    Attr attrTO = new Attr();
+                    attrTO.setSchema(schema.getKey());
+                    if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
+                        attrTO.getValues().add("");
+                    } else {
+                        attrTO = attrMap.get(schema.getKey());
+                    }
+                    return attrTO;
+                }).
+                collect(Collectors.toList()));
 
         fixedAttrs.clear();
         fixedAttrs.addAll(attrs);
@@ -218,6 +225,10 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                 fixedAttrs.add(userTO.getPlainAttr(schema.getKey()).get());
             }
         });
+    }
+
+    private boolean checkIsReadonlyAttr(final String schema) {
+        return schemas.isEmpty() ? true : !schemas.get(schema).isReadonly();
     }
 
     private class PlainSchemasOwn extends PlainSchemas<List<Attr>> {
