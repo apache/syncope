@@ -139,7 +139,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         initResultTable();
 
         SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionsProvider().
-                add(this, modal, container, type, realm, fiql, pSchemaNames, dSchemaNames, pageRef);
+                add(this, modal, container, type, realm, fiql, rows, pSchemaNames, dSchemaNames, pageRef);
     }
 
     @Override
@@ -207,6 +207,10 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     @Override
     protected AnyDataProvider<A> dataProvider() {
         return new AnyDataProvider<>(restClient, rows, filtered, realm, type, pageRef).setFIQL(this.fiql);
+    }
+
+    public AnyDataProvider<A> getDataProvider() {
+        return dataProvider;
     }
 
     public void search(final String fiql, final AjaxRequestTarget target) {

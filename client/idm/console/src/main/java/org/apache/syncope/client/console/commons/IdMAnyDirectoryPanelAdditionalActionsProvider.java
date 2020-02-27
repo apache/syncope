@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.panels.DisplayAttributesModalPanel;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
@@ -68,6 +69,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             final String type,
             final String realm,
             final String fiql,
+            final int rows,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames,
             final PageReference pageRef) {
@@ -134,7 +136,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 CSVPushSpec spec = csvPushSpec(type, panel, pSchemaNames, dSchemaNames);
-                AnyQuery query = csvAnyQuery(realm, fiql);
+                AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
 
                 target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
                         setEventSink(csvEventSink).
@@ -195,8 +197,16 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
         return spec;
     }
 
-    protected AnyQuery csvAnyQuery(final String realm, final String fiql) {
-        return new AnyQuery.Builder().realm(realm).fiql(fiql).build();
+    protected AnyQuery csvAnyQuery(
+            final String realm,
+            final String fiql,
+            final int rows,
+            final AnyDataProvider<?> dataProvider) {
+
+        return new AnyQuery.Builder().realm(realm).
+                fiql(fiql).page(dataProvider.getCurrentPage() + 1).size(rows).
+                orderBy(BaseRestClient.toOrderBy(dataProvider.getSort())).
+                build();
     }
 
     @Override

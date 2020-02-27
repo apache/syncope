@@ -36,6 +36,7 @@ public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDire
             final String type,
             final String realm,
             final String fiql,
+            final int rows,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames,
             final PageReference pageRef) {

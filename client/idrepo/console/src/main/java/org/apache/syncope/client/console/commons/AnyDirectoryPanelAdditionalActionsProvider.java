@@ -33,6 +33,7 @@ public interface AnyDirectoryPanelAdditionalActionsProvider extends Serializable
             String type,
             String realm,
             String fiql,
+            int rows,
             List<String> pSchemaNames,
             List<String> dSchemaNames,
             PageReference pageRef);

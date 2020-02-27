@@ -57,6 +57,8 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     protected final PageReference pageRef;
 
+    protected int currentPage;
+
     public AnyDataProvider(
             final AbstractAnyRestClient<A> restClient,
             final int paginatorRows,
@@ -97,14 +99,17 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
         List<A> result = new ArrayList<>();
 
         try {
-            final int page = (int) first / paginatorRows;
+            currentPage = ((int) first / paginatorRows);
+            if (currentPage < 0) {
+                currentPage = 0;
+            }
 
             if (filtered) {
                 result = fiql == null
-                        ? new ArrayList<>()
-                        : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+                        ? List.of()
+                        : restClient.search(realm, fiql, currentPage + 1, paginatorRows, getSort(), type);
             } else {
-                result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+                result = restClient.search(realm, null, currentPage + 1, paginatorRows, getSort(), type);
             }
         } catch (Exception e) {
             LOG.error("While searching with FIQL {}", fiql, e);
@@ -147,5 +152,9 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
     @Override
     public IModel<A> model(final A object) {
         return new CompoundPropertyModel<>(object);
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
     }
 }
