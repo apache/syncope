@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -278,7 +279,10 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     }
 
     protected AnyQuery csvAnyQuery() {
-        return new AnyQuery.Builder().realm(realm).fiql(fiql).build();
+        return new AnyQuery.Builder().realm(realm).
+                fiql(fiql).page(dataProvider.getCurrentPage() + 1).size(rows).
+                orderBy(BaseRestClient.toOrderBy(dataProvider.getSort())).
+                build();
     }
 
     @Override
