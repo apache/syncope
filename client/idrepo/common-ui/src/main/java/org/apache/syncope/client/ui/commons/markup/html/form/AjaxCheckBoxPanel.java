@@ -21,7 +21,6 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.Attributable;
@@ -42,6 +41,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     public AjaxCheckBoxPanel(
             final String id, final String name, final IModel<Boolean> model, final boolean enableOnChange) {
+
         super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
@@ -118,7 +118,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             @SuppressWarnings("unchecked")
             public void setObject(final Boolean object) {
                 item.setModelObject(Optional.ofNullable(object)
-                    .map(Object::toString).orElseGet(Boolean.FALSE::toString));
+                        .map(Object::toString).orElseGet(Boolean.FALSE::toString));
             }
         };
 
@@ -127,6 +127,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
     public FieldPanel<Boolean> setNewModel(final Attributable attributableTO, final String schema) {
         field.setModel(new Model() {
 
@@ -152,5 +153,4 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
         return this;
     }
-
 }

@@ -232,8 +232,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 orderBy("username ASC").
                 build();
 
-        CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).
-                ignorePagination(true).
+        CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).ignorePaging(true).
                 field("username").
                 field("status").
                 plainAttr("firstname").

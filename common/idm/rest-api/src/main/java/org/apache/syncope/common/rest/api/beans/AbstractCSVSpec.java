@@ -47,6 +47,10 @@ public abstract class AbstractCSVSpec implements Serializable {
 
     private static final String PARAM_ALLOWCOMMENTS = "allowComments";
 
+    private static final String PARAM_MATCHING_RULE = "matchingRule";
+
+    private static final String PARAM_UNMATCHING_RULE = "unmatchingRule";
+
     protected abstract static class Builder<T extends AbstractCSVSpec, B extends Builder<T, B>> {
 
         protected T instance;
@@ -207,7 +211,7 @@ public abstract class AbstractCSVSpec implements Serializable {
     }
 
     @Parameter(name = PARAM_LINESEPARATOR, description = "character used to separate data rows", schema =
-            @Schema(implementation = String.class, defaultValue = "\\\n"))
+            @Schema(implementation = String.class, defaultValue = "\\u000a"))
     public String getLineSeparator() {
         return lineSeparator;
     }
@@ -241,20 +245,24 @@ public abstract class AbstractCSVSpec implements Serializable {
         this.allowComments = allowComments;
     }
 
+    @Parameter(name = PARAM_UNMATCHING_RULE, required = true, schema =
+            @Schema(implementation = UnmatchingRule.class, defaultValue = "PROVISION"))
     public UnmatchingRule getUnmatchingRule() {
         return unmatchingRule;
     }
 
-    @QueryParam("unmatchingRule")
+    @QueryParam(PARAM_UNMATCHING_RULE)
     public void setUnmatchingRule(final UnmatchingRule unmatchingRule) {
         this.unmatchingRule = unmatchingRule;
     }
 
+    @Parameter(name = PARAM_MATCHING_RULE, required = true, schema =
+            @Schema(implementation = MatchingRule.class, defaultValue = "UPDATE"))
     public MatchingRule getMatchingRule() {
         return matchingRule;
     }
 
-    @QueryParam("matchingRule")
+    @QueryParam(PARAM_MATCHING_RULE)
     public void setMatchingRule(final MatchingRule matchingRule) {
         this.matchingRule = matchingRule;
     }
