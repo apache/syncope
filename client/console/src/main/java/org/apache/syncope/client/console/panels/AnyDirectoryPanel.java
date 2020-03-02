@@ -206,7 +206,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                     } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
                         target.ifPresent(t -> {
                             if (csvDownloadBehavior.hasResponse()) {
-                                csvDownloadBehavior.initiate(target.get());
+                                csvDownloadBehavior.initiate(t);
                             }
                             modal.close(t);
                         });

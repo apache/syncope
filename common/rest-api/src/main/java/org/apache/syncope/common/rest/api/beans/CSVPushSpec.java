@@ -21,6 +21,7 @@ package org.apache.syncope.common.rest.api.beans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
 public class CSVPushSpec extends AbstractCSVSpec {
@@ -78,8 +79,8 @@ public class CSVPushSpec extends AbstractCSVSpec {
             return this;
         }
 
-        public Builder ignorePagination(final boolean ignorePagination) {
-            getInstance().setIgnorePaging(ignorePagination);
+        public Builder ignorePaging(final boolean ignorePaging) {
+            getInstance().setIgnorePaging(ignorePaging);
             return this;
         }
 
@@ -97,7 +98,7 @@ public class CSVPushSpec extends AbstractCSVSpec {
 
     private List<String> virAttrs = new ArrayList<>();
 
-    private boolean ignorePaging;
+    private Boolean ignorePaging;
 
     protected List<String> propagationActions = new ArrayList<>();
 
@@ -137,12 +138,13 @@ public class CSVPushSpec extends AbstractCSVSpec {
         this.virAttrs = virAttrs;
     }
 
-    public boolean isIgnorePaging() {
-        return ignorePaging;
+    public Boolean getIgnorePaging() {
+        return ignorePaging == null ? Boolean.FALSE : ignorePaging;
     }
 
     @QueryParam("ignorePaging")
-    public void setIgnorePaging(final boolean ignorePaging) {
+    @DefaultValue("false")
+    public void setIgnorePaging(final Boolean ignorePaging) {
         this.ignorePaging = ignorePaging;
     }
 

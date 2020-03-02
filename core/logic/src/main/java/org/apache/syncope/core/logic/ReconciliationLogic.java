@@ -430,7 +430,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         SearchCond effectiveCond = searchCond == null ? anyUtils.dao().getAllMatchingCond() : searchCond;
 
         List<Any<?>> matching;
-        if (spec.isIgnorePaging()) {
+        if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 
             int count = searchDAO.count(adminRealms, searchCond, anyType.getKind());

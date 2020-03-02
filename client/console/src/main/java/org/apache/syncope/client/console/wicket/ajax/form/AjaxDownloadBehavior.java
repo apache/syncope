@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
-import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,13 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
 
     protected SerializableSupplier<Response> response;
 
-    protected HttpResourceStream stream;
+    public boolean hasResponse() {
+        return response != null;
+    }
+
+    public void setResponse(final SerializableSupplier<Response> response) {
+        this.response = response;
+    }
 
     /**
      * Call this method to initiate the download.
@@ -49,40 +54,29 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
         target.appendJavaScript("window.location.href='" + url + "'");
     }
 
+    protected HttpResourceStream getResourceStream() {
+        HttpResourceStream stream = null;
+
+        if (response != null) {
+            stream = new HttpResourceStream(response.get());
+            response = null;
+        }
+
+        return stream;
+    }
+
     @Override
     public void onRequest() {
         try {
-            getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(
-                    new ResourceStreamRequestHandler(
-                            getResourceStream(), getFileName()).setCacheDuration(Duration.NONE));
+            HttpResourceStream resourceStream = getResourceStream();
+            if (resourceStream != null) {
+                getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(
+                        new ResourceStreamRequestHandler(
+                                resourceStream, resourceStream.getFilename()).setCacheDuration(Duration.NONE));
+            }
         } catch (Exception e) {
             // cannot be notifies beacause the use of scheduleRequestHandlerAfterCurrent
             LOG.error("Error downloading file", e);
         }
-    }
-
-    public boolean hasResponse() {
-        return response != null;
-    }
-
-    public void setResponse(final SerializableSupplier<Response> response) {
-        this.response = response;
-    }
-
-    private void createResourceStream() {
-        if (stream == null && response != null) {
-            stream = new HttpResourceStream(response.get());
-            response = null;
-        }
-    }
-
-    protected String getFileName() {
-        createResourceStream();
-        return stream == null ? null : stream.getFilename();
-    }
-
-    protected IResourceStream getResourceStream() {
-        createResourceStream();
-        return stream;
     }
 }

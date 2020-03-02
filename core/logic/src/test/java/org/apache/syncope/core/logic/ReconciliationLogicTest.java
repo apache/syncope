@@ -93,8 +93,7 @@ public class ReconciliationLogicTest extends AbstractTest {
                 () -> userLogic.search(null, 1, 100, Collections.emptyList(), SyncopeConstants.ROOT_REALM, false));
         assertNotNull(search);
 
-        CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).
-                ignorePagination(true).
+        CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).ignorePaging(true).
                 field("username").
                 field("status").
                 plainAttr("firstname").

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
@@ -41,6 +40,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     public AjaxCheckBoxPanel(
             final String id, final String name, final IModel<Boolean> model, final boolean enableOnChange) {
+
         super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
@@ -150,5 +150,4 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
         return this;
     }
-
 }
