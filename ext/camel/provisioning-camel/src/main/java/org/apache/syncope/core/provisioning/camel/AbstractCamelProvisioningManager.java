@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
@@ -63,7 +65,11 @@ abstract class AbstractCamelProvisioningManager {
 
     protected void sendMessage(final String uri, final Object body, final Map<String, Object> properties) {
         DefaultExchange exchange = new DefaultExchange(contextFactory.getCamelContext());
-        exchange.setProperties(properties);
+        // exclude properties with null value, otherwise DefaultExchange#properties, being a ConcurrentHashMap,
+        // will raise NPE; no problems for later usage, as Map#get will return null for missing keys anyway
+        exchange.setProperties(properties.keySet().stream().
+                filter(key -> properties.get(key) != null).
+                collect(Collectors.toMap(Function.identity(), properties::get)));
 
         DefaultMessage message = new DefaultMessage(contextFactory.getCamelContext());
         message.setBody(body);
