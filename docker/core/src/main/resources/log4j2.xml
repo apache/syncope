@@ -108,6 +108,10 @@ under the License.
       <appender-ref ref="console"/>
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="liquibase" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="org.apache.cocoon" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
       <appender-ref ref="main"/>

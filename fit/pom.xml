@@ -81,6 +81,7 @@ under the License.
     <module>core-reference</module>
     <module>console-reference</module>
     <module>enduser-reference</module>
+    <module>wa-reference</module>
   </modules>
 
 </project>

@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.starter;
+package org.apache.syncope.common.keymaster.client.api.startstop;
 
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.stereotype.Component;
 
-/**
- * Take care of cleanup actions needed by Syncope Core.
- */
-@Component
-public class SyncopeCoreShutdown extends SyncopeCoreStartStop
+public class KeymasterStop extends KeymasterStartStop
         implements ApplicationListener<ContextClosedEvent> {
+
+    public KeymasterStop(final NetworkService.Type networkServiceType) {
+        super(networkServiceType);
+    }
 
     @Override
     public void onApplicationEvent(final ContextClosedEvent event) {

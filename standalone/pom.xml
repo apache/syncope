@@ -73,6 +73,13 @@ under the License.
       <type>war</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-wa-reference</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -116,68 +123,76 @@ under the License.
             <phase>verify</phase>
             <configuration>
               <target>
-                <mkdir dir="${work.dir}" />
+                <mkdir dir="${work.dir}"/>
 
                 <!-- legal stuff -->
-                <copy file="${project.build.outputDirectory}/README" todir="${work.dir}" />
-                <copy file="LICENSE" todir="${work.dir}" />
-                <copy file="NOTICE" todir="${work.dir}" />
+                <copy file="${project.build.outputDirectory}/README" todir="${work.dir}"/>
+                <copy file="LICENSE" todir="${work.dir}"/>
+                <copy file="NOTICE" todir="${work.dir}"/>
 
                 <!-- Unzip Tomcat and remove docs and examples from webapps (space saving) -->
-                <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/tomcat-${tomcat.version}.zip" dest="${work.dir}" />
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/docs" />
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/examples" />
+                <unzip src="${settings.localRepository}/org/codehaus/cargo/cargo-container-archives/tomcat-${tomcat.version}.zip" dest="${work.dir}"/>
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/docs"/>
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/examples"/>
 
                 <!-- Syncope core -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
-                  <fileset dir="../fit/core-reference/target/syncope-fit-core-reference-${project.version}" includes="**/*" />
+                  <fileset dir="../fit/core-reference/target/syncope-fit-core-reference-${project.version}" includes="**/*"/>
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
-                  <fileset dir="${project.build.outputDirectory}/core" />
+                  <fileset dir="${project.build.outputDirectory}/core"/>
                 </copy>
-                <copy file="../fit/core-reference/target/test-classes/keystore" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true" />
+                <copy file="../fit/core-reference/target/test-classes/keystore" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true"/>
 
                 <!-- Syncope console -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console">
-                  <fileset dir="../fit/console-reference/target/syncope-fit-console-reference-${project.version}" includes="**/*" />
+                  <fileset dir="../fit/console-reference/target/syncope-fit-console-reference-${project.version}" includes="**/*"/>
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console/WEB-INF/classes" overwrite="true">
-                  <fileset dir="${project.build.outputDirectory}/console" />
+                  <fileset dir="${project.build.outputDirectory}/console"/>
                 </copy>
 
                 <!-- Syncope enduser -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-enduser">
-                  <fileset dir="../fit/enduser-reference/target/syncope-fit-enduser-reference-${project.version}" includes="**/*" />
+                  <fileset dir="../fit/enduser-reference/target/syncope-fit-enduser-reference-${project.version}" includes="**/*"/>
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-enduser/WEB-INF/classes" overwrite="true">
-                  <fileset dir="${project.build.outputDirectory}/enduser" />
+                  <fileset dir="${project.build.outputDirectory}/enduser"/>
+                </copy>f
+
+                <!-- Syncope wa -->
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-wa">
+                  <fileset dir="../fit/wa-reference/target/syncope-fit-wa-reference-${project.version}" includes="**/*"/>
+                </copy>
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-wa/WEB-INF/classes" overwrite="true">
+                  <fileset dir="${project.build.outputDirectory}/wa"/>
                 </copy>
 
-                <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
-                <copy file="../fit/core-reference/src/test/resources/test.csv" todir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
+                <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}"/>
+                <copy file="../fit/core-reference/src/test/resources/test.csv" todir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}"/>
 
                 <!-- Syncope build tools (provide H2, Apache DS and REST / SOAP resources + ConnId connector server) -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools">
-                  <fileset dir="../fit/build-tools/target/syncope-fit-build-tools-${project.version}" includes="**/*" />
+                  <fileset dir="../fit/build-tools/target/syncope-fit-build-tools-${project.version}" includes="**/*"/>
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools/WEB-INF/lib">
-                  <fileset dir="../fit/core-reference/target/bundles/" includes="**/*" />
+                  <fileset dir="../fit/core-reference/target/bundles/" includes="**/*"/>
                 </copy>
 
                 <!-- Tomcat shared libraries: H2, StAX2 API, Woodstox -->
-                <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
+                <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib"/>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/lib">
-                  <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="stax2-api-*.jar" />
-                  <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="woodstox-core-asl-*.jar" />
+                  <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="stax2-api-*.jar"/>
+                  <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="woodstox-core-asl-*.jar"/>
                 </copy>
 
                 <!-- Other custom Tomcat resources -->
-                <copy file="${project.build.outputDirectory}/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
-                <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
-                <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
-                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}" />
-                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8009" value="${cargo.tomcat.ajp.port}" />
-                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8005" value="${cargo.rmi.port}" />
+                <copy file="${project.build.outputDirectory}/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true"/>
+                <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
+                <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}"/>
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8009" value="${cargo.tomcat.ajp.port}"/>
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8005" value="${cargo.rmi.port}"/>
               </target>
             </configuration>
           </execution>
@@ -272,6 +287,12 @@ under the License.
       <resource>
         <directory>../fit/enduser-reference/src/main/resources</directory>
         <targetPath>enduser</targetPath>
+        <filtering>true</filtering>
+      </resource>
+
+      <resource>
+        <directory>../fit/wa-reference/src/main/resources</directory>
+        <targetPath>wa</targetPath>
         <filtering>true</filtering>
       </resource>
 

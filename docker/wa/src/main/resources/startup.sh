@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -14,25 +16,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-spring.application.name=Apache Syncope ${syncope.version} WA
-spring.groovy.template.check-template-location=false
-spring.main.banner-mode=log
 
-server.port=8080
-
-spring.http.encoding.charset=UTF-8
-spring.http.encoding.enabled=true
-spring.http.encoding.force=true
-
-server.servlet.contextPath=/syncope-wa
-
-management.endpoints.web.exposure.include=health,loggers
-management.endpoint.health.show-details=always
-
-##
-# Allow configuration classes to override bean definitions from Spring Boot
-#
-spring.main.allow-bean-definition-overriding=true
-spring.main.lazy-initialization=false
-
-service.discovery.address=http://localhost:8080/syncope-wa/
+export LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
+java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
+ -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope-wa.war

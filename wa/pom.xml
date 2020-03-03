@@ -43,6 +43,18 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-lib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.glassfish</groupId>
       <artifactId>javax.el</artifactId>
     </dependency>
@@ -175,15 +187,30 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.syncope.common.keymaster</groupId>
+      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <scope>test</scope>      
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.junit.vintage</groupId>
-          <artifactId>junit-vintage-engine</artifactId>
-        </exclusion>
-      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -209,13 +236,41 @@ under the License.
         </includes>
       </resource>
     </resources>
+
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
   </build>
 
   <profiles>
     <profile>
       <id>debug</id>
 
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+
       <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.common.keymaster</groupId>
+          <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+          <version>${project.version}</version>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.curator</groupId>
+          <artifactId>curator-test</artifactId>
+          <scope>compile</scope>
+        </dependency>
+
         <dependency>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-devtools</artifactId>
@@ -223,9 +278,62 @@ under the License.
       </dependencies>
 
       <build>
-        <defaultGoal>clean package spring-boot:run</defaultGoal>
+        <defaultGoal>clean package io.fabric8:docker-maven-plugin:start spring-boot:run</defaultGoal>
 
         <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>zookeeper:${zookeeper.version}</name>
+                  <run>
+                    <ports>
+                      <port>2181:2181</port>
+                    </ports>
+                    <volumes>
+                      <bind>
+                        <volume>${project.build.testOutputDirectory}/zoo.cfg:/conf/zoo.cfg</volume>
+                        <volume>${project.build.testOutputDirectory}/java.env:/conf/java.env</volume>
+                        <volume>${project.build.testOutputDirectory}/server-jaas.conf:/conf/server-jaas.conf</volume>
+                        <volume>${project.build.testOutputDirectory}/client-jaas.conf:/conf/client-jaas.conf</volume>
+                      </bind>
+                    </volumes>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${basedir}/src/test/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/org/apache/syncope/wa/**Test.java</exclude>
+                <exclude>**/org/apache/syncope/wa/**Zookeeper*.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
@@ -244,11 +352,16 @@ under the License.
         <resources>
           <resource>
             <directory>${basedir}/src/test/resources</directory>
-            <includes>
-              <include>application-debug.properties</include>
-            </includes>
+            <filtering>true</filtering>
           </resource>
         </resources>
+
+        <testResources>
+          <testResource>
+            <directory>${basedir}/../common/keymaster/client-zookeeper/src/main/resources</directory>
+            <filtering>true</filtering>
+          </testResource>
+        </testResources>
       </build>
     </profile>
 

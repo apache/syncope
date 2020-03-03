@@ -19,6 +19,9 @@
 package org.apache.syncope.sra;
 
 import java.util.Objects;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -59,6 +62,16 @@ public class SyncopeSRAApplication implements EnvironmentAware {
     @Override
     public void setEnvironment(final Environment env) {
         this.env = env;
+    }
+
+    @Bean
+    public KeymasterStart keymasterStart() {
+        return new KeymasterStart(NetworkService.Type.SRA);
+    }
+
+    @Bean
+    public KeymasterStop keymasterStop() {
+        return new KeymasterStop(NetworkService.Type.SRA);
     }
 
     @Bean

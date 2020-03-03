@@ -166,6 +166,7 @@ under the License.
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
+
       <resource>
         <directory>${basedir}/../src/main/resources</directory>
         <filtering>true</filtering>
@@ -207,6 +208,11 @@ under the License.
           <groupId>org.apache.cxf</groupId>
           <artifactId>cxf-rt-transports-http-netty-server</artifactId>
           <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-devtools</artifactId>
         </dependency>
       </dependencies>
 

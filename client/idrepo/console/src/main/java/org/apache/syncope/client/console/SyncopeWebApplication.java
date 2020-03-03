@@ -76,7 +76,6 @@ import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -99,9 +98,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     @Autowired
     private ServiceOps serviceOps;
-
-    @Value("${service.discovery.address}")
-    private String address;
 
     private String anonymousUser;
 
@@ -177,13 +173,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                 response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
             }
         }
-    }
-
-    private NetworkService getNetworkService() {
-        NetworkService ns = new NetworkService();
-        ns.setType(NetworkService.Type.CONSOLE);
-        ns.setAddress(address);
-        return ns;
     }
 
     @Override
@@ -311,15 +300,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
         }
-
-        serviceOps.register(getNetworkService());
-    }
-
-    @Override
-    protected void onDestroy() {
-        serviceOps.unregister(getNetworkService());
-
-        super.onDestroy();
     }
 
     @Override

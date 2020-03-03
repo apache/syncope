@@ -24,7 +24,7 @@ version: '3.3'
 
 services:
    keymaster:
-     image: zookeeper:3.4.14
+     image: zookeeper:3.5.6
      restart: always
 
    db:
@@ -84,13 +84,27 @@ services:
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/
 
+   syncope-wa:
+     depends_on:
+       - syncope
+       - keymaster
+     image: apache/syncope-wa:${SYNCOPE_VERSION}
+     ports:
+       - "48080:8080"
+     restart: always
+     environment:
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-wa:8080/syncope-wa/
+
    syncope-sra:
      depends_on:
        - syncope
        - keymaster
      image: apache/syncope-sra:${SYNCOPE_VERSION}
      ports:
-       - "48080:8080"
+       - "58080:8080"
      restart: always
      environment:
        KEYMASTER_ADDRESS: keymaster:2181

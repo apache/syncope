@@ -16,18 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra;
+package org.apache.syncope.common.keymaster.client.api.startstop;
 
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextClosedEvent;
-import org.springframework.stereotype.Component;
+import org.springframework.context.event.ContextRefreshedEvent;
 
-@Component
-public class SyncopeSRAShutdown extends SyncopeSRAStartStop
-        implements ApplicationListener<ContextClosedEvent> {
+public class KeymasterStart extends KeymasterStartStop
+        implements ApplicationListener<ContextRefreshedEvent> {
+
+    public KeymasterStart(final NetworkService.Type networkServiceType) {
+        super(networkServiceType);
+    }
 
     @Override
-    public void onApplicationEvent(final ContextClosedEvent event) {
-        serviceOps.unregister(getNetworkService());
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+        serviceOps.register(getNetworkService());
     }
 }

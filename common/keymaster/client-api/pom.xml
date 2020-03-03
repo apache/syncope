@@ -43,6 +43,11 @@ under the License.
       <artifactId>syncope-common-idrepo-lib</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

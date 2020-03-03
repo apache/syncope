@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
@@ -36,6 +37,9 @@ import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -44,7 +48,6 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
@@ -59,6 +62,16 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         builder.properties(WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED + "=false");
         return super.configure(builder);
+    }
+
+    @Bean
+    public KeymasterStart keymasterStart() {
+        return new KeymasterStart(NetworkService.Type.CONSOLE);
+    }
+
+    @Bean
+    public KeymasterStop keymasterStop() {
+        return new KeymasterStop(NetworkService.Type.CONSOLE);
     }
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")

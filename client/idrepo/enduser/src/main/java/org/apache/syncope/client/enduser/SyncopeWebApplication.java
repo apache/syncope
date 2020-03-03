@@ -83,7 +83,6 @@ import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -109,9 +108,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     @Autowired
     private ServiceOps serviceOps;
-
-    @Value("${service.discovery.address}")
-    private String address;
 
     private boolean useGZIPCompression;
 
@@ -146,13 +142,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
             }
         }
-    }
-
-    private NetworkService getNetworkService() {
-        NetworkService ns = new NetworkService();
-        ns.setType(NetworkService.Type.ENDUSER);
-        ns.setAddress(address);
-        return ns;
     }
 
     @Override
@@ -355,14 +344,10 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
         }
-
-        serviceOps.register(getNetworkService());
     }
 
     @Override
     protected void onDestroy() {
-        serviceOps.unregister(getNetworkService());
-
         if (customFormAttributesMonitor != null) {
             try {
                 customFormAttributesMonitor.stop(0);

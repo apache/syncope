@@ -19,6 +19,9 @@
 package org.apache.syncope.wa;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.util.AsciiArtUtils;
 import org.apereo.cas.util.DateTimeUtils;
@@ -41,12 +44,16 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+@PropertySource("classpath:wa.properties")
+@PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(exclude = {
     HibernateJpaAutoConfiguration.class,
     JerseyAutoConfiguration.class,
@@ -83,5 +90,15 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
         AsciiArtUtils.printAsciiArtReady(LOG, StringUtils.EMPTY);
         LOG.info("Ready to process requests @ [{}]", DateTimeUtils.zonedDateTimeOf(event.getTimestamp()));
+    }
+
+    @Bean
+    public KeymasterStart keymasterStart() {
+        return new KeymasterStart(NetworkService.Type.WA);
+    }
+
+    @Bean
+    public KeymasterStop keymasterStop() {
+        return new KeymasterStop(NetworkService.Type.WA);
     }
 }

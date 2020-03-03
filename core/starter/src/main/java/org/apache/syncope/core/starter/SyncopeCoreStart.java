@@ -19,6 +19,8 @@
 package org.apache.syncope.core.starter;
 
 import java.util.Comparator;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
@@ -28,19 +30,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 
 /**
  * Take care of all initializations needed by Syncope Core to run up and safe.
  */
-@Component
-public class SyncopeCoreStartup extends SyncopeCoreStartStop
+public class SyncopeCoreStart extends KeymasterStart
         implements ApplicationListener<ContextRefreshedEvent>, Ordered {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStartup.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStart.class);
 
     @Autowired
     private DomainHolder domainHolder;
+
+    public SyncopeCoreStart() {
+        super(NetworkService.Type.CORE);
+    }
 
     @Override
     public int getOrder() {

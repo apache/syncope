@@ -56,11 +56,6 @@ under the License.
       <artifactId>syncope-ext-self-keymaster-client</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.common.keymaster</groupId>
-      <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.ext.flowable</groupId>

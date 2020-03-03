@@ -20,6 +20,8 @@ package org.apache.syncope.core.starter;
 
 import java.io.IOException;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -56,5 +58,15 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
         pspc.setIgnoreResourceNotFound(true);
         pspc.setIgnoreUnresolvablePlaceholders(true);
         return pspc;
+    }
+
+    @Bean
+    public SyncopeCoreStart keymasterStart() {
+        return new SyncopeCoreStart();
+    }
+
+    @Bean
+    public KeymasterStop keymasterStop() {
+        return new KeymasterStop(NetworkService.Type.CORE);
     }
 }

@@ -16,24 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.starter;
+package org.apache.syncope.common.keymaster.client.api.startstop;
 
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-abstract class SyncopeCoreStartStop {
+abstract class KeymasterStartStop {
 
     @Autowired
     protected ServiceOps serviceOps;
+
+    protected final NetworkService.Type networkServiceType;
+
+    protected KeymasterStartStop(final NetworkService.Type networkServiceType) {
+        this.networkServiceType = networkServiceType;
+    }
 
     @Value("${service.discovery.address}")
     private String address;
 
     protected NetworkService getNetworkService() {
         NetworkService ns = new NetworkService();
-        ns.setType(NetworkService.Type.CORE);
+        ns.setType(networkServiceType);
         ns.setAddress(address);
         return ns;
     }

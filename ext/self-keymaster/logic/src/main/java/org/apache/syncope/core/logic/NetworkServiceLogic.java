@@ -43,8 +43,8 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
     private SelfKeymasterEntityFactory entityFactory;
 
     private static NetworkService toNetworkService(
-        final NetworkService.Type serviceType,
-        final NetworkServiceEntity service) {
+            final NetworkService.Type serviceType,
+            final NetworkServiceEntity service) {
 
         NetworkService ns = new NetworkService();
         ns.setType(serviceType);
@@ -84,7 +84,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
     public void unregister(final NetworkService networkService) {
         serviceDAO.findAll(networkService.getType()).stream().
                 filter(service -> service.getAddress().equals(networkService.getAddress())).
-                findFirst().ifPresent(service -> serviceDAO.delete(service));
+                forEach(service -> serviceDAO.delete(service));
     }
 
     @Override

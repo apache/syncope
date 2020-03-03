@@ -14,25 +14,26 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-spring.application.name=Apache Syncope ${syncope.version} WA
-spring.groovy.template.check-template-location=false
-spring.main.banner-mode=log
 
-server.port=8080
+# Cannot FROM adoptopenjdk/openjdk11-openj9:alpine-slim because it's headless, and fonts might be required
+FROM openjdk:11
+MAINTAINER dev@syncope.apache.org
 
-spring.http.encoding.charset=UTF-8
-spring.http.encoding.enabled=true
-spring.http.encoding.force=true
+RUN set -x
 
-server.servlet.contextPath=/syncope-wa
+RUN mkdir /opt/syncope
+RUN mkdir /opt/syncope/bin
+RUN mkdir /opt/syncope/conf
+RUN mkdir /opt/syncope/lib
+RUN mkdir /opt/syncope/log
 
-management.endpoints.web.exposure.include=health,loggers
-management.endpoint.health.show-details=always
+COPY *.properties /opt/syncope/conf/
+COPY log4j2.xml /opt/syncope/conf/
 
-##
-# Allow configuration classes to override bean definitions from Spring Boot
-#
-spring.main.allow-bean-definition-overriding=true
-spring.main.lazy-initialization=false
+COPY syncope-docker-wa-*war /opt/syncope/lib/syncope-wa.war
 
-service.discovery.address=http://localhost:8080/syncope-wa/
+COPY startup.sh /opt/syncope/bin
+RUN chmod 755 /opt/syncope/bin/startup.sh
+CMD ["/opt/syncope/bin/startup.sh"]
+
+EXPOSE 8080
