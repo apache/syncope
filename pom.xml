@@ -449,15 +449,12 @@ under the License.
 
     <joda.version>2.10.5</joda.version>
 
+    <cas.version>6.2.0-SNAPSHOT</cas.version>
+
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.6.0</junit.version>
     <mockito.version>3.3.3</mockito.version>
-
-    <conf.directory>${project.build.directory}/test-classes</conf.directory>
-    <bundles.directory>${project.build.directory}/bundles</bundles.directory>
-    <connid.location>file:${bundles.directory}/</connid.location>
-    <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.1.1</swagger-core.version>    
     <swagger-ui.version>3.25.0</swagger-ui.version>
@@ -488,7 +485,7 @@ under the License.
     
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
-    <netbeans.version>RELEASE111</netbeans.version>
+    <netbeans.version>RELEASE112</netbeans.version>
 
     <antlr4.version>4.8-1</antlr4.version>
 
@@ -531,6 +528,11 @@ under the License.
     <jdbc.mariadb.version>2.5.4</jdbc.mariadb.version>
     <jdbc.mssql.version>8.2.0.jre</jdbc.mssql.version>
     <jdbc.oracle.version>19.3.0.0</jdbc.oracle.version>
+
+    <conf.directory>${project.build.directory}/test-classes</conf.directory>
+    <bundles.directory>${project.build.directory}/bundles</bundles.directory>
+    <connid.location>file:${bundles.directory}/</connid.location>
+    <log.directory>${project.build.directory}/log</log.directory>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
@@ -1246,6 +1248,16 @@ under the License.
         <artifactId>groovy-sql</artifactId>
         <version>${groovy.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-json</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-groovysh</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
     
       <dependency>
         <groupId>com.h2database</groupId>
@@ -1418,6 +1430,181 @@ under the License.
       </dependency>
       <!-- /Flowable -->
 
+      <!-- CAS -->
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-api-configuration-model</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-audit</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-validation-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-authentication</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-configuration</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-configuration-metadata-repository</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-cookie</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-logout</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-logging</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-services</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-services-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-tickets</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-util</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-validation</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-web</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-webflow</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-events-configuration</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-thymeleaf</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-actions</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-ldap</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-jdbc</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-reports</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-saml</artifactId>
+        <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-storage-impl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-person-directory</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-themes</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-oidc</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-validation</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-pm-webflow</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-pac4j-webflow</artifactId>
+        <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-storage-impl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-consent-webflow</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-webapp-config</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <!-- /CAS -->
+
       <!-- Wicket -->
       <dependency>
         <groupId>org.apache.wicket</groupId>
@@ -1513,7 +1700,27 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-jul</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-jcl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-web</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j18-impl</artifactId>
         <version>${log4j.version}</version>
       </dependency>
       <dependency>
@@ -1532,7 +1739,12 @@ under the License.
         <artifactId>jcl-over-slf4j</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
-      
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
@@ -1827,8 +2039,14 @@ under the License.
       </snapshots>
     </repository>
     <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
+        <id>shibboleth-releases</id>
+        <url>https://build.shibboleth.net/nexus/content/repositories/releases</url>
+        <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -2327,6 +2545,10 @@ under the License.
             </goals>
             <phase>none</phase>
           </execution>
+          <execution>
+            <id>process-resource-bundles</id>
+            <phase>none</phase>
+          </execution>
         </executions>
       </plugin>
       <!-- Put NOTICE and LICENSE files in all artifacts and javadocs -->
@@ -2704,6 +2926,7 @@ under the License.
     <module>core</module>
     <module>client</module>
     <module>sra</module>
+    <module>wa</module>
     <module>fit</module>
     <module>ext</module>
     <module>archetype</module>
