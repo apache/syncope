@@ -215,6 +215,13 @@ under the License.
     <profile>
       <id>debug</id>
 
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+      </dependencies>
+
       <build>
         <defaultGoal>clean package spring-boot:run</defaultGoal>
 
@@ -283,4 +290,10 @@ under the License.
     </profile>
   </profiles>
 
+  <repositories>
+    <repository>
+      <id>shibboleth</id>
+      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
+    </repository>
+  </repositories>
 </project>

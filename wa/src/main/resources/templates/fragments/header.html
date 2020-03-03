@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <title>Header Fragment</title>
+    <link href="../../static/css/cas.css" rel="stylesheet" th:remove="tag" />
+</head>
+
+<body>
+    <div th:fragment="header">
+        <header id="app-bar" class="mdc-top-app-bar mdc-top-app-bar--fixed mdc-elevation--z4">
+            <nav class="mdc-top-app-bar__row">
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+                    <!--<button class="mdc-icon-button mdc-top-app-bar__navigation-icon">
+                        <span class="mdi mdi-menu"></span>
+                        <span class="sr-only">menu</span>
+                    </button>-->
+                </section>
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-center">
+                    <span class="cas-brand mx-auto">
+                        <span class="sr-only">Apache Syncope</span>
+                        <img th:src="@{'/images/logo.png'}" />
+                    </span>
+                </section>
+                <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-end">
+                    <button id="cas-notifications-menu"
+                        class="mdc-icon-button mdc-top-app-bar__action-item cas-notification-toggle"
+                        aria-label="Bookmark this page">
+                        <span class="mdi mdi-bell-alert"></span>
+                        <span class="sr-only">notifications</span>
+                        <i id="notifications-count" class="notifications-count count">2</i>
+                    </button>
+                </section>
+            </nav>
+
+        </header>
+        <aside id="app-drawer" class="mdc-drawer mdc-drawer--dismissible mdc-drawer--modal">
+            <div class="mdc-drawer__header">
+                <h3 class="mdc-drawer__title">CAS</h3>
+                <h6 class="mdc-drawer__subtitle">Central Authentication Service</h6>
+            </div>
+            <div class="mdc-drawer__content">
+                <nav class="mdc-list">
+                    <a th:href="@{/actuator}" class="mdc-list-item">
+                        <i class="mdi mdi-cogs"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.endpoints}]]</span>
+                    </a>
+                    <hr class="mdc-list-divider" />
+                    <a class="mdc-list-item" href="https://apereo.github.io/cas">
+                        <i class="mdi mdi-file-code-outline"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.wiki}]]</span>
+                    </a>
+                    <a class="mdc-list-item" href="https://github.com/apereo/cas/pulls">
+                        <i class="mdi mdi-call-merge"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.pulls}]]</span>
+                    </a>
+                    <a class="mdc-list-item" href="https://apereo.github.io/cas/developer/Contributor-Guidelines.html">
+                        <i class="mdi mdi-information"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.contribguide}]]</span>
+                    </a>
+                    <a class="mdc-list-item" href="https://apereo.github.io/cas/Support.html">
+                        <i class="mdi mdi-help-circle"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.support}]]</span>
+                    </a>
+                    <a class="mdc-list-item" href="https://apereo.github.io/cas/Mailing-Lists.html">
+                        <i class="mdi mdi-email-newsletter"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.mailinglist}]]</span>
+                    </a>
+                    <a class="mdc-list-item" href="https://gitter.im/apereo/cas">
+                        <i class="mdi mdi-message-text"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.chat}]]</span>
+                    </a>
+                    <a class="mdc-list-item" href="https://apereo.github.io/">
+                        <i class="mdi mdi-post"></i>&nbsp;
+                        <span class="mdc-list-item__text">[[#{cas.login.resources.blog}]]</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <script>var countMessages = 0;</script>
+        <div class="mdc-dialog cas-notification-dialog" id="cas-notification-dialog" role="alertdialog"
+            aria-modal="true" aria-labelledby="notif-dialog-title" aria-describedby="notif-dialog-content">
+            <div class="mdc-dialog__container">
+                <div class="mdc-dialog__surface">
+                    <h2 class="mdc-dialog__title mt-2" id="notif-dialog-title">
+                        Notifications
+                    </h2>
+                    <div class="mdc-dialog__content" id="notif-dialog-content">
+                        <div class="cas-notification-message mdc-typography--body1" th:if="${staticAuthentication}">
+                            <script>countMessages++;</script>
+                            <h5 class="mdc-typography--headline6" th:utext="#{screen.defaultauthn.title}" />
+                            <p class="text text-wrap small" th:utext="#{screen.defaultauthn.heading}">
+                                Static AuthN is ONLY useful for demo purposes. It is recommended that you connect CAS to
+                                LDAP,
+                                JDBC, etc
+                                instead.
+                            </p>
+                        </div>
+                        <div class="cas-notification-message mdc-typography--body1"
+                            th:if="${not #httpServletRequest.secure}">
+                            <h5 class="mdc-typography--headline6" th:utext="#{screen.nonsecure.title}" />
+                            <script>countMessages++;</script>
+                            <p class="text-wrap small" th:utext="#{screen.nonsecure.message}">
+                                Unsure Connection
+                            </p>
+                        </div>
+                    </div>
+                    <footer class="mdc-dialog__actions">
+                        <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="accept"
+                            data-mdc-dialog-button-default>
+                            <span class="mdc-button__label">OK</span>
+                        </button>
+                    </footer>
+                </div>
+            </div>
+            <div class="mdc-dialog__scrim"></div>
+        </div>
+        <script type="text/javascript">
+            
+            (function (material) {
+                var header = {
+                    init: function () {
+                        header.attachTopbar();
+                        material.autoInit();
+                    },
+                    attachDrawer: function () {
+                        var elm = document.getElementById('app-drawer');
+                        var drawer = material.drawer.MDCDrawer.attachTo(elm);
+                        var closeDrawer = function (evt) {
+                            drawer.open = false;
+                        };
+                        drawer.foundation_.handleScrimClick = closeDrawer;
+                        document.onkeydown = function (evt) {
+                            evt = evt || window.event;
+                            if (evt.keyCode == 27) {
+                                closeDrawer();
+                            }
+                        };
+
+                        header.drawer = drawer;
+
+                        return drawer;
+                    },
+                    attachTopbar: function (drawer) {
+                        var drawer = header.attachDrawer();
+                        var dialog = header.attachNotificationDialog();
+                        header.attachDrawerToggle(drawer);
+                        header.attachNotificationToggle(dialog);
+                    },
+                    checkCaps: function (ev) {
+                        var s = String.fromCharCode(ev.which);
+                        if (s.toUpperCase() === s && s.toLowerCase() !== s && !ev.shiftKey) {
+                            ev.target.parentElement.classList.add('caps-on');
+                        } else {
+                            ev.target.parentElement.classList.remove('caps-on');
+                        }
+                    },
+                    attachDrawerToggle: function (drawer) {
+                        var topAppBar = material.topAppBar.MDCTopAppBar.attachTo(document.getElementById('app-bar'));
+                        topAppBar.setScrollTarget(document.getElementById('main-content'));
+                        topAppBar.listen('MDCTopAppBar:nav', function () {
+                            drawer.open = !drawer.open;
+                        });
+                        return topAppBar;
+                    },
+                    attachNotificationDialog: function () {
+                        var element = document.getElementById('cas-notification-dialog');
+                        var dialog = material.dialog.MDCDialog.attachTo(element);
+                        return dialog;
+                    },
+                    attachNotificationToggle: function (dialog) {
+                        var btn = document.getElementById('cas-notifications-menu');
+                        btn.addEventListener('click', () => {
+                            dialog.open();
+                        });
+                    }
+                }
+
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    header.init();
+
+                    if (countMessages == 0) {
+                        window.jQuery('#notifications-count').remove();
+                    } else {
+                        window.jQuery('#notifications-count').text("(" + countMessages + ")")
+                    }
+                });
+            })(mdc);
+        </script>
+    </div>
+</body>
+
+</html>
