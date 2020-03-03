@@ -85,7 +85,7 @@ under the License.
               <destination>${project.build.outputDirectory}/META-INF/resources/css</destination>
             </resource>
           </resources>
-          <skip>${skip.sass}</skip>
+          <skip>${sass.skip}</skip>
         </configuration>
       </plugin>
     </plugins>

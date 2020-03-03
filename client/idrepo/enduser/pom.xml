@@ -150,7 +150,7 @@ under the License.
               <destination>${project.build.outputDirectory}/org/apache/syncope/client/enduser/assets/css</destination>
             </resource>
           </resources>
-          <skip>${skip.sass}</skip>
+          <skip>${sass.skip}</skip>
         </configuration>
       </plugin>
     </plugins>

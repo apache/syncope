@@ -71,8 +71,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAApplication.class);
 
     public static void main(final String[] args) {
-        new SpringApplicationBuilder(SyncopeWAApplication.class).
-                run(args);
+        new SpringApplicationBuilder(SyncopeWAApplication.class).run(args);
     }
 
     /**

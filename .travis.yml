@@ -49,7 +49,7 @@ jobs:
       ######################################################
     - stage: test
       name: "Unit Tests"
-      script: mvn -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dskip.sass=true
+      script: mvn -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
       ######################################################
     - stage: fit
       name: "Full Integration Tests: Apache Tomcat / H2 / JSON Content-Type"
