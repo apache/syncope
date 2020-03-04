@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.2.12</cxf.version>
 
-    <jackson.version>2.10.2</jackson.version>
+    <jackson.version>2.10.3</jackson.version>
 
     <spring.version>5.1.14.RELEASE</spring.version>
     <spring-security.version>5.1.8.RELEASE</spring-security.version>
@@ -839,7 +839,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.uuid</groupId>
         <artifactId>java-uuid-generator</artifactId>
-        <version>4.0</version>
+        <version>4.0.1</version>
       </dependency>
 
       <dependency>
