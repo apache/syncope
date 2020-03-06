@@ -19,8 +19,8 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCallable;
@@ -29,11 +29,9 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 
 public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
@@ -44,19 +42,19 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
     protected final String domain;
 
-    protected final String username;
-
-    protected final Collection<? extends GrantedAuthority> authorities;
+    protected final Collection<String> authorities;
 
     protected PropagationTaskInfo taskInfo;
 
     protected PropagationReporter reporter;
 
+    protected String executor;
+
     public DefaultPropagationTaskCallable() {
         SecurityContext ctx = SecurityContextHolder.getContext();
         domain = AuthContextUtils.getDomain();
-        username = ctx.getAuthentication().getName();
-        authorities = ctx.getAuthentication().getAuthorities();
+        authorities = ctx.getAuthentication().getAuthorities().stream().
+                map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
     }
 
     @Override
@@ -70,19 +68,20 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
     }
 
     @Override
+    public void setExecutor(final String executor) {
+        this.executor = executor;
+    }
+
+    @Override
     public TaskExec call() throws Exception {
-        // set security context according to the one gathered at instantiation time from the calling thread
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                new User(username, "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails(domain));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        return AuthContextUtils.callAs(domain, executor, authorities, () -> {
+            LOG.debug("Execution started for {}", taskInfo);
 
-        LOG.debug("Execution started for {}", taskInfo);
+            TaskExec execution = taskExecutor.execute(taskInfo, reporter, executor);
 
-        TaskExec execution = taskExecutor.execute(taskInfo, reporter, username);
+            LOG.debug("Execution completed for {}, {}", taskInfo, execution);
 
-        LOG.debug("Execution completed for {}, {}", taskInfo, execution);
-
-        return execution;
+            return execution;
+        });
     }
 }

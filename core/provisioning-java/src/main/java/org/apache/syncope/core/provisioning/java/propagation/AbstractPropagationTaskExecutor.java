@@ -332,17 +332,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    @Override
-    public TaskExec execute(final PropagationTaskInfo taskInfo, final String executor) {
-        return execute(taskInfo, null, executor);
-    }
-
-    @Override
-    public TaskExec execute(
-            final PropagationTaskInfo taskInfo,
-            final PropagationReporter reporter,
-            final String executor) {
-
+    protected PropagationTask buildTask(final PropagationTaskInfo taskInfo) {
         PropagationTask task;
         if (taskInfo.getKey() == null) {
             // double-checks that provided External Resource is valid, for further actions
@@ -368,6 +358,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             attributes.addAll(List.of(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
         }
         task.setAttributes(attributes);
+
+        return task;
+    }
+
+    @Override
+    public TaskExec execute(
+            final PropagationTaskInfo taskInfo,
+            final PropagationReporter reporter,
+            final String executor) {
+
+        PropagationTask task = buildTask(taskInfo);
 
         Connector connector = taskInfo.getConnector() == null
                 ? connFactory.getConnector(task.getResource())
@@ -502,13 +503,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 taskDAO.save(task);
             }
 
-            if (reporter != null) {
-                reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
-                        ExecStatus.valueOf(execution.getStatus()),
-                        failureReason,
-                        beforeObj,
-                        afterObj);
-            }
+            reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
+                    ExecStatus.valueOf(execution.getStatus()),
+                    failureReason,
+                    beforeObj,
+                    afterObj);
         }
 
         for (PropagationActions action : actions) {
@@ -557,6 +556,40 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected abstract void doExecute(
             Collection<PropagationTaskInfo> taskInfos, PropagationReporter reporter, boolean nullPriorityAsync,
             String executor);
+
+    protected TaskExec rejected(
+            final PropagationTaskInfo taskInfo,
+            final String rejectReason,
+            final PropagationReporter reporter,
+            final String executor) {
+
+        PropagationTask task = buildTask(taskInfo);
+
+        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        execution.setStatus(ExecStatus.NOT_ATTEMPTED.name());
+        execution.setExecutor(executor);
+        execution.setStart(new Date());
+        execution.setMessage(rejectReason);
+        execution.setEnd(execution.getStart());
+
+        if (hasToBeregistered(task, execution)) {
+            LOG.debug("Execution to be stored: {}", execution);
+
+            execution.setTask(task);
+            task.add(execution);
+
+            taskDAO.save(task);
+        }
+
+        reporter.onSuccessOrNonPriorityResourceFailures(
+                taskInfo,
+                ExecStatus.valueOf(execution.getStatus()),
+                rejectReason,
+                null,
+                null);
+
+        return execution;
+    }
 
     @Override
     public PropagationReporter execute(

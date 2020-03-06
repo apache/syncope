@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -99,6 +101,7 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,6 +109,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Component
 public class SyncopeLogic extends AbstractLogic<EntityTO> {
+
+    private static final Pattern THREADPOOLTASKEXECUTOR_PATTERN = Pattern.compile(
+            ".*, pool size = ([0-9]+), "
+            + "active threads = ([0-9]+), "
+            + "queued tasks = ([0-9]+), "
+            + "completed tasks = ([0-9]+).*");
 
     private static final Object MONITOR = new Object();
 
@@ -223,6 +232,12 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     @Autowired
     private ImplementationLookup implLookup;
+
+    @Resource(name = "asyncConnectorFacadeExecutor")
+    private ThreadPoolTaskExecutor asyncConnectorFacadeExecutor;
+
+    @Resource(name = "propagationTaskExecutorAsyncExecutor")
+    private ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor;
 
     public boolean isSelfRegAllowed() {
         return confParamOps.get(AuthContextUtils.getDomain(), "selfRegistration.allowed", false, Boolean.class);
@@ -378,6 +393,32 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         return SYSTEM_INFO;
     }
 
+    private void setTaskExecutorInfo(final String toString, final NumbersInfo.TaskExecutorInfo info) {
+        Matcher matcher = THREADPOOLTASKEXECUTOR_PATTERN.matcher(toString);
+        if (matcher.matches() && matcher.groupCount() == 4) {
+            try {
+                info.setSize(Integer.valueOf(matcher.group(1)));
+            } catch (NumberFormatException e) {
+                LOG.error("While parsing thread pool size", e);
+            }
+            try {
+                info.setActive(Integer.valueOf(matcher.group(2)));
+            } catch (NumberFormatException e) {
+                LOG.error("While parsing active threads #", e);
+            }
+            try {
+                info.setQueued(Integer.valueOf(matcher.group(3)));
+            } catch (NumberFormatException e) {
+                LOG.error("While parsing queued threads #", e);
+            }
+            try {
+                info.setCompleted(Integer.valueOf(matcher.group(4)));
+            } catch (NumberFormatException e) {
+                LOG.error("While parsing completed threads #", e);
+            }
+        }
+    }
+
     @PreAuthorize("isAuthenticated()")
     public NumbersInfo numbers() {
         NumbersInfo numbersInfo = new NumbersInfo();
@@ -428,6 +469,13 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 NumbersInfo.ConfItem.SECURITY_QUESTION.name(), !securityQuestionDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(
                 NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
+
+        setTaskExecutorInfo(
+                asyncConnectorFacadeExecutor.getThreadPoolExecutor().toString(),
+                numbersInfo.getAsyncConnectorExecutor());
+        setTaskExecutorInfo(
+                propagationTaskExecutorAsyncExecutor.getThreadPoolExecutor().toString(),
+                numbersInfo.getPropagationTaskExecutor());
 
         return numbersInfo;
     }

@@ -26,4 +26,6 @@ public interface PropagationTaskCallable extends Callable<TaskExec> {
     void setTaskInfo(PropagationTaskInfo taskInfo);
 
     void setReporter(PropagationReporter reporter);
+
+    void setExecutor(String executor);
 }

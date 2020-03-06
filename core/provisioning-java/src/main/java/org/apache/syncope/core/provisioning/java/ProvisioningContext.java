@@ -57,12 +57,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -74,9 +71,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 @PropertySource(value = "file:${conf.directory}/provisioning.properties", ignoreResourceNotFound = true)
 @ComponentScan("org.apache.syncope.core.provisioning.java")
 @EnableAsync
-@EnableScheduling
 @Configuration
-public class ProvisioningContext implements EnvironmentAware, SchedulingConfigurer {
+public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
 
     @Resource(name = "MasterDataSource")
     private DataSource masterDataSource;
@@ -95,7 +91,6 @@ public class ProvisioningContext implements EnvironmentAware, SchedulingConfigur
     }
 
     /**
-     * Used by {@link AsyncConnectorFacade}.
      * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
      *
      * @return executor
@@ -103,16 +98,19 @@ public class ProvisioningContext implements EnvironmentAware, SchedulingConfigur
     @Bean
     @Primary
     public Executor asyncConnectorFacadeExecutor() {
-        ThreadPoolTaskScheduler batchExecutor = new ThreadPoolTaskScheduler();
-        batchExecutor.setPoolSize(env.getProperty("asyncConnectorFacadeExecutor.poolSize", Integer.class));
-        batchExecutor.setThreadNamePrefix("AsyncConnectorFacade-");
-        batchExecutor.initialize();
-        return batchExecutor;
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(env.getProperty("asyncConnectorFacadeExecutor.corePoolSize", Integer.class));
+        executor.setMaxPoolSize(env.getProperty("asyncConnectorFacadeExecutor.maxPoolSize", Integer.class));
+        executor.setQueueCapacity(env.getProperty("asyncConnectorFacadeExecutor.queueCapacity", Integer.class));
+        executor.setThreadNamePrefix("AsyncConnectorFacadeExecutor-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.initialize();
+        return executor;
     }
 
     @Override
-    public void configureTasks(final ScheduledTaskRegistrar taskRegistrar) {
-        taskRegistrar.setScheduler(asyncConnectorFacadeExecutor());
+    public Executor getAsyncExecutor() {
+        return asyncConnectorFacadeExecutor();
     }
 
     /**
@@ -122,17 +120,14 @@ public class ProvisioningContext implements EnvironmentAware, SchedulingConfigur
      */
     @Bean
     public Executor propagationTaskExecutorAsyncExecutor() {
-        ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor = new ThreadPoolTaskExecutor();
-        propagationTaskExecutorAsyncExecutor.setCorePoolSize(
-                env.getProperty("propagationTaskExecutorAsyncExecutor.corePoolSize", Integer.class));
-        propagationTaskExecutorAsyncExecutor.setMaxPoolSize(
-                env.getProperty("propagationTaskExecutorAsyncExecutor.maxPoolSize", Integer.class));
-        propagationTaskExecutorAsyncExecutor.setQueueCapacity(
-                env.getProperty("propagationTaskExecutorAsyncExecutor.queueCapacity", Integer.class));
-        propagationTaskExecutorAsyncExecutor.setThreadNamePrefix("PropagationTaskExecutor-");
-        propagationTaskExecutorAsyncExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
-        propagationTaskExecutorAsyncExecutor.initialize();
-        return propagationTaskExecutorAsyncExecutor;
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(env.getProperty("propagationTaskExecutorAsyncExecutor.corePoolSize", Integer.class));
+        executor.setMaxPoolSize(env.getProperty("propagationTaskExecutorAsyncExecutor.maxPoolSize", Integer.class));
+        executor.setQueueCapacity(env.getProperty("propagationTaskExecutorAsyncExecutor.queueCapacity", Integer.class));
+        executor.setThreadNamePrefix("PropagationTaskExecutor-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.initialize();
+        return executor;
     }
 
     @Bean

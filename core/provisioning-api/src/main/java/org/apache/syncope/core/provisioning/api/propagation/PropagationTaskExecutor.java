@@ -43,16 +43,7 @@ public interface PropagationTaskExecutor {
     String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
 
     /**
-     * Execute the given PropagationTask and returns the generated {@link TaskExec}.
-     *
-     * @param taskInfo to be executed
-     * @param executor the executor of this task
-     * @return the generated TaskExec
-     */
-    TaskExec execute(PropagationTaskInfo taskInfo, String executor);
-
-    /**
-     * Execute the given PropagationTask and returns the generated {@link TaskExec}.
+     * Execute the given task and returns the generated {@link TaskExec}.
      *
      * @param taskInfo to be executed
      * @param reporter to report propagation execution status
@@ -62,7 +53,7 @@ public interface PropagationTaskExecutor {
     TaskExec execute(PropagationTaskInfo taskInfo, PropagationReporter reporter, String executor);
 
     /**
-     * Execute a collection of PropagationTask objects.
+     * Execute the given collection of tasks.
      * The process is interrupted as soon as the result of the communication with a resource with non-null priority is
      * in error.
      *
