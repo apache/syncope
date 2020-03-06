@@ -409,9 +409,9 @@ under the License.
     <jackson.version>2.10.3</jackson.version>
 
     <spring.version>5.2.4.RELEASE</spring.version>
-    <spring-security.version>5.2.2.RELEASE</spring-security.version>
+    <spring-security.version>5.3.0.RELEASE</spring-security.version>
     <spring-boot.version>2.2.5.RELEASE</spring-boot.version>
-    <spring-cloud-gateway.version>2.2.1.RELEASE</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>2.2.2.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.1</openjpa.version>
     <hikaricp.version>3.4.2</hikaricp.version>
@@ -432,7 +432,7 @@ under the License.
     <slf4j.version>1.7.30</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>7.6.0</elasticsearch.version>
+    <elasticsearch.version>7.6.1</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM25</apacheds.version>
     <apachedirapi.version>2.0.0.AM2</apachedirapi.version>
@@ -2463,7 +2463,7 @@ under the License.
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.6.0/index.html</link>
+            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.6.1/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.1.1/apidocs/</link>
           </links>
         </configuration>
