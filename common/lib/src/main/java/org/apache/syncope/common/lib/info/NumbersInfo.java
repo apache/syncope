@@ -67,6 +67,81 @@ public class NumbersInfo implements Serializable {
         }
     }
 
+    @XmlRootElement(name = "taskExecutorInfo")
+    @XmlType
+    public class TaskExecutorInfo {
+
+        private int size;
+
+        private int active;
+
+        private int queued;
+
+        private int completed;
+
+        public int getSize() {
+            return size;
+        }
+
+        public void setSize(final int size) {
+            this.size = size;
+        }
+
+        public int getActive() {
+            return active;
+        }
+
+        public void setActive(final int active) {
+            this.active = active;
+        }
+
+        public int getQueued() {
+            return queued;
+        }
+
+        public void setQueued(final int queued) {
+            this.queued = queued;
+        }
+
+        public int getCompleted() {
+            return completed;
+        }
+
+        public void setCompleted(final int completed) {
+            this.completed = completed;
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().
+                    append(size).
+                    append(active).
+                    append(queued).
+                    append(completed).
+                    build();
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final TaskExecutorInfo other = (TaskExecutorInfo) obj;
+            return new EqualsBuilder().
+                    append(size, other.size).
+                    append(active, other.active).
+                    append(queued, other.queued).
+                    append(completed, other.completed).
+                    build();
+        }
+    }
+
     private int totalUsers;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
@@ -100,6 +175,10 @@ public class NumbersInfo implements Serializable {
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, Boolean> confCompleteness = new HashMap<>();
+
+    private final TaskExecutorInfo asyncConnectorExecutor = new TaskExecutorInfo();
+
+    private final TaskExecutorInfo propagationTaskExecutor = new TaskExecutorInfo();
 
     public int getTotalUsers() {
         return totalUsers;
@@ -195,6 +274,14 @@ public class NumbersInfo implements Serializable {
         return confCompleteness;
     }
 
+    public TaskExecutorInfo getAsyncConnectorExecutor() {
+        return asyncConnectorExecutor;
+    }
+
+    public TaskExecutorInfo getPropagationTaskExecutor() {
+        return propagationTaskExecutor;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -212,6 +299,8 @@ public class NumbersInfo implements Serializable {
                 append(totalResources).
                 append(totalRoles).
                 append(confCompleteness).
+                append(asyncConnectorExecutor).
+                append(propagationTaskExecutor).
                 build();
     }
 
@@ -242,6 +331,8 @@ public class NumbersInfo implements Serializable {
                 append(totalAny2, other.totalAny2).
                 append(any2ByRealm, other.any2ByRealm).
                 append(confCompleteness, other.confCompleteness).
+                append(asyncConnectorExecutor, other.asyncConnectorExecutor).
+                append(propagationTaskExecutor, other.propagationTaskExecutor).
                 build();
     }
 }

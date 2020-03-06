@@ -64,6 +64,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -247,7 +248,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 taskInfo.setAnyType(taskTO.getAnyType());
                 taskInfo.setEntityKey(taskTO.getEntityKey());
 
-                TaskExec propExec = taskExecutor.execute(taskInfo);
+                TaskExec propExec = taskExecutor.execute(taskInfo, new DefaultPropagationReporter());
                 result = binder.getExecTO(propExec);
                 break;
 

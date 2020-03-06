@@ -33,7 +33,9 @@ under the License.
   <!-- Used by AsyncConnectorFacade -->
   <task:annotation-driven executor="asyncConnectorFacadeExecutor"/>
   <task:executor id="asyncConnectorFacadeExecutor"
-                 pool-size="${asyncConnectorFacadeExecutor.poolSize}"/>
+                 pool-size="${asyncConnectorFacadeExecutor.poolSize}"
+                 queue-capacity="${asyncConnectorFacadeExecutor.queueCapacity}"
+                 rejection-policy="ABORT"/>
 
   <!-- Used by PriorityPropagationTaskExecutor -->
   <task:executor id="propagationTaskExecutorAsyncExecutor"
@@ -41,7 +43,7 @@ under the License.
                  queue-capacity="${propagationTaskExecutorAsyncExecutor.queueCapacity}"
                  rejection-policy="ABORT"/>
   <bean class="${propagationTaskExecutor}"/>
-  
+
   <bean class="${userProvisioningManager}"/>
   <bean class="${groupProvisioningManager}"/>
   <bean class="${anyObjectProvisioningManager}"/>

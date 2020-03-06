@@ -21,15 +21,10 @@ package org.apache.syncope.core.provisioning.java.propagation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -80,26 +75,15 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
-        List<PropagationTaskInfo> prioritizedTasks = new ArrayList<>();
-
-        int[] connRequestTimeout = { 60 };
-
-        taskInfos.stream().filter(task -> task.getExternalResource().getPropagationPriority() != null).forEach(task -> {
-            prioritizedTasks.add(task);
-
-            if (task.getExternalResource().getConnector().getConnRequestTimeout() != null
-                    && connRequestTimeout[0] < task.getExternalResource().getConnector().getConnRequestTimeout()) {
-
-                connRequestTimeout[0] = task.getExternalResource().getConnector().getConnRequestTimeout();
-                LOG.debug("Upgrade request connection timeout to {}", connRequestTimeout);
-            }
-        });
-
-        prioritizedTasks.sort(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority()));
+        List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
+                filter(task -> task.getExternalResource().getPropagationPriority() != null).
+                sorted(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority())).
+                collect(Collectors.toList());
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
-        Set<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
-                filter(task -> !prioritizedTasks.contains(task)).collect(Collectors.toSet());
+        List<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
+                filter(task -> !prioritizedTasks.contains(task)).
+                collect(Collectors.toList());
         LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
         // first process priority resources sequentially and fail as soon as any propagation failure is reported
@@ -123,42 +107,33 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         });
 
         // then process non-priority resources concurrently...
-        CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
-        Map<PropagationTaskInfo, Future<TaskExec>> nullPriority = new HashMap<>(concurrentTasks.size());
-        concurrentTasks.forEach(taskInfo -> {
-            try {
-                nullPriority.put(
-                        taskInfo,
-                        completionService.submit(newPropagationTaskCallable(taskInfo, reporter)));
-            } catch (Exception e) {
-                LOG.error("Unexpected exception", e);
-            }
-        });
-        // ...waiting for all callables to complete, if async processing was not required
-        if (!nullPriority.isEmpty()) {
-            if (nullPriorityAsync) {
-                nullPriority.forEach((task, exec) -> {
-                    reporter.onSuccessOrNonPriorityResourceFailures(task, ExecStatus.CREATED, null, null, null);
-                });
-            } else {
-                final Set<Future<TaskExec>> nullPriorityFutures = new HashSet<>(nullPriority.values());
+        if (!concurrentTasks.isEmpty()) {
+            CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
+            List<Future<TaskExec>> futures = new ArrayList<>();
+
+            concurrentTasks.forEach(taskInfo -> {
                 try {
-                    executor.submit(() -> {
-                        while (!nullPriorityFutures.isEmpty()) {
-                            try {
-                                nullPriorityFutures.remove(completionService.take());
-                            } catch (Exception e) {
-                                LOG.error("Unexpected exception", e);
-                            }
-                        }
-                    }).get(connRequestTimeout[0], TimeUnit.SECONDS);
+                    futures.add(completionService.submit(newPropagationTaskCallable(taskInfo, reporter)));
+
+                    if (nullPriorityAsync) {
+                        reporter.onSuccessOrNonPriorityResourceFailures(
+                                taskInfo, ExecStatus.CREATED, null, null, null);
+                    }
                 } catch (Exception e) {
-                    LOG.error("Unexpected exception", e);
-                } finally {
-                    nullPriorityFutures.forEach(future -> future.cancel(true));
-                    nullPriorityFutures.clear();
-                    nullPriority.clear();
+                    LOG.error("While submitting task for async execution", taskInfo, e);
+                    rejected(taskInfo, e.getMessage(), reporter);
                 }
+            });
+
+            // ...waiting for all callables to complete, if async processing was not required
+            if (!nullPriorityAsync) {
+                futures.forEach(future -> {
+                    try {
+                        future.get();
+                    } catch (Exception e) {
+                        LOG.error("Unexpected exception", e);
+                    }
+                });
             }
         }
     }
