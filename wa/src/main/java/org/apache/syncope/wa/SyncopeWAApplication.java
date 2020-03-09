@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.wa;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
-import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
 import org.apereo.cas.util.AsciiArtUtils;
 import org.apereo.cas.util.DateTimeUtils;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,7 +43,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
@@ -88,17 +86,13 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
      */
     @EventListener
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
+        if (!Boolean.getBoolean("SKIP_CONFIG_VALIDATION")) {
+            CasConfigurationPropertiesValidator validator =
+                new CasConfigurationPropertiesValidator(event.getApplicationContext());
+            validator.validate();
+        }
+
         AsciiArtUtils.printAsciiArtReady(LOG, StringUtils.EMPTY);
         LOG.info("Ready to process requests @ [{}]", DateTimeUtils.zonedDateTimeOf(event.getTimestamp()));
-    }
-
-    @Bean
-    public KeymasterStart keymasterStart() {
-        return new KeymasterStart(NetworkService.Type.WA);
-    }
-
-    @Bean
-    public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.WA);
     }
 }
