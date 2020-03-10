@@ -40,21 +40,26 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -131,7 +136,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
     }
 
     protected List<IColumn<T, String>> getFieldColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<>();
+        List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<T>(
                 new StringResourceModel("key", this), "key"));
@@ -146,8 +151,11 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
-                final IModel<?> model = getDataModel(rowModel);
+                    final Item<ICellPopulator<T>> item,
+                    final String componentId,
+                    final IModel<T> rowModel) {
+
+                IModel<?> model = getDataModel(rowModel);
                 if (model != null && model.getObject() instanceof String) {
                     String value = String.class.cast(model.getObject());
                     if (value.length() > 20) {
@@ -159,7 +167,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                     super.populateItem(item, componentId, rowModel);
                 }
             }
-
         });
 
         columns.add(new DatePropertyColumn<T>(
@@ -173,6 +180,36 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         columns.add(new BooleanPropertyColumn<T>(
                 new StringResourceModel("active", this), "active", "active"));
+
+        columns.add(new AbstractColumn<T, String>(new Model<>(""), "running") {
+
+            private static final long serialVersionUID = -4008579357070833846L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<T>> cellItem,
+                    final String componentId,
+                    final IModel<T> rowModel) {
+
+                Component panel;
+                try {
+                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
+                    panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this, pageRef);
+                    MetaDataRoleAuthorizationStrategy.authorize(
+                            panel, WebPage.ENABLE,
+                            String.format("%s,%s", StandardEntitlement.TASK_EXECUTE, StandardEntitlement.TASK_UPDATE));
+                } catch (Exception e) {
+                    LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
+                    panel = new Label(componentId, Model.of());
+                }
+                cellItem.add(panel);
+            }
+
+            @Override
+            public String getCssClass() {
+                return "col-xs-1";
+            }
+        });
 
         return columns;
     }
