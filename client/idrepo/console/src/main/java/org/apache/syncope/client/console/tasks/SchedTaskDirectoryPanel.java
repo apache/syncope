@@ -233,7 +233,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 viewTask(taskTO, target);
             }
-        }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.TASK_READ);
 
         panel.add(new ActionLink<T>() {
 
@@ -248,8 +248,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                 target).setResourceModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
-                                        Model.of(Pair.of(
-                                                ActionLink.ActionType.EDIT, model.getObject())))));
+                                        Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.TASK_UPDATE);
 
