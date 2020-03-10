@@ -145,10 +145,9 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                 try {
                     JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
-                    MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                            String.format("%s,%s",
-                                    IdRepoEntitlement.TASK_EXECUTE,
-                                    IdRepoEntitlement.TASK_UPDATE));
+                    MetaDataRoleAuthorizationStrategy.authorize(
+                            panel, WebPage.ENABLE,
+                            String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());

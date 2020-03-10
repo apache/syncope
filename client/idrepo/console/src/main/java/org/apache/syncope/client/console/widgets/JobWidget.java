@@ -354,12 +354,29 @@ public class JobWidget extends BaseWidget {
 
                     JobTO jobTO = rowModel.getObject();
                     JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this, pageRef);
-                    MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                            String.format("%s,%s,%s,%s",
-                                    IdRepoEntitlement.TASK_EXECUTE,
-                                    IdRepoEntitlement.REPORT_EXECUTE,
-                                    IdRepoEntitlement.TASK_UPDATE,
-                                    IdRepoEntitlement.REPORT_UPDATE));
+
+                    String roles;
+                    switch (jobTO.getType()) {
+                        case TASK:
+                            roles = String.format("%s,%s",
+                                    IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE);
+                            break;
+
+                        case REPORT:
+                            roles = String.format("%s,%s",
+                                    IdRepoEntitlement.REPORT_EXECUTE, IdRepoEntitlement.REPORT_UPDATE);
+                            break;
+
+                        case NOTIFICATION:
+                            roles = String.format("%s,%s",
+                                    IdRepoEntitlement.NOTIFICATION_EXECUTE, IdRepoEntitlement.NOTIFICATION_UPDATE);
+                            break;
+
+                        default:
+                            roles = "NO_ROLES";
+                    }
+                    MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE, roles);
+
                     cellItem.add(panel);
                 }
 
