@@ -49,7 +49,7 @@ public class Roles extends WizardStep implements ICondition {
     private final List<String> allRoles;
 
     protected WebMarkupContainer dynrolesContainer;
-
+    
     public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
         if (!(modelObject.getInnerObject() instanceof UserTO)) {
             throw new IllegalStateException("Invalid instance " + modelObject.getInnerObject());
@@ -77,10 +77,7 @@ public class Roles extends WizardStep implements ICondition {
 
         this.setOutputMarkupId(true);
 
-        allRoles = SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER)
-                ? new RoleRestClient().list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
-                : Collections.<String>emptyList();
+        allRoles = getManagedRoles();
 
         add(new AjaxPalettePanel.Builder<String>().
                 withFilter().
@@ -122,5 +119,12 @@ public class Roles extends WizardStep implements ICondition {
         return CollectionUtils.isNotEmpty(allRoles)
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
+    }
+        
+    protected List<String> getManagedRoles() {
+        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER)
+                ? new RoleRestClient().list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
+                : Collections.<String>emptyList();
     }
 }
