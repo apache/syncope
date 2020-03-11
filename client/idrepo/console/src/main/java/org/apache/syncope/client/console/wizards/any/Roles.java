@@ -78,10 +78,7 @@ public class Roles extends WizardStep implements ICondition {
 
         this.setOutputMarkupId(true);
 
-        allRoles = SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER)
-                ? RoleRestClient.list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
-                : List.of();
+        allRoles = getManagedRoles();
 
         add(new AjaxPalettePanel.Builder<String>().
                 withFilter().
@@ -123,5 +120,12 @@ public class Roles extends WizardStep implements ICondition {
         return CollectionUtils.isNotEmpty(allRoles)
                 && SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
+    }
+
+    protected List<String> getManagedRoles() {
+        return SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER)
+                ? RoleRestClient.list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
+                : List.of();
     }
 }
