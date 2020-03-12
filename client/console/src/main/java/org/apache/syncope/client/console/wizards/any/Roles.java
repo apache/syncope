@@ -48,8 +48,10 @@ public class Roles extends WizardStep implements ICondition {
 
     private final List<String> allRoles;
 
+    private UserTO userTO;
+
     protected WebMarkupContainer dynrolesContainer;
-    
+
     public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
         if (!(modelObject.getInnerObject() instanceof UserTO)) {
             throw new IllegalStateException("Invalid instance " + modelObject.getInnerObject());
@@ -64,7 +66,7 @@ public class Roles extends WizardStep implements ICondition {
             add(new Label("changed", StringUtils.EMPTY));
         }
 
-        final UserTO entityTO = UserTO.class.cast(modelObject.getInnerObject());
+        userTO = UserTO.class.cast(modelObject.getInnerObject());
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
@@ -110,8 +112,12 @@ public class Roles extends WizardStep implements ICondition {
         add(dynrolesContainer);
 
         dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
-                new PropertyModel<>(entityTO, "dynRoles"),
+                new PropertyModel<>(userTO, "dynRoles"),
                 new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
+    }
+
+    public UserTO getUserTO() {
+        return userTO;
     }
 
     @Override
@@ -120,7 +126,7 @@ public class Roles extends WizardStep implements ICondition {
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
     }
-        
+
     protected List<String> getManagedRoles() {
         return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)
