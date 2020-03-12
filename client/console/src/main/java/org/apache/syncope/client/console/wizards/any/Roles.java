@@ -48,7 +48,7 @@ public class Roles extends WizardStep implements ICondition {
 
     private final List<String> allRoles;
 
-    private UserTO userTO;
+    protected final UserTO userTO;
 
     protected WebMarkupContainer dynrolesContainer;
 
@@ -114,10 +114,6 @@ public class Roles extends WizardStep implements ICondition {
         dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
                 new PropertyModel<>(userTO, "dynRoles"),
                 new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
-    }
-
-    public UserTO getUserTO() {
-        return userTO;
     }
 
     @Override
