@@ -49,7 +49,8 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-    "cas.authn.accept.users=mrossi::password"
+    "cas.authn.accept.users=mrossi::password",
+    "cas.sso.allow-missing-service-parameter=true"
 })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public class SyncopeWATest {

@@ -132,6 +132,11 @@ under the License.
       <artifactId>cas-server-support-reports</artifactId>
     </dependency>
     <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-syncope-authentication</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-saml</artifactId>
     </dependency>

@@ -28,6 +28,9 @@ git:
 env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
+  - JAVAEE_CONTAINER=Tomcat
+  - DBMS=H2
+  - jaxrsContentType=application/json
 install: true
 notifications:
   email:
@@ -53,10 +56,6 @@ jobs:
       ######################################################
     - stage: fit
       name: "Full Integration Tests: Apache Tomcat / H2 / JSON Content-Type"
-      env:
-       - JAVAEE_CONTAINER=Tomcat
-       - DBMS=H2
-       - jaxrsContentType=application/json
       script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       after_failure:
        - cat fit/core-reference/target/log/*
