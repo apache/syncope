@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -64,6 +65,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.time.Duration;
 
 /**
  * Tasks page.
@@ -111,6 +113,17 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         initResultTable();
 
+        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+
+            private static final long serialVersionUID = -4661303265651934868L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                container.modelChanged();
+                target.add(container);
+            }
+        });
+
         startAt = new TaskStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
 
@@ -127,7 +140,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 return targetObject;
             }
         };
-
         addInnerObject(templates);
     }
 

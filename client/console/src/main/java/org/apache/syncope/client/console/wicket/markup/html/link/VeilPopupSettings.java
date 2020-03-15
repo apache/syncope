@@ -35,7 +35,6 @@ public class VeilPopupSettings extends PopupSettings {
                 + "    window.location.reload(false);"
                 + "  }"
                 + "}, 1000);"
-                + "return false";
+                + "return false;";
     }
-
 }

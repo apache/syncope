@@ -38,6 +38,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.ResponseHolder;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -150,7 +151,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
             @Override
             protected HttpResourceStream getResourceStream() {
-                return new HttpResourceStream(buildResponse());
+                return new HttpResourceStream(new ResponseHolder(buildResponse()));
             }
         };
 
