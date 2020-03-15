@@ -70,7 +70,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -1033,10 +1032,7 @@ public class GroupITCase extends AbstractITCase {
             ResourceTO newLDAP = resourceService.read(RESOURCE_NAME_LDAP);
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPriority(0);
-
-            for (ProvisionTO provision : newLDAP.getProvisions()) {
-                provision.getVirSchemas().clear();
-            }
+            newLDAP.getProvisions().forEach(provision -> provision.getVirSchemas().clear());
 
             MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).get().getMapping();
 
@@ -1058,9 +1054,7 @@ public class GroupITCase extends AbstractITCase {
             // 2. update group and give the resource created above
             GroupPatch patch = new GroupPatch();
             patch.setKey(groupTO.getKey());
-            patch.getResources().add(new StringPatchItem.Builder().
-                    operation(PatchOperation.ADD_REPLACE).
-                    value("new-ldap").build());
+            patch.getResources().add(new StringPatchItem.Builder().value("new-ldap").build());
 
             groupTO = updateGroup(patch).getEntity();
             assertNotNull(groupTO);
