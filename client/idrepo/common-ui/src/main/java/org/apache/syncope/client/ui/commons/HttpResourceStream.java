@@ -22,11 +22,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
@@ -36,46 +33,25 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     private static final long serialVersionUID = 5811207817876330189L;
 
-    private transient InputStream inputStream;
+    private final ResponseHolder responseHolder;
 
-    private String contentType;
-
-    private String location;
-
-    private String filename;
-
-    public HttpResourceStream(final Response response) {
+    public HttpResourceStream(final ResponseHolder responseHolder) {
         super();
-
-        Object entity = response.getEntity();
-        if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()
-                && (entity instanceof InputStream)) {
-
-            this.inputStream = (InputStream) entity;
-            this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
-            this.location = response.getLocation() == null ? null : response.getLocation().toASCIIString();
-            String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
-            if (StringUtils.isNotBlank(contentDisposition)) {
-                String[] splitted = contentDisposition.split("=");
-                if (splitted.length > 1) {
-                    this.filename = splitted[1].trim();
-                }
-            }
-        }
+        this.responseHolder = responseHolder;
     }
 
     @Override
     public InputStream getInputStream()
             throws ResourceStreamNotFoundException {
 
-        return inputStream == null
+        return responseHolder.getInputStream() == null
                 ? new ByteArrayInputStream(new byte[0])
-                : inputStream;
+                : responseHolder.getInputStream();
     }
 
     @Override
     public Bytes length() {
-        return inputStream == null
+        return responseHolder.getInputStream() == null
                 ? Bytes.bytes(0)
                 : null;
     }
@@ -87,15 +63,15 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
 
     @Override
     public String locationAsString() {
-        return location;
+        return responseHolder.getLocation();
     }
 
     @Override
     public String getContentType() {
-        return Optional.ofNullable(contentType).orElse(MediaType.APPLICATION_OCTET_STREAM);
+        return Optional.ofNullable(responseHolder.getContentType()).orElse(MediaType.APPLICATION_OCTET_STREAM);
     }
 
     public String getFilename() {
-        return filename;
+        return responseHolder.getFilename();
     }
 }

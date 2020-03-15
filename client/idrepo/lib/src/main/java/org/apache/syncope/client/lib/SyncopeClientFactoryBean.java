@@ -228,6 +228,7 @@ public class SyncopeClientFactoryBean {
      * Sets the client TLS configuration.
      *
      * @param tlsClientParameters client TLS configuration
+     * @return the current instance
      */
     public SyncopeClientFactoryBean setTlsClientParameters(final TLSClientParameters tlsClientParameters) {
         this.tlsClientParameters = tlsClientParameters;

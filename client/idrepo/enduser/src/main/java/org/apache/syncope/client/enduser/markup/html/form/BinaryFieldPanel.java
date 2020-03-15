@@ -40,6 +40,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPane
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
@@ -153,9 +154,8 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
             @Override
             protected HttpResourceStream getResourceStream() {
-                return new HttpResourceStream(buildResponse());
+                return new HttpResourceStream(new ResponseHolder(buildResponse()));
             }
-
         };
 
         add(fileDownload);

@@ -29,6 +29,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -36,6 +37,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -43,6 +45,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.request.cycle.RequestCycle;
 
 public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
@@ -71,8 +74,17 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
     @Override
     protected Serializable onApplyInternal(final CSVPushSpec modelObject) {
-        downloadBehavior.setResponse(() -> ReconciliationRestClient.push(query, modelObject));
-        return Constants.OPERATION_SUCCEEDED;
+        return RequestCycle.get().find(AjaxRequestTarget.class).map(target -> {
+            try {
+                downloadBehavior.setResponse(new ResponseHolder(ReconciliationRestClient.push(query, modelObject)));
+                downloadBehavior.initiate(target);
+
+                return Constants.OPERATION_SUCCEEDED;
+            } catch (Exception e) {
+                LOG.error("While dowloading CSV export", e);
+                return e;
+            }
+        }).orElse(Constants.ERROR);
     }
 
     @Override

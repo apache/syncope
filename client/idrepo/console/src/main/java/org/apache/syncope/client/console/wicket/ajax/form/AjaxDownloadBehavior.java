@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.client.console.wicket.ajax.form;
 
-import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.SerializableSupplier;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
@@ -34,14 +33,10 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AjaxDownloadBehavior.class);
 
-    protected SerializableSupplier<Response> response;
+    protected ResponseHolder responseHolder;
 
-    public boolean hasResponse() {
-        return response != null;
-    }
-
-    public void setResponse(final SerializableSupplier<Response> response) {
-        this.response = response;
+    public void setResponse(final ResponseHolder response) {
+        this.responseHolder = response;
     }
 
     /**
@@ -57,9 +52,9 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
     protected HttpResourceStream getResourceStream() {
         HttpResourceStream stream = null;
 
-        if (response != null) {
-            stream = new HttpResourceStream(response.get());
-            response = null;
+        if (responseHolder != null) {
+            stream = new HttpResourceStream(responseHolder);
+            responseHolder = null;
         }
 
         return stream;

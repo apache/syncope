@@ -43,6 +43,8 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected final List<Component> outerObjects = new ArrayList<>();
 
+    private boolean async = true;
+
     /**
      * Construct.
      *
@@ -53,14 +55,19 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         super(defaultItem, pageRef);
     }
 
-    public final AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
+    public AjaxWizardBuilder<T> setAsync(final boolean async) {
+        this.async = async;
+        return this;
+    }
+
+    public AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
         outerObjects.addAll(List.of(childs));
         return this;
     }
 
     @Override
     public AjaxWizard<T> build(final String id, final int index, final AjaxWizard.Mode mode) {
-        final AjaxWizard<T> wizard = build(id, mode);
+        AjaxWizard<T> wizard = build(id, mode);
         for (int i = 1; i < index; i++) {
             wizard.getWizardModel().next();
         }
@@ -88,20 +95,20 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         this.mode = mode;
 
         // get the specified item if available
-        final T modelObject = newModelObject();
+        T modelObj = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, pageRef) {
+        return new AjaxWizard<T>(id, modelObj, buildModelSteps(modelObj, new WizardModel()), mode, async, pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 
             @Override
             protected void onCancelInternal() {
-                AjaxWizardBuilder.this.onCancelInternal(modelObject);
+                AjaxWizardBuilder.this.onCancelInternal(modelObj);
             }
 
             @Override
             protected Pair<Serializable, Serializable> onApplyInternal(final AjaxRequestTarget target) {
-                Serializable res = AjaxWizardBuilder.this.onApplyInternal(modelObject);
+                Serializable res = AjaxWizardBuilder.this.onApplyInternal(modelObj);
 
                 Serializable payload;
                 switch (mode) {

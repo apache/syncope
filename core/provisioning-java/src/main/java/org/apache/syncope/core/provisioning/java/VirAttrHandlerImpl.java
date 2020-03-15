@@ -66,7 +66,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     @Override
     public void setValues(final Any<?> any, final ConnectorObject connObj) {
         if (any == null) {
-            LOG.warn("Null any passed, ignoring");
+            LOG.debug("Null any passed, ignoring");
             return;
         }
 

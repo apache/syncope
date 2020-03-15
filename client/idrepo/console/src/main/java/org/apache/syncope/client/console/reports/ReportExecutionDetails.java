@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel;
 import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -85,8 +86,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(() -> ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.CSV));
+                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.CSV)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_CSV, IdRepoEntitlement.REPORT_READ);
@@ -97,8 +98,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(() -> ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.HTML));
+                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.HTML)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_HTML, IdRepoEntitlement.REPORT_READ);
@@ -109,8 +110,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(() -> ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.PDF));
+                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.PDF)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_PDF, IdRepoEntitlement.REPORT_READ);
@@ -121,8 +122,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(() -> ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.RTF));
+                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.RTF)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_RTF, IdRepoEntitlement.REPORT_READ);
@@ -133,8 +134,8 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(() -> ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.XML));
+                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
+                            model.getObject().getKey(), ReportExecExportFormat.XML)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_XML, IdRepoEntitlement.REPORT_READ);

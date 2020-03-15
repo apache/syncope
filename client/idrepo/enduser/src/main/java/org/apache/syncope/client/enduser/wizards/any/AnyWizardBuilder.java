@@ -172,8 +172,8 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
         // get the specified item if available
         final AnyWrapper<UserTO> modelObject = newModelObject();
 
-        return new AjaxWizard<AnyWrapper<UserTO>>(id, modelObject, buildModelSteps(modelObject, new WizardModel()),
-                mode, this.pageRef) {
+        return new AjaxWizard<AnyWrapper<UserTO>>(
+                id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, true, this.pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 
@@ -294,5 +294,4 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
 
         }.setEventSink(eventSink).addOuterObject(outerObjects);
     }
-
 }

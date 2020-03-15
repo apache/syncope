@@ -77,19 +77,20 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     private final Mode mode;
 
+    private final boolean async;
+
     private IEventSink eventSink;
 
     private final PageReference pageRef;
 
-    private AjaxWizardMgtButtonBar<T> buttonBar;
-
     /**
      * Construct.
      *
-     * @param id The component id.
-     * @param item model object.
+     * @param id The component id
+     * @param item model object
      * @param model wizard model
-     * @param mode {@code true} if edit mode.
+     * @param mode mode
+     * @param async should apply go async or not?
      * @param pageRef caller page reference.
      */
     public AjaxWizard(
@@ -97,10 +98,13 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             final T item,
             final WizardModel model,
             final Mode mode,
+            final boolean async,
             final PageReference pageRef) {
+
         super(id);
         this.item = item;
         this.mode = mode;
+        this.async = async;
         this.pageRef = pageRef;
 
         if (mode == Mode.READONLY) {
@@ -147,7 +151,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         getForm().remove(FEEDBACK_ID);
 
         if (mode == Mode.READONLY) {
-            final Iterator<IWizardStep> iter = wizardModel.stepIterator();
+            Iterator<IWizardStep> iter = wizardModel.stepIterator();
             while (iter.hasNext()) {
                 WizardStep.class.cast(iter.next()).setEnabled(false);
             }
@@ -156,12 +160,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     @Override
     protected Component newButtonBar(final String id) {
-        this.buttonBar = new AjaxWizardMgtButtonBar<>(id, this, mode);
-        return this.buttonBar;
-    }
-
-    public AjaxWizardMgtButtonBar<T> getButtonBar() {
-        return buttonBar;
+        return new AjaxWizardMgtButtonBar<>(id, this, mode);
     }
 
     protected abstract void onCancelInternal();
@@ -244,6 +243,43 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     public AjaxWizard<T> setItem(final T item) {
         this.item = item;
         return this;
+    }
+
+    @Override
+    public void onSubmit(final AjaxRequestTarget target) {
+        try {
+            onApply(target);
+        } catch (TimeoutException te) {
+            LOG.warn("Operation took too long", te);
+            send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
+            sendWarning(getString("timeout"));
+            ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        }
+    }
+
+    @Override
+    public void onError(final AjaxRequestTarget target) {
+        ((BaseWebPage) getPage()).getNotificationPanel().refresh(target);
+    }
+
+    private Serializable onApply(final AjaxRequestTarget target) throws TimeoutException {
+        try {
+            Future<Pair<Serializable, Serializable>> executor = execute(new ApplyFuture(target));
+
+            Pair<Serializable, Serializable> res =
+                    executor.get(getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
+
+            if (res.getLeft() != null) {
+                send(pageRef.getPage(), Broadcast.BUBBLE, res.getLeft());
+            }
+
+            return res.getRight();
+        } catch (InterruptedException | ExecutionException e) {
+            if (e.getCause() instanceof CaptchaNotMatchingException) {
+                throw (CaptchaNotMatchingException) e.getCause();
+            }
+            throw new WicketRuntimeException(e);
+        }
     }
 
     public abstract static class NewItemEvent<T extends Serializable> {
@@ -369,43 +405,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
         public Serializable getResult() {
             return result;
-        }
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target) {
-        try {
-            onApply(target);
-        } catch (TimeoutException te) {
-            LOG.warn("Operation took too long", te);
-            send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
-            sendWarning(getString("timeout"));
-            ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
-        }
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target) {
-        ((BaseWebPage) getPage()).getNotificationPanel().refresh(target);
-    }
-
-    private Serializable onApply(final AjaxRequestTarget target) throws TimeoutException {
-        try {
-            Future<Pair<Serializable, Serializable>> executor = execute(new ApplyFuture(target));
-
-            Pair<Serializable, Serializable> res =
-                    executor.get(getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
-
-            if (res.getLeft() != null) {
-                send(pageRef.getPage(), Broadcast.BUBBLE, res.getLeft());
-            }
-
-            return res.getRight();
-        } catch (InterruptedException | ExecutionException e) {
-            if (e.getCause() instanceof CaptchaNotMatchingException) {
-                throw (CaptchaNotMatchingException) e.getCause();
-            }
-            throw new WicketRuntimeException(e);
         }
     }
 

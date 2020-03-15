@@ -88,12 +88,6 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                     AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
                     Optional<AjaxRequestTarget> target = payload.getTarget();
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                    if (target.isPresent()) {
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-                        target.get().add(container);
-                    }
-
                     if (payload.getResult() instanceof ArrayList) {
                         modal.setContent(new ResultPage<Serializable>(
                                 null,
@@ -116,13 +110,20 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                             }
                         });
                         target.ifPresent(t -> t.add(modal.getForm()));
+
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
-                        target.ifPresent(t -> {
-                            if (csvDownloadBehavior.hasResponse()) {
-                                csvDownloadBehavior.initiate(t);
-                            }
-                            modal.close(t);
-                        });
+                        target.ifPresent(modal::close);
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    } else if (payload.getResult() instanceof Exception) {
+                        SyncopeConsoleSession.get().onException((Exception) payload.getResult());
+                    } else {
+                        SyncopeConsoleSession.get().error(payload.getResult());
+                    }
+
+                    if (target.isPresent()) {
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+                        target.get().add(container);
                     }
                 }
             }

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import javax.ws.rs.client.ClientBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.Url;
@@ -47,10 +48,10 @@ public class SAML2SPPanel extends Panel {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(ClientBuilder.newClient().
+                    HttpResourceStream stream = new HttpResourceStream(new ResponseHolder(ClientBuilder.newClient().
                             target(RequestCycle.get().getUrlRenderer().renderFullUrl(Url.parse(
                                     UrlUtils.rewriteToContextRelative("saml2sp/metadata", RequestCycle.get())))).
-                            request().get());
+                            request().get()));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null

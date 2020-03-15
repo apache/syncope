@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -121,8 +122,8 @@ public class BasePage extends BaseWebPage {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream =
-                            new HttpResourceStream(SyncopeRestClient.exportInternalStorageContent());
+                    HttpResourceStream stream = new HttpResourceStream(
+                            new ResponseHolder(SyncopeRestClient.exportInternalStorageContent()));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null
