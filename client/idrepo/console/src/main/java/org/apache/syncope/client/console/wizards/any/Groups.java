@@ -58,17 +58,13 @@ public class Groups extends AbstractGroups {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
-    private final ConsoleGroupsModel groupsModel;
-
     private final List<DynRealmTO> allDynRealms = new ArrayList<>();
 
     private final boolean templateMode;
 
-    protected WebMarkupContainer dyngroupsContainer;
+    protected final GroupRestClient groupRestClient = new GroupRestClient();
 
-    protected WebMarkupContainer dynrealmsContainer;
+    protected final ConsoleGroupsModel groupsModel;
 
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super(modelObject);
@@ -84,13 +80,12 @@ public class Groups extends AbstractGroups {
         // -----------------------------------------------------------------
 
         addDynamicGroupsContainer();
-
         addGroupsPanel();
-
         addDynamicRealmsContainer();
     }
 
-    private void addDynamicRealmsContainer() {
+    @Override
+    protected void addDynamicRealmsContainer() {
         dynrealmsContainer = new WebMarkupContainer("dynrealmsContainer");
         dynrealmsContainer.setOutputMarkupId(true);
         dynrealmsContainer.setOutputMarkupPlaceholderTag(true);
@@ -180,7 +175,8 @@ public class Groups extends AbstractGroups {
         }
     }
 
-    private void addDynamicGroupsContainer() {
+    @Override
+    protected void addDynamicGroupsContainer() {
         dyngroupsContainer = new WebMarkupContainer("dyngroupsContainer");
         dyngroupsContainer.setOutputMarkupId(true);
         dyngroupsContainer.setOutputMarkupPlaceholderTag(true);

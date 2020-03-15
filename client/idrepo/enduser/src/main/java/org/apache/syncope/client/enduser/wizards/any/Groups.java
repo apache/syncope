@@ -40,20 +40,17 @@ public class Groups extends AbstractGroups {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
-    private final AnyTO anyTO;
-
     private final EnduserGroupsModel groupsModel;
 
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super(modelObject);
-        this.anyTO = modelObject.getInnerObject();
         this.groupsModel = new EnduserGroupsModel();
 
         setOutputMarkupId(true);
 
+        addDynamicGroupsContainer();
         addGroupsPanel();
+        addDynamicRealmsContainer();
     }
 
     @Override
@@ -115,6 +112,14 @@ public class Groups extends AbstractGroups {
             }).hideLabel().setOutputMarkupId(true));
             // ---------------------------------
         }
+    }
+
+    @Override
+    protected void addDynamicRealmsContainer() {
+    }
+
+    @Override
+    protected void addDynamicGroupsContainer() {
     }
 
     protected class EnduserGroupsModel extends AbstractGroupsModel {
