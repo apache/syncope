@@ -22,7 +22,7 @@ cache:
   bundler: false
   cargo: false
   directories:
-    - $HOME/.m2
+    - '$HOME/.m2'
 git:
   depth: 2
 env:
@@ -44,11 +44,11 @@ jobs:
   include:
     - stage: build
       name: "Build"
-      script: mvn -T 1C --quiet -P skipTests,all
+      script: mvn -T 1C -P skipTests,all
       #######################################################
     - stage: validate
       name: "Checkstyle, Legal Files, Modernizer and Release Audit Tool (RAT) Analysis"
-      script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check --quiet
+      script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check
       ######################################################
     - stage: test
       name: "Unit Tests"

@@ -89,6 +89,12 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.syncope</groupId>
+        <artifactId>syncope-wa</artifactId>
+        <version>${syncope.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.syncope.ext.self-keymaster</groupId>
         <artifactId>syncope-ext-self-keymaster-rest-cxf</artifactId>
         <version>${syncope.version}</version>
@@ -135,6 +141,7 @@ under the License.
     <module>console</module>
     <module>enduser</module>
     <module>sra</module>
+    <module>wa</module>
     <module>fit</module>
   </modules>
 

@@ -238,8 +238,7 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
-        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).
-                endsWith('.' + fmt.name().toLowerCase()));
+        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).endsWith('.' + fmt.name().toLowerCase()));
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
@@ -249,7 +248,6 @@ public class ReportITCase extends AbstractITCase {
     @Test
     public void executeAndExport() throws IOException {
         ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        reportTO.setKey(null);
         reportTO.setName("executeAndExport" + getUUIDString());
         reportTO.setActive(false);
         reportTO.getExecutions().clear();
@@ -282,10 +280,10 @@ public class ReportITCase extends AbstractITCase {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
+            // ignore
         }
 
         ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        reportTO.setKey(null);
         reportTO.setName("deleteExecutions" + getUUIDString());
         reportTO.getExecutions().clear();
         reportTO = createReport(reportTO);
@@ -379,7 +377,6 @@ public class ReportITCase extends AbstractITCase {
     public void issueSYNCOPE102() throws IOException {
         // Create
         ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        reportTO.setKey(null);
         reportTO.setName("issueSYNCOPE102" + getUUIDString());
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
