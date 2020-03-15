@@ -60,19 +60,21 @@ public class Groups extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
-    private final List<DynRealmTO> allDynRealms = new DynRealmRestClient().list();
-
-    private GroupsModel groupsModel;
-
     private final AnyTO anyTO;
 
     private boolean templateMode;
 
+    protected final GroupRestClient groupRestClient = new GroupRestClient();
+
+    protected final List<DynRealmTO> allDynRealms = new DynRealmRestClient().list();
+
+    protected GroupsModel groupsModel;
+
     protected WebMarkupContainer dyngroupsContainer;
 
     protected WebMarkupContainer dynrealmsContainer;
+
+    protected WebMarkupContainer groupsContainer;
 
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super();
@@ -92,7 +94,7 @@ public class Groups extends WizardStep implements ICondition {
 
         setOutputMarkupId(true);
 
-        WebMarkupContainer groupsContainer = new WebMarkupContainer("groupsContainer");
+        groupsContainer = new WebMarkupContainer("groupsContainer");
         groupsContainer.setOutputMarkupId(true);
         groupsContainer.setOutputMarkupPlaceholderTag(true);
         add(groupsContainer);
@@ -214,7 +216,7 @@ public class Groups extends WizardStep implements ICondition {
                         isActionAuthorized(this, RENDER);
     }
 
-    private class GroupsModel extends ListModel<GroupTO> {
+    protected class GroupsModel extends ListModel<GroupTO> {
 
         private static final long serialVersionUID = -4541954630939063927L;
 
