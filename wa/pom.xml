@@ -41,6 +41,18 @@ under the License.
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-bom</artifactId>
+        <version>${cas.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
@@ -132,9 +144,8 @@ under the License.
       <artifactId>cas-server-support-reports</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-syncope-authentication</artifactId>
-        <scope>compile</scope>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-syncope-authentication</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
