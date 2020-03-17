@@ -2318,7 +2318,6 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.13</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
@@ -2466,7 +2465,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.2.0</version>
         <configuration>
           <destDir>apidocs/3.0</destDir>
           <isOffline>false</isOffline>
@@ -2477,9 +2476,11 @@ under the License.
             <dependencySourceExclude>org.webjars.bower:*</dependencySourceExclude>
           </dependencySourceExcludes>
           <links>
-            <link>https://javaee.github.io/javaee-spec/javadocs/</link>
+            <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+            <!-- See https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8212233 -->
+            <!--<link>https://javaee.github.io/javaee-spec/javadocs/</link>-->
             <link>http://www.slf4j.org/api/</link>
-            <link>http://connid.tirasa.net/apidocs/1.4/</link>
+            <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>http://cxf.apache.org/javadoc/latest/</link>
             <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
@@ -2488,18 +2489,17 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
             <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/3.1.0/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/3.1.0/</link>
+            <link>https://www.javadoc.io/doc/org.apache.camel/camel-core/latest/</link>
+            <link>https://www.javadoc.io/doc/org.apache.camel/camel-spring/latest/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/1.21/api/</link>
+            <link>https://tika.apache.org/1.23/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/7.6.0/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.1.1/apidocs/</link>
           </links>
         </configuration>
@@ -2576,6 +2576,7 @@ under the License.
               </dependency>
             </dependencies>
             <configuration>
+              <skip>${skipTests}</skip>
               <doctype>book</doctype>
               <relativeBaseDir>true</relativeBaseDir>
               <sourceHighlighter>highlightjs</sourceHighlighter>

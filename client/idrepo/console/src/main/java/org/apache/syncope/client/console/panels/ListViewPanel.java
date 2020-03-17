@@ -239,7 +239,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     /**
      * Use this to refresh the ListView with updated items (e.g. from callback methods)
      *
-     * @param elements
+     * @param elements new items
      */
     public void refreshList(final List<T> elements) {
         beans.setList(elements);

@@ -61,7 +61,7 @@ public interface BaseSession {
 
     /**
      * Extract and localize (if translation available) the actual message from the given exception; then, report it
-     * via {@link Session#error(java.io.Serializable)}.
+     * via {@link org.apache.wicket.Session#error(java.io.Serializable)}.
      *
      * @see org.apache.syncope.client.lib.RestClientExceptionMapper
      *
