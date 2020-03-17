@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.panels.search;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.AbstractAdminTest;
@@ -46,14 +49,14 @@ public class UserSearchPanelTest extends AbstractAdminTest {
 
         formTester.setValue("content:view:0:panel:container:property:textField", "firstname");
         formTester.setValue("content:view:0:panel:container:value:textField", "vincenzo");
-        Assertions.assertEquals("username", formTester.getForm().
+        assertEquals("username", formTester.getForm().
                 get("content:view:0:panel:container:property:textField").getDefaultModelObjectAsString());
-        Assertions.assertNull(formTester.getForm().get("content:view:0:panel:container:value:textField").
+        assertNull(formTester.getForm().get("content:view:0:panel:container:value:textField").
                 getDefaultModelObject());
         formTester.submit(formTester.getForm().get("content:view:0:panel:container:operatorContainer:operator:search"));
-        Assertions.assertEquals("firstname", formTester.getForm().get(
+        assertEquals("firstname", formTester.getForm().get(
                 "content:view:0:panel:container:property:textField").getDefaultModelObjectAsString());
-        Assertions.assertEquals("vincenzo", formTester.getForm().get("content:view:0:panel:container:value:textField").
+        assertEquals("vincenzo", formTester.getForm().get("content:view:0:panel:container:value:textField").
                 getDefaultModelObjectAsString());
 
     }
