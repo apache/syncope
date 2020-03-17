@@ -534,7 +534,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.31</tomcat.version>
+    <tomcat.version>9.0.33</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
@@ -2478,7 +2478,7 @@ under the License.
           <links>
             <link>http://docs.oracle.com/javaee/7/api/</link>
             <link>http://www.slf4j.org/api/</link>
-            <link>http://connid.tirasa.net/apidocs/1.4/</link>
+            <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>http://cxf.apache.org/javadoc/latest-3.2.x/</link>
             <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
@@ -2493,12 +2493,11 @@ under the License.
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/1.21/api/</link>
+            <link>https://tika.apache.org/1.23/api/</link>
             <link>https://docs.spring.io/spring/docs/5.1.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/5.1.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
-            <link>https://artifacts.elastic.co/javadoc/org/elasticsearch/elasticsearch/6.8.7/index.html</link>
             <link>http://docs.swagger.io/swagger-core/v2.0.10/apidocs/</link>
           </links>
         </configuration>
