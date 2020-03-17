@@ -67,6 +67,13 @@ import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -178,6 +185,12 @@ public abstract class AbstractTest {
         public interface SyncopeServiceClient extends SyncopeService, Client {
         }
 
+        public interface AnyTypeServiceClient extends AnyTypeService, Client {
+        }
+
+        public interface SchemaServiceClient extends SchemaService, Client {
+        }
+
         private SyncopeService getSyncopeService() {
             SyncopeServiceClient service = mock(SyncopeServiceClient.class);
             when(service.type(anyString())).thenReturn(service);
@@ -191,6 +204,35 @@ public abstract class AbstractTest {
                     forEach(item -> numbersInfo.getConfCompleteness().put(item.name(), true));
             when(service.numbers()).thenReturn(numbersInfo);
 
+            return service;
+        }
+
+        private SchemaService getSchemaService() {
+            SchemaServiceClient service = mock(SchemaServiceClient.class);
+
+            when(service.type(anyString())).thenReturn(service);
+            when(service.accept(anyString())).thenReturn(service);
+
+            PlainSchemaTO firstname = new PlainSchemaTO();
+            firstname.setKey("firstname");
+            firstname.setType(AttrSchemaType.String);
+            firstname.setAnyTypeClass("minimal user");
+            firstname.setMandatoryCondition("false");
+            when(service.search(any(SchemaQuery.class))).thenReturn(List.of(firstname));
+            return service;
+        }
+
+        private AnyTypeService getAnyTypeService() {
+            AnyTypeServiceClient service = mock(AnyTypeServiceClient.class);
+
+            when(service.type(anyString())).thenReturn(service);
+            when(service.accept(anyString())).thenReturn(service);
+
+            AnyTypeTO anyTypeTO = new AnyTypeTO();
+            anyTypeTO.setKey("123456");
+            anyTypeTO.setKind(AnyTypeKind.USER);
+
+            when(service.read(anyString())).thenReturn(anyTypeTO);
             return service;
         }
 
@@ -209,6 +251,12 @@ public abstract class AbstractTest {
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);
+
+            SchemaService schemaService = getSchemaService();
+            when(client.getService(SchemaService.class)).thenReturn(schemaService);
+
+            AnyTypeService anyTypeService = getAnyTypeService();
+            when(client.getService(AnyTypeService.class)).thenReturn(anyTypeService);
 
             SyncopeClientFactoryBean clientFactory = mock(SyncopeClientFactoryBean.class);
             when(clientFactory.setDomain(any())).thenReturn(clientFactory);

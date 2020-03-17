@@ -418,7 +418,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
 
         AjaxTextFieldPanel property = new AjaxTextFieldPanel(
-                "property", "property", new PropertyModel<>(searchClause, "property"), false);
+                "property", "property", new PropertyModel<>(searchClause, "property"), true) ;
         property.hideLabel().setOutputMarkupId(true).setEnabled(true);
         property.setChoices(properties.getObject());
         field.add(property);
