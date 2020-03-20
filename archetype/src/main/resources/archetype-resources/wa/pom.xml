@@ -116,7 +116,7 @@ under the License.
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
-              <mainClass>org.apache.syncope.wa.SyncopeWAApplication</mainClass>
+              <mainClass>org.apache.syncope.wa.starter.SyncopeWAApplication</mainClass>
               <layout>ZIP</layout>
             </configuration>
             <executions>

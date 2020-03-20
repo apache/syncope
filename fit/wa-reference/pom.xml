@@ -46,8 +46,8 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-wa</artifactId>
+      <groupId>org.apache.syncope.wa</groupId>
+      <artifactId>syncope-wa-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
 
