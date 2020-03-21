@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.buildtools.cxf;
 
+import com.icegreen.greenmail.util.GreenMail;
 import javax.ws.rs.core.Context;
 import org.apache.cxf.jaxrs.ext.MessageContext;
-import com.icegreen.greenmail.util.InterruptableGreenMail;
 import org.apache.syncope.fit.buildtools.GreenMailStartStopListener;
-import com.icegreen.greenmail.smtp.InterruptableSmtpServer;
+import org.apache.syncope.fit.buildtools.InterruptableSmtpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class GreenMailServiceImpl implements GreenMailService {
 
     @Override
     public void start() {
-        InterruptableGreenMail greenMail = (InterruptableGreenMail) messageContext.getServletContext().
+        GreenMail greenMail = (GreenMail) messageContext.getServletContext().
                 getAttribute(GreenMailStartStopListener.GREENMAIL);
         if (greenMail != null) {
             ((InterruptableSmtpServer) greenMail.getSmtp()).setRejectRequests(false);
@@ -47,7 +47,7 @@ public class GreenMailServiceImpl implements GreenMailService {
 
     @Override
     public void stop() {
-        InterruptableGreenMail greenMail = (InterruptableGreenMail) messageContext.getServletContext().
+        GreenMail greenMail = (GreenMail) messageContext.getServletContext().
                 getAttribute(GreenMailStartStopListener.GREENMAIL);
         if (greenMail != null) {
             ((InterruptableSmtpServer) greenMail.getSmtp()).setRejectRequests(true);

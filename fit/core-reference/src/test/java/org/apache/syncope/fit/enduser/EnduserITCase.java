@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.fit.FlowableDetector;
 import org.apache.wicket.extensions.markup.html.form.palette.component.Choices;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -295,7 +296,8 @@ public class EnduserITCase extends AbstractEnduserITCase {
         TESTER.assertRenderedPage(Login.class);
         TESTER.assertComponent("login:username", TextField.class);
 
-        assertEquals("active", userService.read(username).getStatus());
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(SYNCOPE_SERVICE)
+                ? "active" : "created", userService.read(username).getStatus());
         assertEquals(newEmail, userService.read(username).getPlainAttr("email").get().getValues().get(0));
 
         TESTER.cleanupFeedbackMessages();

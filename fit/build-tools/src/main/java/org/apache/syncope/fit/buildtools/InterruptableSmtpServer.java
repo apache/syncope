@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.icegreen.greenmail.smtp;
+package org.apache.syncope.fit.buildtools;
 
 import com.icegreen.greenmail.Managers;
 import com.icegreen.greenmail.server.ProtocolHandler;
+import com.icegreen.greenmail.smtp.SmtpServer;
 import com.icegreen.greenmail.util.ServerSetup;
 import java.io.IOException;
 import java.net.Socket;

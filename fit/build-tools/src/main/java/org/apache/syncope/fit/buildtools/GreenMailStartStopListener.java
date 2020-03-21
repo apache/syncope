@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import com.icegreen.greenmail.util.InterruptableGreenMail;
+import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -44,7 +44,7 @@ public class GreenMailStartStopListener implements ServletContextListener {
         ServletContext sc = sce.getServletContext();
         WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sc);
 
-        InterruptableGreenMail greenMail = (InterruptableGreenMail) sc.getAttribute(GREENMAIL);
+        GreenMail greenMail = (GreenMail) sc.getAttribute(GREENMAIL);
         if (greenMail == null) {
             ServerSetup[] config = new ServerSetup[2];
             config[0] = new ServerSetup(
@@ -53,7 +53,7 @@ public class GreenMailStartStopListener implements ServletContextListener {
             config[1] = new ServerSetup(
                     ctx.getEnvironment().getProperty("testmail.pop3port", Integer.class),
                     "localhost", ServerSetup.PROTOCOL_POP3);
-            greenMail = new InterruptableGreenMail(config);
+            greenMail = new GreenMail(config);
             greenMail.start();
 
             sc.setAttribute(GREENMAIL, greenMail);
@@ -66,7 +66,7 @@ public class GreenMailStartStopListener implements ServletContextListener {
     public void contextDestroyed(final ServletContextEvent sce) {
         ServletContext sc = sce.getServletContext();
 
-        InterruptableGreenMail greenMail = (InterruptableGreenMail) sc.getAttribute(GREENMAIL);
+        GreenMail greenMail = (GreenMail) sc.getAttribute(GREENMAIL);
         if (greenMail != null) {
             greenMail.stop();
 

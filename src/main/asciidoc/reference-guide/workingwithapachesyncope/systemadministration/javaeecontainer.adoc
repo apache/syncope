@@ -39,7 +39,7 @@ for the Master domain.
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
   * https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
-  * http://docs.wildfly.org/18/Admin_Guide.html#DataSource[Wildfly 18^]
+  * http://docs.wildfly.org/19/Admin_Guide.html#DataSource[Wildfly 19^]
 ****
 
 ===== Apache Tomcat 9
@@ -124,7 +124,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 18
+===== Wildfly 19
 
 Add
 

@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class NotificationITCase extends AbstractITCase {
@@ -67,9 +68,7 @@ public class NotificationITCase extends AbstractITCase {
         List<NotificationTO> notificationTOs = notificationService.list();
         assertNotNull(notificationTOs);
         assertFalse(notificationTOs.isEmpty());
-        for (NotificationTO instance : notificationTOs) {
-            assertNotNull(instance);
-        }
+        notificationTOs.forEach(Assertions::assertNotNull);
     }
 
     @Test

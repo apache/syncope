@@ -514,6 +514,7 @@ under the License.
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>9.0.33</tomcat.version>
+    <wildfly.version>19.0.0.Final</wildfly.version>
     <payara.version>5.194</payara.version>
     <javax.faces.version>2.4.0</javax.faces.version>
 
@@ -2231,7 +2232,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.10</version>
+          <version>1.7.11</version>
           <configuration>
             <configuration>
               <type>standalone</type>

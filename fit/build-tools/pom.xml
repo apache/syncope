@@ -419,5 +419,45 @@ under the License.
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>wildfly</id>
+      
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <containerId>wildfly19x</containerId>
+                <zipUrlInstaller>
+                  <url>https://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
+                <timeout>300000</timeout>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
+                <dependencies>
+                  <dependency>
+                    <groupId>com.h2database</groupId>
+                    <artifactId>h2</artifactId>
+                  </dependency>
+                </dependencies>
+              </container>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xdebug -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>

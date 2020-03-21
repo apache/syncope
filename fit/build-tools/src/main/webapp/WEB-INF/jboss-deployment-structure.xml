@@ -39,6 +39,7 @@ under the License.
       <module name="org.slf4j.impl"/>
       <module name="org.apache.log4j"/>
       <module name="org.jboss.log4j.logmanager"/>
+      <module name="com.h2database.h2"/>
     </exclusions>
   </deployment>
 </jboss-deployment-structure>
