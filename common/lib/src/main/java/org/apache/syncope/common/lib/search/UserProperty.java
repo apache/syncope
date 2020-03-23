@@ -18,28 +18,25 @@
  */
 package org.apache.syncope.common.lib.search;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+public interface UserProperty extends SyncopeProperty<UserCompleteCondition> {
 
-public interface UserProperty extends SyncopeProperty {
+    UserCompleteCondition inGroups(String group, String... moreGroups);
 
-    CompleteCondition inGroups(String group, String... moreGroups);
+    UserCompleteCondition notInGroups(String group, String... moreGroups);
 
-    CompleteCondition notInGroups(String group, String... moreGroups);
+    UserCompleteCondition inRelationships(String anyObject, String... moreAnyObjects);
 
-    CompleteCondition inRelationships(String anyObject, String... moreAnyObjects);
+    UserCompleteCondition notInRelationships(String anyObject, String... moreAnyObjects);
 
-    CompleteCondition notInRelationships(String anyObject, String... moreAnyObjects);
+    UserCompleteCondition inRelationshipTypes(String type, String... moreTypes);
 
-    CompleteCondition inRelationshipTypes(String type, String... moreTypes);
+    UserCompleteCondition notInRelationshipTypes(String type, String... moreTypes);
 
-    CompleteCondition notInRelationshipTypes(String type, String... moreTypes);
+    UserCompleteCondition inRoles(String role, String... moreRoles);
 
-    CompleteCondition inRoles(String role, String... moreRoles);
+    UserCompleteCondition notInRoles(String role, String... moreRoles);
 
-    CompleteCondition notInRoles(String role, String... moreRoles);
+    UserCompleteCondition withPrivileges(String privilege, String... morePrivileges);
 
-    CompleteCondition withPrivileges(String privilege, String... morePrivileges);
-
-    CompleteCondition withoutPrivileges(String privilege, String... morePrivileges);
-
+    UserCompleteCondition withoutPrivileges(String privilege, String... morePrivileges);
 }

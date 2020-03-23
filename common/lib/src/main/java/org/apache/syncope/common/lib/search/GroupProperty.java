@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.common.lib.search;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+public interface GroupProperty extends SyncopeProperty<GroupCompleteCondition> {
 
-public interface GroupProperty extends SyncopeProperty {
+    GroupCompleteCondition isAssignable();
 
-    CompleteCondition isAssignable();
+    GroupCompleteCondition withMembers(String member, String... moreMembers);
 
-    CompleteCondition withMembers(String member, String... moreMembers);
-
-    CompleteCondition withoutMembers(String member, String... moreMembers);
+    GroupCompleteCondition withoutMembers(String member, String... moreMembers);
 }

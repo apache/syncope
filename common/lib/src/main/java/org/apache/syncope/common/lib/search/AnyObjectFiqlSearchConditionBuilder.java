@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.search;
 
 import java.util.Collections;
 import java.util.Map;
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.client.FiqlSearchConditionBuilder;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
@@ -28,7 +27,8 @@ import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
  * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
  * any objects in Syncope.
  */
-public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
+public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder<
+        AnyObjectProperty, AnyObjectPartialCondition, AnyObjectCompleteCondition> {
 
     private static final long serialVersionUID = -3248603004632741935L;
 
@@ -55,50 +55,51 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition inGroups(final String group, final String... moreGroups) {
+    public AnyObjectCompleteCondition inGroups(final String group, final String... moreGroups) {
         return newBuilderInstance().
                 is(SpecialAttr.GROUPS.toString()).
                 inGroups(group, moreGroups);
     }
 
-    public CompleteCondition notInGroups(final String group, final String... moreGroups) {
+    public AnyObjectCompleteCondition notInGroups(final String group, final String... moreGroups) {
         return newBuilderInstance().
                 is(SpecialAttr.GROUPS.toString()).
                 notInGroups(group, moreGroups);
     }
 
-    public CompleteCondition inRelationships(final String anyType, final String... moreAnyTypes) {
+    public AnyObjectCompleteCondition inRelationships(final String anyType, final String... moreAnyTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
                 inRelationships(anyType, moreAnyTypes);
     }
 
-    public CompleteCondition notInRelationships(final String anyType, final String... moreAnyTypes) {
+    public AnyObjectCompleteCondition notInRelationships(final String anyType, final String... moreAnyTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
                 notInRelationships(anyType, moreAnyTypes);
     }
 
-    public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+    public AnyObjectCompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
                 inRelationshipTypes(type, moreTypes);
     }
 
-    public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+    public AnyObjectCompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
                 notInRelationshipTypes(type, moreTypes);
     }
 
-    public CompleteCondition isAssignable() {
+    public AnyObjectCompleteCondition isAssignable() {
         return newBuilderInstance().
                 is(SpecialAttr.ASSIGNABLE.toString()).
                 isAssignable();
     }
 
-    protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder
-            implements AnyObjectProperty, CompleteCondition {
+    protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
+            AnyObjectProperty, AnyObjectPartialCondition, AnyObjectCompleteCondition>
+            implements AnyObjectProperty, AnyObjectPartialCondition, AnyObjectCompleteCondition {
 
         public Builder(final Map<String, String> properties) {
             super(properties);
@@ -122,43 +123,43 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
         }
 
         @Override
-        public CompleteCondition inGroups(final String group, final String... moreGroups) {
+        public AnyObjectCompleteCondition inGroups(final String group, final String... moreGroups) {
             this.result = SpecialAttr.GROUPS.toString();
             return condition(FiqlParser.EQ, group, (Object[]) moreGroups);
         }
 
         @Override
-        public CompleteCondition notInGroups(final String group, final String... moreGroups) {
+        public AnyObjectCompleteCondition notInGroups(final String group, final String... moreGroups) {
             this.result = SpecialAttr.GROUPS.toString();
             return condition(FiqlParser.NEQ, group, (Object[]) moreGroups);
         }
 
         @Override
-        public CompleteCondition inRelationships(final String anyObject, final String... moreAnyObjects) {
+        public AnyObjectCompleteCondition inRelationships(final String anyObject, final String... moreAnyObjects) {
             this.result = SpecialAttr.RELATIONSHIPS.toString();
             return condition(FiqlParser.EQ, anyObject, (Object[]) moreAnyObjects);
         }
 
         @Override
-        public CompleteCondition notInRelationships(final String group, final String... moreRelationships) {
+        public AnyObjectCompleteCondition notInRelationships(final String group, final String... moreRelationships) {
             this.result = SpecialAttr.RELATIONSHIPS.toString();
             return condition(FiqlParser.NEQ, group, (Object[]) moreRelationships);
         }
 
         @Override
-        public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+        public AnyObjectCompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
             this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
             return condition(FiqlParser.EQ, type, (Object[]) moreTypes);
         }
 
         @Override
-        public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+        public AnyObjectCompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
             this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
             return condition(FiqlParser.NEQ, type, (Object[]) moreTypes);
         }
 
         @Override
-        public CompleteCondition isAssignable() {
+        public AnyObjectCompleteCondition isAssignable() {
             this.result = SpecialAttr.ASSIGNABLE.toString();
             return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }

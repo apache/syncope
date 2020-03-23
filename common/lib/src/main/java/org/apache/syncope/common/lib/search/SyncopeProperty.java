@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.common.lib.search;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.client.Property;
 
 /**
  * Extension of fluent interface, for {@link org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder}
  * and subclasses.
+ *
+ * @param <C> the actual complete condition
  */
-public interface SyncopeProperty extends Property {
+public interface SyncopeProperty<C extends SyncopeCompleteCondition<?, ?>> extends Property {
 
     /** Is textual property equal to (ignoring case) given literal or matching given pattern?
      *
@@ -33,26 +34,26 @@ public interface SyncopeProperty extends Property {
      * @param moreValues more values
      * @return updated condition
      */
-    CompleteCondition equalToIgnoreCase(String value, String... moreValues);
+    C equalToIgnoreCase(String value, String... moreValues);
 
     /** Is textual property different (ignoring case) than given literal or not matching given pattern?
      *
      * @param literalOrPattern The literal or Pattern String
      * @return updated condition
      */
-    CompleteCondition notEqualTolIgnoreCase(String literalOrPattern);
+    C notEqualTolIgnoreCase(String literalOrPattern);
 
     /** Is property null?
      *
      * @return updated condition
      */
-    CompleteCondition nullValue();
+    C nullValue();
 
     /** Is property not null?
      *
      * @return updated condition
      */
-    CompleteCondition notNullValue();
+    C notNullValue();
 
     /** Is user, group or any object owning given resource(s)?
      *
@@ -60,7 +61,7 @@ public interface SyncopeProperty extends Property {
      * @param moreResources more resources
      * @return updated condition
      */
-    CompleteCondition hasResources(String resource, String... moreResources);
+    C hasResources(String resource, String... moreResources);
 
     /** Is user, group or any object not owning given resource(s)?
      *
@@ -68,10 +69,9 @@ public interface SyncopeProperty extends Property {
      * @param moreResources more resources
      * @return updated condition
      */
-    CompleteCondition hasNotResources(String resource, String... moreResources);
+    C hasNotResources(String resource, String... moreResources);
 
-    CompleteCondition inDynRealms(String dynRealm, String... moreDynRealms);
+    C inDynRealms(String dynRealm, String... moreDynRealms);
 
-    CompleteCondition notInDynRealms(String dynRealm, String... moreDynRealms);
-
+    C notInDynRealms(String dynRealm, String... moreDynRealms);
 }
