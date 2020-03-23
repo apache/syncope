@@ -451,7 +451,7 @@ under the License.
 
     <h2.version>1.4.200</h2.version>
 
-    <junit.version>5.6.0</junit.version>
+    <junit.version>5.6.1</junit.version>
     <mockito.version>3.3.3</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
