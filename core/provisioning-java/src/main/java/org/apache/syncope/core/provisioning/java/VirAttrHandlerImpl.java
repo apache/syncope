@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
@@ -121,6 +122,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                     connFactory.getConnector(provision.getResource()),
                     any,
                     provision,
+                    Optional.empty(),
                     schemasToRead.stream().map(VirSchema::asLinkingMappingItem).toArray(LinkingMappingItem[]::new)).
                     forEach(connObj -> schemasToRead.forEach(schema -> {
 

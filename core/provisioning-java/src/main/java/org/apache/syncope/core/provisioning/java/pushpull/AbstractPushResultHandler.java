@@ -20,9 +20,11 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -255,7 +257,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 any.getType().getKind(), any.getKey(), profile.getTask().getResource());
 
         // Try to read remote object BEFORE any actual operation
-        List<ConnectorObject> connObjs = outboundMatcher.match(profile.getConnector(), any, provision);
+        Set<String> moreAttrsToGet = new HashSet<>();
+        profile.getActions().forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+        List<ConnectorObject> connObjs = outboundMatcher.match(
+                profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(new String[0])));
         LOG.debug("Match(es) found for {} as {}: {}", any, provision.getObjectClass(), connObjs);
 
         if (connObjs.size() > 1) {
@@ -448,7 +453,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                 if (notificationsAvailable || auditRequested) {
                     resultStatus = AuditElements.Result.SUCCESS;
-                    output = outboundMatcher.match(profile.getConnector(), any, provision);
+                    output = outboundMatcher.match(
+                            profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(new String[0])));
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;

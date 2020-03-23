@@ -257,7 +257,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
             List<ConnectorObject> connObjs = outboundMatcher.match(
-                    connFactory.getConnector(provision.getResource()), any, provision);
+                    connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
             if (!connObjs.isEmpty()) {
                 status.setOnResource(ConnObjectUtils.getConnObjectTO(connObjs.get(0).getAttributes()));
 

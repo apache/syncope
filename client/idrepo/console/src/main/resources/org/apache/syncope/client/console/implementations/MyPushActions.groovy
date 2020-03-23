@@ -18,6 +18,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.Set
 import org.apache.syncope.core.persistence.api.entity.Entity
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport
@@ -27,6 +28,11 @@ import org.quartz.JobExecutionException
 @CompileStatic
 class MyPushActions implements PushActions {
   
+  @Override
+  Set<String> moreAttrsToGet(ProvisioningProfile profile, Entity entity) {
+    return Set.of();
+  }
+
   @Override 
   Entity beforeAssign(
     ProvisioningProfile profile,

@@ -225,7 +225,6 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
             Set<String> moreAttrsToGet = new HashSet<>();
             actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, orgUnit)));
-
             OperationOptions options = MappingUtils.buildOperationOptions(
                     MappingUtils.getPullItems(orgUnit.getItems().stream()), moreAttrsToGet.toArray(new String[0]));
 
@@ -310,11 +309,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             try {
                 Set<String> moreAttrsToGet = new HashSet<>();
                 actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
-
                 Stream<? extends Item> mapItems = Stream.concat(
                         MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                         virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
-
                 OperationOptions options = MappingUtils.buildOperationOptions(
                         mapItems, moreAttrsToGet.toArray(new String[0]));
 

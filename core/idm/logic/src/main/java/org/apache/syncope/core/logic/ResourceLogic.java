@@ -323,7 +323,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         // 2. find on resource
         List<ConnectorObject> connObjs = outboundMatcher.match(
-                connFactory.getConnector(provision.getResource()), any, provision);
+                connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
         if (connObjs.isEmpty()) {
             throw new NotFoundException(
                     "Object " + any + " with class " + provision.getObjectClass()
