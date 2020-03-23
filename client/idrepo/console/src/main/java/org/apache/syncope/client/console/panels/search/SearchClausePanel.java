@@ -490,7 +490,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         field.add(comparator);
 
         AjaxTextFieldPanel value = new AjaxTextFieldPanel(
-                "value", "value", new PropertyModel<>(searchClause, "value"), false);
+                "value", "value", new PropertyModel<>(searchClause, "value"), true);
         value.hideLabel().setOutputMarkupId(true);
         field.add(value);
 
