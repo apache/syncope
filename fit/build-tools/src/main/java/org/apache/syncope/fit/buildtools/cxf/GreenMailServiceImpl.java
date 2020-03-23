@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.buildtools.cxf;
 
+import com.icegreen.greenmail.smtp.InterruptableSmtpServer;
 import com.icegreen.greenmail.util.GreenMail;
 import javax.ws.rs.core.Context;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.fit.buildtools.GreenMailStartStopListener;
-import org.apache.syncope.fit.buildtools.InterruptableSmtpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
