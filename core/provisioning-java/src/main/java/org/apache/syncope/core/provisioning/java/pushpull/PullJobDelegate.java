@@ -275,6 +275,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
+        // ...then provisions for any types
         ProvisionSorter provisionSorter = new DefaultProvisionSorter();
         if (pullTask.getResource().getProvisionSorter() != null) {
             try {
@@ -283,8 +284,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 LOG.error("While building {}", pullTask.getResource().getProvisionSorter(), e);
             }
         }
-        // ...then provisions for any types
-        SyncopePullResultHandler handler;
+
         GroupPullResultHandler ghandler = buildGroupHandler();
         for (Provision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
@@ -292,6 +292,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
             status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
 
+            SyncopePullResultHandler handler;
             switch (provision.getAnyType().getKind()) {
                 case USER:
                     handler = buildUserHandler();
