@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -54,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
+import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -202,47 +204,57 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
 
         // ...then provisions for any types
-        for (Provision provision : pushTask.getResource().getProvisions()) {
-            if (provision.getMapping() != null) {
-                status.set("Pushing " + provision.getAnyType().getKey());
+        ProvisionSorter provisionSorter = new DefaultProvisionSorter();
+        if (pushTask.getResource().getProvisionSorter() != null) {
+            try {
+                provisionSorter = ImplementationManager.build(pushTask.getResource().getProvisionSorter());
+            } catch (Exception e) {
+                LOG.error("While building {}", pushTask.getResource().getProvisionSorter(), e);
+            }
+        }
 
-                AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao();
+        for (Provision provision : pushTask.getResource().getProvisions().stream().
+                filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
+                collect(Collectors.toList())) {
 
-                SyncopePushResultHandler handler;
-                switch (provision.getAnyType().getKind()) {
-                    case USER:
-                        handler = buildUserHandler();
-                        break;
+            status.set("Pushing " + provision.getAnyType().getKey());
 
-                    case GROUP:
-                        handler = buildGroupHandler();
-                        break;
+            AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao();
 
-                    case ANY_OBJECT:
-                    default:
-                        handler = buildAnyObjectHandler();
-                }
-                handler.setProfile(profile);
+            SyncopePushResultHandler handler;
+            switch (provision.getAnyType().getKind()) {
+                case USER:
+                    handler = buildUserHandler();
+                    break;
 
-                Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(provision.getAnyType());
-                String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
-                SearchCond cond = StringUtils.isBlank(filter)
-                        ? anyDAO.getAllMatchingCond()
-                        : SearchCondConverter.convert(searchCondVisitor, filter);
-                int count = searchDAO.count(
+                case GROUP:
+                    handler = buildGroupHandler();
+                    break;
+
+                case ANY_OBJECT:
+                default:
+                    handler = buildAnyObjectHandler();
+            }
+            handler.setProfile(profile);
+
+            Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(provision.getAnyType());
+            String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
+            SearchCond cond = StringUtils.isBlank(filter)
+                    ? anyDAO.getAllMatchingCond()
+                    : SearchCondConverter.convert(searchCondVisitor, filter);
+            int count = searchDAO.count(
+                    Set.of(profile.getTask().getSourceRealm().getFullPath()),
+                    cond,
+                    provision.getAnyType().getKind());
+            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
+                List<? extends Any<?>> anys = searchDAO.search(
                         Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
+                        page,
+                        AnyDAO.DEFAULT_PAGE_SIZE,
+                        List.of(),
                         provision.getAnyType().getKind());
-                for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
-                    List<? extends Any<?>> anys = searchDAO.search(
-                            Set.of(profile.getTask().getSourceRealm().getFullPath()),
-                            cond,
-                            page,
-                            AnyDAO.DEFAULT_PAGE_SIZE,
-                            List.of(),
-                            provision.getAnyType().getKind());
-                    doHandle(anys, handler, pushTask.getResource());
-                }
+                doHandle(anys, handler, pushTask.getResource());
             }
         }
 
