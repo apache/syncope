@@ -120,16 +120,16 @@ public class OutboundMatcher {
                         connector,
                         rule.get().getFilter(any, provision),
                         provision,
-                        Optional.empty(),
-                        Optional.of(moreAttrsToGet.toArray(new String[0]))));
+                        Optional.of(moreAttrsToGet.toArray(new String[0])),
+                        Optional.empty()));
             } else {
                 MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> matchByConnObjectKeyValue(
                         connector,
                         connObjectKeyItem,
                         connObjectKeyValue,
                         provision,
-                        Optional.empty(),
-                        Optional.of(moreAttrsToGet.toArray(new String[0]))).
+                        Optional.of(moreAttrsToGet.toArray(new String[0])),
+                        Optional.empty()).
                         ifPresent(result::add));
             }
         } catch (RuntimeException e) {
@@ -148,6 +148,7 @@ public class OutboundMatcher {
             final Connector connector,
             final Any<?> any,
             final Provision provision,
+            final Optional<String[]> moreAttrsToGet,
             final LinkingMappingItem... linkingItems) {
 
         Optional<PushCorrelationRule> rule = rule(provision);
@@ -159,9 +160,9 @@ public class OutboundMatcher {
                         connector,
                         rule.get().getFilter(any, provision),
                         provision,
+                        moreAttrsToGet,
                         ArrayUtils.isEmpty(linkingItems)
-                        ? Optional.empty() : Optional.of(Arrays.asList(linkingItems)),
-                        Optional.empty()));
+                        ? Optional.empty() : Optional.of(Arrays.asList(linkingItems))));
             } else {
                 Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
@@ -172,9 +173,9 @@ public class OutboundMatcher {
                             connObjectKeyItem.get(),
                             connObjectKeyValue.get(),
                             provision,
+                            moreAttrsToGet,
                             ArrayUtils.isEmpty(linkingItems)
-                            ? Optional.empty() : Optional.of(Arrays.asList(linkingItems)),
-                            Optional.empty()).
+                            ? Optional.empty() : Optional.of(Arrays.asList(linkingItems))).
                             ifPresent(result::add);
                 }
             }
@@ -193,8 +194,8 @@ public class OutboundMatcher {
             final Connector connector,
             final Filter filter,
             final Provision provision,
-            final Optional<Collection<LinkingMappingItem>> linkingItems,
-            final Optional<String[]> moreAttrsToGet) {
+            final Optional<String[]> moreAttrsToGet,
+            final Optional<Collection<LinkingMappingItem>> linkingItems) {
 
         Stream<MappingItem> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
@@ -233,8 +234,8 @@ public class OutboundMatcher {
             final MappingItem connObjectKeyItem,
             final String connObjectKeyValue,
             final Provision provision,
-            final Optional<Collection<LinkingMappingItem>> linkingItems,
-            final Optional<String[]> moreAttrsToGet) {
+            final Optional<String[]> moreAttrsToGet,
+            final Optional<Collection<LinkingMappingItem>> linkingItems) {
 
         Stream<MappingItem> items = Stream.concat(
                 provision.getMapping().getItems().stream(),

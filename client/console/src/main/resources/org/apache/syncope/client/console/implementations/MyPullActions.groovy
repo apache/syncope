@@ -18,6 +18,7 @@
  */
 import groovy.transform.CompileStatic
 import java.util.Collections
+import java.util.Set
 import org.apache.syncope.common.lib.patch.AnyPatch
 import org.apache.syncope.common.lib.to.EntityTO
 import org.apache.syncope.common.lib.to.ProvisioningReport

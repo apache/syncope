@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import java.util.Collections;
+import java.util.Set;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.quartz.JobExecutionException;
@@ -27,6 +29,17 @@ import org.quartz.JobExecutionException;
  * All methods can throw {@link IgnoreProvisionException} to make the current entity ignored by the push process.
  */
 public interface PushActions extends ProvisioningActions {
+
+    /**
+     * Return additional attributes to include in the result from the underlying connector.
+     *
+     * @param profile profile of the pull being executed.
+     * @param entity entity
+     * @return additional attributes to include in the result from the underlying connector
+     */
+    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, Entity entity) {
+        return Collections.emptySet();
+    }
 
     /**
      * Action to be executed before to assign (link &amp; provision) a pushed entity to the resource.
