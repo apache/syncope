@@ -18,19 +18,6 @@
  */
 package org.apache.syncope.common.lib.search;
 
-public interface AnyObjectProperty extends SyncopeProperty<AnyObjectCompleteCondition> {
-
-    AnyObjectCompleteCondition inGroups(String group, String... moreGroups);
-
-    AnyObjectCompleteCondition notInGroups(String group, String... moreGroups);
-
-    AnyObjectCompleteCondition inRelationships(String anyObject, String... moreAnyObjects);
-
-    AnyObjectCompleteCondition notInRelationships(String anyObject, String... moreAnyObjects);
-
-    AnyObjectCompleteCondition inRelationshipTypes(String type, String... moreTypes);
-
-    AnyObjectCompleteCondition notInRelationshipTypes(String type, String... moreTypes);
-
-    AnyObjectCompleteCondition isAssignable();
+public interface AnyObjectPartialCondition
+        extends SyncopePartialCondition<AnyObjectProperty, AnyObjectCompleteCondition> {
 }

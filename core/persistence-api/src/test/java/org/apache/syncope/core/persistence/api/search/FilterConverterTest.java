@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -176,13 +175,6 @@ public class FilterConverterTest {
     @Test
     public void inDynRealms() {
         try {
-            new ConnObjectTOFiqlSearchConditionBuilder().inDynRealms("realm").query();
-            fail();
-        } catch (UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
-
-        try {
             FilterConverter.convert(SpecialAttr.DYNREALMS + "==realm");
             fail();
         } catch (SyncopeClientException e) {
@@ -192,13 +184,6 @@ public class FilterConverterTest {
 
     @Test
     public void notInDynRealms() {
-        try {
-            new ConnObjectTOFiqlSearchConditionBuilder().notInDynRealms("realm").query();
-            fail();
-        } catch (UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
-
         try {
             FilterConverter.convert(SpecialAttr.DYNREALMS + "!=realm");
             fail();
@@ -210,13 +195,6 @@ public class FilterConverterTest {
     @Test
     public void hasResources() {
         try {
-            new ConnObjectTOFiqlSearchConditionBuilder().hasResources("resource").query();
-            fail();
-        } catch (UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
-
-        try {
             FilterConverter.convert(SpecialAttr.RESOURCES + "==resource");
             fail();
         } catch (SyncopeClientException e) {
@@ -226,13 +204,6 @@ public class FilterConverterTest {
 
     @Test
     public void hasNotResources() {
-        try {
-            new ConnObjectTOFiqlSearchConditionBuilder().hasNotResources("resource").query();
-            fail();
-        } catch (UnsupportedOperationException e) {
-            assertNotNull(e);
-        }
-
         try {
             FilterConverter.convert(SpecialAttr.RESOURCES + "!=resource");
             fail();

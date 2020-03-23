@@ -19,14 +19,14 @@
 package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
  * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
  * users in Syncope.
  */
-public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
+public class UserFiqlSearchConditionBuilder
+        extends AbstractFiqlSearchConditionBuilder<UserProperty, UserPartialCondition, UserCompleteCondition> {
 
     private static final long serialVersionUID = 3485708634448845774L;
 
@@ -40,68 +40,69 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition inGroups(final String group, final String... moreGroups) {
+    public UserCompleteCondition inGroups(final String group, final String... moreGroups) {
         return newBuilderInstance().
                 is(SpecialAttr.GROUPS.toString()).
                 inGroups(group, moreGroups);
     }
 
-    public CompleteCondition notInGroups(final String group, final String... moreGroups) {
+    public UserCompleteCondition notInGroups(final String group, final String... moreGroups) {
         return newBuilderInstance().
                 is(SpecialAttr.GROUPS.toString()).
                 notInGroups(group, moreGroups);
     }
 
-    public CompleteCondition inRelationships(final String anyType, final String... moreAnyTypes) {
+    public UserCompleteCondition inRelationships(final String anyType, final String... moreAnyTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
                 inRelationships(anyType, moreAnyTypes);
     }
 
-    public CompleteCondition notInRelationships(final String anyType, final String... moreAnyTypes) {
+    public UserCompleteCondition notInRelationships(final String anyType, final String... moreAnyTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
                 notInRelationships(anyType, moreAnyTypes);
     }
 
-    public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+    public UserCompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
                 inRelationshipTypes(type, moreTypes);
     }
 
-    public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+    public UserCompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIP_TYPES.toString()).
                 notInRelationshipTypes(type, moreTypes);
     }
 
-    public CompleteCondition inRoles(final String role, final String... moreRoles) {
+    public UserCompleteCondition inRoles(final String role, final String... moreRoles) {
         return newBuilderInstance().
                 is(SpecialAttr.ROLES.toString()).
                 inRoles(role, moreRoles);
     }
 
-    public CompleteCondition notInRoles(final String role, final String... moreRoles) {
+    public UserCompleteCondition notInRoles(final String role, final String... moreRoles) {
         return newBuilderInstance().
                 is(SpecialAttr.ROLES.toString()).
                 notInRoles(role, moreRoles);
     }
 
-    public CompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
+    public UserCompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
         return newBuilderInstance().
                 is(SpecialAttr.PRIVILEGES.toString()).
                 withPrivileges(privilege, morePrivileges);
     }
 
-    public CompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
+    public UserCompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
         return newBuilderInstance().
                 is(SpecialAttr.PRIVILEGES.toString()).
                 withoutPrivileges(privilege, morePrivileges);
     }
 
-    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
-            implements UserProperty, CompleteCondition {
+    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
+            UserProperty, UserPartialCondition, UserCompleteCondition>
+            implements UserProperty, UserPartialCondition, UserCompleteCondition {
 
         public Builder(final Map<String, String> properties) {
             super(properties);
@@ -119,61 +120,61 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         }
 
         @Override
-        public CompleteCondition inGroups(final String group, final String... moreGroups) {
+        public UserCompleteCondition inGroups(final String group, final String... moreGroups) {
             this.result = SpecialAttr.GROUPS.toString();
             return condition(FiqlParser.EQ, group, (Object[]) moreGroups);
         }
 
         @Override
-        public CompleteCondition notInGroups(final String group, final String... moreGroups) {
+        public UserCompleteCondition notInGroups(final String group, final String... moreGroups) {
             this.result = SpecialAttr.GROUPS.toString();
             return condition(FiqlParser.NEQ, group, (Object[]) moreGroups);
         }
 
         @Override
-        public CompleteCondition inRelationships(final String anyObject, final String... moreAnyObjects) {
+        public UserCompleteCondition inRelationships(final String anyObject, final String... moreAnyObjects) {
             this.result = SpecialAttr.RELATIONSHIPS.toString();
             return condition(FiqlParser.EQ, anyObject, (Object[]) moreAnyObjects);
         }
 
         @Override
-        public CompleteCondition notInRelationships(final String anyObject, final String... moreAnyObjects) {
+        public UserCompleteCondition notInRelationships(final String anyObject, final String... moreAnyObjects) {
             this.result = SpecialAttr.RELATIONSHIPS.toString();
             return condition(FiqlParser.NEQ, anyObject, (Object[]) moreAnyObjects);
         }
 
         @Override
-        public CompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
+        public UserCompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {
             this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
             return condition(FiqlParser.EQ, type, (Object[]) moreTypes);
         }
 
         @Override
-        public CompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
+        public UserCompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
             this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
             return condition(FiqlParser.NEQ, type, (Object[]) moreTypes);
         }
 
         @Override
-        public CompleteCondition inRoles(final String role, final String... moreRoles) {
+        public UserCompleteCondition inRoles(final String role, final String... moreRoles) {
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.EQ, role, (Object[]) moreRoles);
         }
 
         @Override
-        public CompleteCondition notInRoles(final String role, final String... moreRoles) {
+        public UserCompleteCondition notInRoles(final String role, final String... moreRoles) {
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
         }
 
         @Override
-        public CompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
+        public UserCompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
             this.result = SpecialAttr.PRIVILEGES.toString();
             return condition(FiqlParser.EQ, privilege, (Object[]) morePrivileges);
         }
 
         @Override
-        public CompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
+        public UserCompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
             this.result = SpecialAttr.PRIVILEGES.toString();
             return condition(FiqlParser.NEQ, privilege, (Object[]) morePrivileges);
         }

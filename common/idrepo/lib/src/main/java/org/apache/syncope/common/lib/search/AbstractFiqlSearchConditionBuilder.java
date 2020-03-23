@@ -20,13 +20,18 @@ package org.apache.syncope.common.lib.search;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.client.FiqlSearchConditionBuilder;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
-public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchConditionBuilder implements Serializable {
+public abstract class AbstractFiqlSearchConditionBuilder<
+        P extends SyncopeProperty<C>,
+        PA extends SyncopePartialCondition<P, C>, 
+        C extends SyncopeCompleteCondition<PA, P>>
+        extends FiqlSearchConditionBuilder implements Serializable {
 
     private static final long serialVersionUID = 9043884238032703381L;
 
@@ -48,103 +53,162 @@ public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchCondi
     }
 
     @Override
-    protected Builder newBuilderInstance() {
-        return new Builder(properties);
+    protected Builder<P, PA, C> newBuilderInstance() {
+        return new Builder<>(properties);
     }
 
     @Override
-    public SyncopeProperty is(final String property) {
+    public P is(final String property) {
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition isNull(final String property) {
+    public C isNull(final String property) {
         return newBuilderInstance().is(property).nullValue();
     }
 
-    public CompleteCondition isNotNull(final String property) {
+    public C isNotNull(final String property) {
         return newBuilderInstance().is(property).notNullValue();
     }
 
-    public CompleteCondition inDynRealms(final String dynRealm, final String... moreDynRealms) {
+    public C inDynRealms(final String dynRealm, final String... moreDynRealms) {
         return newBuilderInstance().
                 is(SpecialAttr.DYNREALMS.toString()).
                 inDynRealms(dynRealm, moreDynRealms);
     }
 
-    public CompleteCondition notInDynRealms(final String dynRealm, final String... moreDynRealms) {
+    public C notInDynRealms(final String dynRealm, final String... moreDynRealms) {
         return newBuilderInstance().
                 is(SpecialAttr.DYNREALMS.toString()).
                 notInDynRealms(dynRealm, moreDynRealms);
     }
 
-    public CompleteCondition hasResources(final String resource, final String... moreResources) {
+    public C hasResources(final String resource, final String... moreResources) {
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
     }
 
-    public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
+    public C hasNotResources(final String resource, final String... moreResources) {
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasNotResources(resource, moreResources);
     }
 
-    protected static class Builder extends FiqlSearchConditionBuilder.Builder
-            implements SyncopeProperty, CompleteCondition {
+    @SuppressWarnings("unchecked")
+    protected static class Builder<
+            P extends SyncopeProperty<C>,
+            PA extends SyncopePartialCondition<P, C>,
+            C extends SyncopeCompleteCondition<PA, P>>
+            extends FiqlSearchConditionBuilder.Builder
+            implements SyncopeProperty<C>, SyncopeCompleteCondition<PA, P>, SyncopePartialCondition<P, C> {
 
         protected Builder(final Map<String, String> properties) {
             super(properties);
         }
 
-        protected Builder(final Builder parent) {
+        protected Builder(final Builder<P, PA, C> parent) {
             super(parent);
         }
 
         @Override
-        public SyncopeProperty is(final String property) {
-            Builder b = new Builder(this);
+        public P is(final String property) {
+            Builder<P, PA, C> b = new Builder<>(this);
             b.result = property;
-            return b;
+            return (P) b;
         }
 
         @Override
-        public CompleteCondition nullValue() {
+        protected C condition(
+                final String operator, final Object value, final Object... moreValues) {
+
+            super.condition(operator, value, moreValues);
+            return (C) this;
+        }
+
+        @Override
+        public C nullValue() {
             return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
 
         @Override
-        public CompleteCondition notNullValue() {
+        public C notNullValue() {
             return condition(FiqlParser.NEQ, SpecialAttr.NULL);
         }
 
         @Override
-        public CompleteCondition hasResources(final String resource, final String... moreResources) {
+        public C hasResources(final String resource, final String... moreResources) {
             this.result = SpecialAttr.RESOURCES.toString();
             return condition(FiqlParser.EQ, resource, (Object[]) moreResources);
         }
 
         @Override
-        public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
+        public C hasNotResources(final String resource, final String... moreResources) {
             this.result = SpecialAttr.RESOURCES.toString();
             return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
         }
 
         @Override
-        public CompleteCondition equalToIgnoreCase(final String value, final String... moreValues) {
+        public C equalToIgnoreCase(final String value, final String... moreValues) {
             return condition(SyncopeFiqlParser.IEQ, value, (Object[]) moreValues);
         }
 
         @Override
-        public CompleteCondition notEqualTolIgnoreCase(final String literalOrPattern) {
+        public C notEqualTolIgnoreCase(final String literalOrPattern) {
             return condition(SyncopeFiqlParser.NIEQ, literalOrPattern);
         }
 
         @Override
-        public CompleteCondition inDynRealms(final String dynRealm, final String... moreDynRealms) {
+        public C inDynRealms(final String dynRealm, final String... moreDynRealms) {
             this.result = SpecialAttr.DYNREALMS.toString();
             return condition(FiqlParser.EQ, dynRealm, (Object[]) moreDynRealms);
         }
 
         @Override
-        public CompleteCondition notInDynRealms(final String dynRealm, final String... moreDynRealms) {
+        public C notInDynRealms(final String dynRealm, final String... moreDynRealms) {
             this.result = SpecialAttr.DYNREALMS.toString();
             return condition(FiqlParser.NEQ, dynRealm, (Object[]) moreDynRealms);
+        }
+
+        @Override
+        public PA and() {
+            super.and();
+            return (PA) this;
+        }
+
+        @Override
+        public P and(final String name) {
+            return and().is(name);
+        }
+
+        @Override
+        public PA or() {
+            super.or();
+            return (PA) this;
+        }
+
+        @Override
+        public P or(final String name) {
+            return or().is(name);
+        }
+
+        @Override
+        public C and(final CompleteCondition cc, final CompleteCondition cc1, final CompleteCondition... cn) {
+            super.and(cc1, cc, cn);
+            return (C) this;
+        }
+
+        @Override
+        public C or(final CompleteCondition cc, final CompleteCondition cc1, final CompleteCondition... cn) {
+            super.or(cc1, cc, cn);
+            return (C) this;
+        }
+
+        @Override
+        public C and(final List<CompleteCondition> conditions) {
+            super.and(conditions);
+            return (C) this;
+        }
+
+        @Override
+        public C or(final List<CompleteCondition> conditions) {
+            super.or(conditions);
+            return (C) this;
         }
     }
 }

@@ -19,14 +19,14 @@
 package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
  * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
  * groups in Syncope.
  */
-public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
+public class GroupFiqlSearchConditionBuilder
+        extends AbstractFiqlSearchConditionBuilder<GroupProperty, GroupPartialCondition, GroupCompleteCondition> {
 
     private static final long serialVersionUID = 6275686371606165706L;
 
@@ -40,26 +40,27 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition isAssignable() {
+    public GroupCompleteCondition isAssignable() {
         return newBuilderInstance().
                 is(SpecialAttr.ASSIGNABLE.toString()).
                 isAssignable();
     }
 
-    public CompleteCondition withMembers(final String member, final String... moreMembers) {
+    public GroupCompleteCondition withMembers(final String member, final String... moreMembers) {
         return newBuilderInstance().
                 is(SpecialAttr.MEMBER.toString()).
                 withMembers(member, moreMembers);
     }
 
-    public CompleteCondition withoutMembers(final String member, final String... moreMembers) {
+    public GroupCompleteCondition withoutMembers(final String member, final String... moreMembers) {
         return newBuilderInstance().
                 is(SpecialAttr.MEMBER.toString()).
                 withoutMembers(member, moreMembers);
     }
 
-    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
-            implements GroupProperty, CompleteCondition {
+    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
+            GroupProperty, GroupPartialCondition, GroupCompleteCondition>
+            implements GroupProperty, GroupCompleteCondition, GroupPartialCondition {
 
         public Builder(final Map<String, String> properties) {
             super(properties);
@@ -77,19 +78,19 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
         }
 
         @Override
-        public CompleteCondition isAssignable() {
+        public GroupCompleteCondition isAssignable() {
             this.result = SpecialAttr.ASSIGNABLE.toString();
             return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
 
         @Override
-        public CompleteCondition withMembers(final String member, final String... moreMembers) {
+        public GroupCompleteCondition withMembers(final String member, final String... moreMembers) {
             this.result = SpecialAttr.MEMBER.toString();
             return condition(FiqlParser.EQ, member, (Object[]) moreMembers);
         }
 
         @Override
-        public CompleteCondition withoutMembers(final String member, final String... moreMembers) {
+        public GroupCompleteCondition withoutMembers(final String member, final String... moreMembers) {
             this.result = SpecialAttr.MEMBER.toString();
             return condition(FiqlParser.NEQ, member, (Object[]) moreMembers);
         }
