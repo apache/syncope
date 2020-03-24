@@ -17,12 +17,18 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD 
-GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">
-<glassfish-web-app>
-  <context-root>/syncope-fit-build-tools</context-root>
+<!DOCTYPE payara-web-app PUBLIC "-//Payara.fish//DTD Payara Server 4 Servlet 3.0//EN" "https://docs.payara.fish/schemas/payara-web-app_4.dtd">
+<payara-web-app error-url="">
+  <!-- Uncomment this when using JNDI DataSource -->
+  <!--<resource-ref>
+    <res-ref-name>jdbc/syncopeMasterDataSource</res-ref-name>
+    <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>
+  </resource-ref>-->
   <class-loader delegate="false"/>
+  <scanning-exclude>*</scanning-exclude>
+  <scanning-exclude>*</scanning-exclude>
+  <jaxrs-roles-allowed-enabled>false</jaxrs-roles-allowed-enabled>
   <jsp-config>
     <property name="httpMethods" value="GET,POST,HEAD,PUT,DELETE"/>
   </jsp-config>
-</glassfish-web-app>
+</payara-web-app>

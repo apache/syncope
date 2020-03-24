@@ -516,7 +516,7 @@ under the License.
     <tomcat.version>9.0.33</tomcat.version>
     <wildfly.version>19.0.0.Final</wildfly.version>
     <payara.version>5.201</payara.version>
-    <javax.faces.version>2.4.0</javax.faces.version>
+    <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0.19</docker.mysql.version>

@@ -1489,6 +1489,12 @@ under the License.
         </dependency>
 
         <dependency>
+          <groupId>org.glassfish</groupId>
+          <artifactId>jakarta.faces</artifactId>
+          <version>${javax.faces.version}</version>
+        </dependency>
+
+        <dependency>
           <groupId>com.fasterxml.jackson.dataformat</groupId>
           <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>

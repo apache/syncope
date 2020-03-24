@@ -20,7 +20,6 @@ package org.apache.syncope.core.spring.security;
 
 import java.io.IOException;
 import java.util.Optional;
-
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,24 +32,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 /**
  * Processes the JSON Web Token provided as {@link HttpHeaders#AUTHORIZATION} HTTP header, putting the result into the
  * {@link SecurityContextHolder}.
  */
-public class JWTAuthenticationFilter extends OncePerRequestFilter {
+public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
     @Autowired
     private AuthenticationEntryPoint authenticationEntryPoint;
-
-    private AuthenticationManager authenticationManager;
 
     @Autowired
     private SyncopeAuthenticationDetailsSource authenticationDetailsSource;
@@ -61,8 +57,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private DefaultCredentialChecker credentialChecker;
 
-    public void setAuthenticationManager(final AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
+    public JWTAuthenticationFilter(final AuthenticationManager authenticationManager) {
+        super(authenticationManager);
     }
 
     @Override
@@ -91,9 +87,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 throw new BadCredentialsException("Invalid signature found in JWT");
             }
 
-            Authentication authentication = authenticationManager.authenticate(
+            SecurityContextHolder.getContext().setAuthentication(
                     new JWTAuthentication(consumer.getJwtClaims(), authenticationDetailsSource.buildDetails(request)));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             chain.doFilter(request, response);
         } catch (JwsException e) {

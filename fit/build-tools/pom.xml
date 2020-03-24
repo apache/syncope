@@ -363,7 +363,7 @@ under the License.
       <dependencies>
         <dependency>
           <groupId>org.glassfish</groupId>
-          <artifactId>javax.faces</artifactId>
+          <artifactId>jakarta.faces</artifactId>
           <version>${javax.faces.version}</version>
         </dependency>
 
@@ -401,6 +401,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
+                  <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
                   <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
                 </properties>
