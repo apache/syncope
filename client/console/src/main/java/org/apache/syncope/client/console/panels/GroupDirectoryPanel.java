@@ -109,38 +109,35 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                         (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
                             final Panel panel;
                             if (AnyTypeKind.USER.name().equals(type)) {
-                                String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                                        SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
-                                        SyncopeClient.getUserSearchConditionBuilder().
-                                                is(Constants.KEY_FIELD_NAME).notNullValue()).query();
+                                String fiql = SyncopeClient.getUserSearchConditionBuilder().
+                                        inGroups(groupTO.getKey()).
+                                        and(Constants.KEY_FIELD_NAME).notNullValue().query();
 
                                 panel = new UserDirectoryPanel.Builder(
                                         classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                         setRealm(SyncopeConstants.ROOT_REALM).
                                         setFiltered(true).
-                                        setFiql(query).
+                                        setFiql(fiql).
                                         disableCheckBoxes().
-                                        addNewItemPanelBuilder(
-                                                AnyLayoutUtils.newLayoutInfo(
-                                                        new UserTO(),
-                                                        anyTypeTO.getClasses(),
-                                                        anyLayout.getUser(),
-                                                        pageRef), false).
+                                        addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
+                                                new UserTO(),
+                                                anyTypeTO.getClasses(),
+                                                anyLayout.getUser(),
+                                                pageRef), false).
                                         setWizardInModal(false).build(id);
 
                                 MetaDataRoleAuthorizationStrategy.authorize(
                                         panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
                             } else {
-                                String query = SyncopeClient.getAnyObjectSearchConditionBuilder(type).and(
-                                        SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
-                                        SyncopeClient.getUserSearchConditionBuilder().
-                                                is(Constants.KEY_FIELD_NAME).notNullValue()).query();
+                                String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(type).
+                                        inGroups(groupTO.getKey()).
+                                        and(Constants.KEY_FIELD_NAME).notNullValue().query();
 
                                 panel = new AnyObjectDirectoryPanel.Builder(
                                         classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                         setRealm(SyncopeConstants.ROOT_REALM).
                                         setFiltered(true).
-                                        setFiql(query).
+                                        setFiql(fiql).
                                         disableCheckBoxes().
                                         addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
                                                 new AnyObjectTO(),

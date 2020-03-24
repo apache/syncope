@@ -135,7 +135,7 @@ public class Groups extends AbstractGroups {
                             : groupRestClient.search(
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
-                                            isAssignable().and().is("name").equalToIgnoreCase(filter).query(),
+                                            isAssignable().and("name").equalToIgnoreCase(filter).query(),
                                     1, Constants.MAX_GROUP_LIST_SIZE,
                                     new SortParam<>("name", true),
                                     null)).stream().map(input -> {

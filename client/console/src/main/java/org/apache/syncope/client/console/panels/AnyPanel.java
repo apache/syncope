@@ -82,7 +82,6 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     protected static DirectoryPanelSupplier DEFAULT_DIRECTORYPANEL_SUPPLIER =
             (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
-
                 AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
                 final Panel panel;

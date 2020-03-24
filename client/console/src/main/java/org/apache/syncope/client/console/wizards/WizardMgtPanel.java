@@ -164,6 +164,18 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         return actualId;
     }
 
+    public boolean isWizardInModal() {
+        return wizardInModal;
+    }
+
+    public ModalPanelBuilder<T> getNewItemPanelBuilder() {
+        return newItemPanelBuilder;
+    }
+
+    public boolean isNewItemDefaultButtonEnabled() {
+        return addAjaxLink.isVisible() && addAjaxLink.isEnabled();
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
