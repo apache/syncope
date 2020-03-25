@@ -483,7 +483,7 @@ under the License.
 
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
-    <netbeans.version>RELEASE112</netbeans.version>
+    <netbeans.version>RELEASE113</netbeans.version>
 
     <antlr4.version>4.8-1</antlr4.version>
 
@@ -1914,11 +1914,6 @@ under the License.
       <dependency>
         <groupId>org.netbeans.api</groupId>
         <artifactId>org-netbeans-api-progress-nb</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.external</groupId>
-        <artifactId>asm-all-5.0.1</artifactId>
         <version>${netbeans.version}</version>
       </dependency>
 

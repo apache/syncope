@@ -111,10 +111,6 @@ under the License.
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-api-progress-nb</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.netbeans.external</groupId>
-      <artifactId>asm-all-5.0.1</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
