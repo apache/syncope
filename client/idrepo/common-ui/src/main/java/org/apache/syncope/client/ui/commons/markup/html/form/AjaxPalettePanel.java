@@ -30,7 +30,9 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.wicket.Component;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -58,15 +60,16 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public AjaxPalettePanel(
             final String id, final IModel<List<T>> model, final Builder.Query<T> choices, final Builder<T> builder) {
+
         super(id, builder.name == null ? id : builder.name, model);
 
-        choicesModel = new PaletteLoadableDetachableModel(builder) {
+        choicesModel = new PaletteLoadableDetachableModel() {
 
             private static final long serialVersionUID = -108100712154481840L;
 
             @Override
             protected List<T> getChoices() {
-                return choices.execute(getFilter());
+                return choices.execute(queryFilter.getObject());
             }
         };
         initialize(model, builder);
@@ -76,14 +79,14 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final String id, final IModel<List<T>> model, final IModel<List<T>> choices, final Builder<T> builder) {
         super(id, builder.name == null ? id : builder.name, model);
 
-        choicesModel = new PaletteLoadableDetachableModel(builder) {
+        choicesModel = new PaletteLoadableDetachableModel() {
 
             private static final long serialVersionUID = -108100712154481840L;
 
             @Override
             protected List<T> getChoices() {
                 return builder.filtered
-                        ? getFilteredList(choices.getObject(), getFilter().replaceAll("\\*", "\\.\\*"))
+                        ? getFilteredList(choices.getObject(), queryFilter.getObject().replaceAll("\\*", "\\.\\*"))
                         : choices.getObject();
             }
         };
@@ -176,6 +179,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         Form<?> form = new Form<>("form");
         add(form.setEnabled(builder.filtered).setVisible(builder.filtered));
 
+        queryFilter.setObject(builder.filter);
         AjaxTextFieldPanel filter = new AjaxTextFieldPanel("filter", "filter", queryFilter, false);
         form.add(filter.hideLabel().setOutputMarkupId(true));
 
@@ -185,6 +189,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
+                if (StringUtils.isEmpty(queryFilter.getObject())) {
+                    Session.get().warn(getString("nomatch"));
+                    ((BaseWebPage) getPage()).getNotificationPanel().refresh(target);
+                } else {
+                    ((BaseWebPage) getPage()).getNotificationPanel().hide(target);
+                }
                 target.add(palette);
             }
         };
@@ -310,18 +320,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         private static final long serialVersionUID = -7745220313769774616L;
 
-        private final Builder<T> builder;
-
-        PaletteLoadableDetachableModel(final Builder<T> builder) {
-            super();
-            this.builder = builder;
-        }
-
         protected abstract List<T> getChoices();
-
-        protected String getFilter() {
-            return StringUtils.isBlank(queryFilter.getObject()) ? builder.filter : queryFilter.getObject();
-        }
 
         @Override
         protected List<T> load() {
@@ -335,14 +334,14 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         }
 
         private List<T> getSelectedList(final Collection<T> choices, final String selection) {
-            final IChoiceRenderer<? super T> renderer = palette.getChoiceRenderer();
-            final List<T> selected = new ArrayList<>();
+            IChoiceRenderer<? super T> renderer = palette.getChoiceRenderer();
+            List<T> selected = new ArrayList<>();
 
-            final Map<T, String> idForChoice = new HashMap<>();
+            Map<T, String> idForChoice = new HashMap<>();
             choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
-            for (final String id : Strings.split(selection, ',')) {
-                final Iterator<T> iter = choices.iterator();
+            for (String id : Strings.split(selection, ',')) {
+                Iterator<T> iter = choices.iterator();
                 boolean found = false;
                 while (!found && iter.hasNext()) {
                     final T choice = iter.next();
@@ -358,16 +357,16 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         }
 
         protected List<T> getFilteredList(final Collection<T> choices, final String filter) {
-            final IChoiceRenderer<? super T> renderer = palette.getChoiceRenderer();
-            final List<T> selected = new ArrayList<>(choices.size());
+            IChoiceRenderer<? super T> renderer = palette.getChoiceRenderer();
+            List<T> selected = new ArrayList<>(choices.size());
 
-            final Map<T, String> idForChoice = new HashMap<>();
+            Map<T, String> idForChoice = new HashMap<>();
             choices.forEach(choice -> idForChoice.put(choice, renderer.getIdValue(choice, 0)));
 
-            final Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE);
+            Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE);
 
             choices.forEach(choice -> {
-                final String idValue = idForChoice.get(choice);
+                String idValue = idForChoice.get(choice);
                 if (pattern.matcher(idValue).matches()) {
                     selected.add(choice);
                 }

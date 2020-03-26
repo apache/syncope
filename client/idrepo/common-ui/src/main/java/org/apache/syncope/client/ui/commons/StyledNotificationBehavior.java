@@ -46,8 +46,8 @@ public class StyledNotificationBehavior extends NotificationBehavior {
     public static String jQueryShow(final CharSequence message, final String widget, final String level) {
         return String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
                 widget,
-                Notification.SUCCESS.equalsIgnoreCase(level)
-                || Notification.INFO.equalsIgnoreCase(level) ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
+                Notification.SUCCESS.equalsIgnoreCase(level) || Notification.INFO.equalsIgnoreCase(level)
+                ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
                 widget,
                 message,
                 level.toLowerCase());
