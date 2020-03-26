@@ -78,10 +78,7 @@ under the License.
   <bean id="validationInInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor">
     <property name="provider" ref="validationProvider"/>
   </bean>
-  <bean id="validationOutInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor">
-    <property name="provider" ref="validationProvider"/>
-  </bean>   
-  
+
   <bean id="gzipInInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPInInterceptor"/>
   <bean id="gzipOutInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPOutInterceptor">
     <property name="threshold" value="0"/>
@@ -171,7 +168,6 @@ under the License.
     </jaxrs:inInterceptors>         
     <jaxrs:outInterceptors>
       <ref bean="gzipOutInterceptor"/>
-      <ref bean="validationOutInterceptor"/>
     </jaxrs:outInterceptors>
     <jaxrs:providers>
       <ref bean="dateParamConverterProvider"/>

@@ -29,6 +29,8 @@ under the License.
       <module name="org.reactivestreams"/>
     </dependencies>
     <exclusions>
+      <module name="javax.mail.api"/>
+      <module name="javax.activation.api"/>
       <module name="javax.validation.api"/>
       <module name="org.hibernate.validator"/> 
       <module name="org.hibernate.validator.cdi"/>
