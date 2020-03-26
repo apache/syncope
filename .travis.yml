@@ -44,7 +44,7 @@ jobs:
   include:
     - stage: build
       name: "Build"
-      script: mvn -T 1C -P skipTests,all
+      script: mvn -U -T 1C -P skipTests,all
       #######################################################
     - stage: validate
       name: "Checkstyle, Legal Files, Modernizer and Release Audit Tool (RAT) Analysis"
