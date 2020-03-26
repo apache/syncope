@@ -41,7 +41,7 @@ public class NotificationPanel extends Panel
     public NotificationPanel(final String id) {
         super(id);
 
-        final Options options = new Options();
+        Options options = new Options();
         options.set("appendTo", "'#appendto'");
         options.set("stacking", "'up'");
         options.set("templates",
@@ -61,6 +61,10 @@ public class NotificationPanel extends Panel
         };
 
         add(notification);
+    }
+
+    public final void hide(final IPartialPageRequestHandler handler) {
+        this.notification.hide(handler);
     }
 
     public final void refresh(final IPartialPageRequestHandler handler) {

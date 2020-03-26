@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,7 +115,7 @@ public class Groups extends AbstractGroups {
                         }
                     });
 
-            groupsContainer.add(builder.setAllowOrder(true).withFilter().build("groups",
+            groupsContainer.add(builder.setAllowOrder(true).withFilter("*").build("groups",
                     new ListModel<MembershipTO>() {
 
                 private static final long serialVersionUID = -2583290457773357445L;
@@ -130,20 +131,20 @@ public class Groups extends AbstractGroups {
 
                 @Override
                 public List<MembershipTO> execute(final String filter) {
-                    return (StringUtils.isEmpty(filter) || "*".equals(filter)
-                            ? groupsModel.getObject()
-                            : groupRestClient.search(
-                                    anyTO.getRealm(),
-                                    SyncopeClient.getGroupSearchConditionBuilder().
-                                            isAssignable().and("name").equalToIgnoreCase(filter).query(),
-                                    1, Constants.MAX_GROUP_LIST_SIZE,
-                                    new SortParam<>("name", true),
-                                    null)).stream().map(input -> {
-
-                                return new MembershipTO.Builder().
-                                        group(input.getKey(), input.getName()).
-                                        build();
-                            }).collect(Collectors.toList());
+                    return StringUtils.isEmpty(filter)
+                            ? Collections.emptyList()
+                            : ("*".equals(filter)
+                                    ? groupsModel.getObject()
+                                    : groupRestClient.search(
+                                            anyTO.getRealm(),
+                                            SyncopeClient.getGroupSearchConditionBuilder().
+                                                    isAssignable().and("name").equalToIgnoreCase(filter).query(),
+                                            1, Constants.MAX_GROUP_LIST_SIZE,
+                                            new SortParam<>("name", true),
+                                            null)).stream().
+                                    map(group -> new MembershipTO.Builder().
+                                    group(group.getKey(), group.getName()).build()).
+                                    collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));
 

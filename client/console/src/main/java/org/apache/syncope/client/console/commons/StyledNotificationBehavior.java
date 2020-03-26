@@ -41,8 +41,8 @@ public class StyledNotificationBehavior extends NotificationBehavior {
         if (handler != null) {
             handler.appendJavaScript(String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
                     this.widget(),
-                    Notification.SUCCESS.equalsIgnoreCase(level)
-                    || Notification.INFO.equalsIgnoreCase(level) ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
+                    Notification.SUCCESS.equalsIgnoreCase(level) || Notification.INFO.equalsIgnoreCase(level)
+                    ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
                     this.widget(),
                     this.format(String.valueOf(message), level),
                     level.toLowerCase()));
