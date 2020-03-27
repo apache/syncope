@@ -726,11 +726,22 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
 The command-line interface (CLI) client is an utility tool meant for interacting with Apache Syncope deployments from
 shell scripts.
 
+[WARNING]
+.Deprecation
+====
+Syncope 2.1 is the last major version providing CLI.
+
+As an alternative you can consider using the popular http://curl.haxx.se/[curl^] tool to invoke the
+Syncope Core REST API services. +
+For reference, the Swagger UI extension, when enabled, will provide for each request the corresponding `curl` command
+with all parameters.
+====
+
 Once downloaded and uncompressed, you will find a `lib` directory and two scripts: `syncopeadm.sh` and `syncopeadm.bat`,
 which will be used depending on the operating system.
 
-The installation process creates `cli.properties`, which contains all the required information to invoke the Apache 
-Syncope REST API services.
+The installation process creates `cli.properties`, which contains all the required information to invoke the 
+Syncope Core REST API services.
 The file content looks like the following:
 
 ....

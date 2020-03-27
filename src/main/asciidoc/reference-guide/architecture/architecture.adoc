@@ -200,6 +200,17 @@ The communication between CLI and Core is exclusively REST-based.
 
 More details are available in the dedicated <<cli,usage>> section.
 
+[WARNING]
+.Deprecation
+====
+Syncope 2.1 is the last major version providing CLI.
+
+As an alternative you can consider using the popular http://curl.haxx.se/[curl^] tool to invoke the
+Syncope Core REST API services. +
+For reference, the Swagger UI extension, when enabled, will provide for each request the corresponding `curl` command
+with all parameters.
+====
+
 === Third Party Applications
 
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
