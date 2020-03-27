@@ -72,6 +72,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
+import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
@@ -104,7 +105,7 @@ import org.xml.sax.helpers.AttributesImpl;
 public class XMLContentExporter extends AbstractContentDealer implements ContentExporter {
 
     protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
-        "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
+        "QRTZ_", "LOGGING", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
