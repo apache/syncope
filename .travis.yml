@@ -14,10 +14,10 @@
 # limitations under the License.
 
 language: java
+os: linux
+dist: trusty
 jdk:
   - openjdk11
-  - openjdk13
-  - openjdk14
 cache:
   bundler: false
   cargo: false
@@ -31,6 +31,7 @@ env:
   - JAVAEE_CONTAINER=Tomcat
   - DBMS=H2
   - jaxrsContentType=application/json
+  - TestCommand="mvn -U -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true"
 install: true
 notifications:
   email:
@@ -51,12 +52,26 @@ jobs:
       script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check
       ######################################################
     - stage: test
-      name: "Unit Tests"
-      script: mvn -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
+      name: "Unit Tests via JDK 11"
+      script: eval $TestCommand
+    - stage: test
+      name: "Unit Tests via JDK 13"
+      script: 
+      - ~/bin/install-jdk.sh --target "/home/travis/openjdk13" --workspace "/home/travis/.cache/install-jdk" --feature "13" --license "GPL" --cacerts
+      - export JAVA_HOME=~/openjdk13
+      - export PATH="$JAVA_HOME/bin:$PATH"
+      - eval $TestCommand
+    - stage: test
+      name: "Unit Tests via JDK 14"
+      script: 
+      - ~/bin/install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPL" --cacerts
+      - export JAVA_HOME=~/openjdk14
+      - export PATH="$JAVA_HOME/bin:$PATH"
+      - eval $TestCommand
       ######################################################
     - stage: fit
       name: "Full Integration Tests: Apache Tomcat / H2 / JSON Content-Type"
-      script: travis_wait 55 mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      script: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       after_failure:
        - cat fit/core-reference/target/log/*
        - cat fit/core-reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
