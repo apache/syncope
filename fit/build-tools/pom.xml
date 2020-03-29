@@ -55,24 +55,15 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.directory.server</groupId>
+      <artifactId>apacheds-core-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.directory.server</groupId>
       <artifactId>apacheds-service-builder</artifactId>
-      <version>${apacheds.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.directory.api</groupId>
       <artifactId>api-ldap-codec-standalone</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.api</groupId>
-      <artifactId>api-ldap-model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.api</groupId>
-      <artifactId>api-ldap-schema-data</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.api</groupId>
-      <artifactId>api-util</artifactId>
     </dependency>
 
     <dependency>
