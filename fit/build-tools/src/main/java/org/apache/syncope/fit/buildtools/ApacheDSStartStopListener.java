@@ -19,17 +19,23 @@
 package org.apache.syncope.fit.buildtools;
 
 import java.io.File;
-import java.util.HashSet;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.apache.directory.api.ldap.model.schema.LdapComparator;
 import org.apache.directory.api.ldap.model.schema.SchemaManager;
+import org.apache.directory.api.ldap.model.schema.comparators.NormalizingComparator;
+import org.apache.directory.api.ldap.model.schema.registries.ComparatorRegistry;
 import org.apache.directory.api.ldap.model.schema.registries.SchemaLoader;
 import org.apache.directory.api.ldap.schema.extractor.SchemaLdifExtractor;
 import org.apache.directory.api.ldap.schema.extractor.impl.DefaultSchemaLdifExtractor;
@@ -38,12 +44,12 @@ import org.apache.directory.api.ldap.schema.manager.impl.DefaultSchemaManager;
 import org.apache.directory.api.util.exception.Exceptions;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.DefaultDirectoryService;
-import org.apache.directory.server.core.api.CacheService;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.DnFactory;
 import org.apache.directory.server.core.api.InstanceLayout;
 import org.apache.directory.server.core.api.partition.Partition;
 import org.apache.directory.server.core.api.schema.SchemaPartition;
+import org.apache.directory.server.core.factory.JdbmPartitionFactory;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmIndex;
 import org.apache.directory.server.core.partition.impl.btree.jdbm.JdbmPartition;
 import org.apache.directory.server.core.partition.ldif.LdifPartition;
@@ -78,7 +84,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @return The newly added partition
      * @throws Exception If the partition can't be added
      */
-    private Partition addPartition(final String partitionId, final String partitionDn, final DnFactory dnFactory)
+    private void addPartition(final String partitionId, final String partitionDn, final DnFactory dnFactory)
             throws Exception {
 
         // Create a new partition with the given partition id
@@ -88,24 +94,11 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         partition.setSuffixDn(new Dn(partitionDn));
         service.addPartition(partition);
 
-        return partition;
-    }
-
-    /**
-     * Add a new set of index on the given attributes.
-     *
-     * @param partition The partition on which we want to add index
-     * @param attrs The list of attributes to index
-     */
-    private static void addIndex(final Partition partition, final String... attrs) {
-        // Index some attributes on the apache partition
-        Set<Index<?, String>> indexedAttributes = new HashSet<>();
-
-        for (String attribute : attrs) {
-            indexedAttributes.add(new JdbmIndex<String>(attribute, false));
-        }
-
-        ((JdbmPartition) partition).setIndexedAttributes(indexedAttributes);
+        Set<Index<?, String>> indexedAttributes = Stream.of(
+                SchemaConstants.OBJECT_CLASS_AT, SchemaConstants.OU_AT,
+                SchemaConstants.UID_AT, SchemaConstants.CN_AT).
+                map(attr -> new JdbmIndex<String>(attr, false)).collect(Collectors.toSet());
+        partition.setIndexedAttributes(indexedAttributes);
     }
 
     /**
@@ -114,41 +107,63 @@ public class ApacheDSStartStopListener implements ServletContextListener {
      * @throws Exception if the schema LDIF files are not found on the classpath
      */
     private void initSchemaPartition() throws Exception {
-        InstanceLayout instanceLayout = service.getInstanceLayout();
-
-        File schemaPartitionDirectory = new File(instanceLayout.getPartitionsDirectory(), "schema");
+        File workingDirectory = service.getInstanceLayout().getPartitionsDirectory();
 
         // Extract the schema on disk (a brand new one) and load the registries
-        if (schemaPartitionDirectory.exists()) {
-            LOG.debug("schema partition already exists, skipping schema extraction");
-        } else {
-            SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(instanceLayout.getPartitionsDirectory());
+        File schemaRepository = new File(workingDirectory, "schema");
+        SchemaLdifExtractor extractor = new DefaultSchemaLdifExtractor(workingDirectory);
+        try {
             extractor.extractOrCopy();
+        } catch (IOException ioe) {
+            // The schema has already been extracted, bypass
         }
 
-        SchemaLoader loader = new LdifSchemaLoader(schemaPartitionDirectory);
+        SchemaLoader loader = new LdifSchemaLoader(schemaRepository);
         SchemaManager schemaManager = new DefaultSchemaManager(loader);
 
         // We have to load the schema now, otherwise we won't be able
-        // to initialize the Partitions, as we won't be able to parse
+        // to initialize the Partitions, as we won't be able to parse 
         // and normalize their suffix Dn
         schemaManager.loadAllEnabled();
+
+        // Tell all the normalizer comparators that they should not normalize anything
+        ComparatorRegistry comparatorRegistry = schemaManager.getComparatorRegistry();
+        for (LdapComparator<?> comparator : comparatorRegistry) {
+            if (comparator instanceof NormalizingComparator) {
+                ((NormalizingComparator) comparator).setOnServer();
+            }
+        }
+
+        service.setSchemaManager(schemaManager);
+
+        // Init the LdifPartition
+        LdifPartition ldifPartition = new LdifPartition(schemaManager, service.getDnFactory());
+        ldifPartition.setPartitionPath(new File(workingDirectory, "schema").toURI());
+        SchemaPartition schemaPartition = new SchemaPartition(schemaManager);
+        schemaPartition.setWrappedPartition(ldifPartition);
+        service.setSchemaPartition(schemaPartition);
 
         List<Throwable> errors = schemaManager.getErrors();
         if (!errors.isEmpty()) {
             throw new IllegalStateException(I18n.err(I18n.ERR_317, Exceptions.printErrors(errors)));
         }
+    }
 
-        service.setSchemaManager(schemaManager);
+    private void initSystemPartition() throws Exception {
+        JdbmPartitionFactory partitionFactory = new JdbmPartitionFactory();
 
-        // Init the LdifPartition with schema
-        LdifPartition schemaLdifPartition = new LdifPartition(schemaManager, service.getDnFactory());
-        schemaLdifPartition.setPartitionPath(schemaPartitionDirectory.toURI());
+        Partition systemPartition = partitionFactory.createPartition(
+                service.getSchemaManager(),
+                service.getDnFactory(),
+                "system",
+                ServerDNConstants.SYSTEM_DN,
+                500,
+                new File(service.getInstanceLayout().getPartitionsDirectory(), "system"));
+        systemPartition.setSchemaManager(service.getSchemaManager());
 
-        // The schema partition
-        SchemaPartition schemaPartition = new SchemaPartition(schemaManager);
-        schemaPartition.setWrappedPartition(schemaLdifPartition);
-        service.setSchemaPartition(schemaPartition);
+        partitionFactory.addIndex(systemPartition, SchemaConstants.OBJECT_CLASS_AT, 100);
+
+        service.setSystemPartition(systemPartition);
     }
 
     /**
@@ -166,38 +181,18 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         service = new DefaultDirectoryService();
         service.setInstanceLayout(new InstanceLayout(workDir));
 
-        CacheService cacheService = new CacheService();
-        cacheService.initialize(service.getInstanceLayout());
-
-        service.setCacheService(cacheService);
-
         // first load the schema
         initSchemaPartition();
 
         // then the system partition
-        // this is a MANDATORY partition
-        // DO NOT add this via addPartition() method, trunk code complains about duplicate partition
-        // while initializing
-        JdbmPartition systemPartition = new JdbmPartition(service.getSchemaManager(), service.getDnFactory());
-        systemPartition.setId("system");
-        systemPartition.setPartitionPath(
-                new File(service.getInstanceLayout().getPartitionsDirectory(), systemPartition.getId()).toURI());
-        systemPartition.setSuffixDn(new Dn(ServerDNConstants.SYSTEM_DN));
-        systemPartition.setSchemaManager(service.getSchemaManager());
-
-        // mandatory to call this method to set the system partition
-        // Note: this system partition might be removed from trunk
-        service.setSystemPartition(systemPartition);
+        initSystemPartition();
 
         // Disable the ChangeLog system
         service.getChangeLog().setEnabled(false);
         service.setDenormalizeOpAttrsEnabled(true);
 
         // Now we can create as many partitions as we need
-        Partition ispPartition = addPartition("isp", "o=isp", service.getDnFactory());
-
-        // Index some attributes on the apache partition
-        addIndex(ispPartition, "objectClass", "ou", "uid");
+        addPartition("isp", "o=isp", service.getDnFactory());
 
         // And start the service
         service.startup();
