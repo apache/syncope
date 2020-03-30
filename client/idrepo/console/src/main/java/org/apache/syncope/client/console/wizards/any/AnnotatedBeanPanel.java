@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -29,38 +29,51 @@ public class AnnotatedBeanPanel extends Panel {
 
     private static final long serialVersionUID = 4228064224811390809L;
 
-    public <T extends AnyTO> AnnotatedBeanPanel(
-            final String id, final AbstractAnnotatedBean sysInfoTO) {
-
+    public <T extends AnyTO> AnnotatedBeanPanel(final String id, final T anyTO) {
         super(id);
 
         // ------------------------
         // Creation date
         // ------------------------
-        add(new Label("creationDate", new Model<>(sysInfoTO.getCreationDate() != null
-                ? SyncopeConsoleSession.get().getDateFormat().format(sysInfoTO.getCreationDate()) : "")));
+        add(new Label("creationDate", new Model<>(anyTO.getCreationDate() == null
+                ? StringUtils.EMPTY
+                : SyncopeConsoleSession.get().getDateFormat().format(anyTO.getCreationDate()))));
         // ------------------------
 
         // ------------------------
         // Last change date
         // ------------------------
-        add(new Label("lastChangeDate", new Model<>(sysInfoTO.getLastChangeDate() != null
-                ? SyncopeConsoleSession.get().getDateFormat().format(sysInfoTO.getLastChangeDate()) : "")));
+        add(new Label("lastChangeDate", new Model<>(anyTO.getLastChangeDate() == null
+                ? StringUtils.EMPTY
+                : SyncopeConsoleSession.get().getDateFormat().format(anyTO.getLastChangeDate()))));
         // ------------------------
 
         // ------------------------
         // Creator
         // ------------------------
-        add(new Label("creator", new Model<>(sysInfoTO.getCreator() != null
-                ? sysInfoTO.getCreator() : "")));
+        add(new Label("creator", new Model<>(anyTO.getCreator() == null
+                ? StringUtils.EMPTY : anyTO.getCreator())));
         // ------------------------
 
         // ------------------------
         // Last modifier
         // ------------------------
-        add(new Label("lastModifier", new Model<>(sysInfoTO.getLastModifier() != null
-                ? sysInfoTO.getLastModifier() : "")));
+        add(new Label("lastModifier", new Model<>(anyTO.getLastModifier() != null
+                ? StringUtils.EMPTY : anyTO.getLastModifier())));
         // ------------------------
 
+        // ------------------------
+        // Creator
+        // ------------------------
+        add(new Label("creationContext", new Model<>(anyTO.getCreationContext() == null
+                ? StringUtils.EMPTY : anyTO.getCreationContext())));
+        // ------------------------
+
+        // ------------------------
+        // Last modifier
+        // ------------------------
+        add(new Label("lastChangeContext", new Model<>(anyTO.getLastChangeContext() != null
+                ? StringUtils.EMPTY : anyTO.getLastChangeContext())));
+        // ------------------------
     }
 }

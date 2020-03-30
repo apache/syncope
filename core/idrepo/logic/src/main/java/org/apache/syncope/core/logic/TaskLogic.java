@@ -272,15 +272,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     Map<String, Object> jobDataMap = jobManager.register(
                             (SchedTask) task,
                             startAt,
-                            confParamOps.get(AuthContextUtils.getDomain(),
-                                    "tasks.interruptMaxRetries", 1L, Long.class), executor);
+                            confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
+                            executor);
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
                     if (startAt == null) {
-                        scheduler.getScheduler().triggerJob(
-                                JobNamer.getJobKey(task),
-                                new JobDataMap(jobDataMap));
+                        scheduler.getScheduler().triggerJob(JobNamer.getJobKey(task), new JobDataMap(jobDataMap));
                     }
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);

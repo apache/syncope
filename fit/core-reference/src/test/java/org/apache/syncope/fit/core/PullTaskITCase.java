@@ -363,6 +363,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 1. verify execution status
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
+        // SYNCOPE-898
+        PullTaskTO task = taskService.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        assertEquals(SyncopeConstants.ROOT_REALM, task.getDestinationRealm());
+
         // 2. verify that pulled group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
@@ -370,10 +374,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 build());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
-        // SYNCOPE-898
-        PullTaskTO task = taskService.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
-        assertEquals("/", task.getDestinationRealm());
-        assertEquals("/", matchingGroups.getResult().get(0).getRealm());
+        assertEquals(SyncopeConstants.ROOT_REALM, matchingGroups.getResult().get(0).getRealm());
 
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
@@ -396,9 +397,18 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // Check for SYNCOPE-1343
         assertEquals("odd", matchingUsers.getResult().get(0).getPlainAttr("title").get().getValues().get(0));
 
+        PagedResult<UserTO> matchByLastChangeContext = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("lastChangeContext").
+                                equalTo("*PullTask " + task.getKey() + "*").query()).
+                        build());
+        assertNotNull(matchByLastChangeContext);
+        assertTrue(matchByLastChangeContext.getResult().contains(matchingUsers.getResult().get(0)));
+
         GroupTO groupTO = matchingGroups.getResult().get(0);
         assertNotNull(groupTO);
         assertEquals("testLDAPGroup", groupTO.getName());
+        assertTrue(groupTO.getLastChangeContext().contains("PullTask " + task.getKey()));
         assertEquals("true", groupTO.getPlainAttr("show").get().getValues().get(0));
         assertEquals(matchingUsers.getResult().get(0).getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());

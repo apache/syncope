@@ -116,7 +116,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(
+                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         return afterCreate(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
     }
@@ -139,7 +140,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
         Pair<AnyObjectUR, List<PropagationStatus>> updated =
-                provisioningManager.update(updateReq, nullPriorityAsync);
+                provisioningManager.update(updateReq, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         return afterUpdate(
                 binder.getAnyObjectTO(updated.getLeft().getKey()),
@@ -159,7 +160,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey(), nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.delete(
+                before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         AnyObjectTO anyObjectTO = new AnyObjectTO();
         anyObjectTO.setKey(before.getLeft().getKey());
@@ -182,7 +184,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return binder.getAnyObjectTO(provisioningManager.unlink(req));
+        return binder.getAnyObjectTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
 
     @Override
@@ -200,7 +202,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return binder.getAnyObjectTO(provisioningManager.link(req));
+        return binder.getAnyObjectTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
 
     @Override
@@ -258,7 +260,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 anyObjectTO.getRealm());
         securityChecks(effectiveRealms, anyObjectTO.getRealm(), anyObjectTO.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.deprovision(
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getAnyObjectTO(key));
@@ -281,7 +284,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 anyObjectTO.getRealm());
         securityChecks(effectiveRealms, anyObjectTO.getRealm(), anyObjectTO.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.provision(
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getAnyObjectTO(key));

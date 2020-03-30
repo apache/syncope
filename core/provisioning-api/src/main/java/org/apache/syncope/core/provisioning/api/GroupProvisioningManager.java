@@ -33,7 +33,10 @@ public interface GroupProvisioningManager extends ProvisioningManager<GroupCR, G
             GroupCR groupCR,
             Map<String, String> groupOwnerMap,
             Set<String> excludedResources,
-            boolean nullPriorityAsync);
+            boolean nullPriorityAsync,
+            String creator,
+            String context);
 
-    List<PropagationStatus> provision(String key, Collection<String> resources, boolean nullPriorityAsync);
+    List<PropagationStatus> provision(
+            String key, Collection<String> resources, boolean nullPriorityAsync, String updater, String context);
 }

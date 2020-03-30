@@ -45,12 +45,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import javax.annotation.Resource;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
-
-    @Resource(name = "adminUser")
-    protected String adminUser;
 
     @Autowired
     protected GroupWorkflowAdapter gwfAdapter;
@@ -71,8 +67,10 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected VirAttrHandler virtAttrHandler;
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final GroupCR groupCR, final boolean nullPriorityAsync) {
-        WorkflowResult<String> created = gwfAdapter.create(groupCR);
+    public Pair<String, List<PropagationStatus>> create(
+            final GroupCR groupCR, final boolean nullPriorityAsync, final String creator, final String context) {
+
+        WorkflowResult<String> created = gwfAdapter.create(groupCR, creator, context);
 
         List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,
@@ -81,7 +79,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getPropByRes(),
                 groupCR.getVirAttrs(),
                 Set.of());
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
@@ -92,9 +90,11 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final GroupCR groupCR,
             final Map<String, String> groupOwnerMap,
             final Set<String> excludedResources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String creator,
+            final String context) {
 
-        WorkflowResult<String> created = gwfAdapter.create(groupCR);
+        WorkflowResult<String> created = gwfAdapter.create(groupCR, creator, context);
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
         groupCR.getPlainAttr(StringUtils.EMPTY).
@@ -107,24 +107,28 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getPropByRes(),
                 groupCR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
 
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
     public Pair<GroupUR, List<PropagationStatus>> update(
-            final GroupUR groupUR, final boolean nullPriorityAsync) {
+            final GroupUR groupUR, final boolean nullPriorityAsync, final String updater, final String context) {
 
-        return update(groupUR, Set.of(), nullPriorityAsync);
+        return update(groupUR, Set.of(), nullPriorityAsync, updater, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<GroupUR, List<PropagationStatus>> update(
-            final GroupUR groupUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final GroupUR groupUR,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
-        WorkflowResult<GroupUR> updated = gwfAdapter.update(groupUR);
+        WorkflowResult<GroupUR> updated = gwfAdapter.update(groupUR, updater, context);
 
         List<PropagationTaskInfo> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.GROUP,
@@ -135,20 +139,26 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 groupUR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Set.of(), nullPriorityAsync);
+    public List<PropagationStatus> delete(
+            final String key, final boolean nullPriorityAsync, final String eraser, final String context) {
+
+        return delete(key, Set.of(), nullPriorityAsync, eraser, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public List<PropagationStatus> delete(
-            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync,
+            final String eraser,
+            final String context) {
 
         List<PropagationTaskInfo> taskInfos = new ArrayList<>();
 
@@ -179,7 +189,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null));
 
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, eraser);
 
         gwfAdapter.delete(key);
 
@@ -187,13 +197,22 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public String unlink(final GroupUR groupUR) {
-        return gwfAdapter.update(groupUR).getResult().getKey();
+    public String link(final GroupUR groupUR, final String updater, final String context) {
+        return gwfAdapter.update(groupUR, updater, context).getResult().getKey();
+    }
+
+    @Override
+    public String unlink(final GroupUR groupUR, final String updater, final String context) {
+        return gwfAdapter.update(groupUR, updater, context).getResult().getKey();
     }
 
     @Override
     public List<PropagationStatus> provision(
-            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key,
+            final Collection<String> resources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -207,14 +226,18 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
     public List<PropagationStatus> deprovision(
-            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key,
+            final Collection<String> resources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
@@ -227,13 +250,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 groupDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return propagationReporter.getStatuses();
-    }
-
-    @Override
-    public String link(final GroupUR groupUR) {
-        return gwfAdapter.update(groupUR).getResult().getKey();
     }
 }

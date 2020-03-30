@@ -63,6 +63,8 @@ public class SAML2UserManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2UserManager.class);
 
+    private static final String SAML2SP_CONTEXT = "SAML 2.0 SP";
+
     @Autowired
     private SAML2IdPDAO idpDAO;
 
@@ -204,7 +206,8 @@ public class SAML2UserManager {
             userCR.setUsername(nameID);
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(userCR, false);
+        Pair<String, List<PropagationStatus>> created =
+                provisioningManager.create(userCR, false, userCR.getUsername(), SAML2SP_CONTEXT);
         userTO = binder.getUserTO(created.getKey());
 
         for (SAML2IdPActions action : actions) {
@@ -228,7 +231,8 @@ public class SAML2UserManager {
             userUR = action.beforeUpdate(userUR, responseTO);
         }
 
-        Pair<UserUR, List<PropagationStatus>> updated = provisioningManager.update(userUR, false);
+        Pair<UserUR, List<PropagationStatus>> updated =
+                provisioningManager.update(userUR, false, userTO.getUsername(), SAML2SP_CONTEXT);
         userTO = binder.getUserTO(updated.getLeft().getKey());
 
         for (SAML2IdPActions action : actions) {

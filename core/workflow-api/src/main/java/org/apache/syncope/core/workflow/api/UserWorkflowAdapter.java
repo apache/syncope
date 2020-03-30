@@ -32,9 +32,11 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * Create an user.
      *
      * @param userCR user to be created and whether to propagate it as active
+     * @param creator username that requested this operation
+     * @param context context information
      * @return user just created
      */
-    UserWorkflowResult<Pair<String, Boolean>> create(UserCR userCR);
+    UserWorkflowResult<Pair<String, Boolean>> create(UserCR userCR, String creator, String context);
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -42,57 +44,72 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userCR user to be created and whether to propagate it as active
      * @param disablePwdPolicyCheck disable password policy check?
      * @param enabled specify true/false to force active/supended status
+     * @param creator username that requested this operation
+     * @param context context information
      * @return user just created
      */
-    UserWorkflowResult<Pair<String, Boolean>> create(UserCR userCR, boolean disablePwdPolicyCheck, Boolean enabled);
+    UserWorkflowResult<Pair<String, Boolean>> create(
+            UserCR userCR, boolean disablePwdPolicyCheck, Boolean enabled, String creator, String context);
 
     /**
      * Activate an user.
      *
      * @param userKey user to be activated
      * @param token to be verified for activation
+     * @param updater username that requested this operation
+     * @param context context information
      * @return user just updated
      */
-    UserWorkflowResult<String> activate(String userKey, String token);
+    UserWorkflowResult<String> activate(String userKey, String token, String updater, String context);
 
     /**
      * Update an user.
      *
      * @param userUR modification set to be performed
+     * @param updater username that requested this operation
+     * @param context context information
      * @return user just updated and propagations to be performed
      */
-    UserWorkflowResult<Pair<UserUR, Boolean>> update(UserUR userUR);
+    UserWorkflowResult<Pair<UserUR, Boolean>> update(UserUR userUR, String updater, String context);
 
     /**
      * Suspend an user.
      *
      * @param key to be suspended
+     * @param updater username that requested this operation
+     * @param context context information
      * @return user just suspended
      */
-    UserWorkflowResult<String> suspend(String key);
+    UserWorkflowResult<String> suspend(String key, String updater, String context);
 
     /**
      * Suspend an user (used by internal authentication process)
      *
      * @param key to be suspended
+     * @param updater username that requested this operation
+     * @param context context information
      * @return user just suspended and information whether to propagate suspension
      */
-    Pair<UserWorkflowResult<String>, Boolean> internalSuspend(String key);
+    Pair<UserWorkflowResult<String>, Boolean> internalSuspend(String key, String updater, String context);
 
     /**
      * Reactivate an user.
      *
      * @param userKey user to be reactivated
+     * @param updater username that requested this operation
+     * @param context context information
      * @return user just reactivated
      */
-    UserWorkflowResult<String> reactivate(String userKey);
+    UserWorkflowResult<String> reactivate(String userKey, String updater, String context);
 
     /**
      * Request password reset for an user.
      *
      * @param userKey user requesting password reset
+     * @param updater username that requested this operation
+     * @param context context information
      */
-    void requestPasswordReset(String userKey);
+    void requestPasswordReset(String userKey, String updater, String context);
 
     /**
      * Confirm password reset for an user.
@@ -100,9 +117,12 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userKey user confirming password reset
      * @param token security token
      * @param password new password value
+     * @param updater username that requested this operation
+     * @param context context information
      * @return user just updated and propagations to be performed
      */
-    UserWorkflowResult<Pair<UserUR, Boolean>> confirmPasswordReset(String userKey, String token, String password);
+    UserWorkflowResult<Pair<UserUR, Boolean>> confirmPasswordReset(
+            String userKey, String token, String password, String updater, String context);
 
     /**
      * Delete an user.

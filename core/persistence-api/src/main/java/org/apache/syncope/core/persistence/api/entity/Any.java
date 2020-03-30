@@ -18,10 +18,35 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import java.util.Date;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
 
-public interface Any<P extends PlainAttr<?>> extends Attributable<P>, AnnotatedEntity {
+public interface Any<P extends PlainAttr<?>> extends Attributable<P>, Entity {
+
+    Date getCreationDate();
+
+    String getCreator();
+
+    String getCreationContext();
+
+    Date getLastChangeDate();
+
+    String getLastModifier();
+
+    String getLastChangeContext();
+
+    void setCreationDate(Date creationDate);
+
+    void setCreator(String creator);
+
+    void setCreationContext(String context);
+
+    void setLastChangeDate(Date lastChangeDate);
+
+    void setLastModifier(String lastModifier);
+
+    void setLastChangeContext(String context);
 
     AnyType getType();
 

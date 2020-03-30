@@ -85,7 +85,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     protected UserWorkflowResult<Pair<String, Boolean>> doCreate(
             final UserCR userCR,
             final boolean disablePwdPolicyCheck,
-            final Boolean enabled) {
+            final Boolean enabled,
+            final String creator,
+            final String context) {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(FlowableRuntimeUtils.WF_EXECUTOR, AuthContextUtils.getUsername());
@@ -126,6 +128,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             user.removeClearPassword();
         }
 
+        metadata(user, creator, context);
         FlowableRuntimeUtils.updateStatus(engine, procInst.getProcessInstanceId(), user);
         User created = userDAO.save(user);
 
@@ -206,7 +209,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected UserWorkflowResult<String> doActivate(final User user, final String token) {
+    protected UserWorkflowResult<String> doActivate(
+            final User user, final String token, final String updater, final String context) {
+
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Map<String, Object> variables = new HashMap<>(2);
@@ -215,6 +220,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
         Set<String> tasks = doExecuteNextTask(procInstID, user, variables);
 
+        metadata(user, updater, context);
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
@@ -226,7 +232,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
+    protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
+            final User user, final UserUR userUR, final String updater, final String context) {
+
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         // save some existing variable values for later processing, after actual update is made 
@@ -248,6 +256,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
         Set<String> tasks = doExecuteNextTask(procInstID, user, variables);
 
+        metadata(user, updater, context);
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
@@ -298,11 +307,13 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected UserWorkflowResult<String> doSuspend(final User user) {
+    protected UserWorkflowResult<String> doSuspend(final User user, final String updater, final String context) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Set<String> performedTasks =
                 doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "suspend"));
+
+        metadata(user, updater, context);
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
@@ -314,13 +325,14 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected UserWorkflowResult<String> doReactivate(final User user) {
+    protected UserWorkflowResult<String> doReactivate(final User user, final String updater, final String context) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         Set<String> performedTasks =
                 doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "reactivate"));
-        FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
 
+        metadata(user, updater, context);
+        FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
@@ -331,7 +343,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected void doRequestPasswordReset(final User user) {
+    protected void doRequestPasswordReset(final User user, final String updater, final String context) {
         Map<String, Object> variables = new HashMap<>(3);
         variables.put(FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
         variables.put(FlowableRuntimeUtils.TASK, "requestPasswordReset");
@@ -340,6 +352,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         doExecuteNextTask(procInstID, user, variables);
+
+        metadata(user, updater, context);
         userDAO.save(user);
 
         variables.keySet().forEach(key -> engine.getRuntimeService().removeVariable(procInstID, key));
@@ -349,7 +363,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
     @Override
     protected UserWorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
-            final User user, final String token, final String password) {
+            final User user, final String token, final String password, final String updater, final String context) {
 
         Map<String, Object> variables = new HashMap<>(5);
         variables.put(FlowableRuntimeUtils.TOKEN, token);
@@ -362,6 +376,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
         Set<String> tasks = doExecuteNextTask(procInstID, user, variables);
 
+        metadata(user, updater, context);
         userDAO.save(user);
 
         variables.keySet().forEach(key -> engine.getRuntimeService().removeVariable(procInstID, key));

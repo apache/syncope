@@ -142,7 +142,8 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
                 if (!authResult.getRight()) {
                     AuthContextUtils.callAsAdmin(domain.getKey(), () -> {
-                        provisioningManager.internalSuspend(authResult.getLeft().getKey());
+                        provisioningManager.internalSuspend(
+                                authResult.getLeft().getKey(), adminUser, "Failed authentication");
                         return null;
                     });
                 }

@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -354,28 +353,5 @@ public class UserTest extends AbstractTest {
         // search by kprefix derived attribute
         list = userDAO.findByDerAttrValue(derSchemaDAO.find("kprefix"), 'k' + firstname, false);
         assertEquals(1, list.size());
-    }
-
-    @Test
-    public void issueSYNCOPE1016() {
-        User user = userDAO.findByUsername("rossini");
-        Date initial = user.getLastChangeDate();
-        assertNotNull(initial);
-
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attr);
-
-        userDAO.save(user);
-
-        entityManager().flush();
-
-        user = userDAO.findByUsername("rossini");
-        Date afterwards = user.getLastChangeDate();
-        assertNotNull(afterwards);
-
-        assertTrue(afterwards.after(initial));
     }
 }

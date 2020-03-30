@@ -37,6 +37,8 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
 
     private ConflictResolutionAction conflictResolutionAction;
 
+    private String executor;
+
     private final List<A> actions = new ArrayList<>();
 
     public ProvisioningProfile(final Connector connector, final T task) {
@@ -70,6 +72,14 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
 
     public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {
         this.conflictResolutionAction = conflictResolutionAction;
+    }
+
+    public String getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(final String executor) {
+        this.executor = executor;
     }
 
     public List<A> getActions() {

@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -42,6 +44,9 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelegate {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SchedTaskJobDelegate.class);
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     /**
      * The actual task to be executed.
@@ -111,7 +116,8 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             return;
         }
 
-        String executor = context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY);
+        String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
+                orElse(adminUser);
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStart(new Date());
         execution.setTask(task);
@@ -122,7 +128,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         AuditElements.Result result;
 
         try {
-            execution.setMessage(doExecute(dryRun));
+            execution.setMessage(doExecute(dryRun, executor));
             execution.setStatus(TaskJob.Status.SUCCESS.name());
             result = AuditElements.Result.SUCCESS;
         } catch (JobExecutionException e) {
@@ -166,10 +172,11 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      * The actual execution, delegated to child classes.
      *
      * @param dryRun whether to actually touch the data
+     * @param executor the user executing this task
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute(boolean dryRun) throws JobExecutionException;
+    protected abstract String doExecute(boolean dryRun, String executor) throws JobExecutionException;
 
     /**
      * Template method to determine whether this job's task execution has to be persisted or not.
@@ -180,5 +187,4 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;
     }
-
 }

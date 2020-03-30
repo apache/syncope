@@ -31,9 +31,12 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
     @Override
-    protected WorkflowResult<String> doCreate(final AnyObjectCR anyObjectCR) {
+    protected WorkflowResult<String> doCreate(
+            final AnyObjectCR anyObjectCR, final String creator, final String context) {
+
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         dataBinder.create(anyObject, anyObjectCR);
+        metadata(anyObject, creator, context);
         anyObject = anyObjectDAO.save(anyObject);
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
@@ -43,8 +46,13 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    protected WorkflowResult<AnyObjectUR> doUpdate(final AnyObject anyObject, final AnyObjectUR anyObjectUR) {
+    protected WorkflowResult<AnyObjectUR> doUpdate(
+            final AnyObject anyObject, final AnyObjectUR anyObjectUR, final String updater, final String context) {
+
         PropagationByResource<String> propByRes = dataBinder.update(anyObject, anyObjectUR);
+        metadata(anyObject, updater, context);
+        anyObjectDAO.save(anyObject);
+
         return new WorkflowResult<>(anyObjectUR, propByRes, "update");
     }
 

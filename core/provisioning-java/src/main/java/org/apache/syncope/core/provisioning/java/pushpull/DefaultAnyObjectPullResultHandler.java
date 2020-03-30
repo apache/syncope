@@ -74,7 +74,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
 
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
-        return awfAdapter.update((AnyObjectUR) req);
+        return awfAdapter.update((AnyObjectUR) req, profile.getExecutor(), getContext());
     }
 
     @Override
@@ -82,7 +82,11 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
         AnyObjectCR anyObjectCR = AnyObjectCR.class.cast(anyCR);
 
         Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
-                anyObjectCR, Set.of(profile.getTask().getResource().getKey()), true);
+                anyObjectCR,
+                Set.of(profile.getTask().getResource().getKey()),
+                true,
+                profile.getExecutor(),
+                getContext());
 
         return anyObjectDataBinder.getAnyObjectTO(created.getKey());
     }
@@ -97,7 +101,11 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
         AnyObjectUR anyObjectUR = AnyObjectUR.class.cast(req);
 
         Pair<AnyObjectUR, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
-                anyObjectUR, Set.of(profile.getTask().getResource().getKey()), true);
+                anyObjectUR,
+                Set.of(profile.getTask().getResource().getKey()),
+                true,
+                profile.getExecutor(),
+                getContext());
 
         return updated.getLeft();
     }

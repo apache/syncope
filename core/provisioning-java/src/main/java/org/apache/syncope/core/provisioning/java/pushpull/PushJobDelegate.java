@@ -154,7 +154,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
     protected String doExecuteProvisioning(
             final PushTask pushTask,
             final Connector connector,
-            final boolean dryRun) throws JobExecutionException {
+            final boolean dryRun,
+            final String executor) throws JobExecutionException {
 
         LOG.debug("Executing push on {}", pushTask.getResource());
 
@@ -173,6 +174,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         profile.setConflictResolutionAction(pushTask.getResource().getPushPolicy() == null
                 ? ConflictResolutionAction.IGNORE
                 : pushTask.getResource().getPushPolicy().getConflictResolutionAction());
+        profile.setExecutor(executor);
 
         if (!profile.isDryRun()) {
             for (PushActions action : actions) {

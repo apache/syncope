@@ -63,6 +63,8 @@ public class AnyObjectITCase extends AbstractITCase {
 
         AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
+        assertEquals("REST", anyObjectTO.getCreationContext());
+        assertEquals("REST", anyObjectTO.getLastChangeContext());
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());

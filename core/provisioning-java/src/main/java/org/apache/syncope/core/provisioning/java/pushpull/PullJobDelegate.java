@@ -187,7 +187,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     protected String doExecuteProvisioning(
             final PullTask pullTask,
             final Connector connector,
-            final boolean dryRun) throws JobExecutionException {
+            final boolean dryRun,
+            final String executor) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", pullTask.getResource());
 
@@ -206,6 +207,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         profile.setConflictResolutionAction(pullTask.getResource().getPullPolicy() == null
                 ? ConflictResolutionAction.IGNORE
                 : pullTask.getResource().getPullPolicy().getConflictResolutionAction());
+        profile.setExecutor(executor);
 
         latestSyncTokens.clear();
 

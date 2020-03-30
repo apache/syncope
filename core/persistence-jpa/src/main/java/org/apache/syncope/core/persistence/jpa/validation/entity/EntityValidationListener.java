@@ -26,7 +26,6 @@ import javax.validation.Validator;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -56,7 +55,6 @@ public class EntityValidationListener {
             Class<?> entityInt = null;
             for (Class<?> interf : ClassUtils.getAllInterfaces(object.getClass())) {
                 if (!Entity.class.equals(interf)
-                        && !AnnotatedEntity.class.equals(interf)
                         && !ProvidedKeyEntity.class.equals(interf)
                         && !Schema.class.equals(interf)
                         && !Task.class.equals(interf)
@@ -71,7 +69,7 @@ public class EntityValidationListener {
             }
 
             throw new InvalidEntityException(entityInt == null
-                ? "Entity" : entityInt.getSimpleName(), violations);
+                    ? "Entity" : entityInt.getSimpleName(), violations);
         }
     }
 }

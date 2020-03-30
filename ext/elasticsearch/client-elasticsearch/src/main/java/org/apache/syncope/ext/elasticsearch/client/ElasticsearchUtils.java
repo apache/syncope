@@ -109,9 +109,11 @@ public class ElasticsearchUtils {
                 field("realm", any.getRealm().getFullPath()).
                 field("anyType", any.getType().getKey()).
                 field("creationDate", any.getCreationDate()).
+                field("creationContext", any.getCreationContext()).
                 field("creator", any.getCreator()).
                 field("lastChangeDate", any.getLastChangeDate()).
-                field("lastModified", any.getLastModifier()).
+                field("lastModifier", any.getLastModifier()).
+                field("lastChangeContext", any.getLastChangeContext()).
                 field("status", any.getStatus()).
                 field("resources",
                         any instanceof User

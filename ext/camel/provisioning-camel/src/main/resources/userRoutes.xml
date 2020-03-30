@@ -25,7 +25,11 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean method="create(${body},${exchangeProperty.disablePwdPolicyCheck},${exchangeProperty.enabled})"
+      <bean method="create(${body},
+                           ${exchangeProperty.disablePwdPolicyCheck},
+                           ${exchangeProperty.enabled},
+                           ${exchangeProperty.creator},
+                           ${exchangeProperty.context})"
             ref="uwfAdapter" />
       <to uri="propagate:create?anyTypeKind=USER"/>
       <to uri="direct:createPort"/>
@@ -45,7 +49,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="uwfAdapter" method="update(${body})"/>
+      <bean ref="uwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <to uri="propagate:update?anyTypeKind=USER"/>
       <to uri="direct:updatePort"/>
       <doCatch>        
@@ -61,7 +65,7 @@ under the License.
   <route id="updateUserInPull">
     <from uri="direct:updateUserInPull"/>            
     <doTry>
-      <bean ref="uwfAdapter" method="update(${body})"/>
+      <bean ref="uwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <to uri="direct:userInPull"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -102,7 +106,7 @@ under the License.
   <route id="unlinkUser">
     <from uri="direct:unlinkUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="update(${body})"/>
+      <bean ref="uwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <setBody>
         <simple>${body.getResult.getKey}</simple>
       </setBody>
@@ -120,7 +124,7 @@ under the License.
   <route id="linkUser">
     <from uri="direct:linkUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="update(${body})"/>
+      <bean ref="uwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <setBody>
         <simple>${body.getResult.getKey}</simple>
       </setBody>
@@ -138,7 +142,10 @@ under the License.
   <route id="activateUser">
     <from uri="direct:activateUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="activate(${body}, ${exchangeProperty.token})"/>
+      <bean ref="uwfAdapter" method="activate(${body},
+                                              ${exchangeProperty.token},
+                                              ${exchangeProperty.updater},
+                                              ${exchangeProperty.context})"/>
       <to uri="direct:userStatusPropagation"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -153,7 +160,7 @@ under the License.
   <route id="reactivateUser">
     <from uri="direct:reactivateUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="reactivate(${body})"/>
+      <bean ref="uwfAdapter" method="reactivate(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <to uri="direct:userStatusPropagation"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -168,7 +175,7 @@ under the License.
   <route id="suspendUser">
     <from uri="direct:suspendUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="suspend(${body})"/>
+      <bean ref="uwfAdapter" method="suspend(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <to uri="direct:userStatusPropagation"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -201,7 +208,9 @@ under the License.
   <route id="internalSuspendUser">
     <from uri="direct:internalSuspendUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="internalSuspend(${body})"/>
+      <bean ref="uwfAdapter" method="internalSuspend(${body},
+                                                     ${exchangeProperty.updater},
+                                                     ${exchangeProperty.context})"/>
       <to uri="propagate:suspend?anyTypeKind=USER"/>
       <to uri="direct:internalSuspendUserPort"/>
       <doCatch>        
@@ -217,7 +226,9 @@ under the License.
   <route id="requestPwdReset">
     <from uri="direct:requestPwdReset"/>
     <doTry>
-      <bean ref="uwfAdapter" method="requestPasswordReset(${body})"/>
+      <bean ref="uwfAdapter" method="requestPasswordReset(${body},
+                                                          ${exchangeProperty.updater},
+                                                          ${exchangeProperty.context})"/>
       <to uri="direct:requestPwdResetPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -232,7 +243,11 @@ under the License.
   <route id="confirmPwdReset">
     <from uri="direct:confirmPwdReset"/>
     <doTry>
-      <bean ref="uwfAdapter" method="confirmPasswordReset(${exchangeProperty.key},${exchangeProperty.token},${exchangeProperty.password})"/>
+      <bean ref="uwfAdapter" method="confirmPasswordReset(${exchangeProperty.key},
+                                                          ${exchangeProperty.token},
+                                                          ${exchangeProperty.password},
+                                                          ${exchangeProperty.updater},
+                                                          ${exchangeProperty.context})"/>
       <to uri="propagate:confirmPasswordReset?anyTypeKind=USER"/>
       <to uri="direct:confirmPwdResetPort"/>
       <doCatch>        

@@ -24,7 +24,7 @@ under the License.
           <wicket:message key="creationDate"/>:
         </div>
         <div>
-          <span wicket:id="creationDate" />
+          <span wicket:id="creationDate"/>
         </div>
       </div>
 
@@ -33,7 +33,7 @@ under the License.
           <wicket:message key="lastChangeDate"/>:
         </div>
         <div>
-          <span wicket:id="lastChangeDate" />
+          <span wicket:id="lastChangeDate"/>
         </div>
       </div>
 
@@ -42,7 +42,7 @@ under the License.
           <wicket:message key="creator"/>:
         </div>
         <div>
-          <span wicket:id="creator" />
+          <span wicket:id="creator"/>
         </div>
       </div>
 
@@ -51,11 +51,29 @@ under the License.
           <wicket:message key="lastModifier"/>:
         </div>
         <div>
-          <span wicket:id="lastModifier" />
+          <span wicket:id="lastModifier"/>
         </div>
       </div>
 
-      <wicket:child />
+      <div class="infoleft">
+        <div class="infolabel">
+          <wicket:message key="creationContext"/>:
+        </div>
+        <div>
+          <span wicket:id="creationContext"/>
+        </div>
+      </div>
+
+      <div class="inforight">
+        <div class="infolabel">
+          <wicket:message key="lastChangeContext"/>:
+        </div>
+        <div>
+          <span wicket:id="lastChangeContext"/>
+        </div>
+      </div>
+
+      <wicket:child/>
     </div>
   </wicket:panel>
 </html>

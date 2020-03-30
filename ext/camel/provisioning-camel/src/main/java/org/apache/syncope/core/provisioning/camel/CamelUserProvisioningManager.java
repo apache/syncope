@@ -45,8 +45,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final UserCR req, final boolean nullPriorityAsync) {
-        return create(req, false, null, Set.of(), nullPriorityAsync);
+    public Pair<String, List<PropagationStatus>> create(
+            final UserCR req, final boolean nullPriorityAsync, final String creator, final String context) {
+
+        return create(req, false, null, Set.of(), nullPriorityAsync, creator, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -57,7 +59,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             final boolean disablePwdPolicyCheck,
             final Boolean enabled,
             final Set<String> excludedResources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String creator,
+            final String context) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createPort");
 
@@ -66,6 +70,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         props.put("enabled", enabled);
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("creator", creator);
+        props.put("context", context);
 
         sendMessage("direct:createUser", req, props);
 
@@ -80,11 +86,15 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<UserUR, List<PropagationStatus>> update(final UserUR userUR, final boolean nullPriorityAsync) {
+    public Pair<UserUR, List<PropagationStatus>> update(
+            final UserUR userUR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         sendMessage("direct:updateUser", userUR, props);
 
@@ -99,27 +109,39 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Pair<UserUR, List<PropagationStatus>> update(
-            final UserUR userUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final UserUR userUR,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
-        return update(userUR, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
+        return update(userUR, new ProvisioningReport(), null, excludedResources, nullPriorityAsync, updater, context);
     }
 
     @Override
-    public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Set.of(), nullPriorityAsync);
+    public List<PropagationStatus> delete(
+            final String key, final boolean nullPriorityAsync, final String eraser, final String context) {
+
+        return delete(key, Set.of(), nullPriorityAsync, eraser, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(
-            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync,
+            final String eraser,
+            final String context) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deletePort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("eraser", eraser);
+        props.put("context", context);
 
         sendMessage("direct:deleteUser", key, props);
 
@@ -133,10 +155,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public String unlink(final UserUR userUR) {
+    public String unlink(final UserUR userUR, final String updater, final String context) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkPort");
 
-        sendMessage("direct:unlinkUser", userUR);
+        Map<String, Object> props = new HashMap<>();
+        props.put("updater", updater);
+        props.put("context", context);
+
+        sendMessage("direct:unlinkUser", userUR, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -149,7 +175,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> activate(final StatusR statusR, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> activate(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
@@ -157,6 +185,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         props.put("key", statusR.getKey());
         props.put("statusR", statusR);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         if (statusR.isOnSyncope()) {
             sendMessage("direct:activateUser", statusR.getKey(), props);
@@ -177,13 +207,17 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> reactivate(final StatusR statusR, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> reactivate(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("key", statusR.getKey());
         props.put("statusR", statusR);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         if (statusR.isOnSyncope()) {
             sendMessage("direct:reactivateUser", statusR.getKey(), props);
@@ -204,13 +238,17 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> suspend(final StatusR statusR, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> suspend(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("key", statusR.getKey());
         props.put("statusR", statusR);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         if (statusR.isOnSyncope()) {
             sendMessage("direct:suspendUser", statusR.getKey(), props);
@@ -230,10 +268,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public String link(final UserUR userUR) {
+    public String link(final UserUR userUR, final String updater, final String context) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkPort");
 
-        sendMessage("direct:linkUser", userUR);
+        Map<String, Object> props = new HashMap<>();
+        props.put("updater", updater);
+        props.put("context", context);
+
+        sendMessage("direct:linkUser", userUR, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -251,7 +293,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             final boolean changePwd,
             final String password,
             final Collection<String> resources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:provisionPort");
 
@@ -261,6 +305,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         props.put("password", password);
         props.put("resources", resources);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         sendMessage("direct:provisionUser", key, props);
 
@@ -276,13 +322,19 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(
-            final String user, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String user,
+            final Collection<String> resources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         sendMessage("direct:deprovisionUser", user, props);
 
@@ -303,7 +355,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             final ProvisioningReport result,
             final Boolean enabled,
             final Set<String> excludedResources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateInPullPort");
 
@@ -313,6 +367,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         props.put("enabled", enabled);
         props.put("excludedResources", excludedResources);
         props.put("nullPriorityAsync", nullPriorityAsync);
+        props.put("updater", updater);
+        props.put("context", context);
 
         sendMessage("direct:updateUserInPull", userUR, props);
 
@@ -339,10 +395,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void internalSuspend(final String key) {
+    public void internalSuspend(final String key, final String updater, final String context) {
         PollingConsumer pollingConsumer = getConsumer("direct:internalSuspendUserPort");
 
-        sendMessage("direct:internalSuspendUser", key);
+        Map<String, Object> props = new HashMap<>();
+        props.put("updater", updater);
+        props.put("context", context);
+
+        sendMessage("direct:internalSuspendUser", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -352,10 +412,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void requestPasswordReset(final String key) {
+    public void requestPasswordReset(final String key, final String updater, final String context) {
         PollingConsumer pollingConsumer = getConsumer("direct:requestPwdResetPort");
 
-        sendMessage("direct:requestPwdReset", key);
+        Map<String, Object> props = new HashMap<>();
+        props.put("updater", updater);
+        props.put("context", context);
+
+        sendMessage("direct:requestPwdReset", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -365,13 +429,17 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void confirmPasswordReset(final String key, final String token, final String password) {
+    public void confirmPasswordReset(
+            final String key, final String token, final String password, final String updater, final String context) {
+
         PollingConsumer pollingConsumer = getConsumer("direct:confirmPwdResetPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("key", key);
         props.put("token", token);
         props.put("password", password);
+        props.put("updater", updater);
+        props.put("context", context);
 
         sendMessage("direct:confirmPwdReset", key, props);
 

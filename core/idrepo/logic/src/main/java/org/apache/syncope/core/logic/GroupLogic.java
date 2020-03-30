@@ -186,8 +186,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 before.getLeft().getRealm());
         securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
-        Pair<String, List<PropagationStatus>> created =
-                provisioningManager.create(before.getLeft(), nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(
+                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         return afterCreate(binder.getGroupTO(created.getKey()), created.getRight(), before.getRight());
     }
@@ -208,7 +208,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 realm);
         boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
-        Pair<GroupUR, List<PropagationStatus>> updated = provisioningManager.update(req, nullPriorityAsync);
+        Pair<GroupUR, List<PropagationStatus>> updated =
+                provisioningManager.update(req, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         return afterUpdate(
                 binder.getGroupTO(updated.getLeft().getKey()),
@@ -237,7 +238,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             throw sce;
         }
 
-        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey(), nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.delete(
+                before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         GroupTO groupTO = new GroupTO();
         groupTO.setKey(before.getLeft().getKey());
@@ -263,7 +265,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         req.setUDynMembershipCond(group.getUDynMembershipCond());
         req.getADynMembershipConds().putAll(group.getADynMembershipConds());
 
-        return binder.getGroupTO(provisioningManager.unlink(req));
+        return binder.getGroupTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_UPDATE + "')")
@@ -284,7 +286,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         req.getADynMembershipConds().putAll(group.getADynMembershipConds());
         req.setUDynMembershipCond(group.getUDynMembershipCond());
 
-        return binder.getGroupTO(provisioningManager.link(req));
+        return binder.getGroupTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_UPDATE + "')")
@@ -349,7 +351,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.deprovision(
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getGroupTO(key));
@@ -373,7 +376,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 group.getRealm());
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.provision(
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getGroupTO(key));

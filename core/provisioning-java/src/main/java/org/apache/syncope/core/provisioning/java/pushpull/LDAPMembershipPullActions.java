@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -193,6 +194,10 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(SetUMembershipsJob.MEMBERSHIPS_BEFORE_KEY, membershipsBefore);
         jobMap.put(SetUMembershipsJob.MEMBERSHIPS_AFTER_KEY, membershipsAfter);
+        jobMap.put(JobManager.EXECUTOR_KEY, profile.getExecutor());
+        jobMap.put(
+                SetUMembershipsJob.CONTEXT,
+                "PullTask " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'");
         schedule(SetUMembershipsJob.class, jobMap);
     }
 }

@@ -84,7 +84,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
-        return gwfAdapter.update((GroupUR) req);
+        return gwfAdapter.update((GroupUR) req, profile.getExecutor(), getContext());
     }
 
     @Override
@@ -95,7 +95,9 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
                 groupCR,
                 groupOwnerMap,
                 Set.of(profile.getTask().getResource().getKey()),
-                true);
+                true,
+                profile.getExecutor(),
+                getContext());
 
         return groupDataBinder.getGroupTO(created.getKey());
     }
@@ -110,7 +112,11 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         GroupUR groupUR = GroupUR.class.cast(req);
 
         Pair<GroupUR, List<PropagationStatus>> updated = groupProvisioningManager.update(
-                groupUR, Set.of(profile.getTask().getResource().getKey()), true);
+                groupUR,
+                Set.of(profile.getTask().getResource().getKey()),
+                true,
+                profile.getExecutor(),
+                getContext());
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {
@@ -126,5 +132,4 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
         return req;
     }
-
 }

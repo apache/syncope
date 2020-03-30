@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
 import org.apache.syncope.common.lib.log.AuditEntry;
-import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -57,9 +57,9 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
         super();
 
         AuditEntry current = new AuditEntry();
-        if (currentEntity instanceof AbstractAnnotatedBean) {
-            current.setWho(((AbstractAnnotatedBean) currentEntity).getCreator());
-            current.setDate(((AbstractAnnotatedBean) currentEntity).getCreationDate());
+        if (currentEntity instanceof AnyTO) {
+            current.setWho(((AnyTO) currentEntity).getCreator());
+            current.setDate(((AnyTO) currentEntity).getCreationDate());
         } else {
             current.setWho(SyncopeConsoleSession.get().getSelfTO().getUsername());
             current.setDate(new Date());

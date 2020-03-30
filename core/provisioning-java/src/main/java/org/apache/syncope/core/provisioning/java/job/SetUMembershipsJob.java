@@ -21,7 +21,9 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -46,11 +48,19 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
     public static final String MEMBERSHIPS_AFTER_KEY = "membershipsAfter";
 
+    public static final String CONTEXT = "context";
+
+    @Resource(name = "adminUser")
+    private String adminUser;
+
     @Autowired
     private UserProvisioningManager userProvisioningManager;
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
+                orElse(adminUser);
+
         try {
             AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {
 
@@ -102,7 +112,8 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
                 updateReqs.stream().filter(req -> !req.isEmpty()).forEach(req -> {
                     LOG.debug("About to update User {}", req);
-                    userProvisioningManager.update(req, true);
+                    userProvisioningManager.update(
+                            req, true, executor, context.getMergedJobDataMap().getString(CONTEXT));
                 });
 
                 return null;

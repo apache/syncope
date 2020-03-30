@@ -54,6 +54,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
         extends AbstractResourceAssociator<TO> {
 
+    protected static final String REST_CONTEXT = "REST";
+
     @Autowired
     protected UserDAO userDAO;
 

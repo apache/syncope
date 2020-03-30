@@ -16,25 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.workflow.java;
 
 import java.util.Date;
+import org.apache.syncope.core.persistence.api.entity.Any;
 
-public interface AnnotatedEntity extends Entity {
+public abstract class AbstractWorkflowAdapter {
 
-    Date getCreationDate();
+    protected void metadata(final Any<?> any, final String username, final String context) {
+        Date now = new Date();
 
-    String getCreator();
+        if (any.getCreationDate() == null) {
+            any.setCreationDate(now);
+            any.setCreator(username);
+            any.setCreationContext(context);
+        }
 
-    Date getLastChangeDate();
-
-    String getLastModifier();
-
-    void setCreationDate(Date creationDate);
-
-    void setCreator(String creator);
-
-    void setLastChangeDate(Date lastChangeDate);
-
-    void setLastModifier(String lastModifier);
+        any.setLastModifier(username);
+        any.setLastChangeDate(now);
+        any.setLastChangeContext(context);
+    }
 }

@@ -153,7 +153,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(
+                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         return afterCreate(
                 binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
@@ -206,8 +207,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                     securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Pair<UserUR, List<PropagationStatus>> updated =
-                provisioningManager.update(before.getLeft(), nullPriorityAsync);
+        Pair<UserUR, List<PropagationStatus>> updated = provisioningManager.update(
+                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         return afterUpdate(
                 binder.returnUserTO(binder.getUserTO(updated.getLeft().getKey())),
@@ -224,16 +225,19 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         switch (statusR.getType()) {
             case SUSPEND:
-                updated = provisioningManager.suspend(statusR, nullPriorityAsync);
+                updated = provisioningManager.suspend(
+                        statusR, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
                 break;
 
             case REACTIVATE:
-                updated = provisioningManager.reactivate(statusR, nullPriorityAsync);
+                updated = provisioningManager.reactivate(
+                        statusR, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
                 break;
 
             case ACTIVATE:
             default:
-                updated = provisioningManager.activate(statusR, nullPriorityAsync);
+                updated = provisioningManager.activate(
+                        statusR, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
                 break;
 
         }
@@ -302,7 +306,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
 
-        provisioningManager.requestPasswordReset(user.getKey());
+        provisioningManager.requestPasswordReset(user.getKey(), AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -312,7 +316,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         if (user == null) {
             throw new NotFoundException("User with token " + token);
         }
-        provisioningManager.confirmPasswordReset(user.getKey(), token, password);
+        provisioningManager.confirmPasswordReset(
+                user.getKey(), token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -350,7 +355,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             throw sce;
         }
 
-        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey(), nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.delete(
+                before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         UserTO deletedTO;
         if (userDAO.find(before.getLeft().getKey()) == null) {
@@ -379,7 +385,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(req)));
+        return binder.returnUserTO(binder.getUserTO(
+                provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT)));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
@@ -398,7 +405,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
                 collect(Collectors.toList()));
 
-        return binder.returnUserTO(binder.getUserTO(provisioningManager.link(req)));
+        return binder.returnUserTO(binder.getUserTO(
+                provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT)));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
@@ -464,7 +472,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.deprovision(
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
         result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
@@ -488,8 +497,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.provision(key, changePwd, password, resources,
-                nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.provision(
+                key, changePwd, password, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
         result.setEntity(binder.returnUserTO(binder.getUserTO(key)));

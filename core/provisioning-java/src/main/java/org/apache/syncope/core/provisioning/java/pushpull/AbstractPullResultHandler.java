@@ -651,7 +651,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         getProvisioningManager().delete(
                                 match.getAny().getKey(),
                                 Set.of(profile.getTask().getResource().getKey()),
-                                true);
+                                true,
+                                profile.getExecutor(),
+                                getContext());
                         output = null;
                         resultStatus = Result.SUCCESS;
 

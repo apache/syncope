@@ -30,33 +30,45 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserCR, UserUR> {
 
-    Pair<String, List<PropagationStatus>> activate(StatusR statusR, boolean nullPriorityAsync);
-
-    Pair<String, List<PropagationStatus>> reactivate(StatusR statusR, boolean nullPriorityAsync);
-
-    Pair<String, List<PropagationStatus>> suspend(StatusR statusR, boolean nullPriorityAsync);
-
-    void internalSuspend(String key);
-
     Pair<String, List<PropagationStatus>> create(
             UserCR userCR,
             boolean disablePwdPolicyCheck,
             Boolean enabled,
             Set<String> excludedResources,
-            boolean nullPriorityAsync);
+            boolean nullPriorityAsync,
+            String creator,
+            String context);
 
     Pair<UserUR, List<PropagationStatus>> update(
             UserUR userUR,
             ProvisioningReport result,
             Boolean enabled,
             Set<String> excludedResources,
-            boolean nullPriorityAsync);
+            boolean nullPriorityAsync,
+            String updater,
+            String context);
 
-    void requestPasswordReset(String key);
+    Pair<String, List<PropagationStatus>> activate(
+            StatusR statusR, boolean nullPriorityAsync, String updater, String context);
 
-    void confirmPasswordReset(String key, String token, String password);
+    Pair<String, List<PropagationStatus>> reactivate(
+            StatusR statusR, boolean nullPriorityAsync, String updater, String context);
+
+    Pair<String, List<PropagationStatus>> suspend(
+            StatusR statusR, boolean nullPriorityAsync, String updater, String context);
+
+    void internalSuspend(String key, String updater, String context);
+
+    void requestPasswordReset(String key, String updater, String context);
+
+    void confirmPasswordReset(String key, String token, String password, String updater, String context);
 
     List<PropagationStatus> provision(
-            String key, boolean changePwd, String password, Collection<String> resources, boolean nullPriorityAsync);
-
+            String key,
+            boolean changePwd,
+            String password,
+            Collection<String> resources,
+            boolean nullPriorityAsync,
+            String updater,
+            String context);
 }

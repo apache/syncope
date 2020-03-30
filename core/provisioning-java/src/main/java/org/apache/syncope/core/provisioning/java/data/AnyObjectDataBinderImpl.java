@@ -76,13 +76,17 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Override
     public AnyObjectTO getAnyObjectTO(final AnyObject anyObject, final boolean details) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
+
+        anyObjectTO.setCreator(anyObject.getCreator());
+        anyObjectTO.setCreationDate(anyObject.getCreationDate());
+        anyObjectTO.setCreationContext(anyObject.getCreationContext());
+        anyObjectTO.setLastModifier(anyObject.getLastModifier());
+        anyObjectTO.setLastChangeDate(anyObject.getLastChangeDate());
+        anyObjectTO.setLastChangeContext(anyObject.getLastChangeContext());
+
         anyObjectTO.setKey(anyObject.getKey());
         anyObjectTO.setName(anyObject.getName());
         anyObjectTO.setType(anyObject.getType().getKey());
-        anyObjectTO.setCreationDate(anyObject.getCreationDate());
-        anyObjectTO.setCreator(anyObject.getCreator());
-        anyObjectTO.setLastChangeDate(anyObject.getLastChangeDate());
-        anyObjectTO.setLastModifier(anyObject.getLastModifier());
         anyObjectTO.setStatus(anyObject.getStatus());
 
         Map<VirSchema, List<String>> virAttrValues = details

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
+import java.util.Optional;
+import javax.annotation.Resource;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
@@ -35,6 +37,9 @@ import org.slf4j.LoggerFactory;
 public class ReportJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
+
+    @Resource(name = "adminUser")
+    private String adminUser;
 
     /**
      * Key, set by the caller, for identifying the report to be executed.
@@ -62,23 +67,22 @@ public class ReportJob extends AbstractInterruptableJob {
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         try {
             String domainKey = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
-            String executor = context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY);
+            String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
+                    orElse(adminUser);
 
-            AuthContextUtils.callAsAdmin(domainKey,
-                    () -> {
-                        try {
-                            delegate.execute(reportKey, executor);
-                        } catch (Exception e) {
-                            LOG.error("While executing report {}", reportKey, e);
-                            throw new RuntimeException(e);
-                        }
+            AuthContextUtils.callAsAdmin(domainKey, () -> {
+                try {
+                    delegate.execute(reportKey, executor);
+                } catch (Exception e) {
+                    LOG.error("While executing report {}", reportKey, e);
+                    throw new RuntimeException(e);
+                }
 
-                        return null;
-                    });
+                return null;
+            });
         } catch (RuntimeException e) {
             LOG.error("While executing report {}", reportKey, e);
             throw new JobExecutionException("While executing report " + reportKey, e);
         }
     }
-
 }

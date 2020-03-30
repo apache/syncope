@@ -25,7 +25,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="awfAdapter" method="create(${body})"/>
+      <bean ref="awfAdapter" method="create(${body},${exchangeProperty.creator},${exchangeProperty.context})"/>
       <to uri="propagate:create?anyTypeKind=ANY_OBJECT"/>
       <to uri="direct:createAnyObjectPort"/>
       <doCatch>        
@@ -44,7 +44,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="awfAdapter" method="update(${body})"/>
+      <bean ref="awfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <to uri="propagate:update?anyTypeKind=ANY_OBJECT"/>
       <to uri="direct:updateAnyObjectPort"/>
       <doCatch>        
@@ -79,7 +79,7 @@ under the License.
   <route id="unlinkAnyObject">
     <from uri="direct:unlinkAnyObject"/>
     <doTry>
-      <bean ref="awfAdapter" method="update(${body})"/>
+      <bean ref="awfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <setBody>
         <simple>${body.getResult}</simple>
       </setBody>
@@ -97,7 +97,7 @@ under the License.
   <route id="linkAnyObject">
     <from uri="direct:linkAnyObject"/>
     <doTry>
-      <bean ref="awfAdapter" method="update(${body})"/>
+      <bean ref="awfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <setBody>
         <simple>${body.getResult}</simple>
       </setBody>

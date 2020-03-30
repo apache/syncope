@@ -25,7 +25,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="gwfAdapter" method="create(${body})"/>
+      <bean ref="gwfAdapter" method="create(${body},${exchangeProperty.creator},${exchangeProperty.context})"/>
       <to uri="propagate:create?anyTypeKind=GROUP"/>
       <to uri="direct:createGroupPort"/>
       <doCatch>        
@@ -44,7 +44,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="gwfAdapter" method="create(${body})"/>
+      <bean ref="gwfAdapter" method="create(${body},${exchangeProperty.creator},${exchangeProperty.context})"/>
       <to uri="propagate:create?anyTypeKind=GROUP&amp;pull=true"/>
       <to uri="direct:createGroupInPullPort"/>
       <doCatch>        
@@ -63,7 +63,7 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="gwfAdapter" method="update(${body})"/>
+      <bean ref="gwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <to uri="propagate:update?anyTypeKind=GROUP"/>
       <to uri="direct:updateGroupPort"/>
       <doCatch>        
@@ -98,7 +98,7 @@ under the License.
   <route id="unlinkGroup">
     <from uri="direct:unlinkGroup"/>
     <doTry>
-      <bean ref="gwfAdapter" method="update(${body})"/>
+      <bean ref="gwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <setBody>
         <simple>${body.getResult}</simple>
       </setBody>
@@ -116,7 +116,7 @@ under the License.
   <route id="linkGroup">
     <from uri="direct:linkGroup"/>
     <doTry>
-      <bean ref="gwfAdapter" method="update(${body})"/>
+      <bean ref="gwfAdapter" method="update(${body},${exchangeProperty.updater},${exchangeProperty.context})"/>
       <setBody>
         <simple>${body.getResult}</simple>
       </setBody>

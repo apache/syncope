@@ -630,7 +630,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     }
 
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
         try {
             Class<T> clazz = getTaskClassReference();
             if (!clazz.isAssignableFrom(task.getClass())) {
@@ -665,17 +665,14 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 return "No provisions nor orgUnit available: aborting...";
             }
 
-            return doExecuteProvisioning(
-                    provisioningTask,
-                    connector,
-                    dryRun);
+            return doExecuteProvisioning(provisioningTask, connector, dryRun, executor);
         } catch (Throwable t) {
             LOG.error("While executing provisioning job {}", getClass().getName(), t);
             throw t;
         }
     }
 
-    protected abstract String doExecuteProvisioning(T task, Connector connector, boolean dryRun)
+    protected abstract String doExecuteProvisioning(T task, Connector connector, boolean dryRun, String executor)
             throws JobExecutionException;
 
     @Override

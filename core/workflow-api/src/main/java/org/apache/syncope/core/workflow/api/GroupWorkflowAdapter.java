@@ -31,17 +31,21 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
      * Create a group.
      *
      * @param groupCR group to be created and whether to propagate it as active
+     * @param creator username that requested this operation
+     * @param context context information
      * @return group just created
      */
-    WorkflowResult<String> create(GroupCR groupCR);
+    WorkflowResult<String> create(GroupCR groupCR, String creator, String context);
 
     /**
      * Update a group.
      *
      * @param groupUR modification set to be performed
+     * @param updater username that requested this operation
+     * @param context context information
      * @return group just updated and propagations to be performed
      */
-    WorkflowResult<GroupUR> update(GroupUR groupUR);
+    WorkflowResult<GroupUR> update(GroupUR groupUR, String updater, String context);
 
     /**
      * Delete a group.

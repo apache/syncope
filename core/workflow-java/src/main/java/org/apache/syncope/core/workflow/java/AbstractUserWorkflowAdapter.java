@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
+public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapter implements UserWorkflowAdapter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserWorkflowAdapter.class);
 
@@ -53,34 +53,44 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public UserWorkflowResult<Pair<String, Boolean>> create(final UserCR userCR) {
-        return create(userCR, false, null);
+    public UserWorkflowResult<Pair<String, Boolean>> create(
+            final UserCR userCR, final String creator, final String context) {
+
+        return create(userCR, false, null, creator, context);
     }
 
     protected abstract UserWorkflowResult<Pair<String, Boolean>> doCreate(
-            UserCR userCR, boolean disablePwdPolicyCheck, Boolean enabled);
+            UserCR userCR, boolean disablePwdPolicyCheck, Boolean enabled, String creator, String context);
 
     @Override
     public UserWorkflowResult<Pair<String, Boolean>> create(
             final UserCR userCR,
             final boolean disablePwdPolicyCheck,
-            final Boolean enabled) {
+            final Boolean enabled,
+            final String creator,
+            final String context) {
 
-        return doCreate(userCR, disablePwdPolicyCheck, enabled);
+        return doCreate(userCR, disablePwdPolicyCheck, enabled, creator, context);
     }
 
-    protected abstract UserWorkflowResult<String> doActivate(User user, String token);
+    protected abstract UserWorkflowResult<String> doActivate(User user, String token, String updater, String context);
 
     @Override
-    public UserWorkflowResult<String> activate(final String key, final String token) {
-        return doActivate(userDAO.authFind(key), token);
+    public UserWorkflowResult<String> activate(
+            final String key, final String token, final String updater, final String context) {
+
+        return doActivate(userDAO.authFind(key), token, updater, context);
     }
 
-    protected abstract UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(User user, UserUR userUR);
+    protected abstract UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
+            User user, UserUR userUR, String updater, String context);
 
     @Override
-    public UserWorkflowResult<Pair<UserUR, Boolean>> update(final UserUR userUR) {
-        UserWorkflowResult<Pair<UserUR, Boolean>> result = doUpdate(userDAO.authFind(userUR.getKey()), userUR);
+    public UserWorkflowResult<Pair<UserUR, Boolean>> update(
+            final UserUR userUR, final String updater, final String context) {
+
+        UserWorkflowResult<Pair<UserUR, Boolean>> result = doUpdate(
+                userDAO.authFind(userUR.getKey()), userUR, updater, context);
 
         // re-read to ensure that requester's administration rights are still valid
         userDAO.authFind(userUR.getKey());
@@ -88,20 +98,22 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return result;
     }
 
-    protected abstract UserWorkflowResult<String> doSuspend(User user);
+    protected abstract UserWorkflowResult<String> doSuspend(User user, String updater, String context);
 
     @Override
-    public UserWorkflowResult<String> suspend(final String key) {
+    public UserWorkflowResult<String> suspend(final String key, final String updater, final String context) {
         User user = userDAO.authFind(key);
 
         // set suspended flag
         user.setSuspended(Boolean.TRUE);
 
-        return doSuspend(user);
+        return doSuspend(user, updater, context);
     }
 
     @Override
-    public Pair<UserWorkflowResult<String>, Boolean> internalSuspend(final String key) {
+    public Pair<UserWorkflowResult<String>, Boolean> internalSuspend(
+            final String key, final String updater, final String context) {
+
         User user = userDAO.authFind(key);
 
         Pair<UserWorkflowResult<String>, Boolean> result = null;
@@ -116,16 +128,16 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
             // set suspended flag
             user.setSuspended(Boolean.TRUE);
 
-            result = Pair.of(doSuspend(user), enforce.getValue());
+            result = Pair.of(doSuspend(user, updater, context), enforce.getValue());
         }
 
         return result;
     }
 
-    protected abstract UserWorkflowResult<String> doReactivate(User user);
+    protected abstract UserWorkflowResult<String> doReactivate(User user, String updater, String context);
 
     @Override
-    public UserWorkflowResult<String> reactivate(final String key) {
+    public UserWorkflowResult<String> reactivate(final String key, final String updater, final String context) {
         User user = userDAO.authFind(key);
 
         // reset failed logins
@@ -134,24 +146,24 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         // reset suspended flag
         user.setSuspended(Boolean.FALSE);
 
-        return doReactivate(user);
+        return doReactivate(user, updater, context);
     }
 
-    protected abstract void doRequestPasswordReset(User user);
+    protected abstract void doRequestPasswordReset(User user, String updater, String context);
 
     @Override
-    public void requestPasswordReset(final String key) {
-        doRequestPasswordReset(userDAO.authFind(key));
+    public void requestPasswordReset(final String key, final String updater, final String context) {
+        doRequestPasswordReset(userDAO.authFind(key), updater, context);
     }
 
     protected abstract UserWorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
-            User user, String token, String password);
+            User user, String token, String password, String updater, String context);
 
     @Override
     public UserWorkflowResult<Pair<UserUR, Boolean>> confirmPasswordReset(
-            final String key, final String token, final String password) {
+            final String key, final String token, final String password, final String updater, final String context) {
 
-        return doConfirmPasswordReset(userDAO.authFind(key), token, password);
+        return doConfirmPasswordReset(userDAO.authFind(key), token, password, updater, context);
     }
 
     protected abstract void doDelete(User user);

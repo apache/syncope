@@ -108,4 +108,9 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     public ProvisioningProfile<T, A> getProfile() {
         return profile;
     }
+
+    protected String getContext() {
+        return (getClass().getSimpleName().contains("Pull") ? "PullTask" : "PushTask")
+                + " " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'";
+    }
 }

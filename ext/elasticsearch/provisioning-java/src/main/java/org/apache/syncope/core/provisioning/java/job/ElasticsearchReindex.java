@@ -58,7 +58,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
     private AnyObjectDAO anyObjectDAO;
 
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
         if (!dryRun) {
             LOG.debug("Start rebuilding indexes");
 

@@ -31,17 +31,21 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
      * Create a anyObject.
      *
      * @param anyObjectCR anyObject to be created and whether to propagate it as active
+     * @param creator username that requested this operation
+     * @param context context information
      * @return anyObject just created
      */
-    WorkflowResult<String> create(AnyObjectCR anyObjectCR);
+    WorkflowResult<String> create(AnyObjectCR anyObjectCR, String creator, String context);
 
     /**
      * Update a anyObject.
      *
      * @param anyObjectUR modification set to be performed
+     * @param updater username that requested this operation
+     * @param context context information
      * @return anyObject just updated and propagations to be performed
      */
-    WorkflowResult<AnyObjectUR> update(AnyObjectUR anyObjectUR);
+    WorkflowResult<AnyObjectUR> update(AnyObjectUR anyObjectUR, String updater, String context);
 
     /**
      * Delete a anyObject.

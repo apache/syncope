@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +35,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.RealmMember;
 
 @XmlType
@@ -43,13 +46,37 @@ import org.apache.syncope.common.lib.RealmMember;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
 @JsonPropertyOrder(value = { "@class", "key", "type", "realm", "username", "name" })
 @Schema(subTypes = { UserTO.class, GroupTO.class, AnyObjectTO.class }, discriminatorProperty = "@class")
-public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, RealmMember {
+public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
 
     private static final long serialVersionUID = -754311920679872084L;
 
     @XmlTransient
     @JsonProperty("@class")
     private String discriminator;
+
+    /**
+     * Username of the user that has created the related instance.
+     */
+    private String creator;
+
+    private Date creationDate;
+
+    /**
+     * Context information about create.
+     */
+    private String creationContext;
+
+    /**
+     * Username of the user that has performed the last modification to the related instance.
+     */
+    private String lastModifier;
+
+    private Date lastChangeDate;
+
+    /**
+     * Context information about last change.
+     */
+    private String lastChangeContext;
 
     private String key;
 
@@ -76,6 +103,61 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, R
 
     public void setDiscriminator(final String discriminator) {
         // do nothing
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(final String creator) {
+        this.creator = creator;
+    }
+
+    public Date getCreationDate() {
+        return Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
+    }
+
+    public void setCreationDate(final Date creationDate) {
+        this.creationDate = Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
+    }
+
+    public String getCreationContext() {
+        return creationContext;
+    }
+
+    public void setCreationContext(final String creationContext) {
+        this.creationContext = creationContext;
+    }
+
+    public String getLastModifier() {
+        return lastModifier;
+    }
+
+    public void setLastModifier(final String lastModifier) {
+        this.lastModifier = lastModifier;
+    }
+
+    public Date getLastChangeDate() {
+        return Optional.ofNullable(lastChangeDate).map(date -> new Date(date.getTime())).orElse(null);
+    }
+
+    public void setLastChangeDate(final Date lastChangeDate) {
+        this.lastChangeDate = Optional.ofNullable(lastChangeDate).map(date -> new Date(date.getTime())).orElse(null);
+    }
+
+    public String getLastChangeContext() {
+        return lastChangeContext;
+    }
+
+    public void setLastChangeContext(final String lastChangeContext) {
+        this.lastChangeContext = lastChangeContext;
+    }
+
+    @JsonIgnore
+    public String getETagValue() {
+        Date etagDate = getLastChangeDate() == null
+                ? getCreationDate() : getLastChangeDate();
+        return Optional.ofNullable(etagDate).map(date -> String.valueOf(date.getTime())).orElse(StringUtils.EMPTY);
     }
 
     @Override
@@ -182,7 +264,12 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, R
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                appendSuper(super.hashCode()).
+                append(creator).
+                append(creationDate).
+                append(creationContext).
+                append(lastModifier).
+                append(lastChangeDate).
+                append(lastChangeContext).
                 append(key).
                 append(type).
                 append(realm).
@@ -209,7 +296,12 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, R
         }
         final AnyTO other = (AnyTO) obj;
         return new EqualsBuilder().
-                appendSuper(super.equals(obj)).
+                append(creator, other.creator).
+                append(creationDate, other.creationDate).
+                append(creationContext, other.creationContext).
+                append(lastModifier, other.lastModifier).
+                append(lastChangeDate, other.lastChangeDate).
+                append(lastChangeContext, other.lastChangeContext).
                 append(key, other.key).
                 append(type, other.type).
                 append(realm, other.realm).

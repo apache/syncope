@@ -709,22 +709,27 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Override
     public UserTO getUserTO(final User user, final boolean details) {
         UserTO userTO = new UserTO();
+
+        userTO.setCreator(user.getCreator());
+        userTO.setCreationDate(user.getCreationDate());
+        userTO.setCreationContext(user.getCreationContext());
+        userTO.setLastModifier(user.getLastModifier());
+        userTO.setLastChangeDate(user.getLastChangeDate());
+        userTO.setLastChangeContext(user.getLastChangeContext());
+
+        userTO.setChangePwdDate(user.getChangePwdDate());
+        userTO.setFailedLogins(user.getFailedLogins());
+        userTO.setLastLoginDate(user.getLastLoginDate());
+        userTO.setToken(user.getToken());
+        userTO.setTokenExpireTime(user.getTokenExpireTime());
+
         userTO.setKey(user.getKey());
         userTO.setUsername(user.getUsername());
         userTO.setPassword(user.getPassword());
         userTO.setType(user.getType().getKey());
-        userTO.setCreationDate(user.getCreationDate());
-        userTO.setCreator(user.getCreator());
-        userTO.setLastChangeDate(user.getLastChangeDate());
-        userTO.setLastModifier(user.getLastModifier());
         userTO.setStatus(user.getStatus());
         userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
-        userTO.setChangePwdDate(user.getChangePwdDate());
-        userTO.setFailedLogins(user.getFailedLogins());
-        userTO.setLastLoginDate(user.getLastLoginDate());
         userTO.setMustChangePassword(user.isMustChangePassword());
-        userTO.setToken(user.getToken());
-        userTO.setTokenExpireTime(user.getTokenExpireTime());
 
         if (user.getSecurityQuestion() != null) {
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());

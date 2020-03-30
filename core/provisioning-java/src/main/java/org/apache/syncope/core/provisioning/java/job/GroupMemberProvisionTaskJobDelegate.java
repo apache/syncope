@@ -73,7 +73,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
     }
 
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
         Group group = groupDAO.authFind(groupKey);
 
         StringBuilder result = new StringBuilder("Group ").append(group.getName()).append(" members ");
@@ -87,15 +87,17 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
         List<User> users = searchDAO.search(SearchCond.getLeaf(membershipCond), AnyTypeKind.USER);
-        Collection<String> groupResourceKeys = groupDAO.findAllResourceKeys(groupKey);
+        Collection<String> gResources = groupDAO.findAllResourceKeys(groupKey);
         status.set("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
-                + users.size() + " users from " + groupResourceKeys);
+                + users.size() + " users from " + gResources);
 
         for (int i = 0; i < users.size() && !interrupt; i++) {
             List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
-                    ? userProvisioningManager.deprovision(users.get(i).getKey(), groupResourceKeys, false)
-                    : userProvisioningManager.provision(users.get(i).getKey(), true, null, groupResourceKeys, false);
+                    ? userProvisioningManager.deprovision(
+                            users.get(i).getKey(), gResources, false, executor, getClass().getSimpleName())
+                    : userProvisioningManager.provision(
+                            users.get(i).getKey(), true, null, gResources, false, executor, getClass().getSimpleName());
             for (PropagationStatus propagationStatus : statuses) {
                 result.append("User ").append(users.get(i).getKey()).append('\t').
                         append("Resource ").append(propagationStatus.getResource()).append('\t').
@@ -118,12 +120,14 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeaf(membershipCond), AnyTypeKind.ANY_OBJECT);
         status.set("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
-                + anyObjects.size() + " any objects from " + groupResourceKeys);
+                + anyObjects.size() + " any objects from " + gResources);
 
         for (int i = 0; i < anyObjects.size() && !interrupt; i++) {
             List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
-                    ? anyObjectProvisioningManager.deprovision(anyObjects.get(i).getKey(), groupResourceKeys, false)
-                    : anyObjectProvisioningManager.provision(anyObjects.get(i).getKey(), groupResourceKeys, false);
+                    ? anyObjectProvisioningManager.deprovision(
+                            anyObjects.get(i).getKey(), gResources, false, executor, getClass().getSimpleName())
+                    : anyObjectProvisioningManager.provision(
+                            anyObjects.get(i).getKey(), gResources, false, executor, getClass().getSimpleName());
 
             for (PropagationStatus propagationStatus : statuses) {
                 result.append(anyObjects.get(i).getType().getKey()).append(' ').

@@ -62,5 +62,4 @@ public class XmlEntityTOAdapter<E extends EntityTO> extends XmlAdapter<EntityTOT
 
         return result;
     }
-
 }

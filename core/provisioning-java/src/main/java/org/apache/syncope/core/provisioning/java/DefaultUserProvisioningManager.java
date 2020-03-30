@@ -39,7 +39,6 @@ import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusRType;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -53,14 +52,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-
 public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserProvisioningManager.class);
-
-    @Resource(name = "adminUser")
-    protected String adminUser;
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
@@ -78,8 +72,10 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     protected UserDAO userDAO;
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final UserCR userCR, final boolean nullPriorityAsync) {
-        return create(userCR, false, null, Set.of(), nullPriorityAsync);
+    public Pair<String, List<PropagationStatus>> create(
+            final UserCR userCR, final boolean nullPriorityAsync, final String creator, final String context) {
+
+        return create(userCR, false, null, Set.of(), nullPriorityAsync, creator, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -89,9 +85,12 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final boolean disablePwdPolicyCheck,
             final Boolean enabled,
             final Set<String> excludedResources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String creator,
+            final String context) {
 
-        UserWorkflowResult<Pair<String, Boolean>> created = uwfAdapter.create(userCR, disablePwdPolicyCheck, enabled);
+        UserWorkflowResult<Pair<String, Boolean>> created =
+                uwfAdapter.create(userCR, disablePwdPolicyCheck, enabled, creator, context);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserCreateTasks(
                 created.getResult().getLeft(),
@@ -101,26 +100,32 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 created.getPropByLinkedAccount(),
                 userCR.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, creator);
 
         return Pair.of(created.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<UserUR, List<PropagationStatus>> update(final UserUR userUR, final boolean nullPriorityAsync) {
-        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR);
+    public Pair<UserUR, List<PropagationStatus>> update(
+            final UserUR userUR, final boolean nullPriorityAsync, final String updater, final String context) {
+
+        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(updated);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
     @Override
     public Pair<UserUR, List<PropagationStatus>> update(
-            final UserUR userUR, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final UserUR userUR,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
-        return update(userUR, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
+        return update(userUR, new ProvisioningReport(), null, excludedResources, nullPriorityAsync, updater, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -130,11 +135,13 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final ProvisioningReport result,
             final Boolean enabled,
             final Set<String> excludedResources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         UserWorkflowResult<Pair<UserUR, Boolean>> updated;
         try {
-            updated = uwfAdapter.update(userUR);
+            updated = uwfAdapter.update(userUR, updater, context);
         } catch (Exception e) {
             LOG.error("Update of user {} failed, trying to pull its status anyway (if configured)",
                     userUR.getKey(), e);
@@ -154,11 +161,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
             UserWorkflowResult<String> enableUpdate = null;
             if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(userUR.getKey(), null);
+                enableUpdate = uwfAdapter.activate(userUR.getKey(), null, updater, context);
             } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(userUR.getKey());
+                enableUpdate = uwfAdapter.reactivate(userUR.getKey(), updater, context);
             } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(userUR.getKey());
+                enableUpdate = uwfAdapter.suspend(userUR.getKey(), updater, context);
             }
 
             if (enableUpdate != null) {
@@ -172,20 +179,26 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                 updated, updated.getResult().getLeft().getPassword() != null, excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
     @Override
-    public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
-        return delete(key, Set.of(), nullPriorityAsync);
+    public List<PropagationStatus> delete(
+            final String key, final boolean nullPriorityAsync, final String eraser, final String context) {
+
+        return delete(key, Set.of(), nullPriorityAsync, eraser, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public List<PropagationStatus> delete(
-            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key,
+            final Set<String> excludedResources,
+            final boolean nullPriorityAsync,
+            final String eraser,
+            final String context) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(key));
@@ -205,56 +218,60 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 propByRes,
                 propByLinkedAccount,
                 excludedResources);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, eraser);
 
-        try {
-            uwfAdapter.delete(key);
-        } catch (PropagationException e) {
-            throw e;
-        }
+        uwfAdapter.delete(key);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public String unlink(final UserUR userUR) {
-        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR);
+    public String unlink(final UserUR userUR, final String updater, final String context) {
+        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
         return updated.getResult().getLeft().getKey();
     }
 
     @Override
-    public String link(final UserUR userUR) {
-        return uwfAdapter.update(userUR).getResult().getLeft().getKey();
+    public String link(final UserUR userUR, final String updater, final String context) {
+        return uwfAdapter.update(userUR, updater, context).getResult().getLeft().getKey();
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> activate(final StatusR statusR, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> activate(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         UserWorkflowResult<String> updated = statusR.isOnSyncope()
-                ? uwfAdapter.activate(statusR.getKey(), statusR.getToken())
+                ? uwfAdapter.activate(statusR.getKey(), statusR.getToken(), updater, context)
                 : new UserWorkflowResult<>(statusR.getKey(), null, null, statusR.getType().name().toLowerCase());
 
-        return Pair.of(updated.getResult(), propagateStatus(statusR, nullPriorityAsync));
+        return Pair.of(updated.getResult(), propagateStatus(statusR, nullPriorityAsync, updater));
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> reactivate(final StatusR statusR, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> reactivate(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         UserWorkflowResult<String> updated = statusR.isOnSyncope()
-                ? uwfAdapter.reactivate(statusR.getKey())
+                ? uwfAdapter.reactivate(statusR.getKey(), updater, context)
                 : new UserWorkflowResult<>(statusR.getKey(), null, null, statusR.getType().name().toLowerCase());
 
-        return Pair.of(updated.getResult(), propagateStatus(statusR, nullPriorityAsync));
+        return Pair.of(updated.getResult(), propagateStatus(statusR, nullPriorityAsync, updater));
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> suspend(final StatusR statusR, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> suspend(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater, final String context) {
+
         UserWorkflowResult<String> updated = statusR.isOnSyncope()
-                ? uwfAdapter.suspend(statusR.getKey())
+                ? uwfAdapter.suspend(statusR.getKey(), updater, context)
                 : new UserWorkflowResult<>(statusR.getKey(), null, null, statusR.getType().name().toLowerCase());
 
-        return Pair.of(updated.getResult(), propagateStatus(statusR, nullPriorityAsync));
+        return Pair.of(updated.getResult(), propagateStatus(statusR, nullPriorityAsync, updater));
     }
 
-    protected List<PropagationStatus> propagateStatus(final StatusR statusR, final boolean nullPriorityAsync) {
+    protected List<PropagationStatus> propagateStatus(
+            final StatusR statusR, final boolean nullPriorityAsync, final String updater) {
+
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, statusR.getResources());
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
@@ -266,14 +283,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public void internalSuspend(final String key) {
-        Pair<UserWorkflowResult<String>, Boolean> updated = uwfAdapter.internalSuspend(key);
+    public void internalSuspend(final String key, final String updater, final String context) {
+        Pair<UserWorkflowResult<String>, Boolean> updated = uwfAdapter.internalSuspend(key, updater, context);
 
         // propagate suspension if and only if it is required by policy
         if (updated != null && updated.getRight()) {
@@ -285,7 +302,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                     updated.getLeft().getPropByRes(),
                     updated.getLeft().getPropByLinkedAccount(),
                     updated.getLeft().getPerformedTasks()));
-            taskExecutor.execute(taskInfos, false, adminUser);
+            taskExecutor.execute(taskInfos, false, updater);
         }
     }
 
@@ -295,7 +312,9 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final boolean changePwd,
             final String password,
             final Collection<String> resources,
-            final boolean nullPriorityAsync) {
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         UserUR userUR = new UserUR();
         userUR.setKey(key);
@@ -318,14 +337,18 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
     public List<PropagationStatus> deprovision(
-            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key,
+            final Collection<String> resources,
+            final boolean nullPriorityAsync,
+            final String updater,
+            final String context) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, resources);
@@ -345,21 +368,24 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 userDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, adminUser);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public void requestPasswordReset(final String key) {
-        uwfAdapter.requestPasswordReset(key);
+    public void requestPasswordReset(final String key, final String updater, final String context) {
+        uwfAdapter.requestPasswordReset(key, updater, context);
     }
 
     @Override
-    public void confirmPasswordReset(final String key, final String token, final String password) {
-        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.confirmPasswordReset(key, token, password);
+    public void confirmPasswordReset(
+            final String key, final String token, final String password, final String updater, final String context) {
+
+        UserWorkflowResult<Pair<UserUR, Boolean>> updated =
+                uwfAdapter.confirmPasswordReset(key, token, password, updater, context);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(updated);
-        taskExecutor.execute(taskInfos, false, adminUser);
+        taskExecutor.execute(taskInfos, false, updater);
     }
 }

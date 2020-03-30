@@ -133,12 +133,7 @@ public class Realms extends BasePage {
             }
         });
 
-        try {
-            updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInteger());
-        } catch (Exception e) {
-            LOG.debug("Unexpected error", e);
-            updateRealmContent(realmChoicePanel.getCurrentRealm(), 0);
-        }
+        updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInt(0));
     }
 
     @Override

@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapter {
+public abstract class AbstractGroupWorkflowAdapter extends AbstractWorkflowAdapter implements GroupWorkflowAdapter {
 
     @Autowired
     protected GroupDataBinder dataBinder;
@@ -47,18 +47,18 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
         return null;
     }
 
-    protected abstract WorkflowResult<String> doCreate(GroupCR groupCR);
+    protected abstract WorkflowResult<String> doCreate(GroupCR groupCR, String creator, String context);
 
     @Override
-    public WorkflowResult<String> create(final GroupCR groupCR) {
-        return doCreate(groupCR);
+    public WorkflowResult<String> create(final GroupCR groupCR, final String creator, final String context) {
+        return doCreate(groupCR, creator, context);
     }
 
-    protected abstract WorkflowResult<GroupUR> doUpdate(Group group, GroupUR groupUR);
+    protected abstract WorkflowResult<GroupUR> doUpdate(Group group, GroupUR groupUR, String updater, String context);
 
     @Override
-    public WorkflowResult<GroupUR> update(final GroupUR groupUR) {
-        WorkflowResult<GroupUR> result = doUpdate(groupDAO.authFind(groupUR.getKey()), groupUR);
+    public WorkflowResult<GroupUR> update(final GroupUR groupUR, final String updater, final String context) {
+        WorkflowResult<GroupUR> result = doUpdate(groupDAO.authFind(groupUR.getKey()), groupUR, updater, context);
 
         // re-read to ensure that requester's administration rights are still valid
         groupDAO.authFind(groupUR.getKey());

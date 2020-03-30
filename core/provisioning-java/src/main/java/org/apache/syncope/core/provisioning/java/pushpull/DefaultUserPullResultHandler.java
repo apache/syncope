@@ -99,7 +99,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
-        WorkflowResult<Pair<UserUR, Boolean>> update = uwfAdapter.update((UserUR) req);
+        WorkflowResult<Pair<UserUR, Boolean>> update =
+                uwfAdapter.update((UserUR) req, profile.getExecutor(), getContext());
         return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
 
@@ -114,7 +115,9 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 true,
                 enabled(delta),
                 Set.of(profile.getTask().getResource().getKey()),
-                true);
+                true,
+                profile.getExecutor(),
+                getContext());
 
         return userDataBinder.getUserTO(created.getKey());
     }
@@ -131,7 +134,9 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 result,
                 enabled(delta),
                 Set.of(profile.getTask().getResource().getKey()),
-                true);
+                true,
+                profile.getExecutor(),
+                getContext());
 
         return updated.getLeft();
     }
@@ -369,7 +374,9 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         report,
                         null,
                         Set.of(profile.getTask().getResource().getKey()),
-                        true);
+                        true,
+                        profile.getExecutor(),
+                        getContext());
 
                 LinkedAccountTO created = userDAO.find(req.getKey()).
                         getLinkedAccount(accountTO.getResource(), accountTO.getConnObjectKeyValue()).
@@ -494,7 +501,9 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         report,
                         null,
                         Set.of(profile.getTask().getResource().getKey()),
-                        true);
+                        true,
+                        profile.getExecutor(),
+                        getContext());
                 resultStatus = Result.SUCCESS;
 
                 LinkedAccountTO updated = userDAO.find(patch.getKey()).
@@ -588,7 +597,9 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                             report,
                             null,
                             Set.of(profile.getTask().getResource().getKey()),
-                            true);
+                            true,
+                            profile.getExecutor(),
+                            getContext());
                     resultStatus = Result.SUCCESS;
 
                     output = null;

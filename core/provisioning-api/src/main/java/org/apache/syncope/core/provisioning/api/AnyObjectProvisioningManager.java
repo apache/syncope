@@ -29,7 +29,12 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectCR, AnyObjectUR> {
 
     Pair<String, List<PropagationStatus>> create(
-            AnyObjectCR anyObjectCR, Set<String> excludedResources, boolean nullPriorityAsync);
+            AnyObjectCR anyObjectCR,
+            Set<String> excludedResources,
+            boolean nullPriorityAsync,
+            String creator,
+            String context);
 
-    List<PropagationStatus> provision(String key, Collection<String> resources, boolean nullPriorityAsync);
+    List<PropagationStatus> provision(
+            String key, Collection<String> resources, boolean nullPriorityAsync, String updater, String context);
 }

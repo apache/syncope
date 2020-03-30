@@ -63,17 +63,19 @@ public class StatusProducer extends AbstractProducer {
 
             Boolean enabled = exchange.getProperty("enabled", Boolean.class);
             String key = exchange.getProperty("key", String.class);
+            String updater = exchange.getProperty("updater", String.class);
+            String context = exchange.getProperty("context", String.class);
 
             if (enabled != null) {
                 User user = userDAO.find(key);
 
                 WorkflowResult<String> enableUpdate = null;
                 if (user.isSuspended() == null) {
-                    enableUpdate = uwfAdapter.activate(key, null);
+                    enableUpdate = uwfAdapter.activate(key, null, updater, context);
                 } else if (enabled && user.isSuspended()) {
-                    enableUpdate = uwfAdapter.reactivate(key);
+                    enableUpdate = uwfAdapter.reactivate(key, updater, context);
                 } else if (!enabled && !user.isSuspended()) {
-                    enableUpdate = uwfAdapter.suspend(key);
+                    enableUpdate = uwfAdapter.suspend(key, updater, context);
                 }
 
                 if (enableUpdate != null) {
@@ -109,7 +111,7 @@ public class StatusProducer extends AbstractProducer {
                     null,
                     null);
             PropagationReporter reporter =
-                getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
+                    getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
             exchange.getMessage().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
         }

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
+import java.util.Optional;
+import javax.annotation.Resource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -50,6 +52,9 @@ public class NotificationJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJob.class);
 
+    @Resource(name = "adminUser")
+    private String adminUser;
+
     @Autowired
     private DomainHolder domainHolder;
 
@@ -64,7 +69,8 @@ public class NotificationJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Waking up...");
-        String executor = context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY);
+        String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
+                orElse(adminUser);
         for (String domain : domainHolder.getDomains().keySet()) {
             try {
                 AuthContextUtils.callAsAdmin(domain, () -> {

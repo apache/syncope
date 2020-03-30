@@ -29,7 +29,7 @@ import org.quartz.JobExecutionException;
 public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
 
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
         for (int i = 0; i < 2; i++) {
             LOG.debug("TestSampleJob#doExecute round {} time {}", i, new Date().toString());
             try {
@@ -61,5 +61,4 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return true;
     }
-
 }

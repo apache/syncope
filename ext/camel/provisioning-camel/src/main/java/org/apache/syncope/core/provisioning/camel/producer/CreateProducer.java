@@ -61,18 +61,18 @@ public class CreateProducer extends AbstractProducer {
                         created.getPropByLinkedAccount(),
                         ((UserCR) actual).getVirAttrs(),
                         excludedResources);
-                PropagationReporter reporter = getPropagationTaskExecutor()
-                    .execute(taskInfos, nullPriorityAsync, getExecutor());
+                PropagationReporter reporter = getPropagationTaskExecutor().
+                        execute(taskInfos, nullPriorityAsync, getExecutor());
 
-                exchange.getMessage().setBody(
-                        Pair.of(created.getResult().getKey(), reporter.getStatuses()));
+                exchange.getMessage().setBody(Pair.of(created.getResult().getKey(), reporter.getStatuses()));
             } else if (actual instanceof AnyCR) {
                 WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
 
                 if (actual instanceof GroupCR && isPull()) {
                     Map<String, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
-                    ((GroupCR) actual).getPlainAttr(StringUtils.EMPTY).ifPresent(groupOwner
-                            -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next()));
+                    ((GroupCR) actual).getPlainAttr(StringUtils.EMPTY).
+                            ifPresent(groupOwner -> groupOwnerMap.put(
+                            created.getResult(), groupOwner.getValues().iterator().next()));
 
                     List<PropagationTaskInfo> taskInfos = getPropagationManager().getCreateTasks(
                             AnyTypeKind.GROUP,
@@ -93,7 +93,7 @@ public class CreateProducer extends AbstractProducer {
                             ((AnyCR) actual).getVirAttrs(),
                             excludedResources);
                     PropagationReporter reporter =
-                        getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
+                            getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync, getExecutor());
 
                     exchange.getMessage().setBody(Pair.of(created.getResult(), reporter.getStatuses()));
                 }

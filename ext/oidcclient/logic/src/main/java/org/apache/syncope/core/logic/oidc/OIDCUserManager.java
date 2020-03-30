@@ -61,6 +61,8 @@ public class OIDCUserManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCUserManager.class);
 
+    private static final String OIDC_CLIENT_CONTEXT = "ODIC Client";
+
     @Autowired
     private InboundMatcher inboundMatcher;
 
@@ -183,7 +185,8 @@ public class OIDCUserManager {
             userCR.setUsername(email);
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(userCR, false);
+        Pair<String, List<PropagationStatus>> created =
+                provisioningManager.create(userCR, false, userCR.getUsername(), OIDC_CLIENT_CONTEXT);
         userTO = binder.getUserTO(created.getKey());
 
         for (OIDCProviderActions action : actions) {
@@ -207,7 +210,8 @@ public class OIDCUserManager {
             userUR = action.beforeUpdate(userUR, responseTO);
         }
 
-        Pair<UserUR, List<PropagationStatus>> updated = provisioningManager.update(userUR, false);
+        Pair<UserUR, List<PropagationStatus>> updated =
+                provisioningManager.update(userUR, false, userTO.getUsername(), OIDC_CLIENT_CONTEXT);
         userTO = binder.getUserTO(updated.getLeft().getKey());
 
         for (OIDCProviderActions action : actions) {

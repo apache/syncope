@@ -31,9 +31,10 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
-    protected WorkflowResult<String> doCreate(final GroupCR groupCR) {
+    protected WorkflowResult<String> doCreate(final GroupCR groupCR, final String creator, final String context) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupCR);
+        metadata(group, creator, context);
         group = groupDAO.saveAndRefreshDynMemberships(group);
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
@@ -43,8 +44,13 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<GroupUR> doUpdate(final Group group, final GroupUR groupUR) {
+    protected WorkflowResult<GroupUR> doUpdate(
+            final Group group, final GroupUR groupUR, final String updater, final String context) {
+
         PropagationByResource<String> propByRes = dataBinder.update(group, groupUR);
+        metadata(group, updater, context);
+        groupDAO.save(group);
+
         return new WorkflowResult<>(groupUR, propByRes, "update");
     }
 

@@ -28,7 +28,7 @@ public class ExpiredBatchCleanup extends AbstractSchedTaskJobDelegate {
     private BatchDAO batchDAO;
 
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
         if (!dryRun) {
             int deleted = batchDAO.deleteExpired();
             LOG.debug("Successfully deleted {} expired batch requests", deleted);

@@ -57,5 +57,4 @@ public interface ProvisioningTask extends SchedTask {
     boolean isSyncStatus();
 
     void setSyncStatus(boolean syncStatus);
-
 }

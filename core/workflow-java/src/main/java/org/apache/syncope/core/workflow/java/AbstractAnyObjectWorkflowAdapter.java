@@ -31,7 +31,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractAnyObjectWorkflowAdapter implements AnyObjectWorkflowAdapter {
+public abstract class AbstractAnyObjectWorkflowAdapter
+        extends AbstractWorkflowAdapter implements AnyObjectWorkflowAdapter {
 
     @Autowired
     protected AnyObjectDataBinder dataBinder;
@@ -47,18 +48,22 @@ public abstract class AbstractAnyObjectWorkflowAdapter implements AnyObjectWorkf
         return null;
     }
 
-    protected abstract WorkflowResult<String> doCreate(AnyObjectCR anyObjectCR);
+    protected abstract WorkflowResult<String> doCreate(AnyObjectCR anyObjectCR, String creator, String context);
 
     @Override
-    public WorkflowResult<String> create(final AnyObjectCR anyObjectCR) {
-        return doCreate(anyObjectCR);
+    public WorkflowResult<String> create(final AnyObjectCR anyObjectCR, final String creator, final String context) {
+        return doCreate(anyObjectCR, creator, context);
     }
 
-    protected abstract WorkflowResult<AnyObjectUR> doUpdate(AnyObject anyObject, AnyObjectUR anyObjectUR);
+    protected abstract WorkflowResult<AnyObjectUR> doUpdate(
+            AnyObject anyObject, AnyObjectUR anyObjectUR, String updater, String context);
 
     @Override
-    public WorkflowResult<AnyObjectUR> update(final AnyObjectUR anyObjectUR) {
-        WorkflowResult<AnyObjectUR> result = doUpdate(anyObjectDAO.authFind(anyObjectUR.getKey()), anyObjectUR);
+    public WorkflowResult<AnyObjectUR> update(
+            final AnyObjectUR anyObjectUR, final String updater, final String context) {
+
+        WorkflowResult<AnyObjectUR> result = doUpdate(
+                anyObjectDAO.authFind(anyObjectUR.getKey()), anyObjectUR, updater, context);
 
         // re-read to ensure that requester's administration rights are still valid
         anyObjectDAO.authFind(anyObjectUR.getKey());

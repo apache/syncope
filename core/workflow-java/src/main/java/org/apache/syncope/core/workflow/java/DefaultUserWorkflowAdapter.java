@@ -43,7 +43,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected UserWorkflowResult<Pair<String, Boolean>> doCreate(
             final UserCR userCR,
             final boolean disablePwdPolicyCheck,
-            final Boolean enabled) {
+            final Boolean enabled,
+            final String creator,
+            final String context) {
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userCR);
@@ -66,6 +68,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             user.setSuspended(!enabled);
         }
 
+        metadata(user, creator, context);
         user.setStatus(status);
         user = userDAO.save(user);
 
@@ -85,11 +88,14 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected UserWorkflowResult<String> doActivate(final User user, final String token) {
+    protected UserWorkflowResult<String> doActivate(
+            final User user, final String token, final String updater, final String context) {
+
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
 
+        metadata(user, updater, context);
         user.removeToken();
         user.setStatus("active");
         User updated = userDAO.save(user);
@@ -98,9 +104,15 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(final User user, final UserUR userUR) {
+    protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
+            final User user, final UserUR userUR, final String updater, final String context) {
+
         Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
                 dataBinder.update(user, userUR);
+
+        metadata(user, updater, context);
+        userDAO.save(user);
+
         return new UserWorkflowResult<>(
                 Pair.of(userUR, !user.isSuspended()),
                 propInfo.getLeft(),
@@ -109,7 +121,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected UserWorkflowResult<String> doSuspend(final User user) {
+    protected UserWorkflowResult<String> doSuspend(final User user, final String updater, final String context) {
+        metadata(user, updater, context);
         user.setStatus("suspended");
         User updated = userDAO.save(user);
 
@@ -117,7 +130,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected UserWorkflowResult<String> doReactivate(final User user) {
+    protected UserWorkflowResult<String> doReactivate(final User user, final String updater, final String context) {
+        metadata(user, updater, context);
         user.setStatus("active");
         User updated = userDAO.save(user);
 
@@ -125,16 +139,17 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doRequestPasswordReset(final User user) {
+    protected void doRequestPasswordReset(final User user, final String updater, final String context) {
         user.generateToken(
                 confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
                 confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
+        metadata(user, updater, context);
         userDAO.save(user);
     }
 
     @Override
     protected UserWorkflowResult<Pair<UserUR, Boolean>> doConfirmPasswordReset(
-            final User user, final String token, final String password) {
+            final User user, final String token, final String password, final String updater, final String context) {
 
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
@@ -149,7 +164,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 resources(userDAO.findAllResourceKeys(user.getKey())).
                 value(password).build());
 
-        return doUpdate(user, userUR);
+        return doUpdate(user, userUR, updater, context);
     }
 
     @Override

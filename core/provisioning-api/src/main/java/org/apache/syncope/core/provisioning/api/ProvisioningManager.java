@@ -28,19 +28,23 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 
 public interface ProvisioningManager<C extends AnyCR, U extends AnyUR> {
 
-    Pair<String, List<PropagationStatus>> create(C anyCR, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> create(
+            C anyCR, boolean nullPriorityAsync, String creator, String context);
 
-    Pair<U, List<PropagationStatus>> update(U anyUR, boolean nullPriorityAsync);
+    Pair<U, List<PropagationStatus>> update(U anyUR, boolean nullPriorityAsync, String updater, String context);
 
-    Pair<U, List<PropagationStatus>> update(U anyUR, Set<String> excludedResources, boolean nullPriorityAsync);
+    Pair<U, List<PropagationStatus>> update(
+            U anyUR, Set<String> excludedResources, boolean nullPriorityAsync, String updater, String context);
 
-    List<PropagationStatus> delete(String anyKey, boolean nullPriorityAsync);
+    String unlink(U anyUR, String updater, String context);
 
-    List<PropagationStatus> delete(String anyKey, Set<String> excludedResources, boolean nullPriorityAsync);
+    String link(U anyUR, String updater, String context);
 
-    String unlink(U anyUR);
+    List<PropagationStatus> deprovision(
+            String anyKey, Collection<String> resources, boolean nullPriorityAsync, String updater, String context);
 
-    String link(U anyUR);
+    List<PropagationStatus> delete(String anyKey, boolean nullPriorityAsync, String eraser, String context);
 
-    List<PropagationStatus> deprovision(String anyKey, Collection<String> resources, boolean nullPriorityAsync);
+    List<PropagationStatus> delete(
+            String anyKey, Set<String> excludedResources, boolean nullPriorityAsync, String eraser, String context);
 }

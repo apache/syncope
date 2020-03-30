@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.camel.component;
 
 import java.util.Map;
-
+import javax.annotation.Resource;
 import org.apache.camel.Endpoint;
 import org.apache.camel.support.DefaultComponent;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -30,8 +30,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.Resource;
 
 public class PropagateComponent extends DefaultComponent {
 
@@ -60,8 +58,11 @@ public class PropagateComponent extends DefaultComponent {
     protected String adminUser;
 
     @Override
-    protected Endpoint createEndpoint(final String uri, final String remaining,
+    protected Endpoint createEndpoint(
+            final String uri,
+            final String remaining,
             final Map<String, Object> parameters) throws Exception {
+
         PropagateType type = PropagateType.valueOf(remaining);
         PropagateEndpoint endpoint = new PropagateEndpoint(uri, this);
         endpoint.setPropagateType(type);
@@ -72,10 +73,20 @@ public class PropagateComponent extends DefaultComponent {
         endpoint.setAnyObjectDAO(anyObjectDAO);
         endpoint.setGroupDataBinder(groupDataBinder);
         endpoint.setUwfAdapter(uwfAdapter);
-        endpoint.setExecutor(adminUser);
-        
+
+        String executor = (String) parameters.get("creator");
+        if (executor == null) {
+            executor = (String) parameters.get("updater");
+        }
+        if (executor == null) {
+            executor = (String) parameters.get("eraser");
+        }
+        if (executor == null) {
+            executor = adminUser;
+        }
+        endpoint.setExecutor(executor);
+
         setProperties(endpoint, parameters);
         return endpoint;
     }
-
 }
