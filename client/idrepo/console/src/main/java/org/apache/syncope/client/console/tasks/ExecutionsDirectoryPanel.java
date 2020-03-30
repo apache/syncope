@@ -104,6 +104,9 @@ public abstract class ExecutionsDirectoryPanel
         columns.add(new DatePropertyColumn<>(new StringResourceModel("end", this), "end", "end"));
 
         columns.add(new PropertyColumn<>(new StringResourceModel("status", this), "status", "status"));
+
+        columns.add(new PropertyColumn<>(new StringResourceModel("executor", this), "executor", "executor"));
+
         return columns;
     }
 
