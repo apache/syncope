@@ -27,7 +27,6 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
-import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,8 +93,7 @@ public class RESTSCIMCXFContext {
                 ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
 
         scimv2Container.setOutInterceptors(List.of(
-                ctx.getBean(GZIPOutInterceptor.class),
-                ctx.getBean(JAXRSBeanValidationOutInterceptor.class)));
+                ctx.getBean(GZIPOutInterceptor.class)));
 
         scimv2Container.setProviders(List.of(
                 scimJacksonJsonProvider(),

@@ -415,7 +415,7 @@ under the License.
 
     <openjpa.version>3.1.1</openjpa.version>
     <hikaricp.version>3.4.2</hikaricp.version>
-    <hibernate-validator.version>6.1.2.Final</hibernate-validator.version>
+    <bval.version>2.0.3</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -515,7 +515,7 @@ under the License.
 
     <tomcat.version>9.0.33</tomcat.version>
     <wildfly.version>19.0.0.Final</wildfly.version>
-    <payara.version>5.194</payara.version>
+    <payara.version>5.201</payara.version>
     <javax.faces.version>2.4.0</javax.faces.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
@@ -909,14 +909,9 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate.validator</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate-validator.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>javax.el</artifactId>
-        <version>3.0.1-b09</version>
+        <groupId>org.apache.bval</groupId>
+        <artifactId>bval-jsr</artifactId>
+        <version>${bval.version}</version>
       </dependency>
 
       <dependency>

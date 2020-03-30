@@ -38,7 +38,6 @@ import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
-import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
@@ -120,13 +119,6 @@ public class RESTCXFContext {
         JAXRSBeanValidationInInterceptor validationInInterceptor = new JAXRSBeanValidationInInterceptor();
         validationInInterceptor.setProvider(validationProvider());
         return validationInInterceptor;
-    }
-
-    @Bean
-    public JAXRSBeanValidationOutInterceptor validationOutInterceptor() {
-        JAXRSBeanValidationOutInterceptor validationOutInterceptor = new JAXRSBeanValidationOutInterceptor();
-        validationOutInterceptor.setProvider(validationProvider());
-        return validationOutInterceptor;
     }
 
     @Bean
@@ -245,9 +237,7 @@ public class RESTCXFContext {
                 gzipInInterceptor(),
                 validationInInterceptor()));
 
-        restContainer.setOutInterceptors(List.of(
-                gzipOutInterceptor(),
-                validationOutInterceptor()));
+        restContainer.setOutInterceptors(List.of(gzipOutInterceptor()));
 
         restContainer.setFeatures(List.of(openapiFeature()));
 

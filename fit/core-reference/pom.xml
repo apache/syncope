@@ -1477,9 +1477,15 @@ under the License.
 
       <dependencies>
         <dependency>
-          <groupId>org.glassfish</groupId>
-          <artifactId>javax.faces</artifactId>
-          <version>${javax.faces.version}</version>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.bval</groupId>
+              <artifactId>bval-jsr</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
 
         <dependency>
@@ -1515,6 +1521,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
+                  <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded
                     -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>

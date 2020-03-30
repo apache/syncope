@@ -19,17 +19,14 @@
 package org.apache.syncope.ext.self.keymaster.cxf;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
-import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -98,8 +95,7 @@ public class SelfKeymasterContext {
                 ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
 
         selfKeymasterContainer.setOutInterceptors(List.of(
-                ctx.getBean(GZIPOutInterceptor.class),
-                ctx.getBean(JAXRSBeanValidationOutInterceptor.class)));
+                ctx.getBean(GZIPOutInterceptor.class)));
 
         selfKeymasterContainer.setProviders(List.of(
                 ctx.getBean(RestServiceExceptionMapper.class),

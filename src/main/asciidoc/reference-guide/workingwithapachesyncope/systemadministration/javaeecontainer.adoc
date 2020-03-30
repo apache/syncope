@@ -102,6 +102,34 @@ Add
 
 to `core/pom.xml`, `console/pom.xml` and `enduser/pom.xml`.
 
+then replace
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.bval</groupId>
+          <artifactId>bval-jsr</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+....
+
+in `core/pom.xml`.
+
 When using a datasource for internal storage, be sure to add
 
 [source,xml]
@@ -112,8 +140,8 @@ When using a datasource for internal storage, be sure to add
 </resource-ref>
 ....
 
-right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Payara Server instance
-provides a datasource named `jdbc/syncopeMasterDataSource`.
+right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Payara Server
+instance provides a datasource named `jdbc/syncopeMasterDataSource`.
 
 [TIP]
 ====

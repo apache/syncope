@@ -115,11 +115,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>javax.el</groupId>
-      <artifactId>javax.el-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-persistence-jpa</artifactId>
       <version>${project.version}</version>

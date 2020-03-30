@@ -176,6 +176,10 @@ under the License.
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.apache.bval" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="org.opensaml" additivity="false" level="ERROR">
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
