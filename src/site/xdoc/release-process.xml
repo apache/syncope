@@ -484,7 +484,7 @@ Staging site:
 http://syncope.apache.org/$VERSION/
 
 PGP release keys (signed using ABCDEFG):
-http://www.apache.org/dist/syncope/KEYS
+https://downloads.apache.org/syncope/KEYS
 
 Vote will be open for 72 hours.
 

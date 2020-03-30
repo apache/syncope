@@ -68,8 +68,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/syncope-2.1.5-source-release.zip">syncope-2.1.5-source-release.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-2.1.5-source-release.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-2.1.5-source-release.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-2.1.5-source-release.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-2.1.5-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -77,8 +77,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/syncope-standalone-2.1.5-distribution.zip">syncope-standalone-2.1.5-distribution.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-standalone-2.1.5-distribution.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-standalone-2.1.5-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-standalone-2.1.5-distribution.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-standalone-2.1.5-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -86,8 +86,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/apache-syncope-2.1.5.deb">apache-syncope-2.1.5.deb</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/apache-syncope-2.1.5.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/apache-syncope-2.1.5.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/apache-syncope-2.1.5.deb.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/apache-syncope-2.1.5.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -95,8 +95,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/apache-syncope-console-2.1.5.deb">apache-syncope-console-2.1.5.deb</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/apache-syncope-console-2.1.5.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/apache-syncope-console-2.1.5.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/apache-syncope-console-2.1.5.deb.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/apache-syncope-console-2.1.5.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -104,8 +104,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/apache-syncope-enduser-2.1.5.deb">apache-syncope-enduser-2.1.5.deb</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/apache-syncope-enduser-2.1.5.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/apache-syncope-enduser-2.1.5.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/apache-syncope-enduser-2.1.5.deb.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/apache-syncope-enduser-2.1.5.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -113,8 +113,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/syncope-installer-2.1.5-uber.jar">syncope-installer-2.1.5.jar</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-installer-2.1.5-uber.jar.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-installer-2.1.5-uber.jar.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-installer-2.1.5-uber.jar.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-installer-2.1.5-uber.jar.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -122,8 +122,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/syncope-client-cli-2.1.5.zip">syncope-client-cli-2.1.5.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-client-cli-2.1.5.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-client-cli-2.1.5.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-client-cli-2.1.5.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-client-cli-2.1.5.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -131,8 +131,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/syncope-core-upgrade-2.1.5.zip">syncope-core-upgrade-2.1.5.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-core-upgrade-2.1.5.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-core-upgrade-2.1.5.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-core-upgrade-2.1.5.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-core-upgrade-2.1.5.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -140,8 +140,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/org.apache.syncope.ide.eclipse.site-2.1.5.zip">org.apache.syncope.ide.eclipse.site-2.1.5.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/org.apache.syncope.ide.eclipse.site-2.1.5.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/org.apache.syncope.ide.eclipse.site-2.1.5.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/org.apache.syncope.ide.eclipse.site-2.1.5.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/org.apache.syncope.ide.eclipse.site-2.1.5.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -149,8 +149,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.5/syncope-ide-netbeans-2.1.5.nbm">syncope-ide-netbeans-2.1.5.nbm</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-ide-netbeans-2.1.5.nbm.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.1.5/syncope-ide-netbeans-2.1.5.nbm.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-ide-netbeans-2.1.5.nbm.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.1.5/syncope-ide-netbeans-2.1.5.nbm.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
@@ -189,8 +189,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/syncope-2.0.14-source-release.zip">syncope-2.0.14-source-release.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-2.0.14-source-release.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-2.0.14-source-release.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-2.0.14-source-release.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-2.0.14-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -198,8 +198,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/syncope-standalone-2.0.14-distribution.zip">syncope-standalone-2.0.14-distribution.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-standalone-2.0.14-distribution.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-standalone-2.0.14-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-standalone-2.0.14-distribution.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-standalone-2.0.14-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -207,8 +207,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/apache-syncope-2.0.14.deb">apache-syncope-2.0.14.deb</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/apache-syncope-2.0.14.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/apache-syncope-2.0.14.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/apache-syncope-2.0.14.deb.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/apache-syncope-2.0.14.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -216,8 +216,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/apache-syncope-console-2.0.14.deb">apache-syncope-console-2.0.14.deb</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/apache-syncope-console-2.0.14.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/apache-syncope-console-2.0.14.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/apache-syncope-console-2.0.14.deb.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/apache-syncope-console-2.0.14.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -225,8 +225,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/apache-syncope-enduser-2.0.14.deb">apache-syncope-enduser-2.0.14.deb</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/apache-syncope-enduser-2.0.14.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/apache-syncope-enduser-2.0.14.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/apache-syncope-enduser-2.0.14.deb.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/apache-syncope-enduser-2.0.14.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -234,8 +234,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/syncope-installer-2.0.14-uber.jar">syncope-installer-2.0.14.jar</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-installer-2.0.14-uber.jar.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-installer-2.0.14-uber.jar.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-installer-2.0.14-uber.jar.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-installer-2.0.14-uber.jar.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -243,8 +243,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/syncope-client-cli-2.0.14.zip">syncope-client-cli-2.0.14.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-client-cli-2.0.14.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-client-cli-2.0.14.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-client-cli-2.0.14.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-client-cli-2.0.14.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -252,8 +252,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/org.apache.syncope.ide.eclipse.site-2.0.14.zip">org.apache.syncope.ide.eclipse.site-2.0.14.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/org.apache.syncope.ide.eclipse.site-2.0.14.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/org.apache.syncope.ide.eclipse.site-2.0.14.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/org.apache.syncope.ide.eclipse.site-2.0.14.zip.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/org.apache.syncope.ide.eclipse.site-2.0.14.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
@@ -261,8 +261,8 @@ under the License.
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.14/syncope-ide-netbeans-2.0.14.nbm">syncope-ide-netbeans-2.0.14.nbm</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-ide-netbeans-2.0.14.nbm.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.14/syncope-ide-netbeans-2.0.14.nbm.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-ide-netbeans-2.0.14.nbm.asc">asc</a> 
+                <a href="https://downloads.apache.org/syncope/2.0.14/syncope-ide-netbeans-2.0.14.nbm.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
@@ -277,7 +277,7 @@ under the License.
     <section name="Verifying Releases">
       <p>When downloading from a mirror please check the SHA512 checksums as well as verifying the OpenPGP compatible
         signature available from the main Apache site.
-        The <a href="https://www.apache.org/dist/syncope/KEYS">KEYS</a> file contains the public keys used for signing the
+        The <a href="https://downloads.apache.org/syncope/KEYS">KEYS</a> file contains the public keys used for signing the
         release. It is recommended that a web of trust is used to confirm the identity of these keys.</p>
 
       <p>You can check the OpenPGP signature with GnuPG via:</p>
