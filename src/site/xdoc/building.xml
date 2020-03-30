@@ -186,11 +186,6 @@ under the License.
 
         <h4>Java EE containers</h4>
 
-        <h5>Glassfish</h5>
-        Perform the full test suite by deploying Syncope core in 
-        <a href="https://glassfish.java.net/">Glassfish</a> via
-        <source>$ mvn -Pglassfish-it</source>
-
         <h5>Payara</h5>
         Perform the full test suite by deploying Syncope core in 
         <a href="http://www.payara.fish/">Payara</a> via
