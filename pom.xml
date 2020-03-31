@@ -429,7 +429,7 @@ under the License.
 
     <camel.version>3.1.0</camel.version>
 
-    <slf4j.version>1.7.30</slf4j.version>
+    <slf4j.version>2.0.0-alpha1</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
     <elasticsearch.version>7.6.1</elasticsearch.version>
@@ -456,7 +456,7 @@ under the License.
 
     <swagger-core.version>2.1.1</swagger-core.version>
     <swagger-ui.version>3.25.0</swagger-ui.version>
-    <guava.version>20.0</guava.version>
+    <guava.version>28.2-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
     <jquery-ui.version>1.12.1</jquery-ui.version>
@@ -1022,6 +1022,28 @@ under the License.
           <exclusion>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-logging</artifactId>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-log4j2</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1688,11 +1710,6 @@ under the License.
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-web</artifactId>
-        <version>${log4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j-impl</artifactId>
         <version>${log4j.version}</version>
       </dependency>
       <dependency>

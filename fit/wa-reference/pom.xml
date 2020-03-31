@@ -34,10 +34,8 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <guava.version>28.2-jre</guava.version>
     <opensaml.version>3.4.5</opensaml.version>
     <bootstrap.version>4.4.1</bootstrap.version>
-    <slf4j.version>2.0.0-alpha1</slf4j.version>
 
     <ianal.skip>true</ianal.skip>
 
