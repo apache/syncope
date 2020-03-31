@@ -404,7 +404,7 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.2.12</cxf.version>
+    <cxf.version>3.2.13</cxf.version>
 
     <jackson.version>2.10.3</jackson.version>
 
@@ -430,7 +430,7 @@ under the License.
     <slf4j.version>1.7.30</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>6.8.7</elasticsearch.version>
+    <elasticsearch.version>6.8.8</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
