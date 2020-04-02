@@ -24,14 +24,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.internal.introspection.Uberspect;
 import org.apache.commons.jexl3.introspection.JexlMethod;
 import org.apache.commons.jexl3.introspection.JexlPropertySet;
 import org.apache.commons.jexl3.introspection.JexlUberspect;
+import org.apache.commons.logging.LogFactory;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 class SandboxUberspect extends Uberspect {
@@ -50,7 +57,7 @@ class SandboxUberspect extends Uberspect {
                     "contains", "indexOf", "replace", "replaceAll")));
 
     SandboxUberspect() {
-        super(null, JexlUberspect.JEXL_STRATEGY);
+        super(LogFactory.getLog(JexlEngine.class), JexlUberspect.JEXL_STRATEGY);
     }
 
     @Override
@@ -60,7 +67,13 @@ class SandboxUberspect extends Uberspect {
 
     @Override
     public JexlMethod getMethod(final Object obj, final String method, final Object... args) {
-        if (obj instanceof AnyTO || obj instanceof Any || obj instanceof Realm || obj instanceof RealmTO) {
+        if (obj instanceof AnyTO || obj instanceof Any
+                || obj instanceof PlainAttr || obj instanceof AttrTO
+                || obj instanceof MembershipTO || obj instanceof Membership
+                || obj instanceof Realm || obj instanceof RealmTO) {
+
+            return super.getMethod(obj, method, args);
+        } else if (obj instanceof SyncopeJexlFunctions) {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof String && STRING_METHODS.contains(method)) {
             return super.getMethod(obj, method, args);
@@ -69,6 +82,8 @@ class SandboxUberspect extends Uberspect {
         } else if (obj instanceof List && (LIST_METHODS.contains(method) || COLLECTION_METHODS.contains(method))) {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof Collection && COLLECTION_METHODS.contains(method)) {
+            return super.getMethod(obj, method, args);
+        } else if (obj instanceof Optional) {
             return super.getMethod(obj, method, args);
         } else if (obj.getClass().isArray()) {
             return super.getMethod(obj, method, args);
