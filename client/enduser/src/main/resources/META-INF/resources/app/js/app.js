@@ -382,9 +382,11 @@ app.run(['$rootScope', '$state', 'AuthService', '$transitions',
       }
     };
   }]);
-app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', 'InfoService', 'SAML2IdPService',
+app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '$sce', 'InfoService', 'SAML2IdPService',
   'OIDCProviderService', 'DynamicTemplateService',
-  function ($scope, $rootScope, $translate, InfoService, SAML2IdPService, OIDCProviderService, DynamicTemplateService) {
+  function ($scope, $rootScope, $translate, $sce, InfoService, SAML2IdPService, OIDCProviderService,
+          DynamicTemplateService) {
+
     $scope.initApplication = function () {
       /* 
        * disable by default wizard buttons in self-registration
@@ -576,7 +578,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '
           // forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
           window.scrollTo(0, 0);
           component.options.autoHideAfter = $scope.notificationSuccessTimeout;
-          component.show(String(message).replace(/<[^>]+>/gm, ''), "success");
+          component.show($scope.sanitizeUrl(String(message)), "success");
         }
       };
       $scope.showError = function (message, component) {
@@ -584,7 +586,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '
           // forcing scrollTo since kendo doesn't disable scrollTop if pinned is true
           window.scrollTo(0, 0);
           component.options.autoHideAfter = 0;
-          component.show(String(message).replace(/<[^>]+>/gm, ''), "error");
+          component.show($scope.sanitizeUrl(String(message)), "error");
         }
       };
       $scope.hideError = function (message, component) {
@@ -657,6 +659,13 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$translate', '
        */
       $scope.clearCache = function () {
         $templateCache.removeAll();
+      };
+
+      $scope.sanitizeUrl = function (message) {
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = $sce.trustAsHtml(message);
+        var strippedOutMessage = tmp.textContent || tmp.innerText || "";
+        return strippedOutMessage.trim();
       };
     };
   }]);
