@@ -370,7 +370,7 @@ public class DefaultNotificationManager implements NotificationManager {
                     } else if (any instanceof Group) {
                         model.put("group", groupDataBinder.getGroupTO((Group) any, true));
                     } else if (any instanceof AnyObject) {
-                        model.put("group", anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true));
+                        model.put("anyObject", anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true));
                     }
 
                     NotificationTask notificationTask = getNotificationTask(notification, any, model);
