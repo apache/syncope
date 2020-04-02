@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -401,11 +402,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("lastChangeContext").
                                 equalTo("*PullTask " + task.getKey() + "*").query()).
-                        orderBy(SyncopeClient.getOrderByClauseBuilder().desc("lastChangeDate").build()).
-                        page(1).size(100).
                         build());
         assertNotNull(matchByLastChangeContext);
-        assertTrue(matchByLastChangeContext.getResult().contains(matchingUsers.getResult().get(0)));
+        assertNotEquals(0, matchByLastChangeContext.getTotalCount());
 
         GroupTO groupTO = matchingGroups.getResult().get(0);
         assertNotNull(groupTO);
