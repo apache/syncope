@@ -401,6 +401,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("lastChangeContext").
                                 equalTo("*PullTask " + task.getKey() + "*").query()).
+                        orderBy(SyncopeClient.getOrderByClauseBuilder().desc("lastChangeDate").build()).
+                        page(1).size(100).
                         build());
         assertNotNull(matchByLastChangeContext);
         assertTrue(matchByLastChangeContext.getResult().contains(matchingUsers.getResult().get(0)));
