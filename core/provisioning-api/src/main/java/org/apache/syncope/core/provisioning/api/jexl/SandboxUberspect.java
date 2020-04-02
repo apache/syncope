@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.jexl;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,17 +46,13 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 class SandboxUberspect extends Uberspect {
 
     private static final Set<String> COLLECTION_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("contains", "containsAll", "isEmpty", "size", "iterator")));
+            Arrays.asList("contains", "containsAll", "isEmpty", "size", "iterator", "toString")));
 
     private static final Set<String> LIST_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("get", "indexOf", "lastIndexOf")));
+            Arrays.asList("get", "indexOf", "lastIndexOf", "toString")));
 
     private static final Set<String> MAP_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("get", "getOrDefault", "containsKey", "containsValue")));
-
-    private static final Set<String> STRING_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("toUpperCase", "toLowerCase", "endsWith", "startsWith",
-                    "contains", "indexOf", "replace", "replaceAll")));
+            Arrays.asList("get", "getOrDefault", "containsKey", "containsValue", "toString")));
 
     SandboxUberspect() {
         super(LogFactory.getLog(JexlEngine.class), JexlUberspect.JEXL_STRATEGY);
@@ -75,17 +73,19 @@ class SandboxUberspect extends Uberspect {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof SyncopeJexlFunctions) {
             return super.getMethod(obj, method, args);
-        } else if (obj instanceof String && STRING_METHODS.contains(method)) {
+        } else if (obj instanceof Optional) {
+            return super.getMethod(obj, method, args);
+        } else if (obj.getClass().isArray()) {
+            return super.getMethod(obj, method, args);
+        } else if (obj instanceof String) {
+            return super.getMethod(obj, method, args);
+        } else if (obj instanceof Date || obj instanceof Instant) {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof Map && MAP_METHODS.contains(method)) {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof List && (LIST_METHODS.contains(method) || COLLECTION_METHODS.contains(method))) {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof Collection && COLLECTION_METHODS.contains(method)) {
-            return super.getMethod(obj, method, args);
-        } else if (obj instanceof Optional) {
-            return super.getMethod(obj, method, args);
-        } else if (obj.getClass().isArray()) {
             return super.getMethod(obj, method, args);
         }
         return null;
