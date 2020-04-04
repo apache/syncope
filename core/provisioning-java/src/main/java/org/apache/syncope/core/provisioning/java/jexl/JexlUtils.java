@@ -71,7 +71,7 @@ public final class JexlUtils {
         synchronized (LOG) {
             if (JEXL_ENGINE == null) {
                 JEXL_ENGINE = new JexlBuilder().
-                        uberspect(new ClassFreeUberspect()).
+                        uberspect(new SandboxUberspect()).
                         loader(new EmptyClassLoader()).
                         namespaces(Collections.<String, Object>singletonMap("syncope", new SyncopeJexlFunctions())).
                         cache(512).
