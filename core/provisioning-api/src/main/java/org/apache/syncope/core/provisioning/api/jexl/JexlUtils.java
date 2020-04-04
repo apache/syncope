@@ -65,8 +65,7 @@ public final class JexlUtils {
     private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
 
     private static final Map<Class<?>, Set<Pair<PropertyDescriptor, Field>>> FIELD_CACHE =
-            Collections.<Class<?>, Set<Pair<PropertyDescriptor, Field>>>synchronizedMap(
-                    new HashMap<Class<?>, Set<Pair<PropertyDescriptor, Field>>>());
+            Collections.synchronizedMap(new HashMap<Class<?>, Set<Pair<PropertyDescriptor, Field>>>());
 
     private static JexlEngine JEXL_ENGINE;
 
@@ -74,7 +73,7 @@ public final class JexlUtils {
         synchronized (LOG) {
             if (JEXL_ENGINE == null) {
                 JEXL_ENGINE = new JexlBuilder().
-                        uberspect(new ClassFreeUberspect()).
+                        uberspect(new SandboxUberspect()).
                         loader(new EmptyClassLoader()).
                         namespaces(Map.of("syncope", new SyncopeJexlFunctions())).
                         cache(512).

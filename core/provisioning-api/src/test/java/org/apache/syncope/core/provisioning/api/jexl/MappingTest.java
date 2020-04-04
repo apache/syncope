@@ -16,71 +16,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.jexl;
-
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+package org.apache.syncope.core.provisioning.api.jexl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.java.AbstractTest;
+import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
 public class MappingTest extends AbstractTest {
-
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    private UserDAO userDAO;
 
     @Test
     public void anyConnObjectLink() {
-        ExternalResource ldap = resourceDAO.find("resource-ldap");
-        assertNotNull(ldap);
+        Realm realm = mock(Realm.class);
+        when(realm.getFullPath()).thenReturn("/even");
 
-        Provision provision = ldap.getProvision(anyTypeDAO.findUser()).get();
-        assertNotNull(provision);
-        assertNotNull(provision.getMapping());
-        assertNotNull(provision.getMapping().getConnObjectLink());
-
-        User user = userDAO.findByUsername("rossini");
+        User user = mock(User.class);
+        when(user.getUsername()).thenReturn("rossini");
+        when(user.getRealm()).thenReturn(realm);
         assertNotNull(user);
 
         JexlContext jexlContext = new MapContext();
         JexlUtils.addFieldsToContext(user, jexlContext);
-        JexlUtils.addPlainAttrsToContext(user.getPlainAttrs(), jexlContext);
 
-        assertEquals(
-                "uid=rossini,ou=people,o=isp",
-                JexlUtils.evaluate(provision.getMapping().getConnObjectLink(), jexlContext));
+        String connObjectLink = "'uid=' + username + ',ou=people,o=isp'";
+        assertEquals("uid=rossini,ou=people,o=isp", JexlUtils.evaluate(connObjectLink, jexlContext));
 
-        String connObjectLink = "'uid=' + username + realm.replaceAll('/', ',o=') + ',ou=people,o=isp'";
+        connObjectLink = "'uid=' + username + realm.replaceAll('/', ',o=') + ',ou=people,o=isp'";
         assertEquals("uid=rossini,o=even,ou=people,o=isp", JexlUtils.evaluate(connObjectLink, jexlContext));
     }
 
     @Test
     public void realmConnObjectLink() {
-        Realm realm = realmDAO.findByFullPath("/even/two");
+        Realm realm = mock(Realm.class);
+        when(realm.getFullPath()).thenReturn("/even/two");
         assertNotNull(realm);
 
         JexlContext jexlContext = new MapContext();
@@ -89,7 +64,7 @@ public class MappingTest extends AbstractTest {
         String connObjectLink = "syncope:fullPath2Dn(fullPath, 'ou') + ',o=isp'";
         assertEquals("ou=two,ou=even,o=isp", JexlUtils.evaluate(connObjectLink, jexlContext));
 
-        realm = realmDAO.findByFullPath("/even");
+        when(realm.getFullPath()).thenReturn("/even");
         assertNotNull(realm);
 
         jexlContext = new MapContext();
