@@ -32,5 +32,4 @@ class EmptyClassLoader extends ClassLoader {
     protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
         throw new ClassNotFoundException("This classloader won't attemp to load " + name);
     }
-
 }
