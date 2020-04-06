@@ -183,7 +183,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                                     restClient.update(original.getETagValue(), updateReq);
                             model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (Exception e) {
                             LOG.error("While restoring any object {}", model.getObject().getKey(), e);
@@ -227,7 +227,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 try {
                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting any object {}", model.getObject().getKey(), e);

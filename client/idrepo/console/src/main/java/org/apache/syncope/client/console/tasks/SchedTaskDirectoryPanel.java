@@ -303,7 +303,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 try {
                     TaskRestClient.delete(taskType, taskTO.getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 } catch (SyncopeClientException e) {

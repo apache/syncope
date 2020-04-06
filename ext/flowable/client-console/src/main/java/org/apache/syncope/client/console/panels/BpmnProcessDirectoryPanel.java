@@ -198,7 +198,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
                             try {
                                 BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE,
                                         model.getObject().getKey(), wfDefinition.getObject());
-                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
 
                                 target.add(container);
                                 utility.show(false);
@@ -266,7 +266,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 try {
                     BpmnProcessRestClient.deleteDefinition(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting BPMN definition {}", model.getObject().getName(), e);

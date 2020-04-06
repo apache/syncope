@@ -117,9 +117,9 @@ public abstract class AbstractUITCase {
     }
 
     protected static void assertSuccessMessage() {
-        Set<Serializable> messages =
-                TESTER.getFeedbackMessages(new ExactLevelFeedbackMessageFilter(FeedbackMessage.INFO)).stream().
-                        map(FeedbackMessage::getMessage).collect(Collectors.toSet());
+        Set<Serializable> messages = TESTER.getFeedbackMessages(
+                new ExactLevelFeedbackMessageFilter(FeedbackMessage.SUCCESS)).stream().
+                map(FeedbackMessage::getMessage).collect(Collectors.toSet());
         if (messages.size() != 1) {
             fail("Expected single message but found " + messages);
         }

@@ -65,7 +65,7 @@ public abstract class AbstractConnConfPanel<T extends EntityTO> extends WizardSt
             public void onSubmit(final AjaxRequestTarget target) {
                 final Pair<Boolean, String> result = check(target);
                 if (result.getLeft()) {
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } else {
                     SyncopeConsoleSession.get().error(getString("error_connection") + ": " + result.getRight());
                 }

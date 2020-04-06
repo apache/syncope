@@ -77,7 +77,7 @@ public class SCIMConfPage extends BaseExtPage {
                         try {
                             SCIMConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);
                             target.add(content);
                         } catch (Exception e) {

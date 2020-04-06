@@ -115,7 +115,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
                 try {
                     application.getPrivileges().remove(model.getObject());
                     ApplicationRestClient.update(application);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", model.getObject().getKey(), e);

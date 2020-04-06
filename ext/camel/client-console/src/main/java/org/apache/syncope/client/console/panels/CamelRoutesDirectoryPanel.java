@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -125,7 +126,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             CamelRoutesRestClient.update(anyTypeKind, route);
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating CamelRouteTO", e);

@@ -190,7 +190,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
             }
 
             modal.close(target);
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("While creating or updating Implementation", e);
             SyncopeConsoleSession.get().onException(e);

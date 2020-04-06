@@ -46,7 +46,7 @@ public class NotificationPanel extends Panel
         options.set("stacking", "'up'");
         options.set("templates",
                 "[ { type: 'success', template: $('#successTemplate').html() },"
-                + " { type: 'info', template: $('#successTemplate').html() },"
+                + " { type: 'info', template: $('#infoTemplate').html() },"
                 + " { type: 'error', template: $('#errorTemplate').html() },"
                 + " { type: 'warning', template: $('#warningTemplate').html() } ] ");
 
@@ -75,8 +75,10 @@ public class NotificationPanel extends Panel
                 // this is necessary before check for success and info in order to show warnings: isSuccess and isInfo
                 // return true also in case of warnings ...
                 this.notification.warn(handler, message.getMessage());
-            } else if (message.isSuccess() || message.isInfo()) {
+            } else if (message.isSuccess()) {
                 this.notification.success(handler, message.getMessage());
+            } else if (message.isInfo()) {
+                this.notification.info(handler, message.getMessage());
             } else {
                 this.notification.warn(handler, message.getMessage());
             }

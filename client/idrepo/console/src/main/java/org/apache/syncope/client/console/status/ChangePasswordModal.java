@@ -92,7 +92,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
                         build();
 
                 userRestClient.update(inner.getETagValue(), req);
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 modal.show(false);
                 modal.close(target);
             }

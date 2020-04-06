@@ -223,7 +223,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                         req.getLinkedAccounts().add(linkedAccountUR);
                         model.setObject(userRestClient.update(model.getObject().getETagValue(), req).getEntity());
 
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (SyncopeClientException e) {
                         LOG.error("While toggling status of linked account", e);
                         SyncopeConsoleSession.get().onException(e);
@@ -307,7 +307,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                         model.setObject(userRestClient.update(model.getObject().getETagValue(), req).getEntity());
                         linkedAccountTOs.remove(linkedAccountTO);
 
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (Exception e) {
                         LOG.error("While removing linked account {}", linkedAccountTO.getKey(), e);
                         SyncopeConsoleSession.get().onException(e);

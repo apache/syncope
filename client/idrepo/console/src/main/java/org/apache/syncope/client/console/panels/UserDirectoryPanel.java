@@ -160,7 +160,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             !model.getObject().isMustChangePassword(),
                             model.getObject().getKey());
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While actioning object {}", model.getObject().getKey(), e);
@@ -208,7 +208,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             SyncopeConsoleSession.get().getAnonymousClient().getService(UserSelfService.class).
                                     requestPasswordReset(model.getObject().getUsername(), null);
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (Exception e) {
                             LOG.error("While actioning object {}", model.getObject().getKey(), e);
@@ -295,7 +295,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                         restClient.update(original.getETagValue(), updateReq);
                                 model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                                 target.add(container);
                             } catch (Exception e) {
                                 LOG.error("While restoring user {}", model.getObject().getKey(), e);
@@ -343,7 +343,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 try {
                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting user {}", model.getObject().getKey(), e);

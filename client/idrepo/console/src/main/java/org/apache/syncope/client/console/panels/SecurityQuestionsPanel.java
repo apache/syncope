@@ -157,7 +157,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                 try {
                     SecurityQuestionRestClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);

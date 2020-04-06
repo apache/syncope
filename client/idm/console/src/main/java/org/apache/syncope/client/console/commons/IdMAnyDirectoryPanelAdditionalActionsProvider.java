@@ -111,10 +111,10 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                         });
                         target.ifPresent(t -> t.add(modal.getForm()));
 
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
                         target.ifPresent(modal::close);
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     } else if (payload.getResult() instanceof Exception) {
                         SyncopeConsoleSession.get().onException((Exception) payload.getResult());
                     } else {

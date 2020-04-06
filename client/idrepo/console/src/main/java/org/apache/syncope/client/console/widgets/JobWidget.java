@@ -529,7 +529,7 @@ public class JobWidget extends BaseWidget {
                                 default:
                                     break;
                             }
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         }
                     } catch (SyncopeClientException e) {

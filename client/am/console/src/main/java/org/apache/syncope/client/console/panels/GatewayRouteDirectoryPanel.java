@@ -81,7 +81,7 @@ public class GatewayRouteDirectoryPanel
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     GatewayRouteRestClient.push();
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While pushing to SRA", e);
@@ -147,7 +147,7 @@ public class GatewayRouteDirectoryPanel
                 GatewayRouteTO route = model.getObject();
                 try {
                     GatewayRouteRestClient.delete(route.getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", route.getKey(), e);

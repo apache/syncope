@@ -81,7 +81,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                                 AnyTypeRestClient.update(modelObject);
                             }
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             AnyTypesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
@@ -177,7 +177,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                     AnyTypeRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().refreshAuth(null);
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);

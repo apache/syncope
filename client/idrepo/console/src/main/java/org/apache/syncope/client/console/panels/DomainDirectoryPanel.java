@@ -136,7 +136,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
                 final Domain domain = model.getObject();
                 try {
                     domainOps.delete(domain.getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (KeymasterException e) {
                     LOG.error("While deleting {}", domain.getKey(), e);

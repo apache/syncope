@@ -159,7 +159,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 } else {
                     PolicyRestClient.updatePolicy(type, policyTO);
                 }
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);
             } catch (Exception e) {
                 LOG.error("While creating/updating policy", e);

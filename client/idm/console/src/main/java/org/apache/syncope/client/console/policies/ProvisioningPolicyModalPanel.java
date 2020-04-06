@@ -162,7 +162,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             PolicyRestClient.updatePolicy(getItem() instanceof PullPolicyTO
                     ? PolicyType.PULL : PolicyType.PUSH, getItem());
 
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating policy", e);

@@ -260,8 +260,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
@@ -281,7 +280,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
                     GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
@@ -353,7 +352,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                             ProvisioningResult<GroupTO> result = restClient.update(original.getETagValue(), updateReq);
                             model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (Exception e) {
                             LOG.error("While restoring group {}", model.getObject().getKey(), e);
@@ -398,7 +397,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting group {}", model.getObject().getKey(), e);

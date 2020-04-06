@@ -379,7 +379,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                         target.add(container);
                         target.add(actionPanel);
 
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (Exception e) {
                         LOG.error("Batch failure", e);
                         SyncopeConsoleSession.get().error("Operation " + action.getActionId() + " failed");

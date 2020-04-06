@@ -84,7 +84,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
                         SAML2IdPsRestClient.importIdPs(new ByteArrayInputStream(metadata.getObject()));
                         metadata.setObject(null);
 
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         toggle(target, false);
                         target.add(container);
                     } catch (Exception e) {

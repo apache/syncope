@@ -72,8 +72,8 @@ public class DomainAdminCredentialsPanel extends AbstractModalPanel<Domain> {
         try {
             domainOps.changeAdminPassword(domain.getKey(), domain.getAdminPassword(), domain.getAdminCipherAlgorithm());
 
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-            this.modal.close(target);
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+            modal.close(target);
         } catch (Exception e) {
             LOG.error("While updating domain", e);
             SyncopeConsoleSession.get().onException(e);

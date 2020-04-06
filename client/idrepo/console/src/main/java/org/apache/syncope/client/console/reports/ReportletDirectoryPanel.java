@@ -155,7 +155,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     actual.getReportlets().remove(model.getObject().getImplementationKey());
                     ReportRestClient.update(actual);
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", reportlet.getName(), e);

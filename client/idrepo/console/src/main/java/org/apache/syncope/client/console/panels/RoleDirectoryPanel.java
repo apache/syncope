@@ -224,7 +224,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             RoleRestClient.setAnyLayout(wrapper.getKey(), wrapper.getContent());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);
                             modal.close(target);
                         } catch (Exception e) {
@@ -246,7 +246,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 try {
                     RoleRestClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);

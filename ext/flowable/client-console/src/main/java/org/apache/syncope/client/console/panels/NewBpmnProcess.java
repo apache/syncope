@@ -63,7 +63,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                                     Charsets.UTF_8.name()).replaceAll("%KEY%", key.getModelObject()));
 
                     key.getModel().setObject(null);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
                 } catch (Exception e) {

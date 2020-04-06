@@ -163,7 +163,7 @@ public class MailTemplateDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
                 try {
                     restClient.deleteTemplate(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);
@@ -251,7 +251,7 @@ public class MailTemplateDirectoryPanel
                 try {
                     restClient.updateTemplateFormat(
                             content.getKey(), content.getContent(), content.getFormat());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     modal.show(false);
                     modal.close(target);
                 } catch (Exception e) {

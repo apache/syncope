@@ -154,7 +154,7 @@ public class RemediationDirectoryPanel
                 public void onClick(final AjaxRequestTarget target, final RemediationTO ignore) {
                     try {
                         RemediationRestClient.remedy(model.getObject().getKey(), model.getObject().getKeyPayload());
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(container);
                     } catch (SyncopeClientException e) {
                         LOG.error("While performing remediation {}", model.getObject().getKey(), e);
@@ -283,7 +283,7 @@ public class RemediationDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final RemediationTO ignore) {
                 try {
                     RemediationRestClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", model.getObject().getKey(), e);

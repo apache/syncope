@@ -65,7 +65,7 @@ public class DomainPoolModalPanel extends AbstractModalPanel<Domain> {
         try {
             domainOps.adjustPoolSize(domain.getKey(), domain.getPoolMaxActive(), domain.getPoolMinIdle());
 
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While updating domain", e);
