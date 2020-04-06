@@ -64,7 +64,7 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
         this.restClient.submitForm(formTO);
         this.modal.show(false);
         this.modal.close(target);
-        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
     }
 
     @Override

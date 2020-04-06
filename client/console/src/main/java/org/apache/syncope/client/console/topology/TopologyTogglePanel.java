@@ -178,7 +178,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     connectorRestClient.reload();
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While reloading all connectors", e);
                     SyncopeConsoleSession.get().onException(e);
@@ -257,7 +257,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     connectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
@@ -354,7 +354,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             ConnInstanceTO updated = MAPPER.readValue(json, ConnInstanceTO.class);
                             connectorRestClient.update(updated);
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             toggle(target, false);
                         } catch (Exception e) {
                             LOG.error("While restoring connector {}", node.getKey(), e);
@@ -395,7 +395,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     resourceRestClient.delete(node.getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
@@ -607,7 +607,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             ResourceTO updated = MAPPER.readValue(json, ResourceTO.class);
                             resourceRestClient.update(updated);
 
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             toggle(target, false);
                         } catch (Exception e) {
                             LOG.error("While restoring resource {}", node.getKey(), e);
@@ -666,7 +666,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             resource.getConnector(),
                             target));
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While cloning resource {}", node.getKey(), e);

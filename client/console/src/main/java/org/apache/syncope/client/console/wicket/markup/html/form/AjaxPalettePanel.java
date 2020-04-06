@@ -192,12 +192,11 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                if (StringUtils.isEmpty(queryFilter.getObject())) {
-                    SyncopeConsoleSession.get().warn(getString("nomatch"));
+                if (builder.warnIfEmptyFilter && StringUtils.isEmpty(queryFilter.getObject())) {
+                    SyncopeConsoleSession.get().info(getString("nomatch"));
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
-                } else {
-                    ((BasePage) getPage()).getNotificationPanel().hide(target);
                 }
+
                 target.add(palette);
             }
         };
@@ -251,9 +250,9 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         private boolean filtered;
 
-        private final AjaxPaletteConf conf = new AjaxPaletteConf();
+        private String filter = "*";
 
-        private String filter = conf.getDefaultFilter();
+        private boolean warnIfEmptyFilter = true;
 
         private String name;
 
@@ -302,6 +301,11 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         public Builder<T> withFilter(final String defaultFilter) {
             this.filtered = true;
             this.filter = defaultFilter;
+            return this;
+        }
+
+        public Builder<T> warnIfEmptyFilter(final boolean warnIfEmptyFilter) {
+            this.warnIfEmptyFilter = warnIfEmptyFilter;
             return this;
         }
 

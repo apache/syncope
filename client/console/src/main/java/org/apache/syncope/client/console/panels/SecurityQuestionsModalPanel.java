@@ -59,7 +59,7 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
                 restClient.update(securityQuestionTO);
             }
 
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", securityQuestionTO, e);

@@ -166,7 +166,7 @@ public class Realms extends BasePage {
                     templateModal.close(newItemEvent.getTarget().get());
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 if (newItemEvent.getTarget().isPresent()) {
                     ((BasePage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget().get());
                     templateModal.close(newItemEvent.getTarget().get());
@@ -242,7 +242,7 @@ public class Realms extends BasePage {
                     RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                     target.add(realmChoicePanel.reloadRealmTree(target));
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     updateRealmContent(parent, selectedIndex);
                     target.add(content);
                 } catch (Exception e) {

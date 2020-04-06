@@ -78,7 +78,7 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
             } else {
                 restClient.update(application);
             }
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating application", e);

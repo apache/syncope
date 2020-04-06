@@ -95,7 +95,7 @@ public class TypeExtensionDirectoryPanel
             this.baseModal.show(false);
             this.baseModal.close(target);
 
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Group update failure", e);
             SyncopeConsoleSession.get().onException(e);

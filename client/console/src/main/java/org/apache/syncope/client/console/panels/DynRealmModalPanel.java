@@ -140,7 +140,7 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
             } else {
                 restClient.update(dynRealmWrapper.getInnerObject());
             }
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating dynamic realm", e);

@@ -95,7 +95,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
                             default:
                         }
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         send(container, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While stopping {}", jobTO.getRefDesc(), e);
@@ -128,7 +128,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
                             default:
                         }
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         send(container, Broadcast.EXACT, new JobActionPayload(target));
                     } catch (Exception e) {
                         LOG.error("While starting {}", jobTO.getRefDesc(), e);

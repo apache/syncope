@@ -193,7 +193,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                             break;
                     }
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);

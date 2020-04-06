@@ -148,7 +148,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
                 claimForm(model.getObject().getTaskId());
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 target.add(container);
             }
@@ -162,7 +162,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
                 unclaimForm(model.getObject().getTaskId());
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
                 target.add(container);
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

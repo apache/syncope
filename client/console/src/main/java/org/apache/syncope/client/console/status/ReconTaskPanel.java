@@ -209,7 +209,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                         reconRestClient.pull(reconQuery, (PullTaskTO) form.getModelObject());
                     }
 
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While attempting reconciliation using query {} on {}",
                             reconQuery, form.getModelObject(), e);

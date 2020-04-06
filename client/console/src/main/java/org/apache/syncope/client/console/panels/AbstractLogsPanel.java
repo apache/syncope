@@ -83,7 +83,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                             try {
                                 loggerTO.setLevel(loggerTOs.getModelObject());
                                 update(loggerTO);
-                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                                 target.add(loggerTOs);
                             } catch (SyncopeClientException e) {
                                 LOG.error("Error updating the logger level", e);

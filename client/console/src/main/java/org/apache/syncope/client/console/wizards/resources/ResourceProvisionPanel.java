@@ -173,7 +173,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
                             resourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
                                     resourceTO.getKey(), provision.getAnyType(), e);
@@ -190,7 +190,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
                             resourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
                                     resourceTO.getKey(), provision.getAnyType(), e);
@@ -288,7 +288,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     });
 
             resourceRestClient.update(resourceTO);
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", resourceTO, e);

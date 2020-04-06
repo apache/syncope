@@ -93,7 +93,7 @@ public class UserRequestDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final UserRequest ignore) {
                 try {
                     restClient.cancelRequest(model.getObject().getExecutionId(), null);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     UserRequestDirectoryPanel.this.getTogglePanel().close(target);
                 } catch (SyncopeClientException e) {

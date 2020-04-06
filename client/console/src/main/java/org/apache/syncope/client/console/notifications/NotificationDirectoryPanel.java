@@ -136,7 +136,7 @@ public class NotificationDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 try {
                     restClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting object {}", model.getObject().getKey(), e);

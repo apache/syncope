@@ -242,7 +242,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     customActionOnCancelCallback(target.get());
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 if (target.isPresent()) {
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
                 }

@@ -83,7 +83,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                             } else {
                                 restClient.update(modelObject);
                             }
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             RelationshipTypesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
@@ -178,7 +178,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
                 try {
                     restClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);

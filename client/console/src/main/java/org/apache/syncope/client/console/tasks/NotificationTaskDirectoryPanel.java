@@ -141,7 +141,7 @@ public abstract class NotificationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 try {
                     restClient.startExecution(taskTO.getKey(), null);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While running {}", taskTO.getKey(), e);
@@ -159,7 +159,7 @@ public abstract class NotificationTaskDirectoryPanel
                 try {
                     restClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
                     updateResultTable(target);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", taskTO.getKey(), e);

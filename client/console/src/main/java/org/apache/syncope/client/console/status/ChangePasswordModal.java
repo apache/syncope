@@ -94,7 +94,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
                 patch.setPassword(passwordPatch);
 
                 userRestClient.update(inner.getETagValue(), patch);
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 modal.show(false);
                 modal.close(target);
             }

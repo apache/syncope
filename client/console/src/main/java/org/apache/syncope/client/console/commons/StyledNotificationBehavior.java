@@ -28,9 +28,9 @@ public class StyledNotificationBehavior extends NotificationBehavior {
 
     private static final long serialVersionUID = -3985689554352173472L;
 
-    private static final String AUTOHIDEAFTER_SUCCESS = "3000";
+    private static final String AUTOHIDEAFTER_GOOD = "3000";
 
-    private static final String AUTOHIDEAFTER_ERROR = "0";
+    private static final String AUTOHIDEAFTER_BAD = "0";
 
     public StyledNotificationBehavior(final String selector, final Options options) {
         super(selector, options);
@@ -42,7 +42,7 @@ public class StyledNotificationBehavior extends NotificationBehavior {
             handler.appendJavaScript(String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
                     this.widget(),
                     Notification.SUCCESS.equalsIgnoreCase(level) || Notification.INFO.equalsIgnoreCase(level)
-                    ? AUTOHIDEAFTER_SUCCESS : AUTOHIDEAFTER_ERROR,
+                    ? AUTOHIDEAFTER_GOOD : AUTOHIDEAFTER_BAD,
                     this.widget(),
                     this.format(String.valueOf(message), level),
                     level.toLowerCase()));

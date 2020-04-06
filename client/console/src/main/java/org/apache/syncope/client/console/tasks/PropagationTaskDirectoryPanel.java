@@ -147,7 +147,7 @@ public abstract class PropagationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 try {
                     restClient.startExecution(taskTO.getKey(), null);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While running {}", taskTO.getKey(), e);
@@ -165,7 +165,7 @@ public abstract class PropagationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 try {
                     restClient.delete(TaskType.PROPAGATION, taskTO.getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
                 } catch (SyncopeClientException e) {

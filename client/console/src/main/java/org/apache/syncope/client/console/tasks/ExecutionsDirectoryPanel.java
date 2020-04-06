@@ -131,7 +131,7 @@ public abstract class ExecutionsDirectoryPanel
                 ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
                 try {
                     restClient.deleteExecution(taskExecutionTO.getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     SyncopeConsoleSession.get().onException(e);

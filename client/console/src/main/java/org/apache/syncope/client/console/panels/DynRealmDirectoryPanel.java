@@ -141,7 +141,7 @@ public class DynRealmDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final DynRealmTO ignore) {
                 try {
                     restClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting dynamic realm {}", model.getObject().getKey(), e);

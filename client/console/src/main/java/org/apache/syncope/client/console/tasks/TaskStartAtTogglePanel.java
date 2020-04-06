@@ -44,7 +44,7 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     getRestClient().startExecution(key, startAtDateModel.getObject(), true);
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {

@@ -195,7 +195,7 @@ public class ApplicationDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final ApplicationTO ignore) {
                 try {
                     restClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting application {}", model.getObject().getKey(), e);

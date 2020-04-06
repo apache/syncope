@@ -171,7 +171,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             prefs.put(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type), selectedDerSchemas);
             prefMan.setList(getRequest(), getResponse(), prefs);
 
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }

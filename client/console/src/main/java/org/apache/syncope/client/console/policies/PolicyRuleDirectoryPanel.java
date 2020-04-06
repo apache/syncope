@@ -167,7 +167,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                         ((ComposablePolicy) actual).getRules().remove(model.getObject().getImplementationKey());
                         restClient.updatePolicy(type, actual);
 
-                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         customActionOnFinishCallback(target);
                     }
                 } catch (SyncopeClientException e) {
