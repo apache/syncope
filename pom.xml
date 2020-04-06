@@ -1207,7 +1207,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.11</version>
+        <version>1.5.12</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1849,7 +1849,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.64</version>
+        <version>1.65</version>
         <scope>test</scope>
       </dependency>
       <dependency>
