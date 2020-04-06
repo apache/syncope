@@ -177,7 +177,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
                 try {
                     AnyTypeClassRestClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().success(Constants.OPERATION_SUCCEEDED);
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
                     LOG.error("While deleting {}", model.getObject(), e);
