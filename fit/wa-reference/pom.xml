@@ -34,7 +34,7 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <opensaml.version>3.4.5</opensaml.version>
+    <opensaml.version>4.0.0</opensaml.version>
     <bootstrap.version>4.4.1</bootstrap.version>
 
     <ianal.skip>true</ianal.skip>
