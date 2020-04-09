@@ -793,5 +793,4 @@ public abstract class AbstractITCase {
         }
         return (T) getObject(response.getLocation(), ClientAppService.class, clientAppTO.getClass());
     }
-
 }

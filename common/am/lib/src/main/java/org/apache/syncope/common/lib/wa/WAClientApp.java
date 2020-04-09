@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.wa;
 
 import java.io.Serializable;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 
-public class RegisteredClientAppTO implements Serializable {
+public class WAClientApp implements Serializable {
 
     private static final long serialVersionUID = 6633251825655119506L;
 

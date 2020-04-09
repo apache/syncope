@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.wa.starter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import org.apache.commons.lang.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
 import org.apereo.cas.util.AsciiArtUtils;
 import org.apereo.cas.util.DateTimeUtils;
-
-import org.apache.commons.lang.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -61,10 +63,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 @PropertySource("classpath:wa.properties")
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
@@ -112,7 +110,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     private static void validateConfiguration(final ApplicationReadyEvent event) {
         if (!Boolean.getBoolean("SKIP_CONFIG_VALIDATION")) {
             CasConfigurationPropertiesValidator validator =
-                new CasConfigurationPropertiesValidator(event.getApplicationContext());
+                    new CasConfigurationPropertiesValidator(event.getApplicationContext());
             validator.validate();
         }
     }
@@ -132,7 +130,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     private void scheduleJobToRefreshContext() {
         try {
             Date date = Date.from(LocalDateTime.now().plusSeconds(this.contextRefreshDelay).
-                atZone(ZoneId.systemDefault()).toInstant());
+                    atZone(ZoneId.systemDefault()).toInstant());
             Trigger trigger = TriggerBuilder.newTrigger().startAt(date).build();
             JobKey jobKey = new JobKey(getClass().getSimpleName());
 
@@ -144,6 +142,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     }
 
     private class RefreshApplicationContextJob implements Job {
+
         @Override
         public void execute(final JobExecutionContext jobExecutionContext) {
             try {
