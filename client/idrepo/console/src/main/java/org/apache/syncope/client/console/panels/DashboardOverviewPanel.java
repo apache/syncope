@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
@@ -31,7 +33,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.util.time.Duration;
 
 public class DashboardOverviewPanel extends Panel {
 
@@ -77,7 +78,7 @@ public class DashboardOverviewPanel extends Panel {
 
         built = buildTotalAny2OrResources(numbers);
         totalAny2OrResources = new NumberWidget(
-                "totalAny2OrResources", "bg-aqua", built.getLeft(), built.getMiddle(), built.getRight());
+                "totalAny2OrResources", "bg-info", built.getLeft(), built.getMiddle(), built.getRight());
         container.add(totalAny2OrResources);
 
         usersByStatus = new UsersByStatusWidget("usersByStatus", numbers.getUsersByStatus());
@@ -99,7 +100,7 @@ public class DashboardOverviewPanel extends Panel {
         load = new LoadWidget("load", SyncopeRestClient.system());
         container.add(load);
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.of(60, ChronoUnit.SECONDS)) {
 
             private static final long serialVersionUID = -4426283634345968585L;
 

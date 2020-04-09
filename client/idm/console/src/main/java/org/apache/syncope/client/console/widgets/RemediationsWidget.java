@@ -19,7 +19,9 @@
 package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
@@ -39,7 +41,6 @@ import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.util.time.Duration;
 
 @ExtWidget(priority = 0)
 public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
@@ -52,7 +53,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
         super(id);
         setOutputMarkupId(true);
 
-        latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.seconds(30)) {
+        latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.of(30, ChronoUnit.SECONDS)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 
@@ -103,7 +104,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
                         && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
 
                     updatedRemediations = RemediationRestClient.getRemediations(1,
-                        MAX_SIZE, new SortParam<>("instant", true));
+                            MAX_SIZE, new SortParam<>("instant", true));
                 } else {
                     updatedRemediations = List.of();
                 }
@@ -122,7 +123,6 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
 
     @Override
     protected Icon getIcon(final String iconid) {
-        return new Icon(iconid,
-                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.medkit).build());
+        return new Icon(iconid, FontAwesome5IconType.medkit_s);
     }
 }

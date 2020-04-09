@@ -35,7 +35,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "Camel Routes", icon = "fa-road", listEntitlement = CamelEntitlement.ROUTE_LIST, priority = 100)
+@ExtPage(label = "Camel Routes", icon = "fa fa-road", listEntitlement = CamelEntitlement.ROUTE_LIST, priority = 100)
 public class CamelRoutes extends BaseExtPage {
 
     private static final long serialVersionUID = 1965360932245590233L;

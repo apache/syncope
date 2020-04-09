@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.ChangePasswordModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -53,7 +54,6 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -71,7 +71,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     protected UserDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
 
-        altDefaultModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        altDefaultModal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 

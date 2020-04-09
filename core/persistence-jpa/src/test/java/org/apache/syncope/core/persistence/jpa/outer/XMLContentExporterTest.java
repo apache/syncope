@@ -21,14 +21,15 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.tika.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,7 @@ public class XMLContentExporterTest extends AbstractTest {
         assertTrue(StringUtils.isNotBlank(exported));
 
         List<String> realms = IOUtils.readLines(
-                IOUtils.toInputStream(exported, Charset.defaultCharset()), Charset.defaultCharset()).stream().
+                IOUtils.toInputStream(exported), StandardCharsets.UTF_8.name()).stream().
                 filter(row -> row.trim().startsWith("<Realm")).collect(Collectors.toList());
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("name=\"/\""));

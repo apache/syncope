@@ -18,59 +18,26 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="information">
-      <div class="infoleft">
-        <div class="infolabel"> 
-          <wicket:message key="creationDate"/>:
+    <div class="row text-sm">
+      <div class="col-md-6">
+        <!-- /.card-header -->
+        <div class="card-body">
+          <dl class="row">
+            <dt class="col-sm-6"><wicket:message key="creationDate"/></dt>
+            <dd class="col-sm-6"><span wicket:id="creationDate"/></dd>
+            <dt class="col-sm-6"><wicket:message key="lastChangeDate"/></dt>
+            <dd class="col-sm-6"><span wicket:id="lastChangeDate"/></dd>
+            <dt class="col-sm-6"><wicket:message key="creator"/></dt>
+            <dd class="col-sm-6"><span wicket:id="creator"/></dd>
+            <dt class="col-sm-6"><wicket:message key="lastModifier"/></dt>
+            <dd class="col-sm-6"><span wicket:id="lastModifier"/></dd>
+            <dt class="col-sm-6"><wicket:message key="creationContext"/></dt>
+            <dd class="col-sm-6"><span wicket:id="creationContext"/></dd>
+            <dt class="col-sm-6"><wicket:message key="lastChangeContext"/></dt>
+            <dd class="col-sm-6"><span wicket:id="lastChangeContext"/></dd>
+          </dl>
         </div>
-        <div>
-          <span wicket:id="creationDate"/>
-        </div>
-      </div>
-
-      <div class="inforight">
-        <div class="infolabel">
-          <wicket:message key="lastChangeDate"/>:
-        </div>
-        <div>
-          <span wicket:id="lastChangeDate"/>
-        </div>
-      </div>
-
-      <div class="infoleft">
-        <div class="infolabel">
-          <wicket:message key="creator"/>:
-        </div>
-        <div>
-          <span wicket:id="creator"/>
-        </div>
-      </div>
-
-      <div class="inforight">
-        <div class="infolabel">
-          <wicket:message key="lastModifier"/>:
-        </div>
-        <div>
-          <span wicket:id="lastModifier"/>
-        </div>
-      </div>
-
-      <div class="infoleft">
-        <div class="infolabel">
-          <wicket:message key="creationContext"/>:
-        </div>
-        <div>
-          <span wicket:id="creationContext"/>
-        </div>
-      </div>
-
-      <div class="inforight">
-        <div class="infolabel">
-          <wicket:message key="lastChangeContext"/>:
-        </div>
-        <div>
-          <span wicket:id="lastChangeContext"/>
-        </div>
+        <!-- /.card-body -->
       </div>
 
       <wicket:child/>

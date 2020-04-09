@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.topology;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.net.URI;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,6 +46,7 @@ import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.WebMarkupContainerNoVeil;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -56,16 +59,14 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.util.time.Duration;
 
-@IdMPage(label = "Topology", icon = "fa-plug", listEntitlement = IdMEntitlement.RESOURCE_LIST, priority = 0)
+@IdMPage(label = "Topology", icon = "fas fa-plug", listEntitlement = IdMEntitlement.RESOURCE_LIST, priority = 0)
 public class Topology extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271272L;
@@ -151,7 +152,7 @@ public class Topology extends BasePage {
     public Topology() {
         modal = new BaseModal<>("resource-modal");
         body.add(modal.size(Modal.Size.Large));
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        modal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
@@ -474,7 +475,7 @@ public class Topology extends BasePage {
             }
         });
 
-        jsPlace.add(new AbstractAjaxTimerBehavior(Duration.seconds(2)) {
+        jsPlace.add(new AbstractAjaxTimerBehavior(Duration.of(2, ChronoUnit.SECONDS)) {
 
             private static final long serialVersionUID = -4426283634345968585L;
 
@@ -486,18 +487,18 @@ public class Topology extends BasePage {
 
                 target.appendJavaScript("checkConnection()");
 
-                if (getUpdateInterval().seconds() < 5.0) {
-                    setUpdateInterval(Duration.seconds(5));
-                } else if (getUpdateInterval().seconds() < 10.0) {
-                    setUpdateInterval(Duration.seconds(10));
-                } else if (getUpdateInterval().seconds() < 15.0) {
-                    setUpdateInterval(Duration.seconds(15));
-                } else if (getUpdateInterval().seconds() < 20.0) {
-                    setUpdateInterval(Duration.seconds(20));
-                } else if (getUpdateInterval().seconds() < 30.0) {
-                    setUpdateInterval(Duration.seconds(30));
-                } else if (getUpdateInterval().seconds() < 60.0) {
-                    setUpdateInterval(Duration.seconds(60));
+                if (getUpdateInterval().getSeconds() < 5.0) {
+                    setUpdateInterval(Duration.of(5, ChronoUnit.SECONDS));
+                } else if (getUpdateInterval().getSeconds() < 10.0) {
+                    setUpdateInterval(Duration.of(10, ChronoUnit.SECONDS));
+                } else if (getUpdateInterval().getSeconds() < 15.0) {
+                    setUpdateInterval(Duration.of(15, ChronoUnit.SECONDS));
+                } else if (getUpdateInterval().getSeconds() < 20.0) {
+                    setUpdateInterval(Duration.of(20, ChronoUnit.SECONDS));
+                } else if (getUpdateInterval().getSeconds() < 30.0) {
+                    setUpdateInterval(Duration.of(30, ChronoUnit.SECONDS));
+                } else if (getUpdateInterval().getSeconds() < 60.0) {
+                    setUpdateInterval(Duration.of(60, ChronoUnit.SECONDS));
                 }
             }
         });

@@ -55,7 +55,7 @@ public class SchemasPanel extends Panel {
         searchBoxContainer.add(form);
 
         AjaxTextFieldPanel filter = new AjaxTextFieldPanel("filter", "filter", keywordModel, true);
-        form.add(filter.hideLabel().setOutputMarkupId(true));
+        form.add(filter.hideLabel().setOutputMarkupId(true).setRenderBodyOnly(true));
 
         AjaxButton search = new AjaxButton("search") {
 

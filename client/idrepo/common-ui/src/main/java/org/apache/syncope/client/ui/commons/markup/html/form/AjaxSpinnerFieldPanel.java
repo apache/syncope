@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import com.googlecode.wicket.jquery.core.Options;
 import com.googlecode.wicket.jquery.ui.JQueryUIBehavior;
 import com.googlecode.wicket.jquery.ui.form.spinner.AjaxSpinner;
@@ -27,10 +26,10 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -277,5 +276,4 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             return new AjaxSpinnerFieldPanel<>(id, name, reference, model, options, enableOnChange);
         }
     }
-
 }

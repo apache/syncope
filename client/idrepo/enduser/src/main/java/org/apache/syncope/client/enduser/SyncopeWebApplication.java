@@ -317,6 +317,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 }
             }
         });
+        getCspSettings().blocking().unsafeInline();
 
         // Confirm password reset page
         mountPage("/confirmpasswordreset", SelfConfirmPasswordReset.class);

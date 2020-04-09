@@ -51,11 +51,11 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.reports.ReportTemplateDirectoryPanel.ReportTemplateProvider;
 import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.PropertyModel;
 
 public class ReportTemplateDirectoryPanel
@@ -73,7 +73,7 @@ public class ReportTemplateDirectoryPanel
         modal.addSubmitButton();
         setFooterVisibility(true);
 
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        modal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 

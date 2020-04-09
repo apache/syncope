@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +89,6 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
 
     @Override
     protected Icon getIcon(final String iconid) {
-        return new Icon(iconid,
-                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.repeat).build());
+        return new Icon(iconid, FontAwesome5IconType.redo_s);
     }
 }

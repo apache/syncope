@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +44,6 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicReference;
@@ -144,7 +145,8 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                     }
                 };
                 attributes.getAjaxCallListeners().add(listener);
-                attributes.setThrottlingSettings(new ThrottlingSettings("id", Duration.seconds(1.2), true));
+                attributes.setThrottlingSettings(
+                        new ThrottlingSettings("id", Duration.of(1, ChronoUnit.SECONDS), true));
             }
         });
     }

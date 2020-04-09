@@ -18,14 +18,16 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="box box-default box-solid">
-      <div class="box-header with-border">
-        <h3 class="box-title"><wicket:message key="camelMetrics"/></h3>
-        <div class="box-tools pull-right">
-          <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+    <div class="card card-gray">
+      <div class="card-header">
+        <h3 class="card-title"><wicket:message key="camelMetrics"/></h3>
+
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+          </button>
         </div>
       </div>
-      <div class="box-body" wicket:id="container">
+      <div class="card-body" wicket:id="container">
         <div class="chart" wicket:id="chart"/>
       </div>
     </div>

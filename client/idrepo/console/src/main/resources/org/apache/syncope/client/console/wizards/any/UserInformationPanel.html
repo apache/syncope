@@ -18,49 +18,23 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <div class="infoleft">
-      <div class="infolabel">
-        <wicket:message key="lastLoginDate"/>:
+    <div class="col-md-6">
+      <!-- /.card-header -->
+      <div class="card-body">
+        <dl class="row">
+          <dt class="col-sm-6"><wicket:message key="lastLoginDate"/></dt>
+          <dd class="col-sm-6"><span wicket:id="lastLoginDate"/></dd>
+          <dt class="col-sm-6"><wicket:message key="failedLogins"/></dt>
+          <dd class="col-sm-6"><span wicket:id="failedLogins"/></dd>
+          <dt class="col-sm-6"><wicket:message key="changePwdDate"/></dt>
+          <dd class="col-sm-6"><span wicket:id="changePwdDate"/></dd>
+          <dt class="col-sm-6"><wicket:message key="tokenExpireTime"/></dt>
+          <dd class="col-sm-6"><span wicket:id="tokenExpireTime"/></dd>
+          <dt class="col-sm-6"><wicket:message key="token"/></dt>
+          <dd class="col-sm-6"><span wicket:id="token"/></dd>
+        </dl>
       </div>
-      <div>
-        <span wicket:id="lastLoginDate"/>
-      </div>
-    </div>
-
-    <div class="inforight">
-      <div class="infolabel">
-        <wicket:message key="failedLogins"/>:
-      </div>
-      <div>
-        <span wicket:id="failedLogins"/>
-      </div>
-    </div>
-
-    <div class="infoleft">
-      <div class="infolabel">
-        <wicket:message key="changePwdDate"/>:
-      </div>
-      <div>
-        <span wicket:id="changePwdDate"/>
-      </div>
-    </div>
-
-    <div class="inforight">
-      <div class="infolabel">
-        <wicket:message key="tokenExpireTime"/>
-      </div>
-      <div>
-        <span wicket:id="tokenExpireTime"/>
-      </div>
-    </div>
-
-    <div class="inforow">
-      <div class="infolabel">
-        <wicket:message key="token"/>:
-      </div>
-      <div class="wrap">
-        <span wicket:id="token"/>
-      </div>
+      <!-- /.card-body -->
     </div>
   </wicket:extend>
 </html>

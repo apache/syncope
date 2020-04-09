@@ -75,8 +75,6 @@ public class Ownership extends WizardStep implements ICondition {
 
     private final WebMarkupContainer ownerContainer;
 
-    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
     private final GroupSearchPanel groupSearchPanel;
 
     private final GroupRestClient groupRestClient = new GroupRestClient();

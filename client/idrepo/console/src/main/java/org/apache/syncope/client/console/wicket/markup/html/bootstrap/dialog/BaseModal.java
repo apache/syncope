@@ -31,7 +31,6 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -49,6 +48,7 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.util.io.IClusterable;
 
 public class BaseModal<T extends Serializable> extends Modal<T> {
 
@@ -376,4 +376,19 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return script;
     }
     //--------------------------------------------------------
+
+    /**
+     * Callback called after the window has been closed. If no callback instance is specified using
+     * {@link BaseModal#setWindowClosedCallback(BaseModal.WindowClosedCallback)}, no ajax
+     * request will be fired.
+     */
+    public interface WindowClosedCallback extends IClusterable {
+
+        /**
+         * Called after the window has been closed.
+         *
+         * @param target {@link org.apache.wicket.ajax.AjaxRequestTarget} instance bound with the ajax request.
+         */
+        void onClose(AjaxRequestTarget target);
+    }
 }

@@ -83,7 +83,7 @@ public class ApplicationDirectoryPanel extends
         disableCheckBoxes();
         setShowResultPage(true);
 
-        modal.size(Modal.Size.Medium);
+        modal.size(Modal.Size.Default);
         modal.addSubmitButton();
         setFooterVisibility(true);
         modal.setWindowClosedCallback(target -> {

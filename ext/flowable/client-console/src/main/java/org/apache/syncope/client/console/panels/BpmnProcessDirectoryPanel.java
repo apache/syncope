@@ -40,6 +40,7 @@ import org.apache.syncope.client.console.pages.ModelerPopupPage;
 import org.apache.syncope.client.console.panels.BpmnProcessDirectoryPanel.BpmProcessDataProvider;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ImageModalPanel;
@@ -55,7 +56,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -136,7 +136,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         utility.size(Modal.Size.Large);
         AjaxSubmitLink xmlEditorSubmit = utility.addSubmitButton();
         MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, RENDER, FlowableEntitlement.BPMN_PROCESS_SET);
-        utility.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        utility.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 

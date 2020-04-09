@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
@@ -47,8 +48,7 @@ public abstract class EventSelectionPanel extends Panel {
 
     private final Set<String> selected = new HashSet<>();
 
-    public EventSelectionPanel(
-            final String id, final EventCategory eventCategoryTO, final IModel<List<String>> model) {
+    public EventSelectionPanel(final String id, final EventCategory eventCategoryTO, final IModel<List<String>> model) {
         super(id);
         setOutputMarkupId(true);
 
@@ -57,18 +57,17 @@ public abstract class EventSelectionPanel extends Panel {
         // needed to avoid model reset: model have to be managed into SelectedEventsPanel
         selected.addAll(model.getObject());
 
-        final CheckGroup<String> successGroup = new CheckGroup<>("successGroup", selected);
-        successGroup.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
+        CheckGroup<String> successGroup = new CheckGroup<>("successGroup", selected);
+        successGroup.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
+                Set<String> toBeRemoved = new HashSet<>();
+                Set<String> toBeAdded = new HashSet<>();
 
-                final Set<String> toBeRemoved = new HashSet<>();
-                final Set<String> toBeAdded = new HashSet<>();
-
-                for (String event : getEvents(eventCategoryTO)) {
+                getEvents(eventCategoryTO).forEach(event -> {
                     String eventString = AuditLoggerName.buildEvent(
                             eventCategoryTO.getType(),
                             eventCategoryTO.getCategory(),
@@ -81,7 +80,7 @@ public abstract class EventSelectionPanel extends Panel {
                     } else {
                         toBeRemoved.add(eventString);
                     }
-                }
+                });
 
                 send(EventSelectionPanel.this.getPage(), Broadcast.BREADTH,
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
@@ -102,9 +101,7 @@ public abstract class EventSelectionPanel extends Panel {
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String subcategory = item.getModelObject();
-
-                item.add(new Label("subcategory", new ResourceModel(subcategory, subcategory)));
+                item.add(new Label("subcategory", Model.of(item.getModelObject())));
             }
         };
         add(categoryView);
@@ -127,18 +124,18 @@ public abstract class EventSelectionPanel extends Panel {
         };
         successGroup.add(successView);
 
-        final CheckGroup<String> failureGroup = new CheckGroup<>("failureGroup", selected);
+        CheckGroup<String> failureGroup = new CheckGroup<>("failureGroup", selected);
         failureGroup.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -151291731388673682L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                final Set<String> toBeRemoved = new HashSet<>();
-                final Set<String> toBeAdded = new HashSet<>();
+                Set<String> toBeRemoved = new HashSet<>();
+                Set<String> toBeAdded = new HashSet<>();
 
-                for (String event : getEvents(eventCategoryTO)) {
-                    final String eventString = AuditLoggerName.buildEvent(
+                getEvents(eventCategoryTO).forEach(event -> {
+                    String eventString = AuditLoggerName.buildEvent(
                             eventCategoryTO.getType(),
                             eventCategoryTO.getCategory(),
                             eventCategoryTO.getSubcategory(),
@@ -150,7 +147,7 @@ public abstract class EventSelectionPanel extends Panel {
                     } else {
                         toBeRemoved.add(eventString);
                     }
-                }
+                });
 
                 send(EventSelectionPanel.this.getPage(), Broadcast.BREADTH,
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));

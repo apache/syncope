@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Session;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
 
 /**
  * Implements (custom) Domain DropDownChoice component.
  */
-public class DomainDropDown extends BootstrapSelect<String> {
+public class DomainDropDown extends DropDownChoice<String> {
 
     private static final long serialVersionUID = -7401167913360133325L;
 

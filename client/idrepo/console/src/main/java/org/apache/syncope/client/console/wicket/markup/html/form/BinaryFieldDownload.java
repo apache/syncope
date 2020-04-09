@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import java.time.Duration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
@@ -26,7 +27,6 @@ import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
 
 public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
 
@@ -80,7 +80,7 @@ public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
 
         handler.setFileName(fileName);
         handler.setContentDisposition(ContentDisposition.ATTACHMENT);
-        handler.setCacheDuration(Duration.NONE);
+        handler.setCacheDuration(Duration.ZERO);
         getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
     }
 

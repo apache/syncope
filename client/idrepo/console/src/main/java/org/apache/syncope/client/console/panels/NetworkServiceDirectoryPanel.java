@@ -27,13 +27,13 @@ import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.NetworkServiceDirectoryPanel.NetworkServiceProvider;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -62,7 +62,7 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        modal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 

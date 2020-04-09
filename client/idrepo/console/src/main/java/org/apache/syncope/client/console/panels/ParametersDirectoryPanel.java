@@ -88,7 +88,7 @@ public class ParametersDirectoryPanel
                 return new ParametersModalPanel(modal, newModelObject(), confParamOps, mode, pageRef);
             }
         }, true);
-        modal.size(Modal.Size.Medium);
+        modal.size(Modal.Size.Default);
         initResultTable();
     }
 

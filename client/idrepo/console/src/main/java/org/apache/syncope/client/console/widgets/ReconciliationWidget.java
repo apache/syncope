@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -79,7 +80,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public class ReconciliationWidget extends BaseWidget {
         add(detailsModal);
 
         container = new WebMarkupContainer("reconciliationContainer");
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+        container.add(new IndicatorAjaxTimerBehavior(java.time.Duration.of(10, ChronoUnit.SECONDS)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 
@@ -284,14 +284,14 @@ public class ReconciliationWidget extends BaseWidget {
                     progressBean.setText(getString("users"));
                     progressBean.setTotal(report.getUsers().getTotal());
                     progressBean.setFraction(report.getUsers().getTotal() - report.getUsers().getAnys().size());
-                    progressBean.setCssClass("progress-bar-yellow");
+                    progressBean.setCssClass("bg-yellow");
                     beans.add(progressBean);
 
                     progressBean = new ProgressBean();
                     progressBean.setText(getString("groups"));
                     progressBean.setTotal(report.getGroups().getTotal());
                     progressBean.setFraction(report.getGroups().getTotal() - report.getGroups().getAnys().size());
-                    progressBean.setCssClass("progress-bar-red");
+                    progressBean.setCssClass("bg-red");
                     beans.add(progressBean);
 
                     int i = 0;
@@ -300,7 +300,7 @@ public class ReconciliationWidget extends BaseWidget {
                         progressBean.setText(anys.getAnyType());
                         progressBean.setTotal(anys.getTotal());
                         progressBean.setFraction(anys.getTotal() - anys.getAnys().size());
-                        progressBean.setCssClass("progress-bar-" + (i % 2 == 0 ? "green" : "aqua"));
+                        progressBean.setCssClass("bg-" + (i % 2 == 0 ? "success" : "info"));
                         beans.add(progressBean);
 
                         i++;

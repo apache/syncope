@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -45,6 +47,7 @@ import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
@@ -65,7 +68,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -82,7 +84,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.util.time.Duration;
 
 public class JobWidget extends BaseWidget {
 
@@ -143,7 +144,7 @@ public class JobWidget extends BaseWidget {
         super(id);
         setOutputMarkupId(true);
         add(modal);
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        modal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
@@ -154,7 +155,7 @@ public class JobWidget extends BaseWidget {
         });
 
         add(detailModal);
-        detailModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        detailModal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
@@ -165,7 +166,7 @@ public class JobWidget extends BaseWidget {
         });
 
         add(reportModal);
-        reportModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        reportModal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
@@ -181,7 +182,7 @@ public class JobWidget extends BaseWidget {
         recent = getUpdatedRecent();
 
         container = new WebMarkupContainer("jobContainer");
-        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+        container.add(new IndicatorAjaxTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 

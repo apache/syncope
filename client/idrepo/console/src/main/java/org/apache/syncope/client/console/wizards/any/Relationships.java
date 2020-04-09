@@ -84,8 +84,6 @@ public class Relationships extends WizardStep implements ICondition {
 
     private final PageReference pageRef;
 
-    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
     private final AnyTO anyTO;
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {

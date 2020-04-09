@@ -602,6 +602,7 @@ div.listview-actions a {
   padding: 6px 0;
   text-align: center;
   width: 30px;
+  color: white !important;
 }
 
 .circular-actions a {
@@ -613,9 +614,9 @@ div.listview-actions a {
   text-align: center;
   width: 30px;
   &.btn {
-    background-color: #3c8dbc;
-    border-color: #367fa9;
-    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white !important;
   }
 }
 
@@ -662,16 +663,6 @@ div.listview-actions a {
 
 .attribute {
   padding: 0px 4px 0px 4px;
-}
-
-.left {
-  float: left;
-  width: 50%;
-}
-
-.right {
-  float: right;
-  width: 50%;
 }
 
 span.highlight .attribute label {
@@ -727,7 +718,6 @@ span.highlight .attribute label {
 .clause {
   display: block;
   line-height: 34px;
-  width: 100%;
   .operator {
     width: 65px !important;
     .checkbox {
@@ -808,6 +798,7 @@ li.todoitem a {
 
 .popover {
   max-width: 100%;
+  z-index: 7000;
 }
 
 #popover:hover {
@@ -820,7 +811,7 @@ li.todoitem a {
 
 .form-palette {
   display: inline-block;
-  width: 119%;
+  width: 110%;
 }
 
 .form-group-inline {
@@ -975,7 +966,6 @@ div#userFilter {
 
 .selectedEvents {
   display: inline-block;
-  height: 100px;
   margin: 10px 10px 0 10px;
   overflow-y: auto;
 }
@@ -1106,6 +1096,7 @@ ul.menu {
 .toggle-menu ul.menu li a {
   padding: 0px;
   text-align: left;
+  color: white !important;
 }
 
 div#tablehandling ul.menu li a {
@@ -1118,7 +1109,7 @@ div#tablehandling ul.menu li a {
 }
 
 .realm-choice #realm-choice-folder {
-  color: #3c8dbc;
+  color: #28a745;
 }
 
 /* Form wrappers

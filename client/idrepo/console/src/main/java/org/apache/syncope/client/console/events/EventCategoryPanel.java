@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.client.console.events;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.events.SelectedEventsPanel.EventSelectionChanged;
@@ -108,7 +107,6 @@ public abstract class EventCategoryPanel extends Panel {
                 new PropertyModel<>(eventCategoryTO, "type"),
                 false);
         type.setChoices(List.of(EventCategoryType.values()));
-        type.setStyleSheet("ui-widget-content ui-corner-all");
         type.setChoiceRenderer(new IChoiceRenderer<EventCategoryType>() {
 
             private static final long serialVersionUID = 2317134950949778735L;
@@ -207,7 +205,7 @@ public abstract class EventCategoryPanel extends Panel {
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
-                            Collections.<String>singleton(eventString),
+                            Set.of(eventString),
                             Set.of()));
                     target.add(categoryContainer);
                 }
@@ -235,7 +233,7 @@ public abstract class EventCategoryPanel extends Panel {
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
                             Set.of(),
-                            Collections.<String>singleton(eventString)));
+                            Set.of(eventString)));
                     target.add(categoryContainer);
                 }
             }
@@ -265,13 +263,11 @@ public abstract class EventCategoryPanel extends Panel {
                 -> type == eventCategory.getType() && StringUtils.isNotEmpty(eventCategory.getCategory())).
                 forEachOrdered(eventCategory -> res.add(eventCategory.getCategory()));
 
-        List<String> filtered = new ArrayList<>(res);
-        Collections.sort(filtered);
-        return filtered;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
     private static List<String> filter(
-        final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
+            final List<EventCategory> eventCategoryTOs, final EventCategoryType type, final String category) {
 
         Set<String> res = new HashSet<>();
 
@@ -280,9 +276,7 @@ public abstract class EventCategoryPanel extends Panel {
                 && StringUtils.isNotEmpty(eventCategory.getSubcategory())).
                 forEachOrdered(eventCategory -> res.add(eventCategory.getSubcategory()));
 
-        List<String> filtered = new ArrayList<>(res);
-        Collections.sort(filtered);
-        return filtered;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
     @Override
@@ -341,10 +335,10 @@ public abstract class EventCategoryPanel extends Panel {
             // update objects ....
             eventCategoryTO.getEvents().clear();
 
-            final InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
+            InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
 
-            final Map.Entry<EventCategory, AuditElements.Result> categoryEvent = AuditLoggerName.parseEventCategory(
-                    inspectSelectedEvent.getEvent());
+            Map.Entry<EventCategory, AuditElements.Result> categoryEvent =
+                    AuditLoggerName.parseEventCategory(inspectSelectedEvent.getEvent());
 
             eventCategoryTO.setType(categoryEvent.getKey().getType());
             category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
@@ -384,14 +378,15 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private void setEvents() {
-        final Iterator<EventCategory> itor = eventCategoryTOs.iterator();
-        while (itor.hasNext() && eventCategoryTO.getEvents().isEmpty()) {
-            final EventCategory eventCategory = itor.next();
+        for (Iterator<EventCategory> itor = eventCategoryTOs.iterator();
+                itor.hasNext() && eventCategoryTO.getEvents().isEmpty();) {
+
+            EventCategory eventCategory = itor.next();
             if (eventCategory.getType() == eventCategoryTO.getType()
                     && StringUtils.equals(eventCategory.getCategory(), eventCategoryTO.getCategory())
                     && StringUtils.equals(eventCategory.getSubcategory(), eventCategoryTO.getSubcategory())) {
-                eventCategoryTO.getEvents().addAll(eventCategory.getEvents());
 
+                eventCategoryTO.getEvents().addAll(eventCategory.getEvents());
             }
         }
     }

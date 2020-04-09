@@ -32,7 +32,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -101,12 +100,6 @@ public class UserDetails extends Details<UserTO> {
                 return new AjaxLink<Integer>(markupId) {
 
                     private static final long serialVersionUID = 7021195294339489084L;
-
-                    @Override
-                    protected void onComponentTag(final ComponentTag tag) {
-                        super.onComponentTag(tag);
-                        tag.put("style", "color: #337ab7");
-                    }
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {

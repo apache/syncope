@@ -182,6 +182,8 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         config.showUpload(false);
         config.showRemove(false);
         config.showPreview(false);
+        config.browseClass("btn btn-success");
+        config.browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
 
         fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);

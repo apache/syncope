@@ -23,40 +23,38 @@ under the License.
   <body>
     <wicket:extend>
       <div class="col-xs-12">
-        <div class="box">
-          <div class="box-header" wicket:id="captionContainer">
-            <h3 class="box-title">
-              <span wicket:id="caption"/>
-            </h3>
-          </div><!-- /.box-header -->
-          <div class="box-body table-responsive no-padding">
-            <table class="table table-hover">
-              <tbody>
-                <tr>
-                  <th id="check">
-                    <input type="checkbox" wicket:id="groupselector" />
-                  </th>
-                  <th wicket:id="names"><span wicket:id="name"/></th>
-                  <th />
-                </tr>
+        <div class="card-header" wicket:id="captionContainer">
+          <h3 class="card-title">
+            <span wicket:id="caption"/>
+          </h3>
+        </div><!-- /.card-header -->
+        <div class="card-body table-responsive no-padding">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <th id="check">
+                  <input type="checkbox" wicket:id="groupselector" />
+                </th>
+                <th wicket:id="names"><span wicket:id="name"/></th>
+                <th />
+              </tr>
 
-                <span wicket:id="group">
-                  <tr wicket:id="beans">
-                    <td id="check">
-                      <input type="checkbox" wicket:id="check"/>
-                    </td>
-                    <td wicket:id="fields" class="col_width list_view_panel_labels"><span wicket:id="field"/></td>
-                    <td>
-                      <div class="listview-actions">
-                        <span wicket:id="actions">[actions]</span>
-                      </div>
-                    </td>
-                  </tr>
-                </span>
-              </tbody>
-            </table>
-          </div><!-- /.box-body -->
-        </div><!-- /.box -->
+              <span wicket:id="group">
+                <tr wicket:id="beans">
+                  <td id="check">
+                    <input type="checkbox" wicket:id="check"/>
+                  </td>
+                  <td wicket:id="fields" class="col_width list_view_panel_labels"><span wicket:id="field"/></td>
+                  <td>
+                    <div class="listview-actions">
+                      <span wicket:id="actions">[actions]</span>
+                    </div>
+                  </td>
+                </tr>
+              </span>
+            </tbody>
+          </table>
+        </div><!-- /.card-body -->
       </div>
     </wicket:extend>
   </body>

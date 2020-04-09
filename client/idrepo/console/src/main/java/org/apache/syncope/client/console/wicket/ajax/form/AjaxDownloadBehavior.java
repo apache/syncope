@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.console.wicket.ajax.form;
 
+import java.time.Duration;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
-import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class AjaxDownloadBehavior extends AbstractAjaxBehavior {
             if (resourceStream != null) {
                 getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(
                         new ResourceStreamRequestHandler(
-                                resourceStream, resourceStream.getFilename()).setCacheDuration(Duration.NONE));
+                                resourceStream, resourceStream.getFilename()).setCacheDuration(Duration.ZERO));
             }
         } catch (Exception e) {
             // cannot be notifies beacause the use of scheduleRequestHandlerAfterCurrent

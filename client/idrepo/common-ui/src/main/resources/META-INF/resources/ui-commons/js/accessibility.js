@@ -96,13 +96,10 @@ $(document).ready(function () {
     ];
 
     var darkThemeFiles = [
-      locationDomain + '/css/AdminLTE_skins/skin-blue.css',
       locationDomain + '/ui-commons/css/accessibility/accessibilityHC.css'
     ];
 
     var darkThemeMainClass = 'dark-theme';
-    var darkThemeSkinClass = 'skin-blue';
-    var defaultThemeMainClass = 'skin-green-light';
 
     var doSwitch = function (check, files) {
       if (!check) {
@@ -118,12 +115,6 @@ $(document).ready(function () {
 
     var doSwitchTheme = function (check, files) {
       doSwitch(check, files);
-
-      if ($('body').hasClass(defaultThemeMainClass) && check) {
-        $('body').removeClass(defaultThemeMainClass).addClass(darkThemeMainClass).addClass(darkThemeSkinClass);
-      } else {
-        $('body').addClass(defaultThemeMainClass).removeClass(darkThemeMainClass).removeClass(darkThemeSkinClass);
-      }
     };
 
     var savePreference = function (key, value) {

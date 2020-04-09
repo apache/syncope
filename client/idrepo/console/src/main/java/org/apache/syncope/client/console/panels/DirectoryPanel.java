@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -40,7 +41,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -171,7 +171,7 @@ public abstract class DirectoryPanel<
         setWindowClosedReloadCallback(altDefaultModal);
         setWindowClosedReloadCallback(displayAttributeModal);
 
-        displayAttributeModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+        displayAttributeModal.setWindowClosedCallback(new WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
@@ -187,8 +187,8 @@ public abstract class DirectoryPanel<
             }
         });
 
-        altDefaultModal.size(Modal.Size.Medium);
-        displayAttributeModal.size(Modal.Size.Medium);
+        altDefaultModal.size(Modal.Size.Default);
+        displayAttributeModal.size(Modal.Size.Default);
         displayAttributeModal.addSubmitButton();
     }
 

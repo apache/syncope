@@ -181,7 +181,6 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                 }
             });
         }
-
     }
 
     public static class About extends Panel {
@@ -228,7 +227,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             };
 
-            final WebMarkupContainer searchContainer = new WebMarkupContainer("search");
+            WebMarkupContainer searchContainer = new WebMarkupContainer("search");
             add(searchContainer.setOutputMarkupId(true));
 
             searchContainer.add(getClauseBuilder(model.getObject().getLeft(), clauseModel).build("clauses"));
@@ -240,8 +239,8 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
                     clauseModel.getObject().clear();
-                    searchContainer.addOrReplace(getClauseBuilder(type.getModelObject(), clauseModel).build("clauses").
-                            setRenderBodyOnly(true));
+                    searchContainer.addOrReplace(getClauseBuilder(type.getModelObject(), clauseModel).
+                            build("clauses").setRenderBodyOnly(true));
                     target.add(searchContainer);
                 }
             });
@@ -392,7 +391,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
 
         String[] anyTypeClasses = Optional.ofNullable(type)
-            .map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[]{})).orElseGet(() -> new String[0]);
+                .map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[] {})).orElseGet(() -> new String[0]);
 
         List<String> result = new ArrayList<>();
         result.add("username");

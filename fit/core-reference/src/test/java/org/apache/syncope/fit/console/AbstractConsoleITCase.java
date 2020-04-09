@@ -35,6 +35,11 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
+import org.apache.wicket.IPageManagerProvider;
+import org.apache.wicket.mock.MockPageStore;
+import org.apache.wicket.page.IManageablePage;
+import org.apache.wicket.page.PageManager;
+import org.apache.wicket.pageStore.IPageContext;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -99,7 +104,25 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         ctx.register(SyncopeIdMConsoleContext.class);
         ctx.refresh();
 
-        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
+        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class)) {
+
+            @Override
+            protected IPageManagerProvider newTestPageManagerProvider() {
+                return () -> new PageManager(new MockPageStore() {
+
+                    @Override
+                    public IManageablePage getPage(final IPageContext context, final int id) {
+                        IManageablePage page = super.getPage(context, id);
+                        if (page == null) {
+                            page = getPages().size() > id
+                                    ? getPages().get(id)
+                                    : getPages().get(getPages().size() - 1);
+                        }
+                        return page;
+                    }
+                });
+            }
+        };
 
         SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
                 setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).

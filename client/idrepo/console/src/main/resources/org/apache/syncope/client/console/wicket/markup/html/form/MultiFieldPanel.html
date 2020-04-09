@@ -17,51 +17,46 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title>Multivalue conatiner</title>
-  </head>
-  <body>
-    <wicket:extend>
-      <wicket:enclosure child="field-label">
-        <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
-        <span wicket:id="externalAction"/>
-      </wicket:enclosure>
+  <wicket:extend>
+    <wicket:enclosure child="field-label">
+      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+      <span wicket:id="externalAction"/>
+    </wicket:enclosure>
 
-      <span wicket:id="multiValueContainer">
-        <form wicket:id="innerForm">
-          <span wicket:id="content">[content]</span>
-        </form>
-      </span>
+    <span wicket:id="multiValueContainer">
+      <form wicket:id="innerForm">
+        <span wicket:id="content">[content]</span>
+      </form>
+    </span>
 
-      <wicket:fragment wicket:id="noDataFragment">
+    <wicket:fragment wicket:id="noDataFragment">
+      <div class="input-group">
+        <div class="form-control" style="background-color:#EEE">
+          <label wicket:id="field-label">[LABEL]</label>
+        </div>
+        <span wicket:id="panelPlus">[plus]</span>
+      </div>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="dataFragment">
+      <span wicket:id="view">
         <div class="input-group">
-          <div class="form-control" style="background-color:#EEE">
-            <label wicket:id="field-label">[LABEL]</label>
+          <span wicket:id="panel">[form field]</span>
+          <div class="input-group-append">
+            <a wicket:id="drop" class="input-group-text"><i class="fa fa-minus"></i></a>
           </div>
           <span wicket:id="panelPlus">[plus]</span>
         </div>
-      </wicket:fragment>
+      </span>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="dataFragment">
-        <span wicket:id="view">
-          <div class="input-group">
-            <span wicket:id="panel">[form field]</span>
-            <div class="input-group-addon">
-              <a wicket:id="drop"><i class="fa fa-minus"></i></a>
-            </div>
-            <span wicket:id="panelPlus">[plus]</span>
-          </div>
-        </span>
-      </wicket:fragment>
+    <wicket:fragment wicket:id="fragmentPlus">
+      <div class="input-group-append">
+        <a wicket:id="add" class="input-group-text"><i class="fa fa-plus"></i></a>
+      </div>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="fragmentPlus">
-        <div class="input-group-addon">
-          <a wicket:id="add"><i class="fa fa-plus"></i></a>
-        </div>
-      </wicket:fragment>
-
-      <wicket:fragment wicket:id="emptyFragment">
-      </wicket:fragment>
-    </wicket:extend>
-  </body>
+    <wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+  </wicket:extend>
 </html>

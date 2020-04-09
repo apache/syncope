@@ -21,12 +21,10 @@ package org.apache.syncope.client.console.commons;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -57,31 +55,28 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     public List<String> getClasses(final ImplementationTO implementation, final ViewMode viewMode) {
         List<String> classes = List.of();
         if (viewMode == ViewMode.JAVA_CLASS) {
-            Optional<JavaImplInfo> javaClasses = SyncopeConsoleSession.get().getPlatformInfo().
-                    getJavaImplInfo(implementation.getType());
-            classes = javaClasses.map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses()))
-                    .orElseGet(ArrayList::new);
+            classes = SyncopeConsoleSession.get().getPlatformInfo().getJavaImplInfo(implementation.getType()).
+                    map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses())).orElseGet(ArrayList::new);
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdRepoImplementationType.REPORTLET:
-                    classes = lookup.getReportletConfs().keySet().stream().
-                            collect(Collectors.toList());
+                    classes = new ArrayList<>(lookup.getReportletConfs().keySet());
                     break;
 
                 case IdRepoImplementationType.ACCOUNT_RULE:
-                    classes = lookup.getAccountRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
+                    classes = new ArrayList<>(lookup.getAccountRuleConfs().keySet());
                     break;
 
                 case IdRepoImplementationType.PASSWORD_RULE:
-                    classes = lookup.getPasswordRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
+                    classes = new ArrayList<>(lookup.getPasswordRuleConfs().keySet());
                     break;
 
                 default:
             }
         }
-        Collections.sort(classes);
+        if (!classes.isEmpty()) {
+            Collections.sort(classes);
+        }
 
         return classes;
     }

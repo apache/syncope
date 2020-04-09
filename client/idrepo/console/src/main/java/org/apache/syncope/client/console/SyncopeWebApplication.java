@@ -267,6 +267,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                 }
             }
         });
+        getCspSettings().blocking().unsafeInline();
 
         mountPage("/login", getSignInPageClass());
 

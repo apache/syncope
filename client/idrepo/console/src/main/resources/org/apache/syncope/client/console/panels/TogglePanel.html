@@ -27,7 +27,6 @@ under the License.
         position: fixed;
         right: 30px;
         top: 180px;
-        width: 0px;
         min-width: 250px;
         z-index: 999 !important;
       }
@@ -81,7 +80,7 @@ under the License.
 
       div.toggle-menu div.header a {
         display: inline-table;
-        padding: 6px 2px 0px 0px;
+        color: white !important;
       }
 
       div.toggle-menu div.header .close {
@@ -111,9 +110,9 @@ under the License.
     </style>
   </wicket:head>
   <wicket:extend>
-    <div wicket:id="togglePanelContainer" class="toggle-menu inactive-toggle-menu">
-      <div class="header">
-        <div class="label">
+    <div wicket:id="togglePanelContainer" class="toggle-menu inactive-toggle-menu card">
+      <div class="header card-header">
+        <div class="label card-title">
 
           <!-- Copy key to clipboard feedback -->
           <div class="copy-clipboard-feedback" style="display: none"> 
@@ -122,8 +121,8 @@ under the License.
           <label wicket:id="label" class="label-with-key" onclick="doCopyToClipboard(this)"/>
 
         </div>
-        <div class="close">
-          <a wicket:id="close" href="#"><i class="glyphicon glyphicon-remove"></i></a>
+        <div class="close card-tools">
+          <a wicket:id="close" href="#"><i class="fas fa-times"></i></a>
         </div>
       </div>
       <wicket:child/>      

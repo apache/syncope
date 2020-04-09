@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.list.SetUniqueList;
@@ -38,7 +40,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.util.time.Duration;
 
 public class LogViewer extends WebPage {
 
@@ -47,23 +48,23 @@ public class LogViewer extends WebPage {
     private static final long serialVersionUID = -7578329899052708105L;
 
     public LogViewer() {
-        final WebMarkupContainer viewer = new WebMarkupContainer("viewer");
+        WebMarkupContainer viewer = new WebMarkupContainer("viewer");
         viewer.setOutputMarkupId(true);
         add(viewer);
 
-        final AjaxDropDownChoicePanel<String> appenders = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> appenders = new AjaxDropDownChoicePanel<>(
                 "appenders", "Appender", new Model<>(), false);
         MetaDataRoleAuthorizationStrategy.authorize(appenders, ENABLE, IdRepoEntitlement.LOG_READ);
         appenders.setChoices(LoggerRestClient.listMemoryAppenders());
         viewer.add(appenders);
 
-        final WebMarkupContainer stContainer = new WebMarkupContainer("stContainer");
+        WebMarkupContainer stContainer = new WebMarkupContainer("stContainer");
         stContainer.setOutputMarkupId(true);
         viewer.add(stContainer);
 
-        final Model<Long> lastTimeInMillis = Model.of(0L);
-        final IModel<List<LogStatement>> statementViewModel = new ListModel<>(new ArrayList<>());
-        final ListView<LogStatement> statementView = new ListView<LogStatement>("statements", statementViewModel) {
+        Model<Long> lastTimeInMillis = Model.of(0L);
+        IModel<List<LogStatement>> statementViewModel = new ListModel<>(new ArrayList<>());
+        ListView<LogStatement> statementView = new ListView<LogStatement>("statements", statementViewModel) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
@@ -76,7 +77,7 @@ public class LogViewer extends WebPage {
         };
         statementView.setOutputMarkupId(true);
         stContainer.add(statementView);
-        stContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(10)) {
+        stContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 

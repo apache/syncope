@@ -66,7 +66,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
             @Override
             protected Component getValueComponent(final String key, final LoggerTO loggerTO) {
                 if ("level".equalsIgnoreCase(key)) {
-                    final AjaxDropDownChoicePanel<LoggerLevel> loggerTOs = new AjaxDropDownChoicePanel<>(
+                    AjaxDropDownChoicePanel<LoggerLevel> loggerTOs = new AjaxDropDownChoicePanel<>(
                             "field", getString("level"), Model.of(loggerTO.getLevel()), false);
                     MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, IdRepoEntitlement.LOG_SET_LEVEL);
 
@@ -102,6 +102,7 @@ public abstract class AbstractLogsPanel<T extends Serializable> extends Panel {
                 setModel(new ListModel<>(loggerTOs)).
                 includes(Constants.KEY_FIELD_NAME, "level").
                 withChecks(ListViewPanel.CheckAvailability.NONE).
+                setCaptionVisible(false).
                 setReuseItem(false);
 
         loggerContainer.add(builder.build("logger"));

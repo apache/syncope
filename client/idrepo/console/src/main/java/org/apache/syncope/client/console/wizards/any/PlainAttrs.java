@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +37,6 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -81,7 +79,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         setTitleModel(new ResourceModel("attributes.plain"));
 
-        add(new Accordion("plainSchemas", Collections.<ITab>singletonList(new AbstractTab(
+        add(new Accordion("plainSchemas", List.of(new AbstractTab(
                 new ResourceModel("attributes.accordion", "Plain Attributes")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -99,7 +97,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = item.getModelObject();
-                item.add(new Accordion("membershipPlainSchemas", Collections.<ITab>singletonList(new AbstractTab(
+                item.add(new Accordion("membershipPlainSchemas", List.of(new AbstractTab(
                         new StringResourceModel(
                                 "attributes.membership.accordion",
                                 PlainAttrs.this,
@@ -120,7 +118,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             protected Attributable load() {
                                 return membershipTO;
                             }
-
                         });
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));

@@ -25,7 +25,7 @@ under the License.
       <div class="modal-body">
         <div ng-if="saveDialog.errorMessage && saveDialog.errorMessage.length > 0" class="alert error" style="font-size: 14px; margin-top:20px">
           <div class="popup-error" style="font-size: 14px">
-            <span class="glyphicon glyphicon-remove-circle"></span>
+            <span class="fas fa-minus-circle"></span>
             <span>{{saveDialog.errorMessage}}</span>
           </div>
         </div>
@@ -64,7 +64,7 @@ under the License.
         <div ng-if="saveDialog.validationErrors" class="alert error" style="font-size: 14px; margin-top:20px">
 
           <div class="popup-error" style="font-size: 14px">
-            <span class="glyphicon glyphicon-remove-circle"></span>
+            <span class="fas fa-minus-circle"></span>
             <span>{{'MODEL.VALIDATIONERRORS'| translate:error}}</span>
           </div>
         </div>
@@ -72,7 +72,7 @@ under the License.
         <div ng-if="error && error.isConflict && !status.loading" class="alert error" style="font-size: 14px; margin-top:20px">
 
           <div class="popup-error" style="font-size: 14px">
-            <span class="glyphicon glyphicon-remove-circle"></span>
+            <span class="fas fa-minus-circle"></span>
             <span>{{'MODEL.CONFLICT.WRITE'| translate:error}}</span>
           </div>
 
@@ -115,9 +115,9 @@ under the License.
 
         <div class="pull-right">
           <button type="button" class="btn" ng-click="close()" ng-disabled="status.loading" translate>ACTION.CANCEL</button>
-          <button class="btn btn-primary" ng-click="saveAndClose()" ng-disabled="status.loading || saveDialog.name.length == 0 || saveDialog.key.length == 0" ng-show="!error && !error.isConflict" translate>ACTION.SAVE-AND-CLOSE</button>
-          <button class="btn btn-primary" ng-click="save()" ng-disabled="status.loading || saveDialog.name.length == 0 || saveDialog.key.length == 0" ng-show="!error && !error.isConflict" style="display: none" translate>ACTION.SAVE</button>
-          <button class="btn btn-primary" ng-click="okClicked()" ng-disabled="isOkButtonDisabled()" ng-show="error && error.isConflict" translate>ACTION.OK</button>
+          <button class="btn btn-success" ng-click="saveAndClose()" ng-disabled="status.loading || saveDialog.name.length == 0 || saveDialog.key.length == 0" ng-show="!error && !error.isConflict" translate>ACTION.SAVE-AND-CLOSE</button>
+          <button class="btn btn-success" ng-click="save()" ng-disabled="status.loading || saveDialog.name.length == 0 || saveDialog.key.length == 0" ng-show="!error && !error.isConflict" style="display: none" translate>ACTION.SAVE</button>
+          <button class="btn btn-success" ng-click="okClicked()" ng-disabled="isOkButtonDisabled()" ng-show="error && error.isConflict" translate>ACTION.OK</button>
         </div>
 
         <div class="pull-right popup-error" ng-if="error && !error.isConflict">

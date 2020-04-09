@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
 import java.util.List;
 import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -77,7 +77,6 @@ public class ItemTransformerWidget extends AlertWidget<String> {
 
     @Override
     protected Icon getIcon(final String iconid) {
-        return new Icon(iconid,
-                FontAwesomeIconTypeBuilder.on(FontAwesomeIconTypeBuilder.FontAwesomeGraphic.magic).build());
+        return new Icon(iconid, FontAwesome5IconType.magic_s);
     }
 }

@@ -122,6 +122,8 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
             csvFile.showUpload(false);
             csvFile.showRemove(false);
             csvFile.showPreview(false);
+            csvFile.browseClass("btn btn-success");
+            csvFile.browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
             BootstrapFileInputField csvUpload =
                     new BootstrapFileInputField("csvUpload", new ListModel<>(new ArrayList<>()), csvFile);
             csvUpload.setRequired(true);

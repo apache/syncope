@@ -63,17 +63,6 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
             }
         };
 
-        final LoadableDetachableModel<List<T>> items = new LoadableDetachableModel<List<T>>() {
-
-            private static final long serialVersionUID = 7474274077691068779L;
-
-            @Override
-            protected List<T> load() {
-                final List<T> latest = AlertWidget.this.latestAlerts.getObject();
-                return latest.subList(0, latest.size() <= MAX_SIZE ? latest.size() : MAX_SIZE);
-            }
-        };
-
         add(getIcon("icon"));
 
         linkAlertsNumber = new Label("alerts", size) {
@@ -84,9 +73,9 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
                 if (Integer.parseInt(getDefaultModelObject().toString()) > 0) {
-                    tag.put("class", "label label-danger");
+                    tag.put("class", "badge badge-warning navbar-badge");
                 } else {
-                    tag.put("class", "label label-info");
+                    tag.put("class", "badge badge-success navbar-badge");
                 }
             }
         };

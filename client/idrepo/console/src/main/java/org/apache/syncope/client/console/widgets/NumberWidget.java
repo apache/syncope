@@ -45,7 +45,7 @@ public class NumberWidget extends BaseWidget {
         this.number = number;
         setOutputMarkupId(true);
 
-        WebMarkupContainer box = new WebMarkupContainer("box");
+        WebMarkupContainer box = new WebMarkupContainer("card");
         box.add(new AttributeAppender("class", ' ' + bg));
 
         boolean isAuthorized = true;

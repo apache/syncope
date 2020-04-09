@@ -22,6 +22,8 @@ import java.util.List;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
 public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDirectoryPanelAdditionalActionsProvider {
@@ -41,7 +43,24 @@ public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDire
             final List<String> dSchemaNames,
             final PageReference pageRef) {
 
-        // nothing to do
+        panel.addInnerObject(new AjaxLink<Void>("csvPush") {
+
+            private static final long serialVersionUID = -817438685948164787L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setVisible(false).setEnabled(false));
+        panel.addInnerObject(new AjaxLink<Void>("csvPull") {
+
+            private static final long serialVersionUID = -817438685948164787L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setVisible(false).setEnabled(false));
     }
 
     @Override

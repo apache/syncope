@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.ui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -57,9 +57,9 @@ public abstract class AbstractUITCase {
     protected static SyncopeService SYNCOPE_SERVICE;
 
     protected static <V extends Serializable> Component findComponentByProp(
-            final String property, final String searchPath, final V key) {
+            final String property, final String path, final V key) {
 
-        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
+        Component component = TESTER.getComponentFromLastRenderedPage(path);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
                 visitChildren(ListItem.class, (ListItem<?> object, IVisit<Component> visit) -> {
                     try {
@@ -68,15 +68,15 @@ public abstract class AbstractUITCase {
                             visit.stop(object);
                         }
                     } catch (Exception e) {
-                        LOG.error("Error invoke method", e);
+                        LOG.debug("Error finding component by property ({},{}) on path {}", property, key, path, e);
                     }
                 });
     }
 
     protected static <V extends Serializable> Component findComponentByPropNotNull(
-            final String property, final String searchPath) {
+            final String property, final String path) {
 
-        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
+        Component component = TESTER.getComponentFromLastRenderedPage(path);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
                 visitChildren(ListItem.class, (ListItem<?> object, IVisit<Component> visit) -> {
                     try {
@@ -85,7 +85,7 @@ public abstract class AbstractUITCase {
                             visit.stop(object);
                         }
                     } catch (Exception e) {
-                        LOG.error("Error invoke method", e);
+                        LOG.debug("Error finding component by property {} not null on path {}", property, path, e);
                     }
                 });
     }
@@ -93,7 +93,7 @@ public abstract class AbstractUITCase {
     protected static Component findComponentById(final String searchPath, final String id) {
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
-                visitChildren(Component.class, (final Component object, final IVisit<Component> visit) -> {
+                visitChildren(Component.class, (object, visit) -> {
                     if (object.getId().equals(id)) {
                         visit.stop(object);
                     }
@@ -103,7 +103,7 @@ public abstract class AbstractUITCase {
     protected static Component findComponentByMarkupId(final String searchPath, final String markupId) {
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
-                visitChildren(Component.class, (final Component object, final IVisit<Component> visit) -> {
+                visitChildren(Component.class, (object, visit) -> {
                     if (object.getMarkupId().equals(markupId)) {
                         visit.stop(object);
                     }

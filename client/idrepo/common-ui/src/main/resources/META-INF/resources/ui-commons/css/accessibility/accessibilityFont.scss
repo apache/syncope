@@ -29,7 +29,8 @@ p {
 }
 
 .box-header > .fa, 
-.box-header > .glyphicon, 
+.box-header > .far, 
+.box-header > .fas, 
 .box-header > .ion, .box-header .box-title,
 .dropdown-toggle .filter-option,
 .dropdown-menu a,
@@ -43,7 +44,9 @@ p {
 .alert h4,
 #mappings .fa,
 .popover-content,
-.box .dropdown-toggle .glyphicon,
+.box .dropdown-toggle .fa,
+.box .dropdown-toggle .far,
+.box .dropdown-toggle .fas,
 .box-header button,
 .toggle .toggle-group .btn,
 .input-group .form-control label {

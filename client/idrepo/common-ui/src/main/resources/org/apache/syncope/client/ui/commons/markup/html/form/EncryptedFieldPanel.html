@@ -22,7 +22,7 @@ under the License.
       <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
       <span wicket:id="externalAction"/>
     </wicket:enclosure>
-    <div class="input-group input-group-sm">
+    <div class="input-group">
       <span class="input-group-btn">  
         <button type="button" class="btn btn-warning btn-flat"
                 wicket:message="confirm:confirmMessage"
@@ -48,7 +48,7 @@ under the License.
       </span>
       <input type="password" class="form-control" wicket:id="encryptedField" readonly="true"/>
       <span class="input-group-btn">  
-        <button type="button" class="btn btn-primary btn-flat"
+        <button type="button" class="btn btn-success btn-flat"
                 onmousedown="var pwd = $(this).parent().prev('input');
                     if (!pwd.is('[readonly]')) {
                       pwd.attr('type', 'text');

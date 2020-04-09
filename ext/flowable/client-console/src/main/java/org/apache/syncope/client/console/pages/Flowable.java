@@ -28,7 +28,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "Flowable", icon = "fa-briefcase",
+@ExtPage(label = "Flowable", icon = "fa fa-briefcase",
         listEntitlement = FlowableEntitlement.BPMN_PROCESS_GET, priority = 200)
 public class Flowable extends BaseExtPage {
 

@@ -27,7 +27,7 @@ under the License.
 
     <link rel="shortcut icon" href="ui-commons/img/favicon.png" type="image/png"/>
 
-    <link href="webjars/font-awesome/${font-awesome.version}/css/${font-awesome.filename}" rel="stylesheet" type="text/css" />
+    <link href="webjars/font-awesome/${font-awesome.version}/css/all.min.css" rel="stylesheet" type="text/css" />
     <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
     <link href="ui-commons/css/fonts.css" rel="stylesheet" type="text/css"/>
 
@@ -69,15 +69,15 @@ under the License.
             <input type="password" wicket:id="password" class="form-control" 
                    wicket:message="placeholder:password" required="required" />
 
-            <fieldset class="input-group">
-              <select wicket:id="language"/>
-            </fieldset>
+            <div class="form-group">
+              <select class="form-control select2bs4 select2-hidden-accessible" wicket:id="language"/>
+            </div>
 
-            <fieldset class="input-group">
-              <select wicket:id="domain"/>
-            </fieldset>
+            <div class="form-group">
+              <select class="form-control select2bs4 select2-hidden-accessible" wicket:id="domain"/>
+            </div>
 
-            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin"></button>
+            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin bg-success"></button>
           </fieldset>
 
           <div wicket:id="ssoLogins">

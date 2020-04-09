@@ -153,17 +153,17 @@ public class AuditLoggerName implements Serializable {
     }
 
     public static Pair<EventCategory, Result> parseEventCategory(final String event) {
-        EventCategory eventCategoryTO = new EventCategory();
+        EventCategory eventCategory = new EventCategory();
 
         Result condition = null;
 
         if (StringUtils.isNotEmpty(event)) {
-            final String[] elements = event.substring(1, event.length() - 1).split("\\]:\\[");
+            String[] elements = event.substring(1, event.length() - 1).split("\\]:\\[");
 
             if (elements.length == 1) {
-                eventCategoryTO.setType(EventCategoryType.CUSTOM);
+                eventCategory.setType(EventCategoryType.CUSTOM);
                 condition = Result.SUCCESS;
-                eventCategoryTO.getEvents().add(event);
+                eventCategory.getEvents().add(event);
             } else {
                 EventCategoryType type;
 
@@ -181,14 +181,14 @@ public class AuditLoggerName implements Serializable {
                     }
                 }
 
-                eventCategoryTO.setType(type);
+                eventCategory.setType(type);
 
-                eventCategoryTO.setCategory(StringUtils.isNotEmpty(elements[1]) ? elements[1] : null);
+                eventCategory.setCategory(StringUtils.isNotEmpty(elements[1]) ? elements[1] : null);
 
-                eventCategoryTO.setSubcategory(StringUtils.isNotEmpty(elements[2]) ? elements[2] : null);
+                eventCategory.setSubcategory(StringUtils.isNotEmpty(elements[2]) ? elements[2] : null);
 
                 if (elements.length > 3 && StringUtils.isNotEmpty(elements[3])) {
-                    eventCategoryTO.getEvents().add(elements[3]);
+                    eventCategory.getEvents().add(elements[3]);
                 }
 
                 if (elements.length > 4) {
@@ -197,7 +197,7 @@ public class AuditLoggerName implements Serializable {
             }
         }
 
-        return Pair.of(eventCategoryTO, condition);
+        return Pair.of(eventCategory, condition);
     }
 
     /**

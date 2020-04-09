@@ -97,8 +97,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 

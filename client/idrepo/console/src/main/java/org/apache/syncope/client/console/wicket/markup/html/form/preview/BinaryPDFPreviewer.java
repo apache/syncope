@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.time.Instant;
 import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.DefaultResourceCache;
@@ -40,7 +41,6 @@ import org.apache.wicket.markup.html.image.NonCachingImage;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.util.time.Time;
 
 @BinaryPreview(mimeTypes = { "application/pdf" })
 public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
@@ -112,7 +112,7 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
         protected byte[] getImageData(final IResource.Attributes attributes) {
             if (thumbnail == null) {
                 thumbnail = toImageData(getScaledImageInstance());
-                setLastModifiedTime(Time.now());
+                setLastModifiedTime(Instant.now());
             }
             return thumbnail;
         }

@@ -34,7 +34,6 @@ under the License.
 
   <properties>
     <opensaml.version>3.4.5</opensaml.version>
-    <bootstrap.version>4.4.1</bootstrap.version>
   </properties>
 
   <dependencies>

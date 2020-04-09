@@ -33,7 +33,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@AMPage(label = "Gateway", icon = "fa-share-alt", listEntitlement = "", priority = 0)
+@AMPage(label = "Gateway", icon = "fas fa-share-alt", listEntitlement = "", priority = 0)
 public class Gateway extends BasePage {
 
     private static final long serialVersionUID = 9200112197134882164L;

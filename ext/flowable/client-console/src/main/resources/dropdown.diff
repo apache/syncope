@@ -96,12 +96,12 @@ index 17c5ca8..57a24e5 100644
 +                                        <div ng-if="translationsRetrieved" class="kis-listener-grid" ui-grid="dropdownGridOptions" ui-grid-selection ui-grid-auto-resize></div>
 +                                        <!--<div class="pull-right">
 +                                            <div class="btn-group">
-+                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.MOVE.UP | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="moveEnumValueUp()"><i class="glyphicon glyphicon-arrow-up"></i></a>
-+                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.MOVE.DOWN | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="moveEnumValueDown()"><i class="glyphicon glyphicon-arrow-down"></i></a>
++                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.MOVE.UP | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="moveEnumValueUp()"><i class="fa fa-arrow-up"></i></a>
++                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.MOVE.DOWN | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="moveEnumValueDown()"><i class="fa fa-arrow-down"></i></a>
 +                                            </div>
 +                                            <div class="btn-group">
-+                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.ADD | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="addNewEnumValue()"><i class="glyphicon glyphicon-plus"></i></a>
-+                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.REMOVE | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="removeEnumValue()"><i class="glyphicon glyphicon-minus"></i></a>
++                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.ADD | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="addNewEnumValue()"><i class="fa fa-plus"></i></a>
++                                                <a class="btn btn-icon btn-lg" rel="tooltip" data-title="{{ACTION.REMOVE | translate}}" data-placement="bottom" data-original-title="" title="" ng-click="removeEnumValue()"><i class="fa fa-minus"></i></a>
 +                                            </div>
 +                                        </div>-->
 +                                    </div>

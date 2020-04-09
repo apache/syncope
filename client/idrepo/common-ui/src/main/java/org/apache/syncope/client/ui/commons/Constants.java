@@ -97,15 +97,15 @@ public final class Constants {
 
     public static final String PREF_ANY_DER_ATTRS_VIEW = "any.%s.der.attrs.view";
 
-    public static final String CREATED_ICON = "glyphicon glyphicon-ok-circle";
+    public static final String CREATED_ICON = "far fa-check-circle";
 
-    public static final String SUSPENDED_ICON = "glyphicon glyphicon-ban-circle";
+    public static final String SUSPENDED_ICON = "fas fa-ban";
 
-    public static final String ACTIVE_ICON = "glyphicon glyphicon-ok-circle";
+    public static final String ACTIVE_ICON = "far fa-check-circle";
 
-    public static final String UNDEFINED_ICON = "glyphicon glyphicon-question-sign";
+    public static final String UNDEFINED_ICON = "fas fa-question-circle";
 
-    public static final String NOT_FOUND_ICON = "glyphicon glyphicon-remove-circle";
+    public static final String NOT_FOUND_ICON = "fas fa-minus-circle";
 
     public static final int MAX_GROUP_LIST_SIZE = 30;
 

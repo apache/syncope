@@ -153,18 +153,9 @@ img,
 .input-group input[disabled],
 .control-sidebar-dark .control-sidebar-menu > li > a:hover,
 .table-hover > tbody > tr:hover,
-.skin-blue .main-header .navbar .sidebar-toggle:hover,
 .main-header .navbar .sidebar-toggle:hover,
-.skin-blue .main-header .logo:hover,
 .main-header .logo:hover,
 div.toggle-menu ul li:hover,
-.skin-blue .main-header .navbar .nav > li > a:hover, 
-.skin-blue .main-header .navbar .nav > li > a:active, 
-.skin-blue .main-header .navbar .nav > li > a:focus, 
-.skin-blue .main-header .navbar .nav .open > a:hover, 
-.skin-blue .main-header .navbar .nav .open > a:focus,
-.skin-blue .sidebar-menu > li:hover > a, 
-.skin-blue .sidebar-menu > li.active > a,
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus, 
 .dropdown-menu > li > a:hover,
@@ -184,13 +175,12 @@ div.toggle-menu ul li:hover,
 
 
 .sidebar-mini .main-header .navbar {
-  background-color: #222d32; /* color from 'skin-blue' */
+  background-color: #222d32;
   border-bottom: 1px white solid;
   box-sizing: border-box;
 }
 .sidebar-mini .main-header .logo,
-div.toggle-menu,
-.skin-blue .main-header li.user-header {
+div.toggle-menu {
   background-color: #222d32;
 }
 
@@ -250,7 +240,7 @@ div.infolabel,
 .modal-success .modal-body {
   background-color: #005C32 !important;
 }
-.bg-aqua {
+.bg-info {
   background-color: #004E61 !important;
 }
 .bg-yellow, 

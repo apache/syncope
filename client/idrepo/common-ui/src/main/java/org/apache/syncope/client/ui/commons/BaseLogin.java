@@ -19,7 +19,6 @@
 package org.apache.syncope.client.ui.commons;
 
 import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +40,7 @@ import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
@@ -230,7 +230,7 @@ public abstract class BaseLogin extends WebPage {
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.
      */
-    private class LocaleDropDown extends BootstrapSelect<Locale> {
+    private class LocaleDropDown extends DropDownChoice<Locale> {
 
         private static final long serialVersionUID = 2349382679992357202L;
 

@@ -32,7 +32,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "OpenID Connect 1.0 Client", icon = "fa-openid ", 
+@ExtPage(label = "OpenID Connect 1.0 Client", icon = "fab fa-openid", 
         listEntitlement = OIDCClientEntitlement.OP_READ, priority = 300)
 public class OIDCClient extends BaseExtPage {
 

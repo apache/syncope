@@ -39,8 +39,6 @@ public class SelectedEventsPanel extends Panel {
 
     private final WebMarkupContainer selectionContainer;
 
-    private ListMultipleChoice<String> selectedEvents;
-
     private final IModel<List<String>> model;
 
     public SelectedEventsPanel(final String id, final IModel<List<String>> model) {
@@ -52,7 +50,8 @@ public class SelectedEventsPanel extends Panel {
         selectionContainer.setOutputMarkupId(true);
         add(selectionContainer);
 
-        selectedEvents = new ListMultipleChoice<String>("selectedEvents", new ListModel<String>(), model) {
+        ListMultipleChoice<String> selectedEvents =
+                new ListMultipleChoice<String>("selectedEvents", new ListModel<String>(), model) {
 
             private static final long serialVersionUID = 1226677544225737338L;
 
@@ -64,7 +63,6 @@ public class SelectedEventsPanel extends Panel {
                 tag.put("size", 5);
             }
         };
-
         selectedEvents.setMaxRows(5);
         selectedEvents.setChoiceRenderer(new IChoiceRenderer<String>() {
 
@@ -85,7 +83,6 @@ public class SelectedEventsPanel extends Panel {
                 return id;
             }
         });
-
         selectedEvents.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -151291731388673682L;
@@ -97,24 +94,20 @@ public class SelectedEventsPanel extends Panel {
                         new InspectSelectedEvent(target, selectedEvents.getModelValue()));
             }
         });
-
         selectionContainer.add(selectedEvents);
     }
 
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof EventSelectionChanged) {
-            final EventSelectionChanged eventSelectionChanged = (EventSelectionChanged) event.getPayload();
+            EventSelectionChanged eventSelectionChanged = (EventSelectionChanged) event.getPayload();
 
-            for (String toBeRemoved : eventSelectionChanged.getToBeRemoved()) {
-                model.getObject().remove(toBeRemoved);
-            }
+            eventSelectionChanged.getToBeRemoved().
+                    forEach(toBeRemoved -> model.getObject().remove(toBeRemoved));
 
-            for (String toBeAdded : eventSelectionChanged.getToBeAdded()) {
-                if (!model.getObject().contains(toBeAdded)) {
-                    model.getObject().add(toBeAdded);
-                }
-            }
+            eventSelectionChanged.getToBeAdded().stream().
+                    filter(toBeAdded -> !model.getObject().contains(toBeAdded)).
+                    forEach(toBeAdded -> model.getObject().add(toBeAdded));
 
             eventSelectionChanged.getTarget().add(selectionContainer);
         }

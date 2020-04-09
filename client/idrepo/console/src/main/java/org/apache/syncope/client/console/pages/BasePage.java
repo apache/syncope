@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+import java.time.Duration;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
@@ -31,7 +32,6 @@ import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
@@ -51,10 +51,10 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -67,15 +67,10 @@ import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
@@ -130,7 +125,7 @@ public class BasePage extends BaseWebPage {
                             ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
                             : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
-                    rsrh.setCacheDuration(Duration.NONE);
+                    rsrh.setCacheDuration(Duration.ZERO);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
@@ -170,17 +165,6 @@ public class BasePage extends BaseWebPage {
             protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
                 WebMarkupContainer containingLI = new WebMarkupContainer("idmPageLI");
                 item.add(containingLI);
-                if (item.getModelObject().equals(BasePage.this.getClass())) {
-                    containingLI.add(new Behavior() {
-
-                        private static final long serialVersionUID = 1469628524240283489L;
-
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.put("class", "active");
-                        }
-                    });
-                }
 
                 IdMPage ann = item.getModelObject().getAnnotation(IdMPage.class);
 
@@ -189,10 +173,21 @@ public class BasePage extends BaseWebPage {
                 if (StringUtils.isNotBlank(ann.listEntitlement())) {
                     MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
                 }
+                if (item.getModelObject().equals(BasePage.this.getClass())) {
+                    link.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
+                }
                 containingLI.add(link);
 
                 Label idmPageIcon = new Label("idmPageIcon");
-                idmPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
+                idmPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
                 link.add(idmPageIcon);
             }
         };
@@ -210,17 +205,6 @@ public class BasePage extends BaseWebPage {
             protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
                 WebMarkupContainer containingLI = new WebMarkupContainer("amPageLI");
                 item.add(containingLI);
-                if (item.getModelObject().equals(BasePage.this.getClass())) {
-                    containingLI.add(new Behavior() {
-
-                        private static final long serialVersionUID = 1469628524240283489L;
-
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.put("class", "active");
-                        }
-                    });
-                }
 
                 AMPage ann = item.getModelObject().getAnnotation(AMPage.class);
 
@@ -229,10 +213,21 @@ public class BasePage extends BaseWebPage {
                 if (StringUtils.isNotBlank(ann.listEntitlement())) {
                     MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
                 }
+                if (item.getModelObject().equals(BasePage.this.getClass())) {
+                    link.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
+                }
                 containingLI.add(link);
 
                 Label amPageIcon = new Label("amPageIcon");
-                amPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
+                amPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
                 link.add(amPageIcon);
             }
         };
@@ -245,18 +240,24 @@ public class BasePage extends BaseWebPage {
         WebMarkupContainer keymasterULContainer = new WebMarkupContainer(getULContainerId("keymaster"));
         keymasterLIContainer.add(keymasterULContainer);
 
+        liContainer = new WebMarkupContainer(getLIContainerId("domains"));
+        keymasterULContainer.add(liContainer);
+        link = BookmarkablePageLinkBuilder.build("domains", Domains.class);
+        liContainer.add(link);
         if (SyncopeConstants.MASTER_DOMAIN.equals(SyncopeConsoleSession.get().getDomain())) {
-            liContainer = new WebMarkupContainer(getLIContainerId("domains"));
-            keymasterULContainer.add(liContainer);
-            link = BookmarkablePageLinkBuilder.build("domains", Domains.class);
             MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.KEYMASTER);
-            liContainer.add(link);
+        } else {
+            link.setOutputMarkupPlaceholderTag(true).setEnabled(false).setVisible(false);
+        }
 
-            liContainer = new WebMarkupContainer(getLIContainerId("networkservices"));
-            keymasterULContainer.add(liContainer);
-            link = BookmarkablePageLinkBuilder.build("networkservices", NetworkServices.class);
+        liContainer = new WebMarkupContainer(getLIContainerId("networkservices"));
+        keymasterULContainer.add(liContainer);
+        link = BookmarkablePageLinkBuilder.build("networkservices", NetworkServices.class);
+        liContainer.add(link);
+        if (SyncopeConstants.MASTER_DOMAIN.equals(SyncopeConsoleSession.get().getDomain())) {
             MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.KEYMASTER);
-            liContainer.add(link);
+        } else {
+            link.setOutputMarkupPlaceholderTag(true).setEnabled(false).setVisible(false);
         }
 
         liContainer = new WebMarkupContainer(getLIContainerId("parameters"));
@@ -358,26 +359,33 @@ public class BasePage extends BaseWebPage {
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu
-        Component containingLI = body.get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
+        WebMarkupContainer containingLI = (WebMarkupContainer) body.get(
+                getLIContainerId(getClass().getSimpleName().toLowerCase()));
         // 2. if not, check if it is under 'Keymaster'
         if (containingLI == null) {
-            containingLI = keymasterULContainer.get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
+            containingLI = (WebMarkupContainer) keymasterULContainer.get(
+                    getLIContainerId(getClass().getSimpleName().toLowerCase()));
         }
         // 3. if not, check if it is under 'Configuration'
         if (containingLI == null) {
-            containingLI = confULContainer.get(getLIContainerId(getClass().getSimpleName().toLowerCase()));
+            containingLI = (WebMarkupContainer) confULContainer.get(
+                    getLIContainerId(getClass().getSimpleName().toLowerCase()));
         }
         // 4. when found, set CSS coordinates for menu
         if (containingLI != null) {
-            containingLI.add(new Behavior() {
+            for (Component child : containingLI) {
+                if (child instanceof Link) {
+                    child.add(new Behavior() {
 
-                private static final long serialVersionUID = 1469628524240283489L;
+                        private static final long serialVersionUID = -5775607340182293596L;
 
-                @Override
-                public void onComponentTag(final Component component, final ComponentTag tag) {
-                    tag.put("class", "active");
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
                 }
-            });
+            }
 
             if (keymasterULContainer.getId().equals(containingLI.getParent().getId())) {
                 keymasterULContainer.add(new Behavior() {
@@ -385,11 +393,16 @@ public class BasePage extends BaseWebPage {
                     private static final long serialVersionUID = -5775607340182293596L;
 
                     @Override
-                    public void onComponentTag(final Component component, final ComponentTag tag) {
-                        tag.put("class", "treeview-menu menu-open");
-                        tag.put("style", "display: block;");
+                    public void renderHead(final Component component, final IHeaderResponse response) {
+                        response.render(OnDomReadyHeaderItem.forScript(
+                                "$('#keymasterLink').addClass('active')"));
                     }
 
+                    @Override
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("class", "nav nav-treeview");
+                        tag.put("style", "display: block;");
+                    }
                 });
 
                 keymasterLIContainer.add(new Behavior() {
@@ -398,7 +411,7 @@ public class BasePage extends BaseWebPage {
 
                     @Override
                     public void onComponentTag(final Component component, final ComponentTag tag) {
-                        tag.put("class", "treeview active");
+                        tag.put("class", "nav-item has-treeview menu-open");
                     }
                 });
             } else if (confULContainer.getId().equals(containingLI.getParent().getId())) {
@@ -407,11 +420,16 @@ public class BasePage extends BaseWebPage {
                     private static final long serialVersionUID = 3109256773218160485L;
 
                     @Override
-                    public void onComponentTag(final Component component, final ComponentTag tag) {
-                        tag.put("class", "treeview-menu menu-open");
-                        tag.put("style", "display: block;");
+                    public void renderHead(final Component component, final IHeaderResponse response) {
+                        response.render(OnDomReadyHeaderItem.forScript(
+                                "$('#configurationLink').addClass('active')"));
                     }
 
+                    @Override
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("class", "nav nav-treeview");
+                        tag.put("style", "display: block;");
+                    }
                 });
 
                 confLIContainer.add(new Behavior() {
@@ -420,7 +438,7 @@ public class BasePage extends BaseWebPage {
 
                     @Override
                     public void onComponentTag(final Component component, final ComponentTag tag) {
-                        tag.put("class", "treeview active");
+                        tag.put("class", "nav-item has-treeview menu-open");
                     }
                 });
             }
@@ -466,17 +484,6 @@ public class BasePage extends BaseWebPage {
             protected void populateItem(final ListItem<Class<? extends BaseExtPage>> item) {
                 WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
                 item.add(containingLI);
-                if (item.getModelObject().equals(BasePage.this.getClass())) {
-                    containingLI.add(new Behavior() {
-
-                        private static final long serialVersionUID = 1469628524240283489L;
-
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.put("class", "active");
-                        }
-                    });
-                }
 
                 ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
 
@@ -485,13 +492,31 @@ public class BasePage extends BaseWebPage {
                 if (StringUtils.isNotBlank(ann.listEntitlement())) {
                     MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
                 }
+                if (item.getModelObject().equals(BasePage.this.getClass())) {
+                    link.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void renderHead(final Component component, final IHeaderResponse response) {
+                            response.render(OnDomReadyHeaderItem.forScript(
+                                    "$('#extensionsLink').addClass('active')"));
+                        }
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
+                }
                 containingLI.add(link);
 
                 Label extPageIcon = new Label("extPageIcon");
-                extPageIcon.add(new AttributeModifier("class", "fa " + ann.icon()));
+                extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
                 link.add(extPageIcon);
             }
         };
+        extPages.setRenderBodyOnly(true);
         extPages.setOutputMarkupId(true);
         extensionsLI.add(extPages);
 
@@ -502,10 +527,9 @@ public class BasePage extends BaseWebPage {
 
                 @Override
                 public void onComponentTag(final Component component, final ComponentTag tag) {
-                    tag.put("class", "treeview-menu menu-open");
+                    tag.put("class", "nav nav-treeview");
                     tag.put("style", "display: block;");
                 }
-
             });
 
             extensionsLI.add(new Behavior() {
@@ -514,7 +538,7 @@ public class BasePage extends BaseWebPage {
 
                 @Override
                 public void onComponentTag(final Component component, final ComponentTag tag) {
-                    tag.put("class", "treeview active");
+                    tag.put("class", "nav-item has-treeview menu-open");
                 }
             });
         }
@@ -532,25 +556,5 @@ public class BasePage extends BaseWebPage {
 
     private static String getULContainerId(final String linkId) {
         return linkId + "UL";
-    }
-
-    /**
-     * Set a WindowClosedCallback for a Modal instance.
-     *
-     * @param modal window
-     * @param container container
-     */
-    public static void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                if (container != null) {
-                    target.add(container);
-                }
-            }
-        });
     }
 }

@@ -63,7 +63,7 @@ public class LogStatementPanel extends Panel {
             default:
                 type = Alert.Type.Info;
         }
-        labelCssClass = "label-" + type.name().toLowerCase();
+        labelCssClass = "alert-" + type.name().toLowerCase();
 
         add(new Label("logger", Model.of(statement.getLoggerName())));
         add(new Label("instant", Model.of(FORMAT.format(statement.getTimeMillis()))));
@@ -74,7 +74,7 @@ public class LogStatementPanel extends Panel {
         collapse.setOutputMarkupPlaceholderTag(true);
         collapse.setVisible(StringUtils.isNotBlank(statement.getStackTrace()));
         collapse.add(new JQueryUIBehavior(
-            '#' + collapse.getMarkupId(), "accordion", new Options("active", false).set("collapsible", true)));
+                '#' + collapse.getMarkupId(), "accordion", new Options("active", false).set("collapsible", true)));
         add(collapse);
 
         Label stacktrace = new Label("stacktrace", Model.of(statement.getStackTrace()));
@@ -89,5 +89,4 @@ public class LogStatementPanel extends Panel {
         checkComponentTag(tag, "div");
         Attributes.addClass(tag, labelCssClass);
     }
-
 }

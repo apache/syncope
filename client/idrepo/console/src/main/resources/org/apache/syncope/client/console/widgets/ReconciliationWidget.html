@@ -18,26 +18,29 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="box box-default box-solid" wicket:id="reconciliationContainer">
-      <div class="box-header with-border">
-        <h3 class="box-title"><wicket:message key="reconciliationStatus"/></h3>
-        <div class="box-tools pull-right">
-          <div class="btn-group">
-            <button class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
-              <i class="fa fa-wrench"></i>
+    <div class="card card-gray" wicket:id="reconciliationContainer">
+      <div class="card-header">
+        <h3 class="card-title"><wicket:message key="reconciliationStatus"/></h3>
+
+        <div class="card-tools">
+          <div class="btn-group" role="group">
+            <button class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
+              <i class="fas fa-wrench"></i>
             </button>
-            <ul class="dropdown-menu" role="menu">
-              <li><a wicket:id="refresh"><wicket:message key="refresh"/></a></li>
-            </ul>
+            <div class="dropdown-menu" role="group">
+              <a href="#" class="dropdown-item text-dark" wicket:id="refresh"><wicket:message key="refresh"/></a>
+            </div>
           </div>
-          <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+
+          <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+          </button>
         </div>
       </div>
-      <div class="box-body">
+      <div class="card-body">
         <div wicket:id="reportResult"/>
       </div>
       <div wicket:id="overlay" class="overlay">
-        <i class="fa fa-refresh fa-spin"></i>
+        <i class="fas fa-sync fa-spin"></i>
       </div>
     </div>
 

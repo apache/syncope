@@ -142,7 +142,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                 if ("suspended".equalsIgnoreCase(key)) {
                     Label label = new Label("field", StringUtils.EMPTY);
                     if (bean.isSuspended()) {
-                        label.add(new AttributeModifier("class", "glyphicon glyphicon-ok"));
+                        label.add(new AttributeModifier("class", "fa fa-check"));
                         label.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
                     }
                     return label;

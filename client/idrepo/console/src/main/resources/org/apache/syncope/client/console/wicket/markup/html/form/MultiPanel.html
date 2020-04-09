@@ -38,7 +38,7 @@ under the License.
           <div class="multipanel-box box input-group" style="background-color:#EEE">
             <label wicket:id="field-label">[LABEL]</label>
           </div>
-          <span wicket:id="panelPlus" class="input-group-addon">[plus]</span>
+          <span wicket:id="panelPlus" class="input-group-append input-group-text">[plus]</span>
         </div>
       </wicket:fragment>
 
@@ -49,8 +49,8 @@ under the License.
               <div class="multipanel-box box">
                 <span wicket:id="panel">[form field]</span>
               </div>
-              <div class="multipanel-btn-minus input-group-addon">
-                <a wicket:id="drop" class="btn btn-danger btn-circle btn-lg"><i class="glyphicon glyphicon-minus"></i></a>
+              <div class="multipanel-btn-minus input-group-append input-group-text">
+                <a wicket:id="drop" class="btn btn-danger btn-circle btn-lg"><i class="fa fa-minus"></i></a>
               </div>
             </div>
             <span wicket:id="panelPlus">[plus]</span>
@@ -60,7 +60,7 @@ under the License.
 
       <wicket:fragment wicket:id="fragmentPlus">
         <div class="form-group pull-right input-group multipanel-btn-plus">
-          <a wicket:id="add" class="btn btn-primary btn-circle btn-lg"><i class="glyphicon glyphicon-plus"></i></a>
+          <a wicket:id="add" class="btn btn-success btn-circle btn-lg"><i class="fa fa-plus"></i></a>
         </div>
       </wicket:fragment>
 

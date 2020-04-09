@@ -181,7 +181,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         queryFilter.setObject(builder.filter);
         AjaxTextFieldPanel filter = new AjaxTextFieldPanel("filter", "filter", queryFilter, false);
-        form.add(filter.hideLabel().setOutputMarkupId(true));
+        form.add(filter.hideLabel().setOutputMarkupId(true).setRenderBodyOnly(true));
 
         AjaxButton search = new AjaxButton("search") {
 

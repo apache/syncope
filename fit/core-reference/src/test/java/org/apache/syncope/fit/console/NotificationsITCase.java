@@ -92,7 +92,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
                 + "form:view:eventSelection:eventsContainer:eventsPanel:successGroup",
-                Constants.ON_CLICK);
+                Constants.ON_CHANGE);
         // -------------------------------
 
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");

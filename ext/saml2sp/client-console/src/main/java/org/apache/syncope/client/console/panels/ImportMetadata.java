@@ -56,7 +56,9 @@ public class ImportMetadata extends TogglePanel<Serializable> {
         config.showUpload(false);
         config.showRemove(false);
         config.showPreview(false);
-        final BootstrapFileInputField fileUpload =
+        config.browseClass("btn btn-success");
+        config.browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
+        BootstrapFileInputField fileUpload =
                 new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {

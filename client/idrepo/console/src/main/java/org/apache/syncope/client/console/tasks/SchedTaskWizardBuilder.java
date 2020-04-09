@@ -140,7 +140,6 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             jobDelegate.setChoices(taskJobDelegates.getObject());
             jobDelegate.addRequiredLabel();
             jobDelegate.setEnabled(taskTO.getKey() == null);
-            jobDelegate.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
             add(jobDelegate);
 
             // ------------------------------
@@ -169,7 +168,6 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                     "reconFilterBuilder", "reconFilterBuilder",
                     new PropertyModel<>(taskTO, "reconFilterBuilder"), false);
             reconFilterBuilder.setChoices(reconFilterBuilders.getObject());
-            reconFilterBuilder.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
             reconFilterBuilder.setEnabled(isFiltered);
             reconFilterBuilder.setRequired(isFiltered);
             pullTaskSpecifics.add(reconFilterBuilder);

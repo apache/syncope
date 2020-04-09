@@ -130,13 +130,6 @@ under the License.
 
     <!-- required by wicket tester -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
@@ -248,6 +241,97 @@ under the License.
           </plugin>
         </plugins>
       </build>
+    </profile>
+    
+    <profile>
+      <id>debug</id>
+
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+
+      <build>
+        <defaultGoal>clean package spring-boot:run</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <jvmArguments>
+                -Dwicket.core.settings.general.configuration-type=development
+                -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
+              </jvmArguments>
+              <profiles>
+                <profile>debug</profile>
+              </profiles>
+            </configuration>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/src/test/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>*.properties</include>
+            </includes>
+          </resource>
+        </resources>
+      </build>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+          <artifactId>syncope-ext-self-keymaster-client</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.client.idm</groupId>
+          <artifactId>syncope-client-idm-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.client.am</groupId>
+          <artifactId>syncope-client-am-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.flowable</groupId>
+          <artifactId>syncope-ext-flowable-client-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-client-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-client-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.scimv2</groupId>
+          <artifactId>syncope-ext-scimv2-client-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.oidcclient</groupId>
+          <artifactId>syncope-ext-oidcclient-client-console</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 </project>
