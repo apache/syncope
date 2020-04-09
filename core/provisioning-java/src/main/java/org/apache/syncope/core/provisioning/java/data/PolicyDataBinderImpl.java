@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
-import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
+import org.apache.syncope.common.lib.to.AccessPolicyTO;
+import org.apache.syncope.common.lib.to.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.to.AuthPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -32,21 +33,27 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
 @Component
 public class PolicyDataBinderImpl implements PolicyDataBinder {
@@ -192,6 +199,54 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             // remove all rules not contained in the TO
             pushPolicy.getCorrelationRules().removeIf(anyFilter
                     -> !pushPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
+        } else if (policyTO instanceof AuthPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(AuthPolicy.class);
+            }
+
+            AuthPolicy authPolicy = AuthPolicy.class.cast(result);
+            AuthPolicyTO authPolicyTO = AuthPolicyTO.class.cast(policyTO);
+
+            authPolicy.setName(authPolicyTO.getKey());
+            Implementation configuration = implementationDAO.find(authPolicyTO.getConfiguration());
+            if (configuration == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        authPolicyTO.getConfiguration());
+            } else {
+                authPolicy.setConfiguration(configuration);
+            }
+        } else if (policyTO instanceof AccessPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(AccessPolicy.class);
+            }
+
+            AccessPolicy accessPolicy = AccessPolicy.class.cast(result);
+            AccessPolicyTO accessPolicyTO = AccessPolicyTO.class.cast(policyTO);
+
+            accessPolicy.setName(accessPolicyTO.getKey());
+            Implementation configuration = implementationDAO.find(accessPolicyTO.getConfiguration());
+            if (configuration == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        accessPolicyTO.getConfiguration());
+            } else {
+                accessPolicy.setConfiguration(configuration);
+            }
+        } else if (policyTO instanceof AttrReleasePolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(AttrReleasePolicy.class);
+            }
+
+            AttrReleasePolicy attrReleasePolicy = AttrReleasePolicy.class.cast(result);
+            AttrReleasePolicyTO attrReleasePolicyTO = AttrReleasePolicyTO.class.cast(policyTO);
+
+            attrReleasePolicy.setName(attrReleasePolicyTO.getKey());
+            Implementation configuration = implementationDAO.find(attrReleasePolicyTO.getConfiguration());
+            if (configuration == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        attrReleasePolicyTO.getConfiguration());
+            } else {
+                attrReleasePolicy.setConfiguration(configuration);
+            }
         }
 
         if (result != null) {
@@ -257,14 +312,33 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             pushPolicy.getCorrelationRules().
                     forEach(rule -> pushPolicyTO.getCorrelationRules().
                     put(rule.getAnyType().getKey(), rule.getImplementation().getKey()));
+        } else if (policy instanceof AuthPolicy) {
+            AuthPolicyTO authPolicyTO = new AuthPolicyTO();
+            authPolicyTO.setConfiguration(((AuthPolicy) policy).getConfiguration() == null
+                    ? null : ((AuthPolicy) policy).getConfiguration().getKey());
+            policyTO = (T) authPolicyTO;
+        } else if (policy instanceof AccessPolicy) {
+            AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
+            accessPolicyTO.setConfiguration(((AccessPolicy) policy).getConfiguration() == null
+                    ? null : ((AccessPolicy) policy).getConfiguration().getKey());
+            policyTO = (T) accessPolicyTO;
+        } else if (policy instanceof AttrReleasePolicy) {
+            AttrReleasePolicyTO attrReleasePolicyTO = new AttrReleasePolicyTO();
+            attrReleasePolicyTO.setConfiguration(((AttrReleasePolicy) policy).getConfiguration() == null
+                    ? null : ((AttrReleasePolicy) policy).getConfiguration().getKey());
+            policyTO = (T) attrReleasePolicyTO;
         }
 
         if (policyTO != null) {
             policyTO.setKey(policy.getKey());
             policyTO.setDescription(policy.getDescription());
 
-            for (ExternalResource resource : resourceDAO.findByPolicy(policy)) {
-                policyTO.getUsedByResources().add(resource.getKey());
+            if (!(policy instanceof AuthPolicy)
+                    && !(policy instanceof AccessPolicy)
+                    && !(policy instanceof AttrReleasePolicy)) {
+                for (ExternalResource resource : resourceDAO.findByPolicy(policy)) {
+                    policyTO.getUsedByResources().add(resource.getKey());
+                }
             }
             for (Realm realm : realmDAO.findByPolicy(policy)) {
                 policyTO.getUsedByRealms().add(realm.getFullPath());

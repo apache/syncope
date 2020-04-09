@@ -65,6 +65,9 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_UPDATE + "')")
     public PolicyTO update(final PolicyType type, final PolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
+        if (policy == null) {
+            throw new NotFoundException("Policy " + policyTO.getKey() + " not found");
+        }
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (policyUtils.getType() != type) {
