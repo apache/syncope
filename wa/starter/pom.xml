@@ -90,6 +90,14 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-services-registry</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-services-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-tickets</artifactId>
     </dependency>
     <dependency>
@@ -146,7 +154,27 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-radius</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-radius-mfa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-saml-idp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-saml-idp-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-oidc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-oauth-services</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -176,6 +204,21 @@ under the License.
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-webapp-config</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-oidc-services</artifactId>
+      <version>6.2.0-SNAPSHOT</version>
+    </dependency>   
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-authentication-attributes</artifactId>
+      <version>6.2.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-services-authentication</artifactId>
+      <version>6.2.0-SNAPSHOT</version>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -196,6 +239,11 @@ under the License.
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
@@ -273,7 +321,6 @@ under the License.
           <groupId>org.apache.syncope.common.keymaster</groupId>
           <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
           <version>${project.version}</version>
-          <scope>compile</scope>
         </dependency>
         <dependency>
           <groupId>org.apache.curator</groupId>
