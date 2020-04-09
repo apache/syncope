@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -95,9 +94,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
-
-    @Autowired
-    private ConfParamOps confParamOps;
 
     @Autowired
     private ImplementationDAO implementationDAO;

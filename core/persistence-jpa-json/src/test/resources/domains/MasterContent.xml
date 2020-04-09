@@ -43,6 +43,48 @@ under the License.
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
+  
+  <!-- authentication policies -->
+  <Implementation id="MyDefaultAuthPolicyConf" type="AUTH_POLICY_CONFIGURATIONS" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
+  <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf" description="an authentication policy"/>
+  <AuthPolicy id="b912a0d4-a890-416f-9ab8-84ab077eb028" name="DefaultAuthPolicy" description="Default authentication policy"/>
+
+  <!-- access policies -->
+  <Implementation id="MyDefaultAccessPolicyConf" type="ACCESS_POLICY_CONFIGURATIONS" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","name":"MyDefaultAccessPolicyConf","enabled":true,"ssoEnabled":true}'/>
+  <AccessPolicy id="419935c7-deb3-40b3-8a9a-683037e523a2" name="MyDefaultAccessPolicyConf" description="an access policy"/>
+
+  <!-- Attr Release Policies -->
+  <Implementation id="AllowedAttrReleasePolicyConf" type="ATTR_RELEASE_CONFIGURATIONS" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
+  <AttrReleasePolicy id="319935c7-deb3-40b3-8a9a-683037e523a2" name="AllowedAttrReleasePolicy" description="allowed attribute release policy policy"/>
+
+  <Implementation id="DenyAttrReleasePolicyConf" type="ATTR_RELEASE_CONFIGURATIONS" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
+  <AttrReleasePolicy id="219935c7-deb3-40b3-8a9a-683037e523a2" name="DenyAttrReleasePolicy" description="deny attribute release policy policy"/>
+  
+  <!-- Authentication modules -->
+  <AuthModule id="be456831-593d-4003-b273-4c3fb61700df" name="DefaultLDAPAuthModule" 
+              description="LDAP auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","name":"MyLDAPAuthModuleConf","userIdAttribute":"uid","bindCredential":"Password","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"dc=example,dc=org","subtreeSearch":true}'/>
+  <AuthModule id="4c3ed7e8-7008-11ea-bc55-0242ac130003" name="DefaultJDBCAuthModule"
+              description="JDBC auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","name":"MyJDBCAuthModuleConf", "sql":"SELECT * FROM table WHERE name=?"}'/>
+  <AuthModule id="4c3ed4e6-7008-11ea-bc55-0242ac130003" name="DefaultGoogleMfaAuthModule"
+              description="Google Mfa auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","name":"MyGoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest"}'/>
+  <AuthModule id="4c3ed8f6-7008-11ea-bc55-0242ac130003" name="DefaultOIDCAuthModule"
+              description="OIDC auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","name":"MyOIDCAuthModuleConf", "discoveryUri":"www.testurl.com"}'/>
+  <AuthModule id="4c3ed9d2-7008-11ea-bc55-0242ac130003" name="DefaultSAML2IdPAuthModule"
+              description="SAML2 IdP auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","name":"MySAML2IdPAuthModuleConf", "providerName":"testProviderName","serviceProviderMetadataPath":"file:/etc/metadata"}'/>
+  <AuthModule id="4c3edbbc-7008-11ea-bc55-0242ac130003" name="DefaultJaasAuthModule"
+              description="Jaas auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","name":"MyJaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value"}'/>
+  <AuthModule id="4c3edc98-7008-11ea-bc55-0242ac130003" name="DefaultStaticAuthModule"
+              description="Static auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","name":"MyStaticAuthModuleConf","users":{"user1": "testUserPassword123"}}'/>
+  <AuthModule id="4c3edd60-7008-11ea-bc55-0242ac130003" name="DefaultSyncopeAuthModule"
+              description="Syncope auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","name":"MySyncopeAuthModuleConf","domain":"Master","url":"http://mydomain.com/syncope/rest"}'/>
+  <AuthModule id="07c528f3-63b4-4dc1-a4da-87f35b8bdec8" name="DefaultRadiusAuthModule"
+              description="Radius auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.RadiusAuthModuleConf","name":"MyRadiusAuthModuleConf","protocol":"MSCHAPv2","inetAddress":"1.2.3.4", "sharedSecret":"thesecret"}'/>
+  <AuthModule id="f6e1288d-50d9-45fe-82ee-597c42242205" name="DefaultU2FAuthModule"
+              description="U2F auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","name":"MyU2FAuthModuleConf","expireDevices":40}'/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>

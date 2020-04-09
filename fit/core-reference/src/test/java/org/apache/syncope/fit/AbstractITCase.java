@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit;
 
-import static de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType.java;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -66,6 +65,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AccessPolicyTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -75,9 +75,17 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.AuthPolicyTO;
+import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.client.OIDCRPTO;
+import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -87,11 +95,14 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
+import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
+import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -107,7 +118,6 @@ import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPService;
-import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.common.rest.api.service.SCIMConfService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -268,6 +278,8 @@ public abstract class AbstractITCase {
 
     protected static PolicyService policyService;
 
+    protected static AuthModuleService authModuleService;
+
     protected static SecurityQuestionService securityQuestionService;
 
     protected static ImplementationService implementationService;
@@ -287,6 +299,8 @@ public abstract class AbstractITCase {
     protected static OIDCProviderService oidcProviderService;
 
     protected static SCIMConfService scimConfService;
+
+    protected static ClientAppService clientAppService;
 
     @BeforeAll
     public static void securitySetup() {
@@ -352,11 +366,13 @@ public abstract class AbstractITCase {
         remediationService = adminClient.getService(RemediationService.class);
         gatewayRouteService = adminClient.getService(GatewayRouteService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
-        saml2SpService = adminClient.getService(SAML2SPService.class);
+        saml2SpService = adminClient.getService(org.apache.syncope.common.rest.api.service.SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);
         oidcClientService = adminClient.getService(OIDCClientService.class);
         oidcProviderService = adminClient.getService(OIDCProviderService.class);
         scimConfService = adminClient.getService(SCIMConfService.class);
+        clientAppService = adminClient.getService(ClientAppService.class);
+        authModuleService = adminClient.getService(AuthModuleService.class);
     }
 
     @Autowired
@@ -559,6 +575,18 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), PolicyService.class, policy.getClass());
     }
 
+    @SuppressWarnings("unchecked")
+    protected AuthModuleTO createAuthModule(final AuthModuleTO authModule) {
+        Response response = authModuleService.create(authModule);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response.getLocation(), AuthModuleService.class, authModule.getClass());
+    }
+
     protected ResourceTO createResource(final ResourceTO resourceTO) {
         Response response = resourceService.create(resourceTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -695,4 +723,75 @@ public abstract class AbstractITCase {
 
         return object;
     }
+
+    protected OIDCRPTO buildOIDCRP() {
+        AuthPolicyTO authPolicyTO = new AuthPolicyTO();
+        authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
+        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
+        assertNotNull(authPolicyTO);
+
+        AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
+        accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
+        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
+        assertNotNull(accessPolicyTO);
+
+        OIDCRPTO oidcrpTO = new OIDCRPTO();
+        oidcrpTO.setName("ExampleRP_" + getUUIDString());
+        oidcrpTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        oidcrpTO.setDescription("Example OIDC RP application");
+        oidcrpTO.setClientId("clientId_" + getUUIDString());
+        oidcrpTO.setClientSecret("secret");
+        oidcrpTO.setSubjectType(OIDCSubjectType.PUBLIC);
+        oidcrpTO.getSupportedGrantTypes().add("something");
+        oidcrpTO.getSupportedResponseTypes().add("something");
+
+        oidcrpTO.setAuthPolicy(authPolicyTO.getKey());
+        oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
+
+        return oidcrpTO;
+    }
+
+    protected SAML2SPTO buildSAML2SP() {
+        AuthPolicyTO authPolicyTO = new AuthPolicyTO();
+        authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
+        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
+        assertNotNull(authPolicyTO);
+
+        AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
+        accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
+        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
+        assertNotNull(accessPolicyTO);
+
+        SAML2SPTO saml2spto = new SAML2SPTO();
+        saml2spto.setName("ExampleSAML2SP_" + getUUIDString());
+        saml2spto.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        saml2spto.setDescription("Example SAML 2.0 service provider");
+        saml2spto.setEntityId("SAML2SPEntityId_" + getUUIDString());
+        saml2spto.setMetadataLocation("file:./test.xml");
+        saml2spto.setRequiredNameIdFormat(SAML2SPNameId.EMAIL_ADDRESS);
+        saml2spto.setEncryptionOptional(true);
+        saml2spto.setEncryptAssertions(true);
+
+        saml2spto.setAuthPolicy(authPolicyTO.getKey());
+        saml2spto.setAccessPolicy(accessPolicyTO.getKey());
+
+        return saml2spto;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends ClientAppTO> T createClientApp(final ClientAppType type, final T clientAppTO) {
+        Response response = clientAppService.create(type, clientAppTO);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return (T) getObject(response.getLocation(), ClientAppService.class, clientAppTO.getClass());
+    }
+
 }

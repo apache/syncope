@@ -18,31 +18,46 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
 public interface Realm extends Entity {
 
     String getName();
 
+    void setName(String name);
+
     Realm getParent();
+
+    void setParent(Realm parent);
 
     String getFullPath();
 
     AccountPolicy getAccountPolicy();
 
-    PasswordPolicy getPasswordPolicy();
-
-    void setName(String name);
-
-    void setParent(Realm parent);
-
     void setAccountPolicy(AccountPolicy accountPolicy);
 
+    PasswordPolicy getPasswordPolicy();
+
     void setPasswordPolicy(PasswordPolicy passwordPolicy);
+
+    void setAuthPolicy(AuthPolicy authPolicy);
+
+    AuthPolicy getAuthPolicy();
+
+    void setAccessPolicy(AccessPolicy accessPolicy);
+
+    AccessPolicy getAccessPolicy();
+
+    void setAttrReleasePolicy(AttrReleasePolicy policy);
+
+    AttrReleasePolicy getAttrReleasePolicy();
 
     boolean add(Implementation action);
 

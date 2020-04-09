@@ -1465,6 +1465,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-util-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-core-configuration</artifactId>
         <version>${cas.version}</version>
       </dependency>
@@ -1486,6 +1491,16 @@ under the License.
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-core-services</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-services-registry</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-services-api</artifactId>
         <version>${cas.version}</version>
       </dependency>
       <dependency>
@@ -1560,7 +1575,32 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-radius</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-radius-mfa</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-saml-idp</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-saml-idp-core</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-oidc</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-oauth-services</artifactId>
         <version>${cas.version}</version>
       </dependency>
       <dependency>
@@ -1921,6 +1961,11 @@ under the License.
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>1.65</version>
+      </dependency>
 
       <!-- TEST -->
       <dependency>
@@ -1942,17 +1987,12 @@ under the License.
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.65</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-client</artifactId>
         <version>9.4.20.v20190813</version>
         <scope>test</scope>
       </dependency>
+
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>

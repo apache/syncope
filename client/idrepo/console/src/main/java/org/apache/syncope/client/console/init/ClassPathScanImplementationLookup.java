@@ -241,7 +241,7 @@ public class ClassPathScanImplementationLookup {
         idmPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         idmPages = Collections.unmodifiableList(idmPages);
 
-        amPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
+        amPages.sort(Comparator.comparing(o -> o.getAnnotation(AMPage.class).priority()));
         amPages = Collections.unmodifiableList(amPages);
 
         extPages.sort(Comparator.comparing(o -> o.getAnnotation(ExtPage.class).priority()));

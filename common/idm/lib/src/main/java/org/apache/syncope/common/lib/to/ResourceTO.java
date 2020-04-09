@@ -82,6 +82,10 @@ public class ResourceTO implements EntityTO {
 
     private String provisionSorter;
 
+    private String authPolicy;
+
+    private String accessPolicy;
+
     private final List<ConnConfProperty> confOverride = new ArrayList<>();
 
     private boolean overrideCapabilities = false;
@@ -205,6 +209,22 @@ public class ResourceTO implements EntityTO {
         this.provisionSorter = provisionSorter;
     }
 
+    public String getAuthPolicy() {
+        return authPolicy;
+    }
+
+    public void setAuthPolicy(final String authPolicy) {
+        this.authPolicy = authPolicy;
+    }
+
+    public String getAccessPolicy() {
+        return accessPolicy;
+    }
+
+    public void setAccessPolicy(final String accessPolicy) {
+        this.accessPolicy = accessPolicy;
+    }
+
     @JsonIgnore
     public Optional<ProvisionTO> getProvision(final String anyType) {
         return provisions.stream().filter(
@@ -294,9 +314,12 @@ public class ResourceTO implements EntityTO {
                 append(accountPolicy, other.accountPolicy).
                 append(pullPolicy, other.pullPolicy).
                 append(pushPolicy, other.pushPolicy).
+                append(authPolicy, other.authPolicy).
+                append(accessPolicy, other.accessPolicy).
                 append(confOverride, other.confOverride).
                 append(capabilitiesOverride, other.capabilitiesOverride).
                 append(propagationActions, other.propagationActions).
+                append(provisionSorter, other.provisionSorter).
                 build();
     }
 
@@ -319,10 +342,13 @@ public class ResourceTO implements EntityTO {
                 append(accountPolicy).
                 append(pullPolicy).
                 append(pushPolicy).
+                append(authPolicy).
+                append(accessPolicy).
                 append(confOverride).
                 append(overrideCapabilities).
                 append(capabilitiesOverride).
                 append(propagationActions).
+                append(provisionSorter).
                 build();
     }
 }

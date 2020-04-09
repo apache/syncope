@@ -34,6 +34,26 @@ public final class AMEntitlement {
 
     public static final String GATEWAY_ROUTE_PUSH = "GATEWAY_ROUTE_PUSH";
 
+    public static final String CLIENTAPP_READ = "CLIENTAPP_READ";
+
+    public static final String CLIENTAPP_LIST = "CLIENTAPP_LIST";
+
+    public static final String CLIENTAPP_CREATE = "CLIENTAPP_CREATE";
+
+    public static final String CLIENTAPP_UPDATE = "CLIENTAPP_CREATE";
+
+    public static final String CLIENTAPP_DELETE = "CLIENTAPP_DELETE";
+
+    public static final String AUTH_MODULE_LIST = "AUTH_MODULE_LIST";
+
+    public static final String AUTH_MODULE_CREATE = "AUTH_MODULE_CREATE";
+
+    public static final String AUTH_MODULE_READ = "AUTH_MODULE_READ";
+
+    public static final String AUTH_MODULE_UPDATE = "AUTH_MODULE_UPDATE";
+
+    public static final String AUTH_MODULE_DELETE = "AUTH_MODULE_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

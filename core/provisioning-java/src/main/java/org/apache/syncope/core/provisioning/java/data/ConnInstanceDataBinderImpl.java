@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -58,9 +57,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Autowired
     private RealmDAO realmDAO;
-
-    @Autowired
-    private ConfParamOps confParamOps;
 
     @Autowired
     private EntityFactory entityFactory;
