@@ -50,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-abstract class AbstractServiceImpl implements JAXRSService {
+public abstract class AbstractServiceImpl implements JAXRSService {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
 
