@@ -19,10 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import javax.persistence.EntityManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;

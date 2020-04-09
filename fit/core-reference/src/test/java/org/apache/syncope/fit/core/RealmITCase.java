@@ -27,17 +27,25 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
+import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
+import org.apache.syncope.common.lib.to.AccessPolicyTO;
+import org.apache.syncope.common.lib.to.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.to.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.types.AMImplementationType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -99,11 +107,17 @@ public class RealmITCase extends AbstractITCase {
         // 2. update setting policies
         actual.setAccountPolicy("06e2ed52-6966-44aa-a177-a0ca7434201f");
         actual.setPasswordPolicy("986d1236-3ac5-4a19-810c-5ab21d79cba1");
+        actual.setAuthPolicy("b912a0d4-a890-416f-9ab8-84ab077eb028");
+        actual.setAccessPolicy("419935c7-deb3-40b3-8a9a-683037e523a2");
+        actual.setAttrReleasePolicy("319935c7-deb3-40b3-8a9a-683037e523a2");
         realmService.update(actual);
 
         actual = getRealm(actual.getFullPath()).get();
         assertNotNull(actual.getAccountPolicy());
         assertNotNull(actual.getPasswordPolicy());
+        assertNotNull(actual.getAuthPolicy());
+        assertNotNull(actual.getAccessPolicy());
+        assertNotNull(actual.getAttrReleasePolicy());
 
         // 3. update changing parent
         actual.setParent(getRealm("/odd").get().getKey());
@@ -170,7 +184,7 @@ public class RealmITCase extends AbstractITCase {
 
         // 2. create realm with policy assigned
         RealmTO realm = new RealmTO();
-        realm.setName("withppolicy");
+        realm.setName("withPolicy");
 
         response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
@@ -195,6 +209,156 @@ public class RealmITCase extends AbstractITCase {
         // 4. verify
         actual = getRealm(actual.getFullPath()).get();
         assertEquals(existingAccountPolicy, actual.getAccountPolicy());
+    }
+
+    @Test
+    public void deletingAuthPolicy() {
+        // 1. create authentication policy
+        DefaultAuthPolicyConf ruleConf = new DefaultAuthPolicyConf();
+        ruleConf.getAuthModules().addAll(List.of("LdapAuthentication1"));
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("TestAuthPolicy" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        AuthPolicyTO policy = new AuthPolicyTO();
+        policy.setDescription("Test Authentication policy");
+        policy.setKey(rule.getKey());
+        policy = createPolicy(PolicyType.AUTH, policy);
+        assertNotNull(policy);
+
+        // 2. create realm with policy assigned
+        RealmTO realm = new RealmTO();
+        realm.setName("withAuthPolicy");
+
+        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        realm = actuals[0];
+
+        String existingAuthPolicy = realm.getAuthPolicy();
+
+        realm.setAuthPolicy(policy.getKey());
+        realmService.update(realm);
+
+        actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        RealmTO actual = actuals[0];
+        assertEquals(policy.getKey(), actual.getAuthPolicy());
+
+        // 3. remove policy
+        policyService.delete(PolicyType.AUTH, policy.getKey());
+
+        // 4. verify
+        actual = getRealm(actual.getFullPath()).get();
+        assertEquals(existingAuthPolicy, actual.getAuthPolicy());
+    }
+
+    @Test
+    public void deletingAccessPolicy() {
+        // 1. create access policy
+        DefaultAccessPolicyConf ruleConf = new DefaultAccessPolicyConf();
+        ruleConf.setEnabled(true);
+        ruleConf.setName("TestAccessPolicyConf" + getUUIDString());
+        ruleConf.getRequiredAttributes().put("cn", Set.of("admin", "Admin", "TheAdmin"));
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("TestAccessPolicy" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        AccessPolicyTO policy = new AccessPolicyTO();
+        policy.setDescription("Test Access policy");
+        policy.setKey(rule.getKey());
+        policy = createPolicy(PolicyType.ACCESS, policy);
+        assertNotNull(policy);
+
+        // 2. create realm with policy assigned
+        RealmTO realm = new RealmTO();
+        realm.setName("withAccessPolicy");
+
+        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        realm = actuals[0];
+
+        String existingAccessPolicy = realm.getAccessPolicy();
+
+        realm.setAccessPolicy(policy.getKey());
+        realmService.update(realm);
+
+        actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        RealmTO actual = actuals[0];
+        assertEquals(policy.getKey(), actual.getAccessPolicy());
+
+        // 3. remove policy
+        policyService.delete(PolicyType.ACCESS, policy.getKey());
+
+        // 4. verify
+        actual = getRealm(actual.getFullPath()).get();
+        assertEquals(existingAccessPolicy, actual.getAccessPolicy());
+    }
+
+    @Test
+    public void deletingAttributeReleasePolicy() {
+        // 1. create attribute release policy
+        AllowedAttrReleasePolicyConf ruleConf = new AllowedAttrReleasePolicyConf();
+        ruleConf.setName("MyDefaultAttrReleasePolicyConf" + getUUIDString());
+        ruleConf.getAllowedAttributes().addAll(List.of("cn", "givenName"));
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("TestAttrReleasePolicy" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
+        policy.setDescription("Test Attribute Release policy");
+        policy.setKey(rule.getKey());
+        policy = createPolicy(PolicyType.ATTR_RELEASE, policy);
+        assertNotNull(policy);
+
+        // 2. create realm with policy assigned
+        RealmTO realm = new RealmTO();
+        realm.setName("withAttrReleasePolicy");
+
+        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        realm = actuals[0];
+
+        String existingAttrReleasePolicy = realm.getAttrReleasePolicy();
+
+        realm.setAttrReleasePolicy(policy.getKey());
+        realmService.update(realm);
+
+        actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        RealmTO actual = actuals[0];
+        assertEquals(policy.getKey(), actual.getAttrReleasePolicy());
+
+        // 3. remove policy
+        policyService.delete(PolicyType.ATTR_RELEASE, policy.getKey());
+
+        // 4. verify
+        actual = getRealm(actual.getFullPath()).get();
+        assertEquals(existingAttrReleasePolicy, actual.getAttrReleasePolicy());
     }
 
     @Test

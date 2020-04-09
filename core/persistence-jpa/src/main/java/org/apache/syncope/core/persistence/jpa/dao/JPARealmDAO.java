@@ -32,6 +32,8 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
@@ -41,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
 @Repository
 public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
@@ -147,10 +150,22 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         if (ProvisioningPolicy.class.isAssignableFrom(policy.getClass())) {
             return Collections.<Realm>emptyList();
         }
+        String policyColumn = null;
+        if (policy instanceof AccountPolicy) {
+            policyColumn = "accountPolicy";
+        } else if (policy instanceof PasswordPolicy) {
+            policyColumn = "passwordPolicy";
+        } else if (policy instanceof AuthPolicy) {
+            policyColumn = "authPolicy";
+        } else if (policy instanceof AccessPolicy) {
+            policyColumn = "accessPolicy";
+        } else if (policy instanceof AttrReleasePolicy) {
+            policyColumn = "attrReleasePolicy";
+        }
 
         TypedQuery<Realm> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e."
-                + (policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy") + "=:policy", Realm.class);
+                + policyColumn + "=:policy", Realm.class);
         query.setParameter("policy", policy);
 
         List<Realm> result = new ArrayList<>();

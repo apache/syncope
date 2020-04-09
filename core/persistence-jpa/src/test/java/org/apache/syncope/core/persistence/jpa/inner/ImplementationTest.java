@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.AMImplementationType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -44,7 +45,7 @@ public class ImplementationTest extends AbstractTest {
         List<Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
-        assertEquals(18, implementations.size());
+        assertEquals(22, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PULL_ACTIONS);
         assertEquals(1, implementations.size());
@@ -71,6 +72,12 @@ public class ImplementationTest extends AbstractTest {
         assertEquals(1, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PUSH_CORRELATION_RULE);
+        assertEquals(1, implementations.size());
+
+        implementations = implementationDAO.findByType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        assertEquals(1, implementations.size());
+
+        implementations = implementationDAO.findByType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
         assertEquals(1, implementations.size());
     }
 
