@@ -102,9 +102,7 @@ public abstract class EventSelectionPanel extends Panel {
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String subcategory = item.getModelObject();
-
-                item.add(new Label("subcategory", new ResourceModel(subcategory, subcategory)));
+                item.add(new Label("subcategory", Model.of(item.getModelObject())));
             }
         };
         add(categoryView);
