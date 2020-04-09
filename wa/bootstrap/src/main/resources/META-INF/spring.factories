@@ -16,4 +16,4 @@
 # under the License.
 
 org.springframework.cloud.bootstrap.BootstrapConfiguration=\
- org.apache.syncope.wa.bootstrap.RestfulCloudConfigBootstrapConfiguration
+ org.apache.syncope.wa.bootstrap.SyncopeWABootstrapConfiguration

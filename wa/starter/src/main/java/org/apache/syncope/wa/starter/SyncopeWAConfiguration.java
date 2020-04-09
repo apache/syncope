@@ -18,24 +18,36 @@
  */
 package org.apache.syncope.wa.starter;
 
-import java.io.Serializable;
-import org.apereo.cas.services.DefaultRegisteredServiceEntityMapper;
-import org.apereo.cas.services.RegisteredService;
-import org.apereo.cas.services.RegisteredServiceEntityMapper;
+import java.util.Collection;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.starter.rest.SyncopeServiceRegistry;
+import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
+import org.apereo.cas.services.ServiceRegistryListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 public class SyncopeWAConfiguration {
 
+    @Autowired
+    private ConfigurableApplicationContext applicationContext;
+
+    @Autowired
+    @Qualifier("serviceRegistryListeners")
+    private Collection<ServiceRegistryListener> serviceRegistryListeners;
+
+    @Autowired
     @Bean
-    @ConditionalOnProperty(name = "cas.serviceRegistry.rest.url")
-    public RegisteredServiceEntityMapper<RegisteredService, Serializable> registeredServiceEntityMapper() {
-        return new DefaultRegisteredServiceEntityMapper();
+    public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(final WARestClient restClient) {
+        SyncopeServiceRegistry registry =
+                new SyncopeServiceRegistry(restClient, applicationContext, serviceRegistryListeners);
+        return plan -> plan.registerServiceRegistry(registry);
     }
 
     @Bean

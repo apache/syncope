@@ -143,18 +143,18 @@ under the License.
                 <context>syncope</context>
               </properties>
             </deployable>
-            <deployable>
-              <location>${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}</location>
-              <properties>
-                <context>syncope-console</context>
-              </properties>
-            </deployable>
-            <deployable>
-              <location>${basedir}/../enduser-reference/target/syncope-fit-enduser-reference-${project.version}</location>
-              <properties>
-                <context>syncope-enduser</context>
-              </properties>
-            </deployable>
+<!--            <deployable>-->
+<!--              <location>${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}</location>-->
+<!--              <properties>-->
+<!--                <context>syncope-console</context>-->
+<!--              </properties>-->
+<!--            </deployable>-->
+<!--            <deployable>-->
+<!--              <location>${basedir}/../enduser-reference/target/syncope-fit-enduser-reference-${project.version}</location>-->
+<!--              <properties>-->
+<!--                <context>syncope-enduser</context>-->
+<!--              </properties>-->
+<!--            </deployable>-->
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
               <properties>
