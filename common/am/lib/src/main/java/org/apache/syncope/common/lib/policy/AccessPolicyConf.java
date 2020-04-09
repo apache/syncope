@@ -16,40 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlEnum;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
 
-@XmlEnum
-public enum PolicyType {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+public interface AccessPolicyConf extends Serializable {
 
     /**
-     * How username values should look like.
+     * Give name of related access policy.
+     *
+     * @return name of this access policy
      */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
+    String getName();
 
+    boolean isEnabled();
+
+    boolean isSsoEnabled();
+
+    Map<String, Set<String>> getRequiredAttributes();
 }

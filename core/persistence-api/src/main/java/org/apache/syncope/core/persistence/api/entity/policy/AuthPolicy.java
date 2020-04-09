@@ -16,40 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-import javax.xml.bind.annotation.XmlEnum;
 
-@XmlEnum
-public enum PolicyType {
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
+public interface AuthPolicy extends Policy {
+
+    String getName();
+
+    void setName(String name);
+
+    Implementation getConfiguration();
+
+    void setConfiguration(Implementation configuration);
 
 }

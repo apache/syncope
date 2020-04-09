@@ -16,40 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
 
-@XmlEnum
-public enum PolicyType {
+@XmlType
+@XmlSeeAlso({ DefaultAuthPolicyCriteriaConf.class })
+public abstract class AbstractAuthPolicyCriteriaConf implements AuthPolicyCriteriaConf, Serializable {
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
+    private static final long serialVersionUID = -6882164291962510245L;
+
+    private String name;
+
+    public AbstractAuthPolicyCriteriaConf() {
+        setName(getClass().getName());
+    }
+
+    public AbstractAuthPolicyCriteriaConf(final String name) {
+        setName(name);
+    }
+
+    @Override
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(final String name) {
+        this.name = name;
+    }
 
 }
