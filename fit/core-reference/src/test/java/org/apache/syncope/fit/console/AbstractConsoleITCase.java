@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContex
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
 import org.apache.wicket.IPageManagerProvider;
+import org.apache.wicket.mock.MockPageManager;
 import org.apache.wicket.mock.MockPageStore;
 import org.apache.wicket.page.IManageablePage;
 import org.apache.wicket.page.PageManager;
@@ -106,21 +107,16 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
         TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class)) {
 
+            // Remove this method when upgrading to Wicket 9.0.0-M6 - see WICKET-6766
             @Override
             protected IPageManagerProvider newTestPageManagerProvider() {
-                return () -> new PageManager(new MockPageStore() {
+                return () -> new MockPageManager() {
 
                     @Override
-                    public IManageablePage getPage(final IPageContext context, final int id) {
-                        IManageablePage page = super.getPage(context, id);
-                        if (page == null) {
-                            page = getPages().size() > id
-                                    ? getPages().get(id)
-                                    : getPages().get(getPages().size() - 1);
-                        }
-                        return page;
+                    public boolean supportsVersioning() {
+                        return true;
                     }
-                });
+                };
             }
         };
 
