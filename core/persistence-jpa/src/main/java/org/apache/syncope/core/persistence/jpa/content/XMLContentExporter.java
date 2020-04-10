@@ -89,7 +89,7 @@ import org.xml.sax.helpers.AttributesImpl;
 public class XMLContentExporter extends AbstractContentDealer implements ContentExporter {
 
     protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
-        "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
+        "QRTZ_", "LOGGING", "NotificationTask_recipients", JPAReportExec.TABLE, JPATaskExec.TABLE,
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
@@ -97,7 +97,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
     }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
-            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
+            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask' AND DTYPE <> 'NotificationTask'");
 
     protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
