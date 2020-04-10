@@ -19,10 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCProviderTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -32,7 +30,6 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCProviderDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.OIDCEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCProviderItem;
@@ -66,21 +63,16 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
     @Override
     public OIDCProvider create(final OIDCProviderTO opTO) {
         return update(entityFactory.newEntity(OIDCProvider.class), opTO);
-
     }
 
-    private void populateItems(
-            final OIDCProviderTO opTO,
-            final OIDCProvider op,
-            final AnyTypeClassTO allowedSchemas) {
-
+    private void populateItems(final OIDCProviderTO opTO, final OIDCProvider op) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping =
                 SyncopeClientException.build(ClientExceptionType.InvalidMapping);
         SyncopeClientException requiredValuesMissing =
                 SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        for (ItemTO itemTO : opTO.getItems()) {
+        opTO.getItems().forEach(itemTO -> {
             if (itemTO == null) {
                 LOG.error("Null {}", ItemTO.class.getSimpleName());
                 invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
@@ -97,71 +89,45 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
 
                 if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
-                    invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
+                    invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
-                    boolean allowed = true;
-                    if (intAttrName.getSchemaType() != null
-                            && intAttrName.getEnclosingGroup() == null
-                            && intAttrName.getRelatedAnyObject() == null) {
-                        switch (intAttrName.getSchemaType()) {
-                            case PLAIN:
-                                allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
+                    // no mandatory condition implies mandatory condition false
+                    if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                            ? "false" : itemTO.getMandatoryCondition())) {
 
-                            case DERIVED:
-                                allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
-
-                            case VIRTUAL:
-                                allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
-
-                            default:
-                        }
+                        SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                                ClientExceptionType.InvalidValues);
+                        invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                        scce.addException(invalidMandatoryCondition);
                     }
 
-                    if (allowed) {
-                        // no mandatory condition implies mandatory condition false
-                        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                                ? "false" : itemTO.getMandatoryCondition())) {
-
-                            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
-                                    ClientExceptionType.InvalidValues);
-                            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
-                            scce.addException(invalidMandatoryCondition);
+                    OIDCProviderItem item = entityFactory.newEntity(OIDCProviderItem.class);
+                    item.setIntAttrName(itemTO.getIntAttrName());
+                    item.setExtAttrName(itemTO.getExtAttrName());
+                    item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                    item.setConnObjectKey(itemTO.isConnObjectKey());
+                    item.setPassword(itemTO.isPassword());
+                    item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                    item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
+                    item.setOP(op);
+                    item.setPurpose(MappingPurpose.NONE);
+                    if (item.isConnObjectKey()) {
+                        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
+                            invalidMapping.getElements().
+                                    add("Virtual attributes cannot be set as ConnObjectKey");
+                        }
+                        if ("password".equals(intAttrName.getField())) {
+                            invalidMapping.getElements().add(
+                                    "Password attributes cannot be set as ConnObjectKey");
                         }
 
-                        OIDCProviderItem item = entityFactory.newEntity(OIDCProviderItem.class);
-                        item.setIntAttrName(itemTO.getIntAttrName());
-                        item.setExtAttrName(itemTO.getExtAttrName());
-                        item.setMandatoryCondition(itemTO.getMandatoryCondition());
-                        item.setConnObjectKey(itemTO.isConnObjectKey());
-                        item.setPassword(itemTO.isPassword());
-                        item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
-                        item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                        item.setOP(op);
-                        item.setPurpose(MappingPurpose.NONE);
-                        if (item.isConnObjectKey()) {
-                            if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                                invalidMapping.getElements().
-                                        add("Virtual attributes cannot be set as ConnObjectKey");
-                            }
-                            if ("password".equals(intAttrName.getField())) {
-                                invalidMapping.getElements().add(
-                                        "Password attributes cannot be set as ConnObjectKey");
-                            }
-
-                            op.setConnObjectKeyItem(item);
-                        } else {
-                            op.add(item);
-                        }
+                        op.setConnObjectKeyItem(item);
                     } else {
-                        LOG.error("'{}' not allowed", itemTO.getIntAttrName());
-                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                        op.add(item);
                     }
                 }
             }
-        }
+        });
 
         if (!invalidMapping.getElements().isEmpty()) {
             scce.addException(invalidMapping);
@@ -201,16 +167,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         }
 
         op.getItems().clear();
-        AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
-        anyTypeDAO.findUser().getClasses().forEach(anyTypeClass -> {
-            allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
-                    map(Entity::getKey).collect(Collectors.toList()));
-            allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
-                    map(Entity::getKey).collect(Collectors.toList()));
-            allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                    map(Entity::getKey).collect(Collectors.toList()));
-        });
-        populateItems(opTO, op, allowedSchemas);
+        populateItems(opTO, op);
 
         op.getActionsClassNames().clear();
         op.getActionsClassNames().addAll(opTO.getActionsClassNames());
@@ -218,7 +175,7 @@ public class OIDCProviderDataBinderImpl implements OIDCProviderDataBinder {
         return oidcOPDAO.save(op);
     }
 
-    private void populateItems(final OIDCProvider op, final OIDCProviderTO opTO) {
+    private static void populateItems(final OIDCProvider op, final OIDCProviderTO opTO) {
         op.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
