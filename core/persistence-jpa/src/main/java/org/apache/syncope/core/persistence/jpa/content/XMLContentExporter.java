@@ -110,15 +110,15 @@ public class XMLContentExporter implements ContentExporter {
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
     private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = SetUtils.hashSet(
-            "QRTZ_", "LOGGING", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE, JPATaskExec.TABLE,
-            JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
-            JPAURelationship.TABLE, JPAUMembership.TABLE,
+            "QRTZ_", "LOGGING", "NotificationTask_recipients", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE,
+            JPATaskExec.TABLE, JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE,
+            JPAUPlainAttrUniqueValue.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE,
             JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
             JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
     );
 
     private static final Map<String, String> TABLES_TO_BE_FILTERED =
-            Map.of("TASK", "DTYPE <> 'PropagationTask'");
+            Map.of("TASK", "DTYPE <> 'PropagationTask' AND DTYPE <> 'NotificationTask'");
 
     private static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Map.of("SYNCOPEGROUP", Set.of("USEROWNER_ID"));
