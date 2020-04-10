@@ -19,10 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -32,17 +30,12 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.BeanUtils;
@@ -76,11 +69,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         return update(entityFactory.newEntity(SAML2IdP.class), idpTO);
     }
 
-    private void populateItems(
-            final SAML2IdPTO idpTO,
-            final SAML2IdP idp,
-            final AnyTypeClassTO allowedSchemas) {
-
+    private void populateItems(final SAML2IdPTO idpTO, final SAML2IdP idp) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping =
                 SyncopeClientException.build(ClientExceptionType.InvalidMapping);
@@ -106,59 +95,33 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
                 } else {
-                    boolean allowed = true;
-                    if (intAttrName.getSchemaType() != null
-                            && intAttrName.getEnclosingGroup() == null
-                            && intAttrName.getRelatedAnyObject() == null) {
-                        switch (intAttrName.getSchemaType()) {
-                            case PLAIN:
-                                allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
+                    // no mandatory condition implies mandatory condition false
+                    if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                            ? "false" : itemTO.getMandatoryCondition())) {
 
-                            case DERIVED:
-                                allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
-
-                            case VIRTUAL:
-                                allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
-
-                            default:
-                        }
+                        SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                                ClientExceptionType.InvalidValues);
+                        invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                        scce.addException(invalidMandatoryCondition);
                     }
 
-                    if (allowed) {
-                        // no mandatory condition implies mandatory condition false
-                        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                                ? "false" : itemTO.getMandatoryCondition())) {
-
-                            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
-                                    ClientExceptionType.InvalidValues);
-                            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
-                            scce.addException(invalidMandatoryCondition);
+                    SAML2IdPItem item = entityFactory.newEntity(SAML2IdPItem.class);
+                    BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                    item.setIdP(idp);
+                    item.setPurpose(MappingPurpose.NONE);
+                    if (item.isConnObjectKey()) {
+                        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
+                            invalidMapping.getElements().
+                                    add("Virtual attributes cannot be set as ConnObjectKey");
+                        }
+                        if ("password".equals(intAttrName.getField())) {
+                            invalidMapping.getElements().add(
+                                    "Password attributes cannot be set as ConnObjectKey");
                         }
 
-                        SAML2IdPItem item = entityFactory.newEntity(SAML2IdPItem.class);
-                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
-                        item.setIdP(idp);
-                        item.setPurpose(MappingPurpose.NONE);
-                        if (item.isConnObjectKey()) {
-                            if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                                invalidMapping.getElements().
-                                        add("Virtual attributes cannot be set as ConnObjectKey");
-                            }
-                            if ("password".equals(intAttrName.getField())) {
-                                invalidMapping.getElements().add(
-                                        "Password attributes cannot be set as ConnObjectKey");
-                            }
-
-                            idp.setConnObjectKeyItem(item);
-                        } else {
-                            idp.add(item);
-                        }
+                        idp.setConnObjectKeyItem(item);
                     } else {
-                        LOG.error("'{}' not allowed", itemTO.getIntAttrName());
-                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                        idp.add(item);
                     }
                 }
             }
@@ -198,19 +161,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         }
 
         idp.getItems().clear();
-        AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
-        for (AnyTypeClass anyTypeClass : anyTypeDAO.findUser().getClasses()) {
-            allowedSchemas.getPlainSchemas().addAll(
-                    CollectionUtils.collect(anyTypeClass.getPlainSchemas(),
-                            EntityUtils.<PlainSchema>keyTransformer()));
-            allowedSchemas.getDerSchemas().addAll(
-                    CollectionUtils.collect(anyTypeClass.getDerSchemas(),
-                            EntityUtils.<DerSchema>keyTransformer()));
-            allowedSchemas.getVirSchemas().addAll(
-                    CollectionUtils.collect(anyTypeClass.getVirSchemas(),
-                            EntityUtils.<VirSchema>keyTransformer()));
-        }
-        populateItems(idpTO, idp, allowedSchemas);
+        populateItems(idpTO, idp);
 
         idp.getActionsClassNames().clear();
         idp.getActionsClassNames().addAll(idpTO.getActionsClassNames());
