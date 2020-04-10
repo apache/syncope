@@ -58,6 +58,10 @@ public class LoggerRestClient extends BaseRestClient {
         return result;
     }
 
+    public static void create(final AuditEntry auditEntry) {
+        getService(LoggerService.class).create(auditEntry);
+    }
+    
     public static List<LoggerTO> listLogs() {
         List<LoggerTO> logs = getService(LoggerService.class).list(LoggerType.LOG);
         logs.sort(Comparator.comparing(LoggerTO::getKey));

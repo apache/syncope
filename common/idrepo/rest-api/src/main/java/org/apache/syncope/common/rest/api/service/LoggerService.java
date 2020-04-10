@@ -32,6 +32,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -99,6 +100,17 @@ public interface LoggerService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<AuditEntry> search(@BeanParam AuditQuery auditQuery);
 
+    /**
+     * Create an audit entry.
+     *
+     * @param auditEntry audit entry to persist.
+     */
+    @POST
+    @Path("AUDIT/entries")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void create(@NotNull AuditEntry auditEntry);
+    
     /**
      * Returns logger with matching type and name.
      *

@@ -33,6 +33,7 @@ public final class AuditElements implements Serializable {
     public enum EventCategoryType {
 
         LOGIC("LOGIC"),
+        WA("WA"),
         TASK("TASK"),
         PROPAGATION("PropagationTask"),
         PULL("PullTask"),

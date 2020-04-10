@@ -52,6 +52,11 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     public List<LogStatement> getLastLogStatements(final String memoryAppender) {
         return logic.getLastLogStatements(memoryAppender);
     }
+    
+    @Override
+    public void create(final AuditEntry auditEntry) {
+        logic.create(auditEntry);
+    }
 
     @Override
     public void delete(final LoggerType type, final String name) {

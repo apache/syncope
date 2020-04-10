@@ -212,6 +212,8 @@ public final class IdRepoEntitlement {
 
     public static final String AUDIT_READ = "AUDIT_READ";
 
+    public static final String AUDIT_CREATE = "AUDIT_CREATE";
+
     public static final String AUDIT_ENABLE = "AUDIT_ENABLE";
 
     public static final String AUDIT_DISABLE = "AUDIT_DISABLE";
