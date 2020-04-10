@@ -105,15 +105,15 @@ import org.xml.sax.helpers.AttributesImpl;
 public class XMLContentExporter extends AbstractContentDealer implements ContentExporter {
 
     protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
-        "QRTZ_", "LOGGING", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE, JPATaskExec.TABLE,
-        JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
+        "QRTZ_", "LOGGING", "NotificationTask_recipients", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE,
+        JPATaskExec.TABLE, JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
         JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
     }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
-            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
+            Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask' AND DTYPE <> 'NotificationTask'");
 
     protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
