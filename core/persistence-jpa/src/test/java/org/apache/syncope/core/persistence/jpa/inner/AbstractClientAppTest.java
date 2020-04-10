@@ -56,7 +56,7 @@ public class AbstractClientAppTest extends AbstractTest {
         Implementation type = entityFactory.newEntity(Implementation.class);
         type.setKey("AttrRelPolicyTest");
         type.setEngine(ImplementationEngine.JAVA);
-        type.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS);
+        type.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONF);
         type.setBody(POJOHelper.serialize(conf));
         type = implementationDAO.save(type);
         attrRelPolicy.setConfiguration(type);
@@ -78,7 +78,7 @@ public class AbstractClientAppTest extends AbstractTest {
         Implementation type = entityFactory.newEntity(Implementation.class);
         type.setKey("AccessPolicyConfKey");
         type.setEngine(ImplementationEngine.JAVA);
-        type.setType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+        type.setType(AMImplementationType.ACCESS_POLICY_CONF);
         type.setBody(POJOHelper.serialize(conf));
         type = implementationDAO.save(type);
 
@@ -98,7 +98,7 @@ public class AbstractClientAppTest extends AbstractTest {
         Implementation type = entityFactory.newEntity(Implementation.class);
         type.setKey("AuthPolicyConfKey");
         type.setEngine(ImplementationEngine.JAVA);
-        type.setType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        type.setType(AMImplementationType.AUTH_POLICY_CONF);
         type.setBody(POJOHelper.serialize(conf));
         type = implementationDAO.save(type);
 

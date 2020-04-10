@@ -18,18 +18,19 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
-import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.TypedQuery;
 import java.util.List;
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
+import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthModuleDAO {
 
+    @Transactional(readOnly = true)
     @Override
     public AuthModule find(final String key) {
         return entityManager().find(JPAAuthModule.class, key);
@@ -38,13 +39,11 @@ public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthMod
     @Transactional(readOnly = true)
     @Override
     public List<AuthModule> findAll() {
-        TypedQuery<AuthModule> query = entityManager().createQuery("SELECT e FROM " + JPAAuthModule.class.
-                getSimpleName() + " e", AuthModule.class);
-
+        TypedQuery<AuthModule> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAAuthModule.class.getSimpleName() + " e", AuthModule.class);
         return query.getResultList();
     }
 
-    @Transactional(readOnly = true)
     @Override
     public AuthModule save(final AuthModule authModule) {
         return entityManager().merge(authModule);
@@ -64,5 +63,4 @@ public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthMod
     public void delete(final AuthModule authModule) {
         entityManager().remove(authModule);
     }
-
 }

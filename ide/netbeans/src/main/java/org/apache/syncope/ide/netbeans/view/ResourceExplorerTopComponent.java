@@ -402,7 +402,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                                 templateClassName = "MyPasswordRule";
                                 break;
 
-                            case IdMImplementationType.ITEM_TRANSFORMER:
+                            case IdRepoImplementationType.ITEM_TRANSFORMER:
                                 templateClassName = "MyItemTransformer";
                                 break;
 

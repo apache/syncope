@@ -194,7 +194,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
-                    classNames.get(IdMImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
+                    classNames.get(IdRepoImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz

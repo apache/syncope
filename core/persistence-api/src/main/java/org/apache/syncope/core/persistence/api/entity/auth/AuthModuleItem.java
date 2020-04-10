@@ -22,4 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 
 public interface AuthModuleItem extends Item {
 
+    AuthModule getAuthModule();
+
+    void setAuthModule(AuthModule authModule);
 }

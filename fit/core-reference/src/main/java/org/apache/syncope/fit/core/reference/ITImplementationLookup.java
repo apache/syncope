@@ -184,7 +184,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = new HashSet<>();
             classNames.add(DateToDateItemTransformer.class.getName());
             classNames.add(DateToLongItemTransformer.class.getName());
-            put(IdMImplementationType.ITEM_TRANSFORMER, classNames);
+            put(IdRepoImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestSampleJobDelegate.class.getName());

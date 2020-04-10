@@ -26,10 +26,13 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractItem;
@@ -43,6 +46,9 @@ public class JPAAuthModuleItem extends AbstractItem implements AuthModuleItem {
 
     private static final long serialVersionUID = 3165440920144995781L;
 
+    @ManyToOne
+    private JPAAuthModule authModule;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = TABLE + "Transformer",
             joinColumns =
@@ -53,10 +59,30 @@ public class JPAAuthModuleItem extends AbstractItem implements AuthModuleItem {
             @UniqueConstraint(columnNames = { "item_id", "implementation_id" }))
     private final List<JPAImplementation> transformers = new ArrayList<>();
 
+    public JPAAuthModuleItem() {
+        super.setPurpose(MappingPurpose.NONE);
+    }
+
+    @Override
+    public void setPurpose(final MappingPurpose purpose) {
+        // cannot be changed
+    }
+
+    @Override
+    public AuthModule getAuthModule() {
+        return authModule;
+    }
+
+    @Override
+    public void setAuthModule(final AuthModule authModule) {
+        checkType(authModule, JPAAuthModule.class);
+        this.authModule = (JPAAuthModule) authModule;
+    }
+
     @Override
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
-        checkImplementationType(transformer, IdMImplementationType.ITEM_TRANSFORMER);
+        checkImplementationType(transformer, IdRepoImplementationType.ITEM_TRANSFORMER);
         return transformers.contains((JPAImplementation) transformer)
                 || this.transformers.add((JPAImplementation) transformer);
     }
@@ -65,5 +91,4 @@ public class JPAAuthModuleItem extends AbstractItem implements AuthModuleItem {
     public List<? extends Implementation> getTransformers() {
         return transformers;
     }
-
 }

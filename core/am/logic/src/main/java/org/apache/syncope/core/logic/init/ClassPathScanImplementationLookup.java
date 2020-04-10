@@ -92,10 +92,10 @@ public class ClassPathScanImplementationLookup implements SyncopeCoreLoader {
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (AuthPolicyConf.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(AMImplementationType.AUTH_POLICY_CONFIGURATIONS).add(bd.getBeanClassName());
+                    classNames.get(AMImplementationType.AUTH_POLICY_CONF).add(bd.getBeanClassName());
                 }
                 if (AccessPolicyConf.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS).add(bd.getBeanClassName());
+                    classNames.get(AMImplementationType.ACCESS_POLICY_CONF).add(bd.getBeanClassName());
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);

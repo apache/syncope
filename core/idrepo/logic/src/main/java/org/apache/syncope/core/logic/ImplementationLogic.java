@@ -179,7 +179,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 inUse = !policyDAO.findByPasswordRule(implementation).isEmpty();
                 break;
 
-            case IdMImplementationType.ITEM_TRANSFORMER:
+            case IdRepoImplementationType.ITEM_TRANSFORMER:
                 inUse = !resourceDAO.findByTransformer(implementation).isEmpty();
                 break;
 

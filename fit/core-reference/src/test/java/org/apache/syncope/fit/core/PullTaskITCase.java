@@ -83,6 +83,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -497,13 +498,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ImplementationTO transformer = null;
         try {
             transformer = implementationService.read(
-                    IdMImplementationType.ITEM_TRANSFORMER, "PrefixItemTransformer");
+                    IdRepoImplementationType.ITEM_TRANSFORMER, "PrefixItemTransformer");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 transformer = new ImplementationTO();
                 transformer.setKey("PrefixItemTransformer");
                 transformer.setEngine(ImplementationEngine.GROOVY);
-                transformer.setType(IdMImplementationType.ITEM_TRANSFORMER);
+                transformer.setType(IdRepoImplementationType.ITEM_TRANSFORMER);
                 transformer.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
                 Response response = implementationService.create(transformer);

@@ -61,7 +61,7 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
     @Override
     public void setConfiguration(final Implementation configuration) {
         checkType(configuration, JPAImplementation.class);
-        checkImplementationType(configuration, AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+        checkImplementationType(configuration, AMImplementationType.ACCESS_POLICY_CONF);
         this.configuration = (JPAImplementation) configuration;
     }
 

@@ -114,6 +114,10 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
                 templateClassName = "MyRecipientsProvider";
                 break;
 
+            case IdRepoImplementationType.ITEM_TRANSFORMER:
+                templateClassName = "MyItemTransformer";
+                break;
+
             default:
         }
 

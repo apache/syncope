@@ -220,7 +220,7 @@ public class RealmITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("TestAuthPolicy" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        rule.setType(AMImplementationType.AUTH_POLICY_CONF);
         rule.setBody(POJOHelper.serialize(ruleConf));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -271,7 +271,7 @@ public class RealmITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("TestAccessPolicy" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+        rule.setType(AMImplementationType.ACCESS_POLICY_CONF);
         rule.setBody(POJOHelper.serialize(ruleConf));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -321,7 +321,7 @@ public class RealmITCase extends AbstractITCase {
         ImplementationTO rule = new ImplementationTO();
         rule.setKey("TestAttrReleasePolicy" + getUUIDString());
         rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS);
+        rule.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONF);
         rule.setBody(POJOHelper.serialize(ruleConf));
         Response response = implementationService.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
