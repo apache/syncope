@@ -61,7 +61,7 @@ public class JPAAuthPolicy extends AbstractPolicy implements AuthPolicy {
     @Override
     public void setConfiguration(final Implementation configuration) {
         checkType(configuration, JPAImplementation.class);
-        checkImplementationType(configuration, AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        checkImplementationType(configuration, AMImplementationType.AUTH_POLICY_CONF);
         this.configuration = (JPAImplementation) configuration;
     }
 

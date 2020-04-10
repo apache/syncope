@@ -62,9 +62,9 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -91,15 +91,15 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ImplementationTO dateToDate = null;
         try {
             dateToLong = implementationService.read(
-                    IdMImplementationType.ITEM_TRANSFORMER, DateToLongItemTransformer.class.getSimpleName());
+                    IdRepoImplementationType.ITEM_TRANSFORMER, DateToLongItemTransformer.class.getSimpleName());
             dateToDate = implementationService.read(
-                    IdMImplementationType.ITEM_TRANSFORMER, DateToDateItemTransformer.class.getSimpleName());
+                    IdRepoImplementationType.ITEM_TRANSFORMER, DateToDateItemTransformer.class.getSimpleName());
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 dateToLong = new ImplementationTO();
                 dateToLong.setKey(DateToLongItemTransformer.class.getSimpleName());
                 dateToLong.setEngine(ImplementationEngine.JAVA);
-                dateToLong.setType(IdMImplementationType.ITEM_TRANSFORMER);
+                dateToLong.setType(IdRepoImplementationType.ITEM_TRANSFORMER);
                 dateToLong.setBody(DateToLongItemTransformer.class.getName());
                 Response response = implementationService.create(dateToLong);
                 dateToLong = implementationService.read(
@@ -109,7 +109,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                 dateToDate = new ImplementationTO();
                 dateToDate.setKey(DateToDateItemTransformer.class.getSimpleName());
                 dateToDate.setEngine(ImplementationEngine.JAVA);
-                dateToDate.setType(IdMImplementationType.ITEM_TRANSFORMER);
+                dateToDate.setType(IdRepoImplementationType.ITEM_TRANSFORMER);
                 dateToDate.setBody(DateToDateItemTransformer.class.getName());
                 response = implementationService.create(dateToDate);
                 dateToDate = implementationService.read(

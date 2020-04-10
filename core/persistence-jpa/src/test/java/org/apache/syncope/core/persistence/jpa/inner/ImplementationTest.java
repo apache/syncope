@@ -74,10 +74,10 @@ public class ImplementationTest extends AbstractTest {
         implementations = implementationDAO.findByType(IdMImplementationType.PUSH_CORRELATION_RULE);
         assertEquals(1, implementations.size());
 
-        implementations = implementationDAO.findByType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        implementations = implementationDAO.findByType(AMImplementationType.AUTH_POLICY_CONF);
         assertEquals(1, implementations.size());
 
-        implementations = implementationDAO.findByType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+        implementations = implementationDAO.findByType(AMImplementationType.ACCESS_POLICY_CONF);
         assertEquals(1, implementations.size());
     }
 

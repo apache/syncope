@@ -73,5 +73,4 @@ public class JPASAML2IdPDAO extends AbstractDAO<SAML2IdP> implements SAML2IdPDAO
             entityManager().remove(idp);
         }
     }
-
 }

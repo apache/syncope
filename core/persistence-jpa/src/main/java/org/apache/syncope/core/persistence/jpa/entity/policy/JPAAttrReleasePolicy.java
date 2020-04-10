@@ -62,7 +62,7 @@ public class JPAAttrReleasePolicy extends AbstractPolicy implements AttrReleaseP
     @Override
     public void setConfiguration(final Implementation configuration) {
         checkType(configuration, JPAImplementation.class);
-        checkImplementationType(configuration, AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS);
+        checkImplementationType(configuration, AMImplementationType.ATTR_RELEASE_POLICY_CONF);
         this.configuration = (JPAImplementation) configuration;
     }
 }

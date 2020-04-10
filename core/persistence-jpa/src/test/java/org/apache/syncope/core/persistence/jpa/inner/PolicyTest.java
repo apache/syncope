@@ -213,7 +213,7 @@ public class PolicyTest extends AbstractTest {
         Implementation type = entityFactory.newEntity(Implementation.class);
         type.setKey("AttrReleasePolicyAllowEverything");
         type.setEngine(ImplementationEngine.JAVA);
-        type.setType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+        type.setType(AMImplementationType.ACCESS_POLICY_CONF);
         type.setBody(POJOHelper.serialize(conf));
         type = implementationDAO.save(type);
 
@@ -240,7 +240,7 @@ public class PolicyTest extends AbstractTest {
         Implementation authPolicyType = entityFactory.newEntity(Implementation.class);
         authPolicyType.setKey("AuthPolicyConfKey");
         authPolicyType.setEngine(ImplementationEngine.JAVA);
-        authPolicyType.setType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+        authPolicyType.setType(AMImplementationType.AUTH_POLICY_CONF);
         authPolicyType.setBody(POJOHelper.serialize(authPolicyConf));
         authPolicyType = implementationDAO.save(authPolicyType);
 
@@ -265,7 +265,7 @@ public class PolicyTest extends AbstractTest {
         Implementation attrReleasePolicyType = entityFactory.newEntity(Implementation.class);
         attrReleasePolicyType.setKey("AttrReleasePolicyAllowEverything");
         attrReleasePolicyType.setEngine(ImplementationEngine.JAVA);
-        attrReleasePolicyType.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS);
+        attrReleasePolicyType.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONF);
         attrReleasePolicyType.setBody(POJOHelper.serialize(attrReleasePolicyConf));
         attrReleasePolicyType = implementationDAO.save(attrReleasePolicyType);
 

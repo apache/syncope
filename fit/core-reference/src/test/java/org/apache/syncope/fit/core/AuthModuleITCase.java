@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 
 public class AuthModuleITCase extends AbstractITCase {
 
@@ -66,8 +67,8 @@ public class AuthModuleITCase extends AbstractITCase {
         AuthModuleTO authModuleTO = new AuthModuleTO();
         authModuleTO.setName("Test" + type + "AuthenticationModule" + getUUIDString());
         authModuleTO.setDescription("A test " + type + " Authentication Module");
-        AuthModuleConf conf;
 
+        AuthModuleConf conf;
         switch (type) {
             case LDAP:
                 conf = new LDAPAuthModuleConf();
@@ -161,19 +162,21 @@ public class AuthModuleITCase extends AbstractITCase {
         }
         authModuleTO.setConf(conf);
 
+        ItemTO keyMapping = new ItemTO();
+        keyMapping.setIntAttrName("uid");
+        keyMapping.setExtAttrName("username");
+        authModuleTO.add(keyMapping);
+
+        ItemTO fullnameMapping = new ItemTO();
+        fullnameMapping.setIntAttrName("cn");
+        fullnameMapping.setExtAttrName("fullname");
+        authModuleTO.add(fullnameMapping);
+
         return authModuleTO;
     }
 
     @Test
-    public void findAll() {
-        List<AuthModuleTO> authModuleTOs = authModuleService.list();
-        assertNotNull(authModuleTOs);
-        assertFalse(authModuleTOs.isEmpty());
-        assertTrue(authModuleTOs.size() >= 10);
-    }
-
-    @Test
-    public void listByType() {
+    public void list() {
         List<AuthModuleTO> authModuleTOs = authModuleService.list();
         assertNotNull(authModuleTOs);
         assertFalse(authModuleTOs.isEmpty());
@@ -564,17 +567,17 @@ public class AuthModuleITCase extends AbstractITCase {
     private void testCreate(final AuthModuleSupportedType type) {
         AuthModuleTO authModuleTO = createAuthModule(buildAuthModuleTO(type));
         assertNotNull(authModuleTO);
-        assertTrue(authModuleTO.getName().contains(
-                "Test" + type + "AuthenticationModule"));
-        assertTrue(authModuleTO.getDescription().contains(
-                "A test " + type + " Authentication Module"));
+        assertTrue(authModuleTO.getName().contains("Test" + type + "AuthenticationModule"));
+        assertTrue(authModuleTO.getDescription().contains("A test " + type + " Authentication Module"));
+        assertEquals(2, authModuleTO.getItems().size());
     }
 
     private void testDelete(final AuthModuleSupportedType type) {
-        AuthModuleTO authModuleTO = buildAuthModuleTO(type);
-        AuthModuleTO read = createAuthModule(authModuleTO);
+        AuthModuleTO read = createAuthModule(buildAuthModuleTO(type));
         assertNotNull(read);
+
         authModuleService.delete(read.getKey());
+
         try {
             authModuleService.read(read.getKey());
             fail("This should not happen");

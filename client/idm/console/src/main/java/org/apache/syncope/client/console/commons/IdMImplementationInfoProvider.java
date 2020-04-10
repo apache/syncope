@@ -71,10 +71,6 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
         String templateClassName;
 
         switch (implementationType) {
-            case IdMImplementationType.ITEM_TRANSFORMER:
-                templateClassName = "MyItemTransformer";
-                break;
-
             case IdMImplementationType.RECON_FILTER_BUILDER:
                 templateClassName = "MyReconFilterBuilder";
                 break;
@@ -100,9 +96,9 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
                 break;
 
             case IdMImplementationType.PROVISION_SORTER:
-                templateClassName = "MyProvisionSorter";                
+                templateClassName = "MyProvisionSorter";
                 break;
-                
+
             default:
                 templateClassName = super.getGroovyTemplateClassName(implementationType);
         }

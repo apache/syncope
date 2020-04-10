@@ -30,7 +30,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
@@ -48,8 +48,8 @@ public class JPAAuthModule extends AbstractGeneratedKeyEntity implements AuthMod
     @Column(nullable = false)
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "mapping")
-    private final List<JPAAuthModuleItem> profileItems = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "authModule")
+    private List<JPAAuthModuleItem> items = new ArrayList<>();
 
     @Lob
     private String jsonConf;
@@ -75,15 +75,14 @@ public class JPAAuthModule extends AbstractGeneratedKeyEntity implements AuthMod
     }
 
     @Override
-    public List<? extends Item> getProfileItems() {
-        return profileItems;
+    public List<? extends AuthModuleItem> getItems() {
+        return items;
     }
 
     @Override
-    public boolean add(final Item profileItem) {
-        checkType(profileItem, JPAAuthModuleItem.class);
-        return profileItems.contains((JPAAuthModuleItem) profileItem)
-                || profileItems.add((JPAAuthModuleItem) profileItem);
+    public boolean add(final AuthModuleItem item) {
+        checkType(item, JPAAuthModuleItem.class);
+        return items.contains((JPAAuthModuleItem) item) || items.add((JPAAuthModuleItem) item);
     }
 
     @Override
@@ -100,5 +99,4 @@ public class JPAAuthModule extends AbstractGeneratedKeyEntity implements AuthMod
     public void setConf(final AuthModuleConf conf) {
         jsonConf = POJOHelper.serialize(conf);
     }
-
 }

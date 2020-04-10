@@ -28,8 +28,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.common.lib.types.IdMImplementationType;
 import javax.persistence.UniqueConstraint;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
@@ -71,7 +71,7 @@ public class JPASAML2IdPItem extends AbstractItem implements SAML2IdPItem {
     @Override
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
-        checkImplementationType(transformer, IdMImplementationType.ITEM_TRANSFORMER);
+        checkImplementationType(transformer, IdRepoImplementationType.ITEM_TRANSFORMER);
         return transformers.contains((JPAImplementation) transformer)
                 || this.transformers.add((JPAImplementation) transformer);
     }

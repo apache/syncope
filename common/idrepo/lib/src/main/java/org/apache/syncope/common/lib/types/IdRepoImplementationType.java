@@ -41,6 +41,8 @@ public final class IdRepoImplementationType {
 
     public static final String AUDIT_APPENDER = "AUDIT_APPENDER";
 
+    public static final String ITEM_TRANSFORMER = "ITEM_TRANSFORMER";
+
     private static final Map<String, String> VALUES = Map.ofEntries(
             Pair.of(JWT_SSO_PROVIDER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
             Pair.of(REPORTLET, "org.apache.syncope.core.persistence.api.dao.Reportlet"),
@@ -50,7 +52,8 @@ public final class IdRepoImplementationType {
             Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.provisioning.api.LogicActions"),
             Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.Validator"),
             Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
-            Pair.of(AUDIT_APPENDER, "org.apache.syncope.core.logic.audit.AuditAppender"));
+            Pair.of(AUDIT_APPENDER, "org.apache.syncope.core.logic.audit.AuditAppender"),
+            Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.provisioning.api.data.ItemTransformer"));
 
     public static Map<String, String> values() {
         return VALUES;

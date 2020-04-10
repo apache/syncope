@@ -28,8 +28,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.common.lib.types.IdMImplementationType;
 import javax.persistence.UniqueConstraint;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
@@ -76,7 +76,7 @@ public class JPAOrgUnitItem extends AbstractItem implements OrgUnitItem {
     @Override
     public boolean add(final Implementation transformer) {
         checkType(transformer, JPAImplementation.class);
-        checkImplementationType(transformer, IdMImplementationType.ITEM_TRANSFORMER);
+        checkImplementationType(transformer, IdRepoImplementationType.ITEM_TRANSFORMER);
         return transformers.contains((JPAImplementation) transformer)
                 || transformers.add((JPAImplementation) transformer);
     }

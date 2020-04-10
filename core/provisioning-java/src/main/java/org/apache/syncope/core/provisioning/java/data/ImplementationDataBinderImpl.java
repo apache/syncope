@@ -108,7 +108,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     base = PasswordRule.class;
                     break;
 
-                case IdMImplementationType.ITEM_TRANSFORMER:
+                case IdRepoImplementationType.ITEM_TRANSFORMER:
                     base = ItemTransformer.class;
                     break;
 
@@ -156,15 +156,15 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     base = ProvisionSorter.class;
                     break;
 
-                case AMImplementationType.ACCESS_POLICY_CONFIGURATIONS:
+                case AMImplementationType.ACCESS_POLICY_CONF:
                     base = AccessPolicy.class;
                     break;
 
-                case AMImplementationType.AUTH_POLICY_CONFIGURATIONS:
+                case AMImplementationType.AUTH_POLICY_CONF:
                     base = AuthPolicy.class;
                     break;
 
-                case AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS:
+                case AMImplementationType.ATTR_RELEASE_POLICY_CONF:
                     base = AttrReleasePolicy.class;
                     break;
                 default:
@@ -176,7 +176,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
             }
 
             switch (implementation.getType()) {
-                case AMImplementationType.ACCESS_POLICY_CONFIGURATIONS:
+                case AMImplementationType.ACCESS_POLICY_CONF:
                     AccessPolicyConf accessPolicyConf =
                             POJOHelper.deserialize(implementation.getBody(), AccessPolicyConf.class);
                     if (accessPolicyConf == null) {
@@ -184,7 +184,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                         throw sce;
                     }
                     break;
-                case AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS:
+                case AMImplementationType.ATTR_RELEASE_POLICY_CONF:
                     AttrReleasePolicyConf policyConf =
                             POJOHelper.deserialize(implementation.getBody(), AttrReleasePolicyConf.class);
                     if (policyConf == null) {
@@ -192,7 +192,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                         throw sce;
                     }
                     break;
-                case AMImplementationType.AUTH_POLICY_CONFIGURATIONS:
+                case AMImplementationType.AUTH_POLICY_CONF:
                     AuthPolicyConf authPolicyConf =
                             POJOHelper.deserialize(implementation.getBody(), AuthPolicyConf.class);
                     if (authPolicyConf == null) {

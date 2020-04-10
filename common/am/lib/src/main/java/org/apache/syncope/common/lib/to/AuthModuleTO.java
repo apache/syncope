@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -43,15 +44,16 @@ public class AuthModuleTO extends BaseBean implements EntityTO {
 
     private String description;
 
-    private final List<ItemTO> profileItems = new ArrayList<>();
-
     private AuthModuleConf conf;
+
+    private final List<ItemTO> items = new ArrayList<>();
 
     @Override
     public String getKey() {
         return key;
     }
 
+    @PathParam("key")
     @Override
     public void setKey(final String key) {
         this.key = key;
@@ -81,20 +83,19 @@ public class AuthModuleTO extends BaseBean implements EntityTO {
         this.conf = conf;
     }
 
-    @XmlElementWrapper(name = "profileItems")
-    @XmlElement(name = "profileItem")
-    @JsonProperty("profileItems")
-    public List<ItemTO> getProfileItems() {
-        return profileItems;
+    @XmlElementWrapper(name = "items")
+    @XmlElement(name = "item")
+    @JsonProperty("items")
+    public List<ItemTO> getItems() {
+        return items;
     }
 
     public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item)
-                .filter(itemTO -> this.profileItems.contains(itemTO) || this.profileItems.add(itemTO)).isPresent();
+        return Optional.ofNullable(item).filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
     }
 
     public boolean remove(final ItemTO item) {
-        return this.profileItems.remove(item);
+        return this.items.remove(item);
     }
 
     @Override
@@ -113,7 +114,7 @@ public class AuthModuleTO extends BaseBean implements EntityTO {
                 append(key, other.key).
                 append(name, other.name).
                 append(description, other.description).
-                append(profileItems, other.profileItems).
+                append(items, other.items).
                 append(conf, other.conf).
                 build();
     }
@@ -124,9 +125,8 @@ public class AuthModuleTO extends BaseBean implements EntityTO {
                 append(key).
                 append(name).
                 append(description).
-                append(profileItems).
+                append(items).
                 append(conf).
                 build();
     }
-
 }

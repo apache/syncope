@@ -18,48 +18,108 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import org.apache.syncope.common.lib.SyncopeClientCompositeException;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AuthModuleDataBinder.class);
+
     @Autowired
     private EntityFactory entityFactory;
 
-    private AuthModule getAuthModule(final AuthModule authModule, final AuthModuleTO authModuleTO) {
-        AuthModule result = authModule;
+    private void populateItems(final AuthModuleTO authModuleTO, final AuthModule authModule) {
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+        SyncopeClientException invalidMapping =
+                SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+        SyncopeClientException requiredValuesMissing =
+                SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        if (result == null) {
-            result = entityFactory.newEntity(AuthModule.class);
+        authModuleTO.getItems().forEach(itemTO -> {
+            if (itemTO == null) {
+                LOG.error("Null {}", ItemTO.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+            } else if (itemTO.getIntAttrName() == null) {
+                requiredValuesMissing.getElements().add("intAttrName");
+                scce.addException(requiredValuesMissing);
+            } else {
+                // no mandatory condition implies mandatory condition false
+                if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                        ? "false" : itemTO.getMandatoryCondition())) {
+
+                    SyncopeClientException invalidMandatoryCondition =
+                            SyncopeClientException.build(ClientExceptionType.InvalidValues);
+                    invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                    scce.addException(invalidMandatoryCondition);
+                }
+
+                AuthModuleItem item = entityFactory.newEntity(AuthModuleItem.class);
+                item.setIntAttrName(itemTO.getIntAttrName());
+                item.setExtAttrName(itemTO.getExtAttrName());
+                item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                item.setConnObjectKey(itemTO.isConnObjectKey());
+                item.setPassword(itemTO.isPassword());
+                item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
+                item.setAuthModule(authModule);
+                authModule.add(item);
+            }
+        });
+
+        if (!invalidMapping.getElements().isEmpty()) {
+            scce.addException(invalidMapping);
         }
-
-        AuthModule authenticationModule = AuthModule.class.cast(result);
-        AuthModuleTO authenticationModuleTO = AuthModuleTO.class.cast(authModuleTO);
-
-        authenticationModule.setName(authenticationModuleTO.getName());
-        authenticationModule.setConf(authenticationModuleTO.getConf());
-        authenticationModule.setDescription(authenticationModuleTO.getDescription());
-        // remove all profile items not contained in the TO
-        authenticationModule.getProfileItems().
-                removeIf(item -> !authenticationModuleTO.getProfileItems().stream().
-                anyMatch(otherItem -> item.getKey().equals(otherItem.getKey())));
-
-        return result;
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
     }
 
     @Override
     public AuthModule create(final AuthModuleTO authModuleTO) {
-        return getAuthModule(null, authModuleTO);
+        return update(entityFactory.newEntity(AuthModule.class), authModuleTO);
     }
 
     @Override
     public AuthModule update(final AuthModule authModule, final AuthModuleTO authModuleTO) {
-        return getAuthModule(authModule, authModuleTO);
+        authModule.setName(authModuleTO.getName());
+        authModule.setDescription(authModuleTO.getDescription());
+        authModule.setConf(authModuleTO.getConf());
+
+        authModule.getItems().clear();
+        populateItems(authModuleTO, authModule);
+
+        return authModule;
+    }
+
+    private static void populateItems(final AuthModule authModule, final AuthModuleTO authModuleTO) {
+        authModule.getItems().forEach(item -> {
+            ItemTO itemTO = new ItemTO();
+            itemTO.setKey(item.getKey());
+            itemTO.setIntAttrName(item.getIntAttrName());
+            itemTO.setExtAttrName(item.getExtAttrName());
+            itemTO.setMandatoryCondition(item.getMandatoryCondition());
+            itemTO.setConnObjectKey(item.isConnObjectKey());
+            itemTO.setPassword(item.isPassword());
+            itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
+            itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
+            itemTO.setPurpose(MappingPurpose.NONE);
+
+            authModuleTO.add(itemTO);
+        });
     }
 
     @Override
@@ -70,9 +130,8 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
         authModuleTO.setKey(authModule.getKey());
         authModuleTO.setDescription(authModule.getDescription());
         authModuleTO.setConf(authModule.getConf());
-        authModuleTO.getProfileItems().forEach(item -> {
-            authModuleTO.add(item);
-        });
+
+        populateItems(authModule, authModuleTO);
 
         return authModuleTO;
     }

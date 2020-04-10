@@ -303,6 +303,7 @@ public class AuthModuleTest extends AbstractTest {
         module = authModuleDAO.save(module);
         assertNotNull(module);
         assertNotNull(module.getKey());
+
         AuthModule found = authModuleDAO.find(module.getKey());
         assertNotNull(found);
         assertEquals("dc=example2,dc=org", LDAPAuthModuleConf.class.cast(found.getConf()).getBaseDn());
@@ -322,8 +323,7 @@ public class AuthModuleTest extends AbstractTest {
         assertNotNull(module.getKey());
         AuthModule found = authModuleDAO.find(module.getKey());
         assertNotNull(found);
-        assertEquals("SELECT * FROM otherTable WHERE name=?",
-                JDBCAuthModuleConf.class.cast(found.getConf()).getSql());
+        assertEquals("SELECT * FROM otherTable WHERE name=?", JDBCAuthModuleConf.class.cast(found.getConf()).getSql());
     }
 
     @Test
@@ -443,6 +443,7 @@ public class AuthModuleTest extends AbstractTest {
     public void updateWithSyncopeModule() {
         AuthModule module = authModuleDAO.find("4c3edd60-7008-11ea-bc55-0242ac130003");
         assertNotNull(module);
+
         AuthModuleConf conf = module.getConf();
         SyncopeAuthModuleConf.class.cast(conf).setDomain("Two");
         module.setConf(conf);
@@ -457,16 +458,13 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void delete() {
-        testDelete("be456831-593d-4003-b273-4c3fb61700df");
-        testDelete("4c3ed8f6-7008-11ea-bc55-0242ac130003");
-        testDelete("4c3edbbc-7008-11ea-bc55-0242ac130003");
-        testDelete("4c3ed7e8-7008-11ea-bc55-0242ac130003");
-        testDelete("4c3ed4e6-7008-11ea-bc55-0242ac130003");
-        testDelete("4c3edc98-7008-11ea-bc55-0242ac130003");
-        testDelete("4c3ed9d2-7008-11ea-bc55-0242ac130003");
-        testDelete("4c3edd60-7008-11ea-bc55-0242ac130003");
-        testDelete("07c528f3-63b4-4dc1-a4da-87f35b8bdec8");
-        testDelete("f6e1288d-50d9-45fe-82ee-597c42242205");
+        AuthModule authModule = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
+        assertNotNull(authModule);
+
+        authModuleDAO.delete("be456831-593d-4003-b273-4c3fb61700df");
+
+        authModule = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
+        assertNull(authModule);
     }
 
     private void saveAuthModule(final String name, final AuthModuleConf conf) {
@@ -474,29 +472,27 @@ public class AuthModuleTest extends AbstractTest {
         module.setName(name);
         module.setDescription("An authentication module");
         module.setConf(conf);
+
         AuthModuleItem keyMapping = entityFactory.newEntity(AuthModuleItem.class);
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
+        keyMapping.setAuthModule(module);
+        module.add(keyMapping);
+
         AuthModuleItem fullnameMapping = entityFactory.newEntity(AuthModuleItem.class);
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
-        module.add(keyMapping);
+        fullnameMapping.setAuthModule(module);
         module.add(fullnameMapping);
-        authModuleDAO.save(module);
+
+        module = authModuleDAO.save(module);
         assertNotNull(module);
         assertNotNull(module.getKey());
-        assertNotNull(authModuleDAO.find(module.getKey()));
+        assertEquals(module, authModuleDAO.find(module.getKey()));
+        assertEquals(2, module.getItems().size());
     }
 
-    private void testDelete(final String key) {
-        AuthModule authModule = authModuleDAO.find(key);
-        assertNotNull(authModule);
-        authModuleDAO.delete(key);
-        authModule = authModuleDAO.find(key);
-        assertNull(authModule);
-    }
-
-    private boolean isSpecificConf(final AuthModuleConf conf, final Class<? extends AuthModuleConf> clazz) {
+    private static boolean isSpecificConf(final AuthModuleConf conf, final Class<? extends AuthModuleConf> clazz) {
         return ClassUtils.isAssignable(clazz, conf.getClass());
     }
 }

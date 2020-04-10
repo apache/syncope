@@ -62,8 +62,7 @@ public interface AuthModuleService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    AuthModuleTO read(
-            @NotNull @PathParam("key") String key);
+    AuthModuleTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of authentication modules of the matching type.
@@ -92,8 +91,7 @@ public interface AuthModuleService extends JAXRSService {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(
-            @NotNull AuthModuleTO authModuleTO);
+    Response create(@NotNull AuthModuleTO authModuleTO);
 
     /**
      * Updates authentication module matching the given key.
@@ -108,8 +106,7 @@ public interface AuthModuleService extends JAXRSService {
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void update(
-            @NotNull AuthModuleTO authModuleTO);
+    void update(@NotNull AuthModuleTO authModuleTO);
 
     /**
      * Delete authentication module matching the given key.
@@ -121,6 +118,5 @@ public interface AuthModuleService extends JAXRSService {
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void delete(
-            @NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 }

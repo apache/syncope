@@ -66,14 +66,13 @@ public class PolicyITCase extends AbstractITCase {
         String authPolicyName = "TestAuthPolicy" + getUUIDString();
         ImplementationTO implementationTO = null;
         try {
-            implementationTO = implementationService.read(
-                    AMImplementationType.AUTH_POLICY_CONFIGURATIONS, authPolicyName);
+            implementationTO = implementationService.read(AMImplementationType.AUTH_POLICY_CONF, authPolicyName);
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 implementationTO = new ImplementationTO();
                 implementationTO.setKey(authPolicyName);
                 implementationTO.setEngine(ImplementationEngine.JAVA);
-                implementationTO.setType(AMImplementationType.AUTH_POLICY_CONFIGURATIONS);
+                implementationTO.setType(AMImplementationType.AUTH_POLICY_CONF);
 
                 DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
                 conf.getAuthModules().addAll(List.of("LdapAuthentication1"));
@@ -97,14 +96,13 @@ public class PolicyITCase extends AbstractITCase {
     private static AttrReleasePolicyTO buildAttributeReleasePolicyTO(final String policyName) {
         ImplementationTO implementationTO = null;
         try {
-            implementationTO = implementationService.read(
-                    AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS, policyName);
+            implementationTO = implementationService.read(AMImplementationType.ATTR_RELEASE_POLICY_CONF, policyName);
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 implementationTO = new ImplementationTO();
                 implementationTO.setKey(policyName);
                 implementationTO.setEngine(ImplementationEngine.JAVA);
-                implementationTO.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS);
+                implementationTO.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONF);
 
                 AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
                 conf.setName("MyDefaultAttrReleasePolicyConf");
@@ -131,14 +129,13 @@ public class PolicyITCase extends AbstractITCase {
 
         ImplementationTO implementationTO = null;
         try {
-            implementationTO = implementationService.read(
-                    AMImplementationType.ACCESS_POLICY_CONFIGURATIONS, accessPolicyName);
+            implementationTO = implementationService.read(AMImplementationType.ACCESS_POLICY_CONF, accessPolicyName);
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 implementationTO = new ImplementationTO();
                 implementationTO.setKey(accessPolicyName);
                 implementationTO.setEngine(ImplementationEngine.JAVA);
-                implementationTO.setType(AMImplementationType.ACCESS_POLICY_CONFIGURATIONS);
+                implementationTO.setType(AMImplementationType.ACCESS_POLICY_CONF);
 
                 DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
                 conf.setEnabled(true);
@@ -332,8 +329,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(newAuthPolicyTO);
         newAuthPolicyTO = createPolicy(PolicyType.AUTH, newAuthPolicyTO);
 
-        ImplementationTO authPolicyImplementationTO = implementationService.read(
-                AMImplementationType.AUTH_POLICY_CONFIGURATIONS, "MyDefaultAuthPolicyConf");
+        ImplementationTO authPolicyImplementationTO = implementationService.read(AMImplementationType.AUTH_POLICY_CONF, "MyDefaultAuthPolicyConf");
         assertNotNull(authPolicyImplementationTO);
         assertFalse(StringUtils.isBlank(authPolicyImplementationTO.getBody()));
 
@@ -365,8 +361,7 @@ public class PolicyITCase extends AbstractITCase {
         newAccessPolicyTO = createPolicy(PolicyType.ACCESS, newAccessPolicyTO);
         assertNotNull(newAccessPolicyTO);
 
-        ImplementationTO accessPolicyImplementationTO = implementationService.read(
-                AMImplementationType.ACCESS_POLICY_CONFIGURATIONS, "MyDefaultAccessPolicyConf");
+        ImplementationTO accessPolicyImplementationTO = implementationService.read(AMImplementationType.ACCESS_POLICY_CONF, "MyDefaultAccessPolicyConf");
         assertNotNull(accessPolicyImplementationTO);
         assertFalse(StringUtils.isBlank(accessPolicyImplementationTO.getBody()));
 
@@ -400,8 +395,7 @@ public class PolicyITCase extends AbstractITCase {
         newPolicyTO = createPolicy(PolicyType.ATTR_RELEASE, newPolicyTO);
         assertNotNull(newPolicyTO);
 
-        ImplementationTO implementationTO = implementationService.read(
-                AMImplementationType.ATTR_RELEASE_POLICY_CONFIGURATIONS, policyName);
+        ImplementationTO implementationTO = implementationService.read(AMImplementationType.ATTR_RELEASE_POLICY_CONF, policyName);
         assertNotNull(implementationTO);
         assertFalse(StringUtils.isBlank(implementationTO.getBody()));
 
