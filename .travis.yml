@@ -71,7 +71,7 @@ jobs:
       ######################################################
     - stage: fit
       name: "Full Integration Tests: Apache Tomcat / H2 / JSON Content-Type"
-      script: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      script: travis_wait 55 --quiet mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       after_failure:
        - cat fit/core-reference/target/log/*
        - cat fit/core-reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
