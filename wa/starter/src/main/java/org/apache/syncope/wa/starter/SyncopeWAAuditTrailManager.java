@@ -21,12 +21,12 @@ package org.apache.syncope.wa.starter;
 
 import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.rest.api.service.LoggerService;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.wa.WARestClient;
 import org.apereo.inspektr.audit.AuditActionContext;
 import org.slf4j.Logger;
@@ -38,6 +38,7 @@ import java.util.Set;
 
 public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAAuditTrailManager.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final WARestClient restClient;
 
@@ -57,24 +58,28 @@ public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
         LoggerService loggerService = restClient.getSyncopeClient().
             getService(LoggerService.class);
 
-        String output = POJOHelper.serialize(Map.of("resource", audit.getResourceOperatedUpon(),
-            "clientIpAddress", audit.getClientIpAddress(),
-            "serverIpAddress", audit.getServerIpAddress()));
+        try {             
+            String output = OBJECT_MAPPER.writeValueAsString(Map.of("resource", audit.getResourceOperatedUpon(),
+                "clientIpAddress", audit.getClientIpAddress(),
+                "serverIpAddress", audit.getServerIpAddress()));
 
-        AuditEntry auditEntry = new AuditEntry();
-        auditEntry.setWho(audit.getPrincipal());
-        auditEntry.setDate(audit.getWhenActionWasPerformed());
-        auditEntry.setOutput(output);
-        AuditElements.Result result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
-            ? AuditElements.Result.FAILURE
-            : AuditElements.Result.SUCCESS;
+            AuditEntry auditEntry = new AuditEntry();
+            auditEntry.setWho(audit.getPrincipal());
+            auditEntry.setDate(audit.getWhenActionWasPerformed());
+            auditEntry.setOutput(output);
+            AuditElements.Result result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
+                ? AuditElements.Result.FAILURE
+                : AuditElements.Result.SUCCESS;
 
-        AuditLoggerName auditLogger = new AuditLoggerName(AuditElements.EventCategoryType.WA,
-            "LoggerLogic", AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
-            audit.getActionPerformed(), result);
+            AuditLoggerName auditLogger = new AuditLoggerName(AuditElements.EventCategoryType.WA,
+                "LoggerLogic", AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
+                audit.getActionPerformed(), result);
 
-        auditEntry.setLogger(auditLogger);
-        loggerService.create(auditEntry);
+            auditEntry.setLogger(auditLogger);
+            loggerService.create(auditEntry);
+        } catch (Exception e) {
+            LOG.error("During serialization", e);
+        }
     }
 
     @Override

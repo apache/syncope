@@ -108,7 +108,6 @@ public interface LoggerService extends JAXRSService {
     @POST
     @Path("AUDIT/entries")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void create(@NotNull AuditEntry auditEntry);
     
     /**

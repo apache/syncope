@@ -276,7 +276,7 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void saveAuditEvent() {
-        AuditLoggerName logger = new AuditLoggerName(EventCategoryType.CUSTOM, "LoggerLogic",
+        AuditLoggerName logger = new AuditLoggerName(EventCategoryType.WA, "LoggerLogic",
             AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(), "validate",
             AuditElements.Result.SUCCESS);
         AuditEntry auditEntry = new AuditEntry();

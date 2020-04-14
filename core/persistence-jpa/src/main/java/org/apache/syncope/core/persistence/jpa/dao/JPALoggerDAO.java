@@ -44,8 +44,12 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
         protected final StringBuilder query = new StringBuilder();
 
         protected MessageCriteriaBuilder entityKey(final String entityKey) {
-            query.append(' ').append(AUDIT_MESSAGE_COLUMN).
+            if (entityKey != null) {
+                query.append(' ').append(AUDIT_MESSAGE_COLUMN).
                     append(" LIKE '%key%").append(entityKey).append("%'");
+            } else {
+                query.append(" 1=1");
+            }
             return this;
         }
 

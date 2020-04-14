@@ -422,14 +422,14 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_CREATE + "')")
     public void create(final AuditEntry auditEntry) {
         boolean auditRequested = auditManager.auditRequested(auditEntry.getWho(),
-            EventCategoryType.CUSTOM,
+            auditEntry.getLogger().getType(),
             auditEntry.getLogger().getCategory(),
             auditEntry.getLogger().getSubcategory(),
             auditEntry.getLogger().getEvent());
 
         if (auditRequested) {
             auditManager.audit(auditEntry.getWho(),
-                EventCategoryType.CUSTOM,
+                auditEntry.getLogger().getType(),
                 auditEntry.getLogger().getCategory(),
                 auditEntry.getLogger().getSubcategory(),
                 auditEntry.getLogger().getEvent(),
