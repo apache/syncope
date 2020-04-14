@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,6 +27,7 @@ import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -74,7 +74,7 @@ public class Roles extends WizardStep implements ICondition {
 
         this.setOutputMarkupId(true);
 
-        allRoles = getManagedRoles();add
+        allRoles = getManagedRoles();
 
         add(buildRolesSelector(modelObject));
 

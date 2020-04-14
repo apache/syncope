@@ -34,6 +34,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractAnyWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
