@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.Constants;
@@ -33,6 +32,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
@@ -46,27 +46,22 @@ public class Roles extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final List<String> allRoles;
+    protected final List<String> allRoles;
 
     protected final UserTO userTO;
 
     protected WebMarkupContainer dynrolesContainer;
 
-    public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
-        if (!(modelObject.getInnerObject() instanceof UserTO)) {
-            throw new IllegalStateException("Invalid instance " + modelObject.getInnerObject());
-        }
+    public <T extends AnyTO> Roles(final UserWrapper modelObject) {
+        if (modelObject.getPreviousUserTO() != null
+                && !modelObject.getInnerObject().getRoles().equals(modelObject.getPreviousUserTO().getRoles())) {
 
-        if (UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
-                && !ListUtils.isEqualList(
-                        UserWrapper.class.cast(modelObject).getInnerObject().getRoles(),
-                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getRoles())) {
             add(new LabelInfo("changed", StringUtils.EMPTY));
         } else {
             add(new Label("changed", StringUtils.EMPTY));
         }
 
-        userTO = UserTO.class.cast(modelObject.getInnerObject());
+        userTO = modelObject.getInnerObject();
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
@@ -81,7 +76,27 @@ public class Roles extends WizardStep implements ICondition {
 
         allRoles = getManagedRoles();
 
-        add(new AjaxPalettePanel.Builder<String>().
+        add(buildRolesSelector(modelObject));
+
+        dynrolesContainer = new WebMarkupContainer("dynrolesContainer");
+        dynrolesContainer.setOutputMarkupId(true);
+        dynrolesContainer.setOutputMarkupPlaceholderTag(true);
+        add(dynrolesContainer);
+
+        dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
+                new PropertyModel<>(userTO, "dynRoles"),
+                new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
+    }
+
+    protected List<String> getManagedRoles() {
+        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER)
+                ? new RoleRestClient().list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
+                : Collections.emptyList();
+    }
+
+    protected Component buildRolesSelector(final UserWrapper modelObject) {
+        return new AjaxPalettePanel.Builder<String>().
                 withFilter().
                 setAllowOrder(true).
                 build("roles",
@@ -104,16 +119,7 @@ public class Roles extends WizardStep implements ICondition {
                     }
                 }).
                 hideLabel().
-                setOutputMarkupId(true));
-
-        dynrolesContainer = new WebMarkupContainer("dynrolesContainer");
-        dynrolesContainer.setOutputMarkupId(true);
-        dynrolesContainer.setOutputMarkupPlaceholderTag(true);
-        add(dynrolesContainer);
-
-        dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
-                new PropertyModel<>(userTO, "dynRoles"),
-                new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
+                setOutputMarkupId(true);
     }
 
     @Override
@@ -121,12 +127,5 @@ public class Roles extends WizardStep implements ICondition {
         return CollectionUtils.isNotEmpty(allRoles)
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
-    }
-
-    protected List<String> getManagedRoles() {
-        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER)
-                ? new RoleRestClient().list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
-                : Collections.<String>emptyList();
     }
 }
