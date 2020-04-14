@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,18 +34,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
+
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatement;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -57,6 +63,7 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.core.logic.ConnectorLogic;
 import org.apache.syncope.core.logic.ReportLogic;
@@ -265,6 +272,31 @@ public class LoggerITCase extends AbstractITCase {
             i++;
         } while (!messagePresent && i < maxWaitSeconds);
         return messagePresent;
+    }
+
+    @Test
+    public void saveAuditEvent() {
+        AuditLoggerName logger = new AuditLoggerName(EventCategoryType.WA, "LoggerLogic",
+            AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(), "validate",
+            AuditElements.Result.SUCCESS);
+        AuditEntry auditEntry = new AuditEntry();
+        String who = "syncope-user " + UUID.randomUUID().toString();
+        auditEntry.setWho(who);
+        auditEntry.setLogger(logger);
+        auditEntry.setDate(new Date());
+        auditEntry.setBefore(UUID.randomUUID().toString());
+        auditEntry.setOutput(UUID.randomUUID().toString());
+        assertDoesNotThrow(() -> loggerService.create(auditEntry));
+
+        AuditQuery query = new AuditQuery();
+        query.setSize(1);
+        query.setType(auditEntry.getLogger().getType());
+        query.setResult(auditEntry.getLogger().getResult());
+        query.setCategory(auditEntry.getLogger().getCategory());
+        query.setEvents(List.of(auditEntry.getLogger().getEvent()));
+        PagedResult<AuditEntry> events = loggerService.search(query);
+        assertNotNull(events);
+        assertEquals(1, events.getSize());
     }
 
     @Test

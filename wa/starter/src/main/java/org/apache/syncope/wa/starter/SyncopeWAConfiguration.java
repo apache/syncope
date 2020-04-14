@@ -18,18 +18,21 @@
  */
 package org.apache.syncope.wa.starter;
 
-import java.util.Collection;
+import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
+import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
+import org.apereo.cas.services.ServiceRegistryListener;
+
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.wa.WARestClient;
-import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
-import org.apereo.cas.services.ServiceRegistryListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Collection;
 
 @Configuration
 public class SyncopeWAConfiguration {
@@ -45,8 +48,14 @@ public class SyncopeWAConfiguration {
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(final WARestClient restClient) {
         SyncopeServiceRegistry registry =
-                new SyncopeServiceRegistry(restClient, applicationContext, serviceRegistryListeners);
+            new SyncopeServiceRegistry(restClient, applicationContext, serviceRegistryListeners);
         return plan -> plan.registerServiceRegistry(registry);
+    }
+
+    @Bean
+    @Autowired
+    public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient restClient) {
+        return plan -> plan.registerAuditTrailManager(new SyncopeWAAuditTrailManager(restClient));
     }
 
     @Bean

@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Logger;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -98,6 +99,9 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private LoggerDataBinder binder;
 
+    @Autowired
+    private AuditManager auditManager;
+    
     @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
@@ -409,10 +413,31 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             final AuditElements.Result result,
             final List<OrderByClause> orderByClauses) {
 
-        int count = loggerDAO.countAuditEntries(entityKey);
+        int count = loggerDAO.countAuditEntries(entityKey, type, category, subcategory, events, result);
         List<AuditEntry> matching = loggerDAO.findAuditEntries(
                 entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
         return Pair.of(count, matching);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_CREATE + "')")
+    public void create(final AuditEntry auditEntry) {
+        boolean auditRequested = auditManager.auditRequested(auditEntry.getWho(),
+            auditEntry.getLogger().getType(),
+            auditEntry.getLogger().getCategory(),
+            auditEntry.getLogger().getSubcategory(),
+            auditEntry.getLogger().getEvent());
+
+        if (auditRequested) {
+            auditManager.audit(auditEntry.getWho(),
+                auditEntry.getLogger().getType(),
+                auditEntry.getLogger().getCategory(),
+                auditEntry.getLogger().getSubcategory(),
+                auditEntry.getLogger().getEvent(),
+                auditEntry.getLogger().getResult(),
+                auditEntry.getBefore(),
+                auditEntry.getOutput(),
+                auditEntry.getInputs());
+        }
     }
 
     @Override

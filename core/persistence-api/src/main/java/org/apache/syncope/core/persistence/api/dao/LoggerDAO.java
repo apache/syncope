@@ -52,5 +52,10 @@ public interface LoggerDAO extends DAO<Logger> {
             AuditElements.Result result,
             List<OrderByClause> orderByClauses);
 
-    int countAuditEntries(String entityKey);
+    int countAuditEntries(String entityKey,
+                          AuditElements.EventCategoryType type,
+                          String category,
+                          String subcategory,
+                          List<String> events,
+                          AuditElements.Result result);
 }

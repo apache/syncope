@@ -20,8 +20,6 @@ under the License.
 <dataset>
   <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/"/>  
 
-<<<<<<< HEAD
-=======
   <SyncopeSchema id="password.cipher.algorithm"/>
   <PlainSchema id="password.cipher.algorithm" type="String"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
