@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
@@ -116,12 +115,8 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
-            wizardModel.add(new PlainAttrs(
-                    modelObject,
-                    null,
-                    mode,
-                    anyTypeClasses,
-                    formLayoutInfo.getWhichPlainAttrs()) {
+            wizardModel.add(
+                    new PlainAttrs(modelObject, null, mode, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs()) {
 
                 private static final long serialVersionUID = 8167894751609598306L;
 
@@ -129,31 +124,28 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
                 public PageReference getPageReference() {
                     return pageRef;
                 }
-
             });
         }
         if (formLayoutInfo.isDerAttrs() && mode != AjaxWizard.Mode.TEMPLATE) {
-            wizardModel.add(new DerAttrs(
-                    modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
+            wizardModel.add(new DerAttrs(modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
         }
         if (formLayoutInfo.isVirAttrs()) {
-            wizardModel.add(new VirAttrs(
-                    modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
+            wizardModel.add(new VirAttrs(modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
         }
 
         // role panel step (just available for users)
         if ((this instanceof UserWizardBuilder)
-                && (modelObject.getInnerObject() instanceof UserTO)
-                && (formLayoutInfo instanceof UserFormLayoutInfo)
+                && modelObject instanceof UserWrapper
+                && formLayoutInfo instanceof UserFormLayoutInfo
                 && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
 
-            wizardModel.add(new Roles(modelObject));
+            wizardModel.add(new Roles((UserWrapper) modelObject));
         }
 
         // relationship panel step (available for users and any objects)
-        if (((formLayoutInfo instanceof UserFormLayoutInfo)
+        if ((formLayoutInfo instanceof UserFormLayoutInfo
                 && UserFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())
-                || ((formLayoutInfo instanceof AnyObjectFormLayoutInfo)
+                || (formLayoutInfo instanceof AnyObjectFormLayoutInfo
                 && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())) {
 
             wizardModel.add(new Relationships(modelObject, pageRef));
