@@ -234,6 +234,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 modal.show(true);
             }
         };
+        csvPushLink.setOutputMarkupPlaceholderTag(true).setVisible(wizardInModal).setEnabled(wizardInModal);
         MetaDataRoleAuthorizationStrategy.authorize(csvPushLink, RENDER,
                 String.format("%s,%s", StandardEntitlement.IMPLEMENTATION_LIST, StandardEntitlement.TASK_EXECUTE));
         addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
@@ -253,6 +254,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 modal.show(true);
             }
         };
+        csvPullLink.setOutputMarkupPlaceholderTag(true).setVisible(wizardInModal).setEnabled(wizardInModal);
         MetaDataRoleAuthorizationStrategy.authorize(csvPullLink, RENDER,
                 String.format("%s,%s", StandardEntitlement.IMPLEMENTATION_LIST, StandardEntitlement.TASK_EXECUTE));
         addInnerObject(csvPullLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
