@@ -1175,3 +1175,17 @@ div#tablehandling ul.menu li a {
 .realm-choice #realm-choice-folder {
   color: #3c8dbc;
 }
+
+.palette-scrollbar {
+  min-width: 100%;
+  overflow: scroll;
+}
+
+@-moz-document url-prefix(''){
+  .palette-scrollbar {
+    min-width: 100%;
+    width: auto;
+    overflow: scroll;
+  }
+}
+
