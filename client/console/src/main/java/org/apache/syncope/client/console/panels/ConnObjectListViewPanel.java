@@ -218,7 +218,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
                     String connObjectKeyValue = modelObject.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);
-                    final ReconStatus status = reconRestClient.status(
+                    ReconStatus status = reconRestClient.status(
                             new ReconQuery.Builder(anyType, resource.getKey())
                                     .connObjectKeyValue(connObjectKeyValue)
                                     .build());
