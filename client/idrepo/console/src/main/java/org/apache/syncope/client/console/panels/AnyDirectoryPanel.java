@@ -138,8 +138,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         initResultTable();
 
-        SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionsProvider().
-                add(this, modal, container, type, realm, fiql, rows, pSchemaNames, dSchemaNames, pageRef);
+        SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionsProvider().add(
+                this, modal, wizardInModal, container, type, realm, fiql, rows, pSchemaNames, dSchemaNames, pageRef);
     }
 
     @Override
