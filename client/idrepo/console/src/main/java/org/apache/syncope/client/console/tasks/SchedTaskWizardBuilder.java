@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -34,6 +35,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -206,6 +208,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             if (taskTO instanceof PullTaskTO) {
                 destinationRealm.addRequiredLabel();
+                if (StringUtils.isBlank(PullTaskTO.class.cast(taskTO).getDestinationRealm())) {
+                    // add a default destination realm if missing in the task
+                    destinationRealm.setModelObject(SyncopeConstants.ROOT_REALM);
+                }
             }
             pullTaskSpecifics.add(destinationRealm);
 

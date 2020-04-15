@@ -38,6 +38,8 @@ public class ReconStatus implements Serializable {
 
     private String anyKey;
 
+    private String realm;
+
     private MatchType matchType;
 
     private ConnObjectTO onSyncope;
@@ -60,6 +62,15 @@ public class ReconStatus implements Serializable {
 
     public void setAnyKey(final String anyKey) {
         this.anyKey = anyKey;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(final String realm) {
+        this.realm = realm;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
