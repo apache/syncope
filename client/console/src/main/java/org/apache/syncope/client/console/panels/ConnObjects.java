@@ -137,7 +137,7 @@ public class ConnObjects extends Panel implements ModalPanel {
             anyTypes.setEnabled(false);
             target.add(anyTypes);
 
-            final PullTaskTO pullTaskTO = new PullTaskTO();
+            PullTaskTO pullTaskTO = new PullTaskTO();
             pullTaskTO.setDestinationRealm(realm);
             connObjects.next("PULL " + resource,
                     new ReconTaskPanel(
