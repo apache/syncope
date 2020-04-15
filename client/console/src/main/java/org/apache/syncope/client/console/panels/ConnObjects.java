@@ -131,15 +131,18 @@ public class ConnObjects extends Panel implements ModalPanel {
                 final AjaxRequestTarget target,
                 final String resource,
                 final String anyType,
+                final String realm,
                 final boolean isOnSyncope,
                 final PageReference pageRef) {
             anyTypes.setEnabled(false);
             target.add(anyTypes);
 
+            final PullTaskTO pullTaskTO = new PullTaskTO();
+            pullTaskTO.setDestinationRealm(realm);
             connObjects.next("PULL " + resource,
                     new ReconTaskPanel(
                             resource,
-                            new PullTaskTO(),
+                            pullTaskTO,
                             anyType,
                             null,
                             connObjectKeyValue,

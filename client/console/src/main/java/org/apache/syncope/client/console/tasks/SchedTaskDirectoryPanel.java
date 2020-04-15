@@ -101,7 +101,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         try {
             schedTaskTO = reference.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            LOG.error("Falure instantiating task", e);
+            LOG.error("Failure instantiating task", e);
         }
 
         this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);

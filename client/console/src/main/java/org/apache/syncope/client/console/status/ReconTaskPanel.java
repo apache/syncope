@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.RealmsUtils;
@@ -143,14 +144,16 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 }
             };
 
-            form.add(realm);
             realm.addRequiredLabel();
             realm.setOutputMarkupId(true);
-
-            if (isOnSyncope) {
+            // add a default destination realm if missing in the task
+            if (StringUtils.isBlank(PullTaskTO.class.cast(taskTO).getDestinationRealm())) {
                 realm.getField().setModelObject(SyncopeConstants.ROOT_REALM);
-                realm.setVisible(false);
             }
+            if (isOnSyncope) {
+                realm.setEnabled(false);
+            }
+            form.add(realm);
         }
 
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
