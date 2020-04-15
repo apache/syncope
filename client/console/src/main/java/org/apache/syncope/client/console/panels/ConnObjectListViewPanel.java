@@ -218,15 +218,18 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
                     String connObjectKeyValue = modelObject.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);
-                    String anyKey = reconRestClient.status(new ReconQuery.Builder(anyType, resource.getKey()).
-                            connObjectKeyValue(connObjectKeyValue).build()).getAnyKey();
+                    final ReconStatus status = reconRestClient.status(
+                            new ReconQuery.Builder(anyType, resource.getKey())
+                                    .connObjectKeyValue(connObjectKeyValue)
+                                    .build());
 
                     pullConnObject(
                             connObjectKeyValue,
                             target,
                             resource.getKey(),
                             anyType,
-                            StringUtils.isNotBlank(anyKey),
+                            status.getRealm(),
+                            StringUtils.isNotBlank(status.getAnyKey()),
                             pageRef);
                 }
             }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.TASK_EXECUTE);
@@ -277,6 +280,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             AjaxRequestTarget target,
             String resource,
             String anyType,
+            String realm,
             boolean isOnSyncope,
             PageReference pageRef);
 

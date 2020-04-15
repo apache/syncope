@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
@@ -36,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
@@ -251,6 +253,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             if (taskTO instanceof PullTaskTO) {
                 destinationRealm.addRequiredLabel();
+                if (StringUtils.isBlank(PullTaskTO.class.cast(taskTO).getDestinationRealm())) {
+                    // add a default destination realm if missing in the task
+                    destinationRealm.setModelObject(SyncopeConstants.ROOT_REALM);
+                }
             }
             pullTaskSpecifics.add(destinationRealm);
 
