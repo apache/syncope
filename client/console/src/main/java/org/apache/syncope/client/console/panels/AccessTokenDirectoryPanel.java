@@ -102,7 +102,7 @@ public class AccessTokenDirectoryPanel
                 JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(model.getObject().getBody());
                 cellItem.add(new Label(componentId,
                         SyncopeConsoleSession.get().getDateFormat().format(
-                                new Date(consumer.getJwtClaims().getIssuedAt()))));
+                                new Date(consumer.getJwtClaims().getIssuedAt() * 1000))));
             }
         });
 
