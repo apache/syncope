@@ -43,7 +43,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -72,12 +71,13 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
 
     public <T extends AnyTO> LinkedAccountPlainAttrsPanel(
             final EntityWrapper<LinkedAccountTO> modelObject,
-            final UserTO userTO) throws IllegalArgumentException {
+            final UserTO userTO,
+            final List<String> whichPlainAttrs) throws IllegalArgumentException {
 
         super(userTO,
                 AjaxWizard.Mode.EDIT,
                 AnyTypeRestClient.read(userTO.getType()).getClasses(),
-                AnyLayoutUtils.fetch(List.of(userTO.getType())).getUser().getWhichPlainAttrs(),
+                whichPlainAttrs,
                 modelObject);
 
         this.linkedAccountTO = modelObject.getInnerObject();

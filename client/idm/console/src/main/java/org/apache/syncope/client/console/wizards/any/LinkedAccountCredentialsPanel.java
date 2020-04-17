@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
@@ -49,12 +50,14 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
 
     private final LinkedAccountTO linkedAccountTO;
 
-    public LinkedAccountCredentialsPanel(final EntityWrapper<LinkedAccountTO> modelObject) {
+    public LinkedAccountCredentialsPanel(
+            final EntityWrapper<LinkedAccountTO> modelObject, final List<String> whichCredentials) {
         super();
         setOutputMarkupId(true);
 
         linkedAccountTO = modelObject.getInnerObject();
 
+        boolean isUsernameManagementEnabled = whichCredentials.contains("username");
         AjaxTextFieldPanel usernameField = new AjaxTextFieldPanel(
                 "username",
                 "username",
@@ -64,9 +67,12 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
         usernameProperty.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getUsername()));
         usernameProperty.setSchema("username");
         usernameProperty.getValues().add(linkedAccountTO.getUsername());
-        usernameField.showExternAction(checkboxToggle(usernameProperty, usernameField));
+        usernameField.showExternAction(
+                checkboxToggle(usernameProperty, usernameField).setEnabled(isUsernameManagementEnabled));
         add(usernameField.setOutputMarkupId(true));
+        usernameField.setEnabled(isUsernameManagementEnabled);
 
+        boolean isPasswordManagementEnabled = whichCredentials.contains("password");
         AjaxPasswordFieldPanel passwordField = new AjaxPasswordFieldPanel(
                 "password",
                 "password",
@@ -79,9 +85,11 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
         passwordProperty.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getPassword()));
         passwordProperty.setSchema("password");
         passwordProperty.getValues().add(linkedAccountTO.getPassword());
-        passwordField.showExternAction(checkboxToggle(passwordProperty, passwordField));
+        passwordField.showExternAction(
+                checkboxToggle(passwordProperty, passwordField).setEnabled(isPasswordManagementEnabled));
         ((PasswordTextField) passwordField.getField()).setResetPassword(false);
         add(passwordField.setOutputMarkupId(true));
+        passwordField.setEnabled(isPasswordManagementEnabled);
     }
 
     private FormComponent<?> checkboxToggle(
