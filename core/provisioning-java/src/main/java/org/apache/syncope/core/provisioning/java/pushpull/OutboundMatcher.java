@@ -110,7 +110,7 @@ public class OutboundMatcher {
         }
 
         Set<String> moreAttrsToGet = new HashSet<>();
-        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(task, provision)));
+        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(task), provision)));
 
         List<ConnectorObject> result = new ArrayList<>();
         try {
@@ -150,6 +150,20 @@ public class OutboundMatcher {
             final Optional<String[]> moreAttrsToGet,
             final LinkingMappingItem... linkingItems) {
 
+        Set<String> matgFromPropagationActions = new HashSet<>();
+        provision.getResource().getPropagationActions().forEach(impl -> {
+            try {
+                matgFromPropagationActions.addAll(
+                        ImplementationManager.<PropagationActions>build(impl).
+                                moreAttrsToGet(Optional.empty(), provision));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        });
+        Optional<String[]> effectiveMATG = Optional.of(Stream.concat(
+                moreAttrsToGet.map(Stream::of).orElse(Stream.empty()),
+                matgFromPropagationActions.stream()).toArray(String[]::new));
+
         Optional<PushCorrelationRule> rule = rule(provision);
 
         List<ConnectorObject> result = new ArrayList<>();
@@ -159,7 +173,7 @@ public class OutboundMatcher {
                         connector,
                         rule.get().getFilter(any, provision),
                         provision,
-                        moreAttrsToGet,
+                        effectiveMATG,
                         ArrayUtils.isEmpty(linkingItems)
                         ? Optional.empty() : Optional.of(List.of(linkingItems))));
             } else {
@@ -172,7 +186,7 @@ public class OutboundMatcher {
                             connObjectKeyItem.get(),
                             connObjectKeyValue.get(),
                             provision,
-                            moreAttrsToGet,
+                            effectiveMATG,
                             ArrayUtils.isEmpty(linkingItems)
                             ? Optional.empty() : Optional.of(List.of(linkingItems))).
                             ifPresent(result::add);

@@ -399,7 +399,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName())).orElse(null);
             orgUnit = task.getResource().getOrgUnit();
 
-            if (taskInfo.getBeforeObj() == null) {
+            if (taskInfo.getBeforeObj() == null || !taskInfo.getBeforeObj().isPresent()) {
                 // Try to read remote object BEFORE any actual operation
                 beforeObj = provision == null && orgUnit == null
                         ? null
@@ -693,7 +693,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 : task.getOldConnObjectKey();
 
         Set<String> moreAttrsToGet = new HashSet<>();
-        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(task, orgUnit)));
+        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(task), orgUnit)));
 
         ConnectorObject obj = null;
         Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
