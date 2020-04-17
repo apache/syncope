@@ -165,7 +165,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 before.getVirAttrs(),
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.ofNullable(null));
+            taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
             taskExecutor.execute(taskInfos.get(0), reporter);
             reportPropagation(result, reporter);
