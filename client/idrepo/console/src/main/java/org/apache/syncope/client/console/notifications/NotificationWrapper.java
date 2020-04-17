@@ -79,7 +79,7 @@ public class NotificationWrapper implements Serializable {
         } else {
             Map<String, String> res = new HashMap<>();
             for (Pair<String, List<SearchClause>> pair : this.aboutClauses) {
-                AbstractFiqlSearchConditionBuilder builder;
+                AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                 switch (pair.getLeft()) {
                     case "USER":
                         builder = SyncopeClient.getUserSearchConditionBuilder();

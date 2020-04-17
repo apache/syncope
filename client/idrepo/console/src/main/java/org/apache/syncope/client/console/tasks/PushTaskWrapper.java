@@ -57,7 +57,7 @@ public class PushTaskWrapper implements Serializable {
 
         for (Map.Entry<String, List<SearchClause>> entry : getFilterClauses().entrySet()) {
             if (!entry.getValue().isEmpty()) {
-                AbstractFiqlSearchConditionBuilder bld;
+                AbstractFiqlSearchConditionBuilder<?, ?, ?> bld;
                 switch (entry.getKey()) {
                     case "USER":
                         bld = SyncopeClient.getUserSearchConditionBuilder();

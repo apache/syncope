@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +145,7 @@ public class Groups extends AbstractGroups {
                 @Override
                 public List<MembershipTO> execute(final String filter) {
                     return StringUtils.isEmpty(filter)
-                            ? Collections.emptyList()
+                            ? List.of()
                             : ("*".equals(filter)
                                     ? groupsModel.getObject()
                                     : groupRestClient.search(
@@ -172,11 +171,8 @@ public class Groups extends AbstractGroups {
                     return Groups.this.groupsModel.getDynMemberships();
                 }
 
-            }, new ListModel<>(groupsModel.getObject().stream()
-                            .map(GroupTO::getName).collect(Collectors.toList()))).
+            }, new ListModel<>(groupsModel.getObject().stream().map(GroupTO::getName).collect(Collectors.toList()))).
                     hideLabel().setEnabled(false).setOutputMarkupId(true));
-
-            // ---------------------------------
         }
     }
 

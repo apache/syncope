@@ -75,7 +75,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
     private final List<String> excluded;
 
-    private final Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> sCondWrapper;
+    private final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper;
 
     public BeanPanel(final String id, final IModel<T> bean, final String... excluded) {
         this(id, bean, null, excluded);
@@ -84,7 +84,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
     public BeanPanel(
             final String id,
             final IModel<T> bean,
-            final Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> sCondWrapper,
+            final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
             final String... excluded) {
         super(id, bean);
         setOutputMarkupId(true);
@@ -147,8 +147,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         clauses = SearchUtils.getSearchClauses(fiql);
                     }
 
-                    final AbstractFiqlSearchConditionBuilder builder;
-
+                    final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
