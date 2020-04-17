@@ -21,10 +21,16 @@ package org.apache.syncope.client.console.panels;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.layout.AnyLayout;
+import org.apache.syncope.client.console.layout.AnyLayoutUtils;
+import org.apache.syncope.client.console.layout.LinkedAccountForm;
+import org.apache.syncope.client.console.layout.LinkedAccountFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.LinkedAccountStatusPanel;
 import org.apache.syncope.client.console.status.ReconTaskPanel;
@@ -37,6 +43,7 @@ import org.apache.syncope.client.console.wizards.any.LinkedAccountWizardBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.LinkedAccountPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -63,7 +70,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountModalPanel.class);
 
-    private final LinkedAccountWizardBuilder wizard;
+    private LinkedAccountForm wizard;
 
     private final WizardMgtPanel<LinkedAccountTO> list;
 
@@ -72,6 +79,8 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
     private ActionLinksTogglePanel<LinkedAccountTO> actionTogglePanel;
 
     private UserRestClient userRestClient = new UserRestClient();
+
+    private AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     private final List<LinkedAccountTO> linkedAccountTOs;
 
@@ -91,7 +100,18 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
         actionTogglePanel = new ActionLinksTogglePanel<>("toggle", pageRef);
         add(actionTogglePanel);
 
-        wizard = new LinkedAccountWizardBuilder(model, pageRef);
+        AnyLayout anyLayout = AnyLayoutUtils.fetch(
+                anyTypeRestClient.listAnyTypes().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo = anyLayout.getUser().getLinkedAccountFormLayoutInfo();
+
+        try {
+            wizard = linkedAccountFormLayoutInfo.getFormClass().
+                    getConstructor(model.getClass(), LinkedAccountFormLayoutInfo.class, PageReference.class).
+                    newInstance(model, linkedAccountFormLayoutInfo, pageRef);
+        } catch (Exception e) {
+            LOG.error("Error instantiating form layout", e);
+            wizard = new LinkedAccountWizardBuilder(model, linkedAccountFormLayoutInfo, pageRef);
+        }
 
         ListViewPanel.Builder<LinkedAccountTO> builder = new ListViewPanel.Builder<LinkedAccountTO>(
                 LinkedAccountTO.class, pageRef) {
