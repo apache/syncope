@@ -230,7 +230,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                             status.setMatchType(MatchType.LINKED_ACCOUNT);
                             status.setAnyTypeKind(AnyTypeKind.USER);
                             status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
-                            status.setRealm(match.getAny().getRealm().getFullPath());
+                            status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
                             status.setOnSyncope(getOnSyncope(match.getLinkedAccount(), connObjectKeyItem, provision));
                         }
                     });
