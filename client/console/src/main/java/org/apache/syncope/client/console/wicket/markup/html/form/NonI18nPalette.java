@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.Map;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -43,17 +43,17 @@ public class NonI18nPalette<T> extends Palette<T> {
         return false;
     }
 
+    protected Map<String, String> getAdditionalAttributes(final Object choice) {
+        return Collections.singletonMap("title", choice.toString());
+    }
+
     @Override
     protected Map<String, String> getAdditionalAttributesForChoices(final Object choice) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("title", choice.toString());
-        return map;
+        return getAdditionalAttributes(choice);
     }
 
     @Override
     protected Map<String, String> getAdditionalAttributesForSelection(final Object choice) {
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("title", choice.toString());
-        return map;
+        return getAdditionalAttributes(choice);
     }
 }

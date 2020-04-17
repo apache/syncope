@@ -160,7 +160,6 @@ public class Groups extends AbstractGroups {
 
             }, new ListModel<>(groupsModel.getObject().stream().map(GroupTO::getName).collect(Collectors.toList()))).
                     hideLabel().setEnabled(false).setOutputMarkupId(true));
-
         }
     }
 

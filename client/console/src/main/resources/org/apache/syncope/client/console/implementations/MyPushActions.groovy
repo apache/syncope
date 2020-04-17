@@ -20,9 +20,9 @@
 import groovy.transform.CompileStatic
 import java.util.Collections
 import java.util.Set
+import org.apache.syncope.common.lib.to.ProvisioningReport
 import org.apache.syncope.core.persistence.api.entity.Entity
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions
 import org.quartz.JobExecutionException
 

@@ -30,7 +30,7 @@ public class AnyLayout implements Serializable {
     private static final long serialVersionUID = 488645029994410970L;
 
     private String anyPanelClass = AnyPanel.class.getName();
-    
+
     @JsonProperty("USER")
     private UserFormLayoutInfo user;
 
