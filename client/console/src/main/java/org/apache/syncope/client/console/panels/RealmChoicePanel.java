@@ -102,7 +102,7 @@ public class RealmChoicePanel extends Panel {
         this.pageRef = pageRef;
         availableRealms = SyncopeConsoleSession.get().getVisibleRealms();
         tree = new HashMap<>();
-        isSearchEnabled = RealmsUtils.isSearchEnabled();
+        isSearchEnabled = RealmsUtils.isSearchEnabled(SyncopeConsoleSession.get().getVisibleRealms());
 
         realmTree = new LoadableDetachableModel<List<Pair<String, RealmTO>>>() {
 

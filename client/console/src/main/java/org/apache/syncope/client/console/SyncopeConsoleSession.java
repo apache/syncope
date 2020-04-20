@@ -283,15 +283,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
     }
 
-    public Set<String> getVisibleRealms() {
+    public List<String> getVisibleRealms() {
         Set<String> roots = auth.get(StandardEntitlement.REALM_LIST);
         return roots.isEmpty()
-                ? Collections.emptySet()
-                : roots.stream().sorted().collect(Collectors.toSet());
+                ? Collections.emptyList()
+                : roots.stream().sorted().collect(Collectors.toList());
     }
 
     public Optional<String> getRootRealm() {
-        Set<String> roots = getVisibleRealms();
+        List<String> roots = getVisibleRealms();
         if (roots.isEmpty()) {
             return Optional.empty();
         }
