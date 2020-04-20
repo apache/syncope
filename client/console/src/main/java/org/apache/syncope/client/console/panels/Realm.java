@@ -108,7 +108,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             public Panel getPanel(final String panelId) {
                 final ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
 
-                if (realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)) {
+                if (StringUtils.isNotBlank(realmTO.getFullPath()) 
+                        && realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)) {
 
                     actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 

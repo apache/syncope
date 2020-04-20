@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -280,6 +281,21 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public List<String> getAuthRealms() {
         return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
+    }
+
+    public Set<String> getVisibleRealms() {
+        Set<String> roots = auth.get(StandardEntitlement.REALM_LIST);
+        return roots.isEmpty()
+                ? Collections.emptySet()
+                : roots.stream().sorted().collect(Collectors.toSet());
+    }
+
+    public Optional<String> getRootRealm() {
+        Set<String> roots = getVisibleRealms();
+        if (roots.isEmpty()) {
+            return Optional.empty();
+        }
+        return roots.stream().findFirst();
     }
 
     public boolean owns(final String entitlements, final String... realms) {
