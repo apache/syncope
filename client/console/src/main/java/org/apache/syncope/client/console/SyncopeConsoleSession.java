@@ -283,7 +283,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
     }
 
-    public List<String> getVisibleRealms() {
+    public List<String> getSearchableRealms() {
         Set<String> roots = auth.get(StandardEntitlement.REALM_LIST);
         return roots.isEmpty()
                 ? Collections.emptyList()
@@ -291,11 +291,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public Optional<String> getRootRealm() {
-        List<String> roots = getVisibleRealms();
-        if (roots.isEmpty()) {
-            return Optional.empty();
-        }
-        return roots.stream().findFirst();
+        List<String> roots = getSearchableRealms();
+        return roots.isEmpty() ? Optional.empty() : roots.stream().findFirst();
     }
 
     public boolean owns(final String entitlements, final String... realms) {

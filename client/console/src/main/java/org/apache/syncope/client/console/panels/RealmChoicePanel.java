@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -100,9 +99,9 @@ public class RealmChoicePanel extends Panel {
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
-        availableRealms = SyncopeConsoleSession.get().getVisibleRealms();
+        availableRealms = SyncopeConsoleSession.get().getSearchableRealms();
         tree = new HashMap<>();
-        isSearchEnabled = RealmsUtils.isSearchEnabled(SyncopeConsoleSession.get().getVisibleRealms());
+        isSearchEnabled = RealmsUtils.isSearchEnabled(SyncopeConsoleSession.get().getSearchableRealms());
 
         realmTree = new LoadableDetachableModel<List<Pair<String, RealmTO>>>() {
 
@@ -162,15 +161,21 @@ public class RealmChoicePanel extends Panel {
             }
         };
 
-        RealmTO realmTO = new RealmTO();
-        Optional<String> rootRealm = SyncopeConsoleSession.get().getRootRealm();
-        if (rootRealm.isPresent()) {
+        RealmTO realmTO = SyncopeConsoleSession.get().getRootRealm().map(rootRealm -> {
+            String rootRealmName = StringUtils.substringAfterLast(rootRealm, "/");
+
             List<RealmTO> realmTOs = realmRestClient.search(
                     RealmsUtils.buildQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
-                            ? SyncopeConstants.ROOT_REALM
-                            : StringUtils.substringAfterLast(rootRealm.get(), "/"))).getResult();
-            realmTO = realmTOs.stream().filter(realm -> rootRealm.get().equals(realm.getFullPath())).findFirst().get();
-        }
+                            ? SyncopeConstants.ROOT_REALM : rootRealmName)).getResult();
+
+            return realmTOs.stream().filter(realm -> rootRealm.equals(realm.getFullPath())).findFirst().
+                    orElseGet(() -> {
+                        RealmTO placeholder = new RealmTO();
+                        placeholder.setName(rootRealmName);
+                        placeholder.setFullPath(rootRealm);
+                        return placeholder;
+                    });
+        }).orElseGet(() -> new RealmTO());
 
         model = Model.of(realmTO);
         searchQuery = realmTO.getName();
@@ -186,8 +191,7 @@ public class RealmChoicePanel extends Panel {
 
         container.addOrReplace(realmLabel);
 
-        if (StringUtils.isBlank(model.getObject().getFullPath())
-                || model.getObject().getFullPath().startsWith(SyncopeConstants.ROOT_REALM))  {
+        if (StringUtils.startsWith(model.getObject().getFullPath(), SyncopeConstants.ROOT_REALM)) {
             realmLabel.setDefaultModel(new ResourceModel("realmLabel", "Realm"));
         } else {
             realmLabel.setDefaultModel(new ResourceModel("dynRealmLabel", "Dynamic Realm"));
