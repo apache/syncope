@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import static org.apache.syncope.core.logic.AbstractLogic.LOG;
-
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
@@ -60,7 +59,8 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
         return binder.getAuthModuleTO(authModuleDAO.save(binder.update(authModule, authModuleTO)));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_LIST + "')")
+    @PreAuthorize("isAnonymous() or hasRole('" + AMEntitlement.AUTH_MODULE_LIST
+        + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<AuthModuleTO> list() {
         return authModuleDAO.findAll().stream().
