@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
     /**
      * Password field/column name to retrieve.
      */
-    private String fieldPassword;
+    private String fieldPassword = "password";
 
     /**
      * Boolean field that should indicate whether the account is expired.
@@ -51,6 +52,35 @@ public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
      * Boolean field that should indicate whether the account is disabled.
      */
     private String fieldDisabled;
+
+    /**
+     * The database dialect is a configuration setting for platform independent software (JPA, Hibernate, etc)
+     * which allows such software to translate its generic SQL statements into vendor specific DDL, DML.
+     */
+    private String dialect = "org.hibernate.dialect.H2Dialect";
+
+    /**
+     * The JDBC driver used to connect to the database.
+     */
+    private String driverClass = "org.h2.Driver";
+
+    /**
+     * The database connection URL.
+     */
+    private String url = "jdbc:h2:tcp://localhost:9092/mem:authdb;DB_CLOSE_DELAY=-1";
+    
+    /**
+     * The database user.
+     * <p>
+     * The database user must have sufficient permissions to be able to handle
+     * schema changes and updates, when needed.
+     */
+    private String user = "sa";
+
+    /**
+     * The database connection password.
+     */
+    private String password = "sa";
 
     /**
      * List of column names to fetch as user attributes.
@@ -96,4 +126,43 @@ public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
         return principalAttributeList;
     }
 
+    public String getDialect() {
+        return dialect;
+    }
+
+    public void setDialect(final String dialect) {
+        this.dialect = dialect;
+    }
+
+    public String getDriverClass() {
+        return driverClass;
+    }
+
+    public void setDriverClass(final String driverClass) {
+        this.driverClass = driverClass;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(final String url) {
+        this.url = url;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(final String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
 }

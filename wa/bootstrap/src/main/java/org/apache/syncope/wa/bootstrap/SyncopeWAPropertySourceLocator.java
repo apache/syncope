@@ -104,7 +104,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         ldapProps.setPrincipalAttributeId(ldapConf.getUserIdAttribute());
         ldapProps.setLdapUrl(ldapConf.getLdapUrl());
         ldapProps.setSubtreeSearch(ldapConf.isSubtreeSearch());
-
+        ldapProps.setPrincipalAttributeList(ldapConf.getPrincipalAttributeList());
         casProperties.getAuthn().getLdap().add(ldapProps);
     }
 
@@ -158,6 +158,11 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setFieldDisabled(conf.getFieldDisabled());
         props.setFieldExpired(conf.getFieldExpired());
         props.setFieldPassword(conf.getFieldPassword());
+        props.setDialect(conf.getDialect());
+        props.setDriverClass(conf.getDriverClass());
+        props.setPassword(conf.getPassword());
+        props.setUrl(conf.getUrl());
+        props.setUser(conf.getUser());
         props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
         casProperties.getAuthn().getJdbc().getQuery().add(props);
     }

@@ -59,8 +59,7 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
         return binder.getAuthModuleTO(authModuleDAO.save(binder.update(authModule, authModuleTO)));
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + AMEntitlement.AUTH_MODULE_LIST
-        + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<AuthModuleTO> list() {
         return authModuleDAO.findAll().stream().
