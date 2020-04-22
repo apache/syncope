@@ -23,7 +23,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -104,18 +103,17 @@ public abstract class ConnObjectListViewPanel extends Panel {
         final Model<Integer> model = Model.of(-1);
         final StringResourceModel res = new StringResourceModel("search.result", this, new Model<>(anyType));
 
-        final Accordion accordion = new Accordion("accordionPanel",
-                Collections.<ITab>singletonList(new AbstractTab(res) {
+        final Accordion accordion = new Accordion("accordionPanel", List.of(new AbstractTab(res) {
 
-                    private static final long serialVersionUID = 1037272333056449377L;
+            private static final long serialVersionUID = 1037272333056449377L;
 
-                    @Override
-                    public WebMarkupContainer getPanel(final String panelId) {
-                        searchPanel = getSearchPanel(panelId, anyType);
-                        return searchPanel;
-                    }
+            @Override
+            public WebMarkupContainer getPanel(final String panelId) {
+                searchPanel = getSearchPanel(panelId, anyType);
+                return searchPanel;
+            }
 
-                }), model) {
+        }), model) {
 
             private static final long serialVersionUID = 6581261306163L;
 
@@ -217,15 +215,17 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
                     String connObjectKeyValue = modelObject.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);
-                    String anyKey = ReconciliationRestClient.status(new ReconQuery.Builder(anyType, resource.getKey()).
-                            connObjectKeyValue(connObjectKeyValue).build()).getAnyKey();
+                    ReconStatus status = ReconciliationRestClient.status(
+                            new ReconQuery.Builder(anyType, resource.getKey()).
+                                    connObjectKeyValue(connObjectKeyValue).build());
 
                     pullConnObject(
                             connObjectKeyValue,
                             target,
                             resource.getKey(),
                             anyType,
-                            StringUtils.isNotBlank(anyKey),
+                            status.getRealm(),
+                            StringUtils.isNotBlank(status.getAnyKey()),
                             pageRef);
                 }
             }, ActionLink.ActionType.RECONCILIATION_PULL, IdRepoEntitlement.TASK_EXECUTE);
@@ -276,6 +276,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             AjaxRequestTarget target,
             String resource,
             String anyType,
+            String realm,
             boolean isOnSyncope,
             PageReference pageRef);
 

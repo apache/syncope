@@ -18,11 +18,11 @@
   <wicket:panel>
     <input type="hidden" wicket:id="recorder"/>
     <div class="col-md-5">
-      <div class="form-group">
+      <div class="form-group" style="overflow-x:auto;">
         <label>
           <span wicket:id="availableHeader">[available header]</span>
         </label>
-        <select class="form-control" style="min-width: 100px;" wicket:id="choices">[choices]</select>
+        <select class="form-control palette-scrollbar" wicket:id="choices">[choices]</select>
       </div>
     </div>
     <div style="width: 20px; float: left; padding-top: 30px; text-align: center">
@@ -46,11 +46,11 @@
       </div>          
     </div>
     <div class="col-md-5">
-      <div class="form-group">
+      <div class="form-group" style="overflow-x:auto;">
         <label>
           <span wicket:id="selectedHeader">[selected header]</span>
         </label>
-        <select class="form-control" style="min-width: 100px;" wicket:id="selection">[selection]</select>	
+        <select class="form-control palette-scrollbar" wicket:id="selection">[selection]</select>
       </div>
     </div>
   </wicket:panel>

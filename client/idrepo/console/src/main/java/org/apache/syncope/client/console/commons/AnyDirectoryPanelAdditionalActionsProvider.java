@@ -29,6 +29,7 @@ public interface AnyDirectoryPanelAdditionalActionsProvider extends Serializable
 
     void add(AnyDirectoryPanel<?, ?> panel,
             BaseModal<?> modal,
+            boolean wizardInModal,
             WebMarkupContainer container,
             String type,
             String realm,

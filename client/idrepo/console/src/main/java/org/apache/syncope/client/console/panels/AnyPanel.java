@@ -88,7 +88,7 @@ public class AnyPanel extends Panel implements ModalPanel {
 
                 final String realm;
                 final String dynRealm;
-                if (realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)) {
+                if (StringUtils.startsWith(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM)) {
                     realm = realmTO.getFullPath();
                     dynRealm = null;
                 } else {

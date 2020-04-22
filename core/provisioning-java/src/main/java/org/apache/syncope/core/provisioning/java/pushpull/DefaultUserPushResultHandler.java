@@ -372,7 +372,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 null);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.ofNullable(null));
+            taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
             taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
             reportPropagation(result, reporter);
@@ -399,7 +399,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                         propByLinkedAccount,
                         ""));
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.ofNullable(null));
+            taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
             taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
             reportPropagation(result, reporter);

@@ -61,5 +61,4 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
     public void setRelationships(final boolean relationships) {
         this.relationships = relationships;
     }
-
 }

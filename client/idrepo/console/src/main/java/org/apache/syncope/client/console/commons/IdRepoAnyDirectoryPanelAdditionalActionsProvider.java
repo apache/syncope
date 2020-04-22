@@ -34,6 +34,7 @@ public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDire
     public void add(
             final AnyDirectoryPanel<?, ?> panel,
             final BaseModal<?> modal,
+            final boolean wizardInModal,
             final WebMarkupContainer container,
             final String type,
             final String realm,

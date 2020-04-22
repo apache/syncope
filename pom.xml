@@ -1324,7 +1324,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.12</version>
+        <version>1.5.13</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -2220,7 +2220,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.8</version>
+          <version>3.0.0</version>
         </plugin>
 
         <plugin>

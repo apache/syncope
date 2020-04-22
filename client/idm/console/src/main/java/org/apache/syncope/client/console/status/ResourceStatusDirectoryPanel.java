@@ -240,7 +240,7 @@ public class ResourceStatusDirectoryPanel
                 fiql = null;
                 restClient = null;
             } else {
-                AbstractFiqlSearchConditionBuilder bld;
+                AbstractFiqlSearchConditionBuilder<?, ?, ?> bld;
                 switch (type) {
                     case "USER":
                         bld = SyncopeClient.getUserSearchConditionBuilder();

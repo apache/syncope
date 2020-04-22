@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.layout.LinkedAccountForm;
+import org.apache.syncope.client.console.layout.LinkedAccountFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -40,7 +42,7 @@ import org.apache.wicket.model.IModel;
 /**
  * Accounts wizard builder.
  */
-public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAccountTO> {
+public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAccountTO> implements LinkedAccountForm {
 
     private static final long serialVersionUID = -9142332740863374891L;
 
@@ -48,9 +50,15 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
 
     private final IModel<UserTO> model;
 
-    public LinkedAccountWizardBuilder(final IModel<UserTO> model, final PageReference pageRef) {
+    protected LinkedAccountFormLayoutInfo formLayoutInfo;
+
+    public LinkedAccountWizardBuilder(
+            final IModel<UserTO> model,
+            final LinkedAccountFormLayoutInfo formLayoutInfo,
+            final PageReference pageRef) {
         super(new LinkedAccountTO(), pageRef);
         this.model = model;
+        this.formLayoutInfo = formLayoutInfo;
     }
 
     @Override
@@ -61,9 +69,20 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
     @Override
     protected WizardModel buildModelSteps(final LinkedAccountTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new LinkedAccountDetailsPanel(modelObject));
-        wizardModel.add(new LinkedAccountCredentialsPanel(new EntityWrapper<>(modelObject)));
-        wizardModel.add(new LinkedAccountPlainAttrsPanel(new EntityWrapper<>(modelObject), model.getObject()));
-        wizardModel.add(new LinkedAccountPrivilegesPanel(modelObject));
+        if (formLayoutInfo.isCredentials()) {
+            wizardModel.add(new LinkedAccountCredentialsPanel(
+                    new EntityWrapper<>(modelObject), formLayoutInfo.getWhichCredentials()));
+        }
+
+        if (formLayoutInfo.isPlainAttrs()) {
+            wizardModel.add(new LinkedAccountPlainAttrsPanel(
+                    new EntityWrapper<>(modelObject), model.getObject(), formLayoutInfo.getWhichPlainAttrs()));
+        }
+
+        if (formLayoutInfo.isPrivileges()) {
+            wizardModel.add(new LinkedAccountPrivilegesPanel(modelObject));
+        }
+
         return wizardModel;
     }
 

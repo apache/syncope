@@ -253,6 +253,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
     }
 
+    public List<String> getSearchableRealms() {
+        Set<String> roots = auth.get(IdRepoEntitlement.REALM_LIST);
+        return roots.isEmpty()
+                ? Collections.emptyList()
+                : roots.stream().sorted().collect(Collectors.toList());
+    }
+
+    public Optional<String> getRootRealm() {
+        List<String> roots = getSearchableRealms();
+        return roots.isEmpty() ? Optional.empty() : roots.stream().findFirst();
+    }
+
     public boolean owns(final String entitlements, final String... realms) {
         if (StringUtils.isEmpty(entitlements)) {
             return true;

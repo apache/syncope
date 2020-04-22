@@ -40,7 +40,7 @@ public class ReportletWrapper implements Serializable {
 
     private ReportletConf conf;
 
-    private final Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> scondWrapper;
+    private final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> scondWrapper;
 
     public ReportletWrapper(final boolean isNew) {
         this.isNew = isNew;
@@ -78,7 +78,7 @@ public class ReportletWrapper implements Serializable {
         return this;
     }
 
-    public Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> getSCondWrapper() {
+    public Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> getSCondWrapper() {
         return scondWrapper;
     }
 }

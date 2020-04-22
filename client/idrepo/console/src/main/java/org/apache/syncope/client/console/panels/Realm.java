@@ -108,8 +108,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             public Panel getPanel(final String panelId) {
                 final ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
 
-                if (realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)) {
-
+                if (StringUtils.startsWith(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM)) {
                     actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379827L;

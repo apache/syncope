@@ -225,11 +225,13 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                             status.setMatchType(MatchType.ANY);
                             status.setAnyTypeKind(match.getAny().getType().getKind());
                             status.setAnyKey(match.getAny().getKey());
+                            status.setRealm(match.getAny().getRealm().getFullPath());
                             status.setOnSyncope(getOnSyncope(match.getAny(), connObjectKeyItem, provision));
                         } else if (match.getLinkedAccount() != null) {
                             status.setMatchType(MatchType.LINKED_ACCOUNT);
                             status.setAnyTypeKind(AnyTypeKind.USER);
                             status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
+                            status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
                             status.setOnSyncope(getOnSyncope(match.getLinkedAccount(), connObjectKeyItem, provision));
                         }
                     });
@@ -254,6 +256,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             status.setMatchType(MatchType.ANY);
             status.setAnyTypeKind(any.getType().getKind());
             status.setAnyKey(any.getKey());
+            status.setRealm(any.getRealm().getFullPath());
             status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
             List<ConnectorObject> connObjs = outboundMatcher.match(
