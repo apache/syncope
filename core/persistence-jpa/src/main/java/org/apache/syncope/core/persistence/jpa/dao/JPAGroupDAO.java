@@ -102,8 +102,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public String findKey(final String username) {
-        return findKey(username, JPAGroup.TABLE);
+    public String findKey(final String name) {
+        return findKey(name, JPAGroup.TABLE);
     }
 
     @Transactional(readOnly = true)
