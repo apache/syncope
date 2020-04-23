@@ -456,7 +456,7 @@ under the License.
 
     <swagger-core.version>2.1.2</swagger-core.version>
     <swagger-ui.version>3.25.0</swagger-ui.version>
-    <guava.version>28.2-jre</guava.version>
+    <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
     <jquery-ui.version>1.12.1</jquery-ui.version>
