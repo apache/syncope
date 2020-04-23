@@ -1208,17 +1208,11 @@ under the License.
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+          </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-i18n</artifactId>
-        <version>1.10</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-constants</artifactId>
-        <version>1.10</version>
       </dependency>
 
       <!-- Flowable -->
