@@ -21,49 +21,33 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.springframework.stereotype.Component;
+import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 
-@Component
 public class RegisteredServiceMapper {
 
     protected final Map<String, AuthMapper> authPolicyConfMappers;
 
-    protected final Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers;
-
     protected final Map<String, AccessMapper> accessPolicyConfMappers;
-
-    protected final Map<String, AccessMapper> registeredServiceAccessStrategyMappers;
 
     protected final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers;
 
-    protected final Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers;
-
     protected final Map<String, ClientAppMapper> clientAppTOMappers;
-
-    protected final Map<String, ClientAppMapper> registeredServiceMappers;
 
     public RegisteredServiceMapper(
             final Map<String, AuthMapper> authPolicyConfMappers,
-            final Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
-            final Map<String, AccessMapper> registeredServiceAccessStrategyMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
-            final Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers,
-            final Map<String, ClientAppMapper> clientAppTOMappers,
-            final Map<String, ClientAppMapper> registeredServiceMappers) {
+            final Map<String, ClientAppMapper> clientAppTOMappers) {
 
         this.authPolicyConfMappers = authPolicyConfMappers;
-        this.registeredServiceAuthenticationPolicyMappers = registeredServiceAuthenticationPolicyMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
-        this.registeredServiceAccessStrategyMappers = registeredServiceAccessStrategyMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
-        this.registeredServiceAttributeReleasePolicyMappers = registeredServiceAttributeReleasePolicyMappers;
         this.clientAppTOMappers = clientAppTOMappers;
-        this.registeredServiceMappers = registeredServiceMappers;
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
@@ -84,11 +68,15 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
-        if (clientApp.getAttrReleasePolicyConf() != null) {
+        if (!clientApp.getReleaseAttributes().isEmpty()) {
+            attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttributes());
+        } else if (clientApp.getAttrReleasePolicyConf() != null) {
             AttrReleaseMapper attrReleasePolicyConfMapper =
                     attrReleasePolicyConfMappers.get(clientApp.getAttrReleasePolicyConf().getClass().getName());
             attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
                     map(mapper -> mapper.build(clientApp.getAttrReleasePolicyConf())).orElse(null);
+        } else {
+            attributeReleasePolicy = new DenyAllAttributeReleasePolicy();
         }
 
         ClientAppMapper clientAppMapper = clientAppTOMappers.get(clientApp.getClientAppTO().getClass().getName());
@@ -96,36 +84,5 @@ public class RegisteredServiceMapper {
             return null;
         }
         return clientAppMapper.build(clientApp.getClientAppTO(), authPolicy, accessStrategy, attributeReleasePolicy);
-    }
-
-    public WAClientApp fromRegisteredService(final RegisteredService service) {
-        WAClientApp clientApp = new WAClientApp();
-
-        if (service.getAuthenticationPolicy() != null) {
-            AuthMapper authMapper = registeredServiceAuthenticationPolicyMappers.get(
-                    service.getAuthenticationPolicy().getClass().getName());
-            clientApp.setAuthPolicyConf(Optional.ofNullable(authMapper).
-                    map(mapper -> mapper.build(service.getAuthenticationPolicy())).orElse(null));
-        }
-
-        if (service.getAccessStrategy() != null) {
-            AccessMapper accessPolicyConfMapper = registeredServiceAccessStrategyMappers.get(
-                    service.getAccessStrategy().getClass().getName());
-            clientApp.setAccessPolicyConf(Optional.ofNullable(accessPolicyConfMapper).
-                    map(mapper -> mapper.build(service.getAccessStrategy())).orElse(null));
-        }
-
-        if (service.getAttributeReleasePolicy() != null) {
-            AttrReleaseMapper attrReleasePolicyConfMapper = registeredServiceAttributeReleasePolicyMappers.get(
-                    service.getAttributeReleasePolicy().getClass().getName());
-            clientApp.setAttrReleasePolicyConf(Optional.ofNullable(attrReleasePolicyConfMapper).
-                    map(mapper -> mapper.build(service.getAttributeReleasePolicy())).orElse(null));
-        }
-
-        ClientAppMapper clientAppMapper = registeredServiceMappers.get(service.getClass().getName());
-        clientApp.setClientAppTO(Optional.ofNullable(clientAppMapper).
-                map(mapper -> mapper.buid(service)).orElse(null));
-
-        return clientApp;
     }
 }

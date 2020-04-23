@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -66,6 +67,11 @@ import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -78,11 +84,13 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -132,6 +140,7 @@ import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataConfService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
@@ -813,5 +822,42 @@ public abstract class AbstractITCase {
             }
         }
         return (T) getObject(response.getLocation(), ClientAppService.class, clientAppTO.getClass());
+    }
+
+    protected static AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
+        AuthPolicyTO policy = new AuthPolicyTO();
+        policy.setDescription("Test Authentication policy");
+
+        DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
+        conf.setName("TestAuthConf");
+        conf.getAuthModules().add(authModuleKey);
+        policy.setConf(conf);
+
+        return policy;
+    }
+
+    protected static AttrReleasePolicyTO buildAttributeReleasePolicyTO(final String policyName) {
+        AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
+        policy.setDescription("Test Attribute Release policy");
+
+        AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
+        conf.setName("MyDefaultAttrReleasePolicyConf");
+        conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
+        policy.setConf(conf);
+
+        return policy;
+    }
+
+    protected static AccessPolicyTO buildAccessPolicyTO() {
+        AccessPolicyTO policy = new AccessPolicyTO();
+        policy.setDescription("Test Access policy");
+
+        DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
+        conf.setEnabled(true);
+        conf.setName("TestAccessPolicyConf");
+        conf.getRequiredAttrs().put("cn", Set.of("admin", "Admin", "TheAdmin"));
+        policy.setConf(conf);
+
+        return policy;
     }
 }

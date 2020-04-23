@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.data.wa;
 
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.slf4j.Logger;
@@ -35,15 +39,21 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
     @Autowired
     private ClientAppDataBinder clientAppDataBinder;
 
+    @Autowired
+    private AuthModuleDAO authModuleDAO;
+
     @Override
     public WAClientApp getWAClientApp(final ClientApp clientApp) {
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(clientAppDataBinder.getClientAppTO(clientApp));
 
         try {
+            AuthPolicyConf authPolicyConf = null;
             if (clientApp.getAuthPolicy() != null) {
+                authPolicyConf = clientApp.getAuthPolicy().getConf();
                 waClientApp.setAuthPolicyConf((clientApp.getAuthPolicy()).getConf());
             } else if (clientApp.getRealm().getAuthPolicy() != null) {
+                authPolicyConf = clientApp.getAuthPolicy().getConf();
                 waClientApp.setAuthPolicyConf((clientApp.getRealm().getAuthPolicy()).getConf());
             }
 
@@ -57,6 +67,26 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
                 waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
             } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
                 waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
+            }
+
+            if (authPolicyConf != null && authPolicyConf instanceof DefaultAuthPolicyConf
+                    && !((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().isEmpty()) {
+                ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(authModuleKey -> {
+                    AuthModule authModule = authModuleDAO.find(authModuleKey);
+                    if (authModule == null) {
+                        LOG.warn("AuthModule " + authModuleKey + " not found");
+                    } else {
+                        authModule.getItems().forEach(item -> waClientApp.getReleaseAttributes().put(
+                                item.getExtAttrName(), item.getIntAttrName()));
+                    }
+                });
+            }
+            if (waClientApp.getReleaseAttributes().isEmpty()) {
+                if (clientApp.getAttrReleasePolicy() != null) {
+                    waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
+                } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
+                    waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
+                }
             }
         } catch (Exception e) {
             LOG.error("While building the configuration from an application's policy ", e);

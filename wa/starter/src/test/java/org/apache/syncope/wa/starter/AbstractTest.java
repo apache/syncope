@@ -16,17 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter.mapping;
+package org.apache.syncope.wa.starter;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import java.util.UUID;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.ContextConfiguration;
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ClientAppMapFor {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
+    "cas.authn.accept.users=mrossi::password",
+    "cas.sso.allow-missing-service-parameter=true"
+})
+@ContextConfiguration(initializers = ZookeeperTestingServer.class)
+public abstract class AbstractTest {
 
-    Class<? extends ClientAppTO> clientAppClass();
+    @LocalServerPort
+    protected int port;
+
+    protected static String getUUIDString() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
 }

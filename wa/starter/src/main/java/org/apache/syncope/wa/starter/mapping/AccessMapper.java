@@ -24,6 +24,4 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 public interface AccessMapper {
 
     RegisteredServiceAccessStrategy build(AccessPolicyConf conf);
-
-    AccessPolicyConf build(RegisteredServiceAccessStrategy strategy);
 }

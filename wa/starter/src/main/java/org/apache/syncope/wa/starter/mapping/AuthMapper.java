@@ -24,6 +24,4 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 public interface AuthMapper {
 
     RegisteredServiceAuthenticationPolicy build(AuthPolicyConf conf);
-
-    AuthPolicyConf build(RegisteredServiceAuthenticationPolicy policy);
 }

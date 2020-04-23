@@ -25,9 +25,7 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.springframework.stereotype.Component;
 
-@AttrReleaseMapFor(
-        attrReleasePolicyConfClass = AllowedAttrReleasePolicyConf.class,
-        registeredServiceAttributeReleasePolicyClass = ReturnAllowedAttributeReleasePolicy.class)
+@AttrReleaseMapFor(attrReleasePolicyConfClass = AllowedAttrReleasePolicyConf.class)
 @Component
 public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
 
@@ -45,10 +43,4 @@ public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
         return attributeReleasePolicy;
     }
 
-    @Override
-    public AttrReleasePolicyConf build(final RegisteredServiceAttributeReleasePolicy policy) {
-        AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
-        conf.getAllowedAttrs().addAll(((ReturnAllowedAttributeReleasePolicy) policy).getAllowedAttributes());
-        return conf;
-    }
 }
