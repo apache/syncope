@@ -488,7 +488,7 @@ public class MappingManagerImpl implements MappingManager {
     protected String getPasswordAttrValue(final Provision provision, final Account account, final String defaultValue) {
         String passwordAttrValue;
         if (account instanceof LinkedAccount) {
-            if (((LinkedAccount) account).getPassword() != null) {
+            if (account.getPassword() != null) {
                 passwordAttrValue = decodePassword(account);
             } else {
                 passwordAttrValue = defaultValue;
