@@ -270,7 +270,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     }
 
     private Provision getProvision(final String resourceKey, final String anyTypeKey) {
-        ExternalResource resource = resourceDAO.authFind(resourceKey);
+        ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + '\'');
         }
@@ -384,7 +384,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
-            resource = resourceDAO.authFind(key);
+            resource = resourceDAO.find(key);
             if (resource == null) {
                 throw new NotFoundException("Resource '" + key + '\'');
             }
