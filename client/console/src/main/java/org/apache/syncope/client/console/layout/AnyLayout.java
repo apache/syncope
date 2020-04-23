@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.layout;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -66,5 +67,10 @@ public class AnyLayout implements Serializable {
     @JsonAnyGetter
     public Map<String, AnyObjectFormLayoutInfo> getAnyObjects() {
         return anyObjects;
+    }
+
+    @JsonAnySetter
+    public void setAnyObjects(final String anyType, final AnyObjectFormLayoutInfo layoutInfo) {
+        anyObjects.put(anyType, layoutInfo);
     }
 }
