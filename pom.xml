@@ -1212,7 +1212,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>1.24</version>
+        <version>1.24.1</version>
       </dependency>
 
       <dependency>
