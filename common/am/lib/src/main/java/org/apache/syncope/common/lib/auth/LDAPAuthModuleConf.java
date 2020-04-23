@@ -18,8 +18,15 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement(name = "ldapAuthModuleConf")
 @XmlType
@@ -66,6 +73,11 @@ public class LDAPAuthModuleConf extends AbstractAuthModuleConf {
     private String bindCredential;
 
     private String baseDn;
+
+    /**
+     * List of attribute names to fetch as user attributes.
+     */
+    private final List<String> principalAttributeList = new ArrayList<>();
 
     public String getSearchFilter() {
         return searchFilter;
@@ -123,4 +135,10 @@ public class LDAPAuthModuleConf extends AbstractAuthModuleConf {
         this.baseDn = baseDn;
     }
 
+    @XmlElementWrapper(name = "principalAttributeList")
+    @XmlElement(name = "principalAttributeList")
+    @JsonProperty("principalAttributeList")
+    public List<String> getPrincipalAttributeList() {
+        return principalAttributeList;
+    }
 }
