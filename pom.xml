@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.3.6</cxf.version>
 
-    <jackson.version>2.11.0.rc1</jackson.version>
+    <jackson.version>2.11.0</jackson.version>
 
     <spring.version>5.2.5.RELEASE</spring.version>
     <spring-security.version>5.3.1.RELEASE</spring-security.version>
@@ -414,7 +414,7 @@ under the License.
     <spring-cloud-gateway.version>2.2.2.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.1</openjpa.version>
-    <hikaricp.version>3.4.2</hikaricp.version>
+    <hikaricp.version>3.4.3</hikaricp.version>
     <bval.version>2.0.3</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
