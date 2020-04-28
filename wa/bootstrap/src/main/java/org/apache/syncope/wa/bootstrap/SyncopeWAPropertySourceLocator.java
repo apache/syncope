@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.bootstrap;
 
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -62,6 +61,7 @@ import java.util.stream.Collectors;
 
 @Order
 public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
+
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWABootstrapConfiguration.class);
 
     private final WARestClient waRestClient;

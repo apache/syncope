@@ -54,6 +54,12 @@ public final class AMEntitlement {
 
     public static final String AUTH_MODULE_DELETE = "AUTH_MODULE_DELETE";
 
+    public static final String SAML2_IDP_METADATA_CREATE = "SAML2_IDP_METADATA_CREATE";
+
+    public static final String SAML2_IDP_METADATA_UPDATE = "SAML2_IDP_METADATA_UPDATE";
+
+    public static final String SAML2_IDP_METADATA_READ = "SAML2_IDP_METADATA_READ";
+
     private static final Set<String> VALUES;
 
     static {

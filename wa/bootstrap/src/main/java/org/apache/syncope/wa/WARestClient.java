@@ -19,7 +19,6 @@
 package org.apache.syncope.wa;
 
 import org.apereo.cas.util.spring.ApplicationContextProvider;
-
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -29,7 +28,6 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
 import java.util.Collection;
 
 public class WARestClient {
@@ -45,9 +43,9 @@ public class WARestClient {
     private SyncopeClient client;
 
     public WARestClient(
-        final String anonymousUser,
-        final String anonymousKey,
-        final boolean useGZIPCompression) {
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
 
         this.anonymousUser = anonymousUser;
         this.anonymousKey = anonymousKey;
@@ -59,9 +57,9 @@ public class WARestClient {
             if (client == null && isReady()) {
                 try {
                     client = new SyncopeClientFactoryBean().
-                        setAddress(getCore().getAddress()).
-                        setUseCompression(useGZIPCompression).
-                        create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
+                            setAddress(getCore().getAddress()).
+                            setUseCompression(useGZIPCompression).
+                            create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
                 } catch (Exception e) {
                     LOG.error("Could not init SyncopeClient", e);
                 }

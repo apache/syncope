@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
@@ -155,6 +156,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPMetadata;
 
 public class JPAEntityFactory implements EntityFactory {
 
@@ -321,6 +323,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAOIDCRP();
         } else if (reference.equals(SAML2SP.class)) {
             result = (E) new JPASAML2SP();
+        } else if (reference.equals(SAML2IdPMetadata.class)) {
+            result = (E) new JPASAML2IdPMetadata();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
