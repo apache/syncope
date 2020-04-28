@@ -458,7 +458,7 @@ under the License.
     <swagger-ui.version>3.25.1</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
-    <jquery.version>3.4.1</jquery.version>
+    <jquery.version>3.5.0</jquery.version>
     <jquery-ui.version>1.12.1</jquery-ui.version>
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
