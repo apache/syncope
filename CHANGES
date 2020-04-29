@@ -2,6 +2,66 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.6
+================================================================================
+
+** Bug
+    * [SYNCOPE-1461] - MySQL: Segmentation fault with query using JSON_TABLE
+    * [SYNCOPE-1503] - Cannot remove provisioning information from Resource in Admin Console
+    * [SYNCOPE-1504] - Error setting uidOnCreate attribute during a pull task with multiple provisions
+    * [SYNCOPE-1505] - Changes to "AjaxPalettePanel" components in Console are not saved when the previous step button is pressed before submitting the wizard form
+    * [SYNCOPE-1512] - Error while saving a unique plain attribute value with single quote when using JPA JSON
+    * [SYNCOPE-1520] - Exception when updating Group unique attribute with JPA JSON
+    * [SYNCOPE-1524] - Social registration does not redirect to self registration page
+    * [SYNCOPE-1525] - Documentation indicates sharing private key, hiding public key
+    * [SYNCOPE-1526] - Broken link to issues from reference documentation
+    * [SYNCOPE-1533] - Broken backward compatibilty because of changes in Equals and HashCode methods in TOs
+    * [SYNCOPE-1536] - Enduser UI does not clean up file alteration monitors on shutdown
+    * [SYNCOPE-1537] - Password of LinkedAccounts not saved properly from Admin Console
+    * [SYNCOPE-1538] - Admin Console: users / groups management slow to access with high number of realms
+    * [SYNCOPE-1539] - AjaxPalettePanel does not support setRequired
+    * [SYNCOPE-1542] - Search panel issues in Admin Console
+    * [SYNCOPE-1544] - 'Override?' flag not properly set for password and username fields of LinkedAccounts
+    * [SYNCOPE-1546] - PriorityPropagationTaskExecutor: rejected tasks not stored
+    * [SYNCOPE-1554] - Generated default admin role layout doesn't work
+
+** New Feature
+    * [SYNCOPE-957] - Multiaccount
+    * [SYNCOPE-1506] - Merge Users
+    * [SYNCOPE-1511] - Configure audit events create/update/etc of users, groups, etc
+    * [SYNCOPE-1529] - French (CA) translation for Admin Console
+
+** Improvement
+    * [SYNCOPE-1498] - Allow variable resolution in Content.xml
+    * [SYNCOPE-1499] - Add support for READ correlation rule
+    * [SYNCOPE-1500] - Allow single import from External Resource
+    * [SYNCOPE-1501] - Allow filtering for explore resource
+    * [SYNCOPE-1502] - Find Anys using FIQL: SQL improvements
+    * [SYNCOPE-1508] - Allow to extend the set of attributes requested from External Resources
+    * [SYNCOPE-1509] - Auto-select language from Accept-Language HTTP header
+    * [SYNCOPE-1510] - Allow to store encrypted schema's secret key externally
+    * [SYNCOPE-1513] - Allow to customize security headers
+    * [SYNCOPE-1515] - Adapt realm selector to actual number of realms
+    * [SYNCOPE-1517] - Audit appender should be configurable
+    * [SYNCOPE-1518] - Allow X-Forwarded-For and X-Forwarded-Proto HTTP headers integration
+    * [SYNCOPE-1521] - Allow filtering for Role assignment
+    * [SYNCOPE-1522] - Realm behaviors for Delegated Administration
+    * [SYNCOPE-1523] - JPAConnInstanceDAO should be marked as Transactional
+    * [SYNCOPE-1527] - Allow for custom search conditions
+    * [SYNCOPE-1530] - Add parameters at User Requests start
+    * [SYNCOPE-1531] - Easier bulk upload from / download to CSV
+    * [SYNCOPE-1532] - Allow tilde for key values and Realms name
+    * [SYNCOPE-1534] - Display friendly error messages in Admin Console
+    * [SYNCOPE-1535] - Customize the order of the provisions of a resource according to the object classes
+    * [SYNCOPE-1540] - Make internal storage export DBMS independent
+    * [SYNCOPE-1541] - XML response message timestamps missing millisecs component if "0 msecs"
+    * [SYNCOPE-1547] - Allow the possibility to customize the roles to be displayed
+    * [SYNCOPE-1548] - Allow the possibility to customize the Groups wizard step
+    * [SYNCOPE-1551] - Allow for info notifications in Admin Console
+
+** Task
+    * [SYNCOPE-1514] - Report CLI deprecation
+
 Release Notes - Syncope - Version 2.1.5
 ================================================================================
 
