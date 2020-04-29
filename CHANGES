@@ -2,6 +2,22 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.15
+================================================================================
+
+** Bug
+    * [SYNCOPE-1505] - Changes to "AjaxPalettePanel" components in Console are not saved when the previous step button is pressed before submitting the wizard form
+    * [SYNCOPE-1524] - Social registration does not redirect to self registration page
+    * [SYNCOPE-1525] - Documentation indicates sharing private key, hiding public key
+    * [SYNCOPE-1526] - Broken link to issues from reference documentation
+    * [SYNCOPE-1539] - AjaxPalettePanel does not support setRequired
+
+** Improvement
+    * [SYNCOPE-1498] - Allow variable resolution in Content.xml
+    * [SYNCOPE-1509] - Auto-select language from Accept-Language HTTP header
+    * [SYNCOPE-1518] - Allow X-Forwarded-For and X-Forwarded-Proto HTTP headers integration
+    * [SYNCOPE-1541] - XML response message timestamps missing millisecs component if "0 msecs"
+
 Release Notes - Syncope - Version 2.0.14
 ================================================================================
 
