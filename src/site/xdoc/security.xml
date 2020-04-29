@@ -34,7 +34,135 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="http://www.apache.org/security/">the procedure</a>.</p>
 
-      <subsection name="CVE-2018-17186: XXE on BPMN definitions">	
+      <subsection name="CVE-2020-1961: Server-Side Template Injection on mail templates">
+        <p>Vulnerability to Server-Side Template Injection on Mail templates enabling attackers to inject arbitrary JEXL
+           expressions, leading to Remote Code Execution (RCE) was discovered.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.0.X releases prior to 2.0.15</li>
+            <li>2.1.X releases prior to 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.0.X users should upgrade to 2.0.15</li>
+            <li>2.1.X users should upgrade to 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 2.0.15</li>
+            <li>Release 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1961">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2020-1959: Multiple Remote Code Execution Vulnerabilities">	
+        <p>A Server-Side Template Injection was identified in Syncope enabling attackers to inject arbitrary Java EL
+           expressions, leading to an unauthenticated Remote Code Execution (RCE) vulnerability.
+           Apache Syncope uses Java Bean Validation (JSR 380) custom constraint validators. When building custom
+           constraint violation error messages, they support different types of interpolation, including Java EL
+           expressions.
+           Therefore, if an attacker can inject arbitrary data in the error message template being passed, they will be
+           able to run arbitrary Java code.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.1.X releases prior to 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.1.X users should upgrade to 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1959">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2019-17557: Enduser UI XSS">
+        <p>It was found that the EndUser UI login page reflects the successMessage parameters.
+           By this mean, a user accessing the Enduser UI could execute javascript code from URL query string.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Medium</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.0.X releases prior to 2.0.15</li>
+            <li>2.1.X releases prior to 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.0.X users should upgrade to 2.0.15</li>
+            <li>2.1.X users should upgrade to 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 2.0.15</li>
+            <li>Release 2.1.6</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17557">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2018-17186: XXE on BPMN definitions">
         <p>An administrator with workflow definition entitlements can use DTD to perform malicious operations, including
           but not limited to file read, file write, and code execution.</p>
 
@@ -61,7 +189,7 @@ under the License.
           <ul>
             <li>2.0.X users should upgrade to 2.0.11</li>
             <li>2.1.X users should upgrade to 2.1.2</li>
-          </ul>          
+          </ul>
         </p>
 
         <p>
@@ -82,7 +210,7 @@ under the License.
         <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17186">full CVE advisory</a>.</p>
       </subsection>
 
-      <subsection name="CVE-2018-17184: Stored XSS">	
+      <subsection name="CVE-2018-17184: Stored XSS">
         <p>A malicious user with enough administration entitlements can inject html-like elements containing JavaScript
           statements into Connector names, Report names, AnyTypeClass keys and Policy descriptions.<br/>
           When another user with enough administration entitlements edits one of the Entities above via Admin Console,
@@ -110,7 +238,7 @@ under the License.
           <ul>
             <li>2.0.X users should upgrade to 2.0.11</li>
             <li>2.1.X users should upgrade to 2.1.2</li>
-          </ul>          
+          </ul>
         </p>
         
         <p>
@@ -126,7 +254,7 @@ under the License.
         <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17184">full CVE advisory</a>.</p>
       </subsection>
 
-      <subsection name="CVE-2018-1322: Information disclosure via FIQL and ORDER BY sorting">	
+      <subsection name="CVE-2018-1322: Information disclosure via FIQL and ORDER BY sorting">
         <p>An administrator with user search entitlements can recover sensitive security values using the
           <code>fiql</code> and <code>orderby</code> parameters.</p>
 
@@ -153,7 +281,7 @@ under the License.
           <ul>
             <li>Syncope 1.2.x users should upgrade to 1.2.11</li>
             <li>Syncope 2.0.x users should upgrade to 2.0.8</li>
-          </ul>          
+          </ul>
         </p>
         
         <p>
@@ -174,7 +302,7 @@ under the License.
         <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1322">full CVE advisory</a>.</p>
       </subsection>
 
-      <subsection name="CVE-2018-1321: Remote code execution by administrators with report and template entitlements">	
+      <subsection name="CVE-2018-1321: Remote code execution by administrators with report and template entitlements">
         <p>An administrator with report and template entitlements can use XSL Transformations (XSLT) to perform
           malicious operations, including but not limited to file read, file write, and code execution.</p>
 
@@ -201,7 +329,7 @@ under the License.
           <ul>
             <li>Syncope 1.2.x users should upgrade to 1.2.11</li>
             <li>Syncope 2.0.x users should upgrade to 2.0.8</li>
-          </ul>          
+          </ul>
         </p>
         
         <p>
@@ -222,7 +350,7 @@ under the License.
         <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1321">full CVE advisory</a>.</p>
       </subsection>
 
-      <subsection name="CVE-2014-3503: Insecure Random implementations used to generate passwords">	
+      <subsection name="CVE-2014-3503: Insecure Random implementations used to generate passwords">
         <p>A password is generated for a user in Apache Syncope under certain  circumstances, when no existing password 
           is found. However, the password generation code is relying on insecure Random implementations, which means 
           that an attacker could attempt to guess a generated password.</p>
