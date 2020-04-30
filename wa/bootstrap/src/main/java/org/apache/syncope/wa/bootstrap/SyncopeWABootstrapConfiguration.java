@@ -30,6 +30,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:wa.properties")
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
 public class SyncopeWABootstrapConfiguration {
+
     @Value("${anonymousUser}")
     private String anonymousUser;
 

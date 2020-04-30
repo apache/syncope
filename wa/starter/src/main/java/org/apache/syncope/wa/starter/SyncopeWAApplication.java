@@ -18,18 +18,13 @@
  */
 package org.apache.syncope.wa.starter;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
 import org.apereo.cas.util.AsciiArtUtils;
 import org.apereo.cas.util.DateTimeUtils;
-import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -55,7 +50,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
@@ -63,6 +57,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 @PropertySource("classpath:wa.properties")
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
@@ -88,9 +85,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAApplication.class);
-
-    @Autowired
-    private ContextRefresher contextRefresher;
 
     @Autowired
     private SchedulerFactoryBean scheduler;
@@ -134,22 +128,14 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
             Trigger trigger = TriggerBuilder.newTrigger().startAt(date).build();
             JobKey jobKey = new JobKey(getClass().getSimpleName());
 
-            JobDetail job = JobBuilder.newJob(RefreshApplicationContextJob.class).withIdentity(jobKey).build();
+            JobDetail job = JobBuilder.newJob(SyncopeWARefreshContextJob.class).
+                    withIdentity(jobKey).
+                    build();
+
             scheduler.getScheduler().scheduleJob(job, trigger);
-        } catch (SchedulerException e) {
+
+        } catch (final SchedulerException e) {
             throw new RuntimeException("Could not schedule refresh job", e);
-        }
-    }
-
-    private class RefreshApplicationContextJob implements Job {
-
-        @Override
-        public void execute(final JobExecutionContext jobExecutionContext) {
-            try {
-                LOG.debug("Refreshed context: {}", contextRefresher.refresh());
-            } catch (final Exception e) {
-                LOG.error(e.getMessage(), e);
-            }
         }
     }
 }

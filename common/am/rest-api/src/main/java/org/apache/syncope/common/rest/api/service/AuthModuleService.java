@@ -65,9 +65,9 @@ public interface AuthModuleService extends JAXRSService {
     AuthModuleTO read(@NotNull @PathParam("key") String key);
 
     /**
-     * Returns a list of authentication modules of the matching type.
+     * Returns a list of authentication modules.
      *
-     * @return list of authentication modules with matching type
+     * @return list of authentication modules
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -76,7 +76,7 @@ public interface AuthModuleService extends JAXRSService {
     /**
      * Create a new authentication module.
      *
-     * @param authModuleTO AuthModule to be created (needs to match type)
+     * @param authModuleTO AuthModule to be created.
      * @return Response object featuring Location header of created authentication module
      */
     @ApiResponses(
