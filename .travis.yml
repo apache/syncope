@@ -27,7 +27,7 @@ git:
   depth: 2
 env:
   global:
-  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
+  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
   - JAVAEE_CONTAINER=Tomcat
   - DBMS=H2
   - jaxrsContentType=application/json
