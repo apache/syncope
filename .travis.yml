@@ -27,7 +27,7 @@ git:
   depth: 2
 env:
   global:
-  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
+  - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
   - JAVAEE_CONTAINER=Tomcat
   - DBMS=H2
   - jaxrsContentType=application/json
@@ -55,17 +55,17 @@ jobs:
       name: "Unit Tests via JDK 11"
       script: eval $TestCommand
     - stage: test
-      name: "Unit Tests via JDK 13"
-      script: 
-      - ~/bin/install-jdk.sh --target "/home/travis/openjdk13" --workspace "/home/travis/.cache/install-jdk" --feature "13" --license "GPL" --cacerts
-      - export JAVA_HOME=~/openjdk13
-      - export PATH="$JAVA_HOME/bin:$PATH"
-      - eval $TestCommand
-    - stage: test
       name: "Unit Tests via JDK 14"
       script: 
       - ~/bin/install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPL" --cacerts
       - export JAVA_HOME=~/openjdk14
+      - export PATH="$JAVA_HOME/bin:$PATH"
+      - eval $TestCommand
+    - stage: test
+      name: "Unit Tests via JDK 15"
+      script: 
+      - ~/bin/install-jdk.sh --target "/home/travis/openjdk15" --workspace "/home/travis/.cache/install-jdk" --feature "15" --license "GPL" --cacerts
+      - export JAVA_HOME=~/openjdk15
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
       ######################################################
