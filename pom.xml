@@ -1625,6 +1625,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-pac4j-core-clients</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-consent-webflow</artifactId>
         <version>${cas.version}</version>
       </dependency>

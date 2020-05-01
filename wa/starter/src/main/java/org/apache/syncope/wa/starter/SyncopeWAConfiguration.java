@@ -25,8 +25,13 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.wa.WARestClient;
+
+import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
+
+import org.apache.syncope.wa.pac4j.SyncopeWADelegatedClientCustomizer;
+import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -98,6 +103,12 @@ public class SyncopeWAConfiguration {
     @Autowired
     public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient restClient) {
         return plan -> plan.registerAuditTrailManager(new SyncopeWAAuditTrailManager(restClient));
+    }
+
+    @Autowired
+    @Bean
+    public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
+        return new SyncopeWADelegatedClientCustomizer(restClient);
     }
 
     @Bean
