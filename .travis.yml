@@ -15,7 +15,8 @@
 
 language: java
 os: linux
-dist: trusty
+dist: bionic
+arch: arm64
 jdk:
   - openjdk11
 cache:
