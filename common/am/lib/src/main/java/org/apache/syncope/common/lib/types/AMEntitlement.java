@@ -60,6 +60,12 @@ public final class AMEntitlement {
 
     public static final String SAML2_IDP_METADATA_READ = "SAML2_IDP_METADATA_READ";
 
+    public static final String SAML2_SP_METADATA_CREATE = "SAML2_SP_METADATA_CREATE";
+
+    public static final String SAML2_SP_METADATA_UPDATE = "SAML2_SP_METADATA_UPDATE";
+
+    public static final String SAML2_SP_METADATA_READ = "SAML2_SP_METADATA_READ";
+
     private static final Set<String> VALUES;
 
     static {
