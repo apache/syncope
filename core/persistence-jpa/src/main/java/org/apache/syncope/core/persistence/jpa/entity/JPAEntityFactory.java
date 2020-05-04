@@ -61,6 +61,8 @@ import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPKeystore;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPMetadata;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -112,6 +114,8 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SP;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPMetadata;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
@@ -325,6 +329,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPASAML2SP();
         } else if (reference.equals(SAML2IdPMetadata.class)) {
             result = (E) new JPASAML2IdPMetadata();
+        } else if (reference.equals(SAML2SPMetadata.class)) {
+            result = (E) new JPASAML2SPMetadata();
+        } else if (reference.equals(SAML2SPKeystore.class)) {
+            result = (E) new JPASAML2SPKeystore();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
