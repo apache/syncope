@@ -18,39 +18,20 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
-import org.apache.syncope.core.logic.SAML2SPKeystoreLogic;
+import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataConfService;
+import org.apache.syncope.core.logic.SAML2SPMetadataLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-
 @Service
-public class SAML2SPKeystoreServiceImpl extends AbstractServiceImpl implements SAML2SPKeystoreService {
+public class SAML2SPMetadataConfServiceImpl extends AbstractServiceImpl implements SAML2SPMetadataConfService {
 
     @Autowired
-    private SAML2SPKeystoreLogic logic;
+    private SAML2SPMetadataLogic logic;
 
     @Override
-    public SAML2SPKeystoreTO get(final String name) {
-        return logic.get(name);
-    }
-
-    @Override
-    public SAML2SPKeystoreTO read(final String key) {
-        return logic.read(key);
-    }
-
-    @Override
-    public Response set(final SAML2SPKeystoreTO keystoreTO) {
-        final SAML2SPKeystoreTO keystore = logic.set(keystoreTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(keystore.getKey()).build();
-        return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, keystore.getKey()).
-            build();
+    public void update(final SAML2SPMetadataTO metadataTO) {
+        logic.update(metadataTO);
     }
 }

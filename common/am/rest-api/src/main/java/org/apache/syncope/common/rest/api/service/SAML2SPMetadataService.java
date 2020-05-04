@@ -79,7 +79,7 @@ public interface SAML2SPMetadataService extends JAXRSService {
      */
     @ApiResponses({
         @ApiResponse(responseCode = "201",
-            description = "SAML2IdPMetadata successfully created", headers = {
+            description = "SAML2SPMetadata successfully created", headers = {
             @Header(name = RESTHeaders.RESOURCE_KEY, schema =
             @Schema(type = "string"),
                 description = "UUID generated for the entity created"),

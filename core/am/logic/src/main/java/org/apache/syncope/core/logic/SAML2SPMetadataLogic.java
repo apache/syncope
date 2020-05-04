@@ -79,11 +79,10 @@ public class SAML2SPMetadataLogic extends AbstractTransactionalLogic<SAML2SPMeta
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_METADATA_UPDATE + "')")
     public SAML2SPMetadataTO update(final SAML2SPMetadataTO metadataTO) {
-        final SAML2SPMetadata metadata = saml2SPMetadataDAO.findByOwner(metadataTO.getOwner());
+        final SAML2SPMetadata metadata = saml2SPMetadataDAO.find(metadataTO.getKey());
         if (metadata == null) {
             throw new NotFoundException(metadataTO.getKey() + " not found");
         }
-
         return binder.getSAML2SPMetadataTO(saml2SPMetadataDAO.save(binder.update(metadata, metadataTO)));
     }
 

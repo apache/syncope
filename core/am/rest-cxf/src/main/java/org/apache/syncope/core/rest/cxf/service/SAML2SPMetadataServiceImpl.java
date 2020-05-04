@@ -25,7 +25,6 @@ import org.apache.syncope.core.logic.SAML2SPMetadataLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
@@ -42,12 +41,12 @@ public class SAML2SPMetadataServiceImpl extends AbstractServiceImpl implements S
     }
 
     @Override
-    public SAML2SPMetadataTO read(@NotNull final String key) {
+    public SAML2SPMetadataTO read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public Response set(@NotNull final SAML2SPMetadataTO metadataTO) {
+    public Response set(final SAML2SPMetadataTO metadataTO) {
         SAML2SPMetadataTO spMetadata = logic.set(metadataTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(spMetadata.getKey()).build();
         return Response.created(location).
