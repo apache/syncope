@@ -66,6 +66,12 @@ public final class AMEntitlement {
 
     public static final String SAML2_SP_METADATA_READ = "SAML2_SP_METADATA_READ";
 
+    public static final String SAML2_SP_KEYSTORE_CREATE = "SAML2_SP_KEYSTORE_CREATE";
+
+    public static final String SAML2_SP_KEYSTORE_UPDATE = "SAML2_SP_KEYSTORE_UPDATE";
+
+    public static final String SAML2_SP_KEYSTORE_READ = "SAML2_SP_KEYSTORE_READ";
+
     private static final Set<String> VALUES;
 
     static {

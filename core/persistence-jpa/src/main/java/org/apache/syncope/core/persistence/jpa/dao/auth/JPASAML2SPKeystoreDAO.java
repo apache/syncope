@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPMetadataDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPMetadata;
+import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPKeystoreDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPKeystore;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPMetadata;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,33 +29,33 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 @Repository
-public class JPASAML2SPMetadataDAO extends AbstractDAO<SAML2SPMetadata> implements SAML2SPMetadataDAO {
+public class JPASAML2SPKeystoreDAO extends AbstractDAO<SAML2SPKeystore> implements SAML2SPKeystoreDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public SAML2SPMetadata find(final String key) {
-        return entityManager().find(JPASAML2SPMetadata.class, key);
+    public SAML2SPKeystore find(final String key) {
+        return entityManager().find(JPASAML2SPKeystore.class, key);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public SAML2SPMetadata findByOwner(final String owner) {
-        TypedQuery<SAML2SPMetadata> query = entityManager().createQuery(
-            "SELECT e FROM " + JPASAML2SPMetadata.class.getSimpleName() + " e WHERE e.owner=:owner",
-            SAML2SPMetadata.class);
+    public SAML2SPKeystore findByOwner(final String owner) {
+        TypedQuery<SAML2SPKeystore> query = entityManager().createQuery(
+            "SELECT e FROM " + JPASAML2SPKeystore.class.getSimpleName() + " e WHERE e.owner=:owner",
+            SAML2SPKeystore.class);
         query.setParameter("owner", owner);
 
-        SAML2SPMetadata result = null;
+        SAML2SPKeystore result = null;
         try {
             result = query.getSingleResult();
         } catch (final NoResultException e) {
-            LOG.debug("No SAML2 SP Metadata found with appliesTo = {}", owner);
+            LOG.debug("No SAML2 SP Keystore found with appliesTo = {}", owner);
         }
         return result;
     }
 
     @Override
-    public SAML2SPMetadata save(final SAML2SPMetadata saml2IdPMetadata) {
+    public SAML2SPKeystore save(final SAML2SPKeystore saml2IdPMetadata) {
         return entityManager().merge(saml2IdPMetadata);
     }
 

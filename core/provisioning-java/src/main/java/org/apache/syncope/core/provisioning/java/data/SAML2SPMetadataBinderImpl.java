@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPMetadata;
-import org.apache.syncope.core.provisioning.api.data.SAML2IdPMetadataBinder;
 import org.apache.syncope.core.provisioning.api.data.SAML2SPMetadataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,14 +32,14 @@ public class SAML2SPMetadataBinderImpl implements SAML2SPMetadataBinder {
     private EntityFactory entityFactory;
 
     private SAML2SPMetadata getSAML2SPMetadata(
-            final SAML2SPMetadata metadata,
-            final SAML2SPMetadataTO metadataTO) {
+        final SAML2SPMetadata metadata,
+        final SAML2SPMetadataTO metadataTO) {
 
         SAML2SPMetadata result = metadata;
         if (result == null) {
             result = entityFactory.newEntity(SAML2SPMetadata.class);
         }
-        
+
         result.setMetadata(metadataTO.getMetadata());
         result.setOwner(metadataTO.getOwner());
 
@@ -56,8 +53,8 @@ public class SAML2SPMetadataBinderImpl implements SAML2SPMetadataBinder {
 
     @Override
     public SAML2SPMetadata update(
-            final SAML2SPMetadata metadata,
-            final SAML2SPMetadataTO metadataTO) {
+        final SAML2SPMetadata metadata,
+        final SAML2SPMetadataTO metadataTO) {
 
         return getSAML2SPMetadata(metadata, metadataTO);
     }
