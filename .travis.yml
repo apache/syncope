@@ -16,11 +16,9 @@
 language: java
 os: linux
 dist: bionic
-arch: arm64
+arch: amd64
 jdk:
   - openjdk11
-before_install:
-- sudo apt-get -yq install maven
 cache:
   bundler: false
   cargo: false
