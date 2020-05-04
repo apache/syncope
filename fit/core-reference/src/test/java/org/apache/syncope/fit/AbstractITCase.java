@@ -62,6 +62,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -104,6 +105,8 @@ import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
+import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreConfService;
+import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataConfService;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
@@ -290,6 +293,10 @@ public abstract class AbstractITCase {
 
     protected static SAML2SPMetadataConfService saml2SPMetadataConfService;
 
+    protected static SAML2SPKeystoreService saml2SPKeystoreService;
+
+    protected static SAML2SPKeystoreConfService saml2SPKeystoreConfService;
+
     protected static SAML2IdPMetadataService saml2IdPMetadataService;
 
     protected static SAML2IdPMetadataConfService saml2IdPMetadataConfService;
@@ -380,7 +387,7 @@ public abstract class AbstractITCase {
         remediationService = adminClient.getService(RemediationService.class);
         gatewayRouteService = adminClient.getService(GatewayRouteService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
-        saml2SpService = adminClient.getService(org.apache.syncope.common.rest.api.service.SAML2SPService.class);
+        saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);
         oidcClientService = adminClient.getService(OIDCClientService.class);
         oidcProviderService = adminClient.getService(OIDCProviderService.class);
@@ -391,6 +398,8 @@ public abstract class AbstractITCase {
         saml2SPMetadataConfService = adminClient.getService(SAML2SPMetadataConfService.class);
         saml2IdPMetadataService = adminClient.getService(SAML2IdPMetadataService.class);
         saml2IdPMetadataConfService = adminClient.getService(SAML2IdPMetadataConfService.class);
+        saml2SPKeystoreService = adminClient.getService(SAML2SPKeystoreService.class);
+        saml2SPKeystoreConfService = adminClient.getService(SAML2SPKeystoreConfService.class);
     }
 
     @Autowired
@@ -626,6 +635,17 @@ public abstract class AbstractITCase {
             }
         }
         return getObject(response.getLocation(), SAML2SPMetadataService.class, metadata.getClass());
+    }
+
+    protected SAML2SPKeystoreTO createSAML2SPKeystore(final SAML2SPKeystoreTO keystoreTO) {
+        Response response = saml2SPKeystoreService.set(keystoreTO);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response.getLocation(), SAML2SPKeystoreService.class, keystoreTO.getClass());
     }
 
     protected ResourceTO createResource(final ResourceTO resourceTO) {
