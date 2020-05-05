@@ -34,7 +34,7 @@ env:
   - jaxrsContentType=application/json
   - TestCommand="mvn -U -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true"
 before_install:
-- wget https://github.com/sormuras/bach/raw/master/install-jdk.sh && chmod +x install-jdk.sh
+- wget https://github.com/sormuras/bach/raw/master/install-jdk.sh -O ~/install-jdk.sh && chmod +x ~/install-jdk.sh
 install: true
 notifications:
   email:
@@ -60,14 +60,14 @@ jobs:
     - stage: test
       name: "Unit Tests via JDK 14"
       script: 
-      - ./install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPL" --cacerts
+      - ~/install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPL" --cacerts
       - export JAVA_HOME=~/openjdk14
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
     - stage: test
       name: "Unit Tests via JDK 15"
       script: 
-      - ./install-jdk.sh --target "/home/travis/openjdk15" --workspace "/home/travis/.cache/install-jdk" --feature "15" --license "GPL" --cacerts
+      - ~/install-jdk.sh --target "/home/travis/openjdk15" --workspace "/home/travis/.cache/install-jdk" --feature "15" --license "GPL" --cacerts
       - export JAVA_HOME=~/openjdk15
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand

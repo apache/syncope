@@ -2530,7 +2530,6 @@ under the License.
             <exclude>**/*.json</exclude>
             <exclude>**/banner.txt</exclude>
             <exclude>**/target/**</exclude>
-            <exclude>**/install-jdk.sh</exclude>
           </excludes>
         </configuration>
         <executions>
