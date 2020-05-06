@@ -25,15 +25,11 @@ import org.apache.syncope.wa.WARestClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SyncopeWADelegatedClientCustomizer implements DelegatedClientFactoryCustomizer<Client> {
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWADelegatedClientCustomizer.class);
-
+public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCustomizer<Client> {
     private final WARestClient restClient;
 
-    public SyncopeWADelegatedClientCustomizer(final WARestClient restClient) {
+    public SyncopeWASAML2ClientCustomizer(final WARestClient restClient) {
         this.restClient = restClient;
     }
 
