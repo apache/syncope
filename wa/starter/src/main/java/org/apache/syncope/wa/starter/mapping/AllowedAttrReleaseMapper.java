@@ -36,7 +36,6 @@ public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy;
         if (!((AllowedAttrReleasePolicyConf) conf).getAllowedAttrs().isEmpty()) {
             attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
-            ((AllowedAttrReleasePolicyConf) conf).getAllowedAttrs();
             ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).getAllowedAttributes().addAll(
                     ((AllowedAttrReleasePolicyConf) conf).getAllowedAttrs());
         } else {

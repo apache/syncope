@@ -19,10 +19,20 @@
 package org.apache.syncope.wa.starter;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.mapping.AccessMapFor;
+import org.apache.syncope.wa.starter.mapping.AccessMapper;
+import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
+import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
+import org.apache.syncope.wa.starter.mapping.AuthMapFor;
+import org.apache.syncope.wa.starter.mapping.AuthMapper;
+import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
+import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
@@ -39,6 +49,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,10 +75,60 @@ public class SyncopeWAConfiguration {
     @Qualifier("serviceRegistryListeners")
     private Collection<ServiceRegistryListener> serviceRegistryListeners;
 
+    @Autowired
+    private ApplicationContext ctx;
+
     @ConditionalOnMissingBean
     @Bean
     public RegisteredServiceMapper registeredServiceMapper() {
-        return new RegisteredServiceMapper();
+        Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
+        Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers = new HashMap<>();
+        ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
+            AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
+            if (authMapFor != null) {
+                authPolicyConfMappers.put(authMapFor.authPolicyConfClass().getName(), bean);
+                registeredServiceAuthenticationPolicyMappers.put(
+                        authMapFor.registeredServiceAuthenticationPolicyClass().getName(), bean);
+            }
+        });
+
+        Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
+        Map<String, AccessMapper> registeredServiceAccessStrategyMappers = new HashMap<>();
+        ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
+            AccessMapFor accessMapFor = ctx.findAnnotationOnBean(name, AccessMapFor.class);
+            if (accessMapFor != null) {
+                accessPolicyConfMappers.put(accessMapFor.accessPolicyConfClass().getName(), bean);
+                registeredServiceAccessStrategyMappers.put(
+                        accessMapFor.registeredServiceAccessStrategyClass().getName(), bean);
+            }
+        });
+
+        Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
+        Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers = new HashMap<>();
+        ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
+            AttrReleaseMapFor attrReleaseMapFor = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
+            if (attrReleaseMapFor != null) {
+                attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
+                registeredServiceAttributeReleasePolicyMappers.put(
+                        attrReleaseMapFor.registeredServiceAttributeReleasePolicyClass().getName(), bean);
+            }
+        });
+
+        Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
+        Map<String, ClientAppMapper> registeredServiceMappers = new HashMap<>();
+        ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
+            ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);
+            if (clientAppMapFor != null) {
+                clientAppTOMappers.put(clientAppMapFor.clientAppClass().getName(), bean);
+                registeredServiceMappers.put(clientAppMapFor.registeredServiceClass().getName(), bean);
+            }
+        });
+
+        return new RegisteredServiceMapper(
+                authPolicyConfMappers, registeredServiceAuthenticationPolicyMappers,
+                accessPolicyConfMappers, registeredServiceAccessStrategyMappers,
+                attrReleasePolicyConfMappers, registeredServiceAttributeReleasePolicyMappers,
+                clientAppTOMappers, registeredServiceMappers);
     }
 
     @Autowired

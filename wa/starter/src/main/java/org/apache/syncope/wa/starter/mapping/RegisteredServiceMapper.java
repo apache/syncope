@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -26,74 +25,45 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RegisteredServiceMapper implements ApplicationContextAware, InitializingBean {
+public class RegisteredServiceMapper {
 
-    protected ApplicationContext ctx;
+    protected final Map<String, AuthMapper> authPolicyConfMappers;
 
-    protected final Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
+    protected final Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers;
 
-    protected final Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers = new HashMap<>();
+    protected final Map<String, AccessMapper> accessPolicyConfMappers;
 
-    protected final Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
+    protected final Map<String, AccessMapper> registeredServiceAccessStrategyMappers;
 
-    protected final Map<String, AccessMapper> registeredServiceAccessStrategyMappers = new HashMap<>();
+    protected final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers;
 
-    protected final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
+    protected final Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers;
 
-    protected final Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers = new HashMap<>();
+    protected final Map<String, ClientAppMapper> clientAppTOMappers;
 
-    protected final Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
+    protected final Map<String, ClientAppMapper> registeredServiceMappers;
 
-    protected final Map<String, ClientAppMapper> registeredServiceMappers = new HashMap<>();
+    public RegisteredServiceMapper(
+            final Map<String, AuthMapper> authPolicyConfMappers,
+            final Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers,
+            final Map<String, AccessMapper> accessPolicyConfMappers,
+            final Map<String, AccessMapper> registeredServiceAccessStrategyMappers,
+            final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
+            final Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers,
+            final Map<String, ClientAppMapper> clientAppTOMappers,
+            final Map<String, ClientAppMapper> registeredServiceMappers) {
 
-    @Override
-    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
-        this.ctx = ctx;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
-            AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
-            if (authMapFor != null) {
-                authPolicyConfMappers.put(authMapFor.authPolicyConfClass().getName(), bean);
-                registeredServiceAuthenticationPolicyMappers.put(
-                        authMapFor.registeredServiceAuthenticationPolicyClass().getName(), bean);
-            }
-        });
-
-        ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
-            AccessMapFor accessMapFor = ctx.findAnnotationOnBean(name, AccessMapFor.class);
-            if (accessMapFor != null) {
-                accessPolicyConfMappers.put(accessMapFor.accessPolicyConfClass().getName(), bean);
-                registeredServiceAccessStrategyMappers.put(
-                        accessMapFor.registeredServiceAccessStrategyClass().getName(), bean);
-            }
-        });
-
-        ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
-            AttrReleaseMapFor attrReleaseMapFor = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
-            if (attrReleaseMapFor != null) {
-                attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
-                registeredServiceAttributeReleasePolicyMappers.put(
-                        attrReleaseMapFor.registeredServiceAttributeReleasePolicyClass().getName(), bean);
-            }
-        });
-
-        ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
-            ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);
-            if (clientAppMapFor != null) {
-                clientAppTOMappers.put(clientAppMapFor.clientAppClass().getName(), bean);
-                registeredServiceMappers.put(clientAppMapFor.registeredServiceClass().getName(), bean);
-            }
-        });
+        this.authPolicyConfMappers = authPolicyConfMappers;
+        this.registeredServiceAuthenticationPolicyMappers = registeredServiceAuthenticationPolicyMappers;
+        this.accessPolicyConfMappers = accessPolicyConfMappers;
+        this.registeredServiceAccessStrategyMappers = registeredServiceAccessStrategyMappers;
+        this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
+        this.registeredServiceAttributeReleasePolicyMappers = registeredServiceAttributeReleasePolicyMappers;
+        this.clientAppTOMappers = clientAppTOMappers;
+        this.registeredServiceMappers = registeredServiceMappers;
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
