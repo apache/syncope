@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
 import javax.ws.rs.PathParam;
@@ -91,6 +92,15 @@ public class SAML2SPKeystoreTO extends BaseBean implements EntityTO {
             append(keystore, other.keystore).
             append(owner, other.owner).
             build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+            .appendSuper(super.toString())
+            .append("key", key)
+            .append("owner", owner)
+            .toString();
     }
 
     public static class Builder {

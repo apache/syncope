@@ -19,12 +19,20 @@
 
 package org.apache.syncope.wa.pac4j;
 
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
 import org.apache.syncope.wa.WARestClient;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -57,14 +65,41 @@ public class SyncopeWASamlClientKeystoreGenerator extends BaseSAML2KeystoreGener
             char[] password = saml2Configuration.getKeystorePassword().toCharArray();
             ks.store(out, password);
             out.flush();
-            String content = Base64.getEncoder().encodeToString(out.toByteArray());
-        } finally {
-            
+            String encodedKeystore = Base64.getEncoder().encodeToString(out.toByteArray());
+
+            SAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
+                getService(SAML2SPKeystoreService.class);
+
+            SAML2SPKeystoreTO keystoreTO = new SAML2SPKeystoreTO.Builder().
+                keystore(encodedKeystore).
+                owner(saml2Client.getName()).
+                build();
+
+            LOG.debug("Storing keystore {}", keystoreTO);
+            Response response = keystoreService.set(keystoreTO);
+            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                LOG.error("Unexpected response when storing SAML2 SP keystore: {}\n{}\n{}",
+                    response.getStatus(), response.getHeaders(),
+                    IOUtils.toString((InputStream) response.getEntity()));
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+                sce.getElements().add("Unexpected response when storing SAML2 SP keystore");
+                throw sce;
+            }
+            LOG.debug("Stored keystore for SAML2 SP {}", saml2Client.getName());
         }
     }
 
     @Override
     public InputStream retrieve() throws Exception {
-        return null;
+        try {
+            SAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
+                getService(SAML2SPKeystoreService.class);
+            SAML2SPKeystoreTO keystoreTO = keystoreService.get(saml2Client.getName());
+            return new ByteArrayInputStream(Base64.getDecoder().decode(keystoreTO.getKeystore()));
+        } catch (final Exception e) {
+            final String message = "Unable to fetch SAML2 SP keystore for " + saml2Client.getName();
+            LOG.error(message, e);
+            throw new Exception(message);
+        }
     }
 }

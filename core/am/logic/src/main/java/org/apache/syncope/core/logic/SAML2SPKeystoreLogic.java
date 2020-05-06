@@ -79,7 +79,7 @@ public class SAML2SPKeystoreLogic extends AbstractTransactionalLogic<SAML2SPKeys
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_KEYSTORE_UPDATE + "')")
     public SAML2SPKeystoreTO update(final SAML2SPKeystoreTO keystoreTO) {
-        final SAML2SPKeystore keystore = saml2SPKeystoreDAO.findByOwner(keystoreTO.getOwner());
+        final SAML2SPKeystore keystore = saml2SPKeystoreDAO.find(keystoreTO.getKey());
         if (keystore == null) {
             throw new NotFoundException(keystoreTO.getKey() + " not found");
         }

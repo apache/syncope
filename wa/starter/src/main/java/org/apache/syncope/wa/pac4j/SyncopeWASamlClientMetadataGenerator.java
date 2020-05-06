@@ -19,6 +19,11 @@
 
 package org.apache.syncope.wa.pac4j;
 
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.wa.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractBatchMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
@@ -26,6 +31,10 @@ import org.pac4j.saml.metadata.BaseSAML2MetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+
+import javax.ws.rs.core.Response;
+
+import java.io.InputStream;
 
 public class SyncopeWASamlClientMetadataGenerator extends BaseSAML2MetadataGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASamlClientMetadataGenerator.class);
@@ -46,6 +55,24 @@ public class SyncopeWASamlClientMetadataGenerator extends BaseSAML2MetadataGener
 
     @Override
     public boolean storeMetadata(final String metadata, final Resource resource, final boolean force) throws Exception {
-        return false;
+        SAML2SPMetadataService metadataService = restClient.getSyncopeClient().
+            getService(SAML2SPMetadataService.class);
+
+        SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder().
+            metadata(metadata).
+            owner(saml2Client.getName()).
+            build();
+        LOG.debug("Storing metadata {}", metadataTO);
+        Response response = metadataService.set(metadataTO);
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            LOG.error("Unexpected response when storing SAML2 SP metadata: {}\n{}\n{}",
+                response.getStatus(), response.getHeaders(),
+                IOUtils.toString((InputStream) response.getEntity()));
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Unexpected response when storing SAML2 SP metadata");
+            throw sce;
+        }
+        LOG.debug("Stored metadata for SAML2 SP {}", saml2Client.getName());
+        return true;
     }
 }

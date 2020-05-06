@@ -20,11 +20,15 @@
 package org.apache.syncope.wa.pac4j;
 
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
+import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.wa.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 public class SyncopeWASamlMetadataResolver extends AbstractReloadingMetadataResolver {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASamlMetadataResolver.class);
@@ -45,6 +49,15 @@ public class SyncopeWASamlMetadataResolver extends AbstractReloadingMetadataReso
 
     @Override
     protected byte[] fetchMetadata() throws ResolverException {
-        return new byte[0];
+        try {
+            SAML2SPMetadataService metadataService = restClient.getSyncopeClient().
+                getService(SAML2SPMetadataService.class);
+            SAML2SPMetadataTO metadataTO = metadataService.get(saml2Client.getName());
+            return metadataTO.getMetadata().getBytes(StandardCharsets.UTF_8);
+        } catch (final Exception e) {
+            final String message = "Unable to fetch SP metadata for " + saml2Client.getName();
+            LOG.error(message, e);
+            throw new ResolverException(message);
+        }
     }
 }
