@@ -39,13 +39,12 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
-import org.apache.syncope.common.lib.to.AccessPolicyTO;
-import org.apache.syncope.common.lib.to.AttrReleasePolicyTO;
-import org.apache.syncope.common.lib.to.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.AMImplementationType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -217,17 +216,9 @@ public class RealmITCase extends AbstractITCase {
         DefaultAuthPolicyConf ruleConf = new DefaultAuthPolicyConf();
         ruleConf.getAuthModules().addAll(List.of("LdapAuthentication1"));
 
-        ImplementationTO rule = new ImplementationTO();
-        rule.setKey("TestAuthPolicy" + getUUIDString());
-        rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(AMImplementationType.AUTH_POLICY_CONF);
-        rule.setBody(POJOHelper.serialize(ruleConf));
-        Response response = implementationService.create(rule);
-        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
         AuthPolicyTO policy = new AuthPolicyTO();
         policy.setDescription("Test Authentication policy");
-        policy.setKey(rule.getKey());
+        policy.setConf(ruleConf);
         policy = createPolicy(PolicyType.AUTH, policy);
         assertNotNull(policy);
 
@@ -235,7 +226,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withAuthPolicy");
 
-        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -266,19 +257,11 @@ public class RealmITCase extends AbstractITCase {
         DefaultAccessPolicyConf ruleConf = new DefaultAccessPolicyConf();
         ruleConf.setEnabled(true);
         ruleConf.setName("TestAccessPolicyConf" + getUUIDString());
-        ruleConf.getRequiredAttributes().put("cn", Set.of("admin", "Admin", "TheAdmin"));
-
-        ImplementationTO rule = new ImplementationTO();
-        rule.setKey("TestAccessPolicy" + getUUIDString());
-        rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(AMImplementationType.ACCESS_POLICY_CONF);
-        rule.setBody(POJOHelper.serialize(ruleConf));
-        Response response = implementationService.create(rule);
-        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        ruleConf.getRequiredAttrs().put("cn", Set.of("admin", "Admin", "TheAdmin"));
 
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setDescription("Test Access policy");
-        policy.setKey(rule.getKey());
+        policy.setConf(ruleConf);
         policy = createPolicy(PolicyType.ACCESS, policy);
         assertNotNull(policy);
 
@@ -286,7 +269,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withAccessPolicy");
 
-        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -316,19 +299,11 @@ public class RealmITCase extends AbstractITCase {
         // 1. create attribute release policy
         AllowedAttrReleasePolicyConf ruleConf = new AllowedAttrReleasePolicyConf();
         ruleConf.setName("MyDefaultAttrReleasePolicyConf" + getUUIDString());
-        ruleConf.getAllowedAttributes().addAll(List.of("cn", "givenName"));
-
-        ImplementationTO rule = new ImplementationTO();
-        rule.setKey("TestAttrReleasePolicy" + getUUIDString());
-        rule.setEngine(ImplementationEngine.JAVA);
-        rule.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONF);
-        rule.setBody(POJOHelper.serialize(ruleConf));
-        Response response = implementationService.create(rule);
-        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        ruleConf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
 
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setDescription("Test Attribute Release policy");
-        policy.setKey(rule.getKey());
+        policy.setConf(ruleConf);
         policy = createPolicy(PolicyType.ATTR_RELEASE, policy);
         assertNotNull(policy);
 
@@ -336,7 +311,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withAttrReleasePolicy");
 
-        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa;
+package org.apache.syncope.wa.bootstrap;
 
 import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;

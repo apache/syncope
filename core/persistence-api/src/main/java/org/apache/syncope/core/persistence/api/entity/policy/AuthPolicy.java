@@ -18,17 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.entity.policy;
 
-
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 
 public interface AuthPolicy extends Policy {
 
-    String getName();
+    AuthPolicyConf getConf();
 
-    void setName(String name);
-
-    Implementation getConfiguration();
-
-    void setConfiguration(Implementation configuration);
-
+    void setConf(AuthPolicyConf conf);
 }

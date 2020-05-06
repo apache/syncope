@@ -18,51 +18,34 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
-import org.apache.syncope.common.lib.types.AMImplementationType;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-
-import javax.persistence.Column;
+import java.util.Optional;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.ManyToOne;
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAAccessPolicy.TABLE)
 public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
-    public static final String TABLE = "AccessPolicy";
-
     private static final long serialVersionUID = -4190607009908888884L;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+    public static final String TABLE = "AccessPolicy";
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private JPAImplementation configuration;
+    @Lob
+    private String jsonConf;
 
     @Override
-    public String getName() {
-        return name;
+    public AccessPolicyConf getConf() {
+        return jsonConf == null
+                ? null
+                : POJOHelper.deserialize(jsonConf, AccessPolicyConf.class);
     }
 
     @Override
-    public void setName(final String name) {
-        this.name = name;
+    public void setConf(final AccessPolicyConf conf) {
+        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
     }
-
-    @Override
-    public Implementation getConfiguration() {
-        return configuration;
-    }
-
-    @Override
-    public void setConfiguration(final Implementation configuration) {
-        checkType(configuration, JPAImplementation.class);
-        checkImplementationType(configuration, AMImplementationType.ACCESS_POLICY_CONF);
-        this.configuration = (JPAImplementation) configuration;
-    }
-
 }

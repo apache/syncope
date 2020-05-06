@@ -18,36 +18,45 @@
  */
 package org.apache.syncope.wa.starter;
 
-import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
-import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
-import org.apereo.cas.services.ServiceRegistryListener;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.mapping.AccessMapFor;
+import org.apache.syncope.wa.starter.mapping.AccessMapper;
+import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
+import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
+import org.apache.syncope.wa.starter.mapping.AuthMapFor;
+import org.apache.syncope.wa.starter.mapping.AuthMapper;
+import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
+import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
+import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
+import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
+import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
+import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
+import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
+import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
+import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
+import org.apereo.cas.util.crypto.CipherExecutor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.Collection;
-import org.apache.syncope.wa.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
-import org.apache.syncope.wa.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
-import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
-import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
-import org.apereo.cas.util.crypto.CipherExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.ResourceLoader;
 
 @Configuration
 public class SyncopeWAConfiguration {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAConfiguration.class);
 
     @Autowired
     private CasConfigurationProperties casProperties;
@@ -67,10 +76,68 @@ public class SyncopeWAConfiguration {
     private Collection<ServiceRegistryListener> serviceRegistryListeners;
 
     @Autowired
+    private ApplicationContext ctx;
+
+    @ConditionalOnMissingBean
     @Bean
-    public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(final WARestClient restClient) {
-        SyncopeServiceRegistry registry =
-                new SyncopeServiceRegistry(restClient, applicationContext, serviceRegistryListeners);
+    public RegisteredServiceMapper registeredServiceMapper() {
+        Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
+        Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers = new HashMap<>();
+        ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
+            AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
+            if (authMapFor != null) {
+                authPolicyConfMappers.put(authMapFor.authPolicyConfClass().getName(), bean);
+                registeredServiceAuthenticationPolicyMappers.put(
+                        authMapFor.registeredServiceAuthenticationPolicyClass().getName(), bean);
+            }
+        });
+
+        Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
+        Map<String, AccessMapper> registeredServiceAccessStrategyMappers = new HashMap<>();
+        ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
+            AccessMapFor accessMapFor = ctx.findAnnotationOnBean(name, AccessMapFor.class);
+            if (accessMapFor != null) {
+                accessPolicyConfMappers.put(accessMapFor.accessPolicyConfClass().getName(), bean);
+                registeredServiceAccessStrategyMappers.put(
+                        accessMapFor.registeredServiceAccessStrategyClass().getName(), bean);
+            }
+        });
+
+        Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
+        Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers = new HashMap<>();
+        ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
+            AttrReleaseMapFor attrReleaseMapFor = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
+            if (attrReleaseMapFor != null) {
+                attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
+                registeredServiceAttributeReleasePolicyMappers.put(
+                        attrReleaseMapFor.registeredServiceAttributeReleasePolicyClass().getName(), bean);
+            }
+        });
+
+        Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
+        Map<String, ClientAppMapper> registeredServiceMappers = new HashMap<>();
+        ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
+            ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);
+            if (clientAppMapFor != null) {
+                clientAppTOMappers.put(clientAppMapFor.clientAppClass().getName(), bean);
+                registeredServiceMappers.put(clientAppMapFor.registeredServiceClass().getName(), bean);
+            }
+        });
+
+        return new RegisteredServiceMapper(
+                authPolicyConfMappers, registeredServiceAuthenticationPolicyMappers,
+                accessPolicyConfMappers, registeredServiceAccessStrategyMappers,
+                attrReleasePolicyConfMappers, registeredServiceAttributeReleasePolicyMappers,
+                clientAppTOMappers, registeredServiceMappers);
+    }
+
+    @Autowired
+    @Bean
+    public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
+            final WARestClient restClient, final RegisteredServiceMapper registeredServiceMapper) {
+
+        SyncopeServiceRegistry registry = new SyncopeServiceRegistry(
+                restClient, registeredServiceMapper, applicationContext, serviceRegistryListeners);
         return plan -> plan.registerServiceRegistry(registry);
     }
 
@@ -109,5 +176,4 @@ public class SyncopeWAConfiguration {
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.WA);
     }
-
 }

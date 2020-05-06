@@ -21,12 +21,9 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.lang.reflect.Modifier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
-import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.types.AMImplementationType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -37,8 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
@@ -56,8 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.common.lib.policy.AuthPolicyConf;
-import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
 @Component
 public class ImplementationDataBinderImpl implements ImplementationDataBinder {
@@ -156,17 +149,6 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     base = ProvisionSorter.class;
                     break;
 
-                case AMImplementationType.ACCESS_POLICY_CONF:
-                    base = AccessPolicy.class;
-                    break;
-
-                case AMImplementationType.AUTH_POLICY_CONF:
-                    base = AuthPolicy.class;
-                    break;
-
-                case AMImplementationType.ATTR_RELEASE_POLICY_CONF:
-                    base = AttrReleasePolicy.class;
-                    break;
                 default:
             }
 
@@ -176,30 +158,6 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
             }
 
             switch (implementation.getType()) {
-                case AMImplementationType.ACCESS_POLICY_CONF:
-                    AccessPolicyConf accessPolicyConf =
-                            POJOHelper.deserialize(implementation.getBody(), AccessPolicyConf.class);
-                    if (accessPolicyConf == null) {
-                        sce.getElements().add("Could not deserialize as AccessPolicy");
-                        throw sce;
-                    }
-                    break;
-                case AMImplementationType.ATTR_RELEASE_POLICY_CONF:
-                    AttrReleasePolicyConf policyConf =
-                            POJOHelper.deserialize(implementation.getBody(), AttrReleasePolicyConf.class);
-                    if (policyConf == null) {
-                        sce.getElements().add("Could not deserialize as AttrReleasePolicy");
-                        throw sce;
-                    }
-                    break;
-                case AMImplementationType.AUTH_POLICY_CONF:
-                    AuthPolicyConf authPolicyConf =
-                            POJOHelper.deserialize(implementation.getBody(), AuthPolicyConf.class);
-                    if (authPolicyConf == null) {
-                        sce.getElements().add("Could not deserialize as AuthPolicy");
-                        throw sce;
-                    }
-                    break;
                 case IdRepoImplementationType.REPORTLET:
                     ReportletConf reportlet = POJOHelper.deserialize(implementation.getBody(), ReportletConf.class);
                     if (reportlet == null) {

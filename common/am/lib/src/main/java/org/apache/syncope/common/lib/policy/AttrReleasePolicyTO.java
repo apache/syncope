@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
@@ -31,22 +30,21 @@ public class AttrReleasePolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -1432411162433533300L;
 
-    private String configuration;
+    private AttrReleasePolicyConf conf;
 
     @XmlTransient
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.AttrReleasePolicyTO")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.AttrReleasePolicyTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
-    public String getConfiguration() {
-        return configuration;
+    public AttrReleasePolicyConf getConf() {
+        return conf;
     }
 
-    public void setConfiguration(final String configuration) {
-        this.configuration = configuration;
+    public void setConf(final AttrReleasePolicyConf conf) {
+        this.conf = conf;
     }
-
 }

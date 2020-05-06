@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;

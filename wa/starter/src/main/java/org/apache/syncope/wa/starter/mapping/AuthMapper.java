@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 
-public interface AccessPolicy extends Policy {
+public interface AuthMapper {
 
-    AccessPolicyConf getConf();
+    RegisteredServiceAuthenticationPolicy build(AuthPolicyConf conf);
 
-    void setConf(AccessPolicyConf conf);
+    AuthPolicyConf build(RegisteredServiceAuthenticationPolicy policy);
 }

@@ -26,7 +26,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
-@XmlRootElement(name = "DefaultAuthPolicyConf")
+@XmlRootElement(name = "defaultAuthPolicyConf")
 @XmlType
 public class DefaultAuthPolicyConf extends AbstractAuthPolicyConf implements AuthPolicyConf {
 

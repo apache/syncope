@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.data.wa;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,27 +42,21 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
 
         try {
             if (clientApp.getAuthPolicy() != null) {
-                waClientApp.setAuthPolicyConf(
-                        ImplementationManager.build((clientApp.getAuthPolicy()).getConfiguration()));
+                waClientApp.setAuthPolicyConf((clientApp.getAuthPolicy()).getConf());
             } else if (clientApp.getRealm().getAuthPolicy() != null) {
-                waClientApp.setAuthPolicyConf(
-                        ImplementationManager.build((clientApp.getRealm().getAuthPolicy()).getConfiguration()));
+                waClientApp.setAuthPolicyConf((clientApp.getRealm().getAuthPolicy()).getConf());
             }
 
             if (clientApp.getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf(
-                        ImplementationManager.build((clientApp.getAccessPolicy()).getConfiguration()));
+                waClientApp.setAccessPolicyConf((clientApp.getAccessPolicy()).getConf());
             } else if (clientApp.getRealm().getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf(
-                        ImplementationManager.build((clientApp.getRealm().getAccessPolicy()).getConfiguration()));
+                waClientApp.setAccessPolicyConf((clientApp.getRealm().getAccessPolicy()).getConf());
             }
 
             if (clientApp.getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf(
-                        ImplementationManager.build((clientApp.getAttrReleasePolicy()).getConfiguration()));
+                waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
             } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf(
-                        ImplementationManager.build((clientApp.getRealm().getAttrReleasePolicy()).getConfiguration()));
+                waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
             }
         } catch (Exception e) {
             LOG.error("While building the configuration from an application's policy ", e);
