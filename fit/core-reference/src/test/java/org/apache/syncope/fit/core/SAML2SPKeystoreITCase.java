@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.fit.AbstractITCase;
