@@ -18,26 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
-import org.apache.syncope.common.lib.to.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
-import org.apache.syncope.common.lib.to.AttrReleasePolicyTO;
-import org.apache.syncope.common.lib.to.AuthPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {

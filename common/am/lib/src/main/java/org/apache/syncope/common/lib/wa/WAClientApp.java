@@ -67,5 +67,4 @@ public class WAClientApp implements Serializable {
     public void setAttrReleasePolicyConf(final AttrReleasePolicyConf attrReleasePolicyConf) {
         this.attrReleasePolicyConf = attrReleasePolicyConf;
     }
-
 }

@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
-import org.apache.syncope.wa.WARestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;

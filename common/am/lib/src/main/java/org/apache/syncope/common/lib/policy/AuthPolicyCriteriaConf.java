@@ -29,7 +29,6 @@ import java.io.Serializable;
  * or "any module can validate the user" before the policy can consider it
  * a success.
  */
-@FunctionalInterface
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public interface AuthPolicyCriteriaConf extends Serializable {
 

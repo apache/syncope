@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
-import org.apache.syncope.wa.WARestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;

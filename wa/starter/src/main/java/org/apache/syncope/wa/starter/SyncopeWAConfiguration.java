@@ -18,36 +18,34 @@
  */
 package org.apache.syncope.wa.starter;
 
-import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
-import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
-import org.apereo.cas.services.ServiceRegistryListener;
+import java.util.Collection;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
+import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
+import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
+import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
+import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
+import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
+import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
+import org.apereo.cas.util.crypto.CipherExecutor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.Collection;
-import org.apache.syncope.wa.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
-import org.apache.syncope.wa.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
-import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
-import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
-import org.apereo.cas.util.crypto.CipherExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.ResourceLoader;
 
 @Configuration
 public class SyncopeWAConfiguration {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAConfiguration.class);
 
     @Autowired
     private CasConfigurationProperties casProperties;
@@ -66,11 +64,19 @@ public class SyncopeWAConfiguration {
     @Qualifier("serviceRegistryListeners")
     private Collection<ServiceRegistryListener> serviceRegistryListeners;
 
+    @ConditionalOnMissingBean
+    @Bean
+    public RegisteredServiceMapper registeredServiceMapper() {
+        return new RegisteredServiceMapper();
+    }
+
     @Autowired
     @Bean
-    public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(final WARestClient restClient) {
-        SyncopeServiceRegistry registry =
-                new SyncopeServiceRegistry(restClient, applicationContext, serviceRegistryListeners);
+    public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
+            final WARestClient restClient, final RegisteredServiceMapper registeredServiceMapper) {
+
+        SyncopeServiceRegistry registry = new SyncopeServiceRegistry(
+                restClient, registeredServiceMapper, applicationContext, serviceRegistryListeners);
         return plan -> plan.registerServiceRegistry(registry);
     }
 
@@ -109,5 +115,4 @@ public class SyncopeWAConfiguration {
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.WA);
     }
-
 }

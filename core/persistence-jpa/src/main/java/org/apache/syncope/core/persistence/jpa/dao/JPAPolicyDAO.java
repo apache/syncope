@@ -121,33 +121,6 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
     }
 
     @Override
-    public List<AuthPolicy> findByAuthPolicy(final Implementation configuration) {
-        TypedQuery<AuthPolicy> query = entityManager().createQuery("SELECT e FROM " + JPAAuthPolicy.class.
-                getSimpleName() + " e "
-                + "WHERE e.configuration=:configuration", AuthPolicy.class);
-        query.setParameter("configuration", configuration);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<AccessPolicy> findByAccessPolicy(final Implementation configuration) {
-        TypedQuery<AccessPolicy> query = entityManager().createQuery("SELECT e FROM " + JPAAccessPolicy.class.
-                getSimpleName() + " e "
-                + "WHERE  e.configuration=:configuration", AccessPolicy.class);
-        query.setParameter("configuration", configuration);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<AttrReleasePolicy> findByAttrReleasePolicy(final Implementation configuration) {
-        TypedQuery<AttrReleasePolicy> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAAttrReleasePolicy.class.getSimpleName() + " e "
-                + "WHERE e.configuration=:configuration", AttrReleasePolicy.class);
-        query.setParameter("configuration", configuration);
-        return query.getResultList();
-    }
-
-    @Override
     public List<PushPolicy> findByPushCorrelationRule(final Implementation correlationRule) {
         TypedQuery<PushPolicy> query = entityManager().createQuery(
                 "SELECT DISTINCT e.pushPolicy FROM " + JPAPushCorrelationRuleEntity.class.getSimpleName() + " e "

@@ -26,7 +26,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
-@XmlRootElement(name = "AllowedAttrReleasePolicyConf")
+@XmlRootElement(name = "allowedAttrReleasePolicyConf")
 @XmlType
 public class AllowedAttrReleasePolicyConf extends AbstractAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
@@ -36,13 +36,12 @@ public class AllowedAttrReleasePolicyConf extends AbstractAttrReleasePolicyConf 
      * Specify the list of allowed attribute to release.
      * Use the special {@code *} to release everything.
      */
-    private final List<String> allowedAttributes = new ArrayList<>();
+    private final List<String> allowedAttrs = new ArrayList<>();
 
-    @XmlElementWrapper(name = "allowedAttributes")
-    @XmlElement(name = "allowedAttribute")
-    @JsonProperty("allowedAttributes")
-    public List<String> getAllowedAttributes() {
-        return allowedAttributes;
+    @XmlElementWrapper(name = "allowedAttrs")
+    @XmlElement(name = "allowedAttr")
+    @JsonProperty("allowedAttrs")
+    public List<String> getAllowedAttrs() {
+        return allowedAttrs;
     }
-
 }

@@ -37,5 +37,5 @@ public interface AccessPolicyConf extends Serializable {
 
     boolean isSsoEnabled();
 
-    Map<String, Set<String>> getRequiredAttributes();
+    Map<String, Set<String>> getRequiredAttrs();
 }

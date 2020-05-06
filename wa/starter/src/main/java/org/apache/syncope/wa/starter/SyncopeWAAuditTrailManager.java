@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.rest.api.service.LoggerService;
-import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.inspektr.audit.AuditActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

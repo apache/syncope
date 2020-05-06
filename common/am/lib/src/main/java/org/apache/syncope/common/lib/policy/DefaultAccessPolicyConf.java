@@ -21,10 +21,9 @@ package org.apache.syncope.common.lib.policy;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "DefaultAccessPolicyConf")
+@XmlRootElement(name = "defaultAccessPolicyConf")
 @XmlType
 public class DefaultAccessPolicyConf extends AbstractAccessPolicyConf implements AccessPolicyConf {
 
     private static final long serialVersionUID = -1969836600059025380L;
-
 }

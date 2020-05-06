@@ -18,6 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
@@ -25,7 +35,6 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
-import org.apache.syncope.common.lib.types.AMImplementationType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -37,6 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
@@ -48,15 +58,6 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
 @Transactional("Master")
 public class PolicyTest extends AbstractTest {
@@ -122,21 +123,6 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(attrReleasePolicy);
         attrReleasePolicy = policyDAO.find(UUID.randomUUID().toString());
         assertNull(attrReleasePolicy);
-
-    }
-
-    @Test
-    public void findByPolicyImpl() {
-        AccessPolicy accessPolicy = policyDAO.find("419935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNotNull(accessPolicy);
-        AuthPolicy authPolicy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
-        assertNotNull(authPolicy);
-        AttrReleasePolicy attrReleasePolicy = policyDAO.find("319935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNotNull(attrReleasePolicy);
-
-        assertFalse(policyDAO.findByAccessPolicy(accessPolicy.getConfiguration()).isEmpty());
-        assertFalse(policyDAO.findByAuthPolicy(authPolicy.getConfiguration()).isEmpty());
-        assertFalse(policyDAO.findByAttrReleasePolicy(attrReleasePolicy.getConfiguration()).isEmpty());
     }
 
     @Test
@@ -203,21 +189,13 @@ public class PolicyTest extends AbstractTest {
 
         int beforeCount = policyDAO.findAll().size();
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
-        accessPolicy.setName("AttrReleasePolicyAllowEverything");
-        accessPolicy.setDescription("This is a sample attr release policy that releases everything");
+        accessPolicy.setDescription("AttrReleasePolicyAllowEverything");
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.getRequiredAttributes().putAll(Map.of("cn", Set.of("syncope")));
+        conf.getRequiredAttrs().putAll(Map.of("cn", Set.of("syncope")));
         conf.setName("AttrReleasePolicyAllowEverything");
+        accessPolicy.setConf(conf);
 
-        Implementation type = entityFactory.newEntity(Implementation.class);
-        type.setKey("AttrReleasePolicyAllowEverything");
-        type.setEngine(ImplementationEngine.JAVA);
-        type.setType(AMImplementationType.ACCESS_POLICY_CONF);
-        type.setBody(POJOHelper.serialize(conf));
-        type = implementationDAO.save(type);
-
-        accessPolicy.setConfiguration(type);
         accessPolicy = policyDAO.save(accessPolicy);
 
         assertNotNull(accessPolicy);
@@ -228,8 +206,7 @@ public class PolicyTest extends AbstractTest {
 
         beforeCount = policyDAO.findAll().size();
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
-        authPolicy.setName("AuthPolicyTest");
-        authPolicy.setDescription("This is a sample authentication policy");
+        authPolicy.setDescription("AuthPolicyTest");
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.getAuthModules().addAll(List.of("LdapAuthentication1", "DatabaseAuthentication2"));
@@ -237,14 +214,8 @@ public class PolicyTest extends AbstractTest {
         criteria.setName("DefaultConf");
         criteria.setAll(true);
         authPolicyConf.setCriteria(criteria);
-        Implementation authPolicyType = entityFactory.newEntity(Implementation.class);
-        authPolicyType.setKey("AuthPolicyConfKey");
-        authPolicyType.setEngine(ImplementationEngine.JAVA);
-        authPolicyType.setType(AMImplementationType.AUTH_POLICY_CONF);
-        authPolicyType.setBody(POJOHelper.serialize(authPolicyConf));
-        authPolicyType = implementationDAO.save(authPolicyType);
+        authPolicy.setConf(authPolicyConf);
 
-        authPolicy.setConfiguration(authPolicyType);
         authPolicy = policyDAO.save(authPolicy);
 
         assertNotNull(authPolicy);
@@ -254,30 +225,21 @@ public class PolicyTest extends AbstractTest {
         assertEquals(afterCount, beforeCount + 1);
 
         beforeCount = policyDAO.findAll().size();
-        AttrReleasePolicy attrReleasepolicy = entityFactory.newEntity(AttrReleasePolicy.class);
-        attrReleasepolicy.setName("AttrReleasePolicyAllowEverything");
-        attrReleasepolicy.setDescription("This is a sample attr release policy that releases everything");
+        AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
+        attrReleasePolicy.setDescription("AttrReleasePolicyAllowEverything");
 
         AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
-        attrReleasePolicyConf.getAllowedAttributes().addAll(List.of("*"));
+        attrReleasePolicyConf.getAllowedAttrs().addAll(List.of("*"));
         attrReleasePolicyConf.setName("AttrReleasePolicyAllowEverything");
+        attrReleasePolicy.setConf(attrReleasePolicyConf);
 
-        Implementation attrReleasePolicyType = entityFactory.newEntity(Implementation.class);
-        attrReleasePolicyType.setKey("AttrReleasePolicyAllowEverything");
-        attrReleasePolicyType.setEngine(ImplementationEngine.JAVA);
-        attrReleasePolicyType.setType(AMImplementationType.ATTR_RELEASE_POLICY_CONF);
-        attrReleasePolicyType.setBody(POJOHelper.serialize(attrReleasePolicyConf));
-        attrReleasePolicyType = implementationDAO.save(attrReleasePolicyType);
+        attrReleasePolicy = policyDAO.save(attrReleasePolicy);
 
-        attrReleasepolicy.setConfiguration(attrReleasePolicyType);
-        attrReleasepolicy = policyDAO.save(attrReleasepolicy);
-
-        assertNotNull(attrReleasepolicy);
-        assertNotNull(attrReleasepolicy.getKey());
+        assertNotNull(attrReleasePolicy);
+        assertNotNull(attrReleasePolicy.getKey());
 
         afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
-
     }
 
     @Test

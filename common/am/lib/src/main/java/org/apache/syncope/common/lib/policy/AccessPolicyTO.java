@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,38 +17,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "authPolicy")
+@XmlRootElement(name = "accessPolicy")
 @XmlType
-public class AuthPolicyTO extends PolicyTO {
+public class AccessPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -6711411162433533300L;
 
-    private String configuration;
+    private AccessPolicyConf conf;
 
     @XmlTransient
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true,
-            example = "org.apache.syncope.common.lib.to.AuthPolicyTO")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.AccessPolicyTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
-    public String getConfiguration() {
-        return configuration;
+    public AccessPolicyConf getConf() {
+        return conf;
     }
 
-    public void setConfiguration(final String configuration) {
-        this.configuration = configuration;
+    public void setConf(final AccessPolicyConf conf) {
+        this.conf = conf;
     }
-
 }

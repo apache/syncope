@@ -16,24 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.init;
+package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.types.AMImplementationType;
-import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
-import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
+import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 
-@Component
-public class AMImplementationTypeLoader implements SyncopeCoreLoader {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AttrReleaseMapFor {
 
-    @Override
-    public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
-    }
+    Class<? extends AttrReleasePolicyConf> attrReleasePolicyConfClass();
 
-    @Override
-    public void load() {
-        ImplementationTypesHolder.getInstance().putAll(AMImplementationType.values());
-    }
+    Class<? extends RegisteredServiceAttributeReleasePolicy> registeredServiceAttributeReleasePolicyClass();
 }
