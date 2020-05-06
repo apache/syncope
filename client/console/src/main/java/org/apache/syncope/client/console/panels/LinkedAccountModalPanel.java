@@ -143,7 +143,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
             @Override
             @SuppressWarnings("unchecked")
             protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
-                checkAddButton();
+                checkAddButton(model.getObject().getRealm());
 
                 linkedAccountTOs.clear();
                 linkedAccountTOs.addAll(model.getObject().getLinkedAccounts());
@@ -247,7 +247,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
 
-                    checkAddButton();
+                    checkAddButton(model.getObject().getRealm());
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     send(LinkedAccountModalPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload<>(target));
                 }
@@ -330,7 +330,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                         SyncopeConsoleSession.get().onException(e);
                     }
 
-                    checkAddButton();
+                    checkAddButton(model.getObject().getRealm());
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     send(LinkedAccountModalPanel.this, Broadcast.DEPTH, new ListViewPanel.ListViewReload<>(target));
                 }
@@ -341,7 +341,8 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
         list = builder.build(MultilevelPanel.FIRST_LEVEL_ID);
         list.setOutputMarkupId(true);
-        list.setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.USER_UPDATE));
+        list.setReadOnly(!SyncopeConsoleSession.get().
+                owns(StandardEntitlement.USER_UPDATE, model.getObject().getRealm()));
 
         addAjaxLink = new AjaxLink<LinkedAccountTO>("add") {
 
@@ -367,7 +368,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
         linkedAccountTOs.sort(Comparator.comparing(LinkedAccountTO::getConnObjectKeyValue));
     }
 
-    private void checkAddButton() {
-        addAjaxLink.setVisible(SyncopeConsoleSession.get().owns(StandardEntitlement.USER_UPDATE));
+    private void checkAddButton(final String realm) {
+        addAjaxLink.setVisible(SyncopeConsoleSession.get().owns(StandardEntitlement.USER_UPDATE, realm));
     }
 }

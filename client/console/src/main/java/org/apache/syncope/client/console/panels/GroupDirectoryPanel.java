@@ -115,7 +115,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                                 panel = new UserDirectoryPanel.Builder(
                                         classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                        setRealm(SyncopeConstants.ROOT_REALM).
+                                        setRealm(realm).
                                         setFiltered(true).
                                         setFiql(fiql).
                                         disableCheckBoxes().
@@ -135,7 +135,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                                 panel = new AnyObjectDirectoryPanel.Builder(
                                         classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                        setRealm(SyncopeConstants.ROOT_REALM).
+                                        setRealm(realm).
                                         setFiltered(true).
                                         setFiql(fiql).
                                         disableCheckBoxes().
