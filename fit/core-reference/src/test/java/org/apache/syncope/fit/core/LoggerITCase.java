@@ -38,7 +38,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
@@ -276,25 +275,27 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void saveAuditEvent() {
-        AuditLoggerName logger = new AuditLoggerName(EventCategoryType.WA, "LoggerLogic",
-            AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(), "validate",
-            AuditElements.Result.SUCCESS);
         AuditEntry auditEntry = new AuditEntry();
-        String who = "syncope-user " + UUID.randomUUID().toString();
-        auditEntry.setWho(who);
-        auditEntry.setLogger(logger);
+        auditEntry.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEntry.setLogger(new AuditLoggerName(
+                EventCategoryType.WA,
+                "LoggerLogic",
+                AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
+                "validate",
+                AuditElements.Result.SUCCESS));
         auditEntry.setDate(new Date());
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> loggerService.create(auditEntry));
 
-        AuditQuery query = new AuditQuery();
-        query.setSize(1);
-        query.setType(auditEntry.getLogger().getType());
-        query.setResult(auditEntry.getLogger().getResult());
-        query.setCategory(auditEntry.getLogger().getCategory());
-        query.setEvents(List.of(auditEntry.getLogger().getEvent()));
-        PagedResult<AuditEntry> events = loggerService.search(query);
+        PagedResult<AuditEntry> events = loggerService.search(new AuditQuery.Builder().
+                size(1).
+                type(auditEntry.getLogger().getType()).
+                category(auditEntry.getLogger().getCategory()).
+                subcategory(auditEntry.getLogger().getSubcategory()).
+                event(auditEntry.getLogger().getEvent()).
+                result(auditEntry.getLogger().getResult()).
+                build());
         assertNotNull(events);
         assertEquals(1, events.getSize());
     }

@@ -18,51 +18,34 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
-import org.apache.syncope.common.lib.types.AMImplementationType;
-import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
-import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-
-import javax.persistence.Column;
+import java.util.Optional;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.persistence.Table;
-
-import javax.persistence.ManyToOne;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
+import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAAttrReleasePolicy.TABLE)
 public class JPAAttrReleasePolicy extends AbstractPolicy implements AttrReleasePolicy {
 
-    public static final String TABLE = "AttrReleasePolicy";
-
     private static final long serialVersionUID = -4190607669908888884L;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+    public static final String TABLE = "AttrReleasePolicy";
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private JPAImplementation configuration;
+    @Lob
+    private String jsonConf;
 
     @Override
-    public String getName() {
-        return name;
+    public AttrReleasePolicyConf getConf() {
+        return jsonConf == null
+                ? null
+                : POJOHelper.deserialize(jsonConf, AttrReleasePolicyConf.class);
     }
 
     @Override
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public Implementation getConfiguration() {
-        return configuration;
-    }
-
-    @Override
-    public void setConfiguration(final Implementation configuration) {
-        checkType(configuration, JPAImplementation.class);
-        checkImplementationType(configuration, AMImplementationType.ATTR_RELEASE_POLICY_CONF);
-        this.configuration = (JPAImplementation) configuration;
+    public void setConf(final AttrReleasePolicyConf conf) {
+        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
     }
 }

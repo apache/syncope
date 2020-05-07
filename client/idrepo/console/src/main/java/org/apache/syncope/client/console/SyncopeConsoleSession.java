@@ -275,7 +275,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         }
 
         Set<String> requested = ArrayUtils.isEmpty(realms)
-                ? Set.of(SyncopeConstants.ROOT_REALM)
+                ? Set.of()
                 : Set.of(realms);
 
         for (String entitlement : entitlements.split(",")) {
@@ -283,11 +283,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 boolean owns = false;
 
                 Set<String> owned = auth.get(entitlement);
-                for (String realm : requested) {
-                    if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
-                        owns |= owned.stream().anyMatch(realm::startsWith);
-                    } else {
-                        owns |= owned.contains(realm);
+                if (requested.isEmpty()) {
+                    return !owned.isEmpty();
+                } else {
+                    for (String realm : requested) {
+                        if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
+                            owns |= owned.stream().anyMatch(realm::startsWith);
+                        } else {
+                            owns |= owned.contains(realm);
+                        }
                     }
                 }
 

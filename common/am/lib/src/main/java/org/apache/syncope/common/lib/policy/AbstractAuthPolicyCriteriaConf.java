@@ -46,5 +46,4 @@ public abstract class AbstractAuthPolicyCriteriaConf implements AuthPolicyCriter
     public final void setName(final String name) {
         this.name = name;
     }
-
 }

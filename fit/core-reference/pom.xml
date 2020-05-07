@@ -1249,14 +1249,14 @@ under the License.
       <id>oracle-it</id>
       
       <properties>
-        <jdbcdriver.groupId>com.oracle.ojdbc</jdbcdriver.groupId>
+        <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc10</jdbcdriver.artifactId>
         <cargo.deployable.ping.timeout>120000</cargo.deployable.ping.timeout>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>com.oracle.ojdbc</groupId>
+          <groupId>com.oracle.database.jdbc</groupId>
           <artifactId>ojdbc10</artifactId>
           <version>${jdbc.oracle.version}</version>
           <scope>test</scope>

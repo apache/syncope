@@ -24,12 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -44,9 +46,6 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.persistence.api.DomainRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component
 public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
@@ -84,7 +83,6 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
 
     @Override
     public void register(final Domain domain) {
-        // localDomainDataSource
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(domain.getJdbcDriver());
         hikariConfig.setJdbcUrl(domain.getJdbcURL());
@@ -95,14 +93,12 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         hikariConfig.setMaximumPoolSize(domain.getPoolMaxActive());
         hikariConfig.setMinimumIdle(domain.getPoolMinIdle());
 
-        HikariDataSource localDomainDataSource = new HikariDataSource(hikariConfig);
-
         // domainDataSource
         registerBeanDefinition(
                 domain.getKey() + "DataSource",
                 BeanDefinitionBuilder.rootBeanDefinition(JndiObjectFactoryBean.class).
                         addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domain.getKey() + "DataSource").
-                        addPropertyValue("defaultObject", localDomainDataSource).
+                        addPropertyValue("defaultObject", new HikariDataSource(hikariConfig)).
                         getBeanDefinition());
         DataSource initedDataSource = ApplicationContextProvider.getBeanFactory().
                 getBean(domain.getKey() + "DataSource", DataSource.class);
@@ -137,8 +133,8 @@ public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
         if (env.containsProperty("openjpaMetaDataFactory")) {
             emf.addPropertyValue("jpaPropertyMap", Map.of(
                     "openjpa.MetaDataFactory",
-                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory"))
-                        .replace("##orm##", domain.getOrm())));
+                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).
+                            replace("##orm##", domain.getOrm())));
         }
         registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
         ApplicationContextProvider.getBeanFactory().getBean(domain.getKey() + "EntityManagerFactory");

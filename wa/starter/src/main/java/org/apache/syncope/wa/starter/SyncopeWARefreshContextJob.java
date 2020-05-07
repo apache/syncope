@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.wa.starter;
 
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.commons.lang.StringUtils;
-import org.apache.syncope.wa.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.AsciiArtUtils;

@@ -59,7 +59,7 @@ public class MasterDomain {
 
     @Autowired
     private Environment env;
-    
+
     @Value("${Master.driverClassName}")
     private String driverClassName;
 
@@ -96,9 +96,9 @@ public class MasterDomain {
     @Value("${content.directory}")
     private String contentDirectory;
 
-    @Bean
-    @ConditionalOnMissingBean(name = "localMasterDataSource")
-    public DataSource localMasterDataSource() {
+    @Bean(name = "MasterDataSource")
+    @ConditionalOnMissingBean(name = "MasterDataSource")
+    public JndiObjectFactoryBean masterDataSource() {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driverClassName);
         hikariConfig.setJdbcUrl(url);
@@ -107,15 +107,10 @@ public class MasterDomain {
         hikariConfig.setTransactionIsolation(transactionIsolation);
         hikariConfig.setMaximumPoolSize(maximumPoolSize);
         hikariConfig.setMinimumIdle(minimumIdle);
-        return new HikariDataSource(hikariConfig);
-    }
 
-    @Bean(name = "MasterDataSource")
-    @ConditionalOnMissingBean(name = "MasterDataSource")
-    public JndiObjectFactoryBean masterDataSource() {
         JndiObjectFactoryBean masterDataSource = new JndiObjectFactoryBean();
         masterDataSource.setJndiName("java:comp/env/jdbc/syncopeMasterDataSource");
-        masterDataSource.setDefaultObject(localMasterDataSource());
+        masterDataSource.setDefaultObject(new HikariDataSource(hikariConfig));
         return masterDataSource;
     }
 
@@ -151,21 +146,21 @@ public class MasterDomain {
         DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
         masterEntityManagerFactory.setMappingResources(orm);
         masterEntityManagerFactory.setPersistenceUnitName("Master");
-        
+
         masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource().getObject()));
         masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
         masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
 
         if (env.containsProperty("openjpaMetaDataFactory")) {
             masterEntityManagerFactory.setJpaPropertyMap(Map.of(
-                "openjpa.MetaDataFactory",
-                Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).replace("##orm##", orm)));
+                    "openjpa.MetaDataFactory",
+                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).replace("##orm##", orm)));
         }
 
         return masterEntityManagerFactory;
     }
 
-    @Bean(name = {"MasterTransactionManager", "Master"})
+    @Bean(name = { "MasterTransactionManager", "Master" })
     @ConditionalOnMissingBean(name = "MasterTransactionManager")
     public PlatformTransactionManager transactionManager() {
         return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory().getObject()));
@@ -184,7 +179,7 @@ public class MasterDomain {
     @ConditionalOnMissingBean(name = "MasterContentXML")
     public InputStream masterContentXML() throws IOException {
         ResourceWithFallbackLoader masterContentXML =
-            ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
+                ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
         masterContentXML.setPrimary("file:" + contentDirectory + "/domains/MasterContent.xml");
         masterContentXML.setFallback("classpath:domains/MasterContent.xml");
         return masterContentXML.getResource().getInputStream();
@@ -194,7 +189,7 @@ public class MasterDomain {
     @ConditionalOnMissingBean(name = "MasterKeymasterConfParamsJSON")
     public InputStream masterKeymasterConfParamsJSON() throws IOException {
         ResourceWithFallbackLoader keymasterConfParamsJSON =
-            ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
+                ctx.getBeanFactory().createBean(ResourceWithFallbackLoader.class);
         keymasterConfParamsJSON.setPrimary("file:" + contentDirectory + "/domains/MasterKeymasterConfParams.json");
         keymasterConfParamsJSON.setFallback("classpath:domains/MasterKeymasterConfParams.json");
         return keymasterConfParamsJSON.getResource().getInputStream();

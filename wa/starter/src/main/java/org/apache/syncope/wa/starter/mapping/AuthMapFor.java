@@ -16,13 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 
-public interface AccessPolicy extends Policy {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AuthMapFor {
 
-    AccessPolicyConf getConf();
+    Class<? extends AuthPolicyConf> authPolicyConfClass();
 
-    void setConf(AccessPolicyConf conf);
+    Class<? extends RegisteredServiceAuthenticationPolicy> registeredServiceAuthenticationPolicyClass();
 }

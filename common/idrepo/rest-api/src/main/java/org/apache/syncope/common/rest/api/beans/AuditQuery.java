@@ -19,6 +19,7 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
@@ -34,14 +35,14 @@ public class AuditQuery extends AbstractQuery {
 
     public static class Builder extends AbstractQuery.Builder<AuditQuery, Builder> {
 
-        public Builder(final String entityKey) {
-            super();
-            getInstance().setEntityKey(entityKey);
-        }
-
         @Override
         protected AuditQuery newInstance() {
             return new AuditQuery();
+        }
+
+        public Builder entityKey(final String entityKey) {
+            getInstance().setEntityKey(entityKey);
+            return this;
         }
 
         public Builder type(final AuditElements.EventCategoryType type) {
@@ -87,7 +88,8 @@ public class AuditQuery extends AbstractQuery {
 
     private AuditElements.Result result;
 
-    @Parameter(name = JAXRSService.PARAM_ENTITY_KEY, description = "audit entity key to match", schema =
+    @Parameter(name = JAXRSService.PARAM_ENTITY_KEY, in = ParameterIn.QUERY,
+            description = "audit entity key to match", schema =
             @Schema(implementation = String.class, example = "50592942-73ec-44c4-a377-e859524245e4"))
     public String getEntityKey() {
         return entityKey;

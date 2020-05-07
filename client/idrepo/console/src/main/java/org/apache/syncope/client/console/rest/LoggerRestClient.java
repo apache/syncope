@@ -57,7 +57,7 @@ public class LoggerRestClient extends BaseRestClient {
 
         return result;
     }
-    
+
     public static List<LoggerTO> listLogs() {
         List<LoggerTO> logs = getService(LoggerService.class).list(LoggerType.LOG);
         logs.sort(Comparator.comparing(LoggerTO::getKey));
@@ -119,7 +119,8 @@ public class LoggerRestClient extends BaseRestClient {
             final AuditElements.Result result,
             final SortParam<String> sort) {
 
-        AuditQuery query = new AuditQuery.Builder(key).
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(key).
                 size(size).
                 page(page).
                 type(type).
@@ -139,7 +140,8 @@ public class LoggerRestClient extends BaseRestClient {
             final List<String> events,
             final AuditElements.Result result) {
 
-        AuditQuery query = new AuditQuery.Builder(key).
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(key).
                 page(1).
                 size(1).
                 type(type).

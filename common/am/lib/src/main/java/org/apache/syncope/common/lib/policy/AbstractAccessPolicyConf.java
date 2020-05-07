@@ -43,7 +43,7 @@ public abstract class AbstractAccessPolicyConf implements Serializable, AccessPo
     private boolean ssoEnabled = true;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    private final Map<String, Set<String>> requiredAttributes = new LinkedHashMap<>();
+    private final Map<String, Set<String>> requiredAttrs = new LinkedHashMap<>();
 
     public AbstractAccessPolicyConf() {
         setName(getClass().getName());
@@ -76,12 +76,11 @@ public abstract class AbstractAccessPolicyConf implements Serializable, AccessPo
         this.ssoEnabled = ssoEnabled;
     }
 
-    @XmlElementWrapper(name = "requiredAttributes")
-    @XmlElement(name = "requiredAttribute")
-    @JsonProperty("requiredAttributes")
+    @XmlElementWrapper(name = "requiredAttrs")
+    @XmlElement(name = "requiredAttr")
+    @JsonProperty("requiredAttrs")
     @Override
-    public Map<String, Set<String>> getRequiredAttributes() {
-        return requiredAttributes;
+    public Map<String, Set<String>> getRequiredAttrs() {
+        return requiredAttrs;
     }
-
 }

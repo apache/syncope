@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.wa.starter;
 
+import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.services.AbstractServiceRegistry;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -39,13 +40,17 @@ public class SyncopeServiceRegistry extends AbstractServiceRegistry {
 
     private final WARestClient restClient;
 
+    private final RegisteredServiceMapper registeredServiceMapper;
+
     public SyncopeServiceRegistry(
             final WARestClient restClient,
+            final RegisteredServiceMapper registeredServiceMapper,
             final ConfigurableApplicationContext applicationContext,
             final Collection<ServiceRegistryListener> serviceRegistryListeners) {
 
         super(applicationContext, serviceRegistryListeners);
         this.restClient = restClient;
+        this.registeredServiceMapper = registeredServiceMapper;
     }
 
     @Override
@@ -63,7 +68,7 @@ public class SyncopeServiceRegistry extends AbstractServiceRegistry {
         if (WARestClient.isReady()) {
             LOG.info("Loading application definitions");
             return restClient.getSyncopeClient().getService(WAClientAppService.class).list().stream().
-                    map(clientApp -> RegisteredServiceMapper.toRegisteredService(clientApp)).
+                    map(clientApp -> registeredServiceMapper.toRegisteredService(clientApp)).
                     collect(Collectors.toList());
         }
         LOG.debug("Syncope client is not yet ready to fetch application definitions");
@@ -74,7 +79,7 @@ public class SyncopeServiceRegistry extends AbstractServiceRegistry {
     public RegisteredService findServiceById(final long id) {
         if (WARestClient.isReady()) {
             LOG.info("Searching for application definition by id {}", id);
-            return RegisteredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
+            return registeredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
                     getService(WAClientAppService.class).read(id, null));
         }
         LOG.debug("Syncope client is not yet ready to fetch application definitions");
@@ -87,10 +92,10 @@ public class SyncopeServiceRegistry extends AbstractServiceRegistry {
         if (WARestClient.isReady()) {
             LOG.info("Searching for application definition by id {} and type {}", id, clazz);
             if (clazz.isInstance(OidcRegisteredService.class)) {
-                return (T) RegisteredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
+                return (T) registeredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(id, ClientAppType.OIDCRP));
             } else if (clazz.isInstance(SamlRegisteredService.class)) {
-                return (T) RegisteredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
+                return (T) registeredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(id, ClientAppType.SAML2SP));
             }
         }
@@ -104,10 +109,10 @@ public class SyncopeServiceRegistry extends AbstractServiceRegistry {
         if (WARestClient.isReady()) {
             LOG.info("Searching for application definition by name {} and type {}", name, clazz);
             if (clazz.isInstance(OidcRegisteredService.class)) {
-                return (T) RegisteredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
+                return (T) registeredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(name, ClientAppType.OIDCRP));
             } else if (clazz.isInstance(SamlRegisteredService.class)) {
-                return (T) RegisteredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
+                return (T) registeredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(name, ClientAppType.SAML2SP));
             }
         }
@@ -119,7 +124,7 @@ public class SyncopeServiceRegistry extends AbstractServiceRegistry {
     public RegisteredService findServiceByExactServiceName(final String name) {
         if (WARestClient.isReady()) {
             LOG.info("Searching for application definition by name {}", name);
-            return RegisteredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
+            return registeredServiceMapper.toRegisteredService(restClient.getSyncopeClient().
                     getService(WAClientAppService.class).read(name, null));
         }
         LOG.debug("Syncope client is not yet ready to fetch application definitions");

@@ -409,7 +409,7 @@ under the License.
     <jackson.version>2.11.0</jackson.version>
 
     <spring.version>5.2.6.RELEASE</spring.version>
-    <spring-security.version>5.3.1.RELEASE</spring-security.version>
+    <spring-security.version>5.3.2.RELEASE</spring-security.version>
     <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.2.RELEASE</spring-cloud-gateway.version>
 
@@ -515,14 +515,14 @@ under the License.
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
-    <docker.mysql.version>8.0.19</docker.mysql.version>
+    <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.5</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.10</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.19</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.5.4</jdbc.mariadb.version>
-    <jdbc.mssql.version>8.2.0.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>19.3.0.0</jdbc.oracle.version>
+    <jdbc.postgresql.version>42.2.12</jdbc.postgresql.version>
+    <jdbc.mysql.version>8.0.20</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.6.0</jdbc.mariadb.version>
+    <jdbc.mssql.version>8.2.2.jre</jdbc.mssql.version>
+    <jdbc.oracle.version>19.6.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -2624,7 +2624,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
+        <inherited>true</inherited>
         <configuration>
           <mavenExecutorId>forked-path</mavenExecutorId>
           <autoVersionSubmodules>true</autoVersionSubmodules>

@@ -44,25 +44,21 @@ under the License.
                   body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
   
-  <!-- authentication policies -->
-  <Implementation id="MyDefaultAuthPolicyConf" type="AUTH_POLICY_CONF" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
-  <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf" description="an authentication policy"/>
-  <AuthPolicy id="b912a0d4-a890-416f-9ab8-84ab077eb028" name="DefaultAuthPolicy" description="Default authentication policy"/>
+  <!-- Authentication policies -->
+  <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" description="MyDefaultAuthPolicyConf"
+              jsonConf='{"@class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
+  <AuthPolicy id="b912a0d4-a890-416f-9ab8-84ab077eb028" description="DefaultAuthPolicy"
+              jsonConf='{"@class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
 
-  <!-- access policies -->
-  <Implementation id="MyDefaultAccessPolicyConf" type="ACCESS_POLICY_CONF" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","name":"MyDefaultAccessPolicyConf","enabled":true,"ssoEnabled":true}'/>
-  <AccessPolicy id="419935c7-deb3-40b3-8a9a-683037e523a2" name="MyDefaultAccessPolicyConf" description="an access policy"/>
+  <!-- Access policies -->
+  <AccessPolicy id="419935c7-deb3-40b3-8a9a-683037e523a2" description="MyDefaultAccessPolicyConf"
+                jsonConf='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","name":"MyDefaultAccessPolicyConf","enabled":true,"ssoEnabled":true}'/>
 
   <!-- Attr Release Policies -->
-  <Implementation id="AllowedAttrReleasePolicyConf" type="ATTR_RELEASE_CONF" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
-  <AttrReleasePolicy id="319935c7-deb3-40b3-8a9a-683037e523a2" name="AllowedAttrReleasePolicy" description="allowed attribute release policy policy"/>
-
-  <Implementation id="DenyAttrReleasePolicyConf" type="ATTR_RELEASE_CONF" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
-  <AttrReleasePolicy id="219935c7-deb3-40b3-8a9a-683037e523a2" name="DenyAttrReleasePolicy" description="deny attribute release policy policy"/>
+  <AttrReleasePolicy id="319935c7-deb3-40b3-8a9a-683037e523a2" description="AllowedAttrReleasePolicy"
+                     jsonConf='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
+  <AttrReleasePolicy id="219935c7-deb3-40b3-8a9a-683037e523a2" description="DenyAttrReleasePolicy"
+                     jsonConf='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
   
   <!-- Authentication modules -->
   <AuthModule id="be456831-593d-4003-b273-4c3fb61700df" name="DefaultLDAPAuthModule" 
@@ -2386,6 +2382,8 @@ $$ }&#10;
                 predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
+
+  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[WA]:[LoggerLogic]:[AUTHENTICATION]:[validate]:[SUCCESS]" logLevel="DEBUG"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
