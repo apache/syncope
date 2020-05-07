@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
-public class SyncopeWASamlMetadataResolver extends AbstractReloadingMetadataResolver {
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASamlMetadataResolver.class);
+public class SyncopeWASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2MetadataResolver.class);
 
     private final WARestClient restClient;
 
     private final SAML2Client saml2Client;
 
-    SyncopeWASamlMetadataResolver(final WARestClient restClient, final SAML2Client saml2Client) {
+    SyncopeWASAML2MetadataResolver(final WARestClient restClient, final SAML2Client saml2Client) {
         this.restClient = restClient;
         this.saml2Client = saml2Client;
     }

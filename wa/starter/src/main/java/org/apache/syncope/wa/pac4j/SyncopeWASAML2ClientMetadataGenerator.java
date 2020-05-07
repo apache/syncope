@@ -36,21 +36,21 @@ import javax.ws.rs.core.Response;
 
 import java.io.InputStream;
 
-public class SyncopeWASamlClientMetadataGenerator extends BaseSAML2MetadataGenerator {
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASamlClientMetadataGenerator.class);
+public class SyncopeWASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientMetadataGenerator.class);
 
     private final WARestClient restClient;
 
     private final SAML2Client saml2Client;
 
-    SyncopeWASamlClientMetadataGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
+    SyncopeWASAML2ClientMetadataGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
         this.restClient = restClient;
         this.saml2Client = saml2Client;
     }
 
     @Override
     protected AbstractBatchMetadataResolver createMetadataResolver(final Resource metadataResource) {
-        return new SyncopeWASamlMetadataResolver(restClient, saml2Client);
+        return new SyncopeWASAML2MetadataResolver(restClient, saml2Client);
     }
 
     @Override

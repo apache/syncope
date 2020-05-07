@@ -40,14 +40,14 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
-public class SyncopeWASamlClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASamlClientKeystoreGenerator.class);
+public class SyncopeWASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientKeystoreGenerator.class);
 
     private final WARestClient restClient;
 
     private final SAML2Client saml2Client;
 
-    SyncopeWASamlClientKeystoreGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
+    SyncopeWASAML2ClientKeystoreGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
         super(saml2Client.getConfiguration());
         this.restClient = restClient;
         this.saml2Client = saml2Client;

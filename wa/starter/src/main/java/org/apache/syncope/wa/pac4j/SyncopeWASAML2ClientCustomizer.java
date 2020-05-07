@@ -38,8 +38,8 @@ public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCus
         if (client instanceof SAML2Client) {
             final SAML2Client saml2Client = (SAML2Client) client;
             SAML2Configuration configuration = saml2Client.getConfiguration();
-            configuration.setKeystoreGenerator(new SyncopeWASamlClientKeystoreGenerator(restClient, saml2Client));
-            configuration.setMetadataGenerator(new SyncopeWASamlClientMetadataGenerator(restClient, saml2Client));
+            configuration.setKeystoreGenerator(new SyncopeWASAML2ClientKeystoreGenerator(restClient, saml2Client));
+            configuration.setMetadataGenerator(new SyncopeWASAML2ClientMetadataGenerator(restClient, saml2Client));
         }
     }
 }
