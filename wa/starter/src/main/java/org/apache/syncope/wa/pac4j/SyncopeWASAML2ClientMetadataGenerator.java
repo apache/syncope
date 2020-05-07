@@ -19,7 +19,6 @@
 
 package org.apache.syncope.wa.pac4j;
 
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -33,8 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import javax.ws.rs.core.Response;
-
-import java.io.InputStream;
 
 public class SyncopeWASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientMetadataGenerator.class);
@@ -65,9 +62,8 @@ public class SyncopeWASAML2ClientMetadataGenerator extends BaseSAML2MetadataGene
         LOG.debug("Storing metadata {}", metadataTO);
         Response response = metadataService.set(metadataTO);
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            LOG.error("Unexpected response when storing SAML2 SP metadata: {}\n{}\n{}",
-                response.getStatus(), response.getHeaders(),
-                IOUtils.toString((InputStream) response.getEntity()));
+            LOG.error("Unexpected response when storing SAML2 SP metadata: {}\n{}",
+                response.getStatus(), response.getHeaders());
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
             sce.getElements().add("Unexpected response when storing SAML2 SP metadata");
             throw sce;
