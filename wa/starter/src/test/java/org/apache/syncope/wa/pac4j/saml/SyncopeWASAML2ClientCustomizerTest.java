@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.wa.pac4j;
+package org.apache.syncope.wa.pac4j.saml;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;

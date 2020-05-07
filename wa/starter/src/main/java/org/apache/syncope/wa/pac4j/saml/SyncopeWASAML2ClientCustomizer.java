@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.wa.pac4j;
+package org.apache.syncope.wa.pac4j.saml;
 
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
 

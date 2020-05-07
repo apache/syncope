@@ -30,7 +30,7 @@ import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomi
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 
-import org.apache.syncope.wa.pac4j.SyncopeWASAML2ClientCustomizer;
+import org.apache.syncope.wa.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.wa.pac4j;
+package org.apache.syncope.wa.pac4j.saml;
 
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
