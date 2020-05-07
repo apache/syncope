@@ -539,14 +539,14 @@ under the License.
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
 
-    <docker.postgresql.version>11.7</docker.postgresql.version>
-    <docker.mysql.version>8.0.19</docker.mysql.version>
+    <docker.postgresql.version>11</docker.postgresql.version>
+    <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.5</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.10</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.19</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.5.4</jdbc.mariadb.version>
-    <jdbc.mssql.version>8.2.0.jre</jdbc.mssql.version>
+    <jdbc.postgresql.version>42.2.12</jdbc.postgresql.version>
+    <jdbc.mysql.version>8.0.20</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.6.0</jdbc.mariadb.version>
+    <jdbc.mssql.version>8.2.2.jre</jdbc.mssql.version>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
