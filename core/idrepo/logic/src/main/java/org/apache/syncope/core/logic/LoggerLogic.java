@@ -101,7 +101,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private AuditManager auditManager;
-    
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
@@ -421,22 +421,24 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_CREATE + "')")
     public void create(final AuditEntry auditEntry) {
-        boolean auditRequested = auditManager.auditRequested(auditEntry.getWho(),
-            auditEntry.getLogger().getType(),
-            auditEntry.getLogger().getCategory(),
-            auditEntry.getLogger().getSubcategory(),
-            auditEntry.getLogger().getEvent());
-
-        if (auditRequested) {
-            auditManager.audit(auditEntry.getWho(),
+        boolean auditRequested = auditManager.auditRequested(
+                auditEntry.getWho(),
                 auditEntry.getLogger().getType(),
                 auditEntry.getLogger().getCategory(),
                 auditEntry.getLogger().getSubcategory(),
-                auditEntry.getLogger().getEvent(),
-                auditEntry.getLogger().getResult(),
-                auditEntry.getBefore(),
-                auditEntry.getOutput(),
-                auditEntry.getInputs());
+                auditEntry.getLogger().getEvent());
+
+        if (auditRequested) {
+            auditManager.audit(
+                    auditEntry.getWho(),
+                    auditEntry.getLogger().getType(),
+                    auditEntry.getLogger().getCategory(),
+                    auditEntry.getLogger().getSubcategory(),
+                    auditEntry.getLogger().getEvent(),
+                    auditEntry.getLogger().getResult(),
+                    auditEntry.getBefore(),
+                    auditEntry.getOutput(),
+                    auditEntry.getInputs());
         }
     }
 

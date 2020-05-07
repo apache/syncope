@@ -77,7 +77,7 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSample("audit@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder(userTO.getKey()).build();
+        AuditQuery query = new AuditQuery.Builder().entityKey(userTO.getKey()).build();
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
@@ -98,7 +98,7 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSample("audit@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder(userTO.getKey()).orderBy("event_date desc").
+        AuditQuery query = new AuditQuery.Builder().entityKey(userTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
         AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
         assertNotNull(entry);
@@ -110,7 +110,8 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSample("audit-2@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder(userTO.getKey()).
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
                 orderBy("event_date desc").
                 page(1).
                 size(1).
@@ -129,7 +130,7 @@ public class AuditITCase extends AbstractITCase {
         GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroup")).getEntity();
         assertNotNull(groupTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).orderBy("event_date desc").
+        AuditQuery query = new AuditQuery.Builder().entityKey(groupTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
         AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
         assertNotNull(entry);
@@ -141,7 +142,7 @@ public class AuditITCase extends AbstractITCase {
         GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroupSearch")).getEntity();
         assertNotNull(groupTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder(groupTO.getKey()).build();
+        AuditQuery query = new AuditQuery.Builder().entityKey(groupTO.getKey()).build();
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
@@ -161,7 +162,7 @@ public class AuditITCase extends AbstractITCase {
     public void findByAnyObject() {
         AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSample("Italy")).getEntity();
         assertNotNull(anyObjectTO.getKey());
-        AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).orderBy("event_date desc").
+        AuditQuery query = new AuditQuery.Builder().entityKey(anyObjectTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
         AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
         assertNotNull(entry);
@@ -173,7 +174,7 @@ public class AuditITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSample("USA")).getEntity();
         assertNotNull(anyObjectTO);
 
-        AuditQuery query = new AuditQuery.Builder(anyObjectTO.getKey()).build();
+        AuditQuery query = new AuditQuery.Builder().entityKey(anyObjectTO.getKey()).build();
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
@@ -192,7 +193,8 @@ public class AuditITCase extends AbstractITCase {
     public void findByConnector() throws JsonProcessingException {
         String connectorKey = "74141a3b-0762-4720-a4aa-fc3e374ef3ef";
 
-        AuditQuery query = new AuditQuery.Builder(connectorKey).
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(connectorKey).
                 orderBy("event_date desc").
                 type(AuditElements.EventCategoryType.LOGIC).
                 category("ConnectorLogic").
