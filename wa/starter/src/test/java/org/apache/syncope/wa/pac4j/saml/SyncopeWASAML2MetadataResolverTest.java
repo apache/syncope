@@ -31,6 +31,7 @@ import org.springframework.core.io.ClassPathResource;
 import javax.ws.rs.core.Response;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -54,7 +55,7 @@ public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2Client
 
         SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
         when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
-        when(saml2SPMetadataService.set(any())).thenReturn(Response.ok().build());
+        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
         when(syncopeClient.getService(SAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);

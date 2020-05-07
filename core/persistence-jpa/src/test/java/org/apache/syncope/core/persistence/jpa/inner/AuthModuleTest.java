@@ -267,8 +267,6 @@ public class AuthModuleTest extends AbstractTest {
         SAML2IdPAuthModuleConf conf = new SAML2IdPAuthModuleConf();
         conf.setServiceProviderEntityId("testEntityId");
         conf.setProviderName("testProviderName");
-        conf.setServiceProviderMetadataPath("file:/etc/metadata");
-
         saveAuthModule("SAML2IdPAuthModuleTest", conf);
     }
 

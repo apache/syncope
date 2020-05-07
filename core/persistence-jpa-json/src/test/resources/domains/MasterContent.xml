@@ -72,9 +72,10 @@ under the License.
   <AuthModule id="4c3ed4e6-7008-11ea-bc55-0242ac130003" name="DefaultGoogleMfaAuthModule"
               description="Google Mfa auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","name":"MyGoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest"}'/>
   <AuthModule id="4c3ed8f6-7008-11ea-bc55-0242ac130003" name="DefaultOIDCAuthModule"
-              description="OIDC auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","name":"MyOIDCAuthModuleConf", "discoveryUri":"www.testurl.com"}'/>
+              description="OIDC auth module"
+              jsonConf='{"@class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","name":"MyOIDCAuthModuleConf", "discoveryUri":"https://accounts.google.com/.well-known/openid-configuration"}'/>
   <AuthModule id="4c3ed9d2-7008-11ea-bc55-0242ac130003" name="DefaultSAML2IdPAuthModule"
-              description="SAML2 IdP auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","name":"MySAML2IdPAuthModuleConf", "providerName":"testProviderName","serviceProviderMetadataPath":"file:/etc/metadata"}'/>
+              description="SAML2 IdP auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","name":"MySAML2IdPAuthModuleConf", "providerName":"testProviderName"}'/>
   <AuthModule id="4c3edbbc-7008-11ea-bc55-0242ac130003" name="DefaultJaasAuthModule"
               description="Jaas auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","name":"MyJaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value"}'/>
   <AuthModule id="4c3edc98-7008-11ea-bc55-0242ac130003" name="DefaultStaticAuthModule"

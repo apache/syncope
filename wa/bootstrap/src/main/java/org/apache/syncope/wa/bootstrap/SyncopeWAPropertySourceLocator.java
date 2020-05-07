@@ -78,6 +78,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         syncopeProps.setDomain(conf.getDomain());
         syncopeProps.setUrl(conf.getUrl());
         casProperties.getAuthn().setSyncope(syncopeProps);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapStaticAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -90,22 +91,24 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             collect(Collectors.joining(","));
         staticProps.setUsers(users);
         casProperties.getAuthn().setAccept(staticProps);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapLdapAuthModuleConf(final CasConfigurationProperties casProperties,
                                               final AuthModuleConf authConf) {
-        LDAPAuthModuleConf ldapConf = LDAPAuthModuleConf.class.cast(authConf);
+        LDAPAuthModuleConf conf = LDAPAuthModuleConf.class.cast(authConf);
 
         LdapAuthenticationProperties ldapProps = new LdapAuthenticationProperties();
-        ldapProps.setName(ldapConf.getName());
-        ldapProps.setBaseDn(ldapConf.getBaseDn());
-        ldapProps.setBindCredential(ldapConf.getBindCredential());
-        ldapProps.setSearchFilter(ldapConf.getSearchFilter());
-        ldapProps.setPrincipalAttributeId(ldapConf.getUserIdAttribute());
-        ldapProps.setLdapUrl(ldapConf.getLdapUrl());
-        ldapProps.setSubtreeSearch(ldapConf.isSubtreeSearch());
-        ldapProps.setPrincipalAttributeList(ldapConf.getPrincipalAttributeList());
+        ldapProps.setName(conf.getName());
+        ldapProps.setBaseDn(conf.getBaseDn());
+        ldapProps.setBindCredential(conf.getBindCredential());
+        ldapProps.setSearchFilter(conf.getSearchFilter());
+        ldapProps.setPrincipalAttributeId(conf.getUserIdAttribute());
+        ldapProps.setLdapUrl(conf.getLdapUrl());
+        ldapProps.setSubtreeSearch(conf.isSubtreeSearch());
+        ldapProps.setPrincipalAttributeList(conf.getPrincipalAttributeList());
         casProperties.getAuthn().getLdap().add(ldapProps);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapGoogleMfaAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -121,6 +124,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setWindowSize(conf.getWindowSize());
 
         casProperties.getAuthn().getMfa().setGauth(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapU2fAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -134,6 +138,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setExpireRegistrations(conf.getExpireRegistrations());
         props.setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
         casProperties.getAuthn().getMfa().setU2f(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapJaasAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -147,6 +152,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setLoginConfigType(conf.getLoginConfigurationFile());
         props.setRealm(conf.getRealm());
         casProperties.getAuthn().getJaas().add(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapJdbcAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -165,6 +171,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setUser(conf.getUser());
         props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
         casProperties.getAuthn().getJdbc().getQuery().add(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapOidcAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -185,6 +192,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGeneric(props);
         casProperties.getAuthn().getPac4j().getOidc().add(client);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapRadiusAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -210,6 +218,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.getServer().setRetries(conf.getRetries());
 
         casProperties.getAuthn().setRadius(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapSaml2IdPAuthModuleConf(final CasConfigurationProperties casProperties,
@@ -226,13 +235,11 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
         props.setKeystoreAlias(conf.getKeystoreAlias());
         props.setKeystorePassword(conf.getKeystorePassword());
-        props.setKeystorePath(conf.getKeystorePath());
         props.setMaximumAuthenticationLifetime(conf.getMaximumAuthenticationLifetime());
         props.setNameIdPolicyFormat(conf.getNameIdPolicyFormat());
         props.setPrivateKeyPassword(conf.getPrivateKeyPassword());
         props.setProviderName(conf.getProviderName());
         props.setServiceProviderEntityId(conf.getServiceProviderEntityId());
-        props.setServiceProviderMetadataPath(conf.getServiceProviderMetadataPath());
         props.setSignatureAlgorithms(conf.getSignatureAlgorithms());
         props.setSignatureCanonicalizationAlgorithm(conf.getSignatureCanonicalizationAlgorithm());
         props.setSignatureReferenceDigestMethods(conf.getSignatureReferenceDigestMethods());
@@ -243,6 +250,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             props.setNameIdPolicyAllowCreate(TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
         }
         casProperties.getAuthn().getPac4j().getSaml().add(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     @Override

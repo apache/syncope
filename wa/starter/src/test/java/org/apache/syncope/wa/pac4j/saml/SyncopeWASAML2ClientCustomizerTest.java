@@ -32,6 +32,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import javax.ws.rs.core.Response;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -51,7 +52,7 @@ public class SyncopeWASAML2ClientCustomizerTest extends BaseSyncopeWASAML2Client
             .build();
         SAML2SPKeystoreService saml2SPKeystoreService = mock(SAML2SPKeystoreService.class);
         when(saml2SPKeystoreService.get(anyString())).thenReturn(keystoreTO);
-        when(saml2SPKeystoreService.set(any())).thenReturn(Response.ok().build());
+        when(saml2SPKeystoreService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
 
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
             .owner("Syncope")
@@ -60,7 +61,7 @@ public class SyncopeWASAML2ClientCustomizerTest extends BaseSyncopeWASAML2Client
 
         SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
         when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
-        when(saml2SPMetadataService.set(any())).thenReturn(Response.ok().build());
+        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
 
         WARestClient restClient = mock(WARestClient.class);
 

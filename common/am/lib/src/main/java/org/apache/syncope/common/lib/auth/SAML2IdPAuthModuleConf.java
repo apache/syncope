@@ -55,10 +55,6 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
      */
     private String privateKeyPassword;
 
-    /**
-     * Location of the keystore to use and generate the SP keystore.
-     */
-    private String keystorePath;
 
     /**
      * The metadata location of the identity provider that is to handle authentications.
@@ -91,11 +87,6 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
      * The entity id of the SP that is used in the SP metadata generation process.
      */
     private String serviceProviderEntityId;
-
-    /**
-     * Location of the SP metadata to use and generate.
-     */
-    private String serviceProviderMetadataPath;
 
     /**
      * Whether authentication requests should be tagged as forced auth.
@@ -232,14 +223,6 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
         this.privateKeyPassword = privateKeyPassword;
     }
 
-    public String getKeystorePath() {
-        return keystorePath;
-    }
-
-    public void setKeystorePath(final String keystorePath) {
-        this.keystorePath = keystorePath;
-    }
-
     public String getIdentityProviderMetadataPath() {
         return identityProviderMetadataPath;
     }
@@ -270,14 +253,6 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
 
     public void setServiceProviderEntityId(final String serviceProviderEntityId) {
         this.serviceProviderEntityId = serviceProviderEntityId;
-    }
-
-    public String getServiceProviderMetadataPath() {
-        return serviceProviderMetadataPath;
-    }
-
-    public void setServiceProviderMetadataPath(final String serviceProviderMetadataPath) {
-        this.serviceProviderMetadataPath = serviceProviderMetadataPath;
     }
 
     public boolean isForceAuth() {

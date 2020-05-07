@@ -36,6 +36,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import javax.ws.rs.core.Response;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -78,7 +79,8 @@ public class SyncopeWASAML2ClientKeystoreGeneratorTest extends BaseSyncopeWASAML
     @Test
     public void generate() throws Exception {
         SAML2Client client = getSAML2Client();
-        SAML2KeystoreGenerator generator1 = new SyncopeWASAML2ClientKeystoreGenerator(getWaRestClient(Response.ok().build()), client);
+        SAML2KeystoreGenerator generator1 = new SyncopeWASAML2ClientKeystoreGenerator(
+            getWaRestClient(Response.created(new URI("http://localhost:9080/syncop-wa")).build()), client);
         assertDoesNotThrow(new Executable() {
             @Override
             public void execute() throws Throwable {

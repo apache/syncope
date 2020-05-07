@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -68,7 +69,8 @@ public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML
         String keystoreFile = File.createTempFile("keystore", "jks").getCanonicalPath();
         client.getConfiguration().setKeystoreResourceFilepath(keystoreFile);
 
-        SAML2MetadataGenerator generator = new SyncopeWASAML2ClientMetadataGenerator(getWaRestClient(Response.ok().build()), client);
+        SAML2MetadataGenerator generator = new SyncopeWASAML2ClientMetadataGenerator(
+            getWaRestClient(Response.created(new URI("http://localhost:9080/syncop-wa")).build()), client);
         EntityDescriptor entityDescriptor = generator.buildEntityDescriptor();
         String metadata = generator.getMetadata(entityDescriptor);
         assertNotNull(generator.storeMetadata(metadata, null, false));

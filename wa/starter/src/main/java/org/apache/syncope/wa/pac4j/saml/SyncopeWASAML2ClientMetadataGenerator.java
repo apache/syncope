@@ -54,21 +54,24 @@ public class SyncopeWASAML2ClientMetadataGenerator extends BaseSAML2MetadataGene
     public boolean storeMetadata(final String metadata, final Resource resource, final boolean force) throws Exception {
         SAML2SPMetadataService metadataService = restClient.getSyncopeClient().
             getService(SAML2SPMetadataService.class);
-
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder().
             metadata(metadata).
             owner(saml2Client.getName()).
             build();
         LOG.debug("Storing metadata {}", metadataTO);
         Response response = metadataService.set(metadataTO);
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            LOG.error("Unexpected response when storing SAML2 SP metadata: {}\n{}",
-                response.getStatus(), response.getHeaders());
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
-            sce.getElements().add("Unexpected response when storing SAML2 SP metadata");
-            throw sce;
+        if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
+            LOG.info("Stored metadata for SAML2 SP {}", saml2Client.getName());
+            return true;
         }
-        LOG.debug("Stored metadata for SAML2 SP {}", saml2Client.getName());
-        return true;
+        if (response.getStatus() == Response.Status.CONFLICT.getStatusCode()) {
+            LOG.info("Stored metadata for SAML2 SP {} already exists", saml2Client.getName());
+            return true;
+        }
+        LOG.error("Unexpected response when storing SAML2 SP metadata: {}\n{}",
+            response.getStatus(), response.getHeaders());
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+        sce.getElements().add("Unexpected response when storing SAML2 SP metadata");
+        throw sce;
     }
 }

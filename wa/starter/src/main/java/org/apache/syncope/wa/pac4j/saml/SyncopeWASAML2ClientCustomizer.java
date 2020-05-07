@@ -25,8 +25,12 @@ import org.apache.syncope.wa.WARestClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCustomizer<Client> {
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientCustomizer.class);
+
     private final WARestClient restClient;
 
     public SyncopeWASAML2ClientCustomizer(final WARestClient restClient) {
@@ -36,6 +40,7 @@ public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCus
     @Override
     public void customize(final Client client) {
         if (client instanceof SAML2Client) {
+            LOG.debug("Customizing SAML2 client {}", client.getName());
             final SAML2Client saml2Client = (SAML2Client) client;
             SAML2Configuration configuration = saml2Client.getConfiguration();
             configuration.setKeystoreGenerator(new SyncopeWASAML2ClientKeystoreGenerator(restClient, saml2Client));
