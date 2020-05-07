@@ -23,14 +23,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.AsciiArtUtils;
-import org.apereo.cas.util.DateTimeUtils;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import java.util.Optional;
 import org.quartz.JobExecutionException;

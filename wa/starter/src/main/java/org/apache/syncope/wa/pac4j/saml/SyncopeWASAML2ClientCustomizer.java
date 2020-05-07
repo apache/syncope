@@ -21,7 +21,7 @@ package org.apache.syncope.wa.pac4j.saml;
 
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
 
-import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.pac4j.core.client.Client;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;

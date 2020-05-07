@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
-import org.apache.syncope.wa.WARestClient;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractBatchMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.BaseSAML2MetadataGenerator;
