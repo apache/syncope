@@ -23,10 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -34,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -51,14 +54,21 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class AnySearchTest extends AbstractTest {
+
+    private static final String LOGIN_DATE_VALUE = "2009-05-26";
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
@@ -75,6 +85,16 @@ public class AnySearchTest extends AbstractTest {
     @Autowired
     private RealmDAO realmDAO;
 
+    @BeforeEach
+    public void adjustLoginDateForLocalSystem() throws ParseException {
+        User rossini = userDAO.findByUsername("rossini");
+
+        UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
+        loginDate.getValues().get(0).setDateValue(DateUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
+
+        userDAO.save(rossini);
+    }
+
     @Test
     public void searchWithLikeCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
@@ -86,7 +106,7 @@ public class AnySearchTest extends AbstractTest {
 
         AttrCond loginDateCond = new AttrCond(AttrCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
-        loginDateCond.setExpression("2009-05-26");
+        loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
         SearchCond subCond = SearchCond.getAnd(
                 SearchCond.getLeaf(fullnameLeafCond), SearchCond.getLeaf(groupCond));
@@ -113,7 +133,7 @@ public class AnySearchTest extends AbstractTest {
 
         AttrCond loginDateCond = new AttrCond(AttrCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
-        loginDateCond.setExpression("2009-05-26");
+        loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
         SearchCond subCond = SearchCond.getAnd(
                 SearchCond.getLeaf(fullnameLeafCond), SearchCond.getLeaf(groupCond));
@@ -192,7 +212,7 @@ public class AnySearchTest extends AbstractTest {
 
         AttrCond loginDateCond = new AttrCond(AttrCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
-        loginDateCond.setExpression("2009-05-26");
+        loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
         SearchCond subCond = SearchCond.getAnd(
                 SearchCond.getLeaf(fullnameLeafCond), SearchCond.getLeaf(groupCond));
@@ -730,7 +750,7 @@ public class AnySearchTest extends AbstractTest {
     public void issueSYNCOPE1419() {
         AttrCond loginDateCond = new AttrCond(AttrCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
-        loginDateCond.setExpression("2009-05-26");
+        loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
         SearchCond cond = SearchCond.getNotLeaf(loginDateCond);
         assertTrue(cond.isValid());
