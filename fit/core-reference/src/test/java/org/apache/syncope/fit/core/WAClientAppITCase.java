@@ -114,15 +114,15 @@ public class WAClientAppITCase extends AbstractITCase {
         assertEquals("TestAuthConf", waClientApp.getAuthPolicyConf().getName());
         assertEquals("TestAccessPolicyConf", waClientApp.getAccessPolicyConf().getName());
         assertEquals("MyDefaultAttrReleasePolicyConf", waClientApp.getAttrReleasePolicyConf().getName());
-        assertTrue(waClientApp.getReleaseAttributes().isEmpty());
+        assertTrue(waClientApp.getReleaseAttrs().isEmpty());
 
         // add items to the authentication module
         addItems();
         waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
-        assertFalse(waClientApp.getReleaseAttributes().isEmpty());
-        assertEquals("uid", waClientApp.getReleaseAttributes().get("username"));
-        assertEquals("cn", waClientApp.getReleaseAttributes().get("fullname"));
+        assertFalse(waClientApp.getReleaseAttrs().isEmpty());
+        assertEquals("uid", waClientApp.getReleaseAttrs().get("username"));
+        assertEquals("cn", waClientApp.getReleaseAttrs().get("fullname"));
         removeItems();
     }
 

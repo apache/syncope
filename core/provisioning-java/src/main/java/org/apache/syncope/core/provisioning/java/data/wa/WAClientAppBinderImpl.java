@@ -53,7 +53,7 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
                 authPolicyConf = clientApp.getAuthPolicy().getConf();
                 waClientApp.setAuthPolicyConf((clientApp.getAuthPolicy()).getConf());
             } else if (clientApp.getRealm().getAuthPolicy() != null) {
-                authPolicyConf = clientApp.getAuthPolicy().getConf();
+                authPolicyConf = (clientApp.getRealm().getAuthPolicy()).getConf();
                 waClientApp.setAuthPolicyConf((clientApp.getRealm().getAuthPolicy()).getConf());
             }
 
@@ -69,19 +69,19 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
                 waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
             }
 
-            if (authPolicyConf != null && authPolicyConf instanceof DefaultAuthPolicyConf
+            if (authPolicyConf instanceof DefaultAuthPolicyConf
                     && !((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().isEmpty()) {
                 ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(authModuleKey -> {
                     AuthModule authModule = authModuleDAO.find(authModuleKey);
                     if (authModule == null) {
                         LOG.warn("AuthModule " + authModuleKey + " not found");
                     } else {
-                        authModule.getItems().forEach(item -> waClientApp.getReleaseAttributes().put(
+                        authModule.getItems().forEach(item -> waClientApp.getReleaseAttrs().put(
                                 item.getExtAttrName(), item.getIntAttrName()));
                     }
                 });
             }
-            if (waClientApp.getReleaseAttributes().isEmpty()) {
+            if (waClientApp.getReleaseAttrs().isEmpty()) {
                 if (clientApp.getAttrReleasePolicy() != null) {
                     waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
                 } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {

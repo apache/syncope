@@ -38,7 +38,7 @@ public class WAClientApp implements Serializable {
 
     private AttrReleasePolicyConf attrReleasePolicyConf;
 
-    private final Map<String, Object> releaseAttributes = new HashMap<>();
+    private final Map<String, Object> releaseAttrs = new HashMap<>();
 
     public ClientAppTO getClientAppTO() {
         return clientAppTO;
@@ -72,7 +72,7 @@ public class WAClientApp implements Serializable {
         this.attrReleasePolicyConf = attrReleasePolicyConf;
     }
 
-    public Map<String, Object> getReleaseAttributes() {
-        return releaseAttributes;
+    public Map<String, Object> getReleaseAttrs() {
+        return releaseAttrs;
     }
 }

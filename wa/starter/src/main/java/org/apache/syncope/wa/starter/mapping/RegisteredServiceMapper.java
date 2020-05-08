@@ -68,8 +68,8 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
-        if (!clientApp.getReleaseAttributes().isEmpty()) {
-            attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttributes());
+        if (!clientApp.getReleaseAttrs().isEmpty()) {
+            attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
         } else if (clientApp.getAttrReleasePolicyConf() != null) {
             AttrReleaseMapper attrReleasePolicyConfMapper =
                     attrReleasePolicyConfMappers.get(clientApp.getAttrReleasePolicyConf().getClass().getName());

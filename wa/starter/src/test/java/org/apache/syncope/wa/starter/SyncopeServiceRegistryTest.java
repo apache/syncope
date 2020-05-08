@@ -102,11 +102,11 @@ public class SyncopeServiceRegistryTest extends AbstractTest {
         waClientApp.setAuthPolicyConf(authPolicyConf);
 
         if (withReleaseAttributes) {
-            Map<String, Object> releaseAttributes;
-            releaseAttributes = new HashMap<>();
-            releaseAttributes.put("uid", "username");
-            releaseAttributes.put("cn", "fullname");
-            waClientApp.getReleaseAttributes().putAll(releaseAttributes);
+            Map<String, Object> releaseAttrs;
+            releaseAttrs = new HashMap<>();
+            releaseAttrs.put("uid", "username");
+            releaseAttrs.put("cn", "fullname");
+            waClientApp.getReleaseAttrs().putAll(releaseAttrs);
         }
 
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
@@ -131,7 +131,7 @@ public class SyncopeServiceRegistryTest extends AbstractTest {
 
         WAClientAppService service = syncopeClient.getService(WAClientAppService.class);
         assertTrue(service.list().isEmpty());
-  
+
         // 2. add one client app on mocked Core, nothing on WA yet
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildOIDCRP());
