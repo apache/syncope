@@ -51,22 +51,22 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
             AuthPolicyConf authPolicyConf = null;
             if (clientApp.getAuthPolicy() != null) {
                 authPolicyConf = clientApp.getAuthPolicy().getConf();
-                waClientApp.setAuthPolicyConf((clientApp.getAuthPolicy()).getConf());
+                waClientApp.setAuthPolicyConf(clientApp.getAuthPolicy().getConf());
             } else if (clientApp.getRealm().getAuthPolicy() != null) {
-                authPolicyConf = (clientApp.getRealm().getAuthPolicy()).getConf();
-                waClientApp.setAuthPolicyConf((clientApp.getRealm().getAuthPolicy()).getConf());
+                authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
+                waClientApp.setAuthPolicyConf(clientApp.getRealm().getAuthPolicy().getConf());
             }
 
             if (clientApp.getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf((clientApp.getAccessPolicy()).getConf());
+                waClientApp.setAccessPolicyConf(clientApp.getAccessPolicy().getConf());
             } else if (clientApp.getRealm().getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf((clientApp.getRealm().getAccessPolicy()).getConf());
+                waClientApp.setAccessPolicyConf(clientApp.getRealm().getAccessPolicy().getConf());
             }
 
             if (clientApp.getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
+                waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
             } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
+                waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
             }
 
             if (authPolicyConf instanceof DefaultAuthPolicyConf
@@ -83,9 +83,9 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
             }
             if (waClientApp.getReleaseAttrs().isEmpty()) {
                 if (clientApp.getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
+                    waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
                 } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
+                    waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
                 }
             }
         } catch (Exception e) {
