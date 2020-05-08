@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.security.AccessControlException;
 import java.util.ArrayList;
@@ -218,6 +218,7 @@ public class KeymasterITCase extends AbstractITCase {
     public void domainCRUD() throws Exception {
         List<Domain> initial = domainOps.list();
         assertNotNull(initial);
+        assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
         // 1. create new domain
         String key = UUID.randomUUID().toString();
@@ -295,7 +296,9 @@ public class KeymasterITCase extends AbstractITCase {
 
     @Test
     public void domainCreateMaster() {
-        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
+        assertThrows(
+                KeymasterException.class,
+                () -> domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
     }
 
     @Test
@@ -305,7 +308,9 @@ public class KeymasterITCase extends AbstractITCase {
 
     @Test
     public void domainUpdateAdminPassword() throws Exception {
-        assumeFalse(domainOps.list().isEmpty());
+        List<Domain> initial = domainOps.list();
+        assertNotNull(initial);
+        assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
         Domain two = domainOps.read("Two");
         assertNotNull(two);
