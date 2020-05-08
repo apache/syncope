@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.data.wa;
 
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.slf4j.Logger;
@@ -35,28 +39,54 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
     @Autowired
     private ClientAppDataBinder clientAppDataBinder;
 
+    @Autowired
+    private AuthModuleDAO authModuleDAO;
+
     @Override
     public WAClientApp getWAClientApp(final ClientApp clientApp) {
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(clientAppDataBinder.getClientAppTO(clientApp));
 
         try {
+            AuthPolicyConf authPolicyConf = null;
             if (clientApp.getAuthPolicy() != null) {
-                waClientApp.setAuthPolicyConf((clientApp.getAuthPolicy()).getConf());
+                authPolicyConf = clientApp.getAuthPolicy().getConf();
+                waClientApp.setAuthPolicyConf(clientApp.getAuthPolicy().getConf());
             } else if (clientApp.getRealm().getAuthPolicy() != null) {
-                waClientApp.setAuthPolicyConf((clientApp.getRealm().getAuthPolicy()).getConf());
+                authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
+                waClientApp.setAuthPolicyConf(clientApp.getRealm().getAuthPolicy().getConf());
             }
 
             if (clientApp.getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf((clientApp.getAccessPolicy()).getConf());
+                waClientApp.setAccessPolicyConf(clientApp.getAccessPolicy().getConf());
             } else if (clientApp.getRealm().getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf((clientApp.getRealm().getAccessPolicy()).getConf());
+                waClientApp.setAccessPolicyConf(clientApp.getRealm().getAccessPolicy().getConf());
             }
 
             if (clientApp.getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf((clientApp.getAttrReleasePolicy()).getConf());
+                waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
             } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf((clientApp.getRealm().getAttrReleasePolicy()).getConf());
+                waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
+            }
+
+            if (authPolicyConf instanceof DefaultAuthPolicyConf
+                    && !((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().isEmpty()) {
+                ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(authModuleKey -> {
+                    AuthModule authModule = authModuleDAO.find(authModuleKey);
+                    if (authModule == null) {
+                        LOG.warn("AuthModule " + authModuleKey + " not found");
+                    } else {
+                        authModule.getItems().forEach(item -> waClientApp.getReleaseAttrs().put(
+                                item.getExtAttrName(), item.getIntAttrName()));
+                    }
+                });
+            }
+            if (waClientApp.getReleaseAttrs().isEmpty()) {
+                if (clientApp.getAttrReleasePolicy() != null) {
+                    waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
+                } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
+                    waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
+                }
             }
         } catch (Exception e) {
             LOG.error("While building the configuration from an application's policy ", e);

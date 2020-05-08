@@ -23,13 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
-import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AttrReleaseMapFor {
 
     Class<? extends AttrReleasePolicyConf> attrReleasePolicyConfClass();
-
-    Class<? extends RegisteredServiceAttributeReleasePolicy> registeredServiceAttributeReleasePolicyClass();
 }

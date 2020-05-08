@@ -31,6 +31,4 @@ public interface ClientAppMapper {
             RegisteredServiceAuthenticationPolicy authPolicy,
             RegisteredServiceAccessStrategy accessStrategy,
             RegisteredServiceAttributeReleasePolicy attributeReleasePolicy);
-
-    ClientAppTO buid(RegisteredService service);
 }

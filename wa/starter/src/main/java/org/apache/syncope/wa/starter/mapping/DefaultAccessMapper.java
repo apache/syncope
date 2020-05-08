@@ -24,9 +24,7 @@ import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.springframework.stereotype.Component;
 
-@AccessMapFor(
-        accessPolicyConfClass = DefaultAccessPolicyConf.class,
-        registeredServiceAccessStrategyClass = DefaultRegisteredServiceAccessStrategy.class)
+@AccessMapFor(accessPolicyConfClass = DefaultAccessPolicyConf.class)
 @Component
 public class DefaultAccessMapper implements AccessMapper {
 
@@ -38,12 +36,4 @@ public class DefaultAccessMapper implements AccessMapper {
         return accessStrategy;
     }
 
-    @Override
-    public AccessPolicyConf build(final RegisteredServiceAccessStrategy strategy) {
-        DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.setEnabled(((DefaultRegisteredServiceAccessStrategy) strategy).isEnabled());
-        conf.setSsoEnabled(((DefaultRegisteredServiceAccessStrategy) strategy).isSsoEnabled());
-        conf.getRequiredAttrs().putAll(((DefaultRegisteredServiceAccessStrategy) strategy).getRejectedAttributes());
-        return conf;
-    }
 }

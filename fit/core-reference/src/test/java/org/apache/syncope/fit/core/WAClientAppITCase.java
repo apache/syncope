@@ -18,16 +18,24 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -80,4 +88,71 @@ public class WAClientAppITCase extends AbstractITCase {
         registeredSamlClientApp = waClientAppService.read(samlspto.getName(), ClientAppType.SAML2SP);
         assertNotNull(registeredSamlClientApp);
     }
+
+    @Test
+    public void readWithPolicies() {
+        OIDCRPTO oidcrpto = buildOIDCRP();
+
+        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH,
+                buildAuthPolicyTO("be456831-593d-4003-b273-4c3fb61700df"));
+
+        AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS,
+                buildAccessPolicyTO());
+
+        String policyName = "TestAttrReleasePolicy" + getUUIDString();
+        AttrReleasePolicyTO attrReleasePolicyTO = createPolicy(PolicyType.ATTR_RELEASE,
+                buildAttributeReleasePolicyTO(policyName));
+
+        oidcrpto.setAuthPolicy(authPolicyTO.getKey());
+        oidcrpto.setAccessPolicy(accessPolicyTO.getKey());
+        oidcrpto.setAttrReleasePolicy(attrReleasePolicyTO.getKey());
+
+        oidcrpto = createClientApp(ClientAppType.OIDCRP, oidcrpto);
+
+        WAClientApp waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
+        assertNotNull(waClientApp);
+        assertEquals("TestAuthConf", waClientApp.getAuthPolicyConf().getName());
+        assertEquals("TestAccessPolicyConf", waClientApp.getAccessPolicyConf().getName());
+        assertEquals("MyDefaultAttrReleasePolicyConf", waClientApp.getAttrReleasePolicyConf().getName());
+        assertTrue(waClientApp.getReleaseAttrs().isEmpty());
+
+        // add items to the authentication module
+        addItems();
+        waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
+        assertNotNull(waClientApp);
+        assertFalse(waClientApp.getReleaseAttrs().isEmpty());
+        assertEquals("uid", waClientApp.getReleaseAttrs().get("username"));
+        assertEquals("cn", waClientApp.getReleaseAttrs().get("fullname"));
+        removeItems();
+    }
+
+    private void addItems() {
+        AuthModuleTO authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+
+        ItemTO keyMapping = new ItemTO();
+        keyMapping.setIntAttrName("uid");
+        keyMapping.setExtAttrName("username");
+        authModuleTO.add(keyMapping);
+
+        ItemTO fullnameMapping = new ItemTO();
+        fullnameMapping.setIntAttrName("cn");
+        fullnameMapping.setExtAttrName("fullname");
+        authModuleTO.add(fullnameMapping);
+
+        authModuleService.update(authModuleTO);
+
+        authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        assertFalse(authModuleTO.getItems().isEmpty());
+    }
+
+    private void removeItems() {
+        AuthModuleTO authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        authModuleTO.getItems().clear();
+
+        authModuleService.update(authModuleTO);
+
+        authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        assertTrue(authModuleTO.getItems().isEmpty());
+    }
+
 }

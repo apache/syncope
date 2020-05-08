@@ -114,7 +114,7 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     @Override
     public void setAttrReleasePolicy(final AttrReleasePolicy policy) {
-        checkType(policy, JPAAccessPolicy.class);
+        checkType(policy, JPAAttrReleasePolicy.class);
         this.attrReleasePolicy = (JPAAttrReleasePolicy) policy;
     }
 

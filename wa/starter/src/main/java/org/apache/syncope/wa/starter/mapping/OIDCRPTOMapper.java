@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -30,7 +28,7 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.springframework.stereotype.Component;
 
-@ClientAppMapFor(clientAppClass = OIDCRPTO.class, registeredServiceClass = OidcRegisteredService.class)
+@ClientAppMapFor(clientAppClass = OIDCRPTO.class)
 @Component
 public class OIDCRPTOMapper implements ClientAppMapper {
 
@@ -47,6 +45,7 @@ public class OIDCRPTOMapper implements ClientAppMapper {
 
         String redirectURIs = String.join("|", rp.getRedirectUris());
         service.setServiceId(redirectURIs);
+        service.setId(rp.getClientAppId());
         service.setName(rp.getName());
         service.setDescription(rp.getDescription());
         service.setAccessStrategy(accessStrategy);
@@ -65,22 +64,4 @@ public class OIDCRPTOMapper implements ClientAppMapper {
         return service;
     }
 
-    public ClientAppTO buid(final RegisteredService service) {
-        OidcRegisteredService oidc = OidcRegisteredService.class.cast(service);
-
-        OIDCRPTO oidcrpto = new OIDCRPTO();
-
-        oidcrpto.getRedirectUris().addAll(Arrays.asList(oidc.getServiceId().split("|")));
-        oidcrpto.setName(oidc.getName());
-        oidcrpto.setDescription(oidc.getDescription());
-        oidcrpto.setClientId(oidc.getClientId());
-        oidcrpto.setClientSecret(oidc.getClientSecret());
-        oidcrpto.setSignIdToken(oidc.isSignIdToken());
-        oidcrpto.setJwks(oidc.getJwks());
-        oidcrpto.setSubjectType(OIDCSubjectType.valueOf(oidc.getSubjectType()));
-        oidcrpto.getSupportedGrantTypes().addAll(oidc.getSupportedGrantTypes());
-        oidcrpto.getSupportedResponseTypes().addAll(oidc.getSupportedResponseTypes());
-
-        return oidcrpto;
-    }
 }

@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter;
 
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Set;
 import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.log.AuditEntry;
@@ -32,48 +33,48 @@ import org.apereo.inspektr.audit.AuditActionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.Set;
+import org.apache.syncope.client.lib.SyncopeClient;
 
 public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
+
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAAuditTrailManager.class);
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final WARestClient restClient;
+    private final WARestClient waRestClient;
 
     SyncopeWAAuditTrailManager(final WARestClient restClient) {
         super(true);
-        this.restClient = restClient;
+        this.waRestClient = restClient;
     }
 
     @Override
     protected void saveAuditRecord(final AuditActionContext audit) {
-        if (!WARestClient.isReady()) {
+        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
+        if (syncopeClient == null) {
             LOG.debug("Syncope client is not yet ready to store audit record");
             return;
         }
 
         LOG.info("Loading application definitions");
-        LoggerService loggerService = restClient.getSyncopeClient().
-            getService(LoggerService.class);
+        LoggerService loggerService = syncopeClient.getService(LoggerService.class);
 
-        try {             
+        try {
             String output = OBJECT_MAPPER.writeValueAsString(Map.of("resource", audit.getResourceOperatedUpon(),
-                "clientIpAddress", audit.getClientIpAddress(),
-                "serverIpAddress", audit.getServerIpAddress()));
+                    "clientIpAddress", audit.getClientIpAddress(),
+                    "serverIpAddress", audit.getServerIpAddress()));
 
             AuditEntry auditEntry = new AuditEntry();
             auditEntry.setWho(audit.getPrincipal());
             auditEntry.setDate(audit.getWhenActionWasPerformed());
             auditEntry.setOutput(output);
             AuditElements.Result result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
-                ? AuditElements.Result.FAILURE
-                : AuditElements.Result.SUCCESS;
+                    ? AuditElements.Result.FAILURE
+                    : AuditElements.Result.SUCCESS;
 
             AuditLoggerName auditLogger = new AuditLoggerName(AuditElements.EventCategoryType.WA,
-                "LoggerLogic", AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
-                audit.getActionPerformed(), result);
+                    "LoggerLogic", AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
+                    audit.getActionPerformed(), result);
 
             auditEntry.setLogger(auditLogger);
             loggerService.create(auditEntry);

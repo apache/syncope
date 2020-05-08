@@ -59,43 +59,7 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 
 public class PolicyITCase extends AbstractITCase {
-
-    private static AuthPolicyTO buildAuthPolicyTO() {
-        AuthPolicyTO policy = new AuthPolicyTO();
-        policy.setDescription("Test Authentication policy");
-
-        DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
-        conf.getAuthModules().addAll(List.of("LdapAuthentication1"));
-        policy.setConf(conf);
-
-        return policy;
-    }
-
-    private static AttrReleasePolicyTO buildAttributeReleasePolicyTO(final String policyName) {
-        AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-        policy.setDescription("Test Attribute Release policy");
-
-        AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
-        conf.setName("MyDefaultAttrReleasePolicyConf");
-        conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        policy.setConf(conf);
-
-        return policy;
-    }
-
-    private static AccessPolicyTO buildAccessPolicyTO() {
-        AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
-
-        DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.setEnabled(true);
-        conf.setName("TestAccessPolicyConf");
-        conf.getRequiredAttrs().put("cn", Set.of("admin", "Admin", "TheAdmin"));
-        policy.setConf(conf);
-
-        return policy;
-    }
-
+ 
     private PullPolicyTO buildPullPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
@@ -222,7 +186,7 @@ public class PolicyITCase extends AbstractITCase {
         assertEquals("TestPushRule", pushPolicyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
 
         AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH,
-                buildAuthPolicyTO());
+                buildAuthPolicyTO("LdapAuthentication1"));
         assertNotNull(authPolicyTO);
         assertEquals("Test Authentication policy", authPolicyTO.getDescription());
 
@@ -263,7 +227,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void updateAuthPolicy() {
-        AuthPolicyTO newAuthPolicyTO = buildAuthPolicyTO();
+        AuthPolicyTO newAuthPolicyTO = buildAuthPolicyTO("LdapAuthentication1");
         assertNotNull(newAuthPolicyTO);
         newAuthPolicyTO = createPolicy(PolicyType.AUTH, newAuthPolicyTO);
 
@@ -341,7 +305,7 @@ public class PolicyITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AuthPolicyTO authPolicy = buildAuthPolicyTO();
+        AuthPolicyTO authPolicy = buildAuthPolicyTO("LdapAuthentication1");
 
         AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH, authPolicy);
         assertNotNull(authPolicyTO);
