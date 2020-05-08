@@ -405,6 +405,7 @@ under the License.
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
     <cxf.version>3.3.6</cxf.version>
+    <bouncycastle.version>1.65</bouncycastle.version>
 
     <jackson.version>2.11.0</jackson.version>
 
@@ -1989,7 +1990,12 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.65</version>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
+        <version>${bouncycastle.version}</version>
       </dependency>
 
       <!-- TEST -->
