@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import java.util.HashSet;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
@@ -26,9 +27,7 @@ import org.apereo.cas.services.DefaultRegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.springframework.stereotype.Component;
 
-@AuthMapFor(
-        authPolicyConfClass = DefaultAuthPolicyConf.class,
-        registeredServiceAuthenticationPolicyClass = DefaultRegisteredServiceAuthenticationPolicy.class)
+@AuthMapFor(authPolicyConfClass = DefaultAuthPolicyConf.class)
 @Component
 public class DefaultAuthMapper implements AuthMapper {
 
@@ -39,15 +38,12 @@ public class DefaultAuthMapper implements AuthMapper {
                 new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
         criteria.setTryAll(((DefaultAuthPolicyCriteriaConf) conf.getCriteria()).isAll());
         authPolicy.setCriteria(criteria);
+
+        if (conf instanceof DefaultAuthPolicyConf && !((DefaultAuthPolicyConf) conf).getAuthModules().isEmpty()) {
+            authPolicy.setRequiredAuthenticationHandlers(
+                    new HashSet<>(((DefaultAuthPolicyConf) conf).getAuthModules()));
+        }
         return authPolicy;
     }
 
-    @Override
-    public AuthPolicyConf build(final RegisteredServiceAuthenticationPolicy policy) {
-        DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
-        DefaultAuthPolicyCriteriaConf criteria = new DefaultAuthPolicyCriteriaConf();
-        criteria.setAll(((DefaultAuthPolicyCriteriaConf) policy.getCriteria()).isAll());
-        conf.setCriteria(criteria);
-        return conf;
-    }
 }

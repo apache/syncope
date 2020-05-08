@@ -44,19 +44,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.test.context.ContextConfiguration;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-    "cas.authn.accept.users=mrossi::password",
-    "cas.sso.allow-missing-service-parameter=true"
-})
-@ContextConfiguration(initializers = ZookeeperTestingServer.class)
-public class SyncopeWATest {
-
-    @LocalServerPort
-    private int port;
+public class BasicTest extends AbstractTest {
 
     private String getLoginURL() {
         return "http://localhost:" + port + "/syncope-wa/login";

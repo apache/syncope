@@ -34,6 +34,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -43,6 +44,7 @@ import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.search.UserPartialCondition;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -81,8 +83,8 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertEquals(2, matchingUsers.getResult().stream().filter(user -> "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(
-                user.getKey())
+        assertEquals(2, matchingUsers.getResult().stream().
+                filter(user -> "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
                 || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey())).count());
     }
 
@@ -752,6 +754,17 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1419() {
+        UserTO rossini = userService.read("rossini");
+        assertNotNull(rossini);
+
+        UserUR req = new UserUR();
+        req.setKey(rossini.getKey());
+        req.getPlainAttrs().add(new AttrPatch.Builder(
+                new Attr.Builder("loginDate").value("2009-05-26").build()).build());
+        rossini = updateUser(req).getEntity();
+        assertNotNull(rossini);
+        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").get().getValues().get(0));
+
         PagedResult<UserTO> total = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
 

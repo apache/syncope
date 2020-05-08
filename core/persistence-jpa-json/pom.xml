@@ -236,6 +236,9 @@ under the License.
                 <include>**/*Test.java</include>
               </includes>
               <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
+              <systemProperties>
+                <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>                
+              </systemProperties>
             </configuration>
           </plugin>
 
@@ -245,6 +248,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>postgres</alias>
                   <name>postgres:${docker.postgresql.version}</name>
                   <run>
                     <env>
@@ -252,9 +256,6 @@ under the License.
                       <POSTGRES_USER>syncope</POSTGRES_USER>
                       <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
                     </env>
-                    <ports>
-                      <port>5432:5432</port>
-                    </ports>
                     <wait>
                       <log>database system is ready to accept connections</log>
                       <time>30000</time>
@@ -289,6 +290,10 @@ under the License.
             <filtering>true</filtering>
           </testResource>
           <testResource>
+            <directory>src/test/resources/pgjsonb</directory>
+            <filtering>true</filtering>
+          </testResource>
+          <testResource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
             <excludes>
@@ -298,6 +303,9 @@ under the License.
           <testResource>
             <directory>src/main/resources/pgjsonb</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>domains/Master.properties</exclude>
+            </excludes>
           </testResource>
         </testResources>
       </build>
@@ -353,6 +361,9 @@ under the License.
                 <include>**/*Test.java</include>
               </includes>
               <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
+              <systemProperties>
+                <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>                
+              </systemProperties>
             </configuration>
           </plugin>
 
@@ -362,6 +373,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>mysql</alias>
                   <name>mysql/mysql-server:${docker.mysql.version}</name>
                   <run>
                     <cmd>--skip-log-bin --server-id=1</cmd>
@@ -371,9 +383,6 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
-                    <ports>
-                      <port>3306:3306</port>
-                    </ports>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -408,6 +417,10 @@ under the License.
             <filtering>true</filtering>
           </testResource>
           <testResource>
+            <directory>src/test/resources/myjson</directory>
+            <filtering>true</filtering>
+          </testResource>
+          <testResource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
             <excludes>
@@ -417,6 +430,9 @@ under the License.
           <testResource>
             <directory>src/main/resources/myjson</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>domains/Master.properties</exclude>
+            </excludes>
           </testResource>
         </testResources>
       </build>

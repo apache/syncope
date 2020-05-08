@@ -19,6 +19,8 @@
 package org.apache.syncope.common.lib.wa;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
@@ -35,6 +37,8 @@ public class WAClientApp implements Serializable {
     private AuthPolicyConf authPolicyConf;
 
     private AttrReleasePolicyConf attrReleasePolicyConf;
+
+    private final Map<String, Object> releaseAttrs = new HashMap<>();
 
     public ClientAppTO getClientAppTO() {
         return clientAppTO;
@@ -66,5 +70,9 @@ public class WAClientApp implements Serializable {
 
     public void setAttrReleasePolicyConf(final AttrReleasePolicyConf attrReleasePolicyConf) {
         this.attrReleasePolicyConf = attrReleasePolicyConf;
+    }
+
+    public Map<String, Object> getReleaseAttrs() {
+        return releaseAttrs;
     }
 }

@@ -691,6 +691,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>postgres</alias>
                   <name>postgres:${docker.postgresql.version}</name>
                   <run>
                     <env>
@@ -698,9 +699,6 @@ under the License.
                       <POSTGRES_USER>syncope</POSTGRES_USER>
                       <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
                     </env>
-                    <ports>
-                      <port>5432:5432</port>
-                    </ports>
                     <wait>
                       <log>database system is ready to accept connections</log>
                       <time>30000</time>
@@ -732,6 +730,13 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -806,6 +811,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>postgres</alias>
                   <name>postgres:${docker.postgresql.version}</name>
                   <run>
                     <env>
@@ -813,9 +819,6 @@ under the License.
                       <POSTGRES_USER>syncope</POSTGRES_USER>
                       <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
                     </env>
-                    <ports>
-                      <port>5432:5432</port>
-                    </ports>
                     <wait>
                       <log>database system is ready to accept connections</log>
                       <time>30000</time>
@@ -842,11 +845,18 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -951,6 +961,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>mysql</alias>
                   <name>mysql/mysql-server:${docker.mysql.version}</name>
                   <run>
                     <cmd>--skip-log-bin --server-id=1</cmd>
@@ -960,9 +971,6 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
-                    <ports>
-                      <port>3306:3306</port>
-                    </ports>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -994,22 +1002,13 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -1084,6 +1083,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>mysql</alias>
                   <name>mysql/mysql-server:${docker.mysql.version}</name>
                   <run>
                     <cmd>--skip-log-bin --server-id=1</cmd>
@@ -1093,9 +1093,6 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
-                    <ports>
-                      <port>3306:3306</port>
-                    </ports>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -1127,6 +1124,13 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -1184,6 +1188,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>mariadb</alias>
                   <name>mariadb:${docker.mariadb.version}</name>
                   <run>
                     <env>
@@ -1192,9 +1197,6 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
-                    <ports>
-                      <port>3306:3306</port>
-                    </ports>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -1226,6 +1228,13 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.mariadb.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -1284,6 +1293,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>oracle</alias>
                   <name>database-enterprise</name>
                   <build>
                     <dockerFileDir>${project.basedir}/src/main/resources/oracle</dockerFileDir>
@@ -1293,9 +1303,6 @@ under the License.
                       <ORACLE_ALLOW_REMOTE>true</ORACLE_ALLOW_REMOTE>
                       <ORACLE_ENABLE_XDB>true</ORACLE_ENABLE_XDB>
                     </env>
-                    <ports>
-                      <port>1521:1521</port>
-                    </ports>
                     <wait>
                       <log>Disconnected from Oracle Database 11g Express Edition</log>
                       <time>30000</time>
@@ -1334,6 +1341,13 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.oracle.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -1391,6 +1405,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>sqlserver</alias>
                   <name>mcmoe/mssqldocker:latest</name>
                   <run>
                     <env>
@@ -1400,9 +1415,6 @@ under the License.
                       <MSSQL_USER>syncope</MSSQL_USER>
                       <MSSQL_PASSWORD>Syncope123</MSSQL_PASSWORD>
                     </env>
-                    <ports>
-                      <port>1433:1433</port>
-                    </ports>
                     <wait>
                       <log>MSSQL CONFIG COMPLETE</log>
                       <time>30000</time>
@@ -1434,6 +1446,13 @@ under the License.
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
             <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.sqlserver.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
           </plugin>
         </plugins>
 
@@ -1609,7 +1628,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Dspring.profiles.active=wildfly,embedded
+                  <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=wildfly,embedded
                     -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>

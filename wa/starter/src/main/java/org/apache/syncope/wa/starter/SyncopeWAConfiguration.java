@@ -86,53 +86,42 @@ public class SyncopeWAConfiguration {
     @Bean
     public RegisteredServiceMapper registeredServiceMapper() {
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
-        Map<String, AuthMapper> registeredServiceAuthenticationPolicyMappers = new HashMap<>();
         ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
             AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
             if (authMapFor != null) {
                 authPolicyConfMappers.put(authMapFor.authPolicyConfClass().getName(), bean);
-                registeredServiceAuthenticationPolicyMappers.put(
-                        authMapFor.registeredServiceAuthenticationPolicyClass().getName(), bean);
             }
         });
 
         Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
-        Map<String, AccessMapper> registeredServiceAccessStrategyMappers = new HashMap<>();
         ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
             AccessMapFor accessMapFor = ctx.findAnnotationOnBean(name, AccessMapFor.class);
             if (accessMapFor != null) {
                 accessPolicyConfMappers.put(accessMapFor.accessPolicyConfClass().getName(), bean);
-                registeredServiceAccessStrategyMappers.put(
-                        accessMapFor.registeredServiceAccessStrategyClass().getName(), bean);
             }
         });
 
         Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
-        Map<String, AttrReleaseMapper> registeredServiceAttributeReleasePolicyMappers = new HashMap<>();
         ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
             AttrReleaseMapFor attrReleaseMapFor = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
             if (attrReleaseMapFor != null) {
                 attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
-                registeredServiceAttributeReleasePolicyMappers.put(
-                        attrReleaseMapFor.registeredServiceAttributeReleasePolicyClass().getName(), bean);
             }
         });
 
         Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
-        Map<String, ClientAppMapper> registeredServiceMappers = new HashMap<>();
         ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
             ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);
             if (clientAppMapFor != null) {
                 clientAppTOMappers.put(clientAppMapFor.clientAppClass().getName(), bean);
-                registeredServiceMappers.put(clientAppMapFor.registeredServiceClass().getName(), bean);
             }
         });
 
         return new RegisteredServiceMapper(
-                authPolicyConfMappers, registeredServiceAuthenticationPolicyMappers,
-                accessPolicyConfMappers, registeredServiceAccessStrategyMappers,
-                attrReleasePolicyConfMappers, registeredServiceAttributeReleasePolicyMappers,
-                clientAppTOMappers, registeredServiceMappers);
+                authPolicyConfMappers,
+                accessPolicyConfMappers,
+                attrReleasePolicyConfMappers,
+                clientAppTOMappers);
     }
 
     @Autowired

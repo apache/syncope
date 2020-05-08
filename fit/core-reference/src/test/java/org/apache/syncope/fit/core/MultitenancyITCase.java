@@ -23,8 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -80,7 +82,9 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @BeforeEach
     public void multitenancyCheck() {
-        assumeFalse(domainOps.list().isEmpty());
+        List<Domain> initial = domainOps.list();
+        assertNotNull(initial);
+        assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
         clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 

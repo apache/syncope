@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -97,6 +98,7 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.apache.syncope.fit.FlowableDetector;
 import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.identityconnectors.framework.common.objects.Name;
@@ -181,6 +183,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void fromCSV() throws Exception {
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(syncopeService));
+
         removeTestUsers();
 
         // Attemp to reset CSV content
@@ -542,8 +546,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 2. verify that PrefixMappingItemTransformer was applied during propagation
             // (location starts with given prefix on external resource)
-            ConnObjectTO connObjectTO = resourceService.
-                    readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
+            ConnObjectTO connObjectTO = resourceService.readConnObject(
+                    RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).startsWith(prefix));
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).startsWith(prefix));
 
@@ -566,6 +570,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 4. pull
             execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+
+            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)

@@ -23,13 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
-import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AuthMapFor {
 
     Class<? extends AuthPolicyConf> authPolicyConfClass();
-
-    Class<? extends RegisteredServiceAuthenticationPolicy> registeredServiceAuthenticationPolicyClass();
 }

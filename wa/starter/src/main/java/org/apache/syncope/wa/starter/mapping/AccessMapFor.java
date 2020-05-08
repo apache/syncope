@@ -23,13 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
-import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AccessMapFor {
 
     Class<? extends AccessPolicyConf> accessPolicyConfClass();
-
-    Class<? extends RegisteredServiceAccessStrategy> registeredServiceAccessStrategyClass();
 }

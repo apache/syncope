@@ -24,6 +24,4 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 public interface AttrReleaseMapper {
 
     RegisteredServiceAttributeReleasePolicy build(AttrReleasePolicyConf conf);
-
-    AttrReleasePolicyConf build(RegisteredServiceAttributeReleasePolicy policy);
 }

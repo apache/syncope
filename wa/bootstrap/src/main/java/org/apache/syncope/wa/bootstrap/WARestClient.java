@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
+import java.util.Optional;
 import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -54,43 +55,45 @@ public class WARestClient {
 
     public SyncopeClient getSyncopeClient() {
         synchronized (this) {
-            if (client == null && isReady()) {
-                try {
-                    client = new SyncopeClientFactoryBean().
-                            setAddress(getCore().getAddress()).
-                            setUseCompression(useGZIPCompression).
-                            create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
-                } catch (Exception e) {
-                    LOG.error("Could not init SyncopeClient", e);
-                }
+            if (client == null) {
+                getCore().ifPresent(core -> {
+                    try {
+                        client = new SyncopeClientFactoryBean().
+                                setAddress(core.getAddress()).
+                                setUseCompression(useGZIPCompression).
+                                create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
+                    } catch (Exception e) {
+                        LOG.error("Could not init SyncopeClient", e);
+                    }
+                });
             }
-        }
 
-        return client;
+            return client;
+        }
     }
 
-    private static NetworkService getCore() {
+    private static Optional<NetworkService> getCore() {
         try {
-            final ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+            ApplicationContext context = ApplicationContextProvider.getApplicationContext();
             if (context == null) {
-                return null;
+                return Optional.empty();
             }
 
             Collection<ServiceOps> serviceOpsList = context.getBeansOfType(ServiceOps.class).values();
             if (serviceOpsList.isEmpty()) {
-                return null;
+                return Optional.empty();
             }
             ServiceOps serviceOps = serviceOpsList.iterator().next();
-            return serviceOps.get(NetworkService.Type.CORE);
+            return Optional.of(serviceOps.get(NetworkService.Type.CORE));
         } catch (KeymasterException e) {
             LOG.trace(e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     public static boolean isReady() {
         try {
-            return getCore() != null;
+            return getCore().isPresent();
         } catch (Exception e) {
             LOG.trace(e.getMessage());
         }
