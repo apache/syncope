@@ -54,7 +54,7 @@ public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML
             .build();
 
         SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
-        when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
+        when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
         when(saml2SPMetadataService.set(any())).thenReturn(response);
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);

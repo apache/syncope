@@ -34,7 +34,7 @@ public class SAML2IdPMetadataServiceImpl extends AbstractServiceImpl implements 
     private SAML2IdPMetadataLogic logic;
 
     @Override
-    public SAML2IdPMetadataTO get(final String appliesTo) {
+    public SAML2IdPMetadataTO getByOwner(final String appliesTo) {
         return logic.get(appliesTo);
     }
 

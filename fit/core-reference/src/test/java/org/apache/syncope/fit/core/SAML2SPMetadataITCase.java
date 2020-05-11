@@ -54,7 +54,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
     public void read() {
         SAML2SPMetadataTO metadataTO;
         try {
-            metadataTO = saml2SPMetadataService.get(OWNER);
+            metadataTO = saml2SPMetadataService.getByOwner(OWNER);
         } catch (SyncopeClientException e) {
             metadataTO = createSAML2SPMetadata();
         }
@@ -66,7 +66,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
     @Test
     public void create() {
         try {
-            saml2SPMetadataService.get(OWNER);
+            saml2SPMetadataService.getByOwner(OWNER);
         } catch (SyncopeClientException e) {
             createSAML2SPMetadata();
         }
@@ -86,7 +86,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
     public void update() {
         SAML2SPMetadataTO metadataTO;
         try {
-            metadataTO = saml2SPMetadataService.get(OWNER);
+            metadataTO = saml2SPMetadataService.getByOwner(OWNER);
         } catch (NotFoundException e) {
             metadataTO = createSAML2SPMetadata();
         }

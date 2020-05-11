@@ -54,7 +54,7 @@ public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2Client
             .build();
 
         SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
-        when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
+        when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
         when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);

@@ -36,7 +36,7 @@ public class SAML2SPMetadataServiceImpl extends AbstractServiceImpl implements S
     private SAML2SPMetadataLogic logic;
 
     @Override
-    public SAML2SPMetadataTO get(final String name) {
+    public SAML2SPMetadataTO getByOwner(final String name) {
         return logic.get(name);
     }
 

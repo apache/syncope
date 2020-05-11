@@ -36,7 +36,7 @@ public class SAML2SPKeystoreServiceImpl extends AbstractServiceImpl implements S
     private SAML2SPKeystoreLogic logic;
 
     @Override
-    public SAML2SPKeystoreTO get(final String name) {
+    public SAML2SPKeystoreTO getByOwner(final String name) {
         return logic.get(name);
     }
 

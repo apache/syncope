@@ -55,7 +55,7 @@ public class SyncopeWASAML2ClientKeystoreGeneratorTest extends BaseSyncopeWASAML
             .owner("CAS")
             .build();
         SAML2SPKeystoreService saml2SPKeystoreService = mock(SAML2SPKeystoreService.class);
-        when(saml2SPKeystoreService.get(anyString())).thenReturn(keystoreTO);
+        when(saml2SPKeystoreService.getByOwner(anyString())).thenReturn(keystoreTO);
         when(saml2SPKeystoreService.set(any())).thenReturn(response);
 
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
@@ -64,7 +64,7 @@ public class SyncopeWASAML2ClientKeystoreGeneratorTest extends BaseSyncopeWASAML
             .build();
 
         SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
-        when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
+        when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
         when(saml2SPMetadataService.set(any())).thenReturn(response);
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);

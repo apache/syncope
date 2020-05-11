@@ -59,7 +59,7 @@ public interface SAML2IdPMetadataService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2IdPMetadataTO get(@QueryParam("appliesTo") @DefaultValue("Syncope") String appliesTo);
+    SAML2IdPMetadataTO getByOwner(@QueryParam("appliesTo") @DefaultValue("Syncope") String appliesTo);
 
     /**
      * Returns the SAML 2.0 IdP metadata matching the given key.

@@ -58,7 +58,7 @@ public interface SAML2SPKeystoreService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2SPKeystoreTO get(@QueryParam("name") String name);
+    SAML2SPKeystoreTO getByOwner(@QueryParam("name") String name);
 
     /**
      * Returns the SAML 2.0 SP keystore matching the given key.

@@ -96,7 +96,7 @@ public class SyncopeWASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGene
         try {
             SAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
                 getService(SAML2SPKeystoreService.class);
-            SAML2SPKeystoreTO keystoreTO = keystoreService.get(saml2Client.getName());
+            SAML2SPKeystoreTO keystoreTO = keystoreService.getByOwner(saml2Client.getName());
             LOG.debug("Retrieved keystore {}", keystoreTO);
             byte[] decode = Base64.getDecoder().decode(keystoreTO.getKeystore());
             return new ByteArrayInputStream(decode);

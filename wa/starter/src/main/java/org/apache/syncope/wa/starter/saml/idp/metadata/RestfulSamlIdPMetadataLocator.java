@@ -59,7 +59,7 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
         try {
             LOG.info("Locating SAML2 IdP metadata document");
             SAML2IdPMetadataTO saml2IdPMetadataTO = getSyncopeClient().getService(SAML2IdPMetadataService.class).
-                    get(getAppliesToFor(registeredService));
+                getByOwner(getAppliesToFor(registeredService));
 
             if (saml2IdPMetadataTO == null) {
                 LOG.warn("No SAML2 IdP metadata document obtained from core");

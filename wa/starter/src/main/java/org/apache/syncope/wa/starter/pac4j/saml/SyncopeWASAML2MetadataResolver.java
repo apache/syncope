@@ -52,7 +52,7 @@ public class SyncopeWASAML2MetadataResolver extends AbstractReloadingMetadataRes
         try {
             SAML2SPMetadataService metadataService = restClient.getSyncopeClient().
                 getService(SAML2SPMetadataService.class);
-            SAML2SPMetadataTO metadataTO = metadataService.get(saml2Client.getName());
+            SAML2SPMetadataTO metadataTO = metadataService.getByOwner(saml2Client.getName());
             return metadataTO.getMetadata().getBytes(StandardCharsets.UTF_8);
         } catch (final Exception e) {
             final String message = "Unable to fetch SP metadata for " + saml2Client.getName();

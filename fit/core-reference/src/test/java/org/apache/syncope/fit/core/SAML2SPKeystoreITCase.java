@@ -54,7 +54,7 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
     public void read() {
         SAML2SPKeystoreTO keystoreTO;
         try {
-            keystoreTO = saml2SPKeystoreService.get(OWNER);
+            keystoreTO = saml2SPKeystoreService.getByOwner(OWNER);
         } catch (SyncopeClientException e) {
             keystoreTO = createSAML2SPKeystore();
         }
@@ -66,7 +66,7 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
     @Test
     public void create() {
         try {
-            saml2SPMetadataService.get(OWNER);
+            saml2SPMetadataService.getByOwner(OWNER);
         } catch (SyncopeClientException e) {
             createSAML2SPKeystore();
         }
@@ -86,7 +86,7 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
     public void update() {
         SAML2SPKeystoreTO keystoreTO;
         try {
-            keystoreTO = saml2SPKeystoreService.get(OWNER);
+            keystoreTO = saml2SPKeystoreService.getByOwner(OWNER);
         } catch (NotFoundException e) {
             keystoreTO = createSAML2SPKeystore();
         }

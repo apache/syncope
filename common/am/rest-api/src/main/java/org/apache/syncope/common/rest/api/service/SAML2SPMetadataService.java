@@ -58,7 +58,7 @@ public interface SAML2SPMetadataService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2SPMetadataTO get(@QueryParam("name") String name);
+    SAML2SPMetadataTO getByOwner(@QueryParam("name") String name);
 
     /**
      * Returns the SAML 2.0 SP metadata matching the given key.
