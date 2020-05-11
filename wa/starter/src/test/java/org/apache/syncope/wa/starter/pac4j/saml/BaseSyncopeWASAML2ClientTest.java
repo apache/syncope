@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.wa.pac4j.saml;
+package org.apache.syncope.wa.starter.pac4j.saml;
 
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
@@ -48,7 +48,7 @@ import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Date;
 
-public abstract class BaseSyncopeWASAML2Client {
+public abstract class BaseSyncopeWASAML2ClientTest {
 
     protected static Certificate createSelfSignedCert(final KeyPair keyPair) throws Exception {
         final X500Name dn = new X500Name("cn=Unknown");

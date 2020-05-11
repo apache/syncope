@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.wa.pac4j.saml;
+package org.apache.syncope.wa.starter.pac4j.saml;
 
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;

@@ -18,25 +18,6 @@
  */
 package org.apache.syncope.wa.starter;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
-import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.apache.syncope.wa.pac4j.saml.SyncopeWASAML2ClientCustomizer;
-import org.apache.syncope.wa.starter.mapping.AccessMapFor;
-import org.apache.syncope.wa.starter.mapping.AccessMapper;
-import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
-import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
-import org.apache.syncope.wa.starter.mapping.AuthMapFor;
-import org.apache.syncope.wa.starter.mapping.AuthMapper;
-import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
-import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
-import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
-import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
-import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
@@ -48,6 +29,22 @@ import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
 import org.apereo.cas.util.crypto.CipherExecutor;
 
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.mapping.AccessMapFor;
+import org.apache.syncope.wa.starter.mapping.AccessMapper;
+import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
+import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
+import org.apache.syncope.wa.starter.mapping.AuthMapFor;
+import org.apache.syncope.wa.starter.mapping.AuthMapper;
+import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
+import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
+import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
+import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
+import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +55,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class SyncopeWAConfiguration {
@@ -118,19 +119,19 @@ public class SyncopeWAConfiguration {
         });
 
         return new RegisteredServiceMapper(
-                authPolicyConfMappers,
-                accessPolicyConfMappers,
-                attrReleasePolicyConfMappers,
-                clientAppTOMappers);
+            authPolicyConfMappers,
+            accessPolicyConfMappers,
+            attrReleasePolicyConfMappers,
+            clientAppTOMappers);
     }
 
     @Autowired
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
-            final WARestClient restClient, final RegisteredServiceMapper registeredServiceMapper) {
+        final WARestClient restClient, final RegisteredServiceMapper registeredServiceMapper) {
 
         SyncopeServiceRegistry registry = new SyncopeServiceRegistry(
-                restClient, registeredServiceMapper, applicationContext, serviceRegistryListeners);
+            restClient, registeredServiceMapper, applicationContext, serviceRegistryListeners);
         return plan -> plan.registerServiceRegistry(registry);
     }
 
@@ -138,13 +139,13 @@ public class SyncopeWAConfiguration {
     @Bean
     public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient) {
         SamlIdPMetadataGeneratorConfigurationContext context =
-                SamlIdPMetadataGeneratorConfigurationContext.builder().
-                        samlIdPMetadataLocator(samlIdPMetadataLocator(restClient)).
-                        samlIdPCertificateAndKeyWriter(samlSelfSignedCertificateWriter.getObject()).
-                        resourceLoader(resourceLoader).
-                        casProperties(casProperties).
-                        metadataCipherExecutor(CipherExecutor.noOpOfStringToString()).
-                        build();
+            SamlIdPMetadataGeneratorConfigurationContext.builder().
+                samlIdPMetadataLocator(samlIdPMetadataLocator(restClient)).
+                samlIdPCertificateAndKeyWriter(samlSelfSignedCertificateWriter.getObject()).
+                resourceLoader(resourceLoader).
+                casProperties(casProperties).
+                metadataCipherExecutor(CipherExecutor.noOpOfStringToString()).
+                build();
         return new RestfulSamlIdPMetadataGenerator(context, restClient);
     }
 

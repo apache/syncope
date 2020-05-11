@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.syncope.wa.pac4j.saml;
+package org.apache.syncope.wa.starter.pac4j.saml;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -45,7 +45,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML2Client {
+public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML2ClientTest {
     private static WARestClient getWaRestClient(final Response response) throws IOException {
         WARestClient restClient = mock(WARestClient.class);
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
