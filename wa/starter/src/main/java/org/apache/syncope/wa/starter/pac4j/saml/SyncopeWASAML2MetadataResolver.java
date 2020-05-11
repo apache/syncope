@@ -21,7 +21,7 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;

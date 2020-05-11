@@ -22,7 +22,7 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.junit.jupiter.api.Test;
 import org.pac4j.saml.client.SAML2Client;

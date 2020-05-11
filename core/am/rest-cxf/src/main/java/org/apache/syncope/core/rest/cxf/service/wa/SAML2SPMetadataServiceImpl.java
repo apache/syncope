@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.core.rest.cxf.service.wa;
 
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
 import org.apache.syncope.core.logic.SAML2SPMetadataLogic;
+import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

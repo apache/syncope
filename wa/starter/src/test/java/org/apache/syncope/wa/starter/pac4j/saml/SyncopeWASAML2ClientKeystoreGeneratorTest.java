@@ -24,8 +24,8 @@ import org.apache.syncope.client.lib.SyncopeClient;
 
 import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPKeystoreService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;

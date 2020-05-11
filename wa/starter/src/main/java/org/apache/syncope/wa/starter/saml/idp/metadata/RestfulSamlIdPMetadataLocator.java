@@ -22,7 +22,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2IdPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.locator.AbstractSamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;

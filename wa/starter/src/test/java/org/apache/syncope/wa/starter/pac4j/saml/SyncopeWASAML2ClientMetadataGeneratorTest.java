@@ -23,7 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.junit.jupiter.api.Test;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;

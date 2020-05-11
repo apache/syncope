@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,39 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.core.rest.cxf.service.wa;
 
-import java.net.URI;
-import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
-import org.apache.syncope.core.logic.SAML2IdPMetadataLogic;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPKeystoreService;
+import org.apache.syncope.core.logic.SAML2SPKeystoreLogic;
+import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.core.Response;
+
+import java.net.URI;
+
 @Service
-public class SAML2IdPMetadataServiceImpl extends AbstractServiceImpl implements SAML2IdPMetadataService {
+public class SAML2SPKeystoreServiceImpl extends AbstractServiceImpl implements SAML2SPKeystoreService {
 
     @Autowired
-    private SAML2IdPMetadataLogic logic;
+    private SAML2SPKeystoreLogic logic;
 
     @Override
-    public SAML2IdPMetadataTO getByOwner(final String appliesTo) {
-        return logic.get(appliesTo);
+    public SAML2SPKeystoreTO getByOwner(final String name) {
+        return logic.get(name);
     }
 
     @Override
-    public SAML2IdPMetadataTO read(final String key) {
+    public SAML2SPKeystoreTO read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public Response set(final SAML2IdPMetadataTO saml2IdPMetadataTO) {
-        SAML2IdPMetadataTO saml2IdPMetadata = logic.set(saml2IdPMetadataTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(saml2IdPMetadata.getKey()).build();
+    public Response set(final SAML2SPKeystoreTO keystoreTO) {
+        final SAML2SPKeystoreTO keystore = logic.set(keystoreTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(keystore.getKey()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_KEY, saml2IdPMetadata.getKey()).
-                build();
+            header(RESTHeaders.RESOURCE_KEY, keystore.getKey()).
+            build();
     }
 }

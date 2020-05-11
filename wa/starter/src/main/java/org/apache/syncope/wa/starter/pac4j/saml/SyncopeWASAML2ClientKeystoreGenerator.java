@@ -22,7 +22,7 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
+import org.apache.syncope.common.rest.api.service.wa.SAML2SPKeystoreService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
