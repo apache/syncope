@@ -173,10 +173,9 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         downloadLink.setOutputMarkupId(true);
         uploadForm.add(downloadLink);
 
-        FileInputConfig config = new FileInputConfig();
-        config.showUpload(false);
-        config.showRemove(false);
-        config.showPreview(false);
+        FileInputConfig config = new FileInputConfig().
+                showUpload(false).showRemove(false).showPreview(false).
+                withLocale(SyncopeConsoleSession.get().getLocale().getLanguage());
 
         fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);
@@ -187,24 +186,24 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                final FileUpload uploadedFile = fileUpload.getFileUpload();
+                FileUpload uploadedFile = fileUpload.getFileUpload();
                 if (uploadedFile != null) {
                     if (maxUploadSize != null && uploadedFile.getSize() > maxUploadSize.bytes()) {
                         // SYNCOPE-1213 manage directly max upload file size (if set in properties file)
-                        SyncopeConsoleSession.get().error(getString("tooLargeFile")
-                                .replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes()))
-                                .replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
+                        SyncopeConsoleSession.get().error(getString("tooLargeFile").
+                                replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
+                                replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
                         ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                     } else {
-                        final byte[] uploadedBytes = uploadedFile.getBytes();
-                        final String uploaded = Base64.getEncoder().encodeToString(uploadedBytes);
+                        byte[] uploadedBytes = uploadedFile.getBytes();
+                        String uploaded = Base64.getEncoder().encodeToString(uploadedBytes);
                         field.setModelObject(uploaded);
                         target.add(field);
 
                         if (previewer == null) {
                             container.addOrReplace(emptyFragment);
                         } else {
-                            final Component panelPreview = previewer.preview(uploadedBytes);
+                            Component panelPreview = previewer.preview(uploadedBytes);
                             changePreviewer(panelPreview);
                             fileUpload.setModelObject(null);
                             uploadForm.addOrReplace(fileUpload);
