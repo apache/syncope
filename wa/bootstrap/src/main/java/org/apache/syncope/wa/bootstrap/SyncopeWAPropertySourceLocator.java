@@ -80,6 +80,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         syncopeProps.setUrl(conf.getUrl());
 
         casProperties.getAuthn().setSyncope(syncopeProps);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapStaticAuthModuleConf(
@@ -96,6 +97,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         staticProps.setUsers(users);
 
         casProperties.getAuthn().setAccept(staticProps);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapLdapAuthModuleConf(
@@ -115,6 +117,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         ldapProps.setPrincipalAttributeList(conf.getPrincipalAttributeList());
 
         casProperties.getAuthn().getLdap().add(ldapProps);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapGoogleMfaAuthModuleConf(
@@ -132,6 +135,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setWindowSize(conf.getWindowSize());
 
         casProperties.getAuthn().getMfa().setGauth(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapU2fAuthModuleConf(
@@ -148,6 +152,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
 
         casProperties.getAuthn().getMfa().setU2f(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapJaasAuthModuleConf(
@@ -165,6 +170,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setRealm(conf.getRealm());
 
         casProperties.getAuthn().getJaas().add(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapJdbcAuthModuleConf(
@@ -187,6 +193,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
 
         casProperties.getAuthn().getJdbc().getQuery().add(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapOidcAuthModuleConf(
@@ -211,6 +218,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         client.setGeneric(props);
 
         casProperties.getAuthn().getPac4j().getOidc().add(client);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapRadiusAuthModuleConf(
@@ -239,6 +247,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.getServer().setRetries(conf.getRetries());
 
         casProperties.getAuthn().setRadius(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     private static void mapSaml2IdPAuthModuleConf(
@@ -258,13 +267,11 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
         props.setKeystoreAlias(conf.getKeystoreAlias());
         props.setKeystorePassword(conf.getKeystorePassword());
-        props.setKeystorePath(conf.getKeystorePath());
         props.setMaximumAuthenticationLifetime(conf.getMaximumAuthenticationLifetime());
         props.setNameIdPolicyFormat(conf.getNameIdPolicyFormat());
         props.setPrivateKeyPassword(conf.getPrivateKeyPassword());
         props.setProviderName(conf.getProviderName());
         props.setServiceProviderEntityId(conf.getServiceProviderEntityId());
-        props.setServiceProviderMetadataPath(conf.getServiceProviderMetadataPath());
         props.setSignatureAlgorithms(conf.getSignatureAlgorithms());
         props.setSignatureCanonicalizationAlgorithm(conf.getSignatureCanonicalizationAlgorithm());
         props.setSignatureReferenceDigestMethods(conf.getSignatureReferenceDigestMethods());
@@ -274,6 +281,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
 
         casProperties.getAuthn().getPac4j().getSaml().add(props);
+        LOG.debug("Added {} to WA configuration", conf.getName());
     }
 
     @Override

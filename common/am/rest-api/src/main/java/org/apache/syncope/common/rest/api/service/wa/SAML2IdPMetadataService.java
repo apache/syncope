@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+package org.apache.syncope.common.rest.api.service.wa;
 
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,6 +39,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 /**
  * REST operations for SAML 2.0 IdP metadata.
@@ -47,7 +48,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("saml2idp/metadata")
+@Path("wa/saml2idp/metadata")
 public interface SAML2IdPMetadataService extends JAXRSService {
 
     /**
@@ -59,7 +60,7 @@ public interface SAML2IdPMetadataService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2IdPMetadataTO get(@QueryParam("appliesTo") @DefaultValue("Syncope") String appliesTo);
+    SAML2IdPMetadataTO getByOwner(@QueryParam("appliesTo") @DefaultValue("Syncope") String appliesTo);
 
     /**
      * Returns the SAML 2.0 IdP metadata matching the given key.

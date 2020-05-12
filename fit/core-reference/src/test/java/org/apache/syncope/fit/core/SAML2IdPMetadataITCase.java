@@ -63,7 +63,7 @@ public class SAML2IdPMetadataITCase extends AbstractITCase {
     public void read() {
         SAML2IdPMetadataTO saml2IdPMetadataTO = null;
         try {
-            saml2IdPMetadataTO = saml2IdPMetadataService.get(APPLIES_TO);
+            saml2IdPMetadataTO = saml2IdPMetadataService.getByOwner(APPLIES_TO);
         } catch (SyncopeClientException e) {
             saml2IdPMetadataTO = createSAML2IdPMetadata();
         }
@@ -76,7 +76,7 @@ public class SAML2IdPMetadataITCase extends AbstractITCase {
     @Test
     public void create() {
         try {
-            saml2IdPMetadataService.get(APPLIES_TO);
+            saml2IdPMetadataService.getByOwner(APPLIES_TO);
         } catch (SyncopeClientException e) {
             createSAML2IdPMetadata();
         }
@@ -96,7 +96,7 @@ public class SAML2IdPMetadataITCase extends AbstractITCase {
     public void update() {
         SAML2IdPMetadataTO saml2IdPMetadataTO = null;
         try {
-            saml2IdPMetadataTO = saml2IdPMetadataService.get(APPLIES_TO);
+            saml2IdPMetadataTO = saml2IdPMetadataService.getByOwner(APPLIES_TO);
         } catch (NotFoundException e) {
             saml2IdPMetadataTO = createSAML2IdPMetadata();
         }
@@ -104,7 +104,7 @@ public class SAML2IdPMetadataITCase extends AbstractITCase {
         assertNotNull(saml2IdPMetadataTO);
         saml2IdPMetadataTO.setEncryptionKey("newKey");
         saml2IdPMetadataConfService.update(saml2IdPMetadataTO);
-        saml2IdPMetadataTO = saml2IdPMetadataService.get(saml2IdPMetadataTO.getAppliesTo());
+        saml2IdPMetadataTO = saml2IdPMetadataService.getByOwner(saml2IdPMetadataTO.getAppliesTo());
         assertNotNull(saml2IdPMetadataTO);
 
         assertEquals("newKey", saml2IdPMetadataTO.getEncryptionKey());

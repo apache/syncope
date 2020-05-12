@@ -126,8 +126,6 @@ public class AuthModuleITCase extends AbstractITCase {
                 SAML2IdPAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 SAML2IdPAuthModuleConf.class.cast(conf).setServiceProviderEntityId("testEntityId");
                 SAML2IdPAuthModuleConf.class.cast(conf).setProviderName("testProviderName");
-                SAML2IdPAuthModuleConf.class.cast(conf).setServiceProviderMetadataPath(
-                        "file:/etc/metadata");
                 break;
 
             case SYNCOPE:

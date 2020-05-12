@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.wa.starter;
 
-import org.apache.commons.lang.StringUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
-import org.apereo.cas.util.AsciiArtUtils;
-import org.apereo.cas.util.DateTimeUtils;
+
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -57,6 +55,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -96,17 +95,8 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
         new SpringApplicationBuilder(SyncopeWAApplication.class).run(args);
     }
 
-    private static void advertiseReady(final ApplicationReadyEvent event) {
-        AsciiArtUtils.printAsciiArtReady(LOG, StringUtils.EMPTY);
-        LOG.info("Ready to process requests @ [{}]", DateTimeUtils.zonedDateTimeOf(event.getTimestamp()));
-    }
-
     private static void validateConfiguration(final ApplicationReadyEvent event) {
-        if (!Boolean.getBoolean("SKIP_CONFIG_VALIDATION")) {
-            CasConfigurationPropertiesValidator validator =
-                    new CasConfigurationPropertiesValidator(event.getApplicationContext());
-            validator.validate();
-        }
+        new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
     }
 
     /**
@@ -118,7 +108,6 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
         validateConfiguration(event);
         scheduleJobToRefreshContext();
-        advertiseReady(event);
     }
 
     private void scheduleJobToRefreshContext() {
@@ -131,9 +120,8 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
             JobDetail job = JobBuilder.newJob(SyncopeWARefreshContextJob.class).
                     withIdentity(jobKey).
                     build();
-
+            LOG.info("Scheduled job to refresh application context @ [{}]", date);
             scheduler.getScheduler().scheduleJob(job, trigger);
-
         } catch (final SchedulerException e) {
             throw new RuntimeException("Could not schedule refresh job", e);
         }

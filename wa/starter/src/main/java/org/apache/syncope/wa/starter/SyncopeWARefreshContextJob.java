@@ -19,8 +19,11 @@
 package org.apache.syncope.wa.starter;
 
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.commons.lang.StringUtils;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
+import org.apereo.cas.util.AsciiArtUtils;
+
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -46,19 +49,27 @@ public class SyncopeWARefreshContextJob implements Job {
     @Override
     public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
-            LOG.debug("Refreshing WA application context");
+            LOG.debug("Attempting to refresh WA application context");
             if (!WARestClient.isReady()) {
                 LOG.debug("Syncope client is not yet ready");
                 throw new RuntimeException("Syncope core is not yet ready to access requests");
             }
             contextRefresher.refresh();
+            LOG.info("Refreshed application context to bootstrap property sources, etc...");
 
             LOG.info("Generating SAML2 IdP metadata metadata");
             SamlIdPMetadataDocument document = metadataGenerator.generate(Optional.empty());
             LOG.info("Generated SAML2 IdP metadata for {}", document.getAppliesTo());
 
+            advertiseReady();
+
         } catch (RuntimeException e) {
             throw new JobExecutionException("While generating SAML2 IdP metadata", e);
         }
+    }
+
+    private static void advertiseReady() {
+        AsciiArtUtils.printAsciiArtReady(LOG, StringUtils.EMPTY);
+        LOG.info("Ready to process requests");
     }
 }
