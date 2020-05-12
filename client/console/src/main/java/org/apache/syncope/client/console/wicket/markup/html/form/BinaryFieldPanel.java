@@ -179,7 +179,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         showUpload(false).showRemove(false).showPreview(false).
         withLocale(SyncopeConsoleSession.get().getLocale().getLanguage());
 
-        fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
+        fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<FileUpload>()), config);
         fileUpload.setOutputMarkupId(true);
 
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
