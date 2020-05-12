@@ -45,6 +45,16 @@ under the License.
     </dependency>
 
     <!-- TEST -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency> 
       <groupId>javax.servlet</groupId> 
       <artifactId>javax.servlet-api</artifactId> 
@@ -125,6 +135,26 @@ under the License.
         <filtering>true</filtering>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+      <testResource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>domains/MasterContent.xml</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/../persistence-jpa/src/test/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>*-metadata.xml</include>
+        </includes>
+      </testResource>
+    </testResources>
   </build>
 
   <profiles>
@@ -194,16 +224,6 @@ under the License.
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
           <version>${jdbc.postgresql.version}</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -296,19 +316,8 @@ under the License.
         
         <testResources>
           <testResource>
-            <directory>src/test/resources</directory>
-            <filtering>true</filtering>
-          </testResource>
-          <testResource>
             <directory>src/test/resources/pgjsonb</directory>
             <filtering>true</filtering>
-          </testResource>
-          <testResource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>domains/MasterContent.xml</exclude>
-            </excludes>
           </testResource>
           <testResource>
             <directory>src/main/resources/pgjsonb</directory>
@@ -329,16 +338,6 @@ under the License.
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
           <version>${jdbc.mysql.version}</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -433,19 +432,8 @@ under the License.
         
         <testResources>
           <testResource>
-            <directory>src/test/resources</directory>
-            <filtering>true</filtering>
-          </testResource>
-          <testResource>
             <directory>src/test/resources/myjson</directory>
             <filtering>true</filtering>
-          </testResource>
-          <testResource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>domains/MasterContent.xml</exclude>
-            </excludes>
           </testResource>
           <testResource>
             <directory>src/main/resources/myjson</directory>
