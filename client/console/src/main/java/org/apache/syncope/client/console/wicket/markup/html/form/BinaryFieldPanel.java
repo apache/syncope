@@ -28,6 +28,7 @@ import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Locale;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -176,8 +177,11 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         uploadForm.add(downloadLink);
 
         FileInputConfig config = new FileInputConfig().
-        showUpload(false).showRemove(false).showPreview(false).
-        withLocale(SyncopeConsoleSession.get().getLocale().getLanguage());
+                showUpload(false).showRemove(false).showPreview(false);
+        String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+        if (!Locale.ENGLISH.getLanguage().equals(language)) {
+            config.withLocale(language);
+        }
 
         fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<FileUpload>()), config);
         fileUpload.setOutputMarkupId(true);
