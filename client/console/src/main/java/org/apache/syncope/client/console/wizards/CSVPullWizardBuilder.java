@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -132,8 +133,11 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
 
         public Details(final CSVPullSpec spec) {
             FileInputConfig csvFile = new FileInputConfig().
-                    showUpload(false).showRemove(false).showPreview(false).
-                    withLocale(SyncopeConsoleSession.get().getLocale().getLanguage());
+                    showUpload(false).showRemove(false).showPreview(false);
+            String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+            if (!Locale.ENGLISH.getLanguage().equals(language)) {
+                csvFile.withLocale(language);
+            }
             BootstrapFileInputField csvUpload =
                     new BootstrapFileInputField("csvUpload", new ListModel<>(new ArrayList<>()), csvFile);
             csvUpload.setRequired(true);
