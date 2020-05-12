@@ -28,6 +28,7 @@ import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Locale;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -180,8 +181,11 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
         FileInputConfig config = new FileInputConfig().
                 showUpload(false).showRemove(false).showPreview(false).
-                withLocale(SyncopeConsoleSession.get().getLocale().getLanguage()).
                 browseClass("btn btn-success").browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
+            String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+            if (!Locale.ENGLISH.getLanguage().equals(language)) {
+                config.withLocale(language);
+            }
 
         fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);

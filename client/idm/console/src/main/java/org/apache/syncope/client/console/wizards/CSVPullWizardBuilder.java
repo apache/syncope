@@ -23,6 +23,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.Fil
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -130,8 +131,11 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
         public Details(final CSVPullSpec spec) {
             FileInputConfig csvFile = new FileInputConfig().
                     showUpload(false).showRemove(false).showPreview(false).
-                    withLocale(SyncopeConsoleSession.get().getLocale().getLanguage()).
                     browseClass("btn btn-success").browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
+            String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+            if (!Locale.ENGLISH.getLanguage().equals(language)) {
+                csvFile.withLocale(language);
+            }
             BootstrapFileInputField csvUpload =
                     new BootstrapFileInputField("csvUpload", new ListModel<>(new ArrayList<>()), csvFile);
             csvUpload.setRequired(true);
