@@ -55,13 +55,12 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -99,7 +98,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final Fragment searchButtonFragment;
 
-    private final AjaxSubmitLink searchButton;
+    private final AjaxLink<Void> searchButton;
 
     private IEventSink resultContainer;
 
@@ -129,14 +128,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.roleNames = roleNames;
         this.resourceNames = resourceNames;
 
-        searchButton = new AjaxSubmitLink("search") {
+        searchButton = new AjaxLink<Void>("search") {
 
             private static final long serialVersionUID = 5538299138211283825L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            public void onClick(final AjaxRequestTarget target) {
                 if (resultContainer == null) {
-                    send(this, Broadcast.BUBBLE, new SearchEvent(target));
+                    send(SearchClausePanel.this, Broadcast.BUBBLE, new SearchEvent(target));
                 } else {
                     send(resultContainer, Broadcast.EXACT, new SearchEvent(target));
                 }
@@ -153,7 +152,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             private static final long serialVersionUID = -8204140666393922700L;
 
         };
-
         add(field);
 
         comparators = new LoadableDetachableModel<List<Comparator>>() {
@@ -369,10 +367,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
 
         final AjaxTextFieldPanel property = new AjaxTextFieldPanel(
-                "property",
-                "property",
-                new PropertyModel<String>(searchClause, "property"),
-                false);
+                "property", "property", new PropertyModel<String>(searchClause, "property"), true);
         property.hideLabel().setOutputMarkupId(true).setEnabled(true);
         property.setChoices(properties.getObject());
         field.add(property);
