@@ -40,8 +40,6 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -136,28 +134,24 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         type.setModelValue(new String[] { "ATTRIBUTE" });
         type.setDefaultModelObject(SearchClause.Type.ATTRIBUTE);
 
-        TextField<?> property = (TextField<?>) TESTER.getComponentFromLastRenderedPage(USER_SEARCH_FORM
-                + "content:view:0:panel:container:property:textField");
-        assertNotNull(property);
-        property.setModelValue(new String[] { "username" });
-
-        TextField<?> value = (TextField<?>) TESTER.getComponentFromLastRenderedPage(USER_SEARCH_FORM
-                + "content:view:0:panel:container:value:textField");
-        assertNotNull(value);
-        value.setModelValue(new String[] { user.getUsername() });
+        formTester.setValue("content:view:0:panel:container:property:textField", "username");
+        TESTER.executeAjaxEvent(formTester.getForm().
+                get("content:view:0:panel:container:property:textField"), Constants.ON_KEYDOWN);
+        formTester.setValue("content:view:0:panel:container:value:textField", user.getUsername());
+        TESTER.executeAjaxEvent(formTester.getForm().
+                get("content:view:0:panel:container:value:textField"), Constants.ON_KEYDOWN);
 
         TESTER.cleanupFeedbackMessages();
-        formTester.submit("content:view:0:panel:container:operatorContainer:operator:search");
+        Component searchButton = formTester.getForm().
+                get("content:view:0:panel:container:operatorContainer:operator:search");
+        TESTER.clickLink(searchButton);
+        TESTER.executeAjaxEvent(searchButton.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.assertNoErrorMessage();
 
         // Locate result in data table
         Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL + RESULT_DATA_TABLE, user.
                 getUsername());
         TESTER.executeAjaxEvent(comp.getPageRelativePath(), Constants.ON_CLICK);
-
-        UserTO userTO = (UserTO) ((OddEvenItem) TESTER.getComponentFromLastRenderedPage(TAB_PANEL + SEARCH_PANEL
-                + RESULT_DATA_TABLE + "body:rows:1")).getModel().getObject();
-        assertNotNull(userTO);
 
         // Select user
         TESTER.clickLink(TAB_PANEL + SEARCH_PANEL + SELECT_USER_ACTION);
@@ -195,7 +189,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
             }
         }
         // User must include merged accounts now
-        UserTO verdi = userService.read(UserTO.class.cast(verdiUserComponent.getDefaultModelObject()).getKey());
+        UserTO verdi = userService.read("verdi");
         assertFalse(verdi.getLinkedAccounts().isEmpty());
     }
 }

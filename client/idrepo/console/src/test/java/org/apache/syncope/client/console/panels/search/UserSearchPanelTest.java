@@ -19,11 +19,12 @@
 package org.apache.syncope.client.console.panels.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import org.apache.syncope.client.console.AbstractAdminTest;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.wicket.Component;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
@@ -43,17 +44,25 @@ public class UserSearchPanelTest extends AbstractAdminTest {
         FormTester formTester = TESTER.newFormTester(
                 "content:searchFormContainer:search:multiValueContainer:innerForm");
 
-        assertNotNull(formTester.getForm().get("content:view:0:panel:container:property:textField"));
-
-        formTester.setValue("content:view:0:panel:container:property:textField", "firstname");
-        formTester.setValue("content:view:0:panel:container:value:textField", "vincenzo");
         assertEquals("username", formTester.getForm().
                 get("content:view:0:panel:container:property:textField").getDefaultModelObjectAsString());
         assertNull(formTester.getForm().
                 get("content:view:0:panel:container:value:textField").getDefaultModelObject());
-        formTester.submit(formTester.getForm().get("content:view:0:panel:container:operatorContainer:operator:search"));
-        assertEquals("firstname", formTester.getForm().get(
-                "content:view:0:panel:container:property:textField").getDefaultModelObjectAsString());
+
+        formTester.setValue("content:view:0:panel:container:property:textField", "firstname");
+        TESTER.executeAjaxEvent(formTester.getForm().
+                get("content:view:0:panel:container:property:textField"), Constants.ON_KEYDOWN);
+        formTester.setValue("content:view:0:panel:container:value:textField", "vincenzo");
+        TESTER.executeAjaxEvent(formTester.getForm().
+                get("content:view:0:panel:container:value:textField"), Constants.ON_KEYDOWN);
+
+        Component searchButton = formTester.getForm().
+                get("content:view:0:panel:container:operatorContainer:operator:search");
+        TESTER.clickLink(searchButton);
+        TESTER.executeAjaxEvent(searchButton.getPageRelativePath(), Constants.ON_CLICK);
+
+        assertEquals("firstname", formTester.getForm().
+                get("content:view:0:panel:container:property:textField").getDefaultModelObjectAsString());
         assertEquals("vincenzo", formTester.getForm().
                 get("content:view:0:panel:container:value:textField").getDefaultModelObjectAsString());
     }
