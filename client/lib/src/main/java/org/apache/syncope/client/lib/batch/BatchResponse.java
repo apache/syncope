@@ -26,8 +26,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
@@ -47,11 +50,19 @@ public class BatchResponse {
 
     private final URI monitor;
 
+    private final TLSClientParameters tlsClientParameters;
+
     private Response response;
 
-    public BatchResponse(final String boundary, final String jwt, final Response response) {
+    public BatchResponse(
+            final String boundary,
+            final String jwt,
+            final TLSClientParameters tlsClientParameters,
+            final Response response) {
+
         this.boundary = boundary;
         this.jwt = jwt;
+        this.tlsClientParameters = tlsClientParameters;
         this.monitor = response.getLocation();
         this.response = response;
     }
@@ -72,9 +83,16 @@ public class BatchResponse {
      */
     public Response poll() {
         if (monitor != null) {
-            response = WebClient.create(monitor).
+            WebClient webClient = WebClient.create(monitor).
                     header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).
-                    type(RESTHeaders.multipartMixedWith(boundary.substring(2))).get();
+                    type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
+            if (tlsClientParameters != null) {
+                ClientConfiguration config = WebClient.getConfig(webClient);
+                HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+                httpConduit.setTlsClientParameters(tlsClientParameters);
+            }
+
+            response = webClient.get();
         }
 
         return response;

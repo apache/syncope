@@ -407,6 +407,7 @@ public class SyncopeClient {
                 mediaType,
                 restClientFactory.getAddress(),
                 restClientFactory.getProviders(),
-                getJWT());
+                getJWT(),
+                tlsClientParameters);
     }
 }

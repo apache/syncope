@@ -22,8 +22,11 @@ import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
@@ -46,18 +49,22 @@ public class BatchRequest {
 
     private final List<?> providers;
 
+    private final TLSClientParameters tlsClientParameters;
+
     private BatchClientFactoryBean bcfb;
 
     public BatchRequest(
             final MediaType mediaType,
             final String address,
             final List<?> providers,
-            final String jwt) {
+            final String jwt,
+            final TLSClientParameters tlsClientParameters) {
 
         this.mediaType = mediaType;
         this.jwt = jwt;
         this.address = address;
         this.providers = providers;
+        this.tlsClientParameters = tlsClientParameters;
         initBatchClientFactoryBean();
     }
 
@@ -85,7 +92,7 @@ public class BatchRequest {
      * Sends the current request, with items accumulated by invoking methods on proxies obtained via
      * {@link #getService(java.lang.Class)}, to the Batch service, and awaits for synchronous response.
      * It also clears out the accumulated items, in case of reuse of this instance for subsequent requests.
-     * 
+     *
      * @return batch response
      */
     public BatchResponse commit() {
@@ -97,7 +104,7 @@ public class BatchRequest {
      * {@link #getService(java.lang.Class)}, to the Batch service, and awaits for a synchronous or asynchronous
      * response, depending on the {@code async} parameter.
      * It also clears out the accumulated items, in case of reuse of this instance for subsequent requests.
-     * 
+     *
      * @param async whether asynchronous Batch process is requested, or not
      * @return batch response
      */
@@ -110,12 +117,17 @@ public class BatchRequest {
         if (async) {
             webClient.header(RESTHeaders.PREFER, Preference.RESPOND_ASYNC);
         }
+        if (tlsClientParameters != null) {
+            ClientConfiguration config = WebClient.getConfig(webClient);
+            HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+            httpConduit.setTlsClientParameters(tlsClientParameters);
+        }
 
         String body = BatchPayloadGenerator.generate(bcfb.getBatchRequestItems(), boundary);
         LOG.debug("Batch request body:\n{}", body);
 
         initBatchClientFactoryBean();
 
-        return new BatchResponse(boundary, jwt, webClient.post(body));
+        return new BatchResponse(boundary, jwt, tlsClientParameters, webClient.post(body));
     }
 }
