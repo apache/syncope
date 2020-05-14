@@ -23,6 +23,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.Fil
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Locale;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -44,21 +45,21 @@ public class ImportMetadata extends TogglePanel<Serializable> {
 
     private final SAML2IdPsRestClient restClient = new SAML2IdPsRestClient();
 
-    private final Form<?> form;
-
     public ImportMetadata(final String id, final WebMarkupContainer container, final PageReference pageRef) {
         super(id, pageRef);
 
-        form = new Form<>("metadataForm");
+        Form<?> form = new Form<>("metadataForm");
         addInnerObject(form);
 
-        final Model<byte[]> metadata = new Model<>();
+        Model<byte[]> metadata = new Model<>();
 
-        FileInputConfig config = new FileInputConfig();
-        config.showUpload(false);
-        config.showRemove(false);
-        config.showPreview(false);
-        final BootstrapFileInputField fileUpload =
+        FileInputConfig config = new FileInputConfig().
+                showUpload(false).showRemove(false).showPreview(false);
+        String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+        if (!Locale.ENGLISH.getLanguage().equals(language)) {
+            config.withLocale(language);
+        }
+        BootstrapFileInputField fileUpload =
                 new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
