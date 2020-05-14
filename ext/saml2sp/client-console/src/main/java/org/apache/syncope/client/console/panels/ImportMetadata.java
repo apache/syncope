@@ -23,6 +23,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.Fil
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Locale;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -42,22 +43,21 @@ public class ImportMetadata extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = 6959177759869415782L;
 
-    private final Form<?> form;
-
     public ImportMetadata(final String id, final WebMarkupContainer container, final PageReference pageRef) {
         super(id, pageRef);
 
-        form = new Form<>("metadataForm");
+        Form<?> form = new Form<>("metadataForm");
         addInnerObject(form);
 
-        final Model<byte[]> metadata = new Model<>();
+        Model<byte[]> metadata = new Model<>();
 
-        FileInputConfig config = new FileInputConfig();
-        config.showUpload(false);
-        config.showRemove(false);
-        config.showPreview(false);
-        config.browseClass("btn btn-success");
-        config.browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
+        FileInputConfig config = new FileInputConfig().
+                showUpload(false).showRemove(false).showPreview(false).
+                browseClass("btn btn-success").browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
+        String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+        if (!Locale.ENGLISH.getLanguage().equals(language)) {
+            config.withLocale(language);
+        }
         BootstrapFileInputField fileUpload =
                 new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);
