@@ -66,7 +66,7 @@ under the License.
   <AuthModule id="4c3ed7e8-7008-11ea-bc55-0242ac130003" name="DefaultJDBCAuthModule"
               description="JDBC auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","name":"MyJDBCAuthModuleConf", "sql":"SELECT * FROM table WHERE name=?"}'/>
   <AuthModule id="4c3ed4e6-7008-11ea-bc55-0242ac130003" name="DefaultGoogleMfaAuthModule"
-              description="Google Mfa auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","name":"MyGoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest"}'/>
+              description="Google Mfa auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","name":"MyGoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
   <AuthModule id="4c3ed8f6-7008-11ea-bc55-0242ac130003" name="DefaultOIDCAuthModule"
               description="OIDC auth module"
               jsonConf='{"@class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","name":"MyOIDCAuthModuleConf", "discoveryUri":"https://accounts.google.com/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
