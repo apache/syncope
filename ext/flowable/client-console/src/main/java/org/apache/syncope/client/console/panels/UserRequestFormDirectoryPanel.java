@@ -226,8 +226,10 @@ public class UserRequestFormDirectoryPanel
                 UserRequestForm formTO = model.getObject();
                 UserTO newUserTO;
                 UserTO previousUserTO;
-                if (formTO.getUserPatch() == null) {
+                if (formTO.getUserPatch() == null && formTO.getUserTO() != null) {
                     newUserTO = formTO.getUserTO();
+                    // SYNCOPE-1563 do not use the password into UserTO
+                    newUserTO.setPassword(null);
                     previousUserTO = null;
                 } else if (formTO.getUserTO() == null) {
                     // make it stronger by handling possible NPE
