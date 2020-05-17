@@ -95,7 +95,7 @@ public class SAML2SPKeystoreLogic extends AbstractTransactionalLogic<SAML2SPKeys
                 if (args[i] instanceof String) {
                     name = (String) args[i];
                 } else if (args[i] instanceof SAML2SPKeystoreTO) {
-                    name = ((SAML2SPKeystoreTO) args[i]).getKey();
+                    name = ((SAML2SPKeystoreTO) args[i]).getOwner();
                 }
             }
         }

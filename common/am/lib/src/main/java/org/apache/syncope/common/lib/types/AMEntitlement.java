@@ -72,6 +72,14 @@ public final class AMEntitlement {
 
     public static final String SAML2_SP_KEYSTORE_READ = "SAML2_SP_KEYSTORE_READ";
 
+    public static final String GOOGLE_MFA_DELETE_TOKEN = "GOOGLE_MFA_DELETE_TOKEN";
+
+    public static final String GOOGLE_MFA_SAVE_TOKEN = "GOOGLE_MFA_SAVE_TOKEN";
+
+    public static final String GOOGLE_MFA_READ_TOKEN = "GOOGLE_MFA_READ_TOKEN";
+
+    public static final String GOOGLE_MFA_COUNT_TOKEN = "GOOGLE_MFA_COUNT_TOKEN";
+
     private static final Set<String> VALUES;
 
     static {
