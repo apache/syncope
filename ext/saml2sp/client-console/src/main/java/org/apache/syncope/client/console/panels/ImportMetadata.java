@@ -20,23 +20,19 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileInputConfig;
-import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
 
 public class ImportMetadata extends TogglePanel<Serializable> {
@@ -49,8 +45,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
         Form<?> form = new Form<>("metadataForm");
         addInnerObject(form);
 
-        Model<byte[]> metadata = new Model<>();
-
+        ListModel<FileUpload> fileUploadModel = new ListModel<>(new ArrayList<>());
         FileInputConfig config = new FileInputConfig().
                 showUpload(false).showRemove(false).showPreview(false).
                 browseClass("btn btn-success").browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
@@ -58,22 +53,8 @@ public class ImportMetadata extends TogglePanel<Serializable> {
         if (!Locale.ENGLISH.getLanguage().equals(language)) {
             config.withLocale(language);
         }
-        BootstrapFileInputField fileUpload =
-                new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
-        fileUpload.setOutputMarkupId(true);
-        fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = 5538299138211283825L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target) {
-                FileUpload uploadedFile = fileUpload.getFileUpload();
-                if (uploadedFile != null) {
-                    metadata.setObject(uploadedFile.getBytes());
-                }
-            }
-        });
-        form.add(fileUpload);
+        BootstrapFileInputField fileUpload = new BootstrapFileInputField("fileUpload", fileUploadModel, config);
+        form.add(fileUpload.setOutputMarkupId(true));
 
         form.add(new AjaxSubmitLink("doUpload", form) {
 
@@ -81,10 +62,10 @@ public class ImportMetadata extends TogglePanel<Serializable> {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                if (ArrayUtils.isNotEmpty(metadata.getObject())) {
+                if (!fileUploadModel.getObject().isEmpty()) {
+                    FileUpload uploaded = fileUploadModel.getObject().get(0);
                     try {
-                        SAML2IdPsRestClient.importIdPs(new ByteArrayInputStream(metadata.getObject()));
-                        metadata.setObject(null);
+                        SAML2IdPsRestClient.importIdPs(uploaded.getInputStream());
 
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         toggle(target, false);
