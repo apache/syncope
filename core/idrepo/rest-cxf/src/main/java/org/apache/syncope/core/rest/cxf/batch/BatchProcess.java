@@ -92,7 +92,7 @@ public class BatchProcess implements Runnable {
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>(batchRequestItems.size());
 
-        batchRequestItems.forEach((BatchRequestItem reqItem) -> {
+        batchRequestItems.forEach(reqItem -> {
             LOG.debug("Batch item:\n{}", reqItem);
 
             AbstractHTTPDestination dest = destinationRegistry.getDestinationForPath(reqItem.getRequestURI(), true);

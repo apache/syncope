@@ -22,10 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.List;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
@@ -47,6 +49,8 @@ public class WAClientAppITCase extends AbstractITCase {
 
     @BeforeAll
     public static void setup() {
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
+
         SyncopeClient anonymous = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
         waClientAppService = anonymous.getService(WAClientAppService.class);
@@ -154,5 +158,4 @@ public class WAClientAppITCase extends AbstractITCase {
         authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
         assertTrue(authModuleTO.getItems().isEmpty());
     }
-
 }
