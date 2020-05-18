@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
+import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
@@ -112,6 +113,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUni
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAGoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
@@ -333,6 +335,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPASAML2SPMetadata();
         } else if (reference.equals(SAML2SPKeystore.class)) {
             result = (E) new JPASAML2SPKeystore();
+        } else if (reference.equals(GoogleMfaAuthToken.class)) {
+            result = (E) new JPAGoogleMfaAuthToken();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

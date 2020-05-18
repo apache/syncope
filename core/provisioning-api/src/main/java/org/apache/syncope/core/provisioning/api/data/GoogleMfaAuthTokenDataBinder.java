@@ -19,5 +19,12 @@
 
 package org.apache.syncope.core.provisioning.api.data;
 
-public interface GoogleMfaAuthTokenBinder {
+import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
+import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
+
+public interface GoogleMfaAuthTokenDataBinder {
+
+    GoogleMfaAuthToken create(GoogleMfaAuthTokenTO tokenTO);
+
+    GoogleMfaAuthTokenTO getGoogleMfaAuthTokenTO(GoogleMfaAuthToken token);
 }

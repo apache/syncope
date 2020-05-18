@@ -70,7 +70,7 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
 
     @Override
     public Response save(@NotNull final GoogleMfaAuthTokenTO tokenTO) {
-        GoogleMfaAuthTokenTO token = logic.save(tokenTO);
+        final GoogleMfaAuthTokenTO token = logic.save(tokenTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
         return Response.created(location).
             header(RESTHeaders.RESOURCE_KEY, token.getKey()).
