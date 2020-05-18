@@ -25,7 +25,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = JPAGoogleMfaAuthToken.TABLE)
@@ -42,17 +42,7 @@ public class JPAGoogleMfaAuthToken extends AbstractGeneratedKeyEntity implements
     private String user;
 
     @Column(nullable = false)
-    private LocalDateTime issuedDateTime;
-
-    @Override
-    public Integer getToken() {
-        return token;
-    }
-
-    @Override
-    public void setToken(final Integer token) {
-        this.token = token;
-    }
+    private Date issuedDateTime;
 
     @Override
     public String getUser() {
@@ -65,12 +55,22 @@ public class JPAGoogleMfaAuthToken extends AbstractGeneratedKeyEntity implements
     }
 
     @Override
-    public LocalDateTime getIssuedDateTime() {
+    public Date getIssuedDate() {
         return issuedDateTime;
     }
 
     @Override
-    public void setIssuedDateTime(final LocalDateTime issuedDateTime) {
+    public void setIssuedDate(final Date issuedDateTime) {
         this.issuedDateTime = issuedDateTime;
+    }
+
+    @Override
+    public Integer getToken() {
+        return token;
+    }
+
+    @Override
+    public void setToken(final Integer token) {
+        this.token = token;
     }
 }

@@ -23,16 +23,23 @@ import org.apache.syncope.core.persistence.api.dao.auth.GoogleMfaAuthTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAGoogleMfaAuthToken;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Repository
 public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> implements GoogleMfaAuthTokenDAO {
+    @Override
+    @Transactional(readOnly = true)
+    public GoogleMfaAuthToken find(final String key) {
+        return entityManager().find(JPAGoogleMfaAuthToken.class, key);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public GoogleMfaAuthToken find(final String user, final Integer otp) {
@@ -75,10 +82,10 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
     }
 
     @Override
-    public boolean deleteAll() {
-        return entityManager()
+    public void deleteAll() {
+        entityManager()
             .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e")
-            .executeUpdate() > 0;
+            .executeUpdate();
     }
 
     @Override
@@ -108,7 +115,7 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
     }
 
     @Override
-    public boolean delete(final LocalDateTime expirationDate) {
+    public boolean delete(final Date expirationDate) {
         return entityManager()
             .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName()
                 + " e WHERE e.issuedDateTime>=:expired")

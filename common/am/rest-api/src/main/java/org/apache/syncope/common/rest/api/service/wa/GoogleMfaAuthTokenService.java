@@ -42,7 +42,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Tag(name = "Google MFA Tokens")
 @SecurityRequirements({
@@ -54,11 +54,11 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @DELETE
     @Path("{id}")
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("expirationDate") LocalDateTime expirationDate);
+    Response delete(@NotNull @QueryParam("expirationDate") Date expirationDate);
 
     @DELETE
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("user") String user, @NotNull @QueryParam("otp") Integer otp);
+    Response delete(@NotNull @QueryParam("user") String user, @NotNull @QueryParam("token") int token);
 
     @DELETE
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
@@ -66,7 +66,7 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
 
     @DELETE
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("otp") Integer otp);
+    Response delete(@NotNull @QueryParam("token") int token);
 
     @DELETE
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
@@ -85,7 +85,12 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    GoogleMfaAuthTokenTO read(@NotNull @QueryParam("user") String user, @NotNull @QueryParam("otp") Integer otp);
+    GoogleMfaAuthTokenTO read(@NotNull @QueryParam("user") String user, @NotNull @QueryParam("token") int token);
+
+    @GET
+    @Path("{key}")
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    GoogleMfaAuthTokenTO read(@NotNull @PathParam("key") String key);
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})

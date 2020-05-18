@@ -27,7 +27,7 @@ import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @XmlRootElement(name = "gauthToken")
 @XmlType
@@ -41,7 +41,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
 
     private String user;
 
-    private LocalDateTime issuedDateTime;
+    private Date issuedDate;
 
     @Override
     public String getKey() {
@@ -70,12 +70,12 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
         this.user = user;
     }
 
-    public LocalDateTime getIssuedDateTime() {
-        return issuedDateTime;
+    public Date getIssuedDate() {
+        return issuedDate;
     }
 
-    public void setIssuedDateTime(final LocalDateTime issuedDateTime) {
-        this.issuedDateTime = issuedDateTime;
+    public void setIssuedDate(final Date issuedDate) {
+        this.issuedDate = issuedDate;
     }
 
 
@@ -96,7 +96,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             .append(this.key, rhs.key)
             .append(this.token, rhs.token)
             .append(this.user, rhs.user)
-            .append(this.issuedDateTime, rhs.issuedDateTime)
+            .append(this.issuedDate, rhs.issuedDate)
             .isEquals();
     }
 
@@ -107,7 +107,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             .append(key)
             .append(token)
             .append(user)
-            .append(issuedDateTime)
+            .append(issuedDate)
             .toHashCode();
     }
 
@@ -115,18 +115,24 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
 
         private final GoogleMfaAuthTokenTO instance = new GoogleMfaAuthTokenTO();
 
-        public GoogleMfaAuthTokenTO.Builder issuedDateTime(final LocalDateTime issued) {
-            instance.setIssuedDateTime(issued);
+
+        public GoogleMfaAuthTokenTO.Builder issuedDate(final Date issued) {
+            instance.setIssuedDate(issued);
             return this;
         }
 
-        public GoogleMfaAuthTokenTO.Builder token(final Integer token) {
+        public GoogleMfaAuthTokenTO.Builder token(final int token) {
             instance.setToken(token);
             return this;
         }
 
         public GoogleMfaAuthTokenTO.Builder user(final String user) {
             instance.setUser(user);
+            return this;
+        }
+
+        public GoogleMfaAuthTokenTO.Builder key(final String key) {
+            instance.setKey(key);
             return this;
         }
 

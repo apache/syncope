@@ -31,7 +31,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthTokenService {
@@ -39,37 +39,37 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     private GoogleMfaAuthTokenLogic logic;
 
     @Override
-    public Response delete(@NotNull final LocalDateTime expirationDate) {
+    public Response delete(final Date expirationDate) {
         boolean result = logic.delete(expirationDate);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response delete(@NotNull final String user, @NotNull final Integer otp) {
+    public Response delete(final String user, final int otp) {
         boolean result = logic.delete(user, otp);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response delete(@NotNull final String user) {
+    public Response delete(final String user) {
         boolean result = logic.delete(user);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response delete(@NotNull final Integer otp) {
+    public Response delete(final int otp) {
         boolean result = logic.delete(otp);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
     public Response deleteAll() {
-        boolean result = logic.deleteAll();
-        return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
+        logic.deleteAll();
+        return Response.ok().build();
     }
 
     @Override
-    public Response save(@NotNull final GoogleMfaAuthTokenTO tokenTO) {
+    public Response save(final GoogleMfaAuthTokenTO tokenTO) {
         final GoogleMfaAuthTokenTO token = logic.save(tokenTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
         return Response.created(location).
@@ -78,12 +78,17 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public GoogleMfaAuthTokenTO read(@NotNull final String user, @NotNull final Integer otp) {
+    public GoogleMfaAuthTokenTO read(@NotNull final String key) {
+        return logic.read(key);
+    }
+
+    @Override
+    public GoogleMfaAuthTokenTO read(final String user, final int otp) {
         return logic.read(user, otp);
     }
 
     @Override
-    public long count(@NotNull final String user) {
+    public long count(final String user) {
         return logic.count(user);
     }
 

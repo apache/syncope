@@ -21,10 +21,12 @@ package org.apache.syncope.core.persistence.api.dao.auth;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public interface GoogleMfaAuthTokenDAO extends DAO<GoogleMfaAuthToken> {
     GoogleMfaAuthToken find(String user, Integer otp);
+
+    GoogleMfaAuthToken find(String key);
 
     GoogleMfaAuthToken save(GoogleMfaAuthToken token);
 
@@ -32,7 +34,7 @@ public interface GoogleMfaAuthTokenDAO extends DAO<GoogleMfaAuthToken> {
 
     long count();
 
-    boolean deleteAll();
+    void deleteAll();
 
     boolean delete(Integer otp);
 
@@ -40,5 +42,5 @@ public interface GoogleMfaAuthTokenDAO extends DAO<GoogleMfaAuthToken> {
 
     boolean delete(String user, Integer otp);
 
-    boolean delete(LocalDateTime expirationDate);
+    boolean delete(Date expirationDate);
 }

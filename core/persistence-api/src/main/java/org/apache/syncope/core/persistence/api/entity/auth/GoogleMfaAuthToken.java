@@ -20,16 +20,16 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public interface GoogleMfaAuthToken extends Entity {
     String getUser();
 
     void setUser(String user);
 
-    LocalDateTime getIssuedDateTime();
+    Date getIssuedDate();
 
-    void setIssuedDateTime(LocalDateTime user);
+    void setIssuedDate(Date user);
 
     Integer getToken();
 

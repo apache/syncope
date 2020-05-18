@@ -29,11 +29,13 @@ import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 import org.apache.syncope.core.provisioning.api.data.GoogleMfaAuthTokenDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
+import java.util.Date;
 
+@Component
 public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMfaAuthTokenTO> {
     @Autowired
     private GoogleMfaAuthTokenDataBinder binder;
@@ -48,11 +50,11 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
         Integer token = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; user == null && i < args.length; i++) {
+            for (int i = 0; user == null && token == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     user = (String) args[i];
-                } else if (args[i] instanceof GoogleMfaAuthTokenTO) {
-                    token = ((GoogleMfaAuthTokenTO) args[i]).getToken();
+                } else if (args[i] instanceof Integer) {
+                    token = (Integer) args[i];
                 } else if (args[i] instanceof GoogleMfaAuthTokenTO) {
                     user = ((GoogleMfaAuthTokenTO) args[i]).getUser();
                     token = ((GoogleMfaAuthTokenTO) args[i]).getToken();
@@ -73,7 +75,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public boolean delete(final LocalDateTime expirationDate) {
+    public boolean delete(final Date expirationDate) {
         return googleMfaAuthTokenDAO.delete(expirationDate);
     }
 
@@ -97,8 +99,8 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public boolean deleteAll() {
-        return googleMfaAuthTokenDAO.deleteAll();
+    public void deleteAll() {
+        googleMfaAuthTokenDAO.deleteAll();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_SAVE_TOKEN + "') "
@@ -119,6 +121,17 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
         return binder.getGoogleMfaAuthTokenTO(tokenTO);
     }
 
+    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @Transactional(readOnly = true)
+    public GoogleMfaAuthTokenTO read(final String key) {
+        final GoogleMfaAuthToken tokenTO = googleMfaAuthTokenDAO.find(key);
+        if (tokenTO == null) {
+            throw new NotFoundException("Google MFA Token for " + key + " not found");
+        }
+        return binder.getGoogleMfaAuthTokenTO(tokenTO);
+    }
+
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_COUNT_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
@@ -132,4 +145,6 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     public long count() {
         return googleMfaAuthTokenDAO.count();
     }
+
+
 }

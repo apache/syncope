@@ -34,7 +34,7 @@ public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataB
     @Override
     public GoogleMfaAuthToken create(final GoogleMfaAuthTokenTO tokenTO) {
         GoogleMfaAuthToken token = entityFactory.newEntity(GoogleMfaAuthToken.class);
-        token.setIssuedDateTime(tokenTO.getIssuedDateTime());
+        token.setIssuedDate(tokenTO.getIssuedDate());
         token.setToken(tokenTO.getToken());
         token.setUser(tokenTO.getUser());
         return token;
@@ -42,11 +42,11 @@ public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataB
 
     @Override
     public GoogleMfaAuthTokenTO getGoogleMfaAuthTokenTO(final GoogleMfaAuthToken token) {
-        GoogleMfaAuthTokenTO tokenTO = new GoogleMfaAuthTokenTO();
-        tokenTO.setIssuedDateTime(token.getIssuedDateTime());
-        tokenTO.setKey(token.getKey());
-        tokenTO.setToken(token.getToken());
-        tokenTO.setUser(token.getUser());
-        return tokenTO;
+        return new GoogleMfaAuthTokenTO.Builder()
+            .user(token.getUser())
+            .token(token.getToken())
+            .key(token.getKey())
+            .issuedDate(token.getIssuedDate())
+            .build();
     }
 }

@@ -27,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -79,7 +81,7 @@ public class GoogleMfaAuthTokenTest extends AbstractTest {
 
     @Test
     public void deleteByDate() {
-        LocalDateTime dateTime = LocalDateTime.now().minusDays(1);
+        Date dateTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         GoogleMfaAuthToken token = create("SyncopeDelete", 123456);
         assertTrue(googleMfaAuthTokenDAO.delete(dateTime));
         assertNull(googleMfaAuthTokenDAO.find(token.getUser(), token.getToken()));
@@ -89,7 +91,7 @@ public class GoogleMfaAuthTokenTest extends AbstractTest {
         GoogleMfaAuthToken token = entityFactory.newEntity(GoogleMfaAuthToken.class);
         token.setUser(user);
         token.setToken(otp);
-        token.setIssuedDateTime(LocalDateTime.now());
+        token.setIssuedDate(new Date());
         googleMfaAuthTokenDAO.save(token);
         assertNotNull(token);
         assertNotNull(token.getKey());

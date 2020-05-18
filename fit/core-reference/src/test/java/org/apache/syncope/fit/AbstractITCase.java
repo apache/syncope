@@ -111,6 +111,7 @@ import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreConfService;
+import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.SAML2SPKeystoreService;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataConfService;
 import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
@@ -143,6 +144,7 @@ import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataConfService;
 import org.apache.syncope.common.rest.api.service.wa.SAML2IdPMetadataService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
+import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
@@ -328,6 +330,8 @@ public abstract class AbstractITCase {
 
     protected static ClientAppService clientAppService;
 
+    protected static GoogleMfaAuthTokenService googleMfaAuthTokenService;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = Encryptor.class.getResourceAsStream("/security.properties")) {
@@ -405,6 +409,7 @@ public abstract class AbstractITCase {
         saml2IdPMetadataConfService = adminClient.getService(SAML2IdPMetadataConfService.class);
         saml2SPKeystoreService = adminClient.getService(SAML2SPKeystoreService.class);
         saml2SPKeystoreConfService = adminClient.getService(SAML2SPKeystoreConfService.class);
+        googleMfaAuthTokenService = adminClient.getService(GoogleMfaAuthTokenService.class);
     }
 
     @Autowired
