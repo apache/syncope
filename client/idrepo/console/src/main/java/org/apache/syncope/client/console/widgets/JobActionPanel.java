@@ -152,6 +152,5 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
         public AjaxRequestTarget getTarget() {
             return target;
         }
-
     }
 }

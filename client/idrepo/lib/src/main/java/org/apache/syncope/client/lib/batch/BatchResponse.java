@@ -44,6 +44,51 @@ public class BatchResponse {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchResponse.class);
 
+    /**
+     * If asynchronous processing was requested, queries the monitor URI.
+     *
+     * @param monitor monitor URI
+     * @param jwt authorization JWT
+     * @param boundary mutipart / mixed boundary
+     * @param tlsClientParameters (optional) TLS client parameters
+     *
+     * @return the last Response received from the Batch service
+     */
+    public static Response poll(
+            final URI monitor,
+            final String jwt,
+            final String boundary,
+            final TLSClientParameters tlsClientParameters) {
+
+        WebClient webClient = WebClient.create(monitor).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).
+                type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
+        if (tlsClientParameters != null) {
+            ClientConfiguration config = WebClient.getConfig(webClient);
+            HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+            httpConduit.setTlsClientParameters(tlsClientParameters);
+        }
+
+        return webClient.get();
+    }
+
+    /**
+     * Parses the given Response into a list of {@link BatchResponseItem}s.
+     *
+     * @param response response to extract items from
+     * @return the Batch Response parsed as list of {@link BatchResponseItem}s
+     * @throws IOException if there are issues when reading the response body
+     */
+    public static List<BatchResponseItem> getItems(final Response response) throws IOException {
+        String body = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8.name());
+        LOG.debug("Batch response body:\n{}", body);
+
+        return BatchPayloadParser.parse(
+                new ByteArrayInputStream(body.getBytes()),
+                response.getMediaType(),
+                new BatchResponseItem());
+    }
+
     private final String boundary;
 
     private final String jwt;
@@ -67,6 +112,14 @@ public class BatchResponse {
         this.response = response;
     }
 
+    public String getBoundary() {
+        return boundary;
+    }
+
+    public URI getMonitor() {
+        return monitor;
+    }
+
     /**
      * Gives the last Response received from the Batch service.
      *
@@ -82,19 +135,7 @@ public class BatchResponse {
      * @return the last Response received from the Batch service
      */
     public Response poll() {
-        if (monitor != null) {
-            WebClient webClient = WebClient.create(monitor).
-                    header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).
-                    type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
-            if (tlsClientParameters != null) {
-                ClientConfiguration config = WebClient.getConfig(webClient);
-                HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
-                httpConduit.setTlsClientParameters(tlsClientParameters);
-            }
-
-            response = webClient.get();
-        }
-
+        response = poll(monitor, jwt, boundary, tlsClientParameters);
         return response;
     }
 
@@ -105,12 +146,6 @@ public class BatchResponse {
      * @throws IOException if there are issues when reading the response body
      */
     public List<BatchResponseItem> getItems() throws IOException {
-        String body = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8.name());
-        LOG.debug("Batch response body:\n{}", body);
-
-        return BatchPayloadParser.parse(
-                new ByteArrayInputStream(body.getBytes()),
-                response.getMediaType(),
-                new BatchResponseItem());
+        return getItems(response);
     }
 }

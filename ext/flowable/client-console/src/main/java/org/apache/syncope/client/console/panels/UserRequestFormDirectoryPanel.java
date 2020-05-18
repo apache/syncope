@@ -227,6 +227,10 @@ public class UserRequestFormDirectoryPanel
                 UserTO previousUserTO;
                 if (formTO.getUserUR() == null) {
                     newUserTO = formTO.getUserTO();
+                    if (newUserTO != null) {
+                        // SYNCOPE-1563 do not use the password into formTO.getUserTO()
+                        newUserTO.setPassword(null);
+                    }
                     previousUserTO = null;
                 } else if (formTO.getUserTO() == null) {
                     // make it stronger by handling possible NPE
