@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -31,6 +32,7 @@ import org.apache.syncope.common.lib.BaseBean;
  * Abstract wrapper for common system information.
  */
 @XmlType
+@XmlSeeAlso(AnyTO.class)
 public abstract class AbstractAnnotatedBean extends BaseBean implements EntityTO {
 
     private static final long serialVersionUID = -930797879027642457L;

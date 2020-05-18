@@ -227,9 +227,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
-        queryParams.forEach((key, value) -> {
-            builder.queryParam(key, value.toArray());
-        });
+        queryParams.forEach((key, value) -> builder.queryParam(key, value.toArray()));
 
         if (result.getPage() > 1) {
             result.setPrev(builder.
@@ -246,5 +244,4 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
         return result;
     }
-
 }
