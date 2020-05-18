@@ -174,34 +174,33 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         downloadLink.setOutputMarkupId(true);
         uploadForm.add(downloadLink);
 
+        ListModel<FileUpload> fileUploadModel = new ListModel<>(new ArrayList<>());
         FileInputConfig config = new FileInputConfig().
                 showUpload(false).showRemove(false).showPreview(false);
         String language = SyncopeConsoleSession.get().getLocale().getLanguage();
         if (!Locale.ENGLISH.getLanguage().equals(language)) {
             config.withLocale(language);
         }
-
-        fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
-        fileUpload.setOutputMarkupId(true);
-
+        fileUpload = new BootstrapFileInputField("fileUpload", fileUploadModel, config);
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                FileUpload uploadedFile = fileUpload.getFileUpload();
-                if (uploadedFile != null) {
-                    if (maxUploadSize != null && uploadedFile.getSize() > maxUploadSize.bytes()) {
+                if (!fileUploadModel.getObject().isEmpty()) {
+                    FileUpload uploaded = fileUploadModel.getObject().get(0);
+
+                    if (maxUploadSize != null && uploaded.getSize() > maxUploadSize.bytes()) {
                         // SYNCOPE-1213 manage directly max upload file size (if set in properties file)
                         SyncopeConsoleSession.get().error(getString("tooLargeFile").
                                 replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
                                 replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
                         ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                     } else {
-                        byte[] uploadedBytes = uploadedFile.getBytes();
-                        String uploaded = Base64.getEncoder().encodeToString(uploadedBytes);
-                        field.setModelObject(uploaded);
+                        byte[] uploadedBytes = uploaded.getBytes();
+                        String uploadedEncoded = Base64.getEncoder().encodeToString(uploadedBytes);
+                        field.setModelObject(uploadedEncoded);
                         target.add(field);
 
                         if (previewer == null) {
@@ -213,8 +212,8 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                             uploadForm.addOrReplace(fileUpload);
                         }
 
-                        setVisibleFileButtons(StringUtils.isNotBlank(uploaded));
-                        downloadLink.setEnabled(StringUtils.isNotBlank(uploaded));
+                        setVisibleFileButtons(StringUtils.isNotBlank(uploadedEncoded));
+                        downloadLink.setEnabled(StringUtils.isNotBlank(uploadedEncoded));
 
                         target.add(uploadForm);
                     }

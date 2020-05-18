@@ -132,24 +132,23 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
         private static final long serialVersionUID = -4736870165235853919L;
 
         public Details(final CSVPullSpec spec) {
+            ListModel<FileUpload> fileUploadModel = new ListModel<>(new ArrayList<>());
             FileInputConfig csvFile = new FileInputConfig().
                     showUpload(false).showRemove(false).showPreview(false);
             String language = SyncopeConsoleSession.get().getLocale().getLanguage();
             if (!Locale.ENGLISH.getLanguage().equals(language)) {
                 csvFile.withLocale(language);
             }
-            BootstrapFileInputField csvUpload =
-                    new BootstrapFileInputField("csvUpload", new ListModel<>(new ArrayList<>()), csvFile);
-            csvUpload.setRequired(true);
-            csvUpload.setOutputMarkupId(true);
+            BootstrapFileInputField csvUpload = new BootstrapFileInputField("csvUpload", fileUploadModel, csvFile);
             csvUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = 5538299138211283825L;
 
                 @Override
                 protected void onSubmit(final AjaxRequestTarget target) {
-                    FileUpload uploadedFile = csvUpload.getFileUpload();
-                    if (uploadedFile != null) {
+                    if (!fileUploadModel.getObject().isEmpty()) {
+                        FileUpload uploadedFile = fileUploadModel.getObject().get(0);
+
                         if (maxUploadSize != null && uploadedFile.getSize() > maxUploadSize.bytes()) {
                             SyncopeConsoleSession.get().error(getString("tooLargeFile").
                                     replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
@@ -161,7 +160,7 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
                     }
                 }
             });
-            add(csvUpload);
+            add(csvUpload.setRequired(true).setOutputMarkupId(true));
 
             add(new CSVConfPanel("csvconf", spec));
         }
