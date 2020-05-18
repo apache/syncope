@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -64,8 +63,6 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.http.HttpStatus;
 
 public class DynRealmITCase extends AbstractITCase {
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
     public void misc() {
@@ -261,7 +258,7 @@ public class DynRealmITCase extends AbstractITCase {
                 send();
         assertEquals(HttpStatus.OK_200, response.getStatus());
 
-        return (ArrayNode) MAPPER.readTree(response.getContent()).
+        return (ArrayNode) OBJECT_MAPPER.readTree(response.getContent()).
                 get("hits").get("hits").get(0).get("_source").get("dynRealms");
     }
 

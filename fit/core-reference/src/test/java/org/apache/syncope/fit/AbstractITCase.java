@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Locale;
@@ -116,6 +118,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
+
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    protected static final YAMLMapper YAML_MAPPER = new YAMLMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 

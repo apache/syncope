@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.MediaType;
@@ -41,7 +40,7 @@ public class SwaggerITCase extends AbstractITCase {
         Response response = webClient.get();
         Assume.assumeTrue(response.getStatus() == 200);
 
-        JsonNode tree = new ObjectMapper().readTree((InputStream) response.getEntity());
+        JsonNode tree = OBJECT_MAPPER.readTree((InputStream) response.getEntity());
         assertNotNull(tree);
 
         JsonNode info = tree.get("info");

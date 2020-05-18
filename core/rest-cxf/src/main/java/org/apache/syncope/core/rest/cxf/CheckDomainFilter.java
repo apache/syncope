@@ -53,27 +53,27 @@ public class CheckDomainFilter implements ContainerRequestFilter {
 
                 @Override
                 public Void exec() {
-                    if (domainDAO.find(domain) == null) {
-                        String message = "Domain '" + domain + "' not available";
+                if (domainDAO.find(domain) == null) {
+                    String message = "Domain '" + domain + "' not available";
 
-                        ErrorTO error = new ErrorTO();
-                        error.setStatus(Response.Status.NOT_FOUND.getStatusCode());
-                        error.setType(ClientExceptionType.NotFound);
-                        error.getElements().add(message);
+                    ErrorTO error = new ErrorTO();
+                    error.setStatus(Response.Status.NOT_FOUND.getStatusCode());
+                    error.setType(ClientExceptionType.NotFound);
+                    error.getElements().add(message);
 
-                        reqContext.abortWith(Response.status(Response.Status.NOT_FOUND).
-                                entity(error).
-                                header(HttpHeaders.CONTENT_TYPE,
-                                        reqContext.getAcceptableMediaTypes().isEmpty()
-                                        ? MediaType.APPLICATION_JSON
-                                        : reqContext.getAcceptableMediaTypes().get(0).toString()).
-                                header(RESTHeaders.ERROR_CODE,
-                                        ClientExceptionType.NotFound.name()).
-                                header(RESTHeaders.ERROR_INFO,
-                                        ClientExceptionType.NotFound.getInfoHeaderValue(message)).
-                                build());
-                    }
-                    return null;
+                    reqContext.abortWith(Response.status(Response.Status.NOT_FOUND).
+                            entity(error).
+                            header(HttpHeaders.CONTENT_TYPE,
+                                    reqContext.getAcceptableMediaTypes().isEmpty()
+                                    ? MediaType.APPLICATION_JSON
+                                    : reqContext.getAcceptableMediaTypes().get(0).toString()).
+                            header(RESTHeaders.ERROR_CODE,
+                                    ClientExceptionType.NotFound.name()).
+                            header(RESTHeaders.ERROR_INFO,
+                                    ClientExceptionType.NotFound.getInfoHeaderValue(message)).
+                            build());
+                }
+                return null;
                 }
             });
         }

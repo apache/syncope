@@ -20,10 +20,12 @@ package org.apache.syncope.common.lib.to;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
+@XmlSeeAlso({ ExecTO.class, ReportTO.class, TaskTO.class })
 public class AbstractStartEndBean extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;

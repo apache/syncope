@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.fit.AbstractITCase;
@@ -43,7 +44,9 @@ public class WorkflowITCase extends AbstractITCase {
 
     @BeforeClass
     public static void findDefault() {
+        Assume.assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
         WorkflowDefinitionTO found = IterableUtils.find(
                 workflowService.list(AnyTypeKind.USER.name()), new Predicate<WorkflowDefinitionTO>() {
 
@@ -60,7 +63,9 @@ public class WorkflowITCase extends AbstractITCase {
 
     @Test
     public void exportUserDefinition() throws IOException {
+        Assume.assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
         Response response = workflowService.get(AnyTypeKind.USER.name(), defaultUserKey);
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
@@ -72,7 +77,9 @@ public class WorkflowITCase extends AbstractITCase {
 
     @Test
     public void updateUserDefinition() throws IOException {
+        Assume.assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
         Response response = workflowService.get(AnyTypeKind.USER.name(), defaultUserKey);
         String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
 

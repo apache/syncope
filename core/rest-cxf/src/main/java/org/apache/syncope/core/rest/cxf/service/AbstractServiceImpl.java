@@ -243,5 +243,4 @@ abstract class AbstractServiceImpl implements JAXRSService {
 
         return result;
     }
-
 }

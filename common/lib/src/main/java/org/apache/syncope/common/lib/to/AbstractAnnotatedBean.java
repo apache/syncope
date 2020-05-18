@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
  * Abstract wrapper for common system information.
  */
 @XmlType
+@XmlSeeAlso(AnyTO.class)
 public class AbstractAnnotatedBean extends AbstractBaseBean {
 
     private static final long serialVersionUID = -930797879027642457L;

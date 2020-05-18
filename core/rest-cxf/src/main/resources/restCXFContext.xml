@@ -60,12 +60,15 @@ under the License.
 
   <bean id="dateParamConverterProvider" class="org.apache.syncope.common.rest.api.DateParamConverterProvider"/>
 
-  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.cxf.UnwrappedObjectMapper"/>
+  <bean id="syncopeObjectMapper" class="org.apache.syncope.core.rest.cxf.SyncopeObjectMapper"/>
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
-    <property name="mapper" ref="jacksonObjectMapper"/>
+    <property name="mapper" ref="syncopeObjectMapper"/>
   </bean>
 
-  <bean id="yamlProvider" class="com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider"/>
+  <bean id="syncopeYAMLMapper" class="org.apache.syncope.core.rest.cxf.SyncopeYAMLMapper"/>
+  <bean id="yamlProvider" class="com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider">
+    <property name="mapper" ref="syncopeYAMLMapper"/>
+  </bean>
 
   <bean id="exceptionMapper" class="org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper"/>
 

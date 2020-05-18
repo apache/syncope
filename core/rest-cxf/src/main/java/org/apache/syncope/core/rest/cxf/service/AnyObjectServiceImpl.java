@@ -98,5 +98,4 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
         return super.search(anyQuery);
     }
-
 }
