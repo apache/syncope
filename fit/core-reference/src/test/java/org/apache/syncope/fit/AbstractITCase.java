@@ -144,7 +144,6 @@ import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataConfService;
 import org.apache.syncope.common.rest.api.service.wa.SAML2IdPMetadataService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
-import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
