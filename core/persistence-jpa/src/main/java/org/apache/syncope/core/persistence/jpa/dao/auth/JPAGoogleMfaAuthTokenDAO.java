@@ -23,7 +23,6 @@ import org.apache.syncope.core.persistence.api.dao.auth.GoogleMfaAuthTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAGoogleMfaAuthToken;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +30,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> implements GoogleMfaAuthTokenDAO {
@@ -121,5 +121,19 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
                 + " e WHERE e.issuedDateTime>=:expired")
             .setParameter("expired", expirationDate)
             .executeUpdate() > 0;
+    }
+
+    @Override
+    public List<GoogleMfaAuthToken> findTokensForUser(final String user) {
+        TypedQuery<GoogleMfaAuthToken> query = entityManager().createQuery(
+            "SELECT e FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.user=:user",
+            GoogleMfaAuthToken.class);
+        query.setParameter("user", user);
+        try {
+            return query.getResultList();
+        } catch (final NoResultException e) {
+            LOG.debug("No Google Mfa Token found for user = {}", user);
+        }
+        return List.of();
     }
 }

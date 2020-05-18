@@ -19,19 +19,22 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.core.logic.GoogleMfaAuthTokenLogic;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthTokenService {
@@ -39,31 +42,31 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     private GoogleMfaAuthTokenLogic logic;
 
     @Override
-    public Response delete(final Date expirationDate) {
+    public Response deleteTokensByDate(final Date expirationDate) {
         boolean result = logic.delete(expirationDate);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response delete(final String user, final int otp) {
+    public Response deleteToken(final String user, final Integer otp) {
         boolean result = logic.delete(user, otp);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response delete(final String user) {
+    public Response deleteTokensFor(final String user) {
         boolean result = logic.delete(user);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response delete(final int otp) {
+    public Response deleteToken(final Integer otp) {
         boolean result = logic.delete(otp);
         return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     @Override
-    public Response deleteAll() {
+    public Response deleteTokens() {
         logic.deleteAll();
         return Response.ok().build();
     }
@@ -78,22 +81,31 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public GoogleMfaAuthTokenTO read(@NotNull final String key) {
+    public GoogleMfaAuthTokenTO findTokenFor(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public GoogleMfaAuthTokenTO read(final String user, final int otp) {
-        return logic.read(user, otp);
+    public List<GoogleMfaAuthTokenTO> findTokensFor(final String user) {
+        return logic.getTokensForUser(user);
     }
 
     @Override
-    public long count(final String user) {
-        return logic.count(user);
+    public GoogleMfaAuthTokenTO findTokenFor(final String user, final Integer otp) {
+        try {
+            return logic.read(user, otp);
+        } catch (final NotFoundException ex) {
+            throw SyncopeClientException.build(ClientExceptionType.NotFound);
+        }
     }
 
     @Override
-    public long count() {
-        return logic.count();
+    public long countTokensForUser(final String user) {
+        return logic.countTokensForUser(user);
+    }
+
+    @Override
+    public long countTokens() {
+        return logic.countAll();
     }
 }

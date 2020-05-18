@@ -19,6 +19,7 @@
 
 package org.apache.syncope.fit.core;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
@@ -38,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -53,7 +56,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthTokenService.deleteAll();
+        googleMfaAuthTokenService.deleteTokens();
     }
 
     @Test
@@ -77,8 +80,8 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     public void count() {
         GoogleMfaAuthTokenTO tokenTO = createGoogleMfaAuthTokenTO();
         googleMfaAuthTokenService.save(tokenTO);
-        assertEquals(1, googleMfaAuthTokenService.count());
-        assertEquals(1, googleMfaAuthTokenService.count(tokenTO.getUser()));
+        assertEquals(1, googleMfaAuthTokenService.countTokens());
+        assertEquals(1, googleMfaAuthTokenService.countTokensForUser(tokenTO.getUser()));
     }
 
     @Test
@@ -86,34 +89,43 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
         Response response = googleMfaAuthTokenService.save(token);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(googleMfaAuthTokenService.read(key));
-        response = googleMfaAuthTokenService.delete(token.getToken());
+        assertNotNull(googleMfaAuthTokenService.findTokenFor(key));
+        response = googleMfaAuthTokenService.deleteToken(token.getToken());
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.OK.getStatusCode());
-        assertNull(googleMfaAuthTokenService.read(token.getUser(), token.getToken()));
+        assertTrue(googleMfaAuthTokenService.findTokensFor(token.getUser()).isEmpty());
     }
 
     @Test
     public void deleteByUser() {
         GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
-        final Response response = googleMfaAuthTokenService.delete(token.getUser());
+        Response response = googleMfaAuthTokenService.save(token);
+        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(googleMfaAuthTokenService.findTokenFor(key));
+        response = googleMfaAuthTokenService.deleteTokensFor(token.getUser());
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.OK.getStatusCode());
-        assertNull(googleMfaAuthTokenService.read(token.getUser(), token.getToken()));
+        assertTrue(googleMfaAuthTokenService.findTokensFor(token.getUser()).isEmpty());
     }
 
     @Test
     public void deleteByUserAndToken() {
         GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
-        final Response response = googleMfaAuthTokenService.delete(token.getUser(), token.getToken());
+        Response response = googleMfaAuthTokenService.save(token);
+        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(googleMfaAuthTokenService.findTokenFor(key));
+        response = googleMfaAuthTokenService.deleteToken(token.getUser(), token.getToken());
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.OK.getStatusCode());
-        assertNull(googleMfaAuthTokenService.read(token.getUser(), token.getToken()));
+        assertTrue(googleMfaAuthTokenService.findTokensFor(token.getUser()).isEmpty());
     }
 
     @Test
     public void deleteByDate() {
         Date dateTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
-        final Response response = googleMfaAuthTokenService.delete(dateTime);
+        final Response response = googleMfaAuthTokenService.deleteTokensByDate(dateTime);
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.OK.getStatusCode());
-        assertNull(googleMfaAuthTokenService.read(token.getUser(), token.getToken()));
+        assertTrue(googleMfaAuthTokenService.findTokensFor(token.getUser()).isEmpty());
+        assertThrows(SyncopeClientException.class,
+            () -> googleMfaAuthTokenService.findTokenFor(token.getUser(), token.getToken()));
+        assertEquals(0, googleMfaAuthTokenService.countTokensForUser(token.getUser()));
     }
 }

@@ -78,7 +78,6 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
         this.issuedDate = issuedDate;
     }
 
-
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -121,7 +120,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             return this;
         }
 
-        public GoogleMfaAuthTokenTO.Builder token(final int token) {
+        public GoogleMfaAuthTokenTO.Builder token(final Integer token) {
             instance.setToken(token);
             return this;
         }

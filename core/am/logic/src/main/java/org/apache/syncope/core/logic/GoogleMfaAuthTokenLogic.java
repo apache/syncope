@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMfaAuthTokenTO> {
@@ -125,26 +127,32 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public GoogleMfaAuthTokenTO read(final String key) {
-        final GoogleMfaAuthToken tokenTO = googleMfaAuthTokenDAO.find(key);
-        if (tokenTO == null) {
+        final GoogleMfaAuthToken token = googleMfaAuthTokenDAO.find(key);
+        if (token == null) {
             throw new NotFoundException("Google MFA Token for " + key + " not found");
         }
-        return binder.getGoogleMfaAuthTokenTO(tokenTO);
+        return binder.getGoogleMfaAuthTokenTO(token);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_COUNT_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public long count(final String user) {
+    public long countTokensForUser(final String user) {
         return googleMfaAuthTokenDAO.count(user);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_COUNT_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public long count() {
+    public long countAll() {
         return googleMfaAuthTokenDAO.count();
     }
 
-
+    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @Transactional(readOnly = true)
+    public List<GoogleMfaAuthTokenTO> getTokensForUser(final String user) {
+        final List<GoogleMfaAuthToken> tokens = googleMfaAuthTokenDAO.findTokensForUser(user);
+        return tokens.stream().map(binder::getGoogleMfaAuthTokenTO).collect(Collectors.toList());
+    }
 }

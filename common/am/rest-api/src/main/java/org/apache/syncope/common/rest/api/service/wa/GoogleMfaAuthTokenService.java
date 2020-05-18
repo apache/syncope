@@ -43,34 +43,44 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.Date;
+import java.util.List;
 
 @Tag(name = "Google MFA Tokens")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer")})
-@Path("wa/gauth/token")
+@Path("wa/gauth")
 public interface GoogleMfaAuthTokenService extends JAXRSService {
 
     @DELETE
-    @Path("{id}")
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("expirationDate") Date expirationDate);
+    @Path("tokens")
+    Response deleteTokensByDate(@NotNull @QueryParam("expirationDate") Date expirationDate);
 
     @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("user") String user, @NotNull @QueryParam("token") int token);
+    @Path("tokens/${user}/${token}")
+    Response deleteToken(@NotNull @PathParam("user") String user, @NotNull @PathParam("token") Integer token);
 
     @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("user") String user);
+    @Path("tokens/users/${user}")
+    Response deleteTokensFor(@NotNull @PathParam("user") String user);
 
     @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response delete(@NotNull @QueryParam("token") int token);
+    @Path("tokens/${token}")
+    Response deleteToken(@NotNull @PathParam("token") Integer token);
 
     @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response deleteAll();
+    @Path("tokens")
+    Response deleteTokens();
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",
@@ -81,22 +91,36 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("tokens")
     Response save(@NotNull GoogleMfaAuthTokenTO tokenTO);
 
     @GET
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    GoogleMfaAuthTokenTO read(@NotNull @QueryParam("user") String user, @NotNull @QueryParam("token") int token);
+    @Path("tokens/${user}/${token}")
+    GoogleMfaAuthTokenTO findTokenFor(@NotNull @PathParam("user") String user, @NotNull @PathParam("token") Integer token);
 
     @GET
-    @Path("{key}")
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    GoogleMfaAuthTokenTO read(@NotNull @PathParam("key") String key);
+    @Path("tokens/users/${user}")
+    List<GoogleMfaAuthTokenTO> findTokensFor(@NotNull @PathParam("user") String user);
 
     @GET
+    @Path("tokens/{key}")
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    long count(@NotNull @PathParam("user") String user);
+    GoogleMfaAuthTokenTO findTokenFor(@NotNull @PathParam("key") String key);
 
     @GET
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    long count();
+    @Path("tokens/${user}/count")
+    long countTokensForUser(@NotNull @PathParam("user") String user);
+
+    @GET
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("tokens/count")
+    long countTokens();
 }
