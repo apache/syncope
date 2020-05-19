@@ -43,32 +43,32 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
 
     @Override
     public Response deleteTokensByDate(final Date expirationDate) {
-        boolean result = logic.delete(expirationDate);
-        return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
+        logic.delete(expirationDate);
+        return Response.noContent().build();
     }
 
     @Override
-    public Response deleteToken(final String user, final Integer otp) {
-        boolean result = logic.delete(user, otp);
-        return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
+    public Response deleteToken(final String owner, final Integer otp) {
+        logic.delete(owner, otp);
+        return Response.noContent().build();
     }
 
     @Override
-    public Response deleteTokensFor(final String user) {
-        boolean result = logic.delete(user);
-        return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
+    public Response deleteTokensFor(final String owner) {
+        logic.delete(owner);
+        return Response.noContent().build();
     }
 
     @Override
     public Response deleteToken(final Integer otp) {
-        boolean result = logic.delete(otp);
-        return result ? Response.ok().build() : Response.status(Response.Status.BAD_REQUEST).build();
+        logic.delete(otp);
+        return Response.noContent().build();
     }
 
     @Override
     public Response deleteTokens() {
         logic.deleteAll();
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     @Override
@@ -86,22 +86,22 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public List<GoogleMfaAuthTokenTO> findTokensFor(final String user) {
-        return logic.getTokensForUser(user);
+    public List<GoogleMfaAuthTokenTO> findTokensFor(final String owner) {
+        return logic.findTokensFor(owner);
     }
 
     @Override
-    public GoogleMfaAuthTokenTO findTokenFor(final String user, final Integer otp) {
+    public GoogleMfaAuthTokenTO findTokenFor(final String owner, final Integer otp) {
         try {
-            return logic.read(user, otp);
+            return logic.read(owner, otp);
         } catch (final NotFoundException ex) {
             throw SyncopeClientException.build(ClientExceptionType.NotFound);
         }
     }
 
     @Override
-    public long countTokensForUser(final String user) {
-        return logic.countTokensForUser(user);
+    public long countTokensForUser(final String owner) {
+        return logic.countTokensFor(owner);
     }
 
     @Override

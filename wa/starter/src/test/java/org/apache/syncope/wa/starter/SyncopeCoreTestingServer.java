@@ -22,10 +22,8 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
@@ -88,31 +86,31 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public Response deleteTokensByDate(@NotNull final Date expirationDate) {
             tokens.removeIf(token -> token.getIssuedDate().compareTo(expirationDate) >= 0);
-            return Response.ok().build();
+            return Response.noContent().build();
         }
 
         @Override
         public Response deleteToken(@NotNull final String user, @NotNull final Integer token) {
-            tokens.removeIf(to -> to.getToken().equals(token) && to.getUser().equalsIgnoreCase(user));
-            return Response.ok().build();
+            tokens.removeIf(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(user));
+            return Response.noContent().build();
         }
 
         @Override
-        public Response deleteTokensFor(@NotNull final String user) {
-            tokens.removeIf(to -> to.getUser().equalsIgnoreCase(user));
-            return Response.ok().build();
+        public Response deleteTokensFor(@NotNull final String owner) {
+            tokens.removeIf(to -> to.getOwner().equalsIgnoreCase(owner));
+            return Response.noContent().build();
         }
 
         @Override
         public Response deleteToken(@NotNull final Integer token) {
             tokens.removeIf(to -> to.getToken().equals(token));
-            return Response.ok().build();
+            return Response.noContent().build();
         }
 
         @Override
         public Response deleteTokens() {
             tokens.clear();
-            return Response.ok().build();
+            return Response.noContent().build();
         }
 
         @Override
@@ -125,14 +123,14 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public GoogleMfaAuthTokenTO findTokenFor(@NotNull final String user, @NotNull final Integer token) {
             return tokens.stream()
-                .filter(to -> to.getToken().equals(token) && to.getUser().equalsIgnoreCase(user))
+                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(user))
                 .findFirst().get();
         }
 
         @Override
         public List<GoogleMfaAuthTokenTO> findTokensFor(@NotNull final String user) {
             return tokens.stream()
-                .filter(to -> to.getUser().equalsIgnoreCase(user))
+                .filter(to -> to.getOwner().equalsIgnoreCase(user))
                 .collect(Collectors.toList());
         }
 
@@ -146,7 +144,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public long countTokensForUser(@NotNull final String user) {
             return tokens.stream()
-                .filter(to -> to.getUser().equalsIgnoreCase(user))
+                .filter(to -> to.getOwner().equalsIgnoreCase(user))
                 .count();
         }
 

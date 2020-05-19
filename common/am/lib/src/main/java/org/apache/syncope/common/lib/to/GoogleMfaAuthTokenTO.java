@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import java.util.Date;
+import java.util.Optional;
 
 @XmlRootElement(name = "gauthToken")
 @XmlType
@@ -39,7 +40,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
 
     private Integer token;
 
-    private String user;
+    private String owner;
 
     private Date issuedDate;
 
@@ -62,20 +63,20 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
         this.token = token;
     }
 
-    public String getUser() {
-        return user;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setUser(final String user) {
-        this.user = user;
+    public void setOwner(final String owner) {
+        this.owner = owner;
     }
 
     public Date getIssuedDate() {
-        return issuedDate;
+        return Optional.ofNullable(issuedDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setIssuedDate(final Date issuedDate) {
-        this.issuedDate = issuedDate;
+        this.issuedDate = Optional.ofNullable(issuedDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
@@ -94,7 +95,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             .appendSuper(super.equals(obj))
             .append(this.key, rhs.key)
             .append(this.token, rhs.token)
-            .append(this.user, rhs.user)
+            .append(this.owner, rhs.owner)
             .append(this.issuedDate, rhs.issuedDate)
             .isEquals();
     }
@@ -105,7 +106,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             .appendSuper(super.hashCode())
             .append(key)
             .append(token)
-            .append(user)
+            .append(owner)
             .append(issuedDate)
             .toHashCode();
     }
@@ -125,8 +126,8 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             return this;
         }
 
-        public GoogleMfaAuthTokenTO.Builder user(final String user) {
-            instance.setUser(user);
+        public GoogleMfaAuthTokenTO.Builder owner(final String owner) {
+            instance.setOwner(owner);
             return this;
         }
 

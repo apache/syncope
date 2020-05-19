@@ -25,25 +25,25 @@ import java.util.Date;
 import java.util.List;
 
 public interface GoogleMfaAuthTokenDAO extends DAO<GoogleMfaAuthToken> {
-    GoogleMfaAuthToken find(String user, Integer otp);
+    GoogleMfaAuthToken find(String owner, Integer otp);
 
     GoogleMfaAuthToken find(String key);
 
     GoogleMfaAuthToken save(GoogleMfaAuthToken token);
 
-    long count(String user);
+    long count(String owner);
 
     long count();
 
     void deleteAll();
 
-    boolean delete(Integer otp);
+    void delete(Integer otp);
 
-    boolean delete(String user);
+    void delete(String owner);
 
-    boolean delete(String user, Integer otp);
+    void delete(String owner, Integer otp);
 
-    boolean delete(Date expirationDate);
+    void delete(Date expirationDate);
 
-    List<GoogleMfaAuthToken> findTokensForUser(String user);
+    List<GoogleMfaAuthToken> findForOwner(String owner);
 }

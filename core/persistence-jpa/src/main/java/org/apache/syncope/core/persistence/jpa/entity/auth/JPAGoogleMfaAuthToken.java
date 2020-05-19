@@ -26,6 +26,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Entity
 @Table(name = JPAGoogleMfaAuthToken.TABLE)
@@ -39,29 +40,29 @@ public class JPAGoogleMfaAuthToken extends AbstractGeneratedKeyEntity implements
     private Integer token;
 
     @Column(nullable = false)
-    private String user;
+    private String owner;
 
     @Column(nullable = false)
-    private Date issuedDateTime;
+    private Date issuedDate;
 
     @Override
-    public String getUser() {
-        return user;
+    public String getOwner() {
+        return owner;
     }
 
     @Override
-    public void setUser(final String user) {
-        this.user = user;
+    public void setOwner(final String user) {
+        this.owner = user;
     }
 
     @Override
     public Date getIssuedDate() {
-        return issuedDateTime;
+        return Optional.ofNullable(issuedDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public void setIssuedDate(final Date issuedDateTime) {
-        this.issuedDateTime = issuedDateTime;
+        this.issuedDate = Optional.ofNullable(issuedDateTime).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override

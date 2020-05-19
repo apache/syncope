@@ -23,9 +23,9 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import java.util.Date;
 
 public interface GoogleMfaAuthToken extends Entity {
-    String getUser();
+    String getOwner();
 
-    void setUser(String user);
+    void setOwner(String user);
 
     Date getIssuedDate();
 

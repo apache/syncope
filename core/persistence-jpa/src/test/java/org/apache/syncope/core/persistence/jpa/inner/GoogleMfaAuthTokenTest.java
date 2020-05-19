@@ -61,41 +61,41 @@ public class GoogleMfaAuthTokenTest extends AbstractTest {
     @Test
     public void deleteByToken() {
         GoogleMfaAuthToken token = create("SyncopeDelete", 123456);
-        assertTrue(googleMfaAuthTokenDAO.delete(token.getToken()));
-        assertNull(googleMfaAuthTokenDAO.find(token.getUser(), token.getToken()));
+        googleMfaAuthTokenDAO.delete(token.getToken());
+        assertNull(googleMfaAuthTokenDAO.find(token.getOwner(), token.getToken()));
     }
 
     @Test
     public void deleteByUser() {
         GoogleMfaAuthToken token = create("SyncopeDelete", 123456);
-        assertTrue(googleMfaAuthTokenDAO.delete(token.getUser()));
-        assertNull(googleMfaAuthTokenDAO.find(token.getUser(), token.getToken()));
+        googleMfaAuthTokenDAO.delete(token.getOwner());
+        assertNull(googleMfaAuthTokenDAO.find(token.getOwner(), token.getToken()));
     }
 
     @Test
     public void deleteByUserAndToken() {
         GoogleMfaAuthToken token = create("SyncopeDelete", 123456);
-        assertTrue(googleMfaAuthTokenDAO.delete(token.getUser(), token.getToken()));
-        assertNull(googleMfaAuthTokenDAO.find(token.getUser(), token.getToken()));
+        googleMfaAuthTokenDAO.delete(token.getOwner(), token.getToken());
+        assertNull(googleMfaAuthTokenDAO.find(token.getOwner(), token.getToken()));
     }
 
     @Test
     public void deleteByDate() {
         Date dateTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         GoogleMfaAuthToken token = create("SyncopeDelete", 123456);
-        assertTrue(googleMfaAuthTokenDAO.delete(dateTime));
-        assertNull(googleMfaAuthTokenDAO.find(token.getUser(), token.getToken()));
+        googleMfaAuthTokenDAO.delete(dateTime);
+        assertNull(googleMfaAuthTokenDAO.find(token.getOwner(), token.getToken()));
     }
 
-    private GoogleMfaAuthToken create(final String user, final Integer otp) {
+    private GoogleMfaAuthToken create(final String owner, final Integer otp) {
         GoogleMfaAuthToken token = entityFactory.newEntity(GoogleMfaAuthToken.class);
-        token.setUser(user);
+        token.setOwner(owner);
         token.setToken(otp);
         token.setIssuedDate(new Date());
         googleMfaAuthTokenDAO.save(token);
         assertNotNull(token);
         assertNotNull(token.getKey());
-        assertNotNull(googleMfaAuthTokenDAO.find(token.getUser(), token.getToken()));
+        assertNotNull(googleMfaAuthTokenDAO.find(token.getOwner(), token.getToken()));
         return token;
     }
 

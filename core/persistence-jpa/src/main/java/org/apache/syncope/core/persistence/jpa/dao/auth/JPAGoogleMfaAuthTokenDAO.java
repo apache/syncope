@@ -42,17 +42,18 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
 
     @Override
     @Transactional(readOnly = true)
-    public GoogleMfaAuthToken find(final String user, final Integer otp) {
+    public GoogleMfaAuthToken find(final String owner, final Integer otp) {
         TypedQuery<GoogleMfaAuthToken> query = entityManager().createQuery(
-            "SELECT e FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.user=:user AND e.token=:token",
+            "SELECT e FROM " + JPAGoogleMfaAuthToken.class.getSimpleName()
+                + " e WHERE e.owner=:owner AND e.token=:token",
             GoogleMfaAuthToken.class);
-        query.setParameter("user", user);
+        query.setParameter("owner", owner);
         query.setParameter("token", otp);
         GoogleMfaAuthToken result = null;
         try {
             result = query.getSingleResult();
         } catch (final NoResultException e) {
-            LOG.debug("No Google Mfa Token found for user = {} and otp = {}", user, otp);
+            LOG.debug("No Google Mfa Token found for owner = {} and otp = {}", owner, otp);
         }
         return result;
     }
@@ -64,11 +65,11 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
 
     @Override
     @Transactional(readOnly = true)
-    public long count(final String user) {
+    public long count(final String owner) {
         TypedQuery<Long> query = entityManager().createQuery(
-            "SELECT COUNT(e.user) FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.user=:user",
+            "SELECT COUNT(e.user) FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.owner=:owner",
             Long.class);
-        query.setParameter("user", user);
+        query.setParameter("owner", owner);
         return query.getSingleResult();
     }
 
@@ -76,7 +77,7 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
     @Transactional(readOnly = true)
     public long count() {
         TypedQuery<Long> query = entityManager().createQuery(
-            "SELECT COUNT(e.user) FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e",
+            "SELECT COUNT(e.owner) FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e",
             Long.class);
         return query.getSingleResult();
     }
@@ -89,50 +90,50 @@ public class JPAGoogleMfaAuthTokenDAO extends AbstractDAO<GoogleMfaAuthToken> im
     }
 
     @Override
-    public boolean delete(final Integer otp) {
-        return entityManager()
+    public void delete(final Integer otp) {
+        entityManager()
             .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.token=:token")
             .setParameter("token", otp)
-            .executeUpdate() > 0;
+            .executeUpdate();
     }
 
     @Override
-    public boolean delete(final String user) {
-        return entityManager()
-            .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.user=:user")
-            .setParameter("user", user)
-            .executeUpdate() > 0;
+    public void delete(final String owner) {
+        entityManager()
+            .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.owner=:owner")
+            .setParameter("owner", owner)
+            .executeUpdate();
     }
 
     @Override
-    public boolean delete(final String user, final Integer otp) {
-        return entityManager()
+    public void delete(final String owner, final Integer otp) {
+        entityManager()
             .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName()
-                + " e WHERE e.user=:user AND e.token=:token")
-            .setParameter("user", user)
+                + " e WHERE e.owner=:user AND e.token=:token")
+            .setParameter("owner", owner)
             .setParameter("token", otp)
-            .executeUpdate() > 0;
+            .executeUpdate();
     }
 
     @Override
-    public boolean delete(final Date expirationDate) {
-        return entityManager()
+    public void delete(final Date expirationDate) {
+        entityManager()
             .createQuery("DELETE FROM " + JPAGoogleMfaAuthToken.class.getSimpleName()
                 + " e WHERE e.issuedDateTime>=:expired")
             .setParameter("expired", expirationDate)
-            .executeUpdate() > 0;
+            .executeUpdate();
     }
 
     @Override
-    public List<GoogleMfaAuthToken> findTokensForUser(final String user) {
+    public List<GoogleMfaAuthToken> findForOwner(final String owner) {
         TypedQuery<GoogleMfaAuthToken> query = entityManager().createQuery(
-            "SELECT e FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.user=:user",
+            "SELECT e FROM " + JPAGoogleMfaAuthToken.class.getSimpleName() + " e WHERE e.owner=:owner",
             GoogleMfaAuthToken.class);
-        query.setParameter("user", user);
+        query.setParameter("owner", owner);
         try {
             return query.getResultList();
         } catch (final NoResultException e) {
-            LOG.debug("No Google Mfa Token found for user = {}", user);
+            LOG.debug("No Google Mfa Token found for user = {}", owner);
         }
         return List.of();
     }

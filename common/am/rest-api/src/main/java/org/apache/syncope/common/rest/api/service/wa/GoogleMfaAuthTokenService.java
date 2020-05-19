@@ -61,14 +61,14 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("tokens/${user}/${token}")
-    Response deleteToken(@NotNull @PathParam("user") String user, @NotNull @PathParam("token") Integer token);
+    @Path("tokens/${owner}/${token}")
+    Response deleteToken(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("token") Integer token);
 
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("tokens/users/${user}")
-    Response deleteTokensFor(@NotNull @PathParam("user") String user);
+    @Path("tokens/owners/${owner}")
+    Response deleteTokensFor(@NotNull @PathParam("owner") String owner);
 
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
@@ -97,15 +97,15 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("tokens/${user}/${token}")
-    GoogleMfaAuthTokenTO findTokenFor(@NotNull @PathParam("user") String user,
+    @Path("tokens/${owner}/${token}")
+    GoogleMfaAuthTokenTO findTokenFor(@NotNull @PathParam("owner") String owner,
                                       @NotNull @PathParam("token") Integer token);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("tokens/users/${user}")
-    List<GoogleMfaAuthTokenTO> findTokensFor(@NotNull @PathParam("user") String user);
+    @Path("tokens/owners/${owner}")
+    List<GoogleMfaAuthTokenTO> findTokensFor(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Path("tokens/{key}")
@@ -116,8 +116,8 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("tokens/${user}/count")
-    long countTokensForUser(@NotNull @PathParam("user") String user);
+    @Path("tokens/${owner}/count")
+    long countTokensForUser(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})

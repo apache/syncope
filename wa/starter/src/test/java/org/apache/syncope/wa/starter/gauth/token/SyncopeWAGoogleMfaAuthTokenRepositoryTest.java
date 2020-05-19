@@ -27,9 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SyncopeWAGoogleMfaAuthTokenRepositoryTest extends AbstractTest {
     @Autowired
@@ -43,6 +40,4 @@ public class SyncopeWAGoogleMfaAuthTokenRepositoryTest extends AbstractTest {
         assertEquals(1, tokenRepository.count(token.getUserId()));
         assertEquals(1, tokenRepository.count());
     }
-
-
 }
