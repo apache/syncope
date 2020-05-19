@@ -62,8 +62,7 @@ public class SAML2SPTO extends ClientAppTO {
 
     @XmlTransient
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true,
-            example = "org.apache.syncope.common.lib.to.client.SAML2SPTO")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.client.SAML2SPTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

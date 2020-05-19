@@ -225,7 +225,7 @@ public class AuditITCase extends AbstractITCase {
         entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(pre + 1, entries.size());
 
-        ConnInstanceTO restore = MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
+        ConnInstanceTO restore = OBJECT_MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
         connectorService.update(restore);
 
         ldapConn = connectorService.read(connectorKey, null);

@@ -18,26 +18,32 @@
  */
 package org.apache.syncope.common.lib.to.client;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.to.EntityTO;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.to.EntityTO;
 
 @XmlRootElement(name = "clientApp")
 @XmlType
 @XmlSeeAlso({ OIDCRPTO.class, SAML2SPTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
-@JsonPropertyOrder(value = { "@class", "key", "name", "description", "authPolicy", "accessPolicy", "attReleasePolicy" })
+@JsonPropertyOrder(value = { "@class", "key", "description" })
 @Schema(subTypes = { OIDCRPTO.class, SAML2SPTO.class }, discriminatorProperty = "@class")
-public abstract class ClientAppTO extends BaseBean implements EntityTO {
+public abstract class ClientAppTO implements EntityTO {
 
     private static final long serialVersionUID = 6577639976115661357L;
+
+    @XmlTransient
+    @JsonProperty("@class")
+    private String discriminator;
 
     private String key;
 
@@ -52,6 +58,13 @@ public abstract class ClientAppTO extends BaseBean implements EntityTO {
     private String accessPolicy;
 
     private String attrReleasePolicy;
+
+    @Schema(name = "@class", required = true)
+    public abstract String getDiscriminator();
+
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
 
     public String getAttrReleasePolicy() {
         return attrReleasePolicy;
@@ -82,6 +95,7 @@ public abstract class ClientAppTO extends BaseBean implements EntityTO {
         return key;
     }
 
+    @PathParam("key")
     @Override
     public void setKey(final String key) {
         this.key = key;
@@ -110,9 +124,6 @@ public abstract class ClientAppTO extends BaseBean implements EntityTO {
     public void setDescription(final String description) {
         this.description = description;
     }
-
-    @Schema(name = "@class", required = true)
-    public abstract String getDiscriminator();
 
     @Override
     public int hashCode() {
