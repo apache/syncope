@@ -86,7 +86,7 @@ jobs:
       #- stage: fit
       #name: "Full Integration Tests: Apache Tomcat / H2 / XML Content-Type"
       #script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-      #- stage: fit
+    - stage: fit
       name: "Full Integration Tests: Apache Tomcat / H2 / YAML Content-Type"
       script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - stage: fit
