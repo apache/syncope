@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter;
 
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
@@ -33,6 +34,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.gauth.token.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
@@ -165,6 +167,13 @@ public class SyncopeWAConfiguration {
     @Bean
     public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
         return new SyncopeWASAML2ClientCustomizer(restClient);
+    }
+
+    @Bean
+    @Autowired
+    public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(final WARestClient restClient) {
+        return new SyncopeWAGoogleMfaAuthTokenRepository(restClient,
+            casProperties.getAuthn().getMfa().getGauth().getTimeStepSize());
     }
 
     @Bean
