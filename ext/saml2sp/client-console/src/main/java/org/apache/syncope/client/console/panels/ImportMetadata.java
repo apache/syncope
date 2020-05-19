@@ -48,14 +48,14 @@ public class ImportMetadata extends TogglePanel<Serializable> {
         Form<?> form = new Form<>("metadataForm");
         addInnerObject(form);
 
-        final ListModel<FileUpload> fileUploadModel = new ListModel<>(new ArrayList<FileUpload>());
         FileInputConfig config = new FileInputConfig().
                 showUpload(false).showRemove(false).showPreview(false);
         String language = SyncopeConsoleSession.get().getLocale().getLanguage();
         if (!Locale.ENGLISH.getLanguage().equals(language)) {
             config.withLocale(language);
         }
-        BootstrapFileInputField fileUpload = new BootstrapFileInputField("fileUpload", fileUploadModel, config);
+        final BootstrapFileInputField fileUpload =
+                new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<FileUpload>()), config);
         form.add(fileUpload.setOutputMarkupId(true));
 
         form.add(new AjaxSubmitLink("doUpload", form) {
@@ -64,8 +64,8 @@ public class ImportMetadata extends TogglePanel<Serializable> {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                if (!fileUploadModel.getObject().isEmpty()) {
-                    FileUpload uploaded = fileUploadModel.getObject().get(0);
+                FileUpload uploaded = fileUpload.getFileUpload();
+                if (uploaded != null) {
                     try {
                         restClient.importIdPs(uploaded.getInputStream());
 

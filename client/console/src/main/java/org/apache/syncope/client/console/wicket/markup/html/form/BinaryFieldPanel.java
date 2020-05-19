@@ -176,23 +176,21 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         downloadLink.setOutputMarkupId(true);
         uploadForm.add(downloadLink);
 
-        final ListModel<FileUpload> fileUploadModel = new ListModel<>(new ArrayList<FileUpload>());
         FileInputConfig config = new FileInputConfig().
                 showUpload(false).showRemove(false).showPreview(false);
         String language = SyncopeConsoleSession.get().getLocale().getLanguage();
         if (!Locale.ENGLISH.getLanguage().equals(language)) {
             config.withLocale(language);
         }
-        fileUpload = new BootstrapFileInputField("fileUpload", fileUploadModel, config);
+        fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<FileUpload>()), config);
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                if (!fileUploadModel.getObject().isEmpty()) {
-                    FileUpload uploaded = fileUploadModel.getObject().get(0);
-
+                FileUpload uploaded = fileUpload.getFileUpload();
+                if (uploaded != null) {
                     if (maxUploadSize != null && uploaded.getSize() > maxUploadSize.bytes()) {
                         // SYNCOPE-1213 manage directly max upload file size (if set in properties file)
                         SyncopeConsoleSession.get().error(getString("tooLargeFile").
