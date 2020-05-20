@@ -151,5 +151,4 @@ public class ClientAppITCase extends AbstractITCase {
             assertNotNull(e);
         }
     }
-
 }

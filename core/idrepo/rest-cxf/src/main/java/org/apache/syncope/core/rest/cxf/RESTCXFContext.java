@@ -91,8 +91,7 @@ public class RESTCXFContext {
         documentDepthProperties.setInnerElementCountThreshold(500);
         jaxbProvider.setDepthProperties(documentDepthProperties);
 
-        jaxbProvider.setCollectionWrapperMap(
-                Map.of("org.apache.syncope.common.lib.policy.PolicyTO", "policies"));
+        jaxbProvider.setCollectionWrapperMap(Map.of("org.apache.syncope.common.lib.policy.PolicyTO", "policies"));
 
         return jaxbProvider;
     }
@@ -100,13 +99,15 @@ public class RESTCXFContext {
     @Bean
     public JacksonJaxbJsonProvider jsonProvider() {
         JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
-        jsonProvider.setMapper(new UnwrappedObjectMapper());
+        jsonProvider.setMapper(new SyncopeObjectMapper());
         return jsonProvider;
     }
 
     @Bean
     public JacksonJaxbYAMLProvider yamlProvider() {
-        return new JacksonJaxbYAMLProvider();
+        JacksonJaxbYAMLProvider yamlProvider = new JacksonJaxbYAMLProvider();
+        yamlProvider.setMapper(new SyncopeYAMLMapper());
+        return yamlProvider;
     }
 
     @Bean

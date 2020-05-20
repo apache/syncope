@@ -16,21 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.core.rest.cxf;
 
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.log.AuditEntry;
-import org.apache.syncope.common.lib.to.AbstractStartEndBean;
-import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.RealmTO;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
-@XmlType
-@XmlSeeAlso({ AbstractStartEndBean.class, AccessTokenTO.class, AuditEntry.class, AnyTO.class, RealmTO.class })
-public abstract class BaseBean implements Serializable {
+public class SyncopeYAMLMapper extends YAMLMapper {
 
-    private static final long serialVersionUID = 8243277089603485380L;
+    private static final long serialVersionUID = 1022020055828974308L;
 
+    public SyncopeYAMLMapper() {
+        super();
+
+        registerModule(new JodaModule());
+        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    }
 }

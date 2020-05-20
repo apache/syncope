@@ -45,7 +45,7 @@ public class CheckDomainFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(final ContainerRequestContext reqContext) throws IOException {
-        final String domain = reqContext.getHeaderString(RESTHeaders.DOMAIN);
+        String domain = reqContext.getHeaderString(RESTHeaders.DOMAIN);
         if (domain != null && !SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
             if (!domainHolder.getDomains().containsKey(domain)) {
                 String message = "Domain '" + domain + "' not available";

@@ -58,8 +58,7 @@ public class OIDCRPTO extends ClientAppTO {
 
     @XmlTransient
     @JsonProperty("@class")
-    @Schema(name = "@class", required = true,
-            example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
+    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
