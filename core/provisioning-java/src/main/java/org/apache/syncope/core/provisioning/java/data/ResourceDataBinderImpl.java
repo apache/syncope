@@ -401,7 +401,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     boolean allowed = true;
                     if (intAttrName.getSchemaType() != null
                             && intAttrName.getEnclosingGroup() == null
-                            && intAttrName.getRelatedAnyObject() == null) {
+                            && intAttrName.getRelatedAnyObject() == null
+                            && intAttrName.getRelationshipType() == null) {
+
                         switch (intAttrName.getSchemaType()) {
                             case PLAIN:
                                 allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchema().getKey());
