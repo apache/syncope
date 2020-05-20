@@ -92,7 +92,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthTokenService.class);
         Response response = tokenService.deleteToken(username, otp);
-        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.NO_CONTENT.getStatusCode()) {
             throw new RuntimeException("Unable to remove token " + otp + " for user " + username);
         }
     }
@@ -102,7 +102,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthTokenService.class);
         Response response = tokenService.deleteTokensFor(username);
-        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.NO_CONTENT.getStatusCode()) {
             throw new RuntimeException("Unable to remove tokens for user " + username);
         }
     }
@@ -112,7 +112,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthTokenService.class);
         Response response = tokenService.deleteToken(otp);
-        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.NO_CONTENT.getStatusCode()) {
             throw new RuntimeException("Unable to remove token " + otp);
         }
     }
@@ -122,7 +122,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthTokenService.class);
         Response response = tokenService.deleteTokens();
-        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getStatusCode() != Response.Status.NO_CONTENT.getStatusCode()) {
             throw new RuntimeException("Unable to remove tokens");
         }
     }
