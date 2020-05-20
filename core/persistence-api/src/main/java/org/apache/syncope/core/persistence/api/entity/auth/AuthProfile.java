@@ -17,14 +17,20 @@
  * under the License.
  */
 
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity.auth;
 
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface GoogleMfaAuthTokenDataBinder {
+import java.util.List;
 
-    GoogleMfaAuthToken create(GoogleMfaAuthTokenTO tokenTO);
+public interface AuthProfile extends Entity {
 
-    GoogleMfaAuthTokenTO getGoogleMfaAuthTokenTO(GoogleMfaAuthToken token);
+    String getOwner();
+
+    void setOwner(String owner);
+    
+    List<GoogleMfaAuthToken> getGoogleMfaAuthTokens();
+
+    void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
 }

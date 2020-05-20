@@ -78,7 +78,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
                 getService(GoogleMfaAuthTokenService.class);
             GoogleMfaAuthTokenTO tokenTO = tokenService.findTokenFor(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getToken(), tokenTO.getOwner());
-            LocalDateTime dateTime = tokenTO.getIssuedDate().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
+            LocalDateTime dateTime = tokenTO.getIssueDate().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             token.setIssuedDateTime(dateTime);
             return token;
         } catch (final Exception e) {
@@ -131,7 +131,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
     public long count(final String username) {
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthTokenService.class);
-        return tokenService.countTokensForUser(username);
+        return tokenService.countTokensForOwner(username);
     }
 
     @Override

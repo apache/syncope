@@ -17,14 +17,23 @@
  * under the License.
  */
 
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public interface GoogleMfaAuthTokenDataBinder {
+@Component
+public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
+    @Autowired
+    private EntityFactory entityFactory;
 
-    GoogleMfaAuthToken create(GoogleMfaAuthTokenTO tokenTO);
-
-    GoogleMfaAuthTokenTO getGoogleMfaAuthTokenTO(GoogleMfaAuthToken token);
+    @Override
+    public AuthProfile create(final String owner) {
+        AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
+        profile.setOwner(owner);
+        return profile;
+    }
 }

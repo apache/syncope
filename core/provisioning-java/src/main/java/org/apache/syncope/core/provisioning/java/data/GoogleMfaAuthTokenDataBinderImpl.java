@@ -20,24 +20,19 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.core.provisioning.api.data.GoogleMfaAuthTokenDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataBinder {
-    @Autowired
-    private EntityFactory entityFactory;
-
     @Override
     public GoogleMfaAuthToken create(final GoogleMfaAuthTokenTO tokenTO) {
-        GoogleMfaAuthToken token = entityFactory.newEntity(GoogleMfaAuthToken.class);
-        token.setIssuedDate(tokenTO.getIssuedDate());
-        token.setToken(tokenTO.getToken());
-        token.setOwner(tokenTO.getOwner());
-        return token;
+        return new GoogleMfaAuthToken.Builder()
+            .issueDate(tokenTO.getIssueDate())
+            .token(tokenTO.getToken())
+            .owner(tokenTO.getOwner())
+            .build();
     }
 
     @Override
@@ -46,7 +41,7 @@ public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataB
             .owner(token.getOwner())
             .token(token.getToken())
             .key(token.getKey())
-            .issuedDate(token.getIssuedDate())
+            .issuedDate(token.getIssueDate())
             .build();
     }
 }

@@ -85,7 +85,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
         @Override
         public Response deleteTokensByDate(@NotNull final Date expirationDate) {
-            tokens.removeIf(token -> token.getIssuedDate().compareTo(expirationDate) >= 0);
+            tokens.removeIf(token -> token.getIssueDate().compareTo(expirationDate) >= 0);
             return Response.noContent().build();
         }
 
@@ -142,7 +142,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public long countTokensForUser(@NotNull final String user) {
+        public long countTokensForOwner(@NotNull final String user) {
             return tokens.stream()
                 .filter(to -> to.getOwner().equalsIgnoreCase(user))
                 .count();

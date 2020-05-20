@@ -17,24 +17,23 @@
  * under the License.
  */
 
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.types;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
 
-@XmlRootElement(name = "gauthToken")
+@XmlRootElement(name = "googleMfaAuthToken")
 @XmlType
-public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
-
-    private static final long serialVersionUID = 1285073386484048953L;
+public class GoogleMfaAuthToken implements Serializable {
+    private static final long serialVersionUID = 2185073386484048953L;
 
     private String key;
 
@@ -44,13 +43,10 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
 
     private Date issueDate;
 
-    @Override
     public String getKey() {
         return key;
     }
 
-    @PathParam("key")
-    @Override
     public void setKey(final String key) {
         this.key = key;
     }
@@ -72,32 +68,13 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
     }
 
     public Date getIssueDate() {
-        return Optional.ofNullable(issueDate).map(date -> new Date(date.getTime())).orElse(null);
+        return Optional.ofNullable(this.issueDate).
+            map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setIssueDate(final Date issueDate) {
-        this.issueDate = Optional.ofNullable(issueDate).map(date -> new Date(date.getTime())).orElse(null);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj == this) {
-            return true;
-        }
-        if (obj.getClass() != getClass()) {
-            return false;
-        }
-        GoogleMfaAuthTokenTO rhs = (GoogleMfaAuthTokenTO) obj;
-        return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.key, rhs.key)
-            .append(this.token, rhs.token)
-            .append(this.owner, rhs.owner)
-            .append(this.issueDate, rhs.issueDate)
-            .isEquals();
+        this.issueDate = Optional.ofNullable(issueDate).
+            map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
@@ -111,32 +88,63 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
             .toHashCode();
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        GoogleMfaAuthToken rhs = (GoogleMfaAuthToken) obj;
+        return new EqualsBuilder()
+            .appendSuper(super.equals(obj))
+            .append(this.key, rhs.key)
+            .append(this.token, rhs.token)
+            .append(this.owner, rhs.owner)
+            .append(this.issueDate, rhs.issueDate)
+            .isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+            .append("key", key)
+            .append("token", token)
+            .append("owner", owner)
+            .append("issueDate", issueDate)
+            .toString();
+    }
+    
     public static class Builder {
 
-        private final GoogleMfaAuthTokenTO instance = new GoogleMfaAuthTokenTO();
+        private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();
 
 
-        public GoogleMfaAuthTokenTO.Builder issuedDate(final Date issued) {
+        public GoogleMfaAuthToken.Builder issueDate(final Date issued) {
             instance.setIssueDate(issued);
             return this;
         }
 
-        public GoogleMfaAuthTokenTO.Builder token(final Integer token) {
+        public GoogleMfaAuthToken.Builder token(final Integer token) {
             instance.setToken(token);
             return this;
         }
 
-        public GoogleMfaAuthTokenTO.Builder owner(final String owner) {
+        public GoogleMfaAuthToken.Builder owner(final String owner) {
             instance.setOwner(owner);
             return this;
         }
 
-        public GoogleMfaAuthTokenTO.Builder key(final String key) {
+        public GoogleMfaAuthToken.Builder key(final String key) {
             instance.setKey(key);
             return this;
         }
 
-        public GoogleMfaAuthTokenTO build() {
+        public GoogleMfaAuthToken build() {
             return instance;
         }
     }

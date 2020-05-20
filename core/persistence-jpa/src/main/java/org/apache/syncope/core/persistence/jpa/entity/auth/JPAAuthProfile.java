@@ -18,32 +18,32 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
-import java.util.Date;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = JPAGoogleMfaAuthToken.TABLE)
-public class JPAGoogleMfaAuthToken extends AbstractGeneratedKeyEntity implements GoogleMfaAuthToken {
+@Table(name = JPAAuthProfile.TABLE)
+public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthProfile {
 
-    public static final String TABLE = "GoogleMfaAuthToken";
+    public static final String TABLE = "AuthProfile";
 
     private static final long serialVersionUID = 57352617217394093L;
 
-    @Column(nullable = false)
-    private Integer token;
+    @Lob
+    private String googleMfaAuthTokens;
 
     @Column(nullable = false)
     private String owner;
-
-    @Column(nullable = false)
-    private Date issuedDate;
 
     @Override
     public String getOwner() {
@@ -51,27 +51,19 @@ public class JPAGoogleMfaAuthToken extends AbstractGeneratedKeyEntity implements
     }
 
     @Override
-    public void setOwner(final String user) {
-        this.owner = user;
+    public void setOwner(final String owner) {
+        this.owner = owner;
     }
 
     @Override
-    public Date getIssuedDate() {
-        return Optional.ofNullable(issuedDate).map(date -> new Date(date.getTime())).orElse(null);
+    public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
+        return googleMfaAuthTokens == null
+            ? new ArrayList<>(0)
+            : POJOHelper.deserialize(googleMfaAuthTokens, List.class);
     }
 
     @Override
-    public void setIssuedDate(final Date issuedDateTime) {
-        this.issuedDate = Optional.ofNullable(issuedDateTime).map(date -> new Date(date.getTime())).orElse(null);
-    }
-
-    @Override
-    public Integer getToken() {
-        return token;
-    }
-
-    @Override
-    public void setToken(final Integer token) {
-        this.token = token;
+    public void setGoogleMfaAuthTokens(final List<GoogleMfaAuthToken> tokens) {
+        this.googleMfaAuthTokens = POJOHelper.serialize(tokens);
     }
 }

@@ -80,7 +80,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         GoogleMfaAuthTokenTO tokenTO = createGoogleMfaAuthTokenTO();
         googleMfaAuthTokenService.save(tokenTO);
         assertEquals(1, googleMfaAuthTokenService.countTokens());
-        assertEquals(1, googleMfaAuthTokenService.countTokensForUser(tokenTO.getOwner()));
+        assertEquals(1, googleMfaAuthTokenService.countTokensForOwner(tokenTO.getOwner()));
     }
 
     @Test
@@ -125,6 +125,6 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         assertTrue(googleMfaAuthTokenService.findTokensFor(token.getOwner()).isEmpty());
         assertThrows(SyncopeClientException.class,
             () -> googleMfaAuthTokenService.findTokenFor(token.getOwner(), token.getToken()));
-        assertEquals(0, googleMfaAuthTokenService.countTokensForUser(token.getOwner()));
+        assertEquals(0, googleMfaAuthTokenService.countTokensForOwner(token.getOwner()));
     }
 }

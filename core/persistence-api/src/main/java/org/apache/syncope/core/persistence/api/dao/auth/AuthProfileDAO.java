@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,34 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.syncope.core.persistence.api.dao.auth;
 
 import org.apache.syncope.core.persistence.api.dao.DAO;
-import org.apache.syncope.core.persistence.api.entity.auth.GoogleMfaAuthToken;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
-public interface GoogleMfaAuthTokenDAO extends DAO<GoogleMfaAuthToken> {
-    GoogleMfaAuthToken find(String owner, Integer otp);
+public interface AuthProfileDAO extends DAO<AuthProfile> {
 
-    GoogleMfaAuthToken find(String key);
+    List<AuthProfile> findAll();
 
-    GoogleMfaAuthToken save(GoogleMfaAuthToken token);
+    Optional<AuthProfile> findByOwner(String owner);
 
-    long count(String owner);
+    Optional<AuthProfile> findByKey(String key);
 
-    long count();
-
-    void deleteAll();
-
-    void delete(Integer otp);
-
-    void delete(String owner);
-
-    void delete(String owner, Integer otp);
-
-    void delete(Date expirationDate);
-
-    List<GoogleMfaAuthToken> findForOwner(String owner);
+    AuthProfile save(AuthProfile profile);
 }

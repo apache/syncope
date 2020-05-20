@@ -100,7 +100,7 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public long countTokensForUser(final String owner) {
+    public long countTokensForOwner(final String owner) {
         return logic.countTokensFor(owner);
     }
 
