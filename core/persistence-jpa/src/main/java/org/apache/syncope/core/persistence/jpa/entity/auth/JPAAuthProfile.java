@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
@@ -59,11 +60,25 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens == null
             ? new ArrayList<>(0)
-            : POJOHelper.deserialize(googleMfaAuthTokens, List.class);
+            : POJOHelper.deserialize(googleMfaAuthTokens, new TypeReference<List<GoogleMfaAuthToken>>() {
+        });
     }
 
     @Override
     public void setGoogleMfaAuthTokens(final List<GoogleMfaAuthToken> tokens) {
         this.googleMfaAuthTokens = POJOHelper.serialize(tokens);
+    }
+
+    @Override
+    public void addGoogleMfaAuthToken(final GoogleMfaAuthToken token) {
+        checkType(token, GoogleMfaAuthToken.class);
+        final List<GoogleMfaAuthToken> tokens = getGoogleMfaAuthTokens();
+        tokens.add(token);
+        setGoogleMfaAuthTokens(tokens);
+    }
+
+    @Override
+    public void clearGoogleMfaAuthTokens() {
+        setGoogleMfaAuthTokens(List.of());
     }
 }

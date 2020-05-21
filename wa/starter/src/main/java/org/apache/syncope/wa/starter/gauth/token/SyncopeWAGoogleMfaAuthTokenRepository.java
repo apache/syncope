@@ -66,7 +66,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         GoogleMfaAuthTokenTO tokenTO = new GoogleMfaAuthTokenTO.Builder()
             .owner(token.getUserId())
             .token(token.getToken())
-            .issuedDate(Date.from(token.getIssuedDateTime().toInstant(ZoneOffset.UTC)))
+            .issueDate(Date.from(token.getIssuedDateTime().toInstant(ZoneOffset.UTC)))
             .build();
         tokenService.save(tokenTO);
     }

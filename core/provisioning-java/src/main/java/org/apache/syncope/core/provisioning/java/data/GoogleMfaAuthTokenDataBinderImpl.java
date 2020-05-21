@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.core.provisioning.api.data.GoogleMfaAuthTokenDataBinder;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataBinder {
     @Override
@@ -32,6 +34,7 @@ public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataB
             .issueDate(tokenTO.getIssueDate())
             .token(tokenTO.getToken())
             .owner(tokenTO.getOwner())
+            .key(UUID.randomUUID().toString())
             .build();
     }
 
@@ -41,7 +44,7 @@ public class GoogleMfaAuthTokenDataBinderImpl implements GoogleMfaAuthTokenDataB
             .owner(token.getOwner())
             .token(token.getToken())
             .key(token.getKey())
-            .issuedDate(token.getIssueDate())
+            .issueDate(token.getIssueDate())
             .build();
     }
 }

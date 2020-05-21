@@ -116,7 +116,7 @@ public class GoogleMfaAuthTokenTO extends BaseBean implements EntityTO {
         private final GoogleMfaAuthTokenTO instance = new GoogleMfaAuthTokenTO();
 
 
-        public GoogleMfaAuthTokenTO.Builder issuedDate(final Date issued) {
+        public GoogleMfaAuthTokenTO.Builder issueDate(final Date issued) {
             instance.setIssueDate(issued);
             return this;
         }

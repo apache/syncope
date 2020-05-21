@@ -22,6 +22,7 @@ package org.apache.syncope.core.logic;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
@@ -81,34 +83,25 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final Date expirationDate) {
-        authProfileDAO.findAll().
-            forEach(profile -> {
-                boolean removed = profile.getGoogleMfaAuthTokens().
-                    removeIf(token -> token.getIssueDate().compareTo(expirationDate) >= 0);
-                if (removed) {
-                    authProfileDAO.save(profile);
-                }
-            });
+        authProfileDAO.
+            findAll().
+            forEach(profile -> removeTokenAndSave(profile,
+                token -> token.getIssueDate().compareTo(expirationDate) >= 0));
     }
-
+    
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final Integer otp) {
         authProfileDAO.findByOwner(owner).
-            ifPresent(profile -> {
-                boolean removed = profile.getGoogleMfaAuthTokens().
-                    removeIf(token -> token.getToken().equals(otp));
-                if (removed) {
-                    authProfileDAO.save(profile);
-                }
-            });
+            ifPresent(profile -> removeTokenAndSave(profile,
+                token -> token.getToken().equals(otp)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.getGoogleMfaAuthTokens().clear();
+            profile.clearGoogleMfaAuthTokens();
             authProfileDAO.save(profile);
         });
     }
@@ -117,13 +110,8 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final Integer otp) {
         authProfileDAO.findAll().
-            forEach(profile -> {
-                boolean removed = profile.getGoogleMfaAuthTokens().
-                    removeIf(token -> token.getToken().equals(otp));
-                if (removed) {
-                    authProfileDAO.save(profile);
-                }
-            });
+            forEach(profile -> removeTokenAndSave(profile,
+                token -> token.getToken().equals(otp)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
@@ -131,7 +119,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     public void deleteAll() {
         authProfileDAO.findAll().
             forEach(profile -> {
-                profile.getGoogleMfaAuthTokens().clear();
+                profile.clearGoogleMfaAuthTokens();
                 authProfileDAO.save(profile);
             });
     }
@@ -141,7 +129,8 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     public GoogleMfaAuthTokenTO save(final GoogleMfaAuthTokenTO tokenTO) {
         AuthProfile profile = authProfileDAO.findByOwner(tokenTO.getOwner()).
             orElse(authProfileDataBinder.create(tokenTO.getOwner()));
-        profile.getGoogleMfaAuthTokens().add(googleMfaAuthTokenDataBinder.create(tokenTO));
+        GoogleMfaAuthToken googleMfaAuthToken = googleMfaAuthTokenDataBinder.create(tokenTO);
+        profile.addGoogleMfaAuthToken(googleMfaAuthToken);
         profile = authProfileDAO.save(profile);
         return profile.getGoogleMfaAuthTokens().
             stream().
@@ -210,5 +199,14 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
                 map(googleMfaAuthTokenDataBinder::getGoogleMfaAuthTokenTO).
                 collect(Collectors.toList())).
             orElse(List.of());
+    }
+
+    private void removeTokenAndSave(final AuthProfile profile, final Predicate<GoogleMfaAuthToken> criteria) {
+        List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
+        boolean removed = tokens.removeIf(criteria);
+        if (removed) {
+            profile.setGoogleMfaAuthTokens(tokens);
+            authProfileDAO.save(profile);
+        }
     }
 }
