@@ -426,6 +426,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     if (intAttrName.getSchemaType() != null
                             && intAttrName.getEnclosingGroup() == null
                             && intAttrName.getRelatedAnyObject() == null
+                            && intAttrName.getRelationshipType() == null
                             && intAttrName.getPrivilegesOfApplication() == null) {
 
                         switch (intAttrName.getSchemaType()) {
