@@ -51,7 +51,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @PropertySource("classpath:persistence.properties")
 @PropertySource(value = "file:${conf.directory}/persistence.properties", ignoreResourceNotFound = true)
-@ComponentScan({"org.apache.syncope.core.persistence.jpa"})
+@ComponentScan("org.apache.syncope.core.persistence.jpa")
 @Configuration
 public class PersistenceContext implements EnvironmentAware {
 
