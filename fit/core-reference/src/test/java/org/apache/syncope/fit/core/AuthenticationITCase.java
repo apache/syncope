@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.security.AccessControlException;
@@ -37,6 +38,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
@@ -475,6 +477,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. create user with group 'groupForWorkflowApproval' 

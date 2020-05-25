@@ -80,7 +80,8 @@ public class DefaultAuditManager implements AuditManager {
 
         AuditEntry auditEntry = new AuditEntry();
         auditEntry.setWho(who);
-        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
+        auditEntry.setLogger(new AuditLoggerName.Builder().
+                type(type).category(category).subcategory(subcategory).event(event).result(Result.SUCCESS).build());
         auditEntry.setDate(new Date());
 
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
@@ -91,7 +92,8 @@ public class DefaultAuditManager implements AuditManager {
             return true;
         }
 
-        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
+        auditEntry.setLogger(new AuditLoggerName.Builder().
+                type(type).category(category).subcategory(subcategory).event(event).result(Result.FAILURE).build());
 
         syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
         auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
@@ -134,7 +136,8 @@ public class DefaultAuditManager implements AuditManager {
 
         AuditEntry auditEntry = new AuditEntry();
         auditEntry.setWho(who);
-        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, condition));
+        auditEntry.setLogger(new AuditLoggerName.Builder().
+                type(type).category(category).subcategory(subcategory).event(event).result(condition).build());
         auditEntry.setDate(new Date());
         auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
         if (throwable == null) {

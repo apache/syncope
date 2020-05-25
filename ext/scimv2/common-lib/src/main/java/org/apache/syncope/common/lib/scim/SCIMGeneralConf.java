@@ -100,5 +100,4 @@ public class SCIMGeneralConf implements Serializable {
     public void setFilterMaxResults(final int filterMaxResults) {
         this.filterMaxResults = filterMaxResults;
     }
-
 }

@@ -19,7 +19,11 @@
 package org.apache.syncope.common.lib.log;
 
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement(name = "logAppender")
+@XmlType
 public class LogAppender implements Serializable {
 
     private static final long serialVersionUID = 5975199884460548302L;

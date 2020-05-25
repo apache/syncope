@@ -29,6 +29,7 @@ import java.util.Locale;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -64,8 +65,8 @@ public class DerSchemaITCase extends AbstractITCase {
         DerSchemaTO schema = new DerSchemaTO();
         schema.setKey("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
-        schema.getLabels().put(Locale.ENGLISH, "Derived");
-        schema.getLabels().put(Locale.ITALIAN, "Derivato");
+        schema.getLabels().put(SchemaTO.toString(Locale.ENGLISH), "Derived");
+        schema.getLabels().put(SchemaTO.toString(Locale.ITALIAN), "Derivato");
 
         DerSchemaTO actual = createSchema(SchemaType.DERIVED, schema);
         assertNotNull(actual);

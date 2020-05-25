@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.Collections;
@@ -39,6 +40,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -105,6 +107,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
@@ -143,6 +146,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndUnclaim() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
@@ -241,6 +245,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void updateWithApproval() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // 1. create user as admin
@@ -464,6 +469,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createWithReject() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
@@ -540,6 +546,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createWithApproval() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // read forms *before* any operation
@@ -627,6 +634,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void updateApproval() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // read forms *before* any operation
@@ -704,6 +712,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE15() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // read forms *before* any operation

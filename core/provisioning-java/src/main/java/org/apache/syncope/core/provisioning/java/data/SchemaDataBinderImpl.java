@@ -90,22 +90,22 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     private <S extends Schema, T extends SchemaTO> void labels(final T src, final S dst) {
         src.getLabels().forEach((locale, display) -> {
-            SchemaLabel label = dst.getLabel(locale).orElse(null);
+            SchemaLabel label = dst.getLabel(SchemaTO.toLocale(locale)).orElse(null);
             if (label == null) {
                 label = entityFactory.newEntity(SchemaLabel.class);
-                label.setLocale(locale);
+                label.setLocale(SchemaTO.toLocale(locale));
                 label.setSchema(dst);
                 dst.add(label);
             }
             label.setDisplay(display);
         });
 
-        dst.getLabels().removeIf(label -> !src.getLabels().containsKey(label.getLocale()));
+        dst.getLabels().removeIf(label -> !src.getLabels().containsKey(SchemaTO.toString(label.getLocale())));
     }
 
     private <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
         dst.getLabels().putAll(src.getLabels().stream().
-                collect(Collectors.toMap(SchemaLabel::getLocale, SchemaLabel::getDisplay)));
+                collect(Collectors.toMap(label -> SchemaTO.toString(label.getLocale()), SchemaLabel::getDisplay)));
     }
 
     // --------------- PLAIN -----------------

@@ -51,8 +51,7 @@ public class BpmnProcessServiceImpl extends AbstractServiceImpl implements BpmnP
         StreamingOutput sout = os -> logic.exportDefinition(key, format, os);
 
         return Response.ok(sout).
-                type(format == BpmnProcessFormat.JSON
-                        ? MediaType.APPLICATION_JSON_TYPE : MediaType.APPLICATION_XHTML_XML_TYPE).
+                type(format.getMediaType()).
                 build();
     }
 

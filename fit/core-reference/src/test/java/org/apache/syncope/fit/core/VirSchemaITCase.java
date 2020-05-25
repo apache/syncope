@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -69,7 +70,7 @@ public class VirSchemaITCase extends AbstractITCase {
         schema.setExtAttrName("name");
         schema.setResource(RESOURCE_NAME_CSV);
         schema.setAnyType(csv.getProvisions().get(0).getAnyType());
-        schema.getLabels().put(Locale.ENGLISH, "Virtual");
+        schema.getLabels().put(SchemaTO.toString(Locale.ENGLISH), "Virtual");
 
         schema = createSchema(SchemaType.VIRTUAL, schema);
         assertNotNull(schema);

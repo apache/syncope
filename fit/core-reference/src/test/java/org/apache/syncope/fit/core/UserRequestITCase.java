@@ -51,7 +51,7 @@ public class UserRequestITCase extends AbstractITCase {
 
     @BeforeAll
     public static void loadBpmnProcesses() throws IOException {
-        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         WebClient.client(bpmnProcessService).type(MediaType.APPLICATION_XML_TYPE);
@@ -65,7 +65,7 @@ public class UserRequestITCase extends AbstractITCase {
 
     @BeforeEach
     public void check() {
-        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
     }
 

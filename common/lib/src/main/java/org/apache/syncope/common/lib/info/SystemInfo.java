@@ -148,5 +148,4 @@ public class SystemInfo implements Serializable {
             this.maxMemory = maxMemory;
         }
     }
-
 }

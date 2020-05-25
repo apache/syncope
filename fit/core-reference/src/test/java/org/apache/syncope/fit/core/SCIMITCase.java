@@ -40,6 +40,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -131,6 +132,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @BeforeEach
     public void check() {
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
         assumeTrue(isSCIMAvailable(webClient()));
     }
 

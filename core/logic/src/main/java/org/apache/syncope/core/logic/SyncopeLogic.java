@@ -255,6 +255,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                             map(URI::toASCIIString).collect(Collectors.toList()));
                 }
 
+                PLATFORM_INFO.setWorkflowInfo(new PlatformInfo.WorkflowInfo());
                 PLATFORM_INFO.getWorkflowInfo().
                         setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
                 PLATFORM_INFO.getWorkflowInfo().
@@ -262,6 +263,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO.getWorkflowInfo().
                         setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
 
+                PLATFORM_INFO.setProvisioningInfo(new PlatformInfo.ProvisioningInfo());
                 PLATFORM_INFO.getProvisioningInfo().
                         setAnyObjectProvisioningManager(AopUtils.getTargetClass(aProvisioningManager).getName());
                 PLATFORM_INFO.getProvisioningInfo().
@@ -277,8 +279,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO.getProvisioningInfo().
                         setAuditManager(AopUtils.getTargetClass(auditManager).getName());
 
-                PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
-
+                PLATFORM_INFO.setPersistenceInfo(new PlatformInfo.PersistenceInfo());
                 PLATFORM_INFO.getPersistenceInfo().
                         setEntityFactory(AopUtils.getTargetClass(entityFactory).getName());
                 PLATFORM_INFO.getPersistenceInfo().
@@ -298,14 +299,15 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 PLATFORM_INFO.getPersistenceInfo().
                         setConfDAO(AopUtils.getTargetClass(confDAO).getName());
 
-                Arrays.stream(ImplementationType.values()).
-                        forEach(type -> {
-                            JavaImplInfo javaImplInfo = new JavaImplInfo();
-                            javaImplInfo.setType(type);
-                            javaImplInfo.getClasses().addAll(implLookup.getClassNames(type));
+                PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
 
-                            PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
-                        });
+                Arrays.stream(ImplementationType.values()).forEach(type -> {
+                    JavaImplInfo javaImplInfo = new JavaImplInfo();
+                    javaImplInfo.setType(type);
+                    javaImplInfo.getClasses().addAll(implLookup.getClassNames(type));
+
+                    PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
+                });
             }
 
             PLATFORM_INFO.setSelfRegAllowed(isSelfRegAllowed());

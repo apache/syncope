@@ -36,12 +36,11 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
 
     @Override
     public Set<AuditLoggerName> getEvents() {
-        return Collections.singleton(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS));
+        return Collections.singleton(new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.LOGIC).
+                category(ResourceLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build());
     }
 
     @Override
