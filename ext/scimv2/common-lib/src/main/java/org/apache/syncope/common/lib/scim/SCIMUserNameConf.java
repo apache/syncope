@@ -23,7 +23,11 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement(name = "scimUserNameConf")
+@XmlType
 public class SCIMUserNameConf implements Serializable {
 
     private static final long serialVersionUID = -2256008193008290376L;
@@ -113,5 +117,4 @@ public class SCIMUserNameConf implements Serializable {
     public void setHonorificSuffix(final String honorificSuffix) {
         this.honorificSuffix = honorificSuffix;
     }
-
 }

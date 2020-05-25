@@ -23,6 +23,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.security.AccessControlException;
 import java.util.HashSet;
@@ -40,6 +42,7 @@ import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
@@ -498,7 +501,8 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. create user with group 'groupForWorkflowApproval' 
         // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)

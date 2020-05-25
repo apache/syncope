@@ -75,13 +75,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     @Autowired
     private Environment env;
 
+    private static final String UNIQUE_MSG_KEY = "UniqueConstraintViolation";
+
     private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<String, String>() {
 
         private static final long serialVersionUID = -7688359318035249200L;
 
         {
-            put("23000", "UniqueConstraintViolation");
-            put("23505", "UniqueConstraintViolation");
+            put("23000", UNIQUE_MSG_KEY);
+            put("23505", UNIQUE_MSG_KEY);
         }
     };
 
@@ -107,9 +109,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                 || ex instanceof PersistenceException && ex.getCause() instanceof EntityExistsException) {
 
             builder = builder(ClientExceptionType.EntityExists,
-                    getJPAMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
+                    getPersistenceErrorMessage(ex instanceof PersistenceException ? ex.getCause() : ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
-            builder = builder(ClientExceptionType.DataIntegrityViolation, getJPAMessage(ex));
+            builder = builder(ClientExceptionType.DataIntegrityViolation, getPersistenceErrorMessage(ex));
         } else if (ex instanceof ConnectorException) {
             builder = builder(ClientExceptionType.ConnectorException, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof NotFoundException) {
@@ -303,14 +305,17 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return builder;
     }
 
-    private String getJPAMessage(final Throwable ex) {
+    private String getPersistenceErrorMessage(final Throwable ex) {
         Throwable throwable = ExceptionUtils.getRootCause(ex);
+
         String message = null;
         if (throwable instanceof SQLException) {
             String messageKey = EXCEPTION_CODE_MAP.get(((SQLException) throwable).getSQLState());
             if (messageKey != null) {
                 message = env.getProperty("errMessage." + messageKey);
             }
+        } else if (throwable instanceof EntityExistsException || throwable instanceof DuplicateException) {
+            message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
         }
 
         return message == null

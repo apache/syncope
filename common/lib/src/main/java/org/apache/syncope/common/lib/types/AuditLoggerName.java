@@ -18,17 +18,21 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.text.ParseException;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 
+@XmlRootElement(name = "auditLoggerName")
+@XmlType
 public class AuditLoggerName extends AbstractBaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;
@@ -39,58 +43,6 @@ public class AuditLoggerName extends AbstractBaseBean {
 
     public static String getAuditEventLoggerName(final String domain, final String loggerName) {
         return domain + "." + loggerName;
-    }
-
-    private final AuditElements.EventCategoryType type;
-
-    private final String category;
-
-    private final String subcategory;
-
-    private final String event;
-
-    private final Result result;
-
-    @JsonCreator
-    public AuditLoggerName(
-            @JsonProperty("type") final AuditElements.EventCategoryType type,
-            @JsonProperty("category") final String category,
-            @JsonProperty("subcategory") final String subcategory,
-            @JsonProperty("event") final String event,
-            @JsonProperty("result") final Result result) {
-
-        super();
-
-        this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
-        this.category = category;
-        this.subcategory = subcategory;
-        this.event = event;
-        this.result = result == null ? Result.SUCCESS : result;
-    }
-
-    public AuditElements.EventCategoryType getType() {
-        return type;
-    }
-
-    public String getEvent() {
-        return event;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public Result getResult() {
-        return result;
-    }
-
-    public String getSubcategory() {
-        return subcategory;
-    }
-
-    public String toLoggerName() {
-        return new StringBuilder().append(LoggerType.AUDIT.getPrefix()).append('.').
-                append(buildEvent(type, category, subcategory, event, result)).toString();
     }
 
     public static AuditLoggerName fromLoggerName(final String loggerName)
@@ -107,13 +59,14 @@ public class AuditLoggerName extends AbstractBaseBean {
         final Map.Entry<EventCategoryTO, Result> eventCategory = parseEventCategory(
                 loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + ".", ""));
 
-        return new AuditLoggerName(
-                eventCategory.getKey().getType(),
-                eventCategory.getKey().getCategory(),
-                eventCategory.getKey().getSubcategory(),
-                eventCategory.getKey().getEvents().isEmpty()
-                ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
-                eventCategory.getValue());
+        return new AuditLoggerName.Builder().
+                type(eventCategory.getKey().getType()).
+                category(eventCategory.getKey().getCategory()).
+                subcategory(eventCategory.getKey().getSubcategory()).
+                event(eventCategory.getKey().getEvents().isEmpty()
+                        ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next()).
+                result(eventCategory.getValue()).
+                build();
     }
 
     public static Pair<EventCategoryTO, Result> parseEventCategory(final String event) {
@@ -208,5 +161,126 @@ public class AuditLoggerName extends AbstractBaseBean {
         }
 
         return eventBuilder.toString();
+    }
+
+    public static class Builder {
+
+        private final AuditLoggerName instance = new AuditLoggerName();
+
+        public Builder type(final AuditElements.EventCategoryType type) {
+            instance.type = type;
+            return this;
+        }
+
+        public Builder category(final String category) {
+            instance.category = category;
+            return this;
+        }
+
+        public Builder subcategory(final String subcategory) {
+            instance.subcategory = subcategory;
+            return this;
+        }
+
+        public Builder event(final String event) {
+            instance.event = event;
+            return this;
+        }
+
+        public Builder result(final Result result) {
+            instance.result = result;
+            return this;
+        }
+
+        public AuditLoggerName build() {
+            return instance;
+        }
+    }
+
+    private EventCategoryType type = AuditElements.EventCategoryType.CUSTOM;
+
+    private String category;
+
+    private String subcategory;
+
+    private String event;
+
+    private Result result = Result.SUCCESS;
+
+    public EventCategoryType getType() {
+        return type;
+    }
+
+    public void setType(final EventCategoryType type) {
+        this.type = type;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(final String category) {
+        this.category = category;
+    }
+
+    public String getSubcategory() {
+        return subcategory;
+    }
+
+    public void setSubcategory(final String subcategory) {
+        this.subcategory = subcategory;
+    }
+
+    public String getEvent() {
+        return event;
+    }
+
+    public void setEvent(final String event) {
+        this.event = event;
+    }
+
+    public Result getResult() {
+        return result;
+    }
+
+    public void setResult(final Result result) {
+        this.result = result;
+    }
+
+    public String toLoggerName() {
+        return new StringBuilder().append(LoggerType.AUDIT.getPrefix()).append('.').
+                append(buildEvent(type, category, subcategory, event, result)).toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(type).
+                append(category).
+                append(subcategory).
+                append(event).
+                append(result).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AuditLoggerName other = (AuditLoggerName) obj;
+        return new EqualsBuilder().
+                append(type, other.type).
+                append(category, other.category).
+                append(subcategory, other.subcategory).
+                append(event, other.event).
+                append(result, other.result).
+                build();
     }
 }

@@ -93,13 +93,13 @@ public class Audit extends BasePage {
                         Pair<EventCategoryTO, AuditElements.Result> eventCategory =
                                 AuditLoggerName.parseEventCategory(toBeRemoved);
 
-                        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                                eventCategory.getKey().getType(),
-                                eventCategory.getKey().getCategory(),
-                                eventCategory.getKey().getSubcategory(),
-                                CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                ? null : eventCategory.getKey().getEvents().iterator().next(),
-                                eventCategory.getValue());
+                        AuditLoggerName auditLoggerName = new AuditLoggerName.Builder().
+                                type(eventCategory.getKey().getType()).
+                                category(eventCategory.getKey().getCategory()).
+                                subcategory(eventCategory.getKey().getSubcategory()).
+                                event(CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
+                                        ? null : eventCategory.getKey().getEvents().iterator().next()).
+                                result(eventCategory.getValue()).build();
 
                         loggerRestClient.disableAudit(auditLoggerName);
                     }
@@ -108,13 +108,13 @@ public class Audit extends BasePage {
                         Pair<EventCategoryTO, AuditElements.Result> eventCategory =
                                 AuditLoggerName.parseEventCategory(toBeAdded);
 
-                        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                                eventCategory.getKey().getType(),
-                                eventCategory.getKey().getCategory(),
-                                eventCategory.getKey().getSubcategory(),
-                                CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                ? null : eventCategory.getKey().getEvents().iterator().next(),
-                                eventCategory.getValue());
+                        AuditLoggerName auditLoggerName = new AuditLoggerName.Builder().
+                                type(eventCategory.getKey().getType()).
+                                category(eventCategory.getKey().getCategory()).
+                                subcategory(eventCategory.getKey().getSubcategory()).
+                                event(CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
+                                        ? null : eventCategory.getKey().getEvents().iterator().next()).
+                                result(eventCategory.getValue()).build();
 
                         loggerRestClient.enableAudit(auditLoggerName);
                     }

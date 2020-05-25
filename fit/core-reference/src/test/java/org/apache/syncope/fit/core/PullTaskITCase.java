@@ -80,7 +80,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;

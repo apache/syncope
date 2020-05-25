@@ -28,6 +28,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;

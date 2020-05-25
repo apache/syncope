@@ -97,8 +97,8 @@ public class LoggerLoader implements SyncopeLoader {
             Appender appender = ctx.getConfiguration().getAppender("audit_for_" + entry.getKey());
             if (appender == null) {
                 appender = JdbcAppender.newBuilder().
-                        withName("audit_for_" + entry.getKey()).
-                        withIgnoreExceptions(false).
+                        setName("audit_for_" + entry.getKey()).
+                        setIgnoreExceptions(false).
                         setConnectionSource(new DataSourceConnectionSource(entry.getKey(), entry.getValue())).
                         setBufferSize(0).
                         setTableName("SYNCOPEAUDIT").

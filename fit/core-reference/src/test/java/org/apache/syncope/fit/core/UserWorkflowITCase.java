@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -53,7 +56,6 @@ import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +73,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createWithReject() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
@@ -157,7 +160,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createWithApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         PagedResult<WorkflowFormTO> forms =
@@ -242,7 +246,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createAndUnclaim() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         PagedResult<WorkflowFormTO> forms =
@@ -353,7 +358,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void updateApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         PagedResult<WorkflowFormTO> forms = userWorkflowService.getForms(
@@ -410,7 +416,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void availableTasks() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         UserTO user = createUser(UserITCase.getUniqueSampleTO("availableTasks@apache.org")).getEntity();
         assertEquals("active", user.getStatus());
@@ -442,7 +449,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE15() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         PagedResult<WorkflowFormTO> forms = userWorkflowService.getForms(

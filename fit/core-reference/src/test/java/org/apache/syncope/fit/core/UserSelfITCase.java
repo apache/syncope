@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.fit.ActivitiDetector;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -27,6 +25,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -57,8 +58,8 @@ import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ActivitiDetector;
 import org.apache.syncope.fit.ElasticsearchDetector;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,8 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. self-registration as admin: failure
         try {
@@ -102,7 +104,8 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
@@ -139,7 +142,8 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndUnclaim() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
@@ -238,7 +242,8 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void updateWithApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. create user as admin
         UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();

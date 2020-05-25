@@ -191,5 +191,4 @@ public class SCIMUserConf implements Serializable {
     public List<String> getX509Certificates() {
         return x509Certificates;
     }
-
 }

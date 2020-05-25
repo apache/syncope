@@ -18,12 +18,23 @@
  */
 package org.apache.syncope.core.workflow.api;
 
+import javax.ws.rs.core.MediaType;
+
 /**
  * Format for import / export of workflow definition.
  */
 public enum WorkflowDefinitionFormat {
 
-    XML,
-    JSON
+    XML(MediaType.APPLICATION_XML_TYPE),
+    JSON(MediaType.APPLICATION_JSON_TYPE);
 
+    private final MediaType mediaType;
+
+    WorkflowDefinitionFormat(final MediaType mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public MediaType getMediaType() {
+        return mediaType;
+    }
 }

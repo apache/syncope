@@ -24,6 +24,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import java.util.Date;
 import java.util.List;
@@ -32,6 +34,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -50,7 +53,6 @@ import org.apache.syncope.common.rest.api.beans.WorkflowFormQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.ActivitiDetector;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
-import org.junit.Assume;
 import org.junit.Test;
 
 public class SchedTaskITCase extends AbstractTaskITCase {
@@ -135,7 +137,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void recertification() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.XML);
+        assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         execTask(taskService, TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec598989", "JOB_FIRED", 50, false);
 

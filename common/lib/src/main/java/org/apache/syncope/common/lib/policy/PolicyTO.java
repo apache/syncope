@@ -101,5 +101,4 @@ public abstract class PolicyTO extends AbstractBaseBean implements EntityTO {
     public List<String> getUsedByRealms() {
         return usedByRealms;
     }
-
 }

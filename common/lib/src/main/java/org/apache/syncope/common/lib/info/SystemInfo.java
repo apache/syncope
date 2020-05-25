@@ -148,5 +148,4 @@ public class SystemInfo extends AbstractBaseBean {
             this.maxMemory = maxMemory;
         }
     }
-
 }

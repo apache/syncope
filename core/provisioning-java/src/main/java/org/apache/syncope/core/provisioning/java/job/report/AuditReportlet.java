@@ -95,13 +95,11 @@ public class AuditReportlet extends AbstractReportlet {
                 handler.endElement("", "", "before");
             }
 
-            if (auditEntry.getInput() != null) {
+            if (!auditEntry.getInputs().isEmpty()) {
                 handler.startElement("", "", "inputs", null);
-                for (Object inputObj : auditEntry.getInput()) {
-                    char[] input = ToStringBuilder.reflectionToString(
-                            inputObj, ToStringStyle.JSON_STYLE).toCharArray();
+                for (String input : auditEntry.getInputs()) {
                     handler.startElement("", "", "input", null);
-                    handler.characters(input, 0, input.length);
+                    handler.characters(input.toCharArray(), 0, input.length());
                     handler.endElement("", "", "input");
                 }
                 handler.endElement("", "", "inputs");

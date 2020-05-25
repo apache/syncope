@@ -73,5 +73,4 @@ public abstract class SchemaTO extends AbstractBaseBean implements EntityTO {
     public void setAnyTypeClass(final String anyTypeClass) {
         this.anyTypeClass = anyTypeClass;
     }
-
 }

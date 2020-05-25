@@ -131,7 +131,6 @@ under the License.
       </map>
     </property>
   </bean>
-  <bean id="sw2OpenAPI" class="org.apache.syncope.core.rest.cxf.SyncopeSwaggerToOpenApiConversionFilter"/>
 
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
@@ -160,7 +159,6 @@ under the License.
       <ref bean="addDomainFilter"/>
       <ref bean="addETagFilter"/>
       <ref bean="wadlGenerator"/>
-      <ref bean="sw2OpenAPI"/>
     </jaxrs:providers>
     <jaxrs:features>
       <ref bean="swagger2Feature"/>

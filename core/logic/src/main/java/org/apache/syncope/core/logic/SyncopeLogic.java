@@ -469,5 +469,4 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
 
         throw new UnresolvedReferenceException();
     }
-
 }

@@ -59,8 +59,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
         };
 
         return Response.ok(sout).
-                type(format == WorkflowDefinitionFormat.JSON
-                        ? MediaType.APPLICATION_JSON_TYPE : MediaType.APPLICATION_XHTML_XML_TYPE).
+                type(format.getMediaType()).
                 build();
     }
 

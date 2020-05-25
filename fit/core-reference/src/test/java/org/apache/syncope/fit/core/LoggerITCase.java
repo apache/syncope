@@ -136,12 +136,11 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void enableDisableAudit() {
-        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                EventCategoryType.LOGIC,
-                ReportLogic.class.getSimpleName(),
-                null,
-                "deleteExecution",
-                AuditElements.Result.FAILURE);
+        AuditLoggerName auditLoggerName = new AuditLoggerName.Builder().
+                type(EventCategoryType.LOGIC).
+                category(ReportLogic.class.getSimpleName()).
+                event("deleteExecution").
+                result(AuditElements.Result.FAILURE).build();
 
         List<AuditLoggerName> audits = LoggerWrapper.wrap(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
@@ -275,21 +274,19 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void customAuditAppender() throws IOException, InterruptedException {
-        AuditLoggerName auditLoggerResUpd = new AuditLoggerName(
-                EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS);
+        AuditLoggerName auditLoggerResUpd = new AuditLoggerName.Builder().
+                type(EventCategoryType.LOGIC).
+                category(ResourceLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build();
         LoggerTO resUpd = new LoggerTO();
         resUpd.setKey(auditLoggerResUpd.toLoggerName());
 
-        AuditLoggerName auditLoggerConnUpd = new AuditLoggerName(
-                EventCategoryType.LOGIC,
-                ConnectorLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS);
+        AuditLoggerName auditLoggerConnUpd = new AuditLoggerName.Builder().
+                type(EventCategoryType.LOGIC).
+                category(ConnectorLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build();
         LoggerTO connUpd = new LoggerTO();
         connUpd.setKey(auditLoggerConnUpd.toLoggerName());
 

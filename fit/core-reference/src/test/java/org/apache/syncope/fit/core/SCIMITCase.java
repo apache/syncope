@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -39,6 +40,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -65,7 +67,7 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.cxf.JacksonSCIMJsonProvider;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.SCIMDetector;
-import org.junit.Assume;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SCIMITCase extends AbstractITCase {
@@ -112,10 +114,14 @@ public class SCIMITCase extends AbstractITCase {
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());
     }
 
+    @Before
+    public void check() {
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
+        assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
+    }
+
     @Test
     public void serviceProviderConfig() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         Response response = webClient().path("ServiceProviderConfig").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
@@ -133,8 +139,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void resourceTypes() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         Response response = webClient().path("ResourceTypes").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
@@ -157,8 +161,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void schemas() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         Response response = webClient().path("Schemas").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
@@ -182,8 +184,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void read() throws IOException {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         Response response = webClient().path("Users").path("missing").get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
 
@@ -220,8 +220,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void conf() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         SCIMConf conf = scimConfService.get();
         assertNotNull(conf);
 
@@ -240,8 +238,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void list() throws IOException {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         Response response = webClient().path("Groups").query("count", 1100000).get();
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         SCIMError error = response.readEntity(SCIMError.class);
@@ -271,8 +267,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void search() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         // invalid filter
         Response response = webClient().path("Groups").query("filter", "invalid").get();
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
@@ -359,8 +353,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void createUser() throws JsonProcessingException {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         scimConfService.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString());
@@ -389,8 +381,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void replaceUser() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         scimConfService.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString());
@@ -412,8 +402,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void deleteUser() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         scimConfService.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString());
@@ -436,8 +424,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void createGroup() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         String displayName = UUID.randomUUID().toString();
 
         SCIMGroup group = new SCIMGroup(null, null, displayName);
@@ -470,8 +456,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void replaceGroup() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
         group.getMembers().add(new Member("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", null, null));
         Response response = webClient().path("Groups").post(group);
@@ -505,8 +489,6 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void deleteGroup() {
-        Assume.assumeTrue(SCIMDetector.isSCIMAvailable(webClient()));
-
         SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
         Response response = webClient().path("Groups").post(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());

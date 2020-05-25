@@ -19,7 +19,11 @@
 package org.apache.syncope.common.lib.log;
 
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement(name = "logAppender")
+@XmlType
 public class LogAppender extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5975199884460548302L;
@@ -33,5 +37,4 @@ public class LogAppender extends AbstractBaseBean {
     public void setName(final String name) {
         this.name = name;
     }
-
 }
