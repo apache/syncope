@@ -456,7 +456,7 @@ under the License.
     <mockito.version>3.3.0</mockito.version>
 
     <swagger-core.version>2.1.2</swagger-core.version>
-    <swagger-ui.version>3.25.3</swagger-ui.version>
+    <swagger-ui.version>3.25.4</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.5.1</jquery.version>
@@ -476,7 +476,7 @@ under the License.
     <wicket.version>9.0.0-M5</wicket.version>
     <wicket-jqueryui.version>9.0.0-M4</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.0-M2</wicket-bootstrap.version>
-    <wicket-spring-boot.version>3.0.2-RC</wicket-spring-boot.version>
+    <wicket-spring-boot.version>3.0.3-RC</wicket-spring-boot.version>
 
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
