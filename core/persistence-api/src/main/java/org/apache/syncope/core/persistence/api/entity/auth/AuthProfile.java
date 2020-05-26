@@ -34,7 +34,5 @@ public interface AuthProfile extends Entity {
 
     void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
 
-    void addGoogleMfaAuthToken(GoogleMfaAuthToken token);
-
-    void clearGoogleMfaAuthTokens();
+    void add(GoogleMfaAuthToken token);
 }

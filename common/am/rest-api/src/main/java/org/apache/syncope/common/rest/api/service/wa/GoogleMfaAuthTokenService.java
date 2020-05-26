@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
@@ -84,7 +84,7 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",
-            description = "GoogleMfaAuthTokenTO successfully created", headers = {
+            description = "GoogleMfaAuthToken successfully created", headers = {
             @Header(name = RESTHeaders.RESOURCE_KEY, schema =
             @Schema(type = "string"),
                 description = "UUID generated for the entity created")})})
@@ -92,26 +92,26 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("tokens")
-    Response save(@NotNull GoogleMfaAuthTokenTO tokenTO);
+    Response save(@NotNull GoogleMfaAuthToken token);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("tokens/${owner}/${token}")
-    GoogleMfaAuthTokenTO findTokenFor(@NotNull @PathParam("owner") String owner,
+    GoogleMfaAuthToken findTokenFor(@NotNull @PathParam("owner") String owner,
                                       @NotNull @PathParam("token") Integer token);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("tokens/owners/${owner}")
-    List<GoogleMfaAuthTokenTO> findTokensFor(@NotNull @PathParam("owner") String owner);
+    List<GoogleMfaAuthToken> findTokensFor(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Path("tokens/{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    GoogleMfaAuthTokenTO findTokenFor(@NotNull @PathParam("key") String key);
+    GoogleMfaAuthToken findTokenFor(@NotNull @PathParam("key") String key);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})

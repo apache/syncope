@@ -19,66 +19,31 @@
 
 package org.apache.syncope.core.logic;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
-import org.apache.syncope.core.provisioning.api.data.GoogleMfaAuthTokenDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Component
-public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMfaAuthTokenTO> {
-    @Autowired
-    private GoogleMfaAuthTokenDataBinder googleMfaAuthTokenDataBinder;
-
-    @Autowired
-    private AuthProfileDataBinder authProfileDataBinder;
-
+@Transactional(rollbackFor = { Throwable.class })
+public class GoogleMfaAuthTokenLogic {
     @Autowired
     private AuthProfileDAO authProfileDAO;
 
-    @Override
-    protected GoogleMfaAuthTokenTO resolveReference(final Method method, final Object... args)
-        throws UnresolvedReferenceException {
-        String owner = null;
-        Integer token = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; owner == null && token == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    owner = (String) args[i];
-                } else if (args[i] instanceof Integer) {
-                    token = (Integer) args[i];
-                } else if (args[i] instanceof GoogleMfaAuthTokenTO) {
-                    owner = ((GoogleMfaAuthTokenTO) args[i]).getOwner();
-                    token = ((GoogleMfaAuthTokenTO) args[i]).getToken();
-                }
-            }
-        }
-
-        if (owner != null && token != null) {
-            try {
-                return read(owner, token);
-            } catch (final Throwable e) {
-                LOG.debug("Unresolved reference", e);
-                throw new UnresolvedReferenceException(e);
-            }
-        }
-        throw new UnresolvedReferenceException();
-    }
+    @Autowired
+    private EntityFactory entityFactory;
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -88,7 +53,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
             forEach(profile -> removeTokenAndSave(profile,
                 token -> token.getIssueDate().compareTo(expirationDate) >= 0));
     }
-    
+
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final Integer otp) {
@@ -101,7 +66,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.clearGoogleMfaAuthTokens();
+            profile.setGoogleMfaAuthTokens(List.of());
             authProfileDAO.save(profile);
         });
     }
@@ -119,24 +84,30 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     public void deleteAll() {
         authProfileDAO.findAll().
             forEach(profile -> {
-                profile.clearGoogleMfaAuthTokens();
+                profile.setGoogleMfaAuthTokens(List.of());
                 authProfileDAO.save(profile);
             });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_SAVE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public GoogleMfaAuthTokenTO save(final GoogleMfaAuthTokenTO tokenTO) {
-        AuthProfile profile = authProfileDAO.findByOwner(tokenTO.getOwner()).
-            orElse(authProfileDataBinder.create(tokenTO.getOwner()));
-        GoogleMfaAuthToken googleMfaAuthToken = googleMfaAuthTokenDataBinder.create(tokenTO);
-        profile.addGoogleMfaAuthToken(googleMfaAuthToken);
+    public GoogleMfaAuthToken save(final GoogleMfaAuthToken token) {
+        AuthProfile profile = authProfileDAO.findByOwner(token.getOwner()).
+            orElseGet(() -> {
+                final AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
+                authProfile.setOwner(token.getOwner());
+                return authProfile;
+            });
+
+        if (token.getKey() == null) {
+            token.setKey(UUID.randomUUID().toString());
+        }
+        profile.add(token);
         profile = authProfileDAO.save(profile);
         return profile.getGoogleMfaAuthTokens().
             stream().
-            filter(token -> token.getToken().equals(tokenTO.getToken())).
+            filter(t -> t.getToken().equals(token.getToken())).
             findFirst().
-            map(token -> googleMfaAuthTokenDataBinder.getGoogleMfaAuthTokenTO(token)).
             orElse(null);
 
     }
@@ -144,28 +115,26 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public GoogleMfaAuthTokenTO read(final String owner, final Integer otp) {
+    public GoogleMfaAuthToken read(final String owner, final Integer otp) {
         return authProfileDAO.findByOwner(owner).
             stream().
             map(AuthProfile::getGoogleMfaAuthTokens).
             flatMap(List::stream).
             filter(token -> token.getToken().equals(otp)).
             findFirst().
-            map(googleMfaAuthTokenDataBinder::getGoogleMfaAuthTokenTO).
             orElse(null);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public GoogleMfaAuthTokenTO read(final String key) {
+    public GoogleMfaAuthToken read(final String key) {
         return authProfileDAO.findAll().
             stream().
             map(AuthProfile::getGoogleMfaAuthTokens).
             flatMap(List::stream).
             filter(token -> token.getKey().equals(key)).
             findFirst().
-            map(googleMfaAuthTokenDataBinder::getGoogleMfaAuthTokenTO).
             orElse(null);
     }
 
@@ -192,13 +161,10 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<GoogleMf
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public List<GoogleMfaAuthTokenTO> findTokensFor(final String owner) {
+    public List<GoogleMfaAuthToken> findTokensFor(final String owner) {
         return authProfileDAO.findByOwner(owner).
-            map(profile -> profile.getGoogleMfaAuthTokens().
-                stream().
-                map(googleMfaAuthTokenDataBinder::getGoogleMfaAuthTokenTO).
-                collect(Collectors.toList())).
-            orElse(List.of());
+            map(profile -> new ArrayList<>(profile.getGoogleMfaAuthTokens())).
+            orElse(new ArrayList<>(0));
     }
 
     private void removeTokenAndSave(final AuthProfile profile, final Predicate<GoogleMfaAuthToken> criteria) {

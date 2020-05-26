@@ -23,7 +23,7 @@ import org.apereo.cas.authentication.OneTimeToken;
 import org.apereo.cas.gauth.token.GoogleAuthenticatorToken;
 import org.apereo.cas.otp.repository.token.BaseOneTimeTokenRepository;
 
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.slf4j.Logger;
@@ -63,7 +63,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
     public void store(final OneTimeToken token) {
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthTokenService.class);
-        GoogleMfaAuthTokenTO tokenTO = new GoogleMfaAuthTokenTO.Builder()
+        GoogleMfaAuthToken tokenTO = new GoogleMfaAuthToken.Builder()
             .owner(token.getUserId())
             .token(token.getToken())
             .issueDate(Date.from(token.getIssuedDateTime().toInstant(ZoneOffset.UTC)))
@@ -76,7 +76,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         try {
             GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthTokenService.class);
-            GoogleMfaAuthTokenTO tokenTO = tokenService.findTokenFor(username, otp);
+            GoogleMfaAuthToken tokenTO = tokenService.findTokenFor(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getToken(), tokenTO.getOwner());
             LocalDateTime dateTime = tokenTO.getIssueDate().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             token.setIssuedDateTime(dateTime);

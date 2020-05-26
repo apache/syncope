@@ -19,7 +19,7 @@
 
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,11 +42,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    private static GoogleMfaAuthTokenTO createGoogleMfaAuthTokenTO() {
+    private static GoogleMfaAuthToken createGoogleMfaAuthToken() {
         Integer token = SECURE_RANDOM.ints(100_000, 999_999)
             .findFirst()
             .getAsInt();
-        return new GoogleMfaAuthTokenTO.Builder()
+        return new GoogleMfaAuthToken.Builder()
             .owner(UUID.randomUUID().toString())
             .token(token)
             .issueDate(new Date())
@@ -60,11 +60,11 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        GoogleMfaAuthTokenTO tokenTO = createGoogleMfaAuthTokenTO();
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         assertDoesNotThrow(new Executable() {
             @Override
             public void execute() throws Throwable {
-                Response response = googleMfaAuthTokenService.save(tokenTO);
+                Response response = googleMfaAuthTokenService.save(token);
                 if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                     Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
                     if (ex != null) {
@@ -77,15 +77,15 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @Test
     public void count() {
-        GoogleMfaAuthTokenTO tokenTO = createGoogleMfaAuthTokenTO();
-        googleMfaAuthTokenService.save(tokenTO);
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
+        googleMfaAuthTokenService.save(token);
         assertEquals(1, googleMfaAuthTokenService.countTokens());
-        assertEquals(1, googleMfaAuthTokenService.countTokensForOwner(tokenTO.getOwner()));
+        assertEquals(1, googleMfaAuthTokenService.countTokensForOwner(token.getOwner()));
     }
 
     @Test
     public void deleteByToken() {
-        GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         Response response = googleMfaAuthTokenService.save(token);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(key);
@@ -96,7 +96,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @Test
     public void deleteByOwner() {
-        GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         Response response = googleMfaAuthTokenService.save(token);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(key);
@@ -107,7 +107,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @Test
     public void deleteByOwnerAndToken() {
-        GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         Response response = googleMfaAuthTokenService.save(token);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(key);
@@ -119,7 +119,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     @Test
     public void deleteByDate() {
         Date dateTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
-        GoogleMfaAuthTokenTO token = createGoogleMfaAuthTokenTO();
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         final Response response = googleMfaAuthTokenService.deleteTokensByDate(dateTime);
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.NO_CONTENT.getStatusCode());
         assertTrue(googleMfaAuthTokenService.findTokensFor(token.getOwner()).isEmpty());

@@ -47,7 +47,7 @@ public class AuthProfileTest extends AbstractTest {
     public void googleMfaToken() {
         String id = UUID.randomUUID().toString();
 
-        createGoogleMfaToken(id, 123456);
+        createAuthProfileWithToken(id, 123456);
 
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
@@ -65,7 +65,7 @@ public class AuthProfileTest extends AbstractTest {
         assertFalse(authProfileDAO.findByOwner(id).isPresent());
     }
 
-    private AuthProfile createGoogleMfaToken(final String owner, final Integer otp) {
+    private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
         GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder()
@@ -73,7 +73,7 @@ public class AuthProfileTest extends AbstractTest {
             .token(otp)
             .owner(owner)
             .build();
-        profile.addGoogleMfaAuthToken(token);
+        profile.add(token);
         return authProfileDAO.save(profile);
     }
 }

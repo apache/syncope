@@ -34,8 +34,8 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
@@ -81,7 +81,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
     }
 
     public static class StubGoogleMfaAuthTokenService implements GoogleMfaAuthTokenService {
-        private final List<GoogleMfaAuthTokenTO> tokens = new ArrayList<>();
+        private final List<GoogleMfaAuthToken> tokens = new ArrayList<>();
 
         @Override
         public Response deleteTokensByDate(@NotNull final Date expirationDate) {
@@ -114,28 +114,28 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public Response save(@NotNull final GoogleMfaAuthTokenTO tokenTO) {
+        public Response save(@NotNull final GoogleMfaAuthToken tokenTO) {
             tokenTO.setKey(UUID.randomUUID().toString());
             tokens.add(tokenTO);
             return Response.ok().build();
         }
 
         @Override
-        public GoogleMfaAuthTokenTO findTokenFor(@NotNull final String user, @NotNull final Integer token) {
+        public GoogleMfaAuthToken findTokenFor(@NotNull final String user, @NotNull final Integer token) {
             return tokens.stream()
                 .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(user))
                 .findFirst().get();
         }
 
         @Override
-        public List<GoogleMfaAuthTokenTO> findTokensFor(@NotNull final String user) {
+        public List<GoogleMfaAuthToken> findTokensFor(@NotNull final String user) {
             return tokens.stream()
                 .filter(to -> to.getOwner().equalsIgnoreCase(user))
                 .collect(Collectors.toList());
         }
 
         @Override
-        public GoogleMfaAuthTokenTO findTokenFor(@NotNull final String key) {
+        public GoogleMfaAuthToken findTokenFor(@NotNull final String key) {
             return tokens.stream()
                 .filter(to -> to.getKey().equalsIgnoreCase(key))
                 .findFirst().get();

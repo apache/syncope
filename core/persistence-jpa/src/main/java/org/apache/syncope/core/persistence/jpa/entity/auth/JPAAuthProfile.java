@@ -70,15 +70,10 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public void addGoogleMfaAuthToken(final GoogleMfaAuthToken token) {
+    public void add(final GoogleMfaAuthToken token) {
         checkType(token, GoogleMfaAuthToken.class);
         final List<GoogleMfaAuthToken> tokens = getGoogleMfaAuthTokens();
         tokens.add(token);
         setGoogleMfaAuthTokens(tokens);
-    }
-
-    @Override
-    public void clearGoogleMfaAuthTokens() {
-        setGoogleMfaAuthTokens(List.of());
     }
 }

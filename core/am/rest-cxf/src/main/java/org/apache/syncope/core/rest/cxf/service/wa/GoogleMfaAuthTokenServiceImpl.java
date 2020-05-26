@@ -20,8 +20,8 @@
 package org.apache.syncope.core.rest.cxf.service.wa;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.GoogleMfaAuthTokenTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.core.logic.GoogleMfaAuthTokenLogic;
@@ -72,8 +72,8 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public Response save(final GoogleMfaAuthTokenTO tokenTO) {
-        final GoogleMfaAuthTokenTO token = logic.save(tokenTO);
+    public Response save(final GoogleMfaAuthToken tokenTO) {
+        final GoogleMfaAuthToken token = logic.save(tokenTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
         return Response.created(location).
             header(RESTHeaders.RESOURCE_KEY, token.getKey()).
@@ -81,22 +81,22 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public GoogleMfaAuthTokenTO findTokenFor(final String key) {
-        return logic.read(key);
-    }
-
-    @Override
-    public List<GoogleMfaAuthTokenTO> findTokensFor(final String owner) {
-        return logic.findTokensFor(owner);
-    }
-
-    @Override
-    public GoogleMfaAuthTokenTO findTokenFor(final String owner, final Integer otp) {
+    public GoogleMfaAuthToken findTokenFor(final String owner, final Integer otp) {
         try {
             return logic.read(owner, otp);
         } catch (final NotFoundException ex) {
             throw SyncopeClientException.build(ClientExceptionType.NotFound);
         }
+    }
+
+    @Override
+    public List<GoogleMfaAuthToken> findTokensFor(final String owner) {
+        return logic.findTokensFor(owner);
+    }
+
+    @Override
+    public GoogleMfaAuthToken findTokenFor(final String key) {
+        return logic.read(key);
     }
 
     @Override
