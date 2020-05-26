@@ -30,7 +30,7 @@ public enum BpmnProcessFormat {
 
     private final MediaType mediaType;
 
-    private BpmnProcessFormat(final MediaType mediaType) {
+    BpmnProcessFormat(final MediaType mediaType) {
         this.mediaType = mediaType;
     }
 
