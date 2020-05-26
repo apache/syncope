@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,28 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.syncope.core.provisioning.api.data;
 
-package org.apache.syncope.core.persistence.api.dao.auth;
-
-import org.apache.syncope.core.persistence.api.dao.DAO;
+import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 
-import java.util.List;
-import java.util.Optional;
+public interface AuthProfileDataBinder {
 
-public interface AuthProfileDAO extends DAO<AuthProfile> {
+    AuthProfileTO getAuthProfileTO(AuthProfile authProfile);
 
-    List<AuthProfile> findAll();
-
-    Optional<AuthProfile> findByOwner(String owner);
-
-    Optional<AuthProfile> findByKey(String key);
-
-    AuthProfile save(AuthProfile profile);
-
-    void deleteByKey(String key);
-
-    void deleteByOwner(String owner);
-
-    void delete(AuthProfile authProfile);
+    AuthProfile create(AuthProfileTO authProfileTO);
 }

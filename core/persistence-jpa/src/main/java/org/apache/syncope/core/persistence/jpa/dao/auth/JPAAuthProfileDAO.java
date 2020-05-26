@@ -73,4 +73,19 @@ public class JPAAuthProfileDAO extends AbstractDAO<AuthProfile> implements AuthP
     public AuthProfile save(final AuthProfile profile) {
         return entityManager().merge(profile);
     }
+
+    @Override
+    public void deleteByKey(final String key) {
+        findByKey(key).ifPresent(this::delete);
+    }
+
+    @Override
+    public void deleteByOwner(final String owner) {
+        findByOwner(owner).ifPresent(this::delete);
+    }
+
+    @Override
+    public void delete(final AuthProfile authProfile) {
+        entityManager().remove(authProfile);
+    }
 }

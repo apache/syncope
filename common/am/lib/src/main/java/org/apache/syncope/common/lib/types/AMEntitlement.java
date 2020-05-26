@@ -80,6 +80,14 @@ public final class AMEntitlement {
 
     public static final String GOOGLE_MFA_COUNT_TOKEN = "GOOGLE_MFA_COUNT_TOKEN";
 
+    public static final String AUTH_PROFILE_DELETE = "AUTH_PROFILE_DELETE";
+    
+    public static final String AUTH_PROFILE_READ = "AUTH_PROFILE_READ";
+
+    public static final String AUTH_PROFILE_LIST = "AUTH_PROFILE_LIST";
+
+    public static final String AUTH_PROFILE_CREATE = "AUTH_PROFILE_CREATE";
+
     private static final Set<String> VALUES;
 
     static {
