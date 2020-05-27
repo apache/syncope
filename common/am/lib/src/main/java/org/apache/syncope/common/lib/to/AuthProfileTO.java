@@ -73,7 +73,9 @@ public class AuthProfileTO extends BaseBean implements EntityTO {
     }
 
     public boolean add(final GoogleMfaAuthToken item) {
-        return Optional.ofNullable(item).filter(itemTO -> googleMfaAuthTokens.contains(itemTO) || googleMfaAuthTokens.add(itemTO)).isPresent();
+        return Optional.ofNullable(item).
+            filter(itemTO -> googleMfaAuthTokens.contains(itemTO) || googleMfaAuthTokens.add(itemTO)).
+            isPresent();
     }
 
     public boolean remove(final GoogleMfaAuthToken item) {
