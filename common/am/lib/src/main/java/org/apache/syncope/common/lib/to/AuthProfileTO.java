@@ -109,4 +109,28 @@ public class AuthProfileTO extends BaseBean implements EntityTO {
             append(googleMfaAuthTokens, other.googleMfaAuthTokens).
             build();
     }
+
+    public static class Builder {
+
+        private final AuthProfileTO instance = new AuthProfileTO();
+
+        public AuthProfileTO.Builder add(final GoogleMfaAuthToken googleMfaAuthToken) {
+            instance.add(googleMfaAuthToken);
+            return this;
+        }
+
+        public AuthProfileTO.Builder owner(final String owner) {
+            instance.setOwner(owner);
+            return this;
+        }
+
+        public AuthProfileTO.Builder key(final String key) {
+            instance.setKey(key);
+            return this;
+        }
+
+        public AuthProfileTO build() {
+            return instance;
+        }
+    }
 }

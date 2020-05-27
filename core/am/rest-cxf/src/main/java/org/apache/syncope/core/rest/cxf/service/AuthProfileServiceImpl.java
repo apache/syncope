@@ -19,14 +19,12 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;

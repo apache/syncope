@@ -36,15 +36,15 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         AuthProfileTO authProfileTO = new AuthProfileTO();
         authProfileTO.setKey(authProfile.getKey());
         authProfileTO.setOwner(authProfile.getOwner());
-        authProfile.getGoogleMfaAuthTokens().forEach(authProfile::add);
+        authProfile.getGoogleMfaAuthTokens().forEach(authProfileTO::add);
         return authProfileTO;
     }
 
     @Override
     public AuthProfile create(final AuthProfileTO authProfileTO) {
         AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-        authProfile.setOwner(authProfile.getOwner());
-        authProfile.setGoogleMfaAuthTokens(authProfile.getGoogleMfaAuthTokens());
+        authProfile.setOwner(authProfileTO.getOwner());
+        authProfile.setGoogleMfaAuthTokens(authProfileTO.getGoogleMfaAuthTokens());
         return authProfile;
     }
 }

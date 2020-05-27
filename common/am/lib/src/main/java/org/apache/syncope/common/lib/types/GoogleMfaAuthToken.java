@@ -123,7 +123,6 @@ public class GoogleMfaAuthToken implements Serializable {
 
         private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();
 
-
         public GoogleMfaAuthToken.Builder issueDate(final Date issued) {
             instance.setIssueDate(issued);
             return this;
