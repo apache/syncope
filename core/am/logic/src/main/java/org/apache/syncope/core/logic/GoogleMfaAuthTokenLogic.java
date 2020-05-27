@@ -19,17 +19,22 @@
 
 package org.apache.syncope.core.logic;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,13 +42,15 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 @Component
-@Transactional(rollbackFor = { Throwable.class })
-public class GoogleMfaAuthTokenLogic {
+public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<AuthProfileTO> {
     @Autowired
     private AuthProfileDAO authProfileDAO;
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private AuthProfileDataBinder authProfileDataBinder;
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_TOKEN + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -122,7 +129,7 @@ public class GoogleMfaAuthTokenLogic {
             flatMap(List::stream).
             filter(token -> token.getToken().equals(otp)).
             findFirst().
-            orElse(null);
+            orElseThrow(() -> new NotFoundException("Could not find token for Owner " + owner + " and otp " + otp));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
@@ -174,5 +181,33 @@ public class GoogleMfaAuthTokenLogic {
             profile.setGoogleMfaAuthTokens(tokens);
             authProfileDAO.save(profile);
         }
+    }
+
+    @Override
+    protected AuthProfileTO resolveReference(final Method method, final Object... args)
+        throws UnresolvedReferenceException {
+        String key = null;
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; key == null && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
+                } else if (args[i] instanceof AuthProfileTO) {
+                    key = ((AuthProfileTO) args[i]).getKey();
+                }
+            }
+        }
+
+        if (key != null) {
+            try {
+                return authProfileDAO.findByKey(key).
+                    map(authProfileDataBinder::getAuthProfileTO).
+                    orElseThrow();
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

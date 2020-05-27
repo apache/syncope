@@ -19,13 +19,10 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.core.logic.GoogleMfaAuthTokenLogic;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,11 +79,7 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
 
     @Override
     public GoogleMfaAuthToken findTokenFor(final String owner, final Integer otp) {
-        try {
-            return logic.read(owner, otp);
-        } catch (final NotFoundException ex) {
-            throw SyncopeClientException.build(ClientExceptionType.NotFound);
-        }
+        return logic.read(owner, otp);
     }
 
     @Override

@@ -86,8 +86,6 @@ public final class AMEntitlement {
 
     public static final String AUTH_PROFILE_LIST = "AUTH_PROFILE_LIST";
 
-    public static final String AUTH_PROFILE_CREATE = "AUTH_PROFILE_CREATE";
-
     private static final Set<String> VALUES;
 
     static {

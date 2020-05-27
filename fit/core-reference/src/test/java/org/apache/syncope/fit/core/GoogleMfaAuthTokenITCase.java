@@ -19,6 +19,8 @@
 
 package org.apache.syncope.fit.core;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
@@ -32,12 +34,15 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -81,6 +86,20 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         googleMfaAuthTokenService.save(token);
         assertEquals(1, googleMfaAuthTokenService.countTokens());
         assertEquals(1, googleMfaAuthTokenService.countTokensForOwner(token.getOwner()));
+    }
+
+    @Test
+    public void verifyProfile() {
+        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
+        googleMfaAuthTokenService.save(token);
+        final List<AuthProfileTO> results = authProfileService.list();
+        assertFalse(results.isEmpty());
+        AuthProfileTO profileTO = results.get(0);
+        assertNotNull(authProfileService.findByKey(profileTO.getKey()));
+        assertNotNull(authProfileService.findByOwner(profileTO.getOwner()));
+        Response response = authProfileService.deleteByOwner(token.getOwner());
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertThrows(SyncopeClientException.class, () -> authProfileService.findByOwner(token.getOwner()));
     }
 
     @Test

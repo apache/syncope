@@ -19,6 +19,7 @@
 
 package org.apache.syncope.core.logic;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -28,14 +29,13 @@ import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@Transactional(rollbackFor = {Throwable.class})
-public class AuthProfileLogic {
+public class AuthProfileLogic extends AbstractTransactionalLogic<AuthProfileTO> {
     @Autowired
     private AuthProfileDAO authProfileDAO;
 
@@ -78,8 +78,30 @@ public class AuthProfileLogic {
             collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_CREATE + "')")
-    public AuthProfileTO create(final AuthProfileTO authProfileTO) {
-        return authProfileDataBinder.getAuthProfileTO(authProfileDAO.save(authProfileDataBinder.create(authProfileTO)));
+    @Override
+    protected AuthProfileTO resolveReference(final Method method, final Object... args)
+        throws UnresolvedReferenceException {
+        String key = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; key == null && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
+                } else if (args[i] instanceof AuthProfileTO) {
+                    key = ((AuthProfileTO) args[i]).getKey();
+                }
+            }
+        }
+
+        if (key != null) {
+            try {
+                return findByKey(key);
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
+        throw new UnresolvedReferenceException();
     }
 }

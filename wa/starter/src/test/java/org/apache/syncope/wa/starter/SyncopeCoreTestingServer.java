@@ -121,9 +121,9 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public GoogleMfaAuthToken findTokenFor(@NotNull final String user, @NotNull final Integer token) {
+        public GoogleMfaAuthToken findTokenFor(@NotNull final String owner, @NotNull final Integer token) {
             return tokens.stream()
-                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(user))
+                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
                 .findFirst().get();
         }
 

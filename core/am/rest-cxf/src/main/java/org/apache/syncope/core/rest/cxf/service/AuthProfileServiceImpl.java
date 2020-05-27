@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
 
-import java.net.URI;
 import java.util.List;
 
 @Service
@@ -61,14 +59,5 @@ public class AuthProfileServiceImpl extends AbstractServiceImpl implements AuthP
     @Override
     public List<AuthProfileTO> list() {
         return logic.list();
-    }
-
-    @Override
-    public Response create(final AuthProfileTO authProfileTO) {
-        AuthProfileTO profileTO = logic.create(authProfileTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(profileTO.getKey()).build();
-        return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, profileTO.getKey()).
-            build();
     }
 }

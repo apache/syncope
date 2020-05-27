@@ -36,7 +36,7 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         AuthProfileTO authProfileTO = new AuthProfileTO();
         authProfileTO.setKey(authProfile.getKey());
         authProfileTO.setOwner(authProfile.getOwner());
-        authProfile.getGoogleMfaAuthTokens().forEach(authProfileTO::add);
+        authProfileTO.getGoogleMfaAuthTokens().addAll(authProfile.getGoogleMfaAuthTokens());
         return authProfileTO;
     }
 

@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @XmlRootElement(name = "authProfile")
 @XmlType
@@ -71,17 +70,7 @@ public class AuthProfileTO extends BaseBean implements EntityTO {
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens;
     }
-
-    public boolean add(final GoogleMfaAuthToken item) {
-        return Optional.ofNullable(item).
-            filter(itemTO -> googleMfaAuthTokens.contains(itemTO) || googleMfaAuthTokens.add(itemTO)).
-            isPresent();
-    }
-
-    public boolean remove(final GoogleMfaAuthToken item) {
-        return this.googleMfaAuthTokens.remove(item);
-    }
-
+    
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -113,11 +102,6 @@ public class AuthProfileTO extends BaseBean implements EntityTO {
     public static class Builder {
 
         private final AuthProfileTO instance = new AuthProfileTO();
-
-        public AuthProfileTO.Builder add(final GoogleMfaAuthToken googleMfaAuthToken) {
-            instance.add(googleMfaAuthToken);
-            return this;
-        }
 
         public AuthProfileTO.Builder owner(final String owner) {
             instance.setOwner(owner);

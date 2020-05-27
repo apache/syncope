@@ -99,7 +99,7 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("tokens/${owner}/${token}")
     GoogleMfaAuthToken findTokenFor(@NotNull @PathParam("owner") String owner,
-                                      @NotNull @PathParam("token") Integer token);
+                                    @NotNull @PathParam("token") Integer token);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
