@@ -438,7 +438,7 @@ under the License.
     <log4j.version>2.13.3</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
-    <commons-io.version>2.6</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.10</commons-lang.version>
@@ -2437,7 +2437,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
