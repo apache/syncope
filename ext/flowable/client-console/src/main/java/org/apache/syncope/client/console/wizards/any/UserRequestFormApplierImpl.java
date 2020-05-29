@@ -33,7 +33,7 @@ public class UserRequestFormApplierImpl implements Applier {
     }
 
     @Override
-    public void getClaimerForm(String key) {
+    public void getClaimerForm(final String key) {
         restClient.getForm(key).ifPresent(form -> claimForm(form.getTaskId()));
     }
 
