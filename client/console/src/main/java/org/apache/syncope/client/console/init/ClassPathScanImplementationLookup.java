@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.ExtWidget;
 import org.apache.syncope.client.console.annotations.Resource;
+import org.apache.syncope.client.console.annotations.UserRequestApplier;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
+import org.apache.syncope.client.console.wizards.any.Applier;
 
 public class ClassPathScanImplementationLookup {
 
@@ -112,6 +114,8 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends AbstractResource>> resources;
 
+    private List<Class<? extends Applier>> appliers;
+
     /**
      * This method can be overridden by subclasses to customize classpath scan.
      *
@@ -135,6 +139,7 @@ public class ClassPathScanImplementationLookup {
         pullCorrelationRuleConfs = new HashMap<>();
         pushCorrelationRuleConfs = new HashMap<>();
         resources = new ArrayList<>();
+        appliers = new ArrayList<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
@@ -149,6 +154,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(Applier.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -201,6 +207,8 @@ public class ClassPathScanImplementationLookup {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     Resource.class.getName(), clazz.getName());
                         }
+                    } else if (Applier.class.isAssignableFrom(clazz)) {
+                        appliers.add((Class<? extends Applier>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -229,6 +237,8 @@ public class ClassPathScanImplementationLookup {
 
         resources = Collections.unmodifiableList(resources);
 
+        appliers = Collections.unmodifiableList(appliers);
+
         LOG.debug("Binary previewers found: {}", previewers);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("Extension widgets found: {}", extWidgets);
@@ -240,6 +250,7 @@ public class ClassPathScanImplementationLookup {
         LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
         LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
         LOG.debug("Resources found: {}", resources);
+        LOG.debug("Applyer found {}", appliers);
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -298,5 +309,19 @@ public class ClassPathScanImplementationLookup {
 
     public List<Class<? extends AbstractResource>> getResources() {
         return resources;
+    }
+
+    public Class<? extends Applier> getApplyerClass(final String mode) {
+        LOG.debug("Searching for applier class for mode: {}", mode);
+        Class<? extends Applier> applier = null;
+        for (Class<? extends Applier> candidate : appliers) {
+            LOG.debug("Evaluating applier class {} for mode {}", candidate.getName(), mode);
+            if (candidate.isAnnotationPresent(UserRequestApplier.class)
+                    && ArrayUtils.contains(candidate.getAnnotation(UserRequestApplier.class).mode(), mode)) {
+                LOG.debug("Found existing applier for mode {}: {}", mode, candidate.getName());
+                applier = candidate;
+            }
+        }
+        return applier;
     }
 }

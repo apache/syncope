@@ -67,7 +67,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         CREATE,
         EDIT,
         TEMPLATE,
-        READONLY;
+        READONLY,
+        EDIT_APPROVAL;
 
     }
 

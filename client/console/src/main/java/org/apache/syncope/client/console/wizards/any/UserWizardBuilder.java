@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.ApplierUtils;
 import org.apache.syncope.client.console.layout.UserForm;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -82,6 +83,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                 result.setEntity(inner);
             } else {
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+
+                ApplierUtils.getInstance().getApplier(this.mode.name()).getClaimerForm(result.getEntity().getKey());
             }
         }
 

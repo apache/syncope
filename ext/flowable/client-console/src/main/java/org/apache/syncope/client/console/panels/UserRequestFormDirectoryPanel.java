@@ -25,14 +25,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
-import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -41,13 +39,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.widgets.UserRequestFormsWidget;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -247,14 +241,11 @@ public class UserRequestFormDirectoryPanel
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
                         new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
-                editItemActionEvent.forceModalPanel(new FormUserWizardBuilder(
-                        model.getObject(),
-                        previousUserTO,
-                        newUserTO,
+                editItemActionEvent.forceModalPanel(UserWizardBuilder.class.cast(AnyLayoutUtils.newLayoutInfo(newUserTO,
                         new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
-                        AnyLayoutUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getUser(),
-                        pageRef
-                ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
+                        AnyLayoutUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getUser(), pageRef))
+                        .build(BaseModal.CONTENT_ID, 0, AjaxWizard.Mode.EDIT_APPROVAL)
+                );
 
                 send(UserRequestFormDirectoryPanel.this, Broadcast.EXACT, editItemActionEvent);
             }
@@ -338,49 +329,4 @@ public class UserRequestFormDirectoryPanel
         }
     }
 
-    private class FormUserWizardBuilder extends UserWizardBuilder {
-
-        private static final long serialVersionUID = 1854981134836384069L;
-
-        private final UserRequestForm formTO;
-
-        FormUserWizardBuilder(
-                final UserRequestForm formTO,
-                final UserTO previousUserTO,
-                final UserTO userTO,
-                final List<String> anyTypeClasses,
-                final UserFormLayoutInfo formLayoutInfo,
-                final PageReference pageRef) {
-
-            super(previousUserTO, userTO, anyTypeClasses, formLayoutInfo, pageRef);
-            this.formTO = formTO;
-        }
-
-        @Override
-        protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
-            UserTO inner = modelObject.getInnerObject();
-
-            UserPatch patch = AnyOperations.diff(inner, formTO.getUserTO(), false);
-
-            if (StringUtils.isNotBlank(inner.getPassword())) {
-                PasswordPatch passwordPatch = new PasswordPatch.Builder().
-                        value(inner.getPassword()).onSyncope(true).resources(inner.
-                        getResources()).
-                        build();
-                patch.setPassword(passwordPatch);
-            }
-
-            // update just if it is changed
-            ProvisioningResult<UserTO> result;
-            if (patch.isEmpty()) {
-                result = new ProvisioningResult<>();
-                result.setEntity(inner);
-            } else {
-                result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-                restClient.getForm(result.getEntity().getKey()).ifPresent(form -> claimForm(form.getTaskId()));
-            }
-
-            return result;
-        }
-    }
 }
