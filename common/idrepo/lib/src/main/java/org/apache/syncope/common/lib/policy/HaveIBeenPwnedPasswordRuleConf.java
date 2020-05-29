@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "haveIBeenPwnedPasswordRuleConf")
-@XmlType
 public class HaveIBeenPwnedPasswordRuleConf extends AbstractPasswordRuleConf {
 
     private static final long serialVersionUID = -8962889598888347921L;

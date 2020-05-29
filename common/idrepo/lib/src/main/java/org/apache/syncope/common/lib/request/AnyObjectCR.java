@@ -21,24 +21,20 @@ package org.apache.syncope.common.lib.request;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 
-@XmlRootElement(name = "anyObjectCR")
-@XmlType
-@JsonPropertyOrder(value = { "@class", "name" })
+@JsonPropertyOrder(value = { "_class", "name" })
 @Schema(allOf = { AnyCR.class })
 public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
 
@@ -96,15 +92,15 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.AnyObjectCR")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.request.AnyObjectCR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getType() {
         return type;
     }
@@ -114,7 +110,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getName() {
         return name;
     }
@@ -131,9 +126,8 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
                 findFirst();
     }
 
-    @XmlElementWrapper(name = "relationships")
-    @XmlElement(name = "relationship")
-    @JsonProperty("relationships")
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
     @Override
     public List<RelationshipTO> getRelationships() {
         return relationships;
@@ -145,9 +139,8 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
-    @XmlElementWrapper(name = "memberships")
-    @XmlElement(name = "membership")
-    @JsonProperty("memberships")
+    @JacksonXmlElementWrapper(localName = "memberships")
+    @JacksonXmlProperty(localName = "membership")
     @Override
     public List<MembershipTO> getMemberships() {
         return memberships;

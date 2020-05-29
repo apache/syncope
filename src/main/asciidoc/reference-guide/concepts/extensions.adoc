@@ -59,32 +59,6 @@ endif::[]
 .
 ====
 
-==== Swagger
-
-This extension enables http://swagger.io/swagger-ui/[Swagger UI^] as web interface for dealing with Apache Syncope
-<<rest,RESTful>> services.
-
-Once installed, Swagger UI is available at
-
-....
-protocol://host:port/syncope/swagger/
-....
-
-where `protocol`, `host` and `port` reflect your deployment.
-
-[NOTE]
-.Extension Sources
-====
-The source code of this extension is available from the Apache Syncope
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/swagger-ui[source tree^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/swagger-ui[source tree^]
-endif::[]
-.
-====
-
 ==== SAML 2.0 Service Provider
 
 This extension can be leveraged to provide

@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
-
 /**
- * Sync/Push task matching rule.
+ * Pull/Push task matching rule.
  */
-@XmlEnum
 public enum MatchingRule {
 
     /**

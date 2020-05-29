@@ -23,23 +23,18 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "membership")
-@XmlType
-public class MembershipTO implements Serializable, Attributable {
+public class MembershipTO implements BaseBean, Attributable {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
@@ -117,9 +112,8 @@ public class MembershipTO implements Serializable, Attributable {
         this.groupName = groupName;
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -131,9 +125,8 @@ public class MembershipTO implements Serializable, Attributable {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "derAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derAttrs")
+    @JacksonXmlElementWrapper(localName = "derAttrs")
+    @JacksonXmlProperty(localName = "derAttr")
     @Override
     public Set<Attr> getDerAttrs() {
         return derAttrs;
@@ -145,9 +138,8 @@ public class MembershipTO implements Serializable, Attributable {
         return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
     @Override
     public Set<Attr> getVirAttrs() {
         return virAttrs;
@@ -194,8 +186,8 @@ public class MembershipTO implements Serializable, Attributable {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
-            append(this.groupKey).
-            append(this.groupName).
-            build();
+                append(this.groupKey).
+                append(this.groupName).
+                build();
     }
 }

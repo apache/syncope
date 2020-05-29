@@ -19,21 +19,17 @@
 package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "userUR")
-@XmlType
 @Schema(allOf = { AnyUR.class })
 public class UserUR extends AnyUR {
 
@@ -139,8 +135,9 @@ public class UserUR extends AnyUR {
 
     private final List<LinkedAccountUR> linkedAccounts = new ArrayList<>();
 
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.request.UserUR")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.request.UserUR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -186,30 +183,26 @@ public class UserUR extends AnyUR {
         this.mustChangePassword = mustChangePassword;
     }
 
-    @XmlElementWrapper(name = "relationships")
-    @XmlElement(name = "relationship")
-    @JsonProperty("relationships")
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
     public Set<RelationshipUR> getRelationships() {
         return relationships;
     }
 
-    @XmlElementWrapper(name = "memberships")
-    @XmlElement(name = "membership")
-    @JsonProperty("memberships")
+    @JacksonXmlElementWrapper(localName = "memberships")
+    @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
         return memberships;
     }
 
-    @XmlElementWrapper(name = "roles")
-    @XmlElement(name = "role")
-    @JsonProperty("roles")
+    @JacksonXmlElementWrapper(localName = "roles")
+    @JacksonXmlProperty(localName = "role")
     public Set<StringPatchItem> getRoles() {
         return roles;
     }
 
-    @XmlElementWrapper(name = "linkedAccounts")
-    @XmlElement(name = "linkedAccount")
-    @JsonProperty("linkedAccounts")
+    @JacksonXmlElementWrapper(localName = "linkedAccounts")
+    @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountUR> getLinkedAccounts() {
         return linkedAccounts;
     }

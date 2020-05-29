@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 
 /**
@@ -29,8 +27,6 @@ import org.apache.syncope.common.lib.types.PatchOperation;
  *
  * @param <T> {@code String}, {@code Boolean}
  */
-@XmlType
-@XmlSeeAlso({ BooleanReplacePatchItem.class, StringReplacePatchItem.class })
 public abstract class AbstractReplacePatchItem<T> extends AbstractPatchItem<T> {
 
     private static final long serialVersionUID = 2027599764019829563L;

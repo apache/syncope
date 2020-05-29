@@ -20,25 +20,18 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-@XmlRootElement(name = "group")
-@XmlType
 @Schema(allOf = { AnyTO.class })
 public class GroupTO extends AnyTO {
 
@@ -60,14 +53,13 @@ public class GroupTO extends AnyTO {
 
     private int dynamicAnyObjectMembershipCount;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.GroupTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.GroupTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -147,7 +139,6 @@ public class GroupTO extends AnyTO {
         this.dynamicAnyObjectMembershipCount = dynamicAnyObjectMembershipCount;
     }
 
-    @JsonProperty
     public Map<String, String> getADynMembershipConds() {
         return adynMembershipConds;
     }
@@ -159,9 +150,8 @@ public class GroupTO extends AnyTO {
                 findFirst();
     }
 
-    @XmlElementWrapper(name = "typeExtensions")
-    @XmlElement(name = "typeExtension")
-    @JsonProperty("typeExtensions")
+    @JacksonXmlElementWrapper(localName = "typeExtensions")
+    @JacksonXmlProperty(localName = "typeExtension")
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }

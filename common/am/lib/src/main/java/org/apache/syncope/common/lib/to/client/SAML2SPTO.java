@@ -19,16 +19,12 @@
 package org.apache.syncope.common.lib.to.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
-@XmlRootElement(name = "saml2SP")
-@XmlType
 @Schema(allOf = { ClientAppTO.class })
 public class SAML2SPTO extends ClientAppTO {
 
@@ -60,9 +56,9 @@ public class SAML2SPTO extends ClientAppTO {
 
     private String serviceProviderNameIdQualifier;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.client.SAML2SPTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.client.SAML2SPTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

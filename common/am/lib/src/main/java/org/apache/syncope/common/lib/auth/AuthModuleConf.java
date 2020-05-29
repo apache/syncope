@@ -19,12 +19,10 @@
 package org.apache.syncope.common.lib.auth;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlTransient;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlTransient
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface AuthModuleConf extends Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+public interface AuthModuleConf extends BaseBean {
 
     /**
      * Given name of related authentication module instance.

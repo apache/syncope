@@ -18,20 +18,14 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
-@XmlRootElement(name = "saml2idp")
-@XmlType
 public class SAML2IdPTO implements EntityTO, ItemContainerTO {
 
     private static final long serialVersionUID = 4426527052873779881L;
@@ -179,13 +173,12 @@ public class SAML2IdPTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return Optional.ofNullable(connObjectKeyItem)
-            .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
+        return Optional.ofNullable(connObjectKeyItem).
+                map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
     }
 
-    @XmlElementWrapper(name = "items")
-    @XmlElement(name = "item")
-    @JsonProperty("items")
+    @JacksonXmlElementWrapper(localName = "items")
+    @JacksonXmlProperty(localName = "item")
     @Override
     public List<ItemTO> getItems() {
         return items;
@@ -193,17 +186,15 @@ public class SAML2IdPTO implements EntityTO, ItemContainerTO {
 
     @Override
     public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item)
-            .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
+        return Optional.ofNullable(item).filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
     }
 
     public boolean remove(final ItemTO item) {
         return this.items.remove(item);
     }
 
-    @XmlElementWrapper(name = "actions")
-    @XmlElement(name = "action")
-    @JsonProperty("actions")
+    @JacksonXmlElementWrapper(localName = "actions")
+    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }

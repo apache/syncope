@@ -19,9 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.ws.rs.core.MediaType;
-import javax.xml.bind.annotation.XmlEnum;
 
-@XmlEnum
 public enum MailTemplateFormat {
 
     HTML(MediaType.TEXT_HTML_TYPE),
@@ -36,5 +34,4 @@ public enum MailTemplateFormat {
     public MediaType getMediaType() {
         return mediaType;
     }
-
 }

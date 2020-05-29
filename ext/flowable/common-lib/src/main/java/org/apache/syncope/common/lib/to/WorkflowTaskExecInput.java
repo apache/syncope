@@ -18,25 +18,17 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
-@XmlRootElement(name = "workflowTaskExecInput")
-@XmlType
 public class WorkflowTaskExecInput implements Serializable {
 
     private static final long serialVersionUID = 8060283119070901756L;
 
     private String userKey;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> variables = new HashMap<>();
 
     public String getUserKey() {
@@ -48,7 +40,6 @@ public class WorkflowTaskExecInput implements Serializable {
         this.userKey = userKey;
     }
 
-    @JsonProperty
     public Map<String, String> getVariables() {
         return variables;
     }

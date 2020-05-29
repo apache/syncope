@@ -136,12 +136,6 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.syncope.ext</groupId>
-      <artifactId>syncope-ext-swagger-ui</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
     <!-- JDBC drivers -->
     <dependency>
       <groupId>org.postgresql</groupId>

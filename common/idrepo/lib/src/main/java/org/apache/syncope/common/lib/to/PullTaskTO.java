@@ -19,50 +19,37 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.PullMode;
 
-@XmlRootElement(name = "pullTask")
-@XmlType
-@XmlAccessorType(XmlAccessType.FIELD)
 @Schema(allOf = { ProvisioningTaskTO.class })
 public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     private PullMode pullMode;
 
     private String reconFilterBuilder;
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     private String destinationRealm;
 
     private boolean remediation;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PullTaskTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.PullTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, AnyTO> templates = new HashMap<>();
 
     public PullMode getPullMode() {
@@ -89,7 +76,6 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
         this.destinationRealm = destinationRealm;
     }
 
-    @JsonProperty
     @Override
     public Map<String, AnyTO> getTemplates() {
         return templates;

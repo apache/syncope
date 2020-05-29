@@ -19,18 +19,7 @@
 package org.apache.syncope.common.lib;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.log.AuditEntry;
-import org.apache.syncope.common.lib.to.AbstractStartEndBean;
-import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.RealmTO;
 
-@XmlType
-@XmlSeeAlso({ AbstractStartEndBean.class, AccessTokenTO.class, AuditEntry.class, AnyTO.class, RealmTO.class })
-public abstract class BaseBean implements Serializable {
-
-    private static final long serialVersionUID = 8243277089603485380L;
+public interface BaseBean extends Serializable {
 
 }

@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.common.lib.log;
 
-import java.io.Serializable;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 
-@XmlRootElement(name = "logger")
-@XmlType
-public class LoggerTO implements Serializable {
+public class LoggerTO implements BaseBean {
 
     private static final long serialVersionUID = -7794833835668648505L;
 

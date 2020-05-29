@@ -18,21 +18,19 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider;
-import java.util.Map;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
-import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
-import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.rest.cxf.SyncopeObjectMapper;
+import org.apache.syncope.core.rest.cxf.SyncopeXmlMapper;
 import org.apache.syncope.core.rest.cxf.SyncopeYAMLMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,29 +44,22 @@ public class RESTCXFTestContext {
     }
 
     @Bean
-    public JAXBElementProvider<?> jaxbProvider() {
-        JAXBElementProvider<?> jaxbProvider = new JAXBElementProvider<>();
-        jaxbProvider.setNamespacePrefixes(Map.of(SyncopeConstants.NS, SyncopeConstants.NS_PREFIX));
-
-        DocumentDepthProperties documentDepthProperties = new DocumentDepthProperties();
-        documentDepthProperties.setInnerElementCountThreshold(500);
-        jaxbProvider.setDepthProperties(documentDepthProperties);
-
-        jaxbProvider.setCollectionWrapperMap(Map.of("org.apache.syncope.common.lib.policy.PolicyTO", "policies"));
-
-        return jaxbProvider;
+    public JacksonXMLProvider xmlProvider() {
+        JacksonXMLProvider xmlProvider = new JacksonXMLProvider();
+        xmlProvider.setMapper(new SyncopeXmlMapper());
+        return xmlProvider;
     }
 
     @Bean
-    public JacksonJaxbJsonProvider jsonProvider() {
-        JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+    public JacksonJsonProvider jsonProvider() {
+        JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
         jsonProvider.setMapper(new SyncopeObjectMapper());
         return jsonProvider;
     }
 
     @Bean
-    public JacksonJaxbYAMLProvider yamlProvider() {
-        JacksonJaxbYAMLProvider yamlProvider = new JacksonJaxbYAMLProvider();
+    public JacksonYAMLProvider yamlProvider() {
+        JacksonYAMLProvider yamlProvider = new JacksonYAMLProvider();
         yamlProvider.setMapper(new SyncopeYAMLMapper());
         return yamlProvider;
     }

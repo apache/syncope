@@ -18,21 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "role")
-@XmlType
 public class RoleTO implements EntityTO {
 
     private static final long serialVersionUID = 4560822655754800031L;
@@ -60,23 +55,20 @@ public class RoleTO implements EntityTO {
         this.key = key;
     }
 
-    @XmlElementWrapper(name = "entitlements")
-    @XmlElement(name = "entitlement")
-    @JsonProperty("entitlements")
+    @JacksonXmlElementWrapper(localName = "entitlements")
+    @JacksonXmlProperty(localName = "entitlement")
     public Set<String> getEntitlements() {
         return entitlements;
     }
 
-    @XmlElementWrapper(name = "realms")
-    @XmlElement(name = "realm")
-    @JsonProperty("realms")
+    @JacksonXmlElementWrapper(localName = "realms")
+    @JacksonXmlProperty(localName = "realm")
     public List<String> getRealms() {
         return realms;
     }
 
-    @XmlElementWrapper(name = "dynRealms")
-    @XmlElement(name = "dynRealm")
-    @JsonProperty("dynRealms")
+    @JacksonXmlElementWrapper(localName = "dynRealms")
+    @JacksonXmlProperty(localName = "dynRealm")
     public List<String> getDynRealms() {
         return dynRealms;
     }
@@ -89,9 +81,8 @@ public class RoleTO implements EntityTO {
         this.dynMembershipCond = dynMembershipCond;
     }
 
-    @XmlElementWrapper(name = "privileges")
-    @XmlElement(name = "privilege")
-    @JsonProperty("privileges")
+    @JacksonXmlElementWrapper(localName = "privileges")
+    @JacksonXmlProperty(localName = "privilege")
     public Set<String> getPrivileges() {
         return privileges;
     }

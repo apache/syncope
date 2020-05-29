@@ -18,20 +18,12 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 
-@XmlType
-@XmlSeeAlso({ PullPolicyTO.class, PushPolicyTO.class })
 @Schema(allOf = { PolicyTO.class })
 public abstract class ProvisioningPolicyTO extends PolicyTO {
 
@@ -39,7 +31,6 @@ public abstract class ProvisioningPolicyTO extends PolicyTO {
 
     private ConflictResolutionAction conflictResolutionAction;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> correlationRules = new HashMap<>();
 
     public ConflictResolutionAction getConflictResolutionAction() {
@@ -50,7 +41,6 @@ public abstract class ProvisioningPolicyTO extends PolicyTO {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
-    @JsonProperty
     public Map<String, String> getCorrelationRules() {
         return correlationRules;
     }

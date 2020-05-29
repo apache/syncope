@@ -18,19 +18,14 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
-@XmlRootElement(name = "item")
-@XmlType
 public class ItemTO implements EntityTO {
 
     private static final long serialVersionUID = 2983498836767176862L;
@@ -154,9 +149,8 @@ public class ItemTO implements EntityTO {
         this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
-    @XmlElementWrapper(name = "transformers")
-    @XmlElement(name = "transformer")
-    @JsonProperty("transformers")
+    @JacksonXmlElementWrapper(localName = "transformers")
+    @JacksonXmlProperty(localName = "transformer")
     public List<String> getTransformers() {
         return transformers;
     }

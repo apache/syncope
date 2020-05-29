@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib.log;
 
-import java.io.Serializable;
+import org.apache.syncope.common.lib.BaseBean;
 
-public class LogAppender implements Serializable {
+public class LogAppender implements BaseBean {
 
     private static final long serialVersionUID = 5975199884460548302L;
 

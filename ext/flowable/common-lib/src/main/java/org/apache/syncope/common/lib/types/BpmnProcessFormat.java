@@ -18,12 +18,23 @@
  */
 package org.apache.syncope.common.lib.types;
 
+import javax.ws.rs.core.MediaType;
+
 /**
  * Format for import / export of workflow definition.
  */
 public enum BpmnProcessFormat {
 
-    XML,
-    JSON
+    XML(MediaType.APPLICATION_XML_TYPE),
+    JSON(MediaType.APPLICATION_JSON_TYPE);
 
+    private final MediaType mediaType;
+
+    BpmnProcessFormat(final MediaType mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public MediaType getMediaType() {
+        return mediaType;
+    }
 }

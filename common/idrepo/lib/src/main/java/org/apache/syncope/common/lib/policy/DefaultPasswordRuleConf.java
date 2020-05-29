@@ -18,19 +18,14 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 
-@XmlRootElement(name = "defaultPasswordRuleConf")
-@XmlType
 public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
 
     private static final long serialVersionUID = -7988778083915548547L;
@@ -317,30 +312,26 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
         this.usernameAllowed = usernameAllowed;
     }
 
-    @XmlElementWrapper(name = "wordsNotPermitted")
-    @XmlElement(name = "word")
-    @JsonProperty("wordsNotPermitted")
+    @JacksonXmlElementWrapper(localName = "wordsNotPermitted")
+    @JacksonXmlProperty(localName = "word")
     public List<String> getWordsNotPermitted() {
         return wordsNotPermitted;
     }
 
-    @XmlElementWrapper(name = "prefixesNotPermitted")
-    @XmlElement(name = "prefix")
-    @JsonProperty("prefixesNotPermitted")
+    @JacksonXmlElementWrapper(localName = "prefixesNotPermitted")
+    @JacksonXmlProperty(localName = "prefix")
     public List<String> getPrefixesNotPermitted() {
         return prefixesNotPermitted;
     }
 
-    @XmlElementWrapper(name = "schemasNotPermitted")
-    @XmlElement(name = "schema")
-    @JsonProperty("schemasNotPermitted")
+    @JacksonXmlElementWrapper(localName = "schemasNotPermitted")
+    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
     }
 
-    @XmlElementWrapper(name = "suffixesNotPermitted")
-    @XmlElement(name = "suffix")
-    @JsonProperty("suffixesNotPermitted")
+    @JacksonXmlElementWrapper(localName = "suffixesNotPermitted")
+    @JacksonXmlProperty(localName = "suffix")
     public List<String> getSuffixesNotPermitted() {
         return suffixesNotPermitted;
     }

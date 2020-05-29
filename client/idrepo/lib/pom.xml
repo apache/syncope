@@ -57,6 +57,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-xml-provider</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-yaml-provider</artifactId>
     </dependency>
 

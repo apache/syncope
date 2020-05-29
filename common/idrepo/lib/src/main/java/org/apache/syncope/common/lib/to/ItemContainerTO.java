@@ -19,8 +19,9 @@
 package org.apache.syncope.common.lib.to;
 
 import java.util.List;
+import org.apache.syncope.common.lib.BaseBean;
 
-public interface ItemContainerTO {
+public interface ItemContainerTO extends BaseBean {
 
     ItemTO getConnObjectKeyItem();
 

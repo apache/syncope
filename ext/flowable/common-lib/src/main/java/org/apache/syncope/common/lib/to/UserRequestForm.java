@@ -20,22 +20,28 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.request.UserUR;
 
-@XmlRootElement(name = "userRequestForm")
-@XmlType
-public class UserRequestForm extends BaseBean {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "bpmnProcess" })
+public class UserRequestForm implements BaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
+
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    private final String clazz = "org.apache.syncope.common.lib.to.UserRequestForm";
 
     private String bpmnProcess;
 
@@ -100,33 +106,19 @@ public class UserRequestForm extends BaseBean {
     }
 
     public Date getCreateTime() {
-        if (createTime != null) {
-            return new Date(createTime.getTime());
-        }
-        return null;
+        return Optional.ofNullable(createTime).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setCreateTime(final Date createTime) {
-        if (createTime != null) {
-            this.createTime = new Date(createTime.getTime());
-        } else {
-            this.createTime = null;
-        }
+        this.createTime = Optional.ofNullable(createTime).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public Date getDueDate() {
-        if (dueDate != null) {
-            return new Date(dueDate.getTime());
-        }
-        return null;
+        return Optional.ofNullable(dueDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setDueDate(final Date dueDate) {
-        if (dueDate != null) {
-            this.dueDate = new Date(dueDate.getTime());
-        } else {
-            this.dueDate = null;
-        }
+        this.dueDate = Optional.ofNullable(dueDate).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public String getAssignee() {
@@ -158,10 +150,53 @@ public class UserRequestForm extends BaseBean {
         return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
     }
 
-    @XmlElementWrapper(name = "properties")
-    @XmlElement(name = "property")
-    @JsonProperty("properties")
+    @JacksonXmlElementWrapper(localName = "properties")
+    @JacksonXmlProperty(localName = "property")
     public List<UserRequestFormProperty> getProperties() {
         return properties;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(bpmnProcess).
+                append(username).
+                append(executionId).
+                append(taskId).
+                append(formKey).
+                append(createTime).
+                append(dueDate).
+                append(assignee).
+                append(userTO).
+                append(userUR).
+                append(properties).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        UserRequestForm other = (UserRequestForm) obj;
+        return new EqualsBuilder().
+                append(bpmnProcess, other.bpmnProcess).
+                append(username, other.username).
+                append(executionId, other.executionId).
+                append(taskId, other.taskId).
+                append(formKey, other.formKey).
+                append(createTime, other.createTime).
+                append(dueDate, other.dueDate).
+                append(assignee, other.assignee).
+                append(userTO, other.userTO).
+                append(userUR, other.userUR).
+                append(properties, other.properties).
+                build();
     }
 }

@@ -426,8 +426,7 @@ public class SAML2ITCase extends AbstractITCase {
         // Validate the SAML Response
         response.setSamlResponse(Base64.getEncoder().encodeToString(responseStr.getBytes()));
         response.setRelayState("idpInitiated");
-        SAML2LoginResponseTO loginResponse =
-                saml2Service.validateLoginResponse(response);
+        SAML2LoginResponseTO loginResponse = saml2Service.validateLoginResponse(response);
         assertNotNull(loginResponse.getAccessToken());
         assertEquals("puccini", loginResponse.getNameID());
     }
@@ -467,8 +466,8 @@ public class SAML2ITCase extends AbstractITCase {
     }
 
     private static org.opensaml.saml.saml2.core.Response createResponse(
-        final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
-        final String issuer) throws Exception {
+            final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
+            final String issuer) throws Exception {
 
         Status status = SAML2PResponseComponentBuilder.createStatus(
                 SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null);

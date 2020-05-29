@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.common.lib.BaseBean;
 
-public final class AuditElements implements Serializable {
+public final class AuditElements implements BaseBean {
 
     private static final long serialVersionUID = -4385059255522273254L;
 
@@ -29,7 +28,6 @@ public final class AuditElements implements Serializable {
 
     public static final String LOGIN_EVENT = "login";
 
-    @XmlEnum
     public enum EventCategoryType {
 
         LOGIC("LOGIC"),
@@ -52,7 +50,6 @@ public final class AuditElements implements Serializable {
         }
     }
 
-    @XmlEnum
     public enum Result {
 
         SUCCESS,

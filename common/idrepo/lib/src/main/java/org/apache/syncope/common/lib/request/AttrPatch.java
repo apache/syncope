@@ -19,14 +19,10 @@
 package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
 
-@XmlRootElement(name = "attrPatch")
-@XmlType
 public class AttrPatch extends AbstractPatch {
 
     private static final long serialVersionUID = 6881634224246176673L;

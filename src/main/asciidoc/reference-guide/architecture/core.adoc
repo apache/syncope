@@ -32,9 +32,6 @@ This interface enables third-party applications, written in any programming lang
 The rich pre-defined set of endpoints can be <<extensions,extended>> by adding new ones, which might be needed on a
 given Apache Syncope deployment to complement the native features with domain-specific operations.
 
-An <<swagger,extension>> is also available, providing full http://swagger.io/[Swagger^] features,
-which enables in-browser access to all the REST endpoints defined.
-
 At a technical level, the RESTful interface is a fully-compliant 
 https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.1^] implementation based on 
 http://cxf.apache.org[Apache CXF^], natively dealing either with JSON, YAML and XML payloads.

@@ -257,7 +257,7 @@ public class RealmITCase extends AbstractITCase {
         DefaultAccessPolicyConf ruleConf = new DefaultAccessPolicyConf();
         ruleConf.setEnabled(true);
         ruleConf.setName("TestAccessPolicyConf" + getUUIDString());
-        ruleConf.getRequiredAttrs().put("cn", Set.of("admin", "Admin", "TheAdmin"));
+        ruleConf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
 
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setDescription("Test Access policy");

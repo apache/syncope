@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,19 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
-@XmlRootElement(name = "realm")
-@XmlType
-public class RealmTO extends BaseBean implements NamedEntityTO, TemplatableTO {
+public class RealmTO implements NamedEntityTO, TemplatableTO {
 
     private static final long serialVersionUID = 516330662956254391L;
 
@@ -62,7 +54,6 @@ public class RealmTO extends BaseBean implements NamedEntityTO, TemplatableTO {
 
     private final List<String> actions = new ArrayList<>();
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, AnyTO> templates = new HashMap<>();
 
     private final Set<String> resources = new HashSet<>();
@@ -144,22 +135,19 @@ public class RealmTO extends BaseBean implements NamedEntityTO, TemplatableTO {
         this.attrReleasePolicy = attrReleasePolicy;
     }
 
-    @XmlElementWrapper(name = "actions")
-    @XmlElement(name = "action")
-    @JsonProperty("actions")
+    @JacksonXmlElementWrapper(localName = "actions")
+    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }
 
-    @JsonProperty
     @Override
     public Map<String, AnyTO> getTemplates() {
         return templates;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
+    @JacksonXmlElementWrapper(localName = "resources")
+    @JacksonXmlProperty(localName = "resource")
     public Set<String> getResources() {
         return resources;
     }

@@ -19,24 +19,19 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 
-@XmlRootElement(name = "connInstance")
-@XmlType
 public class ConnInstanceTO implements EntityTO {
 
     private static final long serialVersionUID = 2707778645445168671L;
@@ -114,9 +109,8 @@ public class ConnInstanceTO implements EntityTO {
         this.version = version;
     }
 
-    @XmlElementWrapper(name = "conf")
-    @XmlElement(name = "property")
-    @JsonProperty("conf")
+    @JacksonXmlElementWrapper(localName = "conf")
+    @JacksonXmlProperty(localName = "property")
     public List<ConnConfProperty> getConf() {
         return this.conf;
     }
@@ -126,9 +120,8 @@ public class ConnInstanceTO implements EntityTO {
         return conf.stream().filter(property -> property.getSchema().getName().equals(schemaName)).findFirst();
     }
 
-    @XmlElementWrapper(name = "capabilities")
-    @XmlElement(name = "capability")
-    @JsonProperty("capabilities")
+    @JacksonXmlElementWrapper(localName = "capabilities")
+    @JacksonXmlProperty(localName = "capability")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }

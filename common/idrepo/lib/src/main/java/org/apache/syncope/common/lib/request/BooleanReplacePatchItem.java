@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "booleanReplacePatchItem")
-@XmlType
 public class BooleanReplacePatchItem extends AbstractReplacePatchItem<Boolean> {
 
     private static final long serialVersionUID = 4013349284181583101L;

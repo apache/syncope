@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import java.io.Serializable;
 import java.util.List;
+import org.apache.syncope.common.lib.BaseBean;
 
 @FunctionalInterface
-public interface ComposablePolicy extends Serializable {
+public interface ComposablePolicy extends BaseBean {
 
     /**
      * Return policy rules.

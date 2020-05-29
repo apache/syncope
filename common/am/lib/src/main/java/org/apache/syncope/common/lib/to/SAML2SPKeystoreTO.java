@@ -21,15 +21,9 @@ package org.apache.syncope.common.lib.to;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.syncope.common.lib.BaseBean;
-
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "saml2spMetadataKeystore")
-@XmlType
-public class SAML2SPKeystoreTO extends BaseBean implements EntityTO {
+public class SAML2SPKeystoreTO implements EntityTO {
 
     private static final long serialVersionUID = 3211073386484148953L;
 
@@ -69,10 +63,10 @@ public class SAML2SPKeystoreTO extends BaseBean implements EntityTO {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-            append(key).
-            append(keystore).
-            append(owner).
-            build();
+                append(key).
+                append(keystore).
+                append(owner).
+                build();
     }
 
     @Override
@@ -88,19 +82,19 @@ public class SAML2SPKeystoreTO extends BaseBean implements EntityTO {
         }
         SAML2SPKeystoreTO other = (SAML2SPKeystoreTO) obj;
         return new EqualsBuilder().
-            append(key, other.key).
-            append(keystore, other.keystore).
-            append(owner, other.owner).
-            build();
+                append(key, other.key).
+                append(keystore, other.keystore).
+                append(owner, other.owner).
+                build();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .appendSuper(super.toString())
-            .append("key", key)
-            .append("owner", owner)
-            .toString();
+                .appendSuper(super.toString())
+                .append("key", key)
+                .append("owner", owner)
+                .toString();
     }
 
     public static class Builder {
@@ -121,5 +115,4 @@ public class SAML2SPKeystoreTO extends BaseBean implements EntityTO {
             return instance;
         }
     }
-
 }

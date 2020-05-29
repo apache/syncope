@@ -18,23 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 
-@XmlRootElement(name = "authModule")
-@XmlType
-public class AuthModuleTO extends BaseBean implements EntityTO {
+public class AuthModuleTO implements EntityTO {
 
     private static final long serialVersionUID = -7490425997956703057L;
 
@@ -83,9 +75,6 @@ public class AuthModuleTO extends BaseBean implements EntityTO {
         this.conf = conf;
     }
 
-    @XmlElementWrapper(name = "items")
-    @XmlElement(name = "item")
-    @JsonProperty("items")
     public List<ItemTO> getItems() {
         return items;
     }

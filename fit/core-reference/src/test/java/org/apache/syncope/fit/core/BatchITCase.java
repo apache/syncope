@@ -28,7 +28,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -39,10 +38,6 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -69,7 +64,7 @@ import org.junit.jupiter.api.Test;
 
 public class BatchITCase extends AbstractITCase {
 
-    private static String requestBody(final String boundary) throws JsonProcessingException, JAXBException {
+    private static String requestBody(final String boundary) throws JsonProcessingException {
         List<BatchRequestItem> reqItems = new ArrayList<>();
 
         // 1. create user as YAML
@@ -89,11 +84,7 @@ public class BatchITCase extends AbstractITCase {
 
         // 2. create group as XML
         GroupCR groupCR = GroupITCase.getBasicSample("batch");
-        JAXBContext context = JAXBContext.newInstance(GroupCR.class);
-        Marshaller marshaller = context.createMarshaller();
-        StringWriter writer = new StringWriter();
-        marshaller.marshal(groupCR, writer);
-        String createGroupPayload = writer.toString();
+        String createGroupPayload = XML_MAPPER.writeValueAsString(groupCR);
 
         BatchRequestItem createGroup = new BatchRequestItem();
         createGroup.setMethod(HttpMethod.POST);
@@ -146,7 +137,7 @@ public class BatchITCase extends AbstractITCase {
         return body;
     }
 
-    private static void check(final List<BatchResponseItem> resItems) throws IOException, JAXBException {
+    private static void check(final List<BatchResponseItem> resItems) throws IOException {
         assertEquals(6, resItems.size());
 
         assertEquals(Response.Status.CREATED.getStatusCode(), resItems.get(0).getStatus());
@@ -167,11 +158,9 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.get(1).getHeaders().get(RESTHeaders.RESOURCE_KEY));
         assertEquals(MediaType.APPLICATION_XML, resItems.get(1).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
 
-        JAXBContext context = JAXBContext.newInstance(ProvisioningResult.class, GroupCR.class);
-        Unmarshaller unmarshaller = context.createUnmarshaller();
-        @SuppressWarnings("unchecked")
-        ProvisioningResult<GroupTO> group = (ProvisioningResult<GroupTO>) unmarshaller.unmarshal(
-                IOUtils.toInputStream(resItems.get(1).getContent(), StandardCharsets.UTF_8));
+        ProvisioningResult<GroupTO> group = XML_MAPPER.readValue(
+                resItems.get(1).getContent(), new TypeReference<ProvisioningResult<GroupTO>>() {
+        });
         assertNotNull(group.getEntity().getKey());
 
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), resItems.get(2).getStatus());
@@ -198,7 +187,7 @@ public class BatchITCase extends AbstractITCase {
     }
 
     @Test
-    public void webClientSync() throws IOException, JAXBException {
+    public void webClientSync() throws IOException {
         String boundary = "--batch_" + UUID.randomUUID().toString();
 
         Response response = WebClient.create(ADDRESS).path("batch").
@@ -219,7 +208,7 @@ public class BatchITCase extends AbstractITCase {
     }
 
     @Test
-    public void webClientAsync() throws IOException, JAXBException {
+    public void webClientAsync() throws IOException {
         String boundary = "--batch_" + UUID.randomUUID().toString();
 
         // request async processing
@@ -308,7 +297,7 @@ public class BatchITCase extends AbstractITCase {
     }
 
     @Test
-    public void syncopeClientSync() throws IOException, JAXBException {
+    public void syncopeClientSync() throws IOException {
         BatchResponse batchResponse = batchRequest().commit();
 
         Response response = batchResponse.getResponse();
@@ -319,7 +308,7 @@ public class BatchITCase extends AbstractITCase {
     }
 
     @Test
-    public void syncopeClientAsync() throws IOException, JAXBException {
+    public void syncopeClientAsync() throws IOException {
         // request async processing
         BatchResponse batchResponse = batchRequest().commit(true);
 

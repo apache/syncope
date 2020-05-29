@@ -19,20 +19,15 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.Attr;
 
-@XmlRootElement(name = "saml2LoginResponse")
-@XmlType
 public class SAML2LoginResponseTO implements Serializable {
 
     private static final long serialVersionUID = 794772343787258010L;
@@ -134,9 +129,8 @@ public class SAML2LoginResponseTO implements Serializable {
         return attrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "attrs")
-    @XmlElement(name = "attr")
-    @JsonProperty("attrs")
+    @JacksonXmlElementWrapper(localName = "attrs")
+    @JacksonXmlProperty(localName = "attr")
     public Set<Attr> getAttrs() {
         return attrs;
     }

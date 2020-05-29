@@ -111,7 +111,7 @@ public class SyncopeServiceRegistryTest extends AbstractTest {
 
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
         accessPolicyConf.setEnabled(true);
-        accessPolicyConf.getRequiredAttrs().put("cn", Set.of("admin", "Admin", "TheAdmin"));
+        accessPolicyConf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
         waClientApp.setAccessPolicyConf(accessPolicyConf);
 
         if (withAttrReleasePolicy) {

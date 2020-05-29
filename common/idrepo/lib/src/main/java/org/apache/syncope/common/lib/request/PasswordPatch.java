@@ -18,21 +18,14 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "passwordPatch")
-@XmlType
-@XmlSeeAlso({ ResourceAR.class, StatusR.class })
 public class PasswordPatch extends StringReplacePatchItem {
 
     private static final long serialVersionUID = 961023537479513071L;
@@ -88,9 +81,8 @@ public class PasswordPatch extends StringReplacePatchItem {
         this.onSyncope = onSyncope;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
+    @JacksonXmlElementWrapper(localName = "resources")
+    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }

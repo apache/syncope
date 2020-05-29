@@ -20,14 +20,10 @@ package org.apache.syncope.common.lib.request;
 
 import java.util.Collection;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.StatusRType;
 
-@XmlRootElement(name = "statusR")
-@XmlType
 public class StatusR extends PasswordPatch {
 
     private static final long serialVersionUID = 99309988426922612L;

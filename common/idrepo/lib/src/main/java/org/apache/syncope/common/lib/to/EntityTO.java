@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
+import org.apache.syncope.common.lib.BaseBean;
 
-public interface EntityTO extends Serializable {
+public interface EntityTO extends BaseBean {
 
     String getKey();
 

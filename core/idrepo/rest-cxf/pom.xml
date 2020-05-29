@@ -69,6 +69,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-xml-provider</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-yaml-provider</artifactId>
     </dependency>
     <dependency>
@@ -117,23 +121,6 @@ under the License.
       <groupId>org.apache.syncope.common.idrepo</groupId>
       <artifactId>syncope-common-idrepo-rest-api</artifactId>
       <version>${project.version}</version>
-    </dependency>
-            
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery</artifactId>
-    </dependency>    
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery-ui</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>jquery-ui-themes</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars</groupId>
-      <artifactId>highlightjs</artifactId>
     </dependency>
 
     <!-- TEST -->

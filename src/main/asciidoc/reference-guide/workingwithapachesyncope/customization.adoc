@@ -353,20 +353,6 @@ Add the following dependencies to `core/pom.xml`:
 Copy `core/src/main/resources/all/provisioning.properties` to `core/src/main/resources/provisioning.properties`.
 
 [discrete]
-===== Enable the <<swagger>> extension
-
-Add the following dependency to `core/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.syncope.ext</groupId>
-  <artifactId>syncope-ext-swagger-ui</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-----
-
-[discrete]
 ===== Enable the <<saml-2-0-service-provider>> extension
 
 Add the following dependencies to `core/pom.xml`:

@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -428,7 +429,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     break;
 
                 case Enum:
-                    propertyTO.getEnumValues().putAll((Map<String, String>) fProp.getType().getInformation("values"));
+                    ((Map<String, String>) fProp.getType().getInformation("values")).forEach((key, value) -> {
+                        propertyTO.getEnumValues().add(new UserRequestFormPropertyValue(key, value));
+                    });
                     break;
 
                 case Dropdown:
@@ -436,7 +439,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     try {
                         DropdownValueProvider valueProvider = ApplicationContextProvider.getApplicationContext().
                                 getBean(valueProviderBean, DropdownValueProvider.class);
-                        propertyTO.getDropdownValues().putAll(valueProvider.getValues());
+                        valueProvider.getValues().forEach((key, value) -> {
+                            propertyTO.getDropdownValues().add(new UserRequestFormPropertyValue(key, value));
+                        });
                     } catch (Exception e) {
                         LOG.error("Could not find bean {} of type {} for form property {}",
                                 valueProviderBean, DropdownValueProvider.class.getName(), propertyTO.getId(), e);

@@ -19,21 +19,16 @@
 package org.apache.syncope.common.lib;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "attr")
-@XmlType
-public class Attr implements Serializable {
+public class Attr implements BaseBean {
 
     private static final long serialVersionUID = 4941691338796323623L;
 
@@ -79,7 +74,6 @@ public class Attr implements Serializable {
      * @return the name of the schema that this attribute is referring to
      */
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getSchema() {
         return schema;
     }
@@ -96,9 +90,9 @@ public class Attr implements Serializable {
     /**
      * @return attribute values as strings
      */
-    @XmlElementWrapper(name = "values", required = true)
-    @XmlElement(name = "value", required = true)
-    @JsonProperty(value = "values", required = true)
+    @JacksonXmlElementWrapper(localName = "values")
+    @JacksonXmlProperty(localName = "value")
+    @JsonProperty(required = true)
     public List<String> getValues() {
         return values;
     }

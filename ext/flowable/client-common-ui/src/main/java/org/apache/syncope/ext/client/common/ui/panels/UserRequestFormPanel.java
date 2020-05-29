@@ -19,9 +19,9 @@
 package org.apache.syncope.ext.client.common.ui.panels;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -33,6 +33,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -133,15 +134,23 @@ public abstract class UserRequestFormPanel extends Panel {
                     case Enum:
                         field = new AjaxDropDownChoicePanel(
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
-                                setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues())).
-                                setChoices(new ArrayList<>(prop.getEnumValues().keySet()));
+                                setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues().stream().
+                                        collect(Collectors.toMap(
+                                                UserRequestFormPropertyValue::getKey,
+                                                UserRequestFormPropertyValue::getValue)))).
+                                setChoices(prop.getEnumValues().stream().
+                                        map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
                         break;
 
                     case Dropdown:
                         field = new AjaxDropDownChoicePanel(
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
-                                setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues())).
-                                setChoices(new ArrayList<>(prop.getDropdownValues().keySet()));
+                                setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
+                                        collect(Collectors.toMap(
+                                                UserRequestFormPropertyValue::getKey,
+                                                UserRequestFormPropertyValue::getValue)))).
+                                setChoices(prop.getDropdownValues().stream().
+                                        map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
                         break;
 
                     case Long:

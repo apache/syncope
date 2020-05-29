@@ -19,21 +19,17 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "pullPolicy")
-@XmlType
-@Schema(allOf = { ProvisioningPolicyTO.class, PolicyTO.class })
+@Schema(allOf = { ProvisioningPolicyTO.class })
 public class PullPolicyTO extends ProvisioningPolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.PullPolicyTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.policy.PullPolicyTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
