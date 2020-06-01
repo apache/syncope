@@ -90,8 +90,8 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public Response deleteToken(@NotNull final String user, @NotNull final Integer token) {
-            tokens.removeIf(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(user));
+        public Response deleteToken(@NotNull final String owner, @NotNull final Integer token) {
+            tokens.removeIf(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner));
             return Response.noContent().build();
         }
 
