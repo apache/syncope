@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.syncope.client.console.panels.TogglePanel.HEADER_FIRST_ABBREVIATION;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -36,10 +39,10 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.widgets.UserRequestFormsWidget;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -65,6 +68,8 @@ public class UserRequestFormDirectoryPanel
     private static final long serialVersionUID = -7122136682275797903L;
 
     private static final String PREF_USER_REQUEST_FORM_PAGINATOR_ROWS = "userrequestform.paginator.rows";
+
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     protected final BaseModal<UserRequestForm> manageFormModal = new BaseModal<UserRequestForm>("outer") {
 
@@ -129,6 +134,24 @@ public class UserRequestFormDirectoryPanel
                 new ResourceModel("assignee"), "assignee", "assignee"));
 
         return columns;
+    }
+
+    @Override
+    protected ActionLinksTogglePanel<UserRequestForm> actionTogglePanel() {
+        return new ActionLinksTogglePanel<UserRequestForm>(Constants.OUTER, pageRef) {
+
+            private static final long serialVersionUID = -7688359318035249200L;
+
+            @Override
+            public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
+                if (object instanceof UserRequestForm) {
+                    setHeader(target, StringUtils.abbreviate(
+                            ((UserRequestForm) object).getUsername(), HEADER_FIRST_ABBREVIATION));
+                } else {
+                    super.updateHeader(target, object);
+                }
+            }
+        };
     }
 
     @Override
@@ -219,21 +242,18 @@ public class UserRequestFormDirectoryPanel
 
                 UserRequestForm formTO = model.getObject();
                 UserTO newUserTO;
-                UserTO previousUserTO;
                 if (formTO.getUserPatch() == null) {
                     newUserTO = formTO.getUserTO();
                     if (newUserTO != null) {
                         // SYNCOPE-1563 do not use the password into formTO.getUserTO()
                         newUserTO.setPassword(null);
                     }
-                    previousUserTO = null;
                 } else if (formTO.getUserTO() == null) {
                     // make it stronger by handling possible NPE
-                    previousUserTO = new UserTO();
+                    UserTO previousUserTO = new UserTO();
                     previousUserTO.setKey(formTO.getUserPatch().getKey());
                     newUserTO = AnyOperations.patch(previousUserTO, formTO.getUserPatch());
                 } else {
-                    previousUserTO = formTO.getUserTO();
                     formTO.getUserTO().setKey(formTO.getUserPatch().getKey());
                     formTO.getUserTO().setPassword(null);
                     newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch());
@@ -241,11 +261,12 @@ public class UserRequestFormDirectoryPanel
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
                         new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
-                editItemActionEvent.forceModalPanel(UserWizardBuilder.class.cast(AnyLayoutUtils.newLayoutInfo(newUserTO,
-                        new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
-                        AnyLayoutUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getUser(), pageRef))
-                        .build(BaseModal.CONTENT_ID, 0, AjaxWizard.Mode.EDIT_APPROVAL)
-                );
+                editItemActionEvent.forceModalPanel(AnyLayoutUtils.newLayoutInfo(
+                        newUserTO,
+                        anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyLayoutUtils.fetch(Collections.singletonList(AnyTypeKind.USER.name())).getUser(),
+                        pageRef).
+                        build(BaseModal.CONTENT_ID, 0, AjaxWizard.Mode.EDIT_APPROVAL));
 
                 send(UserRequestFormDirectoryPanel.this, Broadcast.EXACT, editItemActionEvent);
             }

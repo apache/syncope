@@ -18,7 +18,13 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-public interface Applier {
-    
-     void getClaimerForm(String key);
+public interface UserFormFinalizer {
+
+    default void beforeUpdate(String userKey) {
+        // nothing to do;
+    }
+
+    default void afterUpdate(String userKey) {
+        // nothing to do;
+    }
 }

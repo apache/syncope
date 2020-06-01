@@ -19,29 +19,24 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.annotations.UserRequestApplier;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.client.console.annotations.UserFormFinalize;
 
-@UserRequestApplier(mode = "EDIT_APPROVAL")
-public class UserRequestFormApplierImpl implements Applier {
+@UserFormFinalize(mode = AjaxWizard.Mode.EDIT_APPROVAL)
+public class UserRequestFormFinalizer implements UserFormFinalizer {
 
     private final UserRequestRestClient restClient = new UserRequestRestClient();
 
-    public UserRequestFormApplierImpl() {
-
-    }
-
     @Override
-    public void getClaimerForm(final String key) {
-        restClient.getForm(key).ifPresent(form -> claimForm(form.getTaskId()));
-    }
-
-    private void claimForm(final String taskId) {
-        try {
-            restClient.claimForm(taskId);
-        } catch (SyncopeClientException e) {
-            SyncopeConsoleSession.get().onException(e);
-        }
+    public void afterUpdate(final String userKey) {
+        restClient.getForm(userKey).ifPresent(form -> {
+            try {
+                restClient.claimForm(form.getTaskId());
+            } catch (SyncopeClientException e) {
+                SyncopeConsoleSession.get().onException(e);
+            }
+        });
     }
 }

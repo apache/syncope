@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wizards.any;
+package org.apache.syncope.client.console.annotations;
 
-import org.apache.syncope.client.console.annotations.UserRequestApplier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 
-@UserRequestApplier(mode = "EDIT")
-public class DefaultApplierImpl implements Applier {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface UserFormFinalize {
 
-    public DefaultApplierImpl() {
-
-    }
-
-    @Override
-    public void getClaimerForm(final String key) {
-
-    }
+    AjaxWizard.Mode mode() default AjaxWizard.Mode.EDIT_APPROVAL;
 
 }

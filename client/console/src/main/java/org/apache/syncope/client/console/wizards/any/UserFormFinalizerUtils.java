@@ -16,41 +16,53 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
-import org.apache.syncope.client.console.wizards.any.Applier;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
-public final class ApplierUtils {
+public final class UserFormFinalizerUtils {
 
-    public static ApplierUtils getInstance() {
-        return new ApplierUtils();
+    private static final Logger LOG = LoggerFactory.getLogger(UserFormFinalizerUtils.class);
+
+    private static UserFormFinalizerUtils INSTANCE;
+
+    public static UserFormFinalizerUtils getInstance() {
+        synchronized (LOG) {
+            if (INSTANCE == null) {
+                INSTANCE = new UserFormFinalizerUtils();
+            }
+        }
+        return INSTANCE;
     }
 
     private final ClassPathScanImplementationLookup classPathScanImplementationLookup;
 
-    private ApplierUtils() {
+    private UserFormFinalizerUtils() {
         classPathScanImplementationLookup = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
     }
-    
-    public Applier getApplier(final String mode) {
-        if (StringUtils.isBlank(mode)) {
-            return null;
-        }
 
-        Class<? extends Applier> applier = classPathScanImplementationLookup.getApplyerClass(mode);
-        try {
-            return applier == null
-                    ? null
-                    : ClassUtils.getConstructorIfAvailable(applier).
-                    newInstance();
-        } catch (Exception e) {
-            return null;
-        }
+    public List<UserFormFinalizer> getFormFinalizers(final AjaxWizard.Mode mode) {
+        List<UserFormFinalizer> finalizers = new ArrayList<>();
+
+        classPathScanImplementationLookup.getUserFormFinalizerClasses(mode).forEach(applier -> {
+            if (applier != null) {
+                try {
+                    finalizers.add(ClassUtils.getConstructorIfAvailable(applier).newInstance());
+                } catch (Exception e) {
+                    LOG.error("Could not instantiate {}", applier, e);
+                }
+            }
+        });
+
+        return finalizers;
     }
 }

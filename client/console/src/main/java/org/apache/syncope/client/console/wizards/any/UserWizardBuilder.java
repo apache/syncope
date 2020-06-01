@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.ApplierUtils;
 import org.apache.syncope.client.console.layout.UserForm;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -82,9 +81,13 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
+                List<UserFormFinalizer> finalizers = UserFormFinalizerUtils.getInstance().getFormFinalizers(this.mode);
+
+                finalizers.forEach(finalizer -> finalizer.beforeUpdate(patch.getKey()));
+
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
 
-                ApplierUtils.getInstance().getApplier(this.mode.name()).getClaimerForm(result.getEntity().getKey());
+                finalizers.forEach(finalizer -> finalizer.afterUpdate(patch.getKey()));
             }
         }
 
