@@ -235,18 +235,21 @@ public class BatchITCase extends AbstractITCase {
         URI monitor = response.getLocation();
         assertNotNull(monitor);
 
-        for (int i = 0; i < 10 && response.getStatus() == Response.Status.ACCEPTED.getStatusCode(); i++) {
-            // wait a bit...
+        WebClient client = WebClient.create(monitor).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
+
+        int i = 0;
+        do {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
 
-            // check results
-            response = WebClient.create(monitor).
-                    header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
-                    type(RESTHeaders.multipartMixedWith(boundary.substring(2))).get();
-        }
+            response = client.get();
+
+            i++;
+        } while (response.getStatus() == Response.Status.ACCEPTED.getStatusCode() && i < MAX_WAIT_SECONDS);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));
