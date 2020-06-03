@@ -56,6 +56,7 @@ import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -137,6 +138,11 @@ public abstract class AbstractTest {
         @Bean
         public PreviewUtils previewUtils() {
             return new PreviewUtils();
+        }
+
+        @Bean
+        public UserFormFinalizerUtils userFormFinalizerUtils() {
+            return new UserFormFinalizerUtils();
         }
 
         @Bean

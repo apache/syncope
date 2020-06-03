@@ -23,10 +23,8 @@ import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.DefaultPreviewer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
-@Component
 public class PreviewUtils {
 
     @Autowired

@@ -33,10 +33,13 @@ import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
 import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
+import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
+import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -74,6 +77,11 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return new KeymasterStop(NetworkService.Type.CONSOLE);
     }
 
+    @Bean
+    public ApplicationContextProvider applicationContextProvider() {
+        return new ApplicationContextProvider();
+    }
+
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
     public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
@@ -88,6 +96,18 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
         mimeTypesLoader.load();
         return mimeTypesLoader;
+    }
+
+    @ConditionalOnMissingBean(name = "previewUtils")
+    @Bean
+    public PreviewUtils previewUtils() {
+        return new PreviewUtils();
+    }
+
+    @ConditionalOnMissingBean(name = "userFormFinalizerUtils")
+    @Bean
+    public UserFormFinalizerUtils userFormFinalizerUtils() {
+        return new UserFormFinalizerUtils();
     }
 
     @ConditionalOnMissingBean(name = "resourceProvider")

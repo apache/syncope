@@ -19,8 +19,10 @@
 package org.apache.syncope.client.enduser;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.init.MIMETypesLoader;
+import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -58,6 +60,11 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
         return new KeymasterStop(NetworkService.Type.ENDUSER);
     }
 
+    @Bean
+    public ApplicationContextProvider applicationContextProvider() {
+        return new ApplicationContextProvider();
+    }
+
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
     public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
@@ -72,5 +79,11 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
         MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
         mimeTypesLoader.load();
         return mimeTypesLoader;
+    }
+
+    @ConditionalOnMissingBean(name = "previewUtils")
+    @Bean
+    public PreviewUtils previewUtils() {
+        return new PreviewUtils();
     }
 }

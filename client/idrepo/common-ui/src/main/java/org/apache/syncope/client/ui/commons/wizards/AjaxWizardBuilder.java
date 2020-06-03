@@ -43,8 +43,6 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
 
     protected final List<Component> outerObjects = new ArrayList<>();
 
-    private boolean async = true;
-
     /**
      * Construct.
      *
@@ -53,11 +51,6 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      */
     public AjaxWizardBuilder(final T defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
-    }
-
-    public AjaxWizardBuilder<T> setAsync(final boolean async) {
-        this.async = async;
-        return this;
     }
 
     public AjaxWizardBuilder<T> addOuterObject(final Component... childs) {
@@ -97,7 +90,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         // get the specified item if available
         T modelObj = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObj, buildModelSteps(modelObj, new WizardModel()), mode, async, pageRef) {
+        return new AjaxWizard<T>(id, modelObj, buildModelSteps(modelObj, new WizardModel()), mode, pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 

@@ -64,6 +64,9 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
+import org.apache.syncope.client.console.annotations.UserFormFinalize;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 
 public class ClassPathScanImplementationLookup {
 
@@ -102,6 +105,8 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
 
+    private List<Class<? extends UserFormFinalizer>> userFormFinalizers;
+
     private List<Class<? extends BasePage>> idmPages;
 
     private List<Class<? extends BasePage>> amPages;
@@ -139,6 +144,7 @@ public class ClassPathScanImplementationLookup {
     public void load() {
         pages = new ArrayList<>();
         previewers = new ArrayList<>();
+        userFormFinalizers = new ArrayList<>();
         idmPages = new ArrayList<>();
         amPages = new ArrayList<>();
         extPages = new ArrayList<>();
@@ -155,6 +161,7 @@ public class ClassPathScanImplementationLookup {
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(UserFormFinalizer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ExtAlertWidget.class));
@@ -210,6 +217,8 @@ public class ClassPathScanImplementationLookup {
                         }
                     } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
                         previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
+                    } else if (UserFormFinalizer.class.isAssignableFrom(clazz)) {
+                        userFormFinalizers.add((Class<? extends UserFormFinalizer>) clazz);
                     } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
                         ssoLoginFormPanels.add((Class<? extends BaseSSOLoginFormPanel>) clazz);
                     } else if (ReportletConf.class.isAssignableFrom(clazz)) {
@@ -236,7 +245,9 @@ public class ClassPathScanImplementationLookup {
             }
         });
         pages = Collections.unmodifiableList(pages);
+
         previewers = Collections.unmodifiableList(previewers);
+        userFormFinalizers = Collections.unmodifiableList(userFormFinalizers);
 
         idmPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         idmPages = Collections.unmodifiableList(idmPages);
@@ -264,6 +275,7 @@ public class ClassPathScanImplementationLookup {
         resources = Collections.unmodifiableList(resources);
 
         LOG.debug("Binary previewers found: {}", previewers);
+        LOG.debug("User Form finalizers found {}", userFormFinalizers);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("Extension widgets found: {}", extWidgets);
         LOG.debug("Extension alert widgets found: {}", extAlertWidgets);
@@ -288,6 +300,20 @@ public class ClassPathScanImplementationLookup {
             }
         }
         return previewer;
+    }
+
+    public List<Class<? extends UserFormFinalizer>> getUserFormFinalizerClasses(final AjaxWizard.Mode mode) {
+        List<Class<? extends UserFormFinalizer>> classes = new ArrayList<>();
+
+        userFormFinalizers.forEach(candidate -> {
+            if (candidate.isAnnotationPresent(UserFormFinalize.class)
+                    && candidate.getAnnotation(UserFormFinalize.class).mode() == mode) {
+
+                classes.add(candidate);
+            }
+        });
+
+        return classes;
     }
 
     public List<Class<? extends BasePage>> getPageClasses() {
