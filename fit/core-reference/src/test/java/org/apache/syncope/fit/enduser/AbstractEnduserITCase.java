@@ -35,6 +35,7 @@ import org.apache.syncope.client.enduser.init.MIMETypesLoader;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -85,6 +86,11 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
         @Bean
         public WicketEndpointRepository wicketEndpointRepository() {
             return new WicketEndpointRepositoryDefault();
+        }
+
+        @Bean
+        public ApplicationContextProvider applicationContextProvider() {
+            return new ApplicationContextProvider();
         }
 
         @Bean

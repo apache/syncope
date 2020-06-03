@@ -67,7 +67,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         CREATE,
         EDIT,
         TEMPLATE,
-        READONLY;
+        READONLY,
+        EDIT_APPROVAL;
 
     }
 
@@ -76,8 +77,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     private T item;
 
     private final Mode mode;
-
-    private final boolean async;
 
     private IEventSink eventSink;
 
@@ -90,7 +89,6 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
      * @param item model object
      * @param model wizard model
      * @param mode mode
-     * @param async should apply go async or not?
      * @param pageRef caller page reference.
      */
     public AjaxWizard(
@@ -98,13 +96,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             final T item,
             final WizardModel model,
             final Mode mode,
-            final boolean async,
             final PageReference pageRef) {
 
         super(id);
         this.item = item;
         this.mode = mode;
-        this.async = async;
         this.pageRef = pageRef;
 
         if (mode == Mode.READONLY) {

@@ -411,8 +411,8 @@ under the License.
 
     <spring.version>5.2.6.RELEASE</spring.version>
     <spring-security.version>5.3.2.RELEASE</spring-security.version>
-    <spring-boot.version>2.2.7.RELEASE</spring-boot.version>
-    <spring-cloud-gateway.version>2.2.2.RELEASE</spring-cloud-gateway.version>
+    <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
+    <spring-cloud-gateway.version>2.2.3.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.1</openjpa.version>
     <hikaricp.version>3.4.5</hikaricp.version>
@@ -1492,6 +1492,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-authentication-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-core-services-registry</artifactId>
         <version>${cas.version}</version>
       </dependency>
@@ -1643,6 +1648,16 @@ under the License.
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-gauth</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-gauth-core-mfa</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-otp-mfa-core</artifactId>
         <version>${cas.version}</version>
       </dependency>
       <dependency>
@@ -2252,7 +2267,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.12</version>
+          <version>1.7.13</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2340,7 +2355,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>3.0.0</version>
         </plugin>
 
         <plugin>

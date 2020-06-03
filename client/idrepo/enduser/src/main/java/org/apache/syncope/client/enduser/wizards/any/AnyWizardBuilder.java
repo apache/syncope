@@ -173,7 +173,7 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
         final AnyWrapper<UserTO> modelObject = newModelObject();
 
         return new AjaxWizard<AnyWrapper<UserTO>>(
-                id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, true, this.pageRef) {
+                id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, this.pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 

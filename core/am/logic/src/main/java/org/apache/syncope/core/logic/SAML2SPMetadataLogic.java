@@ -95,7 +95,7 @@ public class SAML2SPMetadataLogic extends AbstractTransactionalLogic<SAML2SPMeta
                 if (args[i] instanceof String) {
                     name = (String) args[i];
                 } else if (args[i] instanceof SAML2SPMetadataTO) {
-                    name = ((SAML2SPMetadataTO) args[i]).getKey();
+                    name = ((SAML2SPMetadataTO) args[i]).getOwner();
                 }
             }
         }

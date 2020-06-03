@@ -16,37 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.DefaultPreviewer;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
-public class PreviewUtils {
+public final class UserFormFinalizerUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserFormFinalizerUtils.class);
 
     @Autowired
     private ClassPathScanImplementationLookup lookup;
 
-    public static AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
-        return new DefaultPreviewer("previewer", mimeType);
-    }
+    public List<UserFormFinalizer> getFormFinalizers(final AjaxWizard.Mode mode) {
+        List<UserFormFinalizer> finalizers = new ArrayList<>();
 
-    public AbstractBinaryPreviewer getPreviewer(final String mimeType) {
-        if (StringUtils.isBlank(mimeType)) {
-            return null;
-        }
+        lookup.getUserFormFinalizerClasses(mode).forEach(applier -> {
+            if (applier != null) {
+                try {
+                    finalizers.add(ClassUtils.getConstructorIfAvailable(applier).newInstance());
+                } catch (Exception e) {
+                    LOG.error("Could not instantiate {}", applier, e);
+                }
+            }
+        });
 
-        Class<? extends AbstractBinaryPreviewer> previewer = lookup.getPreviewerClass(mimeType);
-        try {
-            return previewer == null
-                    ? null
-                    : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class).
-                            newInstance(new Object[] { "previewer", mimeType });
-        } catch (Exception e) {
-            return null;
-        }
+        return finalizers;
     }
 }

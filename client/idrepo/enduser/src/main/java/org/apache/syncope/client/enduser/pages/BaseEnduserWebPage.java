@@ -45,5 +45,4 @@ public class BaseEnduserWebPage extends BaseWebPage {
         navbar = new Navbar("navbar", lookup.getExtPageClasses());
         body.add(navbar);
     }
-
 }

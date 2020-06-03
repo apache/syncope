@@ -101,7 +101,7 @@ public class SAML2IdPMetadataLogic extends AbstractTransactionalLogic<SAML2IdPMe
                 if (args[i] instanceof String) {
                     appliesTo = (String) args[i];
                 } else if (args[i] instanceof SAML2IdPMetadataTO) {
-                    appliesTo = ((SAML2IdPMetadataTO) args[i]).getKey();
+                    appliesTo = ((SAML2IdPMetadataTO) args[i]).getAppliesTo();
                 }
             }
         }

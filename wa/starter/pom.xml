@@ -116,6 +116,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-authentication-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-webflow</artifactId>
     </dependency>
     <dependency>
@@ -209,6 +213,14 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-gauth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-gauth-core-mfa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-otp-mfa-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
