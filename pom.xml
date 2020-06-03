@@ -456,7 +456,7 @@ under the License.
     <mockito.version>3.3.0</mockito.version>
 
     <swagger-core.version>2.1.2</swagger-core.version>
-    <swagger-ui.version>3.25.4</swagger-ui.version>
+    <swagger-ui.version>3.25.5</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.5.1</jquery.version>
@@ -2291,7 +2291,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.12</version>
+          <version>1.7.13</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2343,7 +2343,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.33</version>
+              <version>8.32</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2379,7 +2379,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>3.0.0</version>
         </plugin>
 
         <plugin>
