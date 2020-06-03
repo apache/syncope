@@ -18,24 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
-
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 
-@XmlRootElement(name = "authProfile")
-@XmlType
-public class AuthProfileTO extends BaseBean implements EntityTO {
+public class AuthProfileTO implements EntityTO {
 
     private static final long serialVersionUID = -6543425997956703057L;
 
@@ -64,9 +56,8 @@ public class AuthProfileTO extends BaseBean implements EntityTO {
         this.owner = owner;
     }
 
-    @XmlElementWrapper(name = "googleMfaAuthTokens")
-    @XmlElement(name = "googleMfaAuthTokens")
-    @JsonProperty("googleMfaAuthTokens")
+    @JacksonXmlElementWrapper(localName = "googleMfaAuthTokens")
+    @JacksonXmlProperty(localName = "googleMfaAuthToken")
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens;
     }
