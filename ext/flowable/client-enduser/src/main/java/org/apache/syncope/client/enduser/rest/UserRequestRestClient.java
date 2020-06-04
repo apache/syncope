@@ -38,7 +38,7 @@ public class UserRequestRestClient extends BaseRestClient {
                 list(new UserRequestQuery.Builder()
                         .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
                         .page(1)
-                        .size(1)
+                        .size(0)
                         .build()).getTotalCount();
     }
 
@@ -60,7 +60,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public static int countForms() {
         return getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().page(1).size(1).build()).
+                getForms(new UserRequestFormQuery.Builder().page(1).size(0).build()).
                 getTotalCount();
     }
 

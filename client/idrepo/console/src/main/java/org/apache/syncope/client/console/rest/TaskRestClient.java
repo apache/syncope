@@ -67,31 +67,31 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public static int count(final TaskType kind) {
         return getService(TaskService.class).search(
-                new TaskQuery.Builder(kind).page(1).size(1).build()).getTotalCount();
+                new TaskQuery.Builder(kind).page(1).size(0).build()).getTotalCount();
     }
 
     public static int count(final String resource, final TaskType kind) {
         return getService(TaskService.class).search(
-                new TaskQuery.Builder(kind).resource(resource).page(1).size(1).build()).getTotalCount();
+                new TaskQuery.Builder(kind).resource(resource).page(1).size(0).build()).getTotalCount();
     }
 
     public static int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
         return getService(TaskService.class).search(
-                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
+                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(0).build()).
                 getTotalCount();
     }
 
     public static int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).
-                        anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
+                        anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(0).build()).
                 getTotalCount();
     }
 
     @Override
     public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
     public static List<PropagationTaskTO> listPropagationTasks(
