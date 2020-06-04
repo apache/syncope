@@ -144,7 +144,7 @@ public class LoggerRestClient extends BaseRestClient {
 
         AuditQuery query = new AuditQuery.Builder(key).
                 page(1).
-                size(1).
+                size(0).
                 type(type).
                 category(category).
                 events(events).

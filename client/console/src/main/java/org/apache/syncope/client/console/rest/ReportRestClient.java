@@ -118,7 +118,7 @@ public class ReportRestClient extends BaseRestClient
     @Override
     public int countExecutions(final String taskKey) {
         return getService(ReportService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
     @Override
