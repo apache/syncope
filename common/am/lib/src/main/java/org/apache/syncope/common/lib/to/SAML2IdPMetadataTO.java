@@ -21,13 +21,8 @@ package org.apache.syncope.common.lib.to;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "saml2idpMetadata")
-@XmlType
-public class SAML2IdPMetadataTO extends BaseBean implements EntityTO {
+public class SAML2IdPMetadataTO implements EntityTO {
 
     private static final long serialVersionUID = 7215073386484048953L;
 
@@ -178,5 +173,4 @@ public class SAML2IdPMetadataTO extends BaseBean implements EntityTO {
                 append(appliesTo).
                 build();
     }
-
 }

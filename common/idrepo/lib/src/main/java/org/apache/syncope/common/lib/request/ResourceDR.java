@@ -18,24 +18,19 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 
 /**
  * Resource De-association Request.
  */
-@XmlRootElement(name = "resourceDR")
-@XmlType
-public class ResourceDR implements Serializable {
+public class ResourceDR implements BaseBean {
 
     private static final long serialVersionUID = 6295778399633883767L;
 
@@ -105,9 +100,8 @@ public class ResourceDR implements Serializable {
         this.action = action;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
+    @JacksonXmlElementWrapper(localName = "resources")
+    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }

@@ -19,21 +19,16 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashSet;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
-@XmlRootElement(name = "notificationTask")
-@XmlType
 @Schema(allOf = { TaskTO.class })
 public class NotificationTaskTO extends TaskTO {
 
@@ -59,9 +54,9 @@ public class NotificationTaskTO extends TaskTO {
 
     private TraceLevel traceLevel;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -95,9 +90,8 @@ public class NotificationTaskTO extends TaskTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @XmlElementWrapper(name = "recipients")
-    @XmlElement(name = "recipient")
-    @JsonProperty("recipients")
+    @JacksonXmlElementWrapper(localName = "recipients")
+    @JacksonXmlProperty(localName = "recipient")
     public Set<String> getRecipients() {
         return recipients;
     }

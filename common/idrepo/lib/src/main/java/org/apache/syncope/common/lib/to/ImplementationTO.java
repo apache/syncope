@@ -19,14 +19,10 @@
 package org.apache.syncope.common.lib.to;
 
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 
-@XmlRootElement(name = "implementation")
-@XmlType
 public class ImplementationTO implements EntityTO {
 
     private static final long serialVersionUID = 2703397698393060586L;

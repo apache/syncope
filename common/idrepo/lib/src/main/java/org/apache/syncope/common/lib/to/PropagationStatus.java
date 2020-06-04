@@ -18,19 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ExecStatus;
 
 /**
  * Single propagation status.
  */
-@XmlRootElement(name = "propagationStatus")
-@XmlType
-public class PropagationStatus implements Serializable {
+public class PropagationStatus implements BaseBean {
 
     private static final long serialVersionUID = 3921498450222857690L;
 

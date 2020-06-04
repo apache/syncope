@@ -18,20 +18,15 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement
-@XmlType
-public class ConnConfPropSchema implements Serializable, Comparable<ConnConfPropSchema> {
+public class ConnConfPropSchema implements BaseBean, Comparable<ConnConfPropSchema> {
 
     private static final long serialVersionUID = -1976365781005801296L;
 
@@ -107,9 +102,8 @@ public class ConnConfPropSchema implements Serializable, Comparable<ConnConfProp
         this.confidential = confidential;
     }
 
-    @XmlElementWrapper(name = "defaultValues")
-    @XmlElement(name = "defaultValue")
-    @JsonProperty("defaultValues")
+    @JacksonXmlElementWrapper(localName = "defaultValues")
+    @JacksonXmlProperty(localName = "defaultValue")
     public List<Object> getDefaultValues() {
         return defaultValues;
     }

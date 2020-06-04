@@ -31,10 +31,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -44,8 +43,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.helpers.IOUtils;
@@ -59,7 +56,6 @@ import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
@@ -79,6 +75,9 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
+import org.apache.syncope.core.rest.cxf.SyncopeObjectMapper;
+import org.apache.syncope.core.rest.cxf.SyncopeXmlMapper;
+import org.apache.syncope.core.rest.cxf.SyncopeYAMLMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +86,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.util.ReflectionTestUtils;
 
-//@SpringJUnitConfig(locations = { "classpath:restCXFTest.xml" })
 @SpringJUnitConfig(classes = { RESTCXFTestContext.class })
 public class AnyObjectServiceTest {
 
@@ -96,16 +94,16 @@ public class AnyObjectServiceTest {
     private static Server SERVER;
 
     @Autowired
-    private JAXBElementProvider<?> jaxbProvider;
-
-    @Autowired
     private DateParamConverterProvider dateParamConverterProvider;
 
     @Autowired
-    private JacksonJaxbJsonProvider jsonProvider;
+    private JacksonJsonProvider jsonProvider;
 
     @Autowired
-    private JacksonJaxbYAMLProvider yamlProvider;
+    private JacksonXMLProvider xmlProvider;
+
+    @Autowired
+    private JacksonYAMLProvider yamlProvider;
 
     @Autowired
     private RestServiceExceptionMapper exceptionMapper;
@@ -198,7 +196,7 @@ public class AnyObjectServiceTest {
             sf.setInInterceptors(Arrays.asList(gzipInInterceptor, validationInInterceptor));
             sf.setOutInterceptors(Arrays.asList(gzipOutInterceptor));
 
-            sf.setProviders(Arrays.asList(dateParamConverterProvider, jaxbProvider, jsonProvider, yamlProvider,
+            sf.setProviders(Arrays.asList(dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider,
                     exceptionMapper, searchContextProvider, addETagFilter));
 
             SERVER = sf.create();
@@ -209,7 +207,7 @@ public class AnyObjectServiceTest {
 
     private WebClient client(final MediaType mediaType) {
         WebClient client = WebClient.create(LOCAL_ADDRESS, Arrays.asList(
-                dateParamConverterProvider, jsonProvider, jaxbProvider, yamlProvider));
+                dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider));
         WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
         return client.accept(mediaType).type(mediaType).path("anyObjects");
     }
@@ -239,19 +237,19 @@ public class AnyObjectServiceTest {
     public void jsonList() throws IOException {
         InputStream in = list(MediaType.APPLICATION_JSON_TYPE);
 
-        PagedResult<AnyObjectTO> list = new ObjectMapper().
+        PagedResult<AnyObjectTO> list = new SyncopeObjectMapper().
                 readValue(IOUtils.toString(in), new TypeReference<PagedResult<AnyObjectTO>>() {
                 });
         checkList(list);
     }
 
     @Test
-    public void xmlList() throws IOException, JAXBException {
+    public void xmlList() throws IOException {
         InputStream in = list(MediaType.APPLICATION_XML_TYPE);
 
-        JAXBContext context = JAXBContext.newInstance(PagedResult.class, AnyObjectTO.class);
-        @SuppressWarnings("unchecked")
-        PagedResult<AnyObjectTO> list = (PagedResult<AnyObjectTO>) context.createUnmarshaller().unmarshal(in);
+        PagedResult<AnyObjectTO> list = new SyncopeXmlMapper().
+                readValue(IOUtils.toString(in), new TypeReference<PagedResult<AnyObjectTO>>() {
+                });
         checkList(list);
     }
 
@@ -259,7 +257,7 @@ public class AnyObjectServiceTest {
     public void yamlList() throws IOException {
         InputStream in = list(RESTHeaders.APPLICATION_YAML_TYPE);
 
-        PagedResult<AnyObjectTO> list = new YAMLMapper().
+        PagedResult<AnyObjectTO> list = new SyncopeYAMLMapper().
                 readValue(IOUtils.toString(in), new TypeReference<PagedResult<AnyObjectTO>>() {
                 });
         checkList(list);

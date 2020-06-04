@@ -20,16 +20,10 @@ package org.apache.syncope.common.lib.to;
 
 import java.util.Date;
 import java.util.Optional;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "accessToken")
-@XmlType
-public class AccessTokenTO extends BaseBean implements EntityTO {
+public class AccessTokenTO implements EntityTO {
 
     private static final long serialVersionUID = 6577639976115661357L;
 

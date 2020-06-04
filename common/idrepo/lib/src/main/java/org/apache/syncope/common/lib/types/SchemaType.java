@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 
-@XmlEnum
 public enum SchemaType {
 
     /**

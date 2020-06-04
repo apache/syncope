@@ -20,6 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,16 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-@XmlRootElement(name = "user")
-@XmlType
 @Schema(allOf = { AnyTO.class })
 public class UserTO extends AnyTO implements GroupableRelatableTO {
 
@@ -78,8 +74,9 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -127,7 +124,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getUsername() {
         return username;
     }
@@ -214,9 +210,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 findFirst();
     }
 
-    @XmlElementWrapper(name = "relationships")
-    @XmlElement(name = "relationship")
-    @JsonProperty("relationships")
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
     @Override
     public List<RelationshipTO> getRelationships() {
         return relationships;
@@ -228,46 +223,40 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
-    @XmlElementWrapper(name = "memberships")
-    @XmlElement(name = "membership")
-    @JsonProperty("memberships")
+    @JacksonXmlElementWrapper(localName = "memberships")
+    @JacksonXmlProperty(localName = "membership")
     @Override
     public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
-    @XmlElementWrapper(name = "dynMemberships")
-    @XmlElement(name = "dynMembership")
-    @JsonProperty("dynMemberships")
+    @JacksonXmlElementWrapper(localName = "dynMemberships")
+    @JacksonXmlProperty(localName = "dynMembership")
     @Override
     public List<MembershipTO> getDynMemberships() {
         return dynMemberships;
     }
 
-    @XmlElementWrapper(name = "roles")
-    @XmlElement(name = "role")
-    @JsonProperty("roles")
+    @JacksonXmlElementWrapper(localName = "roles")
+    @JacksonXmlProperty(localName = "role")
     public List<String> getRoles() {
         return roles;
     }
 
-    @XmlElementWrapper(name = "dynRoles")
-    @XmlElement(name = "role")
-    @JsonProperty("dynRoles")
+    @JacksonXmlElementWrapper(localName = "dynRoles")
+    @JacksonXmlProperty(localName = "dynRole")
     public List<String> getDynRoles() {
         return dynRoles;
     }
 
-    @XmlElementWrapper(name = "privileges")
-    @XmlElement(name = "privilege")
-    @JsonProperty("privileges")
+    @JacksonXmlElementWrapper(localName = "privileges")
+    @JacksonXmlProperty(localName = "privilege")
     public Set<String> getPrivileges() {
         return privileges;
     }
 
-    @XmlElementWrapper(name = "linkedAccounts")
-    @XmlElement(name = "linkedAccount")
-    @JsonProperty("linkedAccounts")
+    @JacksonXmlElementWrapper(localName = "linkedAccounts")
+    @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountTO> getLinkedAccounts() {
         return linkedAccounts;
     }

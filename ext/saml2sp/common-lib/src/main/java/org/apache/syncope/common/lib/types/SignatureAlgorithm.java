@@ -55,5 +55,4 @@ public enum SignatureAlgorithm {
     public String getAlgorithm() {
         return algorithm;
     }
-
 }

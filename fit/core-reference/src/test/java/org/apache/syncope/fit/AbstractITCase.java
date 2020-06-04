@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import java.io.IOException;
 import java.io.InputStream;
@@ -162,6 +163,8 @@ public abstract class AbstractITCase {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
     protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    protected static final XmlMapper XML_MAPPER = new XmlMapper();
 
     protected static final YAMLMapper YAML_MAPPER = new YAMLMapper();
 
@@ -902,7 +905,7 @@ public abstract class AbstractITCase {
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.setEnabled(true);
         conf.setName("TestAccessPolicyConf");
-        conf.getRequiredAttrs().put("cn", Set.of("admin", "Admin", "TheAdmin"));
+        conf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
         policy.setConf(conf);
 
         return policy;

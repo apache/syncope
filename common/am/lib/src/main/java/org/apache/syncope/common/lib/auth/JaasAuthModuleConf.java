@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "jaasAuthModuleConf")
-@XmlType
 public class JaasAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -7775771400318503131L;

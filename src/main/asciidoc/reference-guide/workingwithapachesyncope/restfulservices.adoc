@@ -41,9 +41,6 @@ protocol://host:port/syncope/
 where `protocol`, `host` and `port` reflect your deployment.
 ====
 
-[TIP]
-The <<swagger,Swagger extension>> might also help greatly when working with RESTful services.
-
 ==== REST Authentication and Authorization
 
 The <<core>> authentication and authorization is based on http://projects.spring.io/spring-security/[Spring Security^].

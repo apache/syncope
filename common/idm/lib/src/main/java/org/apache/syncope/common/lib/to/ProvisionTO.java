@@ -18,18 +18,13 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "provision")
-@XmlType
 public class ProvisionTO implements EntityTO {
 
     private static final long serialVersionUID = 8298910216218007927L;
@@ -78,9 +73,8 @@ public class ProvisionTO implements EntityTO {
         this.objectClass = objectClass;
     }
 
-    @XmlElementWrapper(name = "auxClasses")
-    @XmlElement(name = "class")
-    @JsonProperty("auxClasses")
+    @JacksonXmlElementWrapper(localName = "auxClasses")
+    @JacksonXmlProperty(localName = "class")
     public List<String> getAuxClasses() {
         return auxClasses;
     }
@@ -117,9 +111,8 @@ public class ProvisionTO implements EntityTO {
         this.mapping = mapping;
     }
 
-    @XmlElementWrapper(name = "virSchemas")
-    @XmlElement(name = "virSchema")
-    @JsonProperty("virSchemas")
+    @JacksonXmlElementWrapper(localName = "virSchemas")
+    @JacksonXmlProperty(localName = "virSchema")
     public List<String> getVirSchemas() {
         return virSchemas;
     }

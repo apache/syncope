@@ -170,12 +170,6 @@ under the License.
           <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
           <version>${syncope.version}</version>
         </dependency>
-
-        <dependency>
-          <groupId>org.apache.syncope.ext</groupId>
-          <artifactId>syncope-ext-swagger-ui</artifactId>
-          <version>${syncope.version}</version>
-        </dependency>
       </dependencies>
       
       <build>        

@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.report;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "auditReportletConf")
-@XmlType
 public class AuditReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = -4814950086361753689L;
@@ -44,5 +39,4 @@ public class AuditReportletConf extends AbstractReportletConf {
     public void setSize(final int size) {
         this.size = size;
     }
-
 }

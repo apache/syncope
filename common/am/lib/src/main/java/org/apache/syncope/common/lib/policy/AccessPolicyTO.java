@@ -20,22 +20,18 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "accessPolicy")
-@XmlType
 public class AccessPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -6711411162433533300L;
 
     private AccessPolicyConf conf;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.AccessPolicyTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.policy.AccessPolicyTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

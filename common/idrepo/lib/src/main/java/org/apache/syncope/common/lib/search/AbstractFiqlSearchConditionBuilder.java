@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.search;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +25,13 @@ import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.client.FiqlSearchConditionBuilder;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
+import org.apache.syncope.common.lib.BaseBean;
 
 public abstract class AbstractFiqlSearchConditionBuilder<
         P extends SyncopeProperty<C>,
         PA extends SyncopePartialCondition<P, C>, 
         C extends SyncopeCompleteCondition<PA, P>>
-        extends FiqlSearchConditionBuilder implements Serializable {
+        extends FiqlSearchConditionBuilder implements BaseBean {
 
     private static final long serialVersionUID = 9043884238032703381L;
 

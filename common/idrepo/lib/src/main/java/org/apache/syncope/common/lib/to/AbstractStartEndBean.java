@@ -21,15 +21,11 @@ package org.apache.syncope.common.lib.to;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-@XmlType
-@XmlSeeAlso({ ExecTO.class, ReportTO.class, TaskTO.class })
-public class AbstractStartEndBean extends BaseBean {
+public class AbstractStartEndBean implements BaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;
 

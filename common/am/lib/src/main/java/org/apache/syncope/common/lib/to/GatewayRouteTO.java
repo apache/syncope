@@ -18,23 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.GatewayRouteFilter;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
 import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 
-@XmlRootElement(name = "gatewayRoute")
-@XmlType
 public class GatewayRouteTO implements NamedEntityTO {
 
     private static final long serialVersionUID = 4044528284951757870L;
@@ -90,16 +83,10 @@ public class GatewayRouteTO implements NamedEntityTO {
         this.target = target;
     }
 
-    @XmlElementWrapper(name = "filters")
-    @XmlElement(name = "filter")
-    @JsonProperty("filters")
     public List<GatewayRouteFilter> getFilters() {
         return filters;
     }
 
-    @XmlElementWrapper(name = "predicates")
-    @XmlElement(name = "predicate")
-    @JsonProperty("predicates")
     public List<GatewayRoutePredicate> getPredicates() {
         return predicates;
     }

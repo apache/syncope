@@ -18,13 +18,9 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlType
-@XmlSeeAlso({ AllowedAttrReleasePolicyConf.class })
-public abstract class AbstractAttrReleasePolicyConf implements Serializable, AttrReleasePolicyConf {
+public abstract class AbstractAttrReleasePolicyConf implements BaseBean, AttrReleasePolicyConf {
 
     private static final long serialVersionUID = 1153200197344709778L;
 

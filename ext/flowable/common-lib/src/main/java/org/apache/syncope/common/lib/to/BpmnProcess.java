@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "bpmnProcess")
-@XmlType
 public class BpmnProcess implements EntityTO {
 
     private static final long serialVersionUID = -7044543391316529128L;

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,14 +35,11 @@ import org.apache.cxf.jaxrs.ext.search.SearchContextImpl;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
-import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
-import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,29 +80,22 @@ public class RESTCXFContext {
     }
 
     @Bean
-    public JAXBElementProvider<?> jaxbProvider() {
-        JAXBElementProvider<?> jaxbProvider = new JAXBElementProvider<>();
-        jaxbProvider.setNamespacePrefixes(Map.of(SyncopeConstants.NS, SyncopeConstants.NS_PREFIX));
-
-        DocumentDepthProperties documentDepthProperties = new DocumentDepthProperties();
-        documentDepthProperties.setInnerElementCountThreshold(500);
-        jaxbProvider.setDepthProperties(documentDepthProperties);
-
-        jaxbProvider.setCollectionWrapperMap(Map.of("org.apache.syncope.common.lib.policy.PolicyTO", "policies"));
-
-        return jaxbProvider;
-    }
-
-    @Bean
-    public JacksonJaxbJsonProvider jsonProvider() {
-        JacksonJaxbJsonProvider jsonProvider = new JacksonJaxbJsonProvider();
+    public JacksonJsonProvider jsonProvider() {
+        JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
         jsonProvider.setMapper(new SyncopeObjectMapper());
         return jsonProvider;
     }
 
     @Bean
-    public JacksonJaxbYAMLProvider yamlProvider() {
-        JacksonJaxbYAMLProvider yamlProvider = new JacksonJaxbYAMLProvider();
+    public JacksonXMLProvider xmlProvider() {
+        JacksonXMLProvider xmlProvider = new JacksonXMLProvider();
+        xmlProvider.setMapper(new SyncopeXmlMapper());
+        return xmlProvider;
+    }
+
+    @Bean
+    public JacksonYAMLProvider yamlProvider() {
+        JacksonYAMLProvider yamlProvider = new JacksonYAMLProvider();
         yamlProvider.setMapper(new SyncopeYAMLMapper());
         return yamlProvider;
     }
@@ -161,20 +151,6 @@ public class RESTCXFContext {
     }
 
     @Bean
-    public WadlGenerator wadlGenerator() {
-        WadlGenerator wadlGenerator = new WadlGenerator();
-        wadlGenerator.setApplicationTitle("Apache Syncope " + version);
-        wadlGenerator.setNamespacePrefix(SyncopeConstants.NS_PREFIX);
-        wadlGenerator.setIncrementNamespacePrefix(false);
-        wadlGenerator.setLinkAnyMediaTypeToXmlSchema(true);
-        wadlGenerator.setUseJaxbContextForQnames(true);
-        wadlGenerator.setAddResourceAndMethodIds(true);
-        wadlGenerator.setIgnoreMessageWriters(true);
-        wadlGenerator.setUsePathParamsToCompareOperations(false);
-        return wadlGenerator;
-    }
-
-    @Bean
     public OpenApiFeature openapiFeature() {
         OpenApiFeature openapiFeature = new OpenApiFeature();
         openapiFeature.setTitle("Apache Syncope");
@@ -224,15 +200,14 @@ public class RESTCXFContext {
 
         restContainer.setProviders(List.of(
                 dateParamConverterProvider(),
-                jaxbProvider(),
                 jsonProvider(),
+                xmlProvider(),
                 yamlProvider(),
                 restServiceExceptionMapper(),
                 searchContextProvider(),
                 checkDomainFilter(),
                 addDomainFilter(),
-                addETagFilter(),
-                wadlGenerator()));
+                addETagFilter()));
 
         restContainer.setInInterceptors(List.of(
                 gzipInInterceptor(),

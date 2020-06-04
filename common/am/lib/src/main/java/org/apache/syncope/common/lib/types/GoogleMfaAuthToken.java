@@ -16,23 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.common.lib.types;
 
+import java.util.Date;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+public class GoogleMfaAuthToken implements BaseBean {
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Optional;
-
-@XmlRootElement(name = "googleMfaAuthToken")
-@XmlType
-public class GoogleMfaAuthToken implements Serializable {
     private static final long serialVersionUID = 2185073386484048953L;
 
     private String key;
@@ -69,23 +63,23 @@ public class GoogleMfaAuthToken implements Serializable {
 
     public Date getIssueDate() {
         return Optional.ofNullable(this.issueDate).
-            map(date -> new Date(date.getTime())).orElse(null);
+                map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setIssueDate(final Date issueDate) {
         this.issueDate = Optional.ofNullable(issueDate).
-            map(date -> new Date(date.getTime())).orElse(null);
+                map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-            .appendSuper(super.hashCode())
-            .append(key)
-            .append(token)
-            .append(owner)
-            .append(issueDate)
-            .toHashCode();
+                .appendSuper(super.hashCode())
+                .append(key)
+                .append(token)
+                .append(owner)
+                .append(issueDate)
+                .toHashCode();
     }
 
     @Override
@@ -101,24 +95,24 @@ public class GoogleMfaAuthToken implements Serializable {
         }
         GoogleMfaAuthToken rhs = (GoogleMfaAuthToken) obj;
         return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.key, rhs.key)
-            .append(this.token, rhs.token)
-            .append(this.owner, rhs.owner)
-            .append(this.issueDate, rhs.issueDate)
-            .isEquals();
+                .appendSuper(super.equals(obj))
+                .append(this.key, rhs.key)
+                .append(this.token, rhs.token)
+                .append(this.owner, rhs.owner)
+                .append(this.issueDate, rhs.issueDate)
+                .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("key", key)
-            .append("token", token)
-            .append("owner", owner)
-            .append("issueDate", issueDate)
-            .toString();
+                .append("key", key)
+                .append("token", token)
+                .append("owner", owner)
+                .append("issueDate", issueDate)
+                .toString();
     }
-    
+
     public static class Builder {
 
         private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();

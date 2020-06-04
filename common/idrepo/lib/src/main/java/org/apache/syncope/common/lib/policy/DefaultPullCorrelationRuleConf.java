@@ -18,16 +18,11 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "defaultPullCorrelationRuleConf")
-@XmlType
 public class DefaultPullCorrelationRuleConf extends AbstractCorrelationRuleConf implements PullCorrelationRuleConf {
 
     private static final long serialVersionUID = 429126085793346273L;
@@ -44,9 +39,8 @@ public class DefaultPullCorrelationRuleConf extends AbstractCorrelationRuleConf 
         this.orSchemas = orSchemas;
     }
 
-    @XmlElementWrapper(name = "schemas")
-    @XmlElement(name = "schema")
-    @JsonProperty("schemas")
+    @JacksonXmlElementWrapper(localName = "schemas")
+    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemas() {
         return schemas;
     }

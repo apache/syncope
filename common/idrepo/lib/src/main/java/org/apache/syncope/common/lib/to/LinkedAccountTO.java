@@ -19,20 +19,15 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
 
-@XmlRootElement(name = "linkedAccount")
-@XmlType
 public class LinkedAccountTO implements EntityTO {
 
     private static final long serialVersionUID = 7396929732310559535L;
@@ -137,9 +132,8 @@ public class LinkedAccountTO implements EntityTO {
         this.suspended = suspended;
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
     }
@@ -149,9 +143,8 @@ public class LinkedAccountTO implements EntityTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "privileges")
-    @XmlElement(name = "privilege")
-    @JsonProperty("privileges")
+    @JacksonXmlElementWrapper(localName = "privileges")
+    @JacksonXmlProperty(localName = "privilege")
     public Set<String> getPrivileges() {
         return privileges;
     }

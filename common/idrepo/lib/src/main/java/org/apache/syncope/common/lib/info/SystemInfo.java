@@ -18,18 +18,11 @@
  */
 package org.apache.syncope.common.lib.info;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import java.util.Queue;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.collections.CircularFifoQueue;
 
-@XmlRootElement(name = "systemInfo")
-@XmlType
-public class SystemInfo implements Serializable {
+public class SystemInfo implements BaseBean {
 
     private static final long serialVersionUID = -352727968865892499L;
 
@@ -85,16 +78,11 @@ public class SystemInfo implements Serializable {
         this.startTime = startTime;
     }
 
-    @XmlElementWrapper(name = "load")
-    @XmlElement(name = "instant")
-    @JsonProperty("load")
     public Queue<LoadInstant> getLoad() {
         return load;
     }
 
-    @XmlRootElement(name = "loadInstant")
-    @XmlType
-    public static class LoadInstant implements Serializable {
+    public static class LoadInstant implements BaseBean {
 
         private static final long serialVersionUID = 1700788373758716478L;
 
@@ -148,5 +136,4 @@ public class SystemInfo implements Serializable {
             this.maxMemory = maxMemory;
         }
     }
-
 }

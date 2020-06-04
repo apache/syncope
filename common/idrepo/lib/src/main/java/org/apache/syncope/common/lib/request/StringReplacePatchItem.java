@@ -18,13 +18,6 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "stringReplacePatchItem")
-@XmlType
-@XmlSeeAlso({ PasswordPatch.class })
 public class StringReplacePatchItem extends AbstractReplacePatchItem<String> {
 
     private static final long serialVersionUID = -5631052324901928363L;

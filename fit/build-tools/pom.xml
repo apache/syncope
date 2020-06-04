@@ -352,7 +352,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
                 </properties>
               </configuration>
@@ -407,7 +407,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
-                  <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
                 </properties>
               </configuration>

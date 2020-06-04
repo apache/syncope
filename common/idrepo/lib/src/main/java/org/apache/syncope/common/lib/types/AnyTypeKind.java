@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -32,7 +31,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
-@XmlEnum
 public enum AnyTypeKind {
 
     USER(UserTO.class, UserCR.class, UserUR.class),

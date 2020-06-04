@@ -21,9 +21,7 @@ package org.apache.syncope.common.lib.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
 public class WorkflowTasks {
 
     private List<String> tasks;

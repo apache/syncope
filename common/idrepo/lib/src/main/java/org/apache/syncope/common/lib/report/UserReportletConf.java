@@ -18,20 +18,14 @@
  */
 package org.apache.syncope.common.lib.report;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 
-@XmlRootElement(name = "userReportletConf")
-@XmlType
 public class UserReportletConf extends AbstractAnyReportletConf {
 
     private static final long serialVersionUID = 6602717600064602764L;
@@ -45,8 +39,6 @@ public class UserReportletConf extends AbstractAnyReportletConf {
     @Schema(anyTypeKind = AnyTypeKind.USER, type = { SchemaType.VIRTUAL })
     private final List<String> virAttrs = new ArrayList<>();
 
-    @XmlEnum
-    @XmlType(name = "userReportletConfFeature")
     public enum Feature {
 
         key,
@@ -69,23 +61,20 @@ public class UserReportletConf extends AbstractAnyReportletConf {
     @SearchCondition(type = "USER")
     protected String matchingCond;
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     public List<String> getPlainAttrs() {
         return plainAttrs;
     }
 
-    @XmlElementWrapper(name = "derAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derAttrs")
+    @JacksonXmlElementWrapper(localName = "derAttrs")
+    @JacksonXmlProperty(localName = "derAttr")
     public List<String> getDerAttrs() {
         return derAttrs;
     }
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
     public List<String> getVirAttrs() {
         return virAttrs;
     }
@@ -108,11 +97,9 @@ public class UserReportletConf extends AbstractAnyReportletConf {
         this.matchingCond = matchingCond;
     }
 
-    @XmlElementWrapper(name = "features")
-    @XmlElement(name = "feature")
-    @JsonProperty("features")
+    @JacksonXmlElementWrapper(localName = "features")
+    @JacksonXmlProperty(localName = "feature")
     public List<Feature> getFeatures() {
         return features;
     }
-
 }

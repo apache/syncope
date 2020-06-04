@@ -18,23 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "pagedResult")
-@XmlType
-public class PagedResult<T extends BaseBean> implements Serializable {
+public class PagedResult<T extends BaseBean> implements BaseBean {
 
     private static final long serialVersionUID = 3472875885259250934L;
 
@@ -66,10 +59,8 @@ public class PagedResult<T extends BaseBean> implements Serializable {
         this.next = next;
     }
 
-    @XmlElementWrapper(name = "result")
-    @XmlElement(name = "item")
-    @JsonProperty("result")
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+    @JacksonXmlElementWrapper(localName = "result")
+    @JacksonXmlProperty(localName = "item")
     public List<T> getResult() {
         return result;
     }

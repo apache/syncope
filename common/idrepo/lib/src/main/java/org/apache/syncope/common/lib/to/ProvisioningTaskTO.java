@@ -19,24 +19,18 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 
-@XmlRootElement(name = "provisioningTask")
-@XmlType
-@XmlSeeAlso({ PushTaskTO.class, PullTaskTO.class })
 @Schema(allOf = { SchedTaskTO.class },
-        subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "@class")
+        subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "_class")
 public abstract class ProvisioningTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
@@ -58,7 +52,6 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
     private final List<String> actions = new ArrayList<>();
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getResource() {
         return resource;
     }
@@ -99,9 +92,8 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
         this.syncStatus = syncStatus;
     }
 
-    @XmlElementWrapper(name = "actions")
-    @XmlElement(name = "action")
-    @JsonProperty("actions")
+    @JacksonXmlElementWrapper(localName = "actions")
+    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }

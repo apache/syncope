@@ -21,18 +21,12 @@ package org.apache.syncope.common.lib.to;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import java.util.Optional;
-
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
-@XmlRootElement(name = "remediation")
-@XmlType
-public class RemediationTO extends BaseBean implements EntityTO {
+public class RemediationTO implements EntityTO {
 
     private static final long serialVersionUID = 3983540425142284975L;
 

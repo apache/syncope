@@ -19,12 +19,10 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.ws.rs.core.Response;
-import javax.xml.bind.annotation.XmlEnum;
 
 /**
  * Status of some execution.
  */
-@XmlEnum
 public enum ExecStatus {
 
     CREATED(Response.Status.CREATED.getStatusCode()),

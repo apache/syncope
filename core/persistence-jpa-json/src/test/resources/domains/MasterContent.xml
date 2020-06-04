@@ -22,66 +22,66 @@ under the License.
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
                   historyLength="1" allowNullPassword="1"/>
   <Implementation id="DefaultPasswordRuleConf1" type="PASSWORD_RULE" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" implementation_id="DefaultPasswordRuleConf1"/>
   <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
                   description="sample password policy" historyLength="0" allowNullPassword="1"/> 
   <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1" implementation_id="DefaultPasswordRuleConf2"/>
   <AccountPolicy id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" description="an account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="0"/>
   <Implementation id="DefaultAccountRuleConf1" type="ACCOUNT_RULE" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
   <AccountPolicyRule policy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" implementation_id="DefaultAccountRuleConf1"/>
   <AccountPolicy id="06e2ed52-6966-44aa-a177-a0ca7434201f" description="sample account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="3"/>
   <Implementation id="DefaultAccountRuleConf2" type="ACCOUNT_RULE"  engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <AccountPolicyRule policy_id="06e2ed52-6966-44aa-a177-a0ca7434201f" implementation_id="DefaultAccountRuleConf2"/>
   <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
   
   <!-- Authentication policies -->
   <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" description="MyDefaultAuthPolicyConf"
-              jsonConf='{"@class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
+              jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
   <AuthPolicy id="b912a0d4-a890-416f-9ab8-84ab077eb028" description="DefaultAuthPolicy"
-              jsonConf='{"@class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
+              jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
 
   <!-- Access policies -->
   <AccessPolicy id="419935c7-deb3-40b3-8a9a-683037e523a2" description="MyDefaultAccessPolicyConf"
-                jsonConf='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","name":"MyDefaultAccessPolicyConf","enabled":true,"ssoEnabled":true}'/>
+                jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","name":"MyDefaultAccessPolicyConf","enabled":true,"ssoEnabled":true}'/>
 
   <!-- Attr Release Policies -->
   <AttrReleasePolicy id="319935c7-deb3-40b3-8a9a-683037e523a2" description="AllowedAttrReleasePolicy"
-                     jsonConf='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
   <AttrReleasePolicy id="219935c7-deb3-40b3-8a9a-683037e523a2" description="DenyAttrReleasePolicy"
-                     jsonConf='{"@class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
   
   <!-- Authentication modules -->
   <AuthModule id="be456831-593d-4003-b273-4c3fb61700df" name="DefaultLDAPAuthModule" 
-              description="LDAP auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","name":"MyLDAPAuthModuleConf","userIdAttribute":"uid","bindCredential":"Password","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"dc=example,dc=org","subtreeSearch":true}'/>
+              description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","name":"MyLDAPAuthModuleConf","userIdAttribute":"uid","bindCredential":"Password","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"dc=example,dc=org","subtreeSearch":true}'/>
   <AuthModule id="4c3ed7e8-7008-11ea-bc55-0242ac130003" name="DefaultJDBCAuthModule"
-              description="JDBC auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","name":"MyJDBCAuthModuleConf", "sql":"SELECT * FROM table WHERE name=?"}'/>
+              description="JDBC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","name":"MyJDBCAuthModuleConf", "sql":"SELECT * FROM table WHERE name=?"}'/>
   <AuthModule id="4c3ed4e6-7008-11ea-bc55-0242ac130003" name="DefaultGoogleMfaAuthModule"
-              description="Google Mfa auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","name":"MyGoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
+              description="Google Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","name":"MyGoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
   <AuthModule id="4c3ed8f6-7008-11ea-bc55-0242ac130003" name="DefaultOIDCAuthModule"
               description="OIDC auth module"
-              jsonConf='{"@class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","name":"MyOIDCAuthModuleConf", "discoveryUri":"https://accounts.google.com/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
+              jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","name":"MyOIDCAuthModuleConf", "discoveryUri":"https://accounts.google.com/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
   <AuthModule id="4c3ed9d2-7008-11ea-bc55-0242ac130003" name="DefaultSAML2IdPAuthModule"
-              description="SAML2 IdP auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","name":"MySAML2IdPAuthModuleConf", "keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"classpath:/idp-metadata.xml", "serviceProviderEntityId":"syncope:apache:org"}'/>
+              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","name":"MySAML2IdPAuthModuleConf", "keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"classpath:/idp-metadata.xml", "serviceProviderEntityId":"syncope:apache:org"}'/>
   <AuthModule id="4c3edbbc-7008-11ea-bc55-0242ac130003" name="DefaultJaasAuthModule"
-              description="Jaas auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","name":"MyJaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value"}'/>
+              description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","name":"MyJaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value"}'/>
   <AuthModule id="4c3edc98-7008-11ea-bc55-0242ac130003" name="DefaultStaticAuthModule"
-              description="Static auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","name":"MyStaticAuthModuleConf","users":{"user1": "testUserPassword123"}}'/>
+              description="Static auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","name":"MyStaticAuthModuleConf","users":{"user1": "testUserPassword123"}}'/>
   <AuthModule id="4c3edd60-7008-11ea-bc55-0242ac130003" name="DefaultSyncopeAuthModule"
-              description="Syncope auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","name":"MySyncopeAuthModuleConf","domain":"Master","url":"http://mydomain.com/syncope/rest"}'/>
+              description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","name":"MySyncopeAuthModuleConf","domain":"Master","url":"http://mydomain.com/syncope/rest"}'/>
   <AuthModule id="07c528f3-63b4-4dc1-a4da-87f35b8bdec8" name="DefaultRadiusAuthModule"
-              description="Radius auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.RadiusAuthModuleConf","name":"MyRadiusAuthModuleConf","protocol":"MSCHAPv2","inetAddress":"1.2.3.4", "sharedSecret":"thesecret"}'/>
+              description="Radius auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.RadiusAuthModuleConf","name":"MyRadiusAuthModuleConf","protocol":"MSCHAPv2","inetAddress":"1.2.3.4", "sharedSecret":"thesecret"}'/>
   <AuthModule id="f6e1288d-50d9-45fe-82ee-597c42242205" name="DefaultU2FAuthModule"
-              description="U2F auth module" jsonConf='{"@class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","name":"MyU2FAuthModuleConf","expireDevices":40}'/>
+              description="U2F auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","name":"MyU2FAuthModuleConf","expireDevices":40}'/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
@@ -457,7 +457,7 @@ under the License.
   <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" description="a pull policy" conflictResolutionAction="IGNORE"/>
   <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy" conflictResolutionAction="ALL"/>
   <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
   <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
                              anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
   <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" conflictResolutionAction="IGNORE"/>
@@ -466,7 +466,7 @@ under the License.
   <!-- push policies -->
   <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" description="a push policy" conflictResolutionAction="IGNORE"/>
   <Implementation id="TestPushCorrelationRule" type="PUSH_CORRELATION_RULE" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["surname"]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["surname"]}'/>
   <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" 
                              anyType_id="USER" implementation_id="TestPushCorrelationRule"/>
   
@@ -1015,10 +1015,10 @@ under the License.
         jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="3a6173a9-8c34-4e37-b3b1-0c2ea385fac0"
                        pullTask_id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" anyType_id="USER"
-                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"groupKey":"f779c0d4-633b-4be5-8f57-32eb478a3ca5","groupName":null}],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"groupKey":"f779c0d4-633b-4be5-8f57-32eb478a3ca5","groupName":null}],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
   <AnyTemplatePullTask id="b3772d66-ec06-4133-bf38-b3273845ac5b"
                        pullTask_id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" anyType_id="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Implementation id="TestSampleJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.fit.core.reference.TestSampleJobDelegate"/>
   <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec597979" name="SampleJob Task" active="1"
@@ -1035,9 +1035,9 @@ under the License.
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="6c3f578d-327b-4a7c-8037-6f5ba24eb770" pullTask_id="83f7e85d-9774-43fe-adba-ccd856312994" anyType_id="USER"
-                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["&apos;type a&apos;"]},{"schema":"userId","values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","values":["&apos;surname&apos;"]}]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["&apos;type a&apos;"]},{"schema":"userId","values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","values":["&apos;surname&apos;"]}]}'/>
   <AnyTemplatePullTask id="45b61137-c7c3-49ee-86e0-9efffa75ae68" pullTask_id="83f7e85d-9774-43fe-adba-ccd856312994" anyType_id="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="PullTask" remediation="0" id="81d88f73-d474-4450-9031-605daa4e313f" name="TestDB2 Task" resource_id="resource-testdb2"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
@@ -1048,9 +1048,9 @@ under the License.
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="df655a2a-40c0-43b1-a157-3f4988802f58" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="USER"
-                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":"&apos;/&apos; + title","status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["minimal group"],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":"&apos;/&apos; + title","status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["minimal group"],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[]}'/>
   <AnyTemplatePullTask id="fda22ff3-98f3-42e4-a2ae-cd9a28282d57" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","values":["true"]}]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","values":["true"]}]}'/>
   <Implementation id="LDAPMembershipPullActions" type="PULL_ACTIONS"  engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
   <PullTaskAction task_id="1e419ca4-ea81-4493-a14f-28b90113686d" implementation_id="LDAPMembershipPullActions"/>
@@ -1127,9 +1127,9 @@ under the License.
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="8bc41ba1-cc1d-4ee0-bb43-61cd148b414f" pullTask_id="986867e2-993b-430e-8feb-aa9abb4c1dcd" anyType_id="USER"
-                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[{"schema":"firstname","values":[""]},{"schema":"userId","values":["&apos;test&apos;"]},{"schema":"fullname","values":["&apos;test&apos;"]},{"schema":"surname","values":["&apos;test&apos;"]}]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[{"schema":"firstname","values":[""]},{"schema":"userId","values":["&apos;test&apos;"]},{"schema":"fullname","values":["&apos;test&apos;"]},{"schema":"surname","values":["&apos;test&apos;"]}]}'/>
   <AnyTemplatePullTask id="9af0e343-8a37-42d2-9bc7-6e2e3b103219" pullTask_id="986867e2-993b-430e-8feb-aa9abb4c1dcd" anyType_id="GROUP"
-                       template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="PullTask" remediation="0" id="feae4e57-15ca-40d9-b973-8b9015efca49" name="CSV (unlink matching; ignore unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="IGNORE" matchingRule="UNLINK" active="1" jobDelegate_id="PullJobDelegate"/>
@@ -1324,7 +1324,7 @@ $$ }&#10;
     &lt;/html&gt;&#10;
   &lt;/xsl:template&gt;&#10;
 &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.StaticReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.StaticReportlet']&quot;&gt;&#10;
     &lt;h2&gt;Reportlet: &#10;
       &lt;xsl:value-of select=&quot;@name&quot;/&gt;&#10;
     &lt;/h2&gt;&#10;
@@ -1374,7 +1374,7 @@ $$ }&#10;
     &lt;/xsl:if&gt;&#10;
   &lt;/xsl:template&gt;&#10;
   &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.UserReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.UserReportlet']&quot;&gt;&#10;
     &#10;
     &lt;h3&gt;Reportlet: &lt;xsl:value-of select=&quot;@name&quot;/&gt;&lt;/h3&gt;&#10;
     &#10;
@@ -1519,7 +1519,7 @@ $$ }&#10;
        &#10;
   &lt;/xsl:template&gt;&#10;
 &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.GroupReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.GroupReportlet']&quot;&gt;&#10;
     &lt;h2&gt;Reportlet: &lt;xsl:value-of select=&quot;@name&quot;/&gt;&lt;/h2&gt;&#10;
     &lt;xsl:for-each select=&quot;group&quot;&gt;&#10;
       &lt;h3&gt;Group &lt;xsl:value-of select=&quot;@name&quot;/&gt;&lt;/h3&gt;&#10;
@@ -1685,7 +1685,7 @@ $$ }&#10;
 &#10;
   &lt;xsl:variable name=&quot;delimiter&quot; select=&quot;';'&quot;/&gt;&#10;
    &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.StaticReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.StaticReportlet']&quot;&gt;&#10;
     &lt;xsl:call-template name=&quot;header&quot;&gt;&#10;
       &lt;xsl:with-param name=&quot;node&quot; select=&quot;configurations/staticAttributes&quot;/&gt;&#10;
     &lt;/xsl:call-template&gt;&#10;
@@ -1743,7 +1743,7 @@ $$ }&#10;
     &lt;/xsl:for-each&gt;&#10;
   &lt;/xsl:template&gt;&#10;
   &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.UserReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.UserReportlet']&quot;&gt;&#10;
     &#10;
     &lt;xsl:call-template name=&quot;header&quot;&gt;&#10;
       &lt;xsl:with-param name=&quot;node&quot; select=&quot;configurations/userAttributes&quot;/&gt;&#10;
@@ -1824,7 +1824,7 @@ $$ }&#10;
     &lt;/xsl:for-each&gt;&#10;
   &lt;/xsl:template&gt;&#10;
   &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.GroupReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.GroupReportlet']&quot;&gt;&#10;
     &#10;
     &lt;xsl:call-template name=&quot;header&quot;&gt;&#10;
       &lt;xsl:with-param name=&quot;node&quot; select=&quot;configurations/groupAttributes&quot;/&gt;&#10;
@@ -1966,7 +1966,7 @@ $$ }&#10;
     &lt;/fo:root&gt;&#10;
   &lt;/xsl:template&gt;&#10;
 &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.StaticReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.StaticReportlet']&quot;&gt;&#10;
 &#10;
     &lt;fo:block font-size=&quot;14pt&quot; font-weight=&quot;bold&quot; space-after=&quot;0.5cm&quot;&gt;Reportlet: &#10;
       &lt;xsl:value-of select=&quot;@name&quot;/&gt;&#10;
@@ -2025,7 +2025,7 @@ $$ }&#10;
         &#10;
   &lt;/xsl:template&gt;&#10;
   &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.UserReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.UserReportlet']&quot;&gt;&#10;
    &#10;
     &lt;fo:block font-size=&quot;16pt&quot; font-weight=&quot;bold&quot; space-after=&quot;0.5cm&quot; space-before=&quot;5mm&quot;&gt;Reportlet: &lt;xsl:value-of select=&quot;@name&quot;/&gt;&lt;/fo:block&gt;&#10;
         &#10;
@@ -2189,7 +2189,7 @@ $$ }&#10;
     &lt;/xsl:for-each&gt;&#10;
   &lt;/xsl:template&gt;&#10;
   &#10;
-  &lt;xsl:template match=&quot;reportlet[@class='org.apache.syncope.core.provisioning.java.job.report.GroupReportlet']&quot;&gt;&#10;
+  &lt;xsl:template match=&quot;reportlet[_class='org.apache.syncope.core.provisioning.java.job.report.GroupReportlet']&quot;&gt;&#10;
    &#10;
     &lt;fo:block font-size=&quot;16pt&quot; font-weight=&quot;bold&quot; space-after=&quot;0.5cm&quot; space-before=&quot;5mm&quot;&gt;Reportlet: &lt;xsl:value-of select=&quot;@name&quot;/&gt;&lt;/fo:block&gt;&#10;
         &#10;
@@ -2366,14 +2366,14 @@ $$ }&#10;
   
   <Report id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" name="test" active="1" template_id="sample"/>
   <Implementation id="UserReportletConf" type="REPORTLET" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
   <ReportReportlet report_id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" implementation_id="UserReportletConf"/>
   <ReportExec report_id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" id="c13f39c5-0d35-4bff-ba79-3cd5de940369"
               status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
 
   <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
   <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
-                  body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
 
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>

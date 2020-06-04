@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.ext.self.keymaster.cxf;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
@@ -62,25 +60,8 @@ public class SelfKeymasterContext {
     @Autowired
     private ApplicationContext ctx;
 
-    @Resource(name = "version")
-    private String version;
-
     @Bean
-    public WadlGenerator selfKeymasterWADLGenerator() {
-        WadlGenerator wadlGenerator = new WadlGenerator();
-        wadlGenerator.setApplicationTitle("Apache Syncope Self Keymaster " + version);
-        wadlGenerator.setNamespacePrefix("syncope30");
-        wadlGenerator.setIncrementNamespacePrefix(false);
-        wadlGenerator.setLinkAnyMediaTypeToXmlSchema(true);
-        wadlGenerator.setUseJaxbContextForQnames(true);
-        wadlGenerator.setAddResourceAndMethodIds(true);
-        wadlGenerator.setIgnoreMessageWriters(true);
-        wadlGenerator.setUsePathParamsToCompareOperations(false);
-        return wadlGenerator;
-    }
-
-    @Bean
-    public Server selfKeymasterContainer() {
+    public Server selfKeymasterContainer(final JacksonJsonProvider jsonProvider) {
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
         selfKeymasterContainer.setAddress("/keymaster");
@@ -99,8 +80,7 @@ public class SelfKeymasterContext {
 
         selfKeymasterContainer.setProviders(List.of(
                 ctx.getBean(RestServiceExceptionMapper.class),
-                ctx.getBean(JacksonJaxbJsonProvider.class),
-                selfKeymasterWADLGenerator()));
+                jsonProvider));
 
         selfKeymasterContainer.setApplicationContext(ctx);
         return selfKeymasterContainer.create();

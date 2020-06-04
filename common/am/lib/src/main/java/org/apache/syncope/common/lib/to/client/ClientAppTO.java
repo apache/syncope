@@ -21,28 +21,22 @@ package org.apache.syncope.common.lib.to.client;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 
-@XmlRootElement(name = "clientApp")
-@XmlType
-@XmlSeeAlso({ OIDCRPTO.class, SAML2SPTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
-@JsonPropertyOrder(value = { "@class", "key", "description" })
-@Schema(subTypes = { OIDCRPTO.class, SAML2SPTO.class }, discriminatorProperty = "@class")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "key", "description" })
+@Schema(subTypes = { OIDCRPTO.class, SAML2SPTO.class }, discriminatorProperty = "_class")
 public abstract class ClientAppTO implements EntityTO {
 
     private static final long serialVersionUID = 6577639976115661357L;
 
-    @XmlTransient
-    @JsonProperty("@class")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
     private String discriminator;
 
     private String key;
@@ -59,7 +53,7 @@ public abstract class ClientAppTO implements EntityTO {
 
     private String attrReleasePolicy;
 
-    @Schema(name = "@class", required = true)
+    @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

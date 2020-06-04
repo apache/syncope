@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlType
-@XmlSeeAlso({ DefaultPullCorrelationRuleConf.class, DefaultPushCorrelationRuleConf.class })
-public abstract class AbstractCorrelationRuleConf implements Serializable, RuleConf {
+public abstract class AbstractCorrelationRuleConf implements BaseBean, RuleConf {
 
     private static final long serialVersionUID = -4080475005967851092L;
 

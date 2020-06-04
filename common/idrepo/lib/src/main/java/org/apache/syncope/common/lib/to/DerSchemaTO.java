@@ -19,15 +19,11 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "derSchema")
-@XmlType
 @Schema(allOf = { SchemaTO.class })
 public class DerSchemaTO extends SchemaTO {
 
@@ -35,9 +31,9 @@ public class DerSchemaTO extends SchemaTO {
 
     private String expression;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.DerSchemaTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.DerSchemaTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "application")
-@XmlType
 public class ApplicationTO implements EntityTO {
 
     private static final long serialVersionUID = -4117796727736925215L;
@@ -58,11 +53,9 @@ public class ApplicationTO implements EntityTO {
         this.description = description;
     }
 
-    @XmlElementWrapper(name = "privileges")
-    @XmlElement(name = "privilege")
-    @JsonProperty("privileges")
+    @JacksonXmlElementWrapper(localName = "privileges")
+    @JacksonXmlProperty(localName = "privilege")
     public List<PrivilegeTO> getPrivileges() {
         return privileges;
     }
-
 }

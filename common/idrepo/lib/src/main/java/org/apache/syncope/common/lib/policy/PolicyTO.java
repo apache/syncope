@@ -21,34 +21,27 @@ package org.apache.syncope.common.lib.policy;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 
-@XmlRootElement(name = "policy")
-@XmlType
-@XmlSeeAlso({ AccountPolicyTO.class, PasswordPolicyTO.class, ProvisioningPolicyTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
-@JsonPropertyOrder(value = { "@class", "key", "description" })
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "key", "description" })
 @Schema(
         subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class },
-        discriminatorProperty = "@class")
+        discriminatorProperty = "_class")
 public abstract class PolicyTO implements EntityTO {
 
     private static final long serialVersionUID = -2903888572649721035L;
 
-    @XmlTransient
-    @JsonProperty("@class")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
     private String discriminator;
 
     private String key;
@@ -59,7 +52,7 @@ public abstract class PolicyTO implements EntityTO {
 
     private final List<String> usedByRealms = new ArrayList<>();
 
-    @Schema(name = "@class", required = true)
+    @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {
@@ -79,7 +72,6 @@ public abstract class PolicyTO implements EntityTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getDescription() {
         return description;
     }
@@ -89,17 +81,15 @@ public abstract class PolicyTO implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @XmlElementWrapper(name = "usedByResources")
-    @XmlElement(name = "resource")
-    @JsonProperty("usedByResources")
+    @JacksonXmlElementWrapper(localName = "usedByResources")
+    @JacksonXmlProperty(localName = "resource")
     public List<String> getUsedByResources() {
         return usedByResources;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @XmlElementWrapper(name = "usedByRealms")
-    @XmlElement(name = "group")
-    @JsonProperty("usedByRealms")
+    @JacksonXmlElementWrapper(localName = "usedByRealms")
+    @JacksonXmlProperty(localName = "group")
     public List<String> getUsedByRealms() {
         return usedByRealms;
     }

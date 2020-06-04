@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
 import org.apache.logging.log4j.Level;
 
-@XmlEnum
 public enum LoggerLevel {
 
     OFF(Level.OFF),

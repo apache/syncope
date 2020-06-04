@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.xml.bind.annotation.XmlType;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
-@XmlRootElement(name = "oidcAuthModuleConf")
-@XmlType
 public class OIDCAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
@@ -78,7 +69,6 @@ public class OIDCAuthModuleConf extends AbstractAuthModuleConf {
     /**
      * Custom parameters to send along in authZ requests, etc.
      */
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> customParams = new HashMap<>(0);
 
     /**
@@ -157,9 +147,6 @@ public class OIDCAuthModuleConf extends AbstractAuthModuleConf {
         this.maxClockSkew = maxClockSkew;
     }
 
-    @XmlElementWrapper(name = "customParams")
-    @XmlElement(name = "customParam")
-    @JsonProperty("customParams")
     public Map<String, String> getCustomParams() {
         return customParams;
     }

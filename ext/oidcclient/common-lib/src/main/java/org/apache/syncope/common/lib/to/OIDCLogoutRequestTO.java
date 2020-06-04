@@ -19,11 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "oidcLogoutRequest")
-@XmlType
 public class OIDCLogoutRequestTO implements Serializable {
 
     private static final long serialVersionUID = -4708360216757961537L;

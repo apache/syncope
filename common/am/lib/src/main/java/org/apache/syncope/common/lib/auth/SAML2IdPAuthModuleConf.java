@@ -18,16 +18,9 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "saml2IdPAuthModuleConf")
-@XmlType
 public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
@@ -54,7 +47,6 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
      * The password to use when generating the private key for the SP keystore.
      */
     private String privateKeyPassword;
-
 
     /**
      * The metadata location of the identity provider that is to handle authentications.
@@ -279,9 +271,6 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
         this.nameIdPolicyAllowCreate = nameIdPolicyAllowCreate;
     }
 
-    @XmlElementWrapper(name = "authnContextClassRefs")
-    @XmlElement(name = "authnContextClassRef")
-    @JsonProperty("authnContextClassRefs")
     public List<String> getAuthnContextClassRefs() {
         return authnContextClassRefs;
     }
@@ -366,23 +355,14 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
         this.signServiceProviderLogoutRequest = signServiceProviderLogoutRequest;
     }
 
-    @XmlElementWrapper(name = "blackListedSignatureSigningAlgorithms")
-    @XmlElement(name = "blackListedSignatureSigningAlgorithm")
-    @JsonProperty("blackListedSignatureSigningAlgorithms")
     public List<String> getBlackListedSignatureSigningAlgorithms() {
         return blackListedSignatureSigningAlgorithms;
     }
 
-    @XmlElementWrapper(name = "signatureAlgorithms")
-    @XmlElement(name = "signatureAlgorithm")
-    @JsonProperty("signatureAlgorithms")
     public List<String> getSignatureAlgorithms() {
         return signatureAlgorithms;
     }
 
-    @XmlElementWrapper(name = "signatureReferenceDigestMethods")
-    @XmlElement(name = "signatureReferenceDigestMethod")
-    @JsonProperty("signatureReferenceDigestMethods")
     public List<String> getSignatureReferenceDigestMethods() {
         return signatureReferenceDigestMethods;
     }

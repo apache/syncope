@@ -18,22 +18,16 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
 
-@XmlRootElement(name = "membershipUR")
-@XmlType
 public class MembershipUR extends AbstractPatch {
 
     private static final long serialVersionUID = -6783121761221554433L;
@@ -95,16 +89,14 @@ public class MembershipUR extends AbstractPatch {
         this.group = group;
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
     }
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
     public Set<Attr> getVirAttrs() {
         return virAttrs;
     }

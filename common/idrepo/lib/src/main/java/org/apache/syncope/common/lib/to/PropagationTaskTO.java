@@ -19,18 +19,13 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
-@XmlRootElement(name = "propagationTask")
-@XmlType
 @Schema(allOf = { TaskTO.class })
 public class PropagationTaskTO extends TaskTO {
 
@@ -54,16 +49,15 @@ public class PropagationTaskTO extends TaskTO {
 
     private String entityKey;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PropagationTaskTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.PropagationTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getConnObjectKey() {
         return connObjectKey;
     }
@@ -81,7 +75,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getResource() {
         return resource;
     }
@@ -91,7 +84,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public ResourceOperation getOperation() {
         return operation;
     }
@@ -101,7 +93,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getAttributes() {
         return attributes;
     }
@@ -111,7 +102,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getObjectClassName() {
         return objectClassName;
     }
@@ -121,7 +111,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public AnyTypeKind getAnyTypeKind() {
         return anyTypeKind;
     }
@@ -131,7 +120,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getAnyType() {
         return anyType;
     }
@@ -141,7 +129,6 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getEntityKey() {
         return entityKey;
     }

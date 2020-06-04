@@ -19,27 +19,20 @@
 package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "platformInfo")
-@XmlType
-public class PlatformInfo implements Serializable {
+public class PlatformInfo implements BaseBean {
 
     private static final long serialVersionUID = -7941853999417673827L;
 
-    @XmlRootElement(name = "provisioningInfo")
-    @XmlType
-    public static class ProvisioningInfo implements Serializable {
+    public static class ProvisioningInfo implements BaseBean {
 
         private static final long serialVersionUID = 533340357732839568L;
 
@@ -114,9 +107,7 @@ public class PlatformInfo implements Serializable {
         }
     }
 
-    @XmlRootElement(name = "workflowInfo")
-    @XmlType
-    public static class WorkflowInfo implements Serializable {
+    public static class WorkflowInfo implements BaseBean {
 
         private static final long serialVersionUID = 6736937721099195324L;
 
@@ -151,9 +142,7 @@ public class PlatformInfo implements Serializable {
         }
     }
 
-    @XmlRootElement(name = "persistenceInfo")
-    @XmlType
-    public static class PersistenceInfo implements Serializable {
+    public static class PersistenceInfo implements BaseBean {
 
         private static final long serialVersionUID = 2902980556801069487L;
 
@@ -316,9 +305,8 @@ public class PlatformInfo implements Serializable {
         return pwdResetRequiringSecurityQuestions;
     }
 
-    @XmlElementWrapper(name = "connIdLocations")
-    @XmlElement(name = "connIdLocation")
-    @JsonProperty("connIdLocations")
+    @JacksonXmlElementWrapper(localName = "connIdLocations")
+    @JacksonXmlProperty(localName = "connIdLocation")
     public Set<String> getConnIdLocations() {
         return connIdLocations;
     }
@@ -331,44 +319,38 @@ public class PlatformInfo implements Serializable {
         this.passwordGenerator = passwordGenerator;
     }
 
-    @XmlElementWrapper(name = "anyTypes")
-    @XmlElement(name = "anyType")
-    @JsonProperty("anyTypes")
+    @JacksonXmlElementWrapper(localName = "anyTypes")
+    @JacksonXmlProperty(localName = "anyType")
     public List<String> getAnyTypes() {
         return anyTypes;
     }
 
-    @XmlElementWrapper(name = "userClasses")
-    @XmlElement(name = "userClass")
-    @JsonProperty("userClasses")
+    @JacksonXmlElementWrapper(localName = "userClasses")
+    @JacksonXmlProperty(localName = "userClass")
     public List<String> getUserClasses() {
         return userClasses;
     }
 
-    @XmlElementWrapper(name = "anyTypeClasses")
-    @XmlElement(name = "anyTypeClass")
-    @JsonProperty("anyTypeClasses")
+    @JacksonXmlElementWrapper(localName = "anyTypeClasses")
+    @JacksonXmlProperty(localName = "anyTypeClass")
     public List<String> getAnyTypeClasses() {
         return anyTypeClasses;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
+    @JacksonXmlElementWrapper(localName = "resources")
+    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }
 
-    @XmlElementWrapper(name = "entitlements")
-    @XmlElement(name = "entitlement")
-    @JsonProperty("entitlements")
+    @JacksonXmlElementWrapper(localName = "entitlements")
+    @JacksonXmlProperty(localName = "entitlement")
     public Set<String> getEntitlements() {
         return entitlements;
     }
 
-    @XmlElementWrapper(name = "implementationTypes")
-    @XmlElement(name = "implementationType")
-    @JsonProperty("implementationTypes")
+    @JacksonXmlElementWrapper(localName = "implementationTypes")
+    @JacksonXmlProperty(localName = "implementationType")
     public Set<String> getImplementationTypes() {
         return implementationTypes;
     }
@@ -378,9 +360,8 @@ public class PlatformInfo implements Serializable {
         return javaImplInfos.stream().filter(javaImplInfo -> javaImplInfo.getType().equals(type)).findFirst();
     }
 
-    @XmlElementWrapper(name = "javaImplInfos")
-    @XmlElement(name = "javaImplInfo")
-    @JsonProperty("javaImplInfos")
+    @JacksonXmlElementWrapper(localName = "javaImplInfos")
+    @JacksonXmlProperty(localName = "javaImplInfo")
     public Set<JavaImplInfo> getJavaImplInfos() {
         return javaImplInfos;
     }
