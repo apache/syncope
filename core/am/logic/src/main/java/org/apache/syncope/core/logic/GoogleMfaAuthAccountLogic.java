@@ -152,4 +152,17 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
             filter(profile -> profile.getGoogleMfaAuthAccount() != null).
             count();
     }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_ACCOUNT + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void deleteAccountBy(final String key) {
+        authProfileDAO.findAll().
+            stream().
+            filter(profile -> profile.getGoogleMfaAuthAccount().getKey().equals(key)).
+            findFirst().
+            ifPresent(profile -> {
+                profile.setGoogleMfaAuthAccount(null);
+                authProfileDAO.save(profile);
+            });
+    }
 }

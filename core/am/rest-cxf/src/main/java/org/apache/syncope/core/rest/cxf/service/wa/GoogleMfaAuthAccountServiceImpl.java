@@ -27,6 +27,7 @@ import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
@@ -39,6 +40,12 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     @Override
     public Response deleteAccountFor(final String owner) {
         logic.deleteAccountFor(owner);
+        return Response.noContent().build();
+    }
+
+    @Override
+    public Response deleteAccountBy(final String key) {
+        logic.deleteAccountBy(key);
         return Response.noContent().build();
     }
 

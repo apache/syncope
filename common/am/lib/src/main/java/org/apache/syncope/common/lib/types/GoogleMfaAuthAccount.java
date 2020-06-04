@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @XmlRootElement(name = "googleMfaAuthAccount")
 @XmlType
@@ -89,11 +90,13 @@ public class GoogleMfaAuthAccount implements Serializable {
     }
 
     public Date getRegistrationDate() {
-        return registrationDate;
+        return Optional.ofNullable(this.registrationDate).
+            map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setRegistrationDate(final Date registrationDate) {
-        this.registrationDate = registrationDate;
+        this.registrationDate = Optional.ofNullable(registrationDate).
+            map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override

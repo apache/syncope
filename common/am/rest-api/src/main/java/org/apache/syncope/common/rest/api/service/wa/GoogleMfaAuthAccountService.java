@@ -58,6 +58,12 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("accts/${key}")
+    Response deleteAccountBy(@NotNull @PathParam("key") String key);
+
+    @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("accts")
     Response deleteAll();
 
