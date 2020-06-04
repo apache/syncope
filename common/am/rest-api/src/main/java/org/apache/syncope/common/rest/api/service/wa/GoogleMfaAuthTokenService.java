@@ -30,7 +30,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
-import java.util.List;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -38,6 +37,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
@@ -103,7 +103,7 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Path("tokens/owners/${owner}")
-    List<GoogleMfaAuthToken> findTokensFor(@NotNull @PathParam("owner") String owner);
+    PagedResult<GoogleMfaAuthToken> findTokensFor(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Path("tokens/{key}")
@@ -114,12 +114,6 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/${owner}/count")
-    long countTokensForOwner(@NotNull @PathParam("owner") String owner);
-
-    @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Path("tokens/count")
-    long countTokens();
+    PagedResult<GoogleMfaAuthToken> countTokens();
 }

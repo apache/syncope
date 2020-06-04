@@ -34,6 +34,7 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -47,7 +48,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static final String ADDRESS = "http://localhost:9080/syncope/rest";
+    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
     public static final List<WAClientApp> APPS = new ArrayList<>();
 
@@ -56,7 +57,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
-        synchronized (serviceOps) {
+        synchronized (ADDRESS) {
             if (serviceOps.list(NetworkService.Type.CORE).isEmpty()) {
                 // 1. start (mocked) Core as embedded CXF
                 JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
@@ -66,8 +67,8 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                         WAClientAppService.class,
                         new SingletonResourceProvider(new StubWAClientAppService(), true));
                 sf.setResourceProvider(
-                    GoogleMfaAuthTokenService.class,
-                    new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
+                        GoogleMfaAuthTokenService.class,
+                        new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
                 sf.setProviders(List.of(new JacksonJsonProvider()));
                 sf.create();
 
@@ -81,6 +82,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
     }
 
     public static class StubGoogleMfaAuthTokenService implements GoogleMfaAuthTokenService {
+
         private final List<GoogleMfaAuthToken> tokens = new ArrayList<>();
 
         @Override
@@ -123,34 +125,34 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public GoogleMfaAuthToken findTokenFor(@NotNull final String owner, @NotNull final Integer token) {
             return tokens.stream()
-                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
-                .findFirst().get();
+                    .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
+                    .findFirst().get();
         }
 
         @Override
-        public List<GoogleMfaAuthToken> findTokensFor(@NotNull final String user) {
-            return tokens.stream()
-                .filter(to -> to.getOwner().equalsIgnoreCase(user))
-                .collect(Collectors.toList());
+        public PagedResult<GoogleMfaAuthToken> findTokensFor(@NotNull final String user) {
+            PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
+            result.getResult().addAll(tokens.stream().
+                    filter(to -> to.getOwner().equalsIgnoreCase(user)).
+                    collect(Collectors.toList()));
+            result.setSize(result.getResult().size());
+            result.setTotalCount(result.getSize());
+            return result;
         }
 
         @Override
         public GoogleMfaAuthToken findTokenFor(@NotNull final String key) {
             return tokens.stream()
-                .filter(to -> to.getKey().equalsIgnoreCase(key))
-                .findFirst().get();
+                    .filter(to -> to.getKey().equalsIgnoreCase(key))
+                    .findFirst().get();
         }
 
         @Override
-        public long countTokensForOwner(@NotNull final String user) {
-            return tokens.stream()
-                .filter(to -> to.getOwner().equalsIgnoreCase(user))
-                .count();
-        }
-
-        @Override
-        public long countTokens() {
-            return tokens.size();
+        public PagedResult<GoogleMfaAuthToken> countTokens() {
+            PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
+            result.setSize(tokens.size());
+            result.setTotalCount(tokens.size());
+            return result;
         }
     }
 
@@ -164,13 +166,13 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public WAClientApp read(final Long clientAppId, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(clientAppId, app.getClientAppTO().getClientAppId())).
-                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
+                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
         }
 
         @Override
         public WAClientApp read(final String name, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(name, app.getClientAppTO().getName())).
-                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
+                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
         }
     }
 }
