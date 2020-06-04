@@ -24,8 +24,10 @@ import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +35,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
+import java.util.UUID;
 
 @Component
 public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthProfileTO> {
@@ -64,56 +68,88 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
                 return authProfileDAO.findByKey(key).
                     map(authProfileDataBinder::getAuthProfileTO).
                     orElseThrow();
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
+            } catch (final Throwable e) {
+                LOG.debug("Unresolved reference", e);
+                throw new UnresolvedReferenceException(e);
             }
         }
-
         throw new UnresolvedReferenceException();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteAccountFor(final String owner) {
-
+        authProfileDAO.findByOwner(owner).ifPresent(profile -> {
+            profile.setGoogleMfaAuthAccount(null);
+            authProfileDAO.save(profile);
+        });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteAll() {
-
-
+        authProfileDAO.findAll().
+            forEach(profile -> {
+                profile.setGoogleMfaAuthAccount(null);
+                authProfileDAO.save(profile);
+            });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_SAVE_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public GoogleMfaAuthAccount save(final GoogleMfaAuthAccount acct) {
-        return null;
+        AuthProfile profile = authProfileDAO.findByOwner(acct.getOwner()).
+            orElseGet(() -> {
+                final AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
+                authProfile.setOwner(acct.getOwner());
+                return authProfile;
+            });
+
+        if (acct.getKey() == null) {
+            acct.setKey(UUID.randomUUID().toString());
+        }
+        profile.setGoogleMfaAuthAccount(acct);
+        return authProfileDAO.save(profile).getGoogleMfaAuthAccount();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_UPDATE_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void update(final GoogleMfaAuthAccount acct) {
-
+        AuthProfile profile = authProfileDAO.findByOwner(acct.getOwner()).
+            orElseThrow(() -> new NotFoundException("Could not find account for Owner " + acct.getOwner()));
+        profile.setGoogleMfaAuthAccount(acct);
+        authProfileDAO.save(profile).getGoogleMfaAuthAccount();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public GoogleMfaAuthAccount findAccountFor(final String owner) {
-        return null;
+        return authProfileDAO.findByOwner(owner).
+            stream().
+            map(AuthProfile::getGoogleMfaAuthAccount).
+            filter(Objects::nonNull).
+            findFirst().
+            orElseThrow(() -> new NotFoundException("Could not find account for Owner " + owner));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public GoogleMfaAuthAccount findAccountBy(final String key) {
-        return null;
+        return authProfileDAO.findAll().
+            stream().
+            map(AuthProfile::getGoogleMfaAuthAccount).
+            filter(acct -> acct.getKey().equals(key)).
+            findFirst().
+            orElse(null);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_COUNT_ACCOUNTS + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public long countAll() {
-        return 0;
+        return authProfileDAO.findAll().
+            stream().
+            filter(profile -> profile.getGoogleMfaAuthAccount() != null).
+            count();
     }
 }
