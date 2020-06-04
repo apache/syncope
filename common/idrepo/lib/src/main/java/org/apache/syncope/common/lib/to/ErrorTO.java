@@ -18,19 +18,14 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
-@XmlRootElement(name = "error")
-@XmlType
-public class ErrorTO implements Serializable {
+public class ErrorTO implements BaseBean {
 
     private static final long serialVersionUID = 2435764161719225927L;
 
@@ -56,11 +51,9 @@ public class ErrorTO implements Serializable {
         this.type = type;
     }
 
-    @XmlElementWrapper(name = "elements")
-    @XmlElement(name = "element")
-    @JsonProperty("elements")
+    @JacksonXmlElementWrapper(localName = "elements")
+    @JacksonXmlProperty(localName = "element")
     public List<String> getElements() {
         return elements;
     }
-
 }

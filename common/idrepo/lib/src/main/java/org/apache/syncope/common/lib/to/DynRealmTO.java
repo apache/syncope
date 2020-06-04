@@ -18,24 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
-@XmlRootElement(name = "dynRealm")
-@XmlType
 public class DynRealmTO implements EntityTO {
 
     private static final long serialVersionUID = 4560822655754800031L;
 
     private String key;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> dynMembershipConds = new HashMap<>();
 
     @Override
@@ -49,7 +41,6 @@ public class DynRealmTO implements EntityTO {
         this.key = key;
     }
 
-    @JsonProperty
     public Map<String, String> getDynMembershipConds() {
         return dynMembershipConds;
     }

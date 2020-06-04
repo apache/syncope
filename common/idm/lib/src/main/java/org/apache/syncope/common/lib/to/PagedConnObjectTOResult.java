@@ -18,21 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "pagedConnObjectResult")
-@XmlType
-public class PagedConnObjectTOResult implements Serializable {
+public class PagedConnObjectTOResult implements BaseBean {
 
     private static final long serialVersionUID = -2832908019064402976L;
 
@@ -112,9 +107,8 @@ public class PagedConnObjectTOResult implements Serializable {
         this.allResultsReturned = allResultsReturned;
     }
 
-    @XmlElementWrapper(name = "result")
-    @XmlElement(name = "item")
-    @JsonProperty("result")
+    @JacksonXmlElementWrapper(localName = "result")
+    @JacksonXmlProperty(localName = "item")
     public List<ConnObjectTO> getResult() {
         return result;
     }

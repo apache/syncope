@@ -18,16 +18,25 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Date;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.Optional;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "userRequest")
-@XmlType
-public class UserRequest extends BaseBean {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "bpmnProcess" })
+public class UserRequest implements BaseBean {
 
     private static final long serialVersionUID = -8430826310789942133L;
+
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    private final String clazz = "org.apache.syncope.common.lib.to.UserRequest";
 
     private String bpmnProcess;
 
@@ -52,11 +61,11 @@ public class UserRequest extends BaseBean {
     }
 
     public Date getStartTime() {
-        return startTime;
+        return Optional.ofNullable(startTime).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setStartTime(final Date startTime) {
-        this.startTime = startTime;
+        this.startTime = Optional.ofNullable(startTime).map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public String getUsername() {
@@ -99,4 +108,39 @@ public class UserRequest extends BaseBean {
         this.hasForm = hasForm;
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(bpmnProcess).
+                append(startTime).
+                append(username).
+                append(executionId).
+                append(activityId).
+                append(taskId).
+                append(hasForm).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        UserRequest other = (UserRequest) obj;
+        return new EqualsBuilder().
+                append(bpmnProcess, other.bpmnProcess).
+                append(startTime, other.startTime).
+                append(username, other.username).
+                append(executionId, other.executionId).
+                append(activityId, other.activityId).
+                append(taskId, other.taskId).
+                append(hasForm, other.hasForm).
+                build();
+    }
 }

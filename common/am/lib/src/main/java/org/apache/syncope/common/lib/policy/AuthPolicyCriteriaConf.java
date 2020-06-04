@@ -19,7 +19,7 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
+import org.apache.syncope.common.lib.BaseBean;
 
 /**
  * Determine the criteria by which the authentication policy
@@ -29,8 +29,8 @@ import java.io.Serializable;
  * or "any module can validate the user" before the policy can consider it
  * a success.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface AuthPolicyCriteriaConf extends Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+public interface AuthPolicyCriteriaConf extends BaseBean {
 
     /**
      * Describe the name of the authentication policy criteria.

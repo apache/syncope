@@ -38,7 +38,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -929,12 +928,6 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void customPolicyRules() {
-        // Using custom policy rules with application/xml requires to overwrite
-        // org.apache.syncope.common.lib.policy.AbstractAccountRuleConf's and / or
-        // org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf's
-        // @XmlSeeAlso - the power of JAXB :-/
-        assumeTrue(MediaType.APPLICATION_JSON_TYPE.equals(clientFactory.getContentType().getMediaType()));
-
         ImplementationTO implementationTO = new ImplementationTO();
         implementationTO.setKey("TestAccountRuleConf" + UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);

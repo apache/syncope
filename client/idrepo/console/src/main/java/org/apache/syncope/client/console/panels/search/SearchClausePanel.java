@@ -135,7 +135,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final Pair<IModel<List<String>>, Integer> groupInfo;
+    private final Pair<IModel<List<String>>, IModel<Integer>> groupInfo;
 
     private final IModel<List<String>> roleNames;
 
@@ -168,7 +168,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Customizer customizer,
             final IModel<Map<String, PlainSchemaTO>> anames,
             final IModel<List<String>> dnames,
-            final Pair<IModel<List<String>>, Integer> groupInfo,
+            final Pair<IModel<List<String>>, IModel<Integer>> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> privilegeNames,
             final IModel<List<String>> resourceNames) {
@@ -435,7 +435,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     String[] inputAsArray = property.getField().getInputAsArray();
                     if (ArrayUtils.isEmpty(inputAsArray)) {
                         property.setChoices(properties.getObject());
-                    } else if (groupInfo.getRight() > Constants.MAX_GROUP_LIST_SIZE) {
+                    } else if (groupInfo.getRight().getObject() > Constants.MAX_GROUP_LIST_SIZE) {
                         String inputValue = inputAsArray.length > 1 && inputAsArray[1] != null
                                 ? inputAsArray[1]
                                 : property.getField().getInput();

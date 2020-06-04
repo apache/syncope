@@ -22,28 +22,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlType
-@XmlSeeAlso({ UserUR.class, GroupUR.class, AnyObjectUR.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
-@JsonPropertyOrder(value = { "@class", "key" })
-@Schema(subTypes = { UserUR.class, GroupUR.class, AnyObjectUR.class }, discriminatorProperty = "@class")
-public abstract class AnyUR implements Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "key" })
+@Schema(subTypes = { UserUR.class, GroupUR.class, AnyObjectUR.class }, discriminatorProperty = "_class")
+public abstract class AnyUR implements BaseBean {
 
     private static final long serialVersionUID = -7445489774552440544L;
 
@@ -147,8 +142,8 @@ public abstract class AnyUR implements Serializable {
         }
     }
 
-    @XmlTransient
-    @JsonProperty("@class")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
     private String discriminator;
 
     private String key;
@@ -163,7 +158,7 @@ public abstract class AnyUR implements Serializable {
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
-    @Schema(name = "@class", required = true)
+    @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {
@@ -171,7 +166,6 @@ public abstract class AnyUR implements Serializable {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public String getKey() {
         return key;
     }
@@ -189,30 +183,26 @@ public abstract class AnyUR implements Serializable {
         this.realm = realm;
     }
 
-    @XmlElementWrapper(name = "auxClasses")
-    @XmlElement(name = "auxClass")
-    @JsonProperty("auxClasses")
+    @JacksonXmlElementWrapper(localName = "auxClasses")
+    @JacksonXmlProperty(localName = "auxClass")
     public Set<StringPatchItem> getAuxClasses() {
         return auxClasses;
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     public Set<AttrPatch> getPlainAttrs() {
         return plainAttrs;
     }
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
     public Set<Attr> getVirAttrs() {
         return virAttrs;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
+    @JacksonXmlElementWrapper(localName = "resources")
+    @JacksonXmlProperty(localName = "resource")
     public Set<StringPatchItem> getResources() {
         return resources;
     }

@@ -60,7 +60,7 @@ import org.springframework.core.env.Environment;
 
 public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WadlGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeOpenApiCustomizer.class);
 
     private final Environment env;
 

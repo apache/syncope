@@ -20,20 +20,19 @@ package org.apache.syncope.common.lib.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Map;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.log.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 
-public class AuditLoggerName implements Serializable {
+public class AuditLoggerName implements BaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;
 

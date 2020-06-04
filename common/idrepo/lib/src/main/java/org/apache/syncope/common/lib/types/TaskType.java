@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -26,7 +25,6 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 
-@XmlEnum
 public enum TaskType {
 
     PROPAGATION(PropagationTaskTO.class),

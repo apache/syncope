@@ -18,17 +18,9 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "jdbcAuthModuleConf")
-@XmlType
 public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = 8383233437907219385L;
@@ -68,7 +60,7 @@ public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
      * The database connection URL.
      */
     private String url = "jdbc:h2:tcp://localhost:9092/mem:authdb;DB_CLOSE_DELAY=-1";
-    
+
     /**
      * The database user.
      * <p>
@@ -119,9 +111,6 @@ public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
         this.fieldDisabled = fieldDisabled;
     }
 
-    @XmlElementWrapper(name = "principalAttributeList")
-    @XmlElement(name = "principalAttributeList")
-    @JsonProperty("principalAttributeList")
     public List<String> getPrincipalAttributeList() {
         return principalAttributeList;
     }

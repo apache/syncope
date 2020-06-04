@@ -18,21 +18,16 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement
-@XmlType
-public class ConnConfProperty implements Serializable, Comparable<ConnConfProperty> {
+public class ConnConfProperty implements BaseBean, Comparable<ConnConfProperty> {
 
     private static final long serialVersionUID = -8391413960221862238L;
 
@@ -50,9 +45,8 @@ public class ConnConfProperty implements Serializable, Comparable<ConnConfProper
         this.schema = schema;
     }
 
-    @XmlElementWrapper(name = "values")
-    @XmlElement(name = "value")
-    @JsonProperty("values")
+    @JacksonXmlElementWrapper(localName = "values")
+    @JacksonXmlProperty(localName = "value")
     public List<Object> getValues() {
         return values;
     }

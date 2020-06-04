@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
@@ -192,7 +191,7 @@ public class PolicyTest extends AbstractTest {
         accessPolicy.setDescription("AttrReleasePolicyAllowEverything");
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.getRequiredAttrs().putAll(Map.of("cn", Set.of("syncope")));
+        conf.addRequiredAttr("cn", Set.of("syncope"));
         conf.setName("AttrReleasePolicyAllowEverything");
         accessPolicy.setConf(conf);
 

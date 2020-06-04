@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
 public enum SAML2BindingType {
     POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
     REDIRECT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect");

@@ -16,9 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.rest.cxf.service.wa;
 
+import java.net.URI;
+import java.util.Date;
+import java.util.List;
+import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -27,14 +31,9 @@ import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.util.Date;
-import java.util.List;
-
 @Service
 public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthTokenService {
+
     @Autowired
     private GoogleMfaAuthTokenLogic logic;
 
@@ -73,8 +72,8 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
         final GoogleMfaAuthToken token = logic.save(tokenTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
         return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, token.getKey()).
-            build();
+                header(RESTHeaders.RESOURCE_KEY, token.getKey()).
+                build();
     }
 
     @Override
@@ -83,8 +82,17 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public List<GoogleMfaAuthToken> findTokensFor(final String owner) {
-        return logic.findTokensFor(owner);
+    public PagedResult<GoogleMfaAuthToken> findTokensFor(final String owner) {
+        List<GoogleMfaAuthToken> tokens = logic.findTokensFor(owner);
+
+        PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
+        result.getResult().addAll(tokens);
+
+        result.setPage(1);
+        result.setSize(result.getResult().size());
+        result.setTotalCount(result.getSize());
+
+        return result;
     }
 
     @Override
@@ -93,12 +101,12 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public long countTokensForOwner(final String owner) {
-        return logic.countTokensFor(owner);
-    }
+    public PagedResult<GoogleMfaAuthToken> countTokens() {
+        PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
 
-    @Override
-    public long countTokens() {
-        return logic.countAll();
+        result.setSize(logic.countAll());
+        result.setTotalCount(result.getSize());
+
+        return result;
     }
 }

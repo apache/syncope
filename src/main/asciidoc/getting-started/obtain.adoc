@@ -239,9 +239,6 @@ The following services will be available:
 | Complete REST API reference
 | http://localhost:18080/syncope/index.html
 
-| http://swagger.io/[Swagger^] UI
-| http://localhost:18080/syncope/swagger
-
 | Administration console
 | http://localhost:28080/syncope-console +
 Credentials: `admin` / `password`
@@ -480,9 +477,6 @@ $ mvn -P embedded,all
 
 | Complete REST API reference
 | http://localhost:9080/syncope/index.html
-
-| http://swagger.io/[Swagger^] UI
-| http://localhost:9080/syncope/swagger/
 
 | Administration console
 | http://localhost:9080/syncope-console/ +

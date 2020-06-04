@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "anyTypeClass")
-@XmlType
 public class AnyTypeClassTO implements EntityTO {
 
     private static final long serialVersionUID = -591757688607551266L;
@@ -54,32 +49,27 @@ public class AnyTypeClassTO implements EntityTO {
         this.key = key;
     }
 
-    @XmlElementWrapper(name = "plainSchemas")
-    @XmlElement(name = "schema")
-    @JsonProperty("plainSchemas")
+    @JacksonXmlElementWrapper(localName = "plainSchemas")
+    @JacksonXmlProperty(localName = "plainSchema")
     public List<String> getPlainSchemas() {
         return plainSchemas;
     }
 
-    @XmlElementWrapper(name = "derSchemas")
-    @XmlElement(name = "schema")
-    @JsonProperty("derSchemas")
+    @JacksonXmlElementWrapper(localName = "derSchemas")
+    @JacksonXmlProperty(localName = "derSchema")
     public List<String> getDerSchemas() {
         return derSchemas;
     }
 
-    @XmlElementWrapper(name = "virSchemas")
-    @XmlElement(name = "schema")
-    @JsonProperty("virSchemas")
+    @JacksonXmlElementWrapper(localName = "virSchemas")
+    @JacksonXmlProperty(localName = "virSchema")
     public List<String> getVirSchemas() {
         return virSchemas;
     }
 
-    @XmlElementWrapper(name = "inUseByTypes")
-    @XmlElement(name = "anyTypeClass")
-    @JsonProperty("inUseByTypes")
+    @JacksonXmlElementWrapper(localName = "inUseByTypes")
+    @JacksonXmlProperty(localName = "inUseByType")
     public List<String> getInUseByTypes() {
         return inUseByTypes;
     }
-
 }

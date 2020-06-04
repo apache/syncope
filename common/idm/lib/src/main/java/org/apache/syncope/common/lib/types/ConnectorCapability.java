@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
-
 /**
  * Enum of all possible capabilities that a connector instance can expose.
  */
-@XmlEnum
 public enum ConnectorCapability {
 
     AUTHENTICATE,

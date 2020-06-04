@@ -19,14 +19,9 @@
 package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlType
-@XmlSeeAlso({ AbstractReplacePatchItem.class, LongPatchItem.class, StringPatchItem.class })
 public abstract class AbstractPatchItem<T> extends AbstractPatch {
 
     private static final long serialVersionUID = -8889326446009942028L;
@@ -44,7 +39,6 @@ public abstract class AbstractPatchItem<T> extends AbstractPatch {
     private T value;
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     public T getValue() {
         return value;
     }

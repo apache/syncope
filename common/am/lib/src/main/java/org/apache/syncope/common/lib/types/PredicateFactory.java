@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
 public enum PredicateFactory {
     AFTER,
     BEFORE,

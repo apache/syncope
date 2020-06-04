@@ -19,30 +19,24 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "connObject")
-@XmlType
-public class ConnObjectTO implements Serializable {
+public class ConnObjectTO implements BaseBean {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
     private final Set<Attr> attrs = new LinkedHashSet<>();
 
-    @XmlElementWrapper(name = "attrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("attrs")
+    @JacksonXmlElementWrapper(localName = "attrs")
+    @JacksonXmlProperty(localName = "attr")
     public Set<Attr> getAttrs() {
         return attrs;
     }

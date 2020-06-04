@@ -18,35 +18,22 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.jaxb.XmlEntityTOAdapter;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "provisioningResult")
-@XmlType
-public class ProvisioningResult<E extends EntityTO> implements Serializable {
+public class ProvisioningResult<E extends EntityTO> implements BaseBean {
 
     private static final long serialVersionUID = 351317476398082746L;
 
-    @XmlJavaTypeAdapter(XmlEntityTOAdapter.class)
     private E entity;
 
     private final List<PropagationStatus> propagationStatuses = new ArrayList<>();
 
-    @XmlTransient
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-    @JsonProperty
     public E getEntity() {
         return entity;
     }
@@ -55,9 +42,8 @@ public class ProvisioningResult<E extends EntityTO> implements Serializable {
         this.entity = entity;
     }
 
-    @XmlElementWrapper(name = "propagationStatuses")
-    @XmlElement(name = "propagationStatus")
-    @JsonProperty("propagationStatuses")
+    @JacksonXmlElementWrapper(localName = "propagationStatuses")
+    @JacksonXmlProperty(localName = "propagationStatus")
     public List<PropagationStatus> getPropagationStatuses() {
         return propagationStatuses;
     }

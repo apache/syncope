@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "ldapAuthModuleConf")
-@XmlType
 public class LDAPAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
@@ -135,9 +126,6 @@ public class LDAPAuthModuleConf extends AbstractAuthModuleConf {
         this.baseDn = baseDn;
     }
 
-    @XmlElementWrapper(name = "principalAttributeList")
-    @XmlElement(name = "principalAttributeList")
-    @JsonProperty("principalAttributeList")
     public List<String> getPrincipalAttributeList() {
         return principalAttributeList;
     }

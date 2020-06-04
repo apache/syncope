@@ -19,10 +19,10 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.io.Serializable;
+import org.apache.syncope.common.lib.BaseBean;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface AuthPolicyConf extends Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+public interface AuthPolicyConf extends BaseBean {
 
     /**
      * Give name of related authentication policy instance.

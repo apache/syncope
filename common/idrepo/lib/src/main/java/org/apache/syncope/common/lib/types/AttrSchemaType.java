@@ -19,9 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import java.util.Date;
-import javax.xml.bind.annotation.XmlEnum;
 
-@XmlEnum
 public enum AttrSchemaType {
 
     String(String.class),

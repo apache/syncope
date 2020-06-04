@@ -19,22 +19,16 @@
 package org.apache.syncope.common.lib.to.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 
-@XmlRootElement(name = "oidcrp")
-@XmlType
 @Schema(allOf = { ClientAppTO.class })
 public class OIDCRPTO extends ClientAppTO {
 
@@ -56,9 +50,9 @@ public class OIDCRPTO extends ClientAppTO {
 
     private final Set<String> supportedResponseTypes = new HashSet<>();
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -80,23 +74,14 @@ public class OIDCRPTO extends ClientAppTO {
         this.clientSecret = clientSecret;
     }
 
-    @XmlElementWrapper(name = "redirectUris")
-    @XmlElement(name = "redirectUri")
-    @JsonProperty("redirectUris")
     public List<String> getRedirectUris() {
         return redirectUris;
     }
 
-    @XmlElementWrapper(name = "supportedGrantTypes")
-    @XmlElement(name = "supportedGrantType")
-    @JsonProperty("supportedGrantTypes")
     public Set<String> getSupportedGrantTypes() {
         return supportedGrantTypes;
     }
 
-    @XmlElementWrapper(name = "supportedResponseTypes")
-    @XmlElement(name = "supportedResponseType")
-    @JsonProperty("supportedResponseTypes")
     public Set<String> getSupportedResponseTypes() {
         return supportedResponseTypes;
     }

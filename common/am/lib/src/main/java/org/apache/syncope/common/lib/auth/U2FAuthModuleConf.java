@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "u2fAuthModuleConf")
-@XmlType
 public class U2FAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -1235771400318503131L;

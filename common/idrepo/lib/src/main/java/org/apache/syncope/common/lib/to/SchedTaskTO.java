@@ -19,22 +19,14 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import java.util.Optional;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement(name = "schedTask")
-@XmlType
-@XmlSeeAlso({ ProvisioningTaskTO.class })
-@Schema(allOf = { TaskTO.class }, subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "@class")
+@Schema(allOf = { TaskTO.class }, subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "_class")
 public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
@@ -55,9 +47,9 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private boolean active = true;
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.SchedTaskTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.SchedTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -119,7 +111,6 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     @Override
     public void setName(final String name) {
         this.name = name;

@@ -18,21 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 
 /**
  * Metadata description of ConnId ObjectClass.
  */
-@XmlRootElement(name = "connIdObjectClass")
-@XmlType
-public class ConnIdObjectClassTO implements Serializable {
+public class ConnIdObjectClassTO implements BaseBean {
 
     private static final long serialVersionUID = -3719658595689434648L;
 
@@ -68,9 +63,8 @@ public class ConnIdObjectClassTO implements Serializable {
         this.auxiliary = auxiliary;
     }
 
-    @XmlElementWrapper(name = "attributes")
-    @XmlElement(name = "attribute")
-    @JsonProperty("attributes")
+    @JacksonXmlElementWrapper(localName = "attributes")
+    @JacksonXmlProperty(localName = "attribute")
     public List<PlainSchemaTO> getAttributes() {
         return attributes;
     }

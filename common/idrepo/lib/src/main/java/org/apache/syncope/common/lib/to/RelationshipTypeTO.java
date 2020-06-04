@@ -19,11 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import javax.ws.rs.Path;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "relationshipType")
-@XmlType
 public class RelationshipTypeTO implements EntityTO {
 
     private static final long serialVersionUID = -1884088415277925817L;
@@ -50,5 +46,4 @@ public class RelationshipTypeTO implements EntityTO {
     public void setDescription(final String description) {
         this.description = description;
     }
-
 }

@@ -21,10 +21,8 @@ package org.apache.syncope.ext.scimv2.cxf;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.jaxrs.model.wadl.WadlGenerator;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
@@ -45,9 +43,6 @@ public class RESTSCIMCXFContext {
     @Autowired
     private ApplicationContext ctx;
 
-    @Resource(name = "version")
-    private String version;
-
     @Bean
     public SCIMJacksonJsonProvider scimJacksonJsonProvider() {
         return new SCIMJacksonJsonProvider();
@@ -61,20 +56,6 @@ public class RESTSCIMCXFContext {
     @Bean
     public AddETagFilter scimAddETagFilter() {
         return new AddETagFilter();
-    }
-
-    @Bean
-    public WadlGenerator scimWADLGenerator() {
-        WadlGenerator wadlGenerator = new WadlGenerator();
-        wadlGenerator.setApplicationTitle("Apache Syncope SCIMv2 " + version);
-        wadlGenerator.setNamespacePrefix("syncope30");
-        wadlGenerator.setIncrementNamespacePrefix(false);
-        wadlGenerator.setLinkAnyMediaTypeToXmlSchema(true);
-        wadlGenerator.setUseJaxbContextForQnames(true);
-        wadlGenerator.setAddResourceAndMethodIds(true);
-        wadlGenerator.setIgnoreMessageWriters(true);
-        wadlGenerator.setUsePathParamsToCompareOperations(false);
-        return wadlGenerator;
     }
 
     @Bean
@@ -98,8 +79,7 @@ public class RESTSCIMCXFContext {
         scimv2Container.setProviders(List.of(
                 scimJacksonJsonProvider(),
                 scimExceptionMapper(),
-                scimAddETagFilter(),
-                scimWADLGenerator()));
+                scimAddETagFilter()));
 
         scimv2Container.setApplicationContext(ctx);
         return scimv2Container.create();

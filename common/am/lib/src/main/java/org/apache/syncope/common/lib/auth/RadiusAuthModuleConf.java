@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "radiusAuthModuleConf")
-@XmlType
 public class RadiusAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -2235771400318503131L;

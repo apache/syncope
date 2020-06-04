@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
 public enum ImplementationEngine {
 
     JAVA("application/java"),
@@ -35,5 +32,4 @@ public enum ImplementationEngine {
     public String getMimeType() {
         return mimeType;
     }
-
 }

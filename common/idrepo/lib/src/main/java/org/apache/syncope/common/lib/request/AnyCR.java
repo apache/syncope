@@ -22,29 +22,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.RealmMember;
 
-@XmlType
-@XmlSeeAlso({ UserUR.class, GroupUR.class, AnyObjectUR.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
-@JsonPropertyOrder(value = { "@class" })
-@Schema(subTypes = { UserCR.class, GroupCR.class, AnyObjectCR.class }, discriminatorProperty = "@class")
-public abstract class AnyCR implements Serializable, RealmMember {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class" })
+@Schema(subTypes = { UserCR.class, GroupCR.class, AnyObjectCR.class }, discriminatorProperty = "_class")
+public abstract class AnyCR implements BaseBean, RealmMember {
 
     private static final long serialVersionUID = -1180587903919947455L;
 
@@ -142,8 +137,8 @@ public abstract class AnyCR implements Serializable, RealmMember {
         }
     }
 
-    @XmlTransient
-    @JsonProperty("@class")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
     private String discriminator;
 
     private String realm;
@@ -156,7 +151,7 @@ public abstract class AnyCR implements Serializable, RealmMember {
 
     private final Set<String> resources = new HashSet<>();
 
-    @Schema(name = "@class", required = true)
+    @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {
@@ -164,7 +159,6 @@ public abstract class AnyCR implements Serializable, RealmMember {
     }
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     @Override
     public String getRealm() {
         return realm;
@@ -175,9 +169,6 @@ public abstract class AnyCR implements Serializable, RealmMember {
         this.realm = realm;
     }
 
-    @XmlElementWrapper(name = "auxClasses")
-    @XmlElement(name = "class")
-    @JsonProperty("auxClasses")
     @Override
     public Set<String> getAuxClasses() {
         return auxClasses;
@@ -189,9 +180,8 @@ public abstract class AnyCR implements Serializable, RealmMember {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -203,7 +193,6 @@ public abstract class AnyCR implements Serializable, RealmMember {
         return Optional.empty();
     }
 
-    @XmlTransient
     @JsonIgnore
     @Override
     public Set<Attr> getDerAttrs() {
@@ -216,17 +205,15 @@ public abstract class AnyCR implements Serializable, RealmMember {
         return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
     @Override
     public Set<Attr> getVirAttrs() {
         return virAttrs;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
+    @JacksonXmlElementWrapper(localName = "resources")
+    @JacksonXmlProperty(localName = "resource")
     @Override
     public Set<String> getResources() {
         return resources;

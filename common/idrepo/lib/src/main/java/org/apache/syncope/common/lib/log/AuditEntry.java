@@ -18,23 +18,18 @@
  */
 package org.apache.syncope.common.lib.log;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 
-@XmlRootElement(name = "auditEntry")
-@XmlType
-public class AuditEntry extends BaseBean {
+public class AuditEntry implements BaseBean {
 
     private static final long serialVersionUID = 1215115961911228005L;
 
@@ -88,9 +83,8 @@ public class AuditEntry extends BaseBean {
         return before;
     }
 
-    @XmlElementWrapper(name = "inputs")
-    @XmlElement(name = "input")
-    @JsonProperty("inputs")
+    @JacksonXmlElementWrapper(localName = "inputs")
+    @JacksonXmlProperty(localName = "input")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public List<String> getInputs() {
         return inputs;

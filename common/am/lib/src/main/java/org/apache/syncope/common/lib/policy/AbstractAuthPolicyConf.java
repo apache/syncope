@@ -18,13 +18,9 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlType
-@XmlSeeAlso({ DefaultAuthPolicyConf.class })
-public abstract class AbstractAuthPolicyConf implements Serializable, AuthPolicyConf {
+public abstract class AbstractAuthPolicyConf implements BaseBean, AuthPolicyConf {
 
     private static final long serialVersionUID = 9185127128182430142L;
 

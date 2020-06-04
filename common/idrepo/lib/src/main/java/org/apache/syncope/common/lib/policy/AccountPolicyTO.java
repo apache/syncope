@@ -19,17 +19,12 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "accountPolicy")
-@XmlType
 @Schema(allOf = { PolicyTO.class })
 public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
 
@@ -43,9 +38,9 @@ public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
 
     private final List<String> passthroughResources = new ArrayList<>();
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.policy.AccountPolicyTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.policy.AccountPolicyTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -67,17 +62,15 @@ public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
-    @XmlElementWrapper(name = "rules")
-    @XmlElement(name = "rule")
-    @JsonProperty("rules")
+    @JacksonXmlElementWrapper(localName = "rules")
+    @JacksonXmlProperty(localName = "rule")
     @Override
     public List<String> getRules() {
         return rules;
     }
 
-    @XmlElementWrapper(name = "passthroughResources")
-    @XmlElement(name = "passthroughResource")
-    @JsonProperty("passthroughResources")
+    @JacksonXmlElementWrapper(localName = "passthroughResources")
+    @JacksonXmlProperty(localName = "passthroughResource")
     public List<String> getPassthroughResources() {
         return passthroughResources;
     }

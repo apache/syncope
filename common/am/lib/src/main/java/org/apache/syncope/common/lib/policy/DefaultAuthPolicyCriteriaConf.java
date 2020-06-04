@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "defaultAuthPolicyCriteriaConf")
-@XmlType
 public class DefaultAuthPolicyCriteriaConf extends AbstractAuthPolicyCriteriaConf {
 
     private static final long serialVersionUID = 3928807032588105869L;

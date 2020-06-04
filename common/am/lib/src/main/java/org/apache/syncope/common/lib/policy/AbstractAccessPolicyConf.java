@@ -18,21 +18,20 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
-import java.util.LinkedHashMap;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
+import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlType
-@XmlSeeAlso({ DefaultAccessPolicyConf.class })
-public abstract class AbstractAccessPolicyConf implements Serializable, AccessPolicyConf {
+public abstract class AbstractAccessPolicyConf implements BaseBean, AccessPolicyConf {
 
     private static final long serialVersionUID = 1153200197344709778L;
 
@@ -42,8 +41,10 @@ public abstract class AbstractAccessPolicyConf implements Serializable, AccessPo
 
     private boolean ssoEnabled = true;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    private final Map<String, Set<String>> requiredAttrs = new LinkedHashMap<>();
+    @JacksonXmlElementWrapper(localName = "requiredAttrs")
+    @JacksonXmlProperty(localName = "requiredAttr")
+    @JsonProperty("requiredAttrs")
+    private final List<Attr> requiredAttrList = new ArrayList<>();
 
     public AbstractAccessPolicyConf() {
         setName(getClass().getName());
@@ -76,11 +77,15 @@ public abstract class AbstractAccessPolicyConf implements Serializable, AccessPo
         this.ssoEnabled = ssoEnabled;
     }
 
-    @XmlElementWrapper(name = "requiredAttrs")
-    @XmlElement(name = "requiredAttr")
-    @JsonProperty("requiredAttrs")
+    @JsonIgnore
     @Override
     public Map<String, Set<String>> getRequiredAttrs() {
-        return requiredAttrs;
+        return requiredAttrList.stream().
+                collect(Collectors.toUnmodifiableMap(Attr::getSchema, attr -> new HashSet<>(attr.getValues())));
+    }
+
+    public void addRequiredAttr(final String key, final Set<String> values) {
+        requiredAttrList.removeIf(attr -> attr.getSchema().equals(key));
+        requiredAttrList.add(new Attr.Builder(key).values(values).build());
     }
 }

@@ -59,7 +59,7 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 
 public class PolicyITCase extends AbstractITCase {
- 
+
     private PullPolicyTO buildPullPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
@@ -247,13 +247,12 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void updateAccessPolicy() {
-        AccessPolicyTO newAccessPolicyTO = buildAccessPolicyTO();
-        newAccessPolicyTO = createPolicy(PolicyType.ACCESS, newAccessPolicyTO);
+        AccessPolicyTO newAccessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
         assertNotNull(newAccessPolicyTO);
 
         DefaultAccessPolicyConf accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
-        accessPolicyConf.getRequiredAttrs().put("ou", Set.of("test"));
-        accessPolicyConf.getRequiredAttrs().put("cn", Set.of("admin", "Admin"));
+        accessPolicyConf.addRequiredAttr("ou", Set.of("test"));
+        accessPolicyConf.addRequiredAttr("cn", Set.of("admin", "Admin"));
 
         // update new authentication policy
         policyService.update(PolicyType.ACCESS, newAccessPolicyTO);
@@ -319,9 +318,7 @@ public class PolicyITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        AccessPolicyTO accessPolicy = buildAccessPolicyTO();
-
-        AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicy);
+        AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
         assertNotNull(accessPolicyTO);
 
         policyService.delete(PolicyType.ACCESS, accessPolicyTO.getKey());

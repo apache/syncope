@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
-@XmlRootElement(name = "stringPatchItem")
-@XmlType
 public class LongPatchItem extends AbstractPatchItem<Long> {
 
     private static final long serialVersionUID = 7308597905137875993L;

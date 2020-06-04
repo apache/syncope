@@ -19,12 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 
-@XmlRootElement(name = "saml2ReceivedResponse")
-@XmlType
 public class SAML2ReceivedResponseTO implements Serializable {
 
     private static final long serialVersionUID = 6102419133516694822L;
@@ -68,5 +64,4 @@ public class SAML2ReceivedResponseTO implements Serializable {
     public void setRelayState(final String relayState) {
         this.relayState = relayState;
     }
-
 }

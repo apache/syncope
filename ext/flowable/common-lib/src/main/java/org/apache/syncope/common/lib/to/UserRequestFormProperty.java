@@ -18,18 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 
-@XmlRootElement(name = "userRequestFormProperty")
-@XmlType
 public class UserRequestFormProperty implements Serializable {
 
     private static final long serialVersionUID = 9139969592634304261L;
@@ -48,11 +45,9 @@ public class UserRequestFormProperty implements Serializable {
 
     private String datePattern;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    private final Map<String, String> enumValues = new HashMap<>();
+    private final List<UserRequestFormPropertyValue> enumValues = new ArrayList<>();
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    private final Map<String, String> dropdownValues = new HashMap<>();
+    private final List<UserRequestFormPropertyValue> dropdownValues = new ArrayList<>();
 
     private String value;
 
@@ -112,13 +107,15 @@ public class UserRequestFormProperty implements Serializable {
         this.datePattern = datePattern;
     }
 
-    @JsonProperty
-    public Map<String, String> getEnumValues() {
+    @JacksonXmlElementWrapper(localName = "enumValues")
+    @JacksonXmlProperty(localName = "enumValue")
+    public List<UserRequestFormPropertyValue> getEnumValues() {
         return enumValues;
     }
 
-    @JsonProperty
-    public Map<String, String> getDropdownValues() {
+    @JacksonXmlElementWrapper(localName = "dropdownValues")
+    @JacksonXmlProperty(localName = "dropdownValue")
+    public List<UserRequestFormPropertyValue> getDropdownValues() {
         return dropdownValues;
     }
 
@@ -128,5 +125,47 @@ public class UserRequestFormProperty implements Serializable {
 
     public void setValue(final String value) {
         this.value = value;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(id).
+                append(name).
+                append(type).
+                append(readable).
+                append(writable).
+                append(required).
+                append(datePattern).
+                append(enumValues).
+                append(dropdownValues).
+                append(value).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        UserRequestFormProperty other = (UserRequestFormProperty) obj;
+        return new EqualsBuilder().
+                append(id, other.id).
+                append(name, other.name).
+                append(type, other.type).
+                append(readable, other.readable).
+                append(writable, other.writable).
+                append(required, other.required).
+                append(datePattern, other.datePattern).
+                append(enumValues, other.enumValues).
+                append(dropdownValues, other.dropdownValues).
+                append(value, other.value).
+                build();
     }
 }

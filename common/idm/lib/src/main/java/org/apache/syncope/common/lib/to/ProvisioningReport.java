@@ -18,23 +18,17 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
 import java.util.Collection;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
-@XmlRootElement(name = "provisioningReport")
-@XmlType
-public class ProvisioningReport implements Serializable {
+public class ProvisioningReport implements BaseBean {
 
     private static final long serialVersionUID = 9201119472070963385L;
 
-    @XmlEnum
     public enum Status {
 
         SUCCESS,

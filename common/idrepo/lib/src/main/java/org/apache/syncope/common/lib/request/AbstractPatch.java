@@ -18,16 +18,12 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.PatchOperation;
 
-@XmlType
-@XmlSeeAlso({ AbstractPatchItem.class, AttrPatch.class, MembershipUR.class, RelationshipUR.class })
-public abstract class AbstractPatch implements Serializable {
+public abstract class AbstractPatch implements BaseBean {
 
     private static final long serialVersionUID = -4729181508529829580L;
 

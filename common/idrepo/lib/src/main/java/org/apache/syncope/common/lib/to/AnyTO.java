@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,28 +32,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.RealmMember;
 
-@XmlType
-@XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "@class")
-@JsonPropertyOrder(value = { "@class", "key", "type", "realm", "username", "name" })
-@Schema(subTypes = { UserTO.class, GroupTO.class, AnyObjectTO.class }, discriminatorProperty = "@class")
-public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "key", "type", "realm", "username", "name" })
+@Schema(subTypes = { UserTO.class, GroupTO.class, AnyObjectTO.class }, discriminatorProperty = "_class")
+public abstract class AnyTO implements EntityTO, RealmMember {
 
     private static final long serialVersionUID = -754311920679872084L;
 
-    @XmlTransient
-    @JsonProperty("@class")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
     private String discriminator;
 
     /**
@@ -98,7 +92,7 @@ public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
 
     private final Set<String> resources = new HashSet<>();
 
-    @Schema(name = "@class", required = true)
+    @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {
@@ -188,9 +182,8 @@ public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
         this.realm = realm;
     }
 
-    @XmlElementWrapper(name = "dynRealms")
-    @XmlElement(name = "dynRealmF")
-    @JsonProperty("dynRealms")
+    @JacksonXmlElementWrapper(localName = "dynRealms")
+    @JacksonXmlProperty(localName = "dynRealmF")
     public List<String> getDynRealms() {
         return dynRealms;
     }
@@ -203,17 +196,15 @@ public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
         this.status = status;
     }
 
-    @XmlElementWrapper(name = "auxClasses")
-    @XmlElement(name = "class")
-    @JsonProperty("auxClasses")
+    @JacksonXmlElementWrapper(localName = "auxClasses")
+    @JacksonXmlProperty(localName = "class")
     @Override
     public Set<String> getAuxClasses() {
         return auxClasses;
     }
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -225,9 +216,8 @@ public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "derAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derAttrs")
+    @JacksonXmlElementWrapper(localName = "derAttrs")
+    @JacksonXmlProperty(localName = "derAttr")
     @Override
     public Set<Attr> getDerAttrs() {
         return derAttrs;
@@ -239,9 +229,8 @@ public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
         return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
     @Override
     public Set<Attr> getVirAttrs() {
         return virAttrs;
@@ -253,9 +242,6 @@ public abstract class AnyTO extends BaseBean implements EntityTO, RealmMember {
         return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
     @Override
     public Set<String> getResources() {
         return resources;

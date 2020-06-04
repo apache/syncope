@@ -18,20 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "typeExtension")
-@XmlType
-public class TypeExtensionTO implements Serializable {
+public class TypeExtensionTO implements BaseBean {
 
     private static final long serialVersionUID = -5422809645030924811L;
 
@@ -47,9 +42,8 @@ public class TypeExtensionTO implements Serializable {
         this.anyType = anyType;
     }
 
-    @XmlElementWrapper(name = "auxClasses")
-    @XmlElement(name = "class")
-    @JsonProperty("auxClasses")
+    @JacksonXmlElementWrapper(localName = "auxClasses")
+    @JacksonXmlProperty(localName = "class")
     public List<String> getAuxClasses() {
         return auxClasses;
     }

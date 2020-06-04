@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Optional;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.JobType;
 
-@XmlRootElement(name = "job")
-@XmlType
-public class JobTO implements Serializable {
+public class JobTO implements BaseBean {
 
     private static final long serialVersionUID = -7254450981751326711L;
 
@@ -101,5 +96,4 @@ public class JobTO implements Serializable {
     public void setStatus(final String status) {
         this.status = status;
     }
-
 }

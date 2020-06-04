@@ -128,10 +128,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
         super(id);
         populate();
-        Pair<IModel<List<String>>, Integer> groupInfo =
-                SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
-                ? Pair.of(groupNames, groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null))
-                : Pair.of(groupNames, 0);
 
         this.model = builder.model;
         this.typeKind = kind;
@@ -145,6 +141,16 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
 
+        Pair<IModel<List<String>>, IModel<Integer>> groupInfo =
+                typeKind != AnyTypeKind.GROUP && SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
+                ? Pair.of(groupNames, new LoadableDetachableModel<Integer>() {
+
+                    @Override
+                    protected Integer load() {
+                        return groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null);
+                    }
+                })
+                : Pair.of(groupNames, Model.of(0));
         SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 required,

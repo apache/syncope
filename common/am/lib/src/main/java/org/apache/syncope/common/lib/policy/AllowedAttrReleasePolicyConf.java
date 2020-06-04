@@ -18,16 +18,9 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 
-@XmlRootElement(name = "allowedAttrReleasePolicyConf")
-@XmlType
 public class AllowedAttrReleasePolicyConf extends AbstractAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private static final long serialVersionUID = -1969836661359025380L;
@@ -38,9 +31,6 @@ public class AllowedAttrReleasePolicyConf extends AbstractAttrReleasePolicyConf 
      */
     private final List<String> allowedAttrs = new ArrayList<>();
 
-    @XmlElementWrapper(name = "allowedAttrs")
-    @XmlElement(name = "allowedAttr")
-    @JsonProperty("allowedAttrs")
     public List<String> getAllowedAttrs() {
         return allowedAttrs;
     }

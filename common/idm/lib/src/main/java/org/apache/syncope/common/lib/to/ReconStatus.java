@@ -19,18 +19,14 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
 
 /**
  * Reconciliation status.
  */
-@XmlRootElement(name = "reconStatus")
-@XmlType
-public class ReconStatus implements Serializable {
+public class ReconStatus implements BaseBean {
 
     private static final long serialVersionUID = -8516345256596521490L;
 

@@ -19,38 +19,26 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
-@XmlRootElement(name = "pushTask")
-@XmlType
-@XmlAccessorType(XmlAccessType.FIELD)
 @Schema(allOf = { ProvisioningTaskTO.class })
 public class PushTaskTO extends ProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809018L;
 
     @JsonProperty(required = true)
-    @XmlElement(required = true)
     private String sourceRealm;
 
-    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, String> filters = new HashMap<>();
 
-    @XmlTransient
-    @JsonProperty("@class")
-    @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.PushTaskTO")
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.PushTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

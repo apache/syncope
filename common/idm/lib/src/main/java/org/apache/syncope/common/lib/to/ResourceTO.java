@@ -19,25 +19,18 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
-@XmlRootElement(name = "resource")
-@XmlType
 public class ResourceTO implements EntityTO {
 
     private static final long serialVersionUID = -9193551354041698963L;
@@ -232,9 +225,6 @@ public class ResourceTO implements EntityTO {
                 findFirst();
     }
 
-    @XmlElementWrapper(name = "provisions")
-    @XmlElement(name = "provision")
-    @JsonProperty("provisions")
     public List<ProvisionTO> getProvisions() {
         return provisions;
     }
@@ -247,9 +237,6 @@ public class ResourceTO implements EntityTO {
         this.orgUnit = orgUnit;
     }
 
-    @XmlElementWrapper(name = "confOverride")
-    @XmlElement(name = "property")
-    @JsonProperty("confOverride")
     public List<ConnConfProperty> getConfOverride() {
         return confOverride;
     }
@@ -262,9 +249,6 @@ public class ResourceTO implements EntityTO {
         this.overrideCapabilities = overrideCapabilities;
     }
 
-    @XmlElementWrapper(name = "capabilitiesOverride")
-    @XmlElement(name = "capability")
-    @JsonProperty("capabilitiesOverride")
     public Set<ConnectorCapability> getCapabilitiesOverride() {
         return capabilitiesOverride;
     }
@@ -277,9 +261,6 @@ public class ResourceTO implements EntityTO {
         this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
-    @XmlElementWrapper(name = "propagationActions")
-    @XmlElement(name = "propagationAction")
-    @JsonProperty("propagationActions")
     public List<String> getPropagationActions() {
         return propagationActions;
     }

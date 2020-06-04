@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.common.lib.report;
 
-import javax.xml.bind.annotation.XmlType;
-
-@XmlType
 public abstract class AbstractAnyReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = -5388597116592877789L;

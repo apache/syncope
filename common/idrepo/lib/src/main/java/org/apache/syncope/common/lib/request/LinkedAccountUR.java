@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 
-@XmlRootElement(name = "linkedAccountPatch")
-@XmlType
 public class LinkedAccountUR extends AbstractPatch {
 
     private static final long serialVersionUID = 7848357705991620487L;

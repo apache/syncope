@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
 import java.util.Map;
+import org.apache.syncope.common.lib.BaseBean;
 
 @FunctionalInterface
-public interface TemplatableTO extends Serializable {
+public interface TemplatableTO extends BaseBean {
 
     Map<String, AnyTO> getTemplates();
 }

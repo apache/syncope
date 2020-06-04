@@ -18,15 +18,11 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.io.Serializable;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
-@XmlRootElement(name = "relationship")
-@XmlType
-public class RelationshipTO implements Serializable {
+public class RelationshipTO implements BaseBean {
 
     private static final long serialVersionUID = 360672942026613929L;
 
