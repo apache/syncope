@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter;
+package org.apache.syncope.wa.starter.services;
 
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import java.util.Collection;
@@ -35,15 +35,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 
-public class SyncopeServiceRegistry extends AbstractServiceRegistry {
+public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeServiceRegistry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAServiceRegistry.class);
 
     private final WARestClient waRestClient;
 
     private final RegisteredServiceMapper registeredServiceMapper;
 
-    public SyncopeServiceRegistry(
+    public SyncopeWAServiceRegistry(
             final WARestClient restClient,
             final RegisteredServiceMapper registeredServiceMapper,
             final ConfigurableApplicationContext applicationContext,

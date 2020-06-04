@@ -35,8 +35,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthProfileTO> {
@@ -139,6 +141,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
         return authProfileDAO.findAll().
             stream().
             map(AuthProfile::getGoogleMfaAuthAccount).
+            filter(Objects::nonNull).
             filter(acct -> acct.getKey().equals(key)).
             findFirst().
             orElse(null);
@@ -158,11 +161,22 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
     public void deleteAccountBy(final String key) {
         authProfileDAO.findAll().
             stream().
-            filter(profile -> profile.getGoogleMfaAuthAccount().getKey().equals(key)).
+            filter(profile -> profile.getGoogleMfaAuthAccount() != null
+                && profile.getGoogleMfaAuthAccount().getKey().equals(key)).
             findFirst().
             ifPresent(profile -> {
                 profile.setGoogleMfaAuthAccount(null);
                 authProfileDAO.save(profile);
             });
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @Transactional(readOnly = true)
+    public List<GoogleMfaAuthAccount> list() {
+        return authProfileDAO.findAll().
+            stream().
+            map(AuthProfile::getGoogleMfaAuthAccount).
+            filter(Objects::nonNull).
+            collect(Collectors.toList());
     }
 }

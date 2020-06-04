@@ -19,6 +19,7 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
@@ -27,7 +28,6 @@ import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
@@ -80,7 +80,21 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public long countAll() {
-        return logic.countAll();
+    public PagedResult<GoogleMfaAuthAccount> countAll() {
+        PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
+        result.setSize(Long.valueOf(logic.countAll()).intValue());
+        result.setPage(1);
+        result.setTotalCount(result.getSize());
+        return result;
+    }
+
+    @Override
+    public PagedResult<GoogleMfaAuthAccount> list() {
+        PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
+        result.setSize(Long.valueOf(logic.countAll()).intValue());
+        result.setPage(1);
+        result.setTotalCount(result.getSize());
+        result.getResult().addAll(logic.list());
+        return result;
     }
 }

@@ -22,11 +22,11 @@ package org.apache.syncope.common.lib.types;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.syncope.common.lib.BaseBean;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.Optional;
 
 @XmlRootElement(name = "googleMfaAuthAccount")
 @XmlType
-public class GoogleMfaAuthAccount implements Serializable {
+public class GoogleMfaAuthAccount implements BaseBean {
     private static final long serialVersionUID = 1274073386484048953L;
 
     private String key;

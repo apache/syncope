@@ -21,6 +21,7 @@ package org.apache.syncope.wa.starter;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
 
+import org.apache.syncope.wa.starter.config.SyncopeWARefreshContextJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;

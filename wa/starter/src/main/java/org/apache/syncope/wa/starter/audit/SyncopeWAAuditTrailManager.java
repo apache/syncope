@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter;
+package org.apache.syncope.wa.starter.audit;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
 
     private final WARestClient waRestClient;
 
-    SyncopeWAAuditTrailManager(final WARestClient restClient) {
+    public SyncopeWAAuditTrailManager(final WARestClient restClient) {
         super(true);
         this.waRestClient = restClient;
     }

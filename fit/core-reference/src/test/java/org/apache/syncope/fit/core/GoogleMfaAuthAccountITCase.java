@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.fit.core;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
 import java.util.Date;
@@ -73,7 +73,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
         googleMfaAuthAccountService.save(acct);
         assertEquals(1, googleMfaAuthAccountService.countAll());
-        assertEquals(1, googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
+        assertNotNull(googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
     }
 
     @Test
@@ -84,19 +84,21 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         assertNotNull(key);
         response = googleMfaAuthAccountService.deleteAccountFor(acct.getOwner());
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.NO_CONTENT.getStatusCode());
-        assertThrows(NotFoundException.class, () -> googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
+        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
     }
 
     @Test
     public void update() {
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        googleMfaAuthAccountService.save(acct);
-        assertEquals(1, googleMfaAuthAccountService.countAll());
-        acct.setOwner("NewOwner");
+        Response response = googleMfaAuthAccountService.save(acct);
+        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        acct = googleMfaAuthAccountService.findAccountBy(key);
+        acct.setSecretKey("NewSecret");
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
         googleMfaAuthAccountService.update(acct);
         assertEquals(1, googleMfaAuthAccountService.countAll());
-        assertEquals(1, googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
+        acct = googleMfaAuthAccountService.findAccountFor(acct.getOwner());
+        assertEquals(acct.getSecretKey(), acct.getSecretKey());
         googleMfaAuthAccountService.deleteAccountBy(acct.getKey());
     }
 }
