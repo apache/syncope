@@ -36,7 +36,7 @@ public class RemediationRestClient extends BaseRestClient {
 
     public static int countRemediations() {
         return getService(RemediationService.class).
-                list(new RemediationQuery.Builder().page(1).size(1).build()).
+                list(new RemediationQuery.Builder().page(1).size(0).build()).
                 getTotalCount();
     }
 
