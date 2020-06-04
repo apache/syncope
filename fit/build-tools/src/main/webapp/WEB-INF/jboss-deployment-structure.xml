@@ -8,7 +8,7 @@ to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+  http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
@@ -24,6 +24,7 @@ under the License.
       <subsystem name="jaxrs"/>
       <subsystem name="jaxws"/>
       <subsystem name="jsf"/>
+      <subsystem name="bean-validation"/>
     </exclude-subsystems>
     <dependencies>
       <module name="org.apache.xalan"/>
@@ -31,6 +32,9 @@ under the License.
       <module name="javax.jws.api"/>
     </dependencies>
     <exclusions>
+      <module name="javax.validation.api"/>
+      <module name="org.hibernate.validator"/>
+      <module name="org.hibernate.validator.cdi"/>
       <module name="javax.ws.soap.api"/>
       <module name="javax.ws.rs.api"/>
       <module name="org.apache.cxf"/>
