@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
@@ -35,12 +36,15 @@ import java.util.List;
 
 @Entity
 @Table(name = JPAAuthProfile.TABLE, uniqueConstraints =
-    @UniqueConstraint(columnNames = { "owner" }))
+@UniqueConstraint(columnNames = {"owner"}))
 public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthProfile {
 
     public static final String TABLE = "AuthProfile";
 
     private static final long serialVersionUID = 57352617217394093L;
+
+    @Lob
+    private String googleMfaAuthAccount;
 
     @Lob
     private String googleMfaAuthTokens;
@@ -69,6 +73,19 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void setGoogleMfaAuthTokens(final List<GoogleMfaAuthToken> tokens) {
         this.googleMfaAuthTokens = POJOHelper.serialize(tokens);
+    }
+
+    @Override
+    public GoogleMfaAuthAccount getGoogleMfaAuthAccount() {
+        return googleMfaAuthAccount == null
+            ? null
+            : POJOHelper.deserialize(googleMfaAuthAccount, new TypeReference<GoogleMfaAuthAccount>() {
+        });
+    }
+
+    @Override
+    public void setGoogleMfaAuthAccount(final GoogleMfaAuthAccount account) {
+        this.googleMfaAuthAccount = POJOHelper.serialize(account);
     }
 
     @Override

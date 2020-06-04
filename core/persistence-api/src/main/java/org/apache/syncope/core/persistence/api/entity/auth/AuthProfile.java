@@ -19,6 +19,7 @@
 
 package org.apache.syncope.core.persistence.api.entity.auth;
 
+import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
@@ -33,6 +34,10 @@ public interface AuthProfile extends Entity {
     List<GoogleMfaAuthToken> getGoogleMfaAuthTokens();
 
     void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
+
+    GoogleMfaAuthAccount getGoogleMfaAuthAccount();
+
+    void setGoogleMfaAuthAccount(GoogleMfaAuthAccount account);
 
     void add(GoogleMfaAuthToken token);
 }
