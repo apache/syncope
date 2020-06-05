@@ -86,6 +86,16 @@ public final class AMEntitlement {
 
     public static final String AUTH_PROFILE_LIST = "AUTH_PROFILE_LIST";
 
+    public static final String GOOGLE_MFA_DELETE_ACCOUNT = "GOOGLE_MFA_DELETE_ACCOUNT";
+
+    public static final String GOOGLE_MFA_SAVE_ACCOUNT = "GOOGLE_MFA_SAVE_ACCOUNT";
+
+    public static final String GOOGLE_MFA_UPDATE_ACCOUNT = "GOOGLE_MFA_UPDATE_ACCOUNT";
+
+    public static final String GOOGLE_MFA_READ_ACCOUNT = "GOOGLE_MFA_READ_ACCOUNT";
+
+    public static final String GOOGLE_MFA_COUNT_ACCOUNTS = "GOOGLE_MFA_COUNT_ACCOUNTS";
+
     private static final Set<String> VALUES;
 
     static {

@@ -53,7 +53,7 @@ import org.apereo.cas.util.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeServiceRegistryTest extends AbstractTest {
+public class SyncopeWAServiceRegistryTest extends AbstractTest {
 
     @Autowired
     private WARestClient wARestClient;

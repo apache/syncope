@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter;
+package org.apache.syncope.wa.starter.config;
 
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.commons.lang.StringUtils;

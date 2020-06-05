@@ -114,6 +114,7 @@ import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreConfService;
+import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.SAML2SPKeystoreService;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataConfService;
@@ -338,6 +339,8 @@ public abstract class AbstractITCase {
 
     protected static GoogleMfaAuthTokenService googleMfaAuthTokenService;
 
+    protected static GoogleMfaAuthAccountService googleMfaAuthAccountService;
+
     protected static AuthProfileService authProfileService;
 
     @BeforeAll
@@ -418,6 +421,7 @@ public abstract class AbstractITCase {
         saml2SPKeystoreService = adminClient.getService(SAML2SPKeystoreService.class);
         saml2SPKeystoreConfService = adminClient.getService(SAML2SPKeystoreConfService.class);
         googleMfaAuthTokenService = adminClient.getService(GoogleMfaAuthTokenService.class);
+        googleMfaAuthAccountService = adminClient.getService(GoogleMfaAuthAccountService.class);
         authProfileService = adminClient.getService(AuthProfileService.class);
     }
 

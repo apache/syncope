@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter;
+package org.apache.syncope.wa.starter.config;
 
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
@@ -30,10 +31,13 @@ import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
 import org.apereo.cas.util.crypto.CipherExecutor;
 
+import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
+import org.apache.syncope.wa.starter.gauth.credential.SyncopeWAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.gauth.token.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
@@ -47,6 +51,7 @@ import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
+import org.apache.syncope.wa.starter.services.SyncopeWAServiceRegistry;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +137,7 @@ public class SyncopeWAConfiguration {
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
         final WARestClient restClient, final RegisteredServiceMapper registeredServiceMapper) {
 
-        SyncopeServiceRegistry registry = new SyncopeServiceRegistry(
+        SyncopeWAServiceRegistry registry = new SyncopeWAServiceRegistry(
             restClient, registeredServiceMapper, applicationContext, serviceRegistryListeners);
         return plan -> plan.registerServiceRegistry(registry);
     }
@@ -174,6 +179,13 @@ public class SyncopeWAConfiguration {
     public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(final WARestClient restClient) {
         return new SyncopeWAGoogleMfaAuthTokenRepository(restClient,
             casProperties.getAuthn().getMfa().getGauth().getTimeStepSize());
+    }
+
+    @Bean
+    @Autowired
+    public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
+        final IGoogleAuthenticator googleAuthenticatorInstance, final WARestClient restClient) {
+        return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
 
     @Bean
