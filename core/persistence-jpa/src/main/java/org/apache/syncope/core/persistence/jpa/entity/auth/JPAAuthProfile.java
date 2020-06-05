@@ -35,8 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = JPAAuthProfile.TABLE, uniqueConstraints =
-@UniqueConstraint(columnNames = {"owner"}))
+@Table(name = JPAAuthProfile.TABLE, uniqueConstraints = @UniqueConstraint(columnNames = {"owner"}))
 public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthProfile {
 
     public static final String TABLE = "AuthProfile";
