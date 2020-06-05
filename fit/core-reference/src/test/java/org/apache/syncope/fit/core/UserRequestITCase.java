@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assume.assumeFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
@@ -32,12 +32,14 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -292,5 +294,17 @@ public class UserRequestITCase extends AbstractITCase {
 
         assertTrue(client.getService(UserRequestService.class).
                 list(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+    }
+
+    @Test
+    public void invalid() throws IOException {
+        WebClient.client(bpmnProcessService).type(MediaType.APPLICATION_XML_TYPE);
+        try {
+            bpmnProcessService.set("invalid",
+                    IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/invalidRequest.bpmn20.xml")));
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.Workflow, e.getType());
+        }
     }
 }
