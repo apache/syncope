@@ -1314,7 +1314,7 @@ under the License.
 
   <MailTemplate id="requestPasswordReset"
                 textTemplate="Hi,
-a password reset was request for ${user.getUsername()}.
+a password reset was requested for ${user.getUsername()}.
 
 In order to complete this request, you need to visit this link:
 
@@ -1326,7 +1326,7 @@ Best regards."
                 htmlTemplate="&lt;html&gt;
 &lt;body&gt;
 &lt;p&gt;Hi,
-a password reset was request for ${user.getUsername()}.&lt;/p&gt;
+a password reset was requested for ${user.getUsername()}.&lt;/p&gt;
 
 &lt;p&gt;In order to complete this request, you need to visit this 
 &lt;a href=&quot;http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
