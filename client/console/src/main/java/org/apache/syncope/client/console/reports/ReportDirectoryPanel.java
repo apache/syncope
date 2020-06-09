@@ -227,7 +227,7 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 viewReport(model.getObject(), target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.REPORT_READ);
+        }, ActionLink.ActionType.VIEW_EXECUTIONS, StandardEntitlement.REPORT_READ);
 
         panel.add(new ActionLink<ReportTO>() {
 
