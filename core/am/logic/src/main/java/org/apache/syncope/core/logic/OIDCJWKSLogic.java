@@ -74,7 +74,8 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     }
 
     @Override
-    protected OIDCJWKSTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+    protected OIDCJWKSTO resolveReference(final Method method, final Object... args)
+        throws UnresolvedReferenceException {
         return dao.get().
             map(binder::get).
             orElseThrow(UnresolvedReferenceException::new);
