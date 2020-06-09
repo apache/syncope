@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
@@ -114,6 +115,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrVal
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
@@ -337,6 +339,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPASAML2SPKeystore();
         } else if (reference.equals(AuthProfile.class)) {
             result = (E) new JPAAuthProfile();
+        } else if (reference.equals(OIDCJWKS.class)) {
+            result = (E) new JPAOIDCJWKS();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

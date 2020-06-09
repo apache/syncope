@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import static org.apache.syncope.core.logic.AbstractLogic.LOG;
-
 import java.lang.reflect.Method;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -30,7 +28,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPMetadataDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
-import org.apache.syncope.core.provisioning.api.data.SAML2IdPMetadataBinder;
+import org.apache.syncope.core.provisioning.api.data.SAML2IdPMetadataDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -40,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SAML2IdPMetadataLogic extends AbstractTransactionalLogic<SAML2IdPMetadataTO> {
 
     @Autowired
-    private SAML2IdPMetadataBinder binder;
+    private SAML2IdPMetadataDataBinder binder;
 
     @Autowired
     private SAML2IdPMetadataDAO saml2IdPMetadataDAO;

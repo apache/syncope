@@ -96,6 +96,12 @@ public final class AMEntitlement {
 
     public static final String GOOGLE_MFA_COUNT_ACCOUNTS = "GOOGLE_MFA_COUNT_ACCOUNTS";
 
+    public static final String OIDC_JWKS_CREATE = "OIDC_JWKS_CREATE";
+
+    public static final String OIDC_JWKS_READ = "OIDC_JWKS_READ";
+
+    public static final String OIDC_JWKS_UPDATE = "OIDC_JWKS_UPDATE";
+
     private static final Set<String> VALUES;
 
     static {
