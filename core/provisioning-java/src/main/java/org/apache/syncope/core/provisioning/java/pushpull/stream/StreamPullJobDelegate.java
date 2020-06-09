@@ -80,7 +80,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         PullCorrelationRuleEntity pullCorrelationRuleEntity = null;
         if (pullCorrelationRule != null) {
             Implementation impl = implementationDAO.find(pullCorrelationRule);
-            if (impl == null || !IdMImplementationType.PULL_ACTIONS.equals(impl.getType())) {
+            if (impl == null || !IdMImplementationType.PULL_CORRELATION_RULE.equals(impl.getType())) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", pullCorrelationRule);
             } else {
                 pullCorrelationRuleEntity = entityFactory.newEntity(PullCorrelationRuleEntity.class);
