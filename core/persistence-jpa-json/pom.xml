@@ -86,6 +86,11 @@ under the License.
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
