@@ -53,8 +53,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
                 .keyUse(KeyUse.SIGNATURE)
                 .keyID(UUID.randomUUID().toString())
                 .generate();
-            String json = JWKSet.parse(jwk.toJSONString()).toString();
-            jwks.setJson(json);
+            jwks.setJson(new JWKSet(jwk).toString());
             return jwks;
         } catch (final Exception e) {
             throw new RuntimeException("Unable to create OIDC JWKS", e);
