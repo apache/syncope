@@ -34,6 +34,8 @@ public class OIDCJWKSITCase extends AbstractITCase {
     @Test
     public void verifyJwks() {
         try {
+            oidcJwksConfService.delete();
+
             oidcJwksService.get();
             fail("Should not locate an OIDC JWKS");
         } catch (final SyncopeClientException e) {

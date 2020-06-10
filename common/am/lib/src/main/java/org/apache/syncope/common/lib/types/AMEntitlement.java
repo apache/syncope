@@ -102,6 +102,8 @@ public final class AMEntitlement {
 
     public static final String OIDC_JWKS_UPDATE = "OIDC_JWKS_UPDATE";
 
+    public static final String OIDC_JWKS_DELETE = "OIDC_JWKS_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

@@ -27,4 +27,6 @@ public interface OIDCJWKSDAO extends DAO<OIDCJWKS> {
     Optional<OIDCJWKS> get();
 
     OIDCJWKS save(OIDCJWKS jwks);
+
+    void delete();
 }

@@ -50,4 +50,11 @@ public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO
     public OIDCJWKS save(final OIDCJWKS jwks) {
         return entityManager().merge(jwks);
     }
+
+    @Override
+    public void delete() {
+        entityManager()
+            .createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName(), OIDCJWKS.class)
+            .executeUpdate();
+    }
 }

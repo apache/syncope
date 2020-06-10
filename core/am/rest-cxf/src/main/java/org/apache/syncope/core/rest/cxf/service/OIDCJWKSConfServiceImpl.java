@@ -24,6 +24,8 @@ import org.apache.syncope.core.logic.OIDCJWKSLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.core.Response;
+
 @Service
 public class OIDCJWKSConfServiceImpl extends AbstractServiceImpl implements OIDCJWKSConfService {
 
@@ -33,5 +35,11 @@ public class OIDCJWKSConfServiceImpl extends AbstractServiceImpl implements OIDC
     @Override
     public void update(final OIDCJWKSTO jwksTO) {
         logic.update(jwksTO);
+    }
+
+    @Override
+    public Response delete() {
+        logic.delete();
+        return Response.noContent().build();
     }
 }

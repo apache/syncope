@@ -57,6 +57,8 @@ public class OIDCJWKSConfITCase extends AbstractITCase {
 
     @Test
     public void verifyJwks() throws Exception {
+        oidcJwksConfService.delete();
+
         RSAKey jwk = new RSAKeyGenerator(2048)
             .keyUse(KeyUse.SIGNATURE)
             .keyID(UUID.randomUUID().toString())

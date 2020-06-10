@@ -80,4 +80,9 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
             map(binder::get).
             orElseThrow(UnresolvedReferenceException::new);
     }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_DELETE + "')")
+    public void delete() {
+         dao.delete();
+    }
 }
