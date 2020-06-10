@@ -43,6 +43,10 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
 
     @Override
     public Resource generate() {
+        if (!WARestClient.isReady()) {
+            throw new RuntimeException("Syncope core is not yet ready");
+        }
+
         OIDCJWKSService service = waRestClient.getSyncopeClient().
             getService(OIDCJWKSService.class);
         try {

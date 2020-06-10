@@ -190,7 +190,7 @@ public class SyncopeWAConfiguration {
         return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
 
-    @Bean(initMethod = "generate")
+    @Bean
     @Autowired
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(final WARestClient restClient) {
         return new SyncopeWAOIDCJWKSGeneratorService(restClient);
