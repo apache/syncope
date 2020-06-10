@@ -113,6 +113,7 @@ import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
+import org.apache.syncope.common.rest.api.service.OIDCJWKSConfService;
 import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreConfService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -346,6 +347,8 @@ public abstract class AbstractITCase {
 
     protected static OIDCJWKSService oidcJwksService;
 
+    protected static OIDCJWKSConfService oidcJwksConfService;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = Encryptor.class.getResourceAsStream("/security.properties")) {
@@ -427,6 +430,7 @@ public abstract class AbstractITCase {
         googleMfaAuthAccountService = adminClient.getService(GoogleMfaAuthAccountService.class);
         authProfileService = adminClient.getService(AuthProfileService.class);
         oidcJwksService = adminClient.getService(OIDCJWKSService.class);
+        oidcJwksConfService = adminClient.getService(OIDCJWKSConfService.class);
     }
 
     @Autowired
