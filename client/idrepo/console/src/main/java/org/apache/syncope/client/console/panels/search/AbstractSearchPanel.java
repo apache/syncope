@@ -145,6 +145,8 @@ public abstract class AbstractSearchPanel extends Panel {
                 typeKind != AnyTypeKind.GROUP && SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
                 ? Pair.of(groupNames, new LoadableDetachableModel<Integer>() {
 
+                    private static final long serialVersionUID = 7362833782319137329L;
+
                     @Override
                     protected Integer load() {
                         return groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null);

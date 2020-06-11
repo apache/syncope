@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
+import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -41,6 +42,8 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 
 public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapper> {
 
@@ -61,6 +64,10 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
     @Override
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
+            BeanWrapper confWrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
+            modelObject.getSCondWrapper().forEach((fieldName, pair) -> {
+                confWrapper.setPropertyValue(fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft()));
+            });
             ImplementationTO reportlet = ImplementationRestClient.read(
                     IdRepoImplementationType.REPORTLET, modelObject.getImplementationKey());
             try {
@@ -81,8 +88,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
     }
 
     @Override
-    protected WizardModel buildModelSteps(
-            final ReportletWrapper modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final ReportletWrapper modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject));
         wizardModel.add(new Configuration(modelObject));
         return wizardModel;
@@ -93,7 +99,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
         private static final long serialVersionUID = -3043839139187792810L;
 
         public Profile(final ReportletWrapper reportlet) {
-            final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
                     "reportlet", getString("reportlet"), new PropertyModel<>(reportlet, "implementationKey"));
 
             conf.setChoices(ImplementationRestClient.list(IdRepoImplementationType.REPORTLET).stream().
