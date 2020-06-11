@@ -40,12 +40,7 @@ under the License.
 
   <bean id="syncopeFormHandlerHelper" class="org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper"/>
 
-  <!--
-    This is called to generate unique identifiers for database entities used by Flowable.
-    Consider to switch to org.flowable.common.engine.impl.persistence.StrongUuidGenerator
-    in high-demanding production environments.
-  -->
-  <bean id="idGenerator" class="org.flowable.engine.impl.db.DbIdGenerator"/>
+  <bean id="idGenerator" class="org.flowable.common.engine.impl.persistence.StrongUuidGenerator"/>
 
   <bean class="org.apache.syncope.core.flowable.support.DomainProcessEngineConfiguration" scope="prototype">
     <property name="databaseSchemaUpdate" value="true"/>
@@ -65,6 +60,12 @@ under the License.
     <property name="formHandlerHelper" ref="syncopeFormHandlerHelper"/>
     
     <property name="idGenerator" ref="idGenerator"/>
+
+    <property name="preBpmnParseHandlers">
+      <list>
+        <bean class="org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnParseHandler"/>
+      </list>
+    </property>
   </bean>
 
   <bean id="bpmnProcessManager" class="org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager"/>
