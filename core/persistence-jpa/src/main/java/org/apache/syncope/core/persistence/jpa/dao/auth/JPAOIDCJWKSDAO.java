@@ -53,8 +53,8 @@ public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO
 
     @Override
     public void delete() {
-        entityManager()
-            .createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName(), OIDCJWKS.class)
-            .executeUpdate();
+        entityManager().
+            createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).
+            executeUpdate();
     }
 }
