@@ -133,6 +133,8 @@ public final class Constants {
 
     public static final String PREF_MAIL_TEMPLATE_PAGINATOR_ROWS = "mail.template.paginator.rows";
 
+    public static final String PREF_REPORT_TEMPLATE_PAGINATOR_ROWS = "report.template.paginator.rows";
+
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";
 
     public static final String PREF_CONNECTOR_HISTORY_CONF_PAGINATOR_ROWS = "connectorhistoryconf.paginator.rows";
