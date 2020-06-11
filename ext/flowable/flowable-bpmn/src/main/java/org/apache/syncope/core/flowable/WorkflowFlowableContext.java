@@ -24,6 +24,7 @@ import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
 import org.apache.syncope.core.flowable.support.DomainProcessEngineConfiguration;
+import org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnParseHandler;
 import org.apache.syncope.core.flowable.support.SyncopeEntitiesVariableType;
 import org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper;
 import org.apache.syncope.core.flowable.support.SyncopeIdmIdentityService;
@@ -32,7 +33,7 @@ import org.apache.syncope.core.workflow.java.WorkflowContext;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.cfg.IdGenerator;
 import org.flowable.common.engine.impl.history.HistoryLevel;
-import org.flowable.engine.impl.db.DbIdGenerator;
+import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.springframework.beans.factory.annotation.Value;
@@ -106,18 +107,10 @@ public class WorkflowFlowableContext {
         return new SyncopeEntitiesVariableType();
     }
 
-    /**
-     * This is called to generate unique identifiers for database entities used by Flowable.
-     *
-     * Consider to switch to {@link org.flowable.common.engine.impl.persistence.StrongUuidGenerator} in
-     * high-demanding production environments.
-     *
-     * @return {@link IdGenerator} used by Flowable
-     */
     @ConditionalOnMissingBean
     @Bean
     public IdGenerator idGenerator() {
-        return new DbIdGenerator();
+        return new StrongUuidGenerator();
     }
 
     @ConditionalOnMissingBean
@@ -133,6 +126,7 @@ public class WorkflowFlowableContext {
         conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType()));
         conf.setFormHandlerHelper(syncopeFormHandlerHelper());
         conf.setIdGenerator(idGenerator());
+        conf.setPreBpmnParseHandlers(List.of(new ShellServiceTaskDisablingBpmnParseHandler()));
         return conf;
     }
 
