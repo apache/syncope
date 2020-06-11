@@ -309,7 +309,7 @@ public final class SearchUtils implements Serializable {
                                 }
                             }
 
-                            SyncopeProperty property = builder.is(clause.getProperty());
+                            SyncopeProperty<?> property = builder.is(clause.getProperty());
                             switch (clause.getComparator()) {
                                 case IS_NULL:
                                     condition = builder.isNull(clause.getProperty());
