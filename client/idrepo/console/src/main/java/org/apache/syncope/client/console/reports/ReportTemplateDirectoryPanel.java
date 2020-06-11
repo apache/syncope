@@ -104,7 +104,7 @@ public class ReportTemplateDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.MAIL_TEMPLATE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.REPORT_TEMPLATE_CREATE);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.FO_EDIT, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.FO_EDIT, IdRepoEntitlement.REPORT_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -154,7 +154,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.HTML, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.HTML, IdRepoEntitlement.REPORT_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -172,7 +172,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.TEXT, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.TEXT, IdRepoEntitlement.REPORT_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -190,7 +190,7 @@ public class ReportTemplateDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.MAIL_TEMPLATE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REPORT_TEMPLATE_DELETE, true);
 
         return panel;
     }
@@ -202,13 +202,12 @@ public class ReportTemplateDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_MAIL_TEMPLATE_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_REPORT_TEMPLATE_PAGINATOR_ROWS;
     }
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
         return List.of();
-
     }
 
     protected final class ReportTemplateProvider extends DirectoryDataProvider<ReportTemplateTO> {

@@ -163,7 +163,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REPORT_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REPORT_UPDATE);
 
         return panel;
     }

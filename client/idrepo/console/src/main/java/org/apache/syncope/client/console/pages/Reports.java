@@ -62,7 +62,7 @@ public class Reports extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final MultilevelPanel mlp = new MultilevelPanel(panelId);
+                MultilevelPanel mlp = new MultilevelPanel(panelId);
                 mlp.setFirstLevel(new ReportDirectoryPanel(mlp, getPageReference()) {
 
                     private static final long serialVersionUID = -2195387360323687302L;
