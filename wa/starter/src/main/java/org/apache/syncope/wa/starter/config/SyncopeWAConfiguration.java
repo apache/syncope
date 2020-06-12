@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.config;
 
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
@@ -48,6 +49,7 @@ import org.apache.syncope.wa.starter.mapping.AuthMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.oidc.SyncopeWAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
@@ -186,6 +188,12 @@ public class SyncopeWAConfiguration {
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
         final IGoogleAuthenticator googleAuthenticatorInstance, final WARestClient restClient) {
         return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
+    }
+
+    @Bean
+    @Autowired
+    public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(final WARestClient restClient) {
+        return new SyncopeWAOIDCJWKSGeneratorService(restClient);
     }
 
     @Bean

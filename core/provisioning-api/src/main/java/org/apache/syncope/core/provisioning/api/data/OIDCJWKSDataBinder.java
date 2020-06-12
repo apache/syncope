@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
+import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 
-public interface SAML2IdPMetadataBinder {
+public interface OIDCJWKSDataBinder {
+    
+    OIDCJWKSTO get(OIDCJWKS jwks);
 
-    SAML2IdPMetadata create(SAML2IdPMetadataTO saml2IdPMetadataTO);
+    OIDCJWKS create();
 
-    SAML2IdPMetadata update(SAML2IdPMetadata saml2IdPMetadata, SAML2IdPMetadataTO saml2IdPMetadataTO);
-
-    SAML2IdPMetadataTO getSAML2IdPMetadataTO(SAML2IdPMetadata saml2IdPMetadata);
-
+    OIDCJWKS update(OIDCJWKS oidcjwks, OIDCJWKSTO jwksTO);
 }

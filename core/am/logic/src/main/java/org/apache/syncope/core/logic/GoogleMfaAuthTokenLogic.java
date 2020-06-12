@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -106,7 +106,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<AuthProf
                 });
 
         if (token.getKey() == null) {
-            token.setKey(UUID.randomUUID().toString());
+            token.setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
         profile.add(token);
         profile = authProfileDAO.save(profile);

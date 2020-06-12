@@ -452,6 +452,8 @@ under the License.
 
     <h2.version>1.4.200</h2.version>
 
+    <nimbus.jose.version>8.19</nimbus.jose.version>
+
     <junit.version>5.6.2</junit.version>
     <mockito.version>3.3.0</mockito.version>
 
@@ -1607,6 +1609,16 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-oidc-core-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-oidc-core</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-oauth-services</artifactId>
         <version>${cas.version}</version>
       </dependency>
@@ -1992,6 +2004,11 @@ under the License.
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcprov-jdk15on</artifactId>
         <version>${bouncycastle.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+        <version>${nimbus.jose.version}</version>
       </dependency>
 
       <!-- TEST -->

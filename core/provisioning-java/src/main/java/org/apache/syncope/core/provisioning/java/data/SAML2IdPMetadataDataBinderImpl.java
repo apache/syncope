@@ -23,10 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
-import org.apache.syncope.core.provisioning.api.data.SAML2IdPMetadataBinder;
+import org.apache.syncope.core.provisioning.api.data.SAML2IdPMetadataDataBinder;
 
 @Component
-public class SAML2IdPMetadataBinderImpl implements SAML2IdPMetadataBinder {
+public class SAML2IdPMetadataDataBinderImpl implements SAML2IdPMetadataDataBinder {
 
     @Autowired
     private EntityFactory entityFactory;
