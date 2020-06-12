@@ -28,22 +28,20 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
-import java.util.Optional;
-
 @Repository
 public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<OIDCJWKS> get() {
+    public OIDCJWKS get() {
         try {
             TypedQuery<OIDCJWKS> query = entityManager().
                 createQuery("SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
-            return Optional.of(query.getSingleResult());
+            return query.getSingleResult();
         } catch (final NoResultException e) {
             LOG.debug(e.getMessage());
         }
-        return Optional.empty();
+        return null;
     }
 
     @Override

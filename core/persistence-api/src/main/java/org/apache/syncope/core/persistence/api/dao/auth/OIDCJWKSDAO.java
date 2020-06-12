@@ -21,10 +21,8 @@ package org.apache.syncope.core.persistence.api.dao.auth;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 
-import java.util.Optional;
-
 public interface OIDCJWKSDAO extends DAO<OIDCJWKS> {
-    Optional<OIDCJWKS> get();
+    OIDCJWKS get();
 
     OIDCJWKS save(OIDCJWKS jwks);
 

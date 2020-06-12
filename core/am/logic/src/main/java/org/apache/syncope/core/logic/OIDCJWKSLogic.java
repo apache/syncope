@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 @Component
 public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
@@ -49,36 +48,40 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public OIDCJWKSTO get() {
-        return dao.get().
-            map(binder::get).
-            orElseThrow(() -> new NotFoundException("OIDC JWKS not found"));
+        OIDCJWKS jwks = dao.get();
+        if (jwks != null) {
+            return binder.get(jwks);
+        }
+        throw new NotFoundException("OIDC JWKS not found");
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_CREATE + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCJWKSTO set() {
-        Optional<OIDCJWKS> result = dao.get();
-        if (result.isEmpty()) {
-            return binder.get(dao.save(binder.create()));
+        OIDCJWKS jwks = dao.get();
+        if (jwks == null) {
+            binder.get(dao.save(binder.create()));
         }
         throw SyncopeClientException.build(ClientExceptionType.EntityExists);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_UPDATE + "')")
     public OIDCJWKSTO update(final OIDCJWKSTO jwksTO) {
-        Optional<OIDCJWKS> result = dao.get();
-        if (result.isEmpty()) {
+        OIDCJWKS jwks = dao.get();
+        if (jwks == null) {
             throw SyncopeClientException.build(ClientExceptionType.NotFound);
         }
-        return binder.get(dao.save(binder.update(result.get(), jwksTO)));
+        return binder.get(dao.save(binder.update(jwks, jwksTO)));
     }
 
     @Override
     protected OIDCJWKSTO resolveReference(final Method method, final Object... args)
         throws UnresolvedReferenceException {
-        return dao.get().
-            map(binder::get).
-            orElseThrow(UnresolvedReferenceException::new);
+        OIDCJWKS jwks = dao.get();
+        if (jwks == null) {
+            throw new UnresolvedReferenceException();
+        }
+        return binder.get(jwks);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_DELETE + "')")
