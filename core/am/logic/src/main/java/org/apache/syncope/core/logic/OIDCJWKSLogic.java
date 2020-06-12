@@ -60,7 +60,7 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     public OIDCJWKSTO set() {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
-            binder.get(dao.save(binder.create()));
+            return binder.get(dao.save(binder.create()));
         }
         throw SyncopeClientException.build(ClientExceptionType.EntityExists);
     }
