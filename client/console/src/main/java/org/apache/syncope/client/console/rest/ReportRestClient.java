@@ -148,7 +148,7 @@ public class ReportRestClient extends BaseRestClient
                     getService(ReportTemplateService.class).getFormat(key, format).getEntity()),
                     StandardCharsets.UTF_8);
         } catch (Exception e) {
-            LOG.error("Error retrieving mail template {} as {}", key, format, e);
+            LOG.error("Error retrieving report template {} as {}", key, format, e);
             return StringUtils.EMPTY;
         }
     }
