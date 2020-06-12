@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +52,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
             OIDCJWKS jwks = entityFactory.newEntity(OIDCJWKS.class);
             RSAKey jwk = new RSAKeyGenerator(2048)
                 .keyUse(KeyUse.SIGNATURE)
-                .keyID(UUID.randomUUID().toString())
+                .keyID(SecureRandomUtils.generateRandomUUID().toString())
                 .generate();
             jwks.setJson(new JWKSet(jwk).toString());
             return jwks;

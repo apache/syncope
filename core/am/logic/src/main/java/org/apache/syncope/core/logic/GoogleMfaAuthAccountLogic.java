@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -108,7 +109,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
             });
 
         if (acct.getKey() == null) {
-            acct.setKey(UUID.randomUUID().toString());
+            acct.setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
         profile.setGoogleMfaAuthAccount(acct);
         return authProfileDAO.save(profile).getGoogleMfaAuthAccount();
