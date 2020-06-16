@@ -150,6 +150,7 @@ import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataConfService;
 import org.apache.syncope.common.rest.api.service.wa.SAML2IdPMetadataService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
+import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
@@ -349,6 +350,8 @@ public abstract class AbstractITCase {
 
     protected static OIDCJWKSConfService oidcJwksConfService;
 
+    protected static U2FRegistrationService u2FRegistrationService;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = Encryptor.class.getResourceAsStream("/security.properties")) {
@@ -431,6 +434,7 @@ public abstract class AbstractITCase {
         authProfileService = adminClient.getService(AuthProfileService.class);
         oidcJwksService = adminClient.getService(OIDCJWKSService.class);
         oidcJwksConfService = adminClient.getService(OIDCJWKSConfService.class);
+        u2FRegistrationService = adminClient.getService(U2FRegistrationService.class);
     }
 
     @Autowired

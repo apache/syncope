@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.types.U2FRegistration;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 import java.util.List;
@@ -35,9 +36,15 @@ public interface AuthProfile extends Entity {
 
     void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
 
+    List<U2FRegistration> getU2FRegistrations();
+
+    void setU2FRegistrations(List<U2FRegistration> records);
+
     GoogleMfaAuthAccount getGoogleMfaAuthAccount();
 
     void setGoogleMfaAuthAccount(GoogleMfaAuthAccount account);
 
     void add(GoogleMfaAuthToken token);
+
+    void add(U2FRegistration registration);
 }
