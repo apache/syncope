@@ -47,7 +47,10 @@ public class DomainTransactionInterceptor extends TransactionInterceptor {
             TransactionAttribute txAttr = origTxAttrSource.getTransactionAttribute(method, targetClass);
 
             if (txAttr instanceof DefaultTransactionAttribute) {
-                ((DefaultTransactionAttribute) txAttr).setQualifier(AuthContextUtils.getDomain());
+                DefaultTransactionAttribute dta = (DefaultTransactionAttribute) txAttr;
+                if (dta.getQualifier() == null) {
+                    dta.setQualifier(AuthContextUtils.getDomain());
+                }
             }
 
             return txAttr;
