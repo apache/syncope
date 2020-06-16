@@ -209,7 +209,8 @@ implementations, their package *must* be rooted under `org.apache.syncope.core`,
 at runtime.
 
 Besides replacing existing classes as explained <<override-behavior,above>>, new <<implementations,implementations>> can
-be provided - under `core/src/main/java` if Java - for the following components:
+be provided - in the source tree under `core/src/main/java` when Java or via REST services if Groovy - for the following
+components:
 
 * <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
 * <<push-correlation-rules,push>> / <<pull-correlation-rules,pull>> correlation rules
