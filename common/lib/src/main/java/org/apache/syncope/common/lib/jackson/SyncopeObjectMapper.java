@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf;
+package org.apache.syncope.common.lib.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,7 +41,9 @@ public class SyncopeObjectMapper extends ObjectMapper {
     public SyncopeObjectMapper() {
         super();
 
-        registerModule(new JodaModule());
+        registerModule(new AfterburnerModule());
+
+        registerModule(new JavaTimeModule());
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 

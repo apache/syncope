@@ -18,16 +18,12 @@
  */
 package org.apache.syncope.client.lib;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.yaml.JacksonJaxbYAMLProvider;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +33,8 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -91,11 +89,8 @@ public class SyncopeClientFactoryBean {
 
     private JAXRSClientFactoryBean restClientFactoryBean;
 
-    protected JacksonJaxbJsonProvider defaultJsonProvider() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JodaModule());
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        return new JacksonJaxbJsonProvider(objectMapper, JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS);
+    protected static JacksonJaxbJsonProvider defaultJsonProvider() {
+        return new JacksonJaxbJsonProvider(new SyncopeObjectMapper(), JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS);
     }
 
     @SuppressWarnings({ "rawtypes" })
@@ -118,10 +113,7 @@ public class SyncopeClientFactoryBean {
     }
 
     protected JacksonJaxbYAMLProvider defaultYamlProvider() {
-        YAMLMapper yamlMapper = new YAMLMapper();
-        yamlMapper.registerModule(new JodaModule());
-        yamlMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        return new JacksonJaxbYAMLProvider(yamlMapper, JacksonJaxbJsonProvider.DEFAULT_ANNOTATIONS);
+        return new JacksonJaxbYAMLProvider(new SyncopeYAMLMapper(), JacksonJaxbYAMLProvider.DEFAULT_ANNOTATIONS);
     }
 
     protected RestClientExceptionMapper defaultExceptionMapper() {

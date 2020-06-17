@@ -447,8 +447,6 @@ under the License.
     
     <tika.version>1.24.1</tika.version>
 
-    <joda.version>2.10.6</joda.version>
-
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.6.2</junit.version>
@@ -809,10 +807,6 @@ under the License.
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-dataformat-cbor</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -911,26 +905,19 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-csv</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-joda</artifactId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>    
-
-      <dependency>
-        <groupId>joda-time</groupId>
-        <artifactId>joda-time</artifactId>
-        <version>${joda.version}</version>
-      </dependency>
+      </dependency>  
 
       <dependency>
         <groupId>org.springframework</groupId>
@@ -2469,10 +2456,8 @@ under the License.
             <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.24.2/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.24.2/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
