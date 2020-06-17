@@ -16,20 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf;
+package org.apache.syncope.common.lib.jackson;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class SyncopeYAMLMapper extends YAMLMapper {
+public class SyncopeXmlMapper extends XmlMapper {
 
     private static final long serialVersionUID = 1022020055828974308L;
 
-    public SyncopeYAMLMapper() {
+    public SyncopeXmlMapper() {
         super();
 
-        registerModule(new JodaModule());
+        registerModule(new AfterburnerModule());
+
+        registerModule(new JavaTimeModule());
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+        configOverride(List.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
+        configOverride(Set.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
+        configOverride(Map.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
     }
 }

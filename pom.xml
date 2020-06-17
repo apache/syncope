@@ -446,8 +446,6 @@ under the License.
     <commons-text.version>1.8</commons-text.version>
     <commons-logging.version>1.1.3</commons-logging.version>
     
-    <joda.version>2.10.6</joda.version>
-
     <cas.version>6.2.0-SNAPSHOT</cas.version>
 
     <h2.version>1.4.200</h2.version>
@@ -853,10 +851,6 @@ under the License.
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-dataformat-cbor</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -971,21 +965,9 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-joda</artifactId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>joda-time</groupId>
-        <artifactId>joda-time</artifactId>
-        <version>${joda.version}</version>
-      </dependency>
+      </dependency>  
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -2699,7 +2681,6 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
             <link>https://www.javadoc.io/doc/org.apache.camel/camel-core/latest/</link>
             <link>https://www.javadoc.io/doc/org.apache.camel/camel-spring/latest/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>

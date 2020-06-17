@@ -29,9 +29,9 @@ import org.apache.cxf.validation.BeanValidationProvider;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
-import org.apache.syncope.core.rest.cxf.SyncopeObjectMapper;
-import org.apache.syncope.core.rest.cxf.SyncopeXmlMapper;
-import org.apache.syncope.core.rest.cxf.SyncopeYAMLMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
