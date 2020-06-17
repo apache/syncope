@@ -32,9 +32,7 @@ public class DomainTransactionAnnotationParser extends SpringTransactionAnnotati
     protected TransactionAttribute parseTransactionAnnotation(final AnnotationAttributes attributes) {
         RuleBasedTransactionAttribute rbta =
                 (RuleBasedTransactionAttribute) super.parseTransactionAnnotation(attributes);
-        if (rbta.getQualifier() == null) {
-            rbta.setQualifier(AuthContextUtils.getDomain());
-        }
+        rbta.setQualifier(AuthContextUtils.getDomain());
         return rbta;
     }
 }
