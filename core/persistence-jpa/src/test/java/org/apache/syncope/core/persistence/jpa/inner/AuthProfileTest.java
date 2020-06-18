@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -62,7 +63,28 @@ public class AuthProfileTest extends AbstractTest {
         assertTrue(result.isPresent());
 
         authProfile.setOwner("SyncopeCreate-New");
-        authProfile.getGoogleMfaAuthTokens().clear();
+        authProfile.setGoogleMfaAuthTokens(List.of());
+        authProfileDAO.save(authProfile);
+
+        assertFalse(authProfileDAO.findByOwner(id).isPresent());
+    }
+
+    @Test
+    public void u2fRegisteredDevice() {
+        String id = UUID.randomUUID().toString();
+        createAuthProfileWithU2FDevice(id, "{ 'record': 1 }");
+
+        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        assertTrue(result.isPresent());
+
+        assertFalse(authProfileDAO.findAll().isEmpty());
+
+        AuthProfile authProfile = result.get();
+        result = authProfileDAO.findByKey(authProfile.getKey());
+        assertTrue(result.isPresent());
+
+        authProfile.setOwner("SyncopeCreate-NewU2F");
+        authProfile.setU2FRegisteredDevices(List.of());
         authProfileDAO.save(authProfile);
 
         assertFalse(authProfileDAO.findByOwner(id).isPresent());
@@ -98,6 +120,18 @@ public class AuthProfileTest extends AbstractTest {
         GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder()
             .issueDate(new Date())
             .token(otp)
+            .owner(owner)
+            .build();
+        profile.add(token);
+        return authProfileDAO.save(profile);
+    }
+
+    private AuthProfile createAuthProfileWithU2FDevice(final String owner, final String record) {
+        AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
+        profile.setOwner(owner);
+        U2FRegisteredDevice token = new U2FRegisteredDevice.Builder()
+            .issueDate(new Date())
+            .record(record)
             .owner(owner)
             .build();
         profile.add(token);

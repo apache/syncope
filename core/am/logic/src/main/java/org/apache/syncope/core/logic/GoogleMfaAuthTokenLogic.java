@@ -190,9 +190,9 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<AuthProf
                 return authProfileDAO.findByKey(key).
                         map(authProfileDataBinder::getAuthProfileTO).
                         orElseThrow();
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
+            } catch (final Throwable ex) {
+                LOG.debug("Unresolved reference", ex);
+                throw new UnresolvedReferenceException(ex);
             }
         }
 
