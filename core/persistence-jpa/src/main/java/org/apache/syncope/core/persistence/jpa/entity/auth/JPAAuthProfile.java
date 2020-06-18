@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.auth;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.types.U2FRegistration;
+import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -44,7 +44,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     private static final long serialVersionUID = 57352617217394093L;
 
     @Lob
-    private String u2fRegistrations;
+    private String u2fRegisteredDevices;
 
     @Lob
     private String googleMfaAuthAccount;
@@ -100,23 +100,23 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public List<U2FRegistration> getU2FRegistrations() {
-        return u2fRegistrations == null
+    public List<U2FRegisteredDevice> getU2FRegisteredDevices() {
+        return u2fRegisteredDevices == null
             ? new ArrayList<>(0)
-            : POJOHelper.deserialize(u2fRegistrations, new TypeReference<List<U2FRegistration>>() {
+            : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FRegisteredDevice>>() {
         });
     }
 
     @Override
-    public void setU2FRegistrations(final List<U2FRegistration> records) {
-        this.u2fRegistrations = POJOHelper.serialize(records);
+    public void setU2FRegisteredDevices(final List<U2FRegisteredDevice> records) {
+        this.u2fRegisteredDevices = POJOHelper.serialize(records);
     }
 
     @Override
-    public void add(final U2FRegistration registration) {
-        checkType(registration, U2FRegistration.class);
-        final List<U2FRegistration> records = getU2FRegistrations();
+    public void add(final U2FRegisteredDevice registration) {
+        checkType(registration, U2FRegisteredDevice.class);
+        final List<U2FRegisteredDevice> records = getU2FRegisteredDevices();
         records.add(registration);
-        setU2FRegistrations(records);
+        setU2FRegisteredDevices(records);
     }
 }

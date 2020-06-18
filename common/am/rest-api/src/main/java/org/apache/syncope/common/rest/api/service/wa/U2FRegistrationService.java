@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service.wa;
 
+
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,7 +27,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.U2FRegistration;
+import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
@@ -38,8 +39,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.Date;
 
 @Tag(name = "U2F Registrations")
 @SecurityRequirements({
@@ -53,6 +57,12 @@ public interface U2FRegistrationService extends JAXRSService {
     @Path("devices")
     Response deleteAll();
 
+    @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("devices/registered")
+    Response cleanExpiredDevices(@NotNull @QueryParam("expirationDate") Date expirationDate);
+
     @ApiResponses({
         @ApiResponse(responseCode = "201",
             description = "U2FRegistration successfully created", headers = {
@@ -63,17 +73,24 @@ public interface U2FRegistrationService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
-    Response save(@NotNull U2FRegistration acct);
+    Response save(@NotNull U2FRegisteredDevice acct);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
-    PagedResult<U2FRegistration> list();
+    PagedResult<U2FRegisteredDevice> list();
 
     @GET
     @Path("devices/{owner}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    PagedResult<U2FRegistration> findRegistrationFor(@NotNull @PathParam("owner") String owner);
+    PagedResult<U2FRegisteredDevice> findRegistrationFor(@NotNull @PathParam("owner") String owner,
+                                                         @NotNull @QueryParam("expirationDate") Date expirationDate);
+
+    @GET
+    @Path("{key}")
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    U2FRegisteredDevice read(@NotNull @PathParam("key") String key);
 }

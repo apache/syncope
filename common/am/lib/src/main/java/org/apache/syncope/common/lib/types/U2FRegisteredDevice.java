@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.BaseBean;
 import java.util.Date;
 import java.util.Optional;
 
-public class U2FRegistration implements BaseBean {
+public class U2FRegisteredDevice implements BaseBean {
 
     private static final long serialVersionUID = 1185073386484048953L;
 
@@ -94,7 +94,7 @@ public class U2FRegistration implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        U2FRegistration rhs = (U2FRegistration) obj;
+        U2FRegisteredDevice rhs = (U2FRegisteredDevice) obj;
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
                 .append(this.key, rhs.key)
@@ -116,29 +116,29 @@ public class U2FRegistration implements BaseBean {
 
     public static class Builder {
 
-        private final U2FRegistration instance = new U2FRegistration();
+        private final U2FRegisteredDevice instance = new U2FRegisteredDevice();
 
-        public U2FRegistration.Builder issueDate(final Date issued) {
+        public U2FRegisteredDevice.Builder issueDate(final Date issued) {
             instance.setIssueDate(issued);
             return this;
         }
 
-        public U2FRegistration.Builder record(final String record) {
+        public U2FRegisteredDevice.Builder record(final String record) {
             instance.setRecord(record);
             return this;
         }
 
-        public U2FRegistration.Builder owner(final String owner) {
+        public U2FRegisteredDevice.Builder owner(final String owner) {
             instance.setOwner(owner);
             return this;
         }
 
-        public U2FRegistration.Builder key(final String key) {
+        public U2FRegisteredDevice.Builder key(final String key) {
             instance.setKey(key);
             return this;
         }
 
-        public U2FRegistration build() {
+        public U2FRegisteredDevice build() {
             return instance;
         }
     }

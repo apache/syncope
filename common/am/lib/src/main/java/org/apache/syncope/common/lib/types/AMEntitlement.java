@@ -104,6 +104,14 @@ public final class AMEntitlement {
 
     public static final String OIDC_JWKS_DELETE = "OIDC_JWKS_DELETE";
 
+    public static final String U2F_DELETE_DEVICE = "U2F_DELETE_DEVICE";
+
+    public static final String U2F_SAVE_DEVICE = "U2F_SAVE_DEVICE";
+
+    public static final String U2F_READ_DEVICE = "U2F_READ_DEVICE";
+
+    public static final String U2F_LIST_DEVICE = "U2F_LIST_DEVICE";
+
     private static final Set<String> VALUES;
 
     static {

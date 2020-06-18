@@ -115,7 +115,6 @@ public class GoogleMfaAuthTokenLogic extends AbstractTransactionalLogic<AuthProf
                 filter(t -> t.getToken().equals(token.getToken())).
                 findFirst().
                 orElse(null);
-
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_TOKEN + "') "
