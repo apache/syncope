@@ -262,7 +262,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setAttributeConsumingServiceIndex(conf.getAttributeConsumingServiceIndex());
         props.setAuthnContextClassRef(conf.getAuthnContextClassRefs());
         props.setAuthnContextComparisonType(conf.getAuthnContextComparisonType());
-        props.setBlackListedSignatureSigningAlgorithms(conf.getBlackListedSignatureSigningAlgorithms());
+        props.setBlockedSignatureSigningAlgorithms(conf.getBlockedSignatureSigningAlgorithms());
         props.setDestinationBinding(conf.getDestinationBinding());
         props.setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
         props.setKeystoreAlias(conf.getKeystoreAlias());

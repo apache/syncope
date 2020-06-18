@@ -23,13 +23,25 @@ import org.apereo.cas.adaptors.u2f.storage.BaseU2FDeviceRepository;
 
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.yubico.u2f.data.DeviceRegistration;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.U2FRegistration;
+import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAU2FDeviceRepository.class);
+
     private final WARestClient waRestClient;
+
     private final LocalDate expirationDate;
 
     public SyncopeWAU2FDeviceRepository(final LoadingCache<String, String> requestStorage,
@@ -40,9 +52,23 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
         this.expirationDate = expirationDate;
     }
 
-    @Override
-    public Collection<? extends DeviceRegistration> getRegisteredDevices(final String username) {
+    private static DeviceRegistration parseRegistrationRecord(final U2FRegistration record) {
+        try {
+            return DeviceRegistration.fromJson(record.getRecord());
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
         return null;
+    }
+
+    @Override
+    public Collection<? extends DeviceRegistration> getRegisteredDevices(final String owner) {
+        final PagedResult<U2FRegistration> records = getU2FService().findRegistrationFor(owner);
+        return records.getResult().
+            stream().
+            map(SyncopeWAU2FDeviceRepository::parseRegistrationRecord).
+            filter(Objects::nonNull).
+            collect(Collectors.toList());
     }
 
     @Override
@@ -51,7 +77,16 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
     }
 
     @Override
-    public boolean isDeviceRegisteredFor(final String username) {
+    public boolean isDeviceRegisteredFor(final String owner) {
+        try {
+            return getU2FService().findRegistrationFor(owner) != null;
+        } catch (final SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                LOG.info("Could not locate account for owner {}", owner);
+            } else {
+                LOG.error(e.getMessage(), e);
+            }
+        }
         return false;
     }
 
@@ -62,6 +97,13 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public void removeAll() throws Exception {
+        getU2FService().deleteAll();
+    }
 
+    private U2FRegistrationService getU2FService() {
+        if (!WARestClient.isReady()) {
+            throw new RuntimeException("Syncope core is not yet ready");
+        }
+        return waRestClient.getSyncopeClient().getService(U2FRegistrationService.class);
     }
 }
