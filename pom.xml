@@ -509,7 +509,7 @@ under the License.
 
     <tomcat.version>9.0.36</tomcat.version>
     <wildfly.version>20.0.0.Final</wildfly.version>
-    <payara.version>5.201</payara.version>
+    <payara.version>5.2020.2</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>

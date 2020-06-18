@@ -22,7 +22,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.springframework.security.core.Authentication;
 
@@ -91,5 +94,55 @@ public class JWTAuthentication implements Authentication {
     @Override
     public String getName() {
         return Optional.ofNullable(username).orElseGet(claims::getSubject);
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(claims).
+                append(details).
+                append(username).
+                append(authorities).
+                append(authenticated).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final JWTAuthentication other = (JWTAuthentication) obj;
+        return new EqualsBuilder().
+                append(claims, other.claims).
+                append(details, other.details).
+                append(username, other.username).
+                append(authorities, other.authorities).
+                append(authenticated, other.authenticated).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString()).append(": ");
+        sb.append("Principal: ").append(this.getPrincipal()).append("; ");
+        sb.append("Authenticated: ").append(this.isAuthenticated()).append("; ");
+        sb.append("Details: ").append(this.getDetails()).append("; ");
+
+        if (!authorities.isEmpty()) {
+            sb.append("Granted Authorities: ");
+            sb.append(authorities.stream().map(SyncopeGrantedAuthority::toString).collect(Collectors.joining(", ")));
+        } else {
+            sb.append("Not granted any authorities");
+        }
+
+        return sb.toString();
     }
 }

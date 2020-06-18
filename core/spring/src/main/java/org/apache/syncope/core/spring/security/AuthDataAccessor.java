@@ -244,7 +244,7 @@ public class AuthDataAccessor {
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(user, provision.get());
                 if (connObjectKeyValue.isEmpty()) {
                     throw new AccountNotFoundException(
-                        "Unable to locate conn object key value for " + userType.getKey());
+                            "Unable to locate conn object key value for " + userType.getKey());
                 }
                 connObjectKey = connObjectKeyValue.get();
                 Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
@@ -405,8 +405,7 @@ public class AuthDataAccessor {
 
             if (BooleanUtils.isTrue(user.isMustChangePassword())) {
                 LOG.debug("User {} must change password, resetting authorities", username);
-                authorities = Set.of(
-                        new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
+                authorities = Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
             }
         }
 

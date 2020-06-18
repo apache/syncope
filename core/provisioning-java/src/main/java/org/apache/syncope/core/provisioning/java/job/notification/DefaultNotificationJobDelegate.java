@@ -18,18 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
-import java.io.PrintStream;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.LogOutputStream;
-import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -42,20 +35,17 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class DefaultNotificationJobDelegate implements InitializingBean, NotificationJobDelegate {
+public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
@@ -79,36 +69,6 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
     private boolean interrupt;
 
     private boolean interrupted;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (mailSender instanceof JavaMailSenderImpl) {
-            JavaMailSenderImpl javaMailSender = (JavaMailSenderImpl) mailSender;
-
-            Properties javaMailProperties = javaMailSender.getJavaMailProperties();
-
-            Properties props = PropertyUtils.read(Encryptor.class, "mail.properties", "conf.directory");
-            for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
-                String prop = (String) e.nextElement();
-                if (prop.startsWith("mail.smtp.")) {
-                    javaMailProperties.setProperty(prop, props.getProperty(prop));
-                }
-            }
-
-            if (StringUtils.isNotBlank(javaMailSender.getUsername())) {
-                javaMailProperties.setProperty("mail.smtp.auth", "true");
-            }
-
-            javaMailSender.setJavaMailProperties(javaMailProperties);
-
-            String mailDebug = props.getProperty("mail.debug", "false");
-            if (BooleanUtils.toBoolean(mailDebug)) {
-                Session session = javaMailSender.getSession();
-                session.setDebug(true);
-                session.setDebugOut(new PrintStream(new LogOutputStream(LOG)));
-            }
-        }
-    }
 
     @Override
     public String currentStatus() {

@@ -371,17 +371,19 @@ under the License.
           <artifactId>jakarta.faces</artifactId>
           <version>${javax.faces.version}</version>
         </dependency>
-
-        <dependency>
-          <groupId>com.fasterxml.jackson.dataformat</groupId>
-          <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
       </dependencies>
 
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <packagingExcludes>WEB-INF/lib/bval-*.jar</packagingExcludes>
+            </configuration>
+          </plugin>
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>

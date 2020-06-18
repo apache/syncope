@@ -19,7 +19,9 @@
 package org.apache.syncope.core.spring.security;
 
 import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -29,13 +31,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.NullSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 
@@ -45,6 +44,9 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
+
+    @Autowired
+    private ApplicationContext ctx;
 
     public WebSecurityContext() {
         super(true);
@@ -82,58 +84,39 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public SecurityContextRepository securityContextRepository() {
-        return new NullSecurityContextRepository();
-    }
-
-    @Bean
-    public SecurityContextPersistenceFilter securityContextPersistenceFilter() {
-        return new SecurityContextPersistenceFilter(securityContextRepository());
-    }
-
-    @Bean
-    public AuthenticationEntryPoint basicAuthenticationEntryPoint() {
-        SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new SyncopeBasicAuthenticationEntryPoint();
-        basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
-        return basicAuthenticationEntryPoint;
-    }
-
-    @Bean
-    public SyncopeAuthenticationDetailsSource authenticationDetailsSource() {
-        return new SyncopeAuthenticationDetailsSource();
-    }
-
-    @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return new SyncopeAccessDeniedHandler();
     }
 
-    @Bean
-    public JWTAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        return new JWTAuthenticationFilter(authenticationManager());
-    }
-
-    @Bean
-    public MustChangePasswordFilter mustChangePasswordFilter() {
-        return new MustChangePasswordFilter();
-    }
-
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
+        SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new SyncopeBasicAuthenticationEntryPoint();
+        basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
+
+        SyncopeAuthenticationDetailsSource authenticationDetailsSource = new SyncopeAuthenticationDetailsSource();
+
+        JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
+                authenticationManager(),
+                basicAuthenticationEntryPoint,
+                authenticationDetailsSource,
+                ctx.getBean(AuthDataAccessor.class),
+                ctx.getBean(DefaultCredentialChecker.class));
+
         http.authorizeRequests().
                 antMatchers("/**").permitAll().and().
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
-                securityContext().securityContextRepository(securityContextRepository()).and().
+                securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
                 anonymous().principal(anonymousUser).and().
-                httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint()).
-                authenticationDetailsSource(authenticationDetailsSource()).and().
+                httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
+                authenticationDetailsSource(authenticationDetailsSource).and().
                 exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
-                addFilterBefore(jwtAuthenticationFilter(), BasicAuthenticationFilter.class).
-                addFilterBefore(mustChangePasswordFilter(), FilterSecurityInterceptor.class).
+                addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
+                addFilterBefore(new MustChangePasswordFilter(), FilterSecurityInterceptor.class).
                 headers().disable().
                 csrf().disable();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public AuthDataAccessor authDataAccessor() {
         return new AuthDataAccessor();

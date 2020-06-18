@@ -92,9 +92,9 @@ jobs:
     - stage: fit
       name: "Integration Tests: Wildfly / H2 / JSON Content-Type"
       script: mvn -f fit/core-reference/pom.xml -P wildfly-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-      #- stage: fit
-      #name: "Integration Tests: Payara / H2 / JSON Content-Type"
-      #script: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      - stage: fit
+      name: "Integration Tests: Payara / H2 / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - stage: fit
       name: "Integration Tests: Tomcat / PostgreSQL / JSON Content-Type"
       script: mvn -f fit/core-reference/pom.xml -P postgres-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true

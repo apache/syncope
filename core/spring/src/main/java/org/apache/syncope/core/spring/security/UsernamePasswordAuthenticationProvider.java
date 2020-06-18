@@ -211,7 +211,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     }
 
     @Override
-    public boolean supports(final Class<? extends Object> type) {
-        return type.equals(UsernamePasswordAuthenticationToken.class);
+    public boolean supports(final Class<?> authentication) {
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

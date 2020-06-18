@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -38,6 +38,12 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
  */
 @Path("networkServices")
 public interface NetworkServiceService extends Serializable {
+
+    enum Action {
+        register,
+        unregister
+
+    }
 
     @GET
     @Path("{serviceType}")
@@ -52,10 +58,7 @@ public interface NetworkServiceService extends Serializable {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    CompletableFuture<Response> register(@NotNull NetworkService networkService);
-
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON })
-    @Produces({ MediaType.APPLICATION_JSON })
-    CompletableFuture<Response> unregister(@NotNull NetworkService networkService);
+    CompletableFuture<Response> action(
+            @NotNull NetworkService networkService,
+            @QueryParam("action") Action action);
 }
