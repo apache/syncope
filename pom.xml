@@ -428,12 +428,12 @@ under the License.
 
     <flowable.version>6.5.0</flowable.version>
 
-    <camel.version>3.3.0</camel.version>
+    <camel.version>3.4.0</camel.version>
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>7.7.1</elasticsearch.version>
+    <elasticsearch.version>7.8.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
