@@ -18,13 +18,23 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.LogOutputStream;
+import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -41,6 +51,8 @@ import org.apache.syncope.core.provisioning.java.job.JobManagerImpl;
 import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
 import org.apache.syncope.core.provisioning.java.job.SchedulerShutdown;
 import org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -55,6 +67,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -73,6 +86,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 @EnableAsync
 @Configuration
 public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ProvisioningContext.class);
 
     @Resource(name = "MasterDataSource")
     private DataSource masterDataSource;
@@ -188,14 +203,74 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public JavaMailSender mailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+    public JavaMailSender mailSender() throws IllegalArgumentException, NamingException {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl() {
+
+            @Override
+            protected Transport connectTransport() throws MessagingException {
+                // ensure that no auth means no auth
+                if (StringUtils.isBlank(getUsername())) {
+                    Transport transport = getTransport(getSession());
+                    transport.connect(getHost(), getPort(), null, null);
+                    return transport;
+                }
+
+                return super.connectTransport();
+            }
+        };
         mailSender.setDefaultEncoding(env.getProperty("smtpEncoding"));
         mailSender.setHost(env.getProperty("smtpHost"));
         mailSender.setPort(env.getProperty("smtpPort", Integer.class));
         mailSender.setUsername(env.getProperty("smtpUsername"));
         mailSender.setPassword(env.getProperty("smtpPassword"));
         mailSender.setProtocol(env.getProperty("smtpProtocol"));
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("[Mail] host:port = {}:{}", mailSender.getHost(), mailSender.getPort());
+            LOG.debug("[Mail] protocol = {}", mailSender.getProtocol());
+            LOG.debug("[Mail] username = {}", mailSender.getUsername());
+            LOG.debug("[Mail] default encoding = {}", mailSender.getDefaultEncoding());
+        }
+
+        JndiObjectFactoryBean mailSession = new JndiObjectFactoryBean();
+        mailSession.setJndiName("mail/syncopeNotification");
+        try {
+            mailSession.afterPropertiesSet();
+        } catch (NamingException e) {
+            LOG.debug("While looking up JNDI for mail session", e);
+        }
+
+        Session session = (Session) mailSession.getObject();
+        if (session == null) {
+            Properties javaMailProperties = mailSender.getJavaMailProperties();
+
+            Properties props = PropertyUtils.read(ProvisioningContext.class, "mail.properties", "conf.directory");
+            for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
+                String prop = (String) e.nextElement();
+                if (prop.startsWith("mail.smtp.")) {
+                    javaMailProperties.setProperty(prop, props.getProperty(prop));
+                }
+            }
+
+            if (StringUtils.isNotBlank(mailSender.getUsername())) {
+                javaMailProperties.setProperty("mail.smtp.auth", "true");
+            }
+
+            if (LOG.isDebugEnabled()) {
+                mailSender.getJavaMailProperties().
+                        forEach((key, value) -> LOG.debug("[Mail] property: {} = {}", key, value));
+            }
+
+            String mailDebug = props.getProperty("mail.debug", "false");
+            if (BooleanUtils.toBoolean(mailDebug)) {
+                session = mailSender.getSession();
+                session.setDebug(true);
+                session.setDebugOut(new PrintStream(new LogOutputStream(LOG)));
+            }
+        } else {
+            mailSender.setSession(session);
+        }
+
         return mailSender;
     }
 

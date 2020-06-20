@@ -25,9 +25,6 @@ under the License.
     <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>
   </resource-ref>-->
   <class-loader delegate="false"/>
-  <scanning-exclude>*</scanning-exclude>
-  <scanning-exclude>*</scanning-exclude>
-  <jaxrs-roles-allowed-enabled>false</jaxrs-roles-allowed-enabled>
   <jsp-config>
     <property name="httpMethods" value="GET,POST,HEAD,PUT,DELETE"/>
   </jsp-config>

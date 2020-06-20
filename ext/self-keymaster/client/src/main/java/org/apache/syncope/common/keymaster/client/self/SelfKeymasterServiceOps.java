@@ -21,7 +21,6 @@ package org.apache.syncope.common.keymaster.client.self;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -31,18 +30,13 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.ext.self.keymaster.api.service.NetworkServiceService;
+import org.apache.syncope.ext.self.keymaster.api.service.NetworkServiceService.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.backoff.BackOffExecution;
 import org.springframework.util.backoff.ExponentialBackOff;
 
 public class SelfKeymasterServiceOps extends SelfKeymasterOps implements ServiceOps {
-
-    private enum Action {
-        register,
-        unregister
-
-    }
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceOps.class);
 
@@ -129,22 +123,7 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     }
 
     private CompletionStage<Response> completionStage(final Action action, final NetworkService service) {
-        CompletionStage<Response> completionStage = null;
-        switch (action) {
-            case register:
-                completionStage = rx(path).
-                        post(Entity.entity(service, MediaType.APPLICATION_JSON));
-                break;
-
-            case unregister:
-                completionStage = rx(path).
-                        method(HttpMethod.DELETE, Entity.entity(service, MediaType.APPLICATION_JSON));
-                break;
-
-            default:
-        }
-
-        return completionStage;
+        return rx(path + "?action=" + action.name()).post(Entity.entity(service, MediaType.APPLICATION_JSON));
     }
 
     @Override
