@@ -1556,9 +1556,11 @@ under the License.
                 <phase>prepare-package</phase>
                 <configuration>
                   <target>
-                    <delete file="${basedir}/../build-tools/target/syncope-fit-build-tools-${project.version}/WEB-INF/lib/bval-jsr-${bval.version}.jar"/>
+                    <unzip src="${settings.localRepository}/org/apache/syncope/fit/syncope-fit-build-tools/${project.version}/syncope-fit-build-tools-${project.version}.war"
+                           dest="${project.build.outputDirectory}/syncope-fit-buildtools"/>
+                    <delete file="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib/bval-jsr-${bval.version}.jar"/>
                     <copy file="${settings.localRepository}/org/glassfish/jakarta.faces/${javax.faces.version}/jakarta.faces-${javax.faces.version}.jar"
-                          todir="${basedir}/../build-tools/target/syncope-fit-build-tools-${project.version}/WEB-INF/lib"/>
+                          todir="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib"/>
                   </target>
                 </configuration>
                 <goals>
@@ -1598,7 +1600,7 @@ under the License.
               </configuration>
               <deployables>
                 <deployable>
-                  <location>${basedir}/../build-tools/target/syncope-fit-build-tools-${project.version}</location>
+                  <location>${project.build.outputDirectory}/syncope-fit-buildtools</location>
                   <properties>
                     <context>syncope-fit-build-tools</context>
                   </properties>
