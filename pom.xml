@@ -450,8 +450,6 @@ under the License.
 
     <h2.version>1.4.200</h2.version>
 
-    <nimbus.jose.version>8.19</nimbus.jose.version>
-
     <junit.version>5.6.2</junit.version>
     <mockito.version>3.3.0</mockito.version>
 
@@ -481,8 +479,8 @@ under the License.
 
     <antlr4.version>4.8-1</antlr4.version>
 
-    <curator.version>4.3.0</curator.version>
-    <zookeeper.version>3.5.6</zookeeper.version>
+    <curator.version>5.0.0</curator.version>
+    <zookeeper.version>3.6.1</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -1977,6 +1975,7 @@ under the License.
           </exclusion>
         </exclusions>
       </dependency>
+
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
@@ -1987,10 +1986,11 @@ under the License.
         <artifactId>bcprov-jdk15on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
+
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>${nimbus.jose.version}</version>
+        <version>8.19</version>
       </dependency>
 
       <!-- TEST -->
