@@ -70,7 +70,6 @@ under the License.
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-test</artifactId>
-      <version>2.13.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
