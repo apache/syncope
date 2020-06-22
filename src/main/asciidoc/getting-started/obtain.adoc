@@ -105,7 +105,7 @@ https://docs.docker.com/compose/[Docker Compose^] or https://kubernetes.io/[Kube
 
 ===== Core
 
-Apache Syncope Core, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+Apache Syncope Core, see <<a-birds-eye-view-on-the-architecture,above>> for information.
 
 Port exposed: `8080`.
 
@@ -125,7 +125,7 @@ http://openjpa.apache.org/builds/3.0.0/apache-openjpa/docs/ref_guide_event.html[
 
 ===== Console
 
-Apache Syncope Admin UI, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+Apache Syncope Admin UI, see <<a-birds-eye-view-on-the-architecture,above>> for information.
 
 Port exposed: `8080`.
 
@@ -137,7 +137,7 @@ Environment variables:
 
 ===== Enduser
 
-Apache Syncope Enduser UI, see <<a-bird-s-eye-view-on-the-architecture,above>> for information.
+Apache Syncope Enduser UI, see <<a-birds-eye-view-on-the-architecture,above>> for information.
 
 Port exposed: `8080`.
 
