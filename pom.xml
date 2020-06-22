@@ -458,7 +458,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>3.26.1</swagger-ui.version>
+    <swagger-ui.version>3.27.0</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
@@ -2557,7 +2557,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.6.0</version>
+            <version>2.0.0</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
@@ -2567,7 +2567,6 @@ under the License.
             </dependencies>
             <configuration>
               <doctype>book</doctype>
-              <relativeBaseDir>true</relativeBaseDir>
               <sourceHighlighter>highlightjs</sourceHighlighter>
               <attributes>
                 <docVersion>${project.version}</docVersion>
@@ -2597,10 +2596,11 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/getting-started</baseDir>
                   <backend>html</backend>
-                  <imagesDir>./images</imagesDir>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Getting Started</title>
+                    <imagesdir>images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2612,11 +2612,12 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/getting-started</baseDir>
                   <backend>pdf</backend>
-                  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
+                    <imagesdir>${basedir}/src/main/asciidoc/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2628,10 +2629,11 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/reference-guide</baseDir>
                   <backend>html</backend>
-                  <imagesDir>./images</imagesDir>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Reference Guide</title>
+                    <imagesdir>images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2643,11 +2645,12 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/reference-guide</baseDir>
                   <backend>pdf</backend>
-                  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
+                    <imagesdir>${basedir}/src/main/asciidoc/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
