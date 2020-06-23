@@ -29,7 +29,6 @@ import javax.ws.rs.HttpMethod;
 import org.apache.syncope.common.lib.types.FilterFactory;
 import org.apache.syncope.common.lib.types.GatewayRouteFilter;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.common.lib.types.PredicateFactory;
 import org.apache.syncope.core.persistence.api.dao.GatewayRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.GatewayRoute;
@@ -48,7 +47,6 @@ public class GatewayRouteTest extends AbstractTest {
     public void find() {
         GatewayRoute route = routeDAO.find("ec7bada2-3dd6-460c-8441-65521d005ffa");
         assertNotNull(route);
-        assertEquals(GatewayRouteStatus.PUBLISHED, route.getStatus());
         assertEquals(1, route.getPredicates().size());
 
         route = routeDAO.find(UUID.randomUUID().toString());
@@ -71,7 +69,6 @@ public class GatewayRouteTest extends AbstractTest {
                 factory(PredicateFactory.METHOD).args(HttpMethod.GET).build()));
         route.setFilters(List.of(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.ADD_REQUEST_HEADER).args("X-Request-Foo, Bar").build()));
-        route.setStatus(GatewayRouteStatus.DRAFT);
 
         int beforeCount = routeDAO.findAll().size();
 

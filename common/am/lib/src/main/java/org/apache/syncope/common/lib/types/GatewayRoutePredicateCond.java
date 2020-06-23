@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum GatewayRouteStatus {
-    DRAFT,
-    STAGING,
-    PUBLISHED,
-    DEPRECATED
+public enum GatewayRoutePredicateCond {
+    AND,
+    OR
 
 }

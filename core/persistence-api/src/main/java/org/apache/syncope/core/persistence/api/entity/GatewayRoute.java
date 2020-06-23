@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.List;
 import org.apache.syncope.common.lib.types.GatewayRouteFilter;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 
 public interface GatewayRoute extends Entity {
 
@@ -45,8 +44,4 @@ public interface GatewayRoute extends Entity {
     List<GatewayRoutePredicate> getPredicates();
 
     void setPredicates(List<GatewayRoutePredicate> predicates);
-
-    GatewayRouteStatus getStatus();
-
-    void setStatus(GatewayRouteStatus status);
 }

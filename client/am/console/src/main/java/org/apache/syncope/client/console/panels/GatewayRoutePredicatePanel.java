@@ -30,7 +30,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.PredicateCond;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicateCond;
 import org.apache.syncope.common.lib.types.PredicateFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -89,9 +89,9 @@ public class GatewayRoutePredicatePanel extends Panel {
                         new AjaxTextFieldPanel("args", "args", new PropertyModel<>(predicate, "args"));
                 item.add(args.hideLabel());
 
-                AjaxDropDownChoicePanel<PredicateCond> cond =
+                AjaxDropDownChoicePanel<GatewayRoutePredicateCond> cond =
                         new AjaxDropDownChoicePanel<>("cond", "cond", new PropertyModel<>(predicate, "cond"));
-                cond.setChoices(List.of(PredicateCond.values()));
+                cond.setChoices(List.of(GatewayRoutePredicateCond.values()));
                 item.add(cond.hideLabel());
 
                 ActionsPanel<Serializable> actions = new ActionsPanel<>("actions", null);

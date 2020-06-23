@@ -77,6 +77,11 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-api</artifactId>
       <version>${project.version}</version>
@@ -180,6 +185,18 @@ under the License.
       <testResource>
         <directory>${basedir}/src/test/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>*.p12</exclude>
+          <exclude>*.jks</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>*.p12</include>
+          <include>*.jks</include>
+        </includes>
       </testResource>
     </testResources>
   </build>

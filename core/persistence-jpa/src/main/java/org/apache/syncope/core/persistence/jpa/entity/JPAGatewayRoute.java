@@ -24,14 +24,11 @@ import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.GatewayRouteFilter;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.core.persistence.api.entity.GatewayRoute;
 import org.apache.syncope.core.persistence.jpa.validation.entity.GatewayRouteCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -58,10 +55,6 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
 
     @Lob
     private String filters;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private GatewayRouteStatus status;
 
     @Override
     public String getName() {
@@ -115,15 +108,5 @@ public class JPAGatewayRoute extends AbstractGeneratedKeyEntity implements Gatew
     @Override
     public void setPredicates(final List<GatewayRoutePredicate> predicates) {
         this.predicates = POJOHelper.serialize(predicates);
-    }
-
-    @Override
-    public GatewayRouteStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public void setStatus(final GatewayRouteStatus status) {
-        this.status = status;
     }
 }

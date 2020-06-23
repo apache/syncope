@@ -1,0 +1,647 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.sra;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.net.URI;
+import java.time.ZonedDateTime;
+import org.apache.syncope.common.lib.to.GatewayRouteTO;
+import org.apache.syncope.common.lib.types.FilterFactory;
+import org.apache.syncope.common.lib.types.GatewayRouteFilter;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
+import org.apache.syncope.common.lib.types.GatewayRoutePredicateCond;
+import org.apache.syncope.common.lib.types.PredicateFactory;
+import org.apache.syncope.sra.filters.BodyPropertyAddingGatewayFilterFactory;
+import org.apache.syncope.sra.predicates.BodyPropertyMatchingRoutePredicateFactory;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
+
+public class RouteProviderTest extends AbstractTest {
+
+    @Autowired
+    private WebTestClient webClient;
+
+    @BeforeEach
+    public void clearRoutes() {
+        SyncopeCoreTestingServer.ROUTES.clear();
+    }
+
+    @Test
+    public void root() {
+        webClient.get().exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    public void addResponseHeader() {
+        // 1. no mapping for URL
+        webClient.get().uri("/addResponseHeader").exchange().expectStatus().isNotFound();
+
+        // 2. stub for proxied URL
+        stubFor(get(urlEqualTo("/addResponseHeader")).willReturn(aResponse()));
+
+        // 3. create route configuration
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("addResponseHeader");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.METHOD).args("GET").build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.PATH).args("/addResponseHeader").cond(GatewayRoutePredicateCond.AND).build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_RESPONSE_HEADER).args("Hello,World").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        // 4. now mapping works for URL
+        webClient.get().uri("/addResponseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("Hello", "World");
+
+        // 5. update route configuration
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_RESPONSE_HEADER).args("Hello,WorldZ").build());
+
+        routeRefresher.refresh();
+
+        // 6. mapping for URL is updated too
+        webClient.get().uri("/addResponseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("Hello", "WorldZ");
+
+        // 7. update route configuration again
+        route.getFilters().clear();
+
+        routeRefresher.refresh();
+
+        // 8. mapping for URL is updated again
+        webClient.get().uri("/addResponseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().doesNotExist("Hello");
+    }
+
+    @Test
+    public void addRequestHeader() {
+        webClient.get().uri("/requestHeader").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/requestHeader")).withHeader("Hello", equalTo("World")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("requestHeader");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.REMOTE_ADDR).args("localhost").build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_REQUEST_HEADER).args("Hello,World").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/requestHeader").exchange().expectStatus().isOk();
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_REQUEST_HEADER).args("Hello,Mondo").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/requestHeader").exchange().expectStatus().isNotFound();
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.REMOVE_REQUEST_HEADER).args("Hello").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/requestHeader").header("Hello", "World").exchange().expectStatus().isNotFound();
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.SET_REQUEST_HEADER).args("Hello, World").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/requestHeader").header("Hello", "Mondo").exchange().expectStatus().isOk();
+    }
+
+    @Test
+    public void hystrix() {
+        webClient.get().uri("/fallback").exchange().
+                expectStatus().isOk().
+                expectBody().
+                consumeWith(response -> assertThat(response.getResponseBody()).isEqualTo("fallback".getBytes()));
+
+        stubFor(get(urlEqualTo("/delay/3")).
+                willReturn(aResponse().
+                        withBody("no fallback").
+                        withFixedDelay(3000)));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("hystrix");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.HOST).args("*.hystrix.com").build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.HYSTRIX).args("fallbackcmd,forward:/fallback").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/delay/3").
+                header(HttpHeaders.HOST, "www.hystrix.com").
+                exchange().
+                expectStatus().isOk().
+                expectBody().
+                consumeWith(response -> assertThat(response.getResponseBody()).isEqualTo("fallback".getBytes()));
+    }
+
+    @Test
+    public void requestHeaderToRequestUri() {
+        webClient.get().uri("/requestHeaderToRequestUri").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/requestHeaderToRequestUri")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("requestHeaderToRequestUri");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.REQUEST_HEADER_TO_REQUEST_URI).args("NewUri").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/requestHeaderToRequestUri").
+                header("NewUri", "http://localhost:" + wiremockPort + "/requestHeaderToRequestUri").
+                exchange().expectStatus().isOk();
+    }
+
+    @Test
+    public void responseHeader() {
+        webClient.get().uri("/responseHeader").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/responseHeader")).willReturn(aResponse().withHeader("Hello", "World")));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("responseHeader");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.REMOVE_RESPONSE_HEADER).args("Hello").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/responseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().doesNotExist("Hello");
+
+        route.getFilters().clear();
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/responseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("Hello", "World");
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.REWRITE_RESPONSE_HEADER).args("Hello,World,Mondo").build());
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/responseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("Hello", "Mondo");
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.SET_RESPONSE_HEADER).args("Hello,Mondo").build());
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/responseHeader").exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("Hello", "Mondo");
+    }
+
+    @Test
+    public void addRequestParameter() {
+        webClient.get().uri("/addRequestParameter?Hello=World").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/addRequestParameter?Hello=World")).withQueryParam("Hello", equalTo("World")).
+                willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("addRequestParameter");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_REQUEST_PARAMETER).args("Hello,World").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/addRequestParameter").exchange().expectStatus().isOk();
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_REQUEST_PARAMETER).args("Hello,Mondo").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/addRequestParameter").exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    public void rewritePath() {
+        webClient.get().uri("/rewrite").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/rewrite")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("rewrite");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.REWRITE_PATH).args("/remove/(?<segment>.*), /${segment}").build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.SECURE_HEADERS).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/remove/rewrite").exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("X-XSS-Protection", "1 ; mode=block");
+
+        route.getFilters().clear();
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/remove/rewrite").exchange().
+                expectStatus().isNotFound();
+
+        route.getFilters().clear();
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/rewrite").exchange().
+                expectStatus().isOk().
+                expectHeader().doesNotExist("X-XSS-Protection");
+
+        route.getFilters().clear();
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.PATH).args("/remove/{segment}").build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.SET_PATH).args("/{segment}").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/remove/rewrite").exchange().
+                expectStatus().isOk();
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.STRIP_PREFIX).args("1").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/remove/rewrite").exchange().expectStatus().isOk();
+    }
+
+    @Test
+    public void redirect() {
+        webClient.get().uri("/redirect").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/redirect")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("redirect");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.REDIRECT).args("307,http://127.0.0.1:" + wiremockPort).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/redirect").exchange().expectStatus().isTemporaryRedirect();
+
+        route.getFilters().clear();
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/redirect").exchange().expectStatus().isOk();
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.SET_STATUS).args("404").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/redirect").exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    public void datetime() {
+        webClient.get().uri("/prefix/datetime").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/prefix/datetime")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("datetime");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.AFTER).args(ZonedDateTime.now().minusYears(1).toString()).build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.BEFORE).args(ZonedDateTime.now().plusYears(1).toString()).
+                cond(GatewayRoutePredicateCond.AND).build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.BETWEEN).args(ZonedDateTime.now().minusYears(1).toString() + ","
+                + ZonedDateTime.now().plusYears(1).toString()).
+                cond(GatewayRoutePredicateCond.AND).build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.PREFIX_PATH).args("/prefix").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/datetime").exchange().
+                expectStatus().isOk();
+
+        route.getPredicates().clear();
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.AFTER).args(ZonedDateTime.now().plusYears(1).toString()).build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.BEFORE).args(ZonedDateTime.now().minusYears(1).toString()).
+                cond(GatewayRoutePredicateCond.OR).build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.BETWEEN).args(ZonedDateTime.now().plusYears(1).toString() + ","
+                + ZonedDateTime.now().minusYears(1).toString()).cond(GatewayRoutePredicateCond.OR).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/datetime").exchange().expectStatus().isNotFound();
+
+        route.getPredicates().clear();
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.BEFORE).negate().args(ZonedDateTime.now().minusYears(1).toString()).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/datetime").exchange().expectStatus().isOk();
+    }
+
+    @Test
+    public void header() {
+        webClient.get().uri("/header").exchange().expectStatus().isNotFound();
+
+        stubFor(get(urlEqualTo("/header")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("header");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.COOKIE).args("Hello,World").build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.HOST).args("host").cond(GatewayRoutePredicateCond.AND).build());
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.HEADER).args("Hello,World").cond(GatewayRoutePredicateCond.AND).build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.PRESERVE_HOST_HEADER).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/header").cookie("Hello", "World").header("Host", "host").header("Hello", "World").
+                exchange().expectStatus().isOk();
+
+        webClient.get().uri("/header").cookie("Hello", "Mondo").header("Host", "host").header("Hello", "World").
+                exchange().expectStatus().isNotFound();
+
+        webClient.get().uri("/header").cookie("Hello", "World").header("Host", "anotherHost").header("Hello", "World").
+                exchange().expectStatus().isNotFound();
+
+        webClient.get().uri("/header").cookie("Hello", "World").header("Host", "host").header("Hello", "Mondo").
+                exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    public void query() {
+        stubFor(get(urlEqualTo("/query?name=value")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("query");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.QUERY).args("name,value").build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.SAVE_SESSION).build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.SET_REQUEST_SIZE).args("5000").build());
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.RETRY).args("3").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/query?name=value").exchange().expectStatus().isOk();
+
+        route.getPredicates().clear();
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.QUERY).args("name,anotherValue").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/query?name=value").exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    public void path() {
+        stubFor(get(urlEqualTo("/pathMatcher/1")).willReturn(aResponse()));
+        stubFor(get(urlEqualTo("/pathMatcher/2")).willReturn(aResponse()));
+        stubFor(get(urlEqualTo("/pathMatcher/2/3")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("pathMatcher");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.PATH).args("/pathMatcher/**").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/pathMatcher/1").exchange().expectStatus().isOk();
+        webClient.get().uri("/pathMatcher/2").exchange().expectStatus().isOk();
+        webClient.get().uri("/pathMatcher/2/3").exchange().expectStatus().isOk();
+        webClient.get().uri("/pathMatcher/4").exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    public void linkRewrite() {
+        stubFor(get(urlEqualTo("/linkRewrite")).willReturn(aResponse().
+                withHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE).
+                withBody("<html><head></head><body><a href=\"/absolute\">absolute link</a></body></html>")));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("linkRewrite");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.LINK_REWRITE).
+                args("http://localhost:" + gatewayPort).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/linkRewrite").exchange().
+                expectStatus().isOk().
+                expectBody().consumeWith(exchange -> {
+                    assertTrue(new String(exchange.getResponseBody()).
+                            contains("<a href=\"http://localhost:" + gatewayPort + "/absolute\">"));
+                });
+
+        route.getFilters().clear();
+        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.LINK_REWRITE).
+                args("http://localhost:" + gatewayPort + ",true").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/linkRewrite").exchange().
+                expectStatus().isOk().
+                expectBody().consumeWith(exchange -> {
+                    assertTrue(new String(exchange.getResponseBody()).
+                            contains("<a href=\"http://localhost:" + gatewayPort + "/absolute\">"));
+                });
+    }
+
+    @Test
+    public void clientCertToRequestHeader() {
+        stubFor(get(urlEqualTo("/clientCert")).willReturn(aResponse().
+                withHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("clientCert");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/clientCert").exchange().
+                expectStatus().isOk().
+                expectHeader().doesNotExist("X-Client-Certificate");
+    }
+
+    @Test
+    public void queryParamToRequestHeader() {
+        stubFor(get(urlEqualTo("/queryParamToRequestHeader")).
+                withHeader("Hello", equalTo("World")).willReturn(aResponse()));
+
+        stubFor(get(urlEqualTo("/queryParamToRequestHeader?Header=Test&Header=Test1")).
+                withHeader("Hello", equalTo("World")).willReturn(aResponse()));
+
+        GatewayRouteTO route = new GatewayRouteTO();
+        route.setKey("queryParamToRequestHeader");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.QUERY_PARAM_TO_REQUEST_HEADER).args("Hello").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/queryParamToRequestHeader").exchange().
+                expectStatus().isNotFound();
+
+        webClient.get().uri("/queryParamToRequestHeader?Hello=World").exchange().
+                expectStatus().isOk();
+
+        webClient.get().uri("/queryParamToRequestHeader?Header=Test&Hello=World&Header=Test1").exchange().
+                expectStatus().isOk();
+    }
+
+    @Test
+    public void custom() {
+        stubFor(post(urlEqualTo("/custom")).
+                willReturn(aResponse().
+                        withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).
+                        withBody("{\"data\": \"data\"}")));
+
+        GatewayRouteTO routeTO = new GatewayRouteTO();
+        routeTO.setKey("custom");
+        routeTO.setTarget(URI.create("http://localhost:" + wiremockPort));
+        routeTO.getPredicates().add(new GatewayRoutePredicate.Builder().
+                factory(PredicateFactory.CUSTOM).
+                args(BodyPropertyMatchingRoutePredicateFactory.class.getName() + ";cool").build());
+        routeTO.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.ADD_RESPONSE_HEADER).args("Custom,matched").build());
+        routeTO.getFilters().add(new GatewayRouteFilter.Builder().
+                factory(FilterFactory.CUSTOM).
+                args(BodyPropertyAddingGatewayFilterFactory.class.getName() + ";customized=true").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(routeTO.getKey(), routeTO);
+        routeRefresher.refresh();
+
+        webClient.post().uri("/custom").
+                body(BodyInserters.fromValue(MAPPER.createObjectNode().put("other", true))).
+                exchange().
+                expectStatus().isNotFound();
+
+        webClient.post().uri("/custom").
+                body(BodyInserters.fromValue(MAPPER.createObjectNode().put("cool", true))).
+                exchange().
+                expectStatus().isOk().
+                expectHeader().valueEquals("Custom", "matched").
+                expectBody().
+                consumeWith(response -> {
+                    try {
+                        JsonNode body = MAPPER.readTree(response.getResponseBody());
+                        assertTrue(body.has("customized"));
+                        assertTrue(body.get("customized").asBoolean());
+                    } catch (IOException e) {
+                        fail(e.getMessage(), e);
+                    }
+                });
+    }
+}

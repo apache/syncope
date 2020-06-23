@@ -53,21 +53,23 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
-        // 1. start (mocked) Core as embedded CXF
-        JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-        sf.setAddress(ADDRESS);
-        sf.setResourceClasses(GatewayRouteService.class);
-        sf.setResourceProvider(
-                GatewayRouteService.class,
-                new SingletonResourceProvider(new StubGatewayRouteService(), true));
-        sf.setProviders(List.of(new JacksonJsonProvider()));
-        sf.create();
+        if (AbstractTest.available(9080)) {
+            // 1. start (mocked) Core as embedded CXF
+            JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
+            sf.setAddress(ADDRESS);
+            sf.setResourceClasses(GatewayRouteService.class);
+            sf.setResourceProvider(
+                    GatewayRouteService.class,
+                    new SingletonResourceProvider(new StubGatewayRouteService(), true));
+            sf.setProviders(List.of(new JacksonJsonProvider()));
+            sf.create();
 
-        // 2. register Core in Keymaster
-        NetworkService core = new NetworkService();
-        core.setType(NetworkService.Type.CORE);
-        core.setAddress(ADDRESS);
-        serviceOps.register(core);
+            // 2. register Core in Keymaster
+            NetworkService core = new NetworkService();
+            core.setType(NetworkService.Type.CORE);
+            core.setAddress(ADDRESS);
+            serviceOps.register(core);
+        }
     }
 
     public class StubGatewayRouteService implements GatewayRouteService {

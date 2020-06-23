@@ -35,7 +35,7 @@ public class GatewayRoutePredicate implements BaseBean {
             return this;
         }
 
-        public Builder cond(final PredicateCond cond) {
+        public Builder cond(final GatewayRoutePredicateCond cond) {
             instance.setCond(cond);
             return this;
         }
@@ -57,7 +57,7 @@ public class GatewayRoutePredicate implements BaseBean {
 
     private boolean negate;
 
-    private PredicateCond cond;
+    private GatewayRoutePredicateCond cond;
 
     private PredicateFactory factory;
 
@@ -71,11 +71,11 @@ public class GatewayRoutePredicate implements BaseBean {
         this.negate = negate;
     }
 
-    public PredicateCond getCond() {
+    public GatewayRoutePredicateCond getCond() {
         return cond;
     }
 
-    public void setCond(final PredicateCond cond) {
+    public void setCond(final GatewayRoutePredicateCond cond) {
         this.cond = cond;
     }
 

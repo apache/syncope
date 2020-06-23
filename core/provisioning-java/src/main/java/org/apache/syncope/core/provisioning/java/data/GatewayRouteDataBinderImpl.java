@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.GatewayRouteTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.core.persistence.api.entity.GatewayRoute;
 import org.apache.syncope.core.provisioning.api.data.GatewayRouteDataBinder;
 import org.springframework.stereotype.Component;
@@ -48,7 +47,6 @@ public class GatewayRouteDataBinderImpl implements GatewayRouteDataBinder {
         route.setTarget(routeTO.getTarget());
         route.setFilters(routeTO.getFilters());
         route.setPredicates(routeTO.getPredicates());
-        route.setStatus(routeTO.getStatus() == null ? GatewayRouteStatus.DRAFT : routeTO.getStatus());
     }
 
     @Override
@@ -60,7 +58,6 @@ public class GatewayRouteDataBinderImpl implements GatewayRouteDataBinder {
         routeTO.setTarget(route.getTarget());
         routeTO.getFilters().addAll(route.getFilters());
         routeTO.getPredicates().addAll(route.getPredicates());
-        routeTO.setStatus(route.getStatus());
 
         return routeTO;
     }

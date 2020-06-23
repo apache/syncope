@@ -16,34 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra;
+package org.apache.syncope.sra.filters;
 
 import org.springframework.cloud.gateway.filter.GatewayFilter;
-import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.HttpHeaders;
 
-/**
- * Base class for custom gateway filter factories.
- */
-public abstract class CustomGatewayFilterFactory
-        extends AbstractGatewayFilterFactory<CustomGatewayFilterFactory.Config> {
-
-    public static class Config {
-
-        private String data;
-
-        public String getData() {
-            return data;
-        }
-
-        public void setData(final String data) {
-            this.data = data;
-        }
-    }
-
-    public CustomGatewayFilterFactory() {
-        super(CustomGatewayFilterFactory.Config.class);
-    }
+public class AddRefererFilterFactory extends CustomGatewayFilterFactory {
 
     @Override
-    public abstract GatewayFilter apply(Config config);
+    public GatewayFilter apply(final Config config) {
+        return (exchange, chain) -> chain.filter(exchange.mutate().request(
+                exchange.getRequest().mutate().headers(headers -> headers.add(
+                HttpHeaders.REFERER, exchange.getRequest().getURI().toASCIIString())).build()).
+                build());
+    }
 }

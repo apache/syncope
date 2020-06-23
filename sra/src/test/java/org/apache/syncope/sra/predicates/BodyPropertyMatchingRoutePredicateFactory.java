@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra;
+package org.apache.syncope.sra.predicates;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;

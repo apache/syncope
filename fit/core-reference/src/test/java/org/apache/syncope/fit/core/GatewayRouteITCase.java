@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.FilterFactory;
 import org.apache.syncope.common.lib.types.GatewayRouteFilter;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.syncope.common.lib.types.PredicateFactory;
 import org.apache.syncope.common.rest.api.service.GatewayRouteService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -46,7 +45,6 @@ public class GatewayRouteITCase extends AbstractITCase {
     public void read() {
         GatewayRouteTO route = gatewayRouteService.read("ec7bada2-3dd6-460c-8441-65521d005ffa");
         assertNotNull(route);
-        assertEquals(GatewayRouteStatus.PUBLISHED, route.getStatus());
         assertEquals(1, route.getPredicates().size());
 
         try {
@@ -73,7 +71,6 @@ public class GatewayRouteITCase extends AbstractITCase {
                 factory(PredicateFactory.METHOD).args(HttpMethod.GET).build());
         route.getFilters().add(new GatewayRouteFilter.Builder().
                 factory(FilterFactory.ADD_REQUEST_HEADER).args("X-Request-Foo, Bar").build());
-        route.setStatus(GatewayRouteStatus.DRAFT);
 
         int beforeCount = gatewayRouteService.list().size();
 
@@ -85,11 +82,6 @@ public class GatewayRouteITCase extends AbstractITCase {
 
         int afterCount = gatewayRouteService.list().size();
         assertEquals(afterCount, beforeCount + 1);
-
-        route.setStatus(GatewayRouteStatus.STAGING);
-        gatewayRouteService.update(route);
-        route = gatewayRouteService.read(route.getKey());
-        assertEquals(GatewayRouteStatus.STAGING, route.getStatus());
 
         gatewayRouteService.delete(route.getKey());
 

@@ -20,15 +20,11 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.List;
-
 import org.apache.syncope.client.console.rest.GatewayRouteRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.GatewayRouteTO;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -100,10 +96,6 @@ public class GatewayRouteWizardBuilder extends BaseAjaxWizardBuilder<GatewayRout
             target.addRequiredLabel().setEnabled(true);
             target.getField().add(new UrlValidator(new String[] { "http", "https" }));
             add(target);
-
-            add(new AjaxDropDownChoicePanel<>(
-                    "status", "status", new PropertyModel<>(route, "status")).
-                    setChoices(List.of((Serializable[]) GatewayRouteStatus.values())));
         }
     }
 

@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.GatewayRouteFilter;
 import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
 
 public class GatewayRouteTO implements NamedEntityTO {
 
@@ -43,8 +42,6 @@ public class GatewayRouteTO implements NamedEntityTO {
     private final List<GatewayRouteFilter> filters = new ArrayList<>();
 
     private final List<GatewayRoutePredicate> predicates = new ArrayList<>();
-
-    private GatewayRouteStatus status;
 
     @Override
     public String getKey() {
@@ -91,14 +88,6 @@ public class GatewayRouteTO implements NamedEntityTO {
         return predicates;
     }
 
-    public GatewayRouteStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(final GatewayRouteStatus status) {
-        this.status = status;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -107,7 +96,6 @@ public class GatewayRouteTO implements NamedEntityTO {
                 append(target).
                 append(filters).
                 append(predicates).
-                append(status).
                 build();
     }
 
@@ -129,7 +117,6 @@ public class GatewayRouteTO implements NamedEntityTO {
                 append(target, other.target).
                 append(filters, other.filters).
                 append(predicates, other.predicates).
-                append(status, other.status).
                 build();
     }
 }

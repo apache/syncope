@@ -1993,6 +1993,12 @@ under the License.
         <version>8.19</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>1.13.1</version>
+      </dependency>
+
       <!-- TEST -->
       <dependency>
         <groupId>org.apache.curator</groupId>
