@@ -407,7 +407,7 @@ under the License.
     <cxf.version>3.3.6</cxf.version>
     <bouncycastle.version>1.65</bouncycastle.version>
 
-    <jackson.version>2.11.0</jackson.version>
+    <jackson.version>2.11.1</jackson.version>
 
     <spring.version>5.2.7.RELEASE</spring.version>
     <spring-security.version>5.3.3.RELEASE</spring-security.version>
@@ -2868,7 +2868,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.9.0</version>
+            <version>3.9.1</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
