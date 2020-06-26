@@ -39,12 +39,12 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLException;
-import org.apache.syncope.common.lib.to.GatewayRouteTO;
-import org.apache.syncope.common.lib.types.FilterFactory;
-import org.apache.syncope.common.lib.types.GatewayRouteFilter;
-import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRoutePredicateCond;
-import org.apache.syncope.common.lib.types.PredicateFactory;
+import org.apache.syncope.common.lib.to.SRARouteTO;
+import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
+import org.apache.syncope.common.lib.types.SRARouteFilter;
+import org.apache.syncope.common.lib.types.SRARoutePredicate;
+import org.apache.syncope.common.lib.types.SRARoutePredicateCond;
+import org.apache.syncope.common.lib.types.SRARoutePredicateFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -98,15 +98,15 @@ public class TLSRouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/getWithClientAuth")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("getWithClientAuth");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.METHOD).args("GET").build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.PATH).args("/getWithClientAuth").cond(GatewayRoutePredicateCond.AND).build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.METHOD).args("GET").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.PATH).args("/getWithClientAuth").cond(SRARoutePredicateCond.AND).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -128,15 +128,15 @@ public class TLSRouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/withoutClientCert")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("withoutClientCert");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.METHOD).args("GET").build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.PATH).args("/withoutClientCert").cond(GatewayRoutePredicateCond.AND).build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.METHOD).args("GET").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.PATH).args("/withoutClientCert").cond(SRARoutePredicateCond.AND).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();

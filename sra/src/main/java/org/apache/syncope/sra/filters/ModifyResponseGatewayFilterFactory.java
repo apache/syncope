@@ -77,11 +77,9 @@ public abstract class ModifyResponseGatewayFilterFactory extends CustomGatewayFi
             return chain.filter(exchange.mutate().response(decorate(exchange)).build());
         }
 
-        @SuppressWarnings("squid:S3776")
         private ServerHttpResponse decorate(final ServerWebExchange exchange) {
             return new ServerHttpResponseDecorator(exchange.getResponse()) {
 
-                @SuppressWarnings("squid:S3358")
                 @Override
                 public Mono<Void> writeWith(final Publisher<? extends DataBuffer> body) {
                     return skipCond(this)

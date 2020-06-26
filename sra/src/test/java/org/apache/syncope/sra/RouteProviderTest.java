@@ -21,30 +21,48 @@ package org.apache.syncope.sra;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.net.URI;
 import java.time.ZonedDateTime;
-import org.apache.syncope.common.lib.to.GatewayRouteTO;
-import org.apache.syncope.common.lib.types.FilterFactory;
-import org.apache.syncope.common.lib.types.GatewayRouteFilter;
-import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRoutePredicateCond;
-import org.apache.syncope.common.lib.types.PredicateFactory;
+import org.apache.syncope.common.lib.to.SRARouteTO;
+import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
+import org.apache.syncope.common.lib.types.SRARouteFilter;
+import org.apache.syncope.common.lib.types.SRARoutePredicate;
+import org.apache.syncope.common.lib.types.SRARoutePredicateCond;
+import org.apache.syncope.common.lib.types.SRARouteType;
+import org.apache.syncope.common.lib.types.SRARoutePredicateFactory;
 import org.apache.syncope.sra.filters.BodyPropertyAddingGatewayFilterFactory;
+import org.apache.syncope.sra.filters.PrincipalToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.predicates.BodyPropertyMatchingRoutePredicateFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.session.MapSession;
+import org.springframework.session.Session;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
@@ -72,15 +90,15 @@ public class RouteProviderTest extends AbstractTest {
         stubFor(get(urlEqualTo("/addResponseHeader")).willReturn(aResponse()));
 
         // 3. create route configuration
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("addResponseHeader");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.METHOD).args("GET").build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.PATH).args("/addResponseHeader").cond(GatewayRoutePredicateCond.AND).build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_RESPONSE_HEADER).args("Hello,World").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.METHOD).args("GET").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.PATH).args("/addResponseHeader").cond(SRARoutePredicateCond.AND).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_RESPONSE_HEADER).args("Hello,World").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -92,8 +110,8 @@ public class RouteProviderTest extends AbstractTest {
 
         // 5. update route configuration
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_RESPONSE_HEADER).args("Hello,WorldZ").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_RESPONSE_HEADER).args("Hello,WorldZ").build());
 
         routeRefresher.refresh();
 
@@ -119,13 +137,13 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/requestHeader")).withHeader("Hello", equalTo("World")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("requestHeader");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.REMOTE_ADDR).args("localhost").build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_REQUEST_HEADER).args("Hello,World").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.REMOTE_ADDR).args("localhost").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_REQUEST_HEADER).args("Hello,World").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -133,8 +151,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/requestHeader").exchange().expectStatus().isOk();
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_REQUEST_HEADER).args("Hello,Mondo").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_REQUEST_HEADER).args("Hello,Mondo").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -142,8 +160,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/requestHeader").exchange().expectStatus().isNotFound();
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.REMOVE_REQUEST_HEADER).args("Hello").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.REMOVE_REQUEST_HEADER).args("Hello").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -151,8 +169,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/requestHeader").header("Hello", "World").exchange().expectStatus().isNotFound();
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.SET_REQUEST_HEADER).args("Hello, World").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.SET_REQUEST_HEADER).args("Hello, World").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -172,13 +190,13 @@ public class RouteProviderTest extends AbstractTest {
                         withBody("no fallback").
                         withFixedDelay(3000)));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("hystrix");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.HOST).args("*.hystrix.com").build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.HYSTRIX).args("fallbackcmd,forward:/fallback").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.HOST).args("*.hystrix.com").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.HYSTRIX).args("fallbackcmd,forward:/fallback").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -197,11 +215,11 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/requestHeaderToRequestUri")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("requestHeaderToRequestUri");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.REQUEST_HEADER_TO_REQUEST_URI).args("NewUri").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.REQUEST_HEADER_TO_REQUEST_URI).args("NewUri").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -217,11 +235,11 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/responseHeader")).willReturn(aResponse().withHeader("Hello", "World")));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("responseHeader");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.REMOVE_RESPONSE_HEADER).args("Hello").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.REMOVE_RESPONSE_HEADER).args("Hello").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -240,8 +258,8 @@ public class RouteProviderTest extends AbstractTest {
                 expectHeader().valueEquals("Hello", "World");
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.REWRITE_RESPONSE_HEADER).args("Hello,World,Mondo").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.REWRITE_RESPONSE_HEADER).args("Hello,World,Mondo").build());
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
 
@@ -250,8 +268,8 @@ public class RouteProviderTest extends AbstractTest {
                 expectHeader().valueEquals("Hello", "Mondo");
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.SET_RESPONSE_HEADER).args("Hello,Mondo").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.SET_RESPONSE_HEADER).args("Hello,Mondo").build());
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
 
@@ -267,11 +285,11 @@ public class RouteProviderTest extends AbstractTest {
         stubFor(get(urlEqualTo("/addRequestParameter?Hello=World")).withQueryParam("Hello", equalTo("World")).
                 willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("addRequestParameter");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_REQUEST_PARAMETER).args("Hello,World").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_REQUEST_PARAMETER).args("Hello,World").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -279,8 +297,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/addRequestParameter").exchange().expectStatus().isOk();
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_REQUEST_PARAMETER).args("Hello,Mondo").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_REQUEST_PARAMETER).args("Hello,Mondo").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -294,13 +312,13 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/rewrite")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("rewrite");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.REWRITE_PATH).args("/remove/(?<segment>.*), /${segment}").build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.SECURE_HEADERS).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.REWRITE_PATH).args("/remove/(?<segment>.*), /${segment}").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.SECURE_HEADERS).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -327,10 +345,10 @@ public class RouteProviderTest extends AbstractTest {
                 expectHeader().doesNotExist("X-XSS-Protection");
 
         route.getFilters().clear();
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.PATH).args("/remove/{segment}").build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.SET_PATH).args("/{segment}").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.PATH).args("/remove/{segment}").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.SET_PATH).args("/{segment}").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -339,8 +357,8 @@ public class RouteProviderTest extends AbstractTest {
                 expectStatus().isOk();
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.STRIP_PREFIX).args("1").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.STRIP_PREFIX).args("1").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -354,11 +372,11 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/redirect")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("redirect");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.REDIRECT).args("307,http://127.0.0.1:" + wiremockPort).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.REDIRECT).args("307,http://127.0.0.1:" + wiremockPort).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -373,7 +391,7 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/redirect").exchange().expectStatus().isOk();
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.SET_STATUS).args("404").build());
+        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.SET_STATUS).args("404").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -387,20 +405,20 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/prefix/datetime")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("datetime");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.AFTER).args(ZonedDateTime.now().minusYears(1).toString()).build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.BEFORE).args(ZonedDateTime.now().plusYears(1).toString()).
-                cond(GatewayRoutePredicateCond.AND).build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.BETWEEN).args(ZonedDateTime.now().minusYears(1).toString() + ","
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.AFTER).args(ZonedDateTime.now().minusYears(1).toString()).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.BEFORE).args(ZonedDateTime.now().plusYears(1).toString()).
+                cond(SRARoutePredicateCond.AND).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.BETWEEN).args(ZonedDateTime.now().minusYears(1).toString() + ","
                 + ZonedDateTime.now().plusYears(1).toString()).
-                cond(GatewayRoutePredicateCond.AND).build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.PREFIX_PATH).args("/prefix").build());
+                cond(SRARoutePredicateCond.AND).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.PREFIX_PATH).args("/prefix").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -409,14 +427,14 @@ public class RouteProviderTest extends AbstractTest {
                 expectStatus().isOk();
 
         route.getPredicates().clear();
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.AFTER).args(ZonedDateTime.now().plusYears(1).toString()).build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.BEFORE).args(ZonedDateTime.now().minusYears(1).toString()).
-                cond(GatewayRoutePredicateCond.OR).build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.BETWEEN).args(ZonedDateTime.now().plusYears(1).toString() + ","
-                + ZonedDateTime.now().minusYears(1).toString()).cond(GatewayRoutePredicateCond.OR).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.AFTER).args(ZonedDateTime.now().plusYears(1).toString()).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.BEFORE).args(ZonedDateTime.now().minusYears(1).toString()).
+                cond(SRARoutePredicateCond.OR).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.BETWEEN).args(ZonedDateTime.now().plusYears(1).toString() + ","
+                + ZonedDateTime.now().minusYears(1).toString()).cond(SRARoutePredicateCond.OR).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -424,8 +442,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/datetime").exchange().expectStatus().isNotFound();
 
         route.getPredicates().clear();
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.BEFORE).negate().args(ZonedDateTime.now().minusYears(1).toString()).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.BEFORE).negate().args(ZonedDateTime.now().minusYears(1).toString()).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -439,16 +457,16 @@ public class RouteProviderTest extends AbstractTest {
 
         stubFor(get(urlEqualTo("/header")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("header");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.COOKIE).args("Hello,World").build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.HOST).args("host").cond(GatewayRoutePredicateCond.AND).build());
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.HEADER).args("Hello,World").cond(GatewayRoutePredicateCond.AND).build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.PRESERVE_HOST_HEADER).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.COOKIE).args("Hello,World").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.HOST).args("host").cond(SRARoutePredicateCond.AND).build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.HEADER).args("Hello,World").cond(SRARoutePredicateCond.AND).build());
+        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.PRESERVE_HOST_HEADER).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -470,17 +488,17 @@ public class RouteProviderTest extends AbstractTest {
     public void query() {
         stubFor(get(urlEqualTo("/query?name=value")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("query");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.QUERY).args("name,value").build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.SAVE_SESSION).build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.SET_REQUEST_SIZE).args("5000").build());
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.RETRY).args("3").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.QUERY).args("name,value").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.SAVE_SESSION).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.SET_REQUEST_SIZE).args("5000").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.RETRY).args("3").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -488,8 +506,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/query?name=value").exchange().expectStatus().isOk();
 
         route.getPredicates().clear();
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.QUERY).args("name,anotherValue").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.QUERY).args("name,anotherValue").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -503,11 +521,11 @@ public class RouteProviderTest extends AbstractTest {
         stubFor(get(urlEqualTo("/pathMatcher/2")).willReturn(aResponse()));
         stubFor(get(urlEqualTo("/pathMatcher/2/3")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("pathMatcher");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.PATH).args("/pathMatcher/**").build());
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.PATH).args("/pathMatcher/**").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -524,10 +542,10 @@ public class RouteProviderTest extends AbstractTest {
                 withHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE).
                 withBody("<html><head></head><body><a href=\"/absolute\">absolute link</a></body></html>")));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("linkRewrite");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.LINK_REWRITE).
+        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.LINK_REWRITE).
                 args("http://localhost:" + gatewayPort).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
@@ -541,7 +559,7 @@ public class RouteProviderTest extends AbstractTest {
                 });
 
         route.getFilters().clear();
-        route.getFilters().add(new GatewayRouteFilter.Builder().factory(FilterFactory.LINK_REWRITE).
+        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.LINK_REWRITE).
                 args("http://localhost:" + gatewayPort + ",true").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
@@ -560,11 +578,11 @@ public class RouteProviderTest extends AbstractTest {
         stubFor(get(urlEqualTo("/clientCert")).willReturn(aResponse().
                 withHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("clientCert");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -582,11 +600,11 @@ public class RouteProviderTest extends AbstractTest {
         stubFor(get(urlEqualTo("/queryParamToRequestHeader?Header=Test&Header=Test1")).
                 withHeader("Hello", equalTo("World")).willReturn(aResponse()));
 
-        GatewayRouteTO route = new GatewayRouteTO();
+        SRARouteTO route = new SRARouteTO();
         route.setKey("queryParamToRequestHeader");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.QUERY_PARAM_TO_REQUEST_HEADER).args("Hello").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.QUERY_PARAM_TO_REQUEST_HEADER).args("Hello").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -602,25 +620,72 @@ public class RouteProviderTest extends AbstractTest {
     }
 
     @Test
+    public void principalToRequestHeader() throws IllegalArgumentException, IllegalAccessException {
+        // first mock...
+        OidcIdToken oidcIdToken = mock(OidcIdToken.class);
+        when(oidcIdToken.getTokenValue()).thenReturn("john.doe");
+
+        OidcUser user = mock(OidcUser.class);
+        when(user.getIdToken()).thenReturn(oidcIdToken);
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(user);
+
+        MapSession session = new MapSession();
+        session.setAttribute(
+                WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME,
+                new SecurityContextImpl(authentication));
+
+        Cache cache = mock(Cache.class);
+        when(cache.get(anyString(), eq(Session.class))).thenReturn(session);
+
+        CacheManager cacheManager = mock(CacheManager.class);
+        when(cacheManager.getCache(eq(SessionConfig.DEFAULT_CACHE))).thenReturn(cache);
+
+        PrincipalToRequestHeaderFilterFactory factory = new PrincipalToRequestHeaderFilterFactory();
+        ReflectionTestUtils.setField(factory, "cacheManager", cacheManager);
+        ctx.getBeanFactory().registerSingleton(PrincipalToRequestHeaderFilterFactory.class.getName(), factory);
+
+        // ...then test
+        stubFor(get(urlEqualTo("/principalToRequestHeader")).willReturn(aResponse()));
+
+        SRARouteTO route = new SRARouteTO();
+        route.setKey("principalToRequestHeader");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.setType(SRARouteType.PROTECTED);
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.PRINCIPAL_TO_REQUEST_HEADER).args("HTTP_REMOTE_USER").build());
+
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
+        routeRefresher.refresh();
+
+        webClient.get().uri("/principalToRequestHeader").exchange().
+                expectStatus().isOk();
+
+        verify(getRequestedFor(urlEqualTo("/principalToRequestHeader")).
+                withHeader("HTTP_REMOTE_USER", equalTo("john.doe")));
+    }
+
+    @Test
     public void custom() {
         stubFor(post(urlEqualTo("/custom")).
                 willReturn(aResponse().
                         withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).
                         withBody("{\"data\": \"data\"}")));
 
-        GatewayRouteTO routeTO = new GatewayRouteTO();
-        routeTO.setKey("custom");
-        routeTO.setTarget(URI.create("http://localhost:" + wiremockPort));
-        routeTO.getPredicates().add(new GatewayRoutePredicate.Builder().
-                factory(PredicateFactory.CUSTOM).
+        SRARouteTO route = new SRARouteTO();
+        route.setKey("custom");
+        route.setTarget(URI.create("http://localhost:" + wiremockPort));
+        route.getPredicates().add(new SRARoutePredicate.Builder().
+                factory(SRARoutePredicateFactory.CUSTOM).
                 args(BodyPropertyMatchingRoutePredicateFactory.class.getName() + ";cool").build());
-        routeTO.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.ADD_RESPONSE_HEADER).args("Custom,matched").build());
-        routeTO.getFilters().add(new GatewayRouteFilter.Builder().
-                factory(FilterFactory.CUSTOM).
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.ADD_RESPONSE_HEADER).args("Custom,matched").build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.CUSTOM).
                 args(BodyPropertyAddingGatewayFilterFactory.class.getName() + ";customized=true").build());
 
-        SyncopeCoreTestingServer.ROUTES.put(routeTO.getKey(), routeTO);
+        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
 
         webClient.post().uri("/custom").

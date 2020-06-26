@@ -19,6 +19,7 @@
 package org.apache.syncope.sra;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -31,13 +32,13 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.GatewayRouteTO;
-import org.apache.syncope.common.lib.types.GatewayRouteFilter;
-import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.rest.api.service.GatewayRouteService;
+import org.apache.syncope.common.lib.to.SRARouteTO;
+import org.apache.syncope.common.lib.types.SRARouteFilter;
+import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.sra.filters.ClientCertsToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.filters.CustomGatewayFilterFactory;
 import org.apache.syncope.sra.filters.LinkRewriteGatewayFilterFactory;
+import org.apache.syncope.sra.filters.PrincipalToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.filters.QueryParamToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.predicates.CustomRoutePredicateFactory;
 import org.slf4j.Logger;
@@ -90,6 +91,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
+import org.apache.syncope.common.rest.api.service.SRARouteService;
 
 @Component
 public class RouteProvider {
@@ -113,8 +115,10 @@ public class RouteProvider {
 
     private SyncopeClient client;
 
+    private final List<SRARouteTO> routeTOs = new ArrayList<>();
+
     @SuppressWarnings("unchecked")
-    private GatewayFilter toFilter(final GatewayRouteTO route, final GatewayRouteFilter gwfilter)
+    private GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
             throws ClassNotFoundException {
 
         GatewayFilter filter;
@@ -314,6 +318,14 @@ public class RouteProvider {
                         apply(c -> c.setName(gwfilter.getArgs().trim()));
                 break;
 
+            case PRINCIPAL_TO_REQUEST_HEADER:
+                filter = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        PrincipalToRequestHeaderFilterFactory.class.getName(),
+                        PrincipalToRequestHeaderFilterFactory.class).
+                        apply(c -> c.setName(gwfilter.getArgs().trim()));
+                break;
+
             case CUSTOM:
                 String[] customArgs = gwfilter.getArgs().split(";");
                 Consumer<CustomGatewayFilterFactory.Config> customConsumer = customArgs.length > 1
@@ -339,7 +351,7 @@ public class RouteProvider {
         return filter instanceof Ordered ? filter : new OrderedGatewayFilter(filter, 0);
     }
 
-    private AsyncPredicate<ServerWebExchange> toPredicate(final GatewayRoutePredicate gwpredicate, final boolean negate)
+    private AsyncPredicate<ServerWebExchange> toPredicate(final SRARoutePredicate gwpredicate, final boolean negate)
             throws ClassNotFoundException {
 
         AsyncPredicate<ServerWebExchange> predicate;
@@ -430,7 +442,7 @@ public class RouteProvider {
         return negate ? predicate.negate() : predicate;
     }
 
-    private Route.AsyncBuilder toRoute(final GatewayRouteTO gwroute) {
+    private Route.AsyncBuilder toRoute(final SRARouteTO gwroute) {
         Route.AsyncBuilder builder = new Route.AsyncBuilder().
                 id(gwroute.getKey()).order(gwroute.getOrder()).uri(gwroute.getTarget());
 
@@ -494,8 +506,15 @@ public class RouteProvider {
             }
         }
 
-        return client.getService(GatewayRouteService.class).list().stream().
-                map(this::toRoute).
-                collect(Collectors.toList());
+        synchronized (routeTOs) {
+            routeTOs.clear();
+            routeTOs.addAll(client.getService(SRARouteService.class).list());
+        }
+
+        return routeTOs.stream().map(this::toRoute).collect(Collectors.toList());
+    }
+
+    public List<SRARouteTO> getRouteTOs() {
+        return routeTOs;
     }
 }

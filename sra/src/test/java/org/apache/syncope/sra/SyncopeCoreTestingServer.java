@@ -31,19 +31,19 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.GatewayRouteTO;
-import org.apache.syncope.common.rest.api.service.GatewayRouteService;
+import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.common.rest.api.service.SRARouteService;
 
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
     public static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
-    public static final Map<String, GatewayRouteTO> ROUTES = new ConcurrentHashMap<>();
+    public static final Map<String, SRARouteTO> ROUTES = new ConcurrentHashMap<>();
 
     @Autowired
     private RouteRefresher routeRefresher;
@@ -57,10 +57,9 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
             // 1. start (mocked) Core as embedded CXF
             JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
             sf.setAddress(ADDRESS);
-            sf.setResourceClasses(GatewayRouteService.class);
-            sf.setResourceProvider(
-                    GatewayRouteService.class,
-                    new SingletonResourceProvider(new StubGatewayRouteService(), true));
+            sf.setResourceClasses(SRARouteService.class);
+            sf.setResourceProvider(SRARouteService.class,
+                    new SingletonResourceProvider(new StubSRARouteService(), true));
             sf.setProviders(List.of(new JacksonJsonProvider()));
             sf.create();
 
@@ -72,24 +71,24 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
-    public class StubGatewayRouteService implements GatewayRouteService {
+    public class StubSRARouteService implements SRARouteService {
 
         @Override
-        public List<GatewayRouteTO> list() {
+        public List<SRARouteTO> list() {
             return ROUTES.values().stream().
-                    sorted(Comparator.comparing(GatewayRouteTO::getKey)).
+                    sorted(Comparator.comparing(SRARouteTO::getKey)).
                     collect(Collectors.toList());
         }
 
         @Override
-        public Response create(final GatewayRouteTO routeTO) {
+        public Response create(final SRARouteTO routeTO) {
             ROUTES.putIfAbsent(routeTO.getKey(), routeTO);
             return Response.noContent().build();
         }
 
         @Override
-        public GatewayRouteTO read(final String key) {
-            GatewayRouteTO route = ROUTES.get(key);
+        public SRARouteTO read(final String key) {
+            SRARouteTO route = ROUTES.get(key);
             if (route == null) {
                 throw new NotFoundException();
             }
@@ -97,7 +96,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public void update(final GatewayRouteTO routeTO) {
+        public void update(final SRARouteTO routeTO) {
             read(routeTO.getKey());
             ROUTES.put(routeTO.getKey(), routeTO);
         }

@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,6 +47,9 @@ public abstract class AbstractTest {
 
     @Autowired
     protected RouteRefresher routeRefresher;
+
+    @Autowired
+    protected ConfigurableApplicationContext ctx;
 
     @Value("${local.server.port}")
     protected int gatewayPort;
