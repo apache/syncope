@@ -108,7 +108,7 @@ public interface RemediationService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
-    @Parameter(name = "key", description = "Entity's key", in = ParameterIn.PATH, schema =
+    @Parameter(name = "remediationKey", description = "Remediation's key", in = ParameterIn.PATH, schema =
             @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "201",
@@ -154,7 +154,7 @@ public interface RemediationService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
-    @Parameter(name = "key", description = "Entity's key", in = ParameterIn.PATH, schema =
+    @Parameter(name = "remediationKey", description = "Remediation's key", in = ParameterIn.PATH, schema =
             @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
