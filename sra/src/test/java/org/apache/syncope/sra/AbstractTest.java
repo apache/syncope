@@ -52,7 +52,7 @@ public abstract class AbstractTest {
     protected ConfigurableApplicationContext ctx;
 
     @Value("${local.server.port}")
-    protected int gatewayPort;
+    protected int sraPort;
 
     @Value("${wiremock.server.port}")
     protected int wiremockPort;

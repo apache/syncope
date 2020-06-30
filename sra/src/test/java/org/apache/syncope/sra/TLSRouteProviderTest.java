@@ -67,7 +67,7 @@ public class TLSRouteProviderTest extends AbstractTest {
         HttpClient httpClient = HttpClient.create().
                 secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
         ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
-        return WebTestClient.bindToServer(connector).baseUrl("https://localhost:" + gatewayPort).build();
+        return WebTestClient.bindToServer(connector).baseUrl("https://localhost:" + sraPort).build();
     }
 
     @BeforeEach
@@ -85,7 +85,7 @@ public class TLSRouteProviderTest extends AbstractTest {
             CertificateException, UnrecoverableKeyException, KeyManagementException {
 
         KeyStore store = KeyStore.getInstance("PKCS12");
-        store.load(getClass().getResourceAsStream("/client_pavel.p12"), "password".toCharArray());
+        store.load(getClass().getResourceAsStream("/user.p12"), "password".toCharArray());
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(store, "password".toCharArray());
@@ -104,7 +104,8 @@ public class TLSRouteProviderTest extends AbstractTest {
         route.getPredicates().add(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.METHOD).args("GET").build());
         route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.PATH).args("/getWithClientAuth").cond(SRARoutePredicateCond.AND).build());
+                factory(SRARoutePredicateFactory.PATH).args("/getWithClientAuth").
+                cond(SRARoutePredicateCond.AND).build());
         route.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
 
@@ -134,7 +135,8 @@ public class TLSRouteProviderTest extends AbstractTest {
         route.getPredicates().add(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.METHOD).args("GET").build());
         route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.PATH).args("/withoutClientCert").cond(SRARoutePredicateCond.AND).build());
+                factory(SRARoutePredicateFactory.PATH).args("/withoutClientCert").cond(SRARoutePredicateCond.AND).
+                build());
         route.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.CLIENT_CERTS_TO_REQUEST_HEADER).build());
 

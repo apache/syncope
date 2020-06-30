@@ -546,7 +546,7 @@ public class RouteProviderTest extends AbstractTest {
         route.setKey("linkRewrite");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
         route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.LINK_REWRITE).
-                args("http://localhost:" + gatewayPort).build());
+                args("http://localhost:" + sraPort).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -555,12 +555,12 @@ public class RouteProviderTest extends AbstractTest {
                 expectStatus().isOk().
                 expectBody().consumeWith(exchange -> {
                     assertTrue(new String(exchange.getResponseBody()).
-                            contains("<a href=\"http://localhost:" + gatewayPort + "/absolute\">"));
+                            contains("<a href=\"http://localhost:" + sraPort + "/absolute\">"));
                 });
 
         route.getFilters().clear();
         route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.LINK_REWRITE).
-                args("http://localhost:" + gatewayPort + ",true").build());
+                args("http://localhost:" + sraPort + ",true").build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -569,7 +569,7 @@ public class RouteProviderTest extends AbstractTest {
                 expectStatus().isOk().
                 expectBody().consumeWith(exchange -> {
                     assertTrue(new String(exchange.getResponseBody()).
-                            contains("<a href=\"http://localhost:" + gatewayPort + "/absolute\">"));
+                            contains("<a href=\"http://localhost:" + sraPort + "/absolute\">"));
                 });
     }
 
