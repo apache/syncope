@@ -57,8 +57,6 @@ public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
         }
 
         LOG.info("Loading application definitions");
-        LoggerService loggerService = syncopeClient.getService(LoggerService.class);
-
         try {
             String output = OBJECT_MAPPER.writeValueAsString(Map.of("resource", audit.getResourceOperatedUpon(),
                     "clientIpAddress", audit.getClientIpAddress(),
@@ -77,7 +75,7 @@ public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
                     audit.getActionPerformed(), result);
 
             auditEntry.setLogger(auditLogger);
-            loggerService.create(auditEntry);
+            syncopeClient.getService(LoggerService.class).create(auditEntry);
         } catch (Exception e) {
             LOG.error("During serialization", e);
         }
