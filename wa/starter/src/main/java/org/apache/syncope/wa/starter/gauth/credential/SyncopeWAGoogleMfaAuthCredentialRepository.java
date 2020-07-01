@@ -185,7 +185,7 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     public void delete(final String username) {
         GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthAccountService.class);
-        googleService.deleteAccountFor(username);
+        googleService.deleteAccountsFor(username);
     }
 
     @Override

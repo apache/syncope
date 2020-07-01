@@ -38,8 +38,8 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     private GoogleMfaAuthAccountLogic logic;
 
     @Override
-    public Response deleteAccountFor(final String owner) {
-        logic.deleteAccountFor(owner);
+    public Response deleteAccountsFor(final String owner) {
+        logic.deleteAccountsFor(owner);
         return Response.noContent().build();
     }
 

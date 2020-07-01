@@ -30,7 +30,6 @@ import javax.ws.rs.core.Response;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,7 +85,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         Response response = googleMfaAuthAccountService.save(acct);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(key);
-        response = googleMfaAuthAccountService.deleteAccountFor(acct.getOwner());
+        response = googleMfaAuthAccountService.deleteAccountsFor(acct.getOwner());
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.NO_CONTENT.getStatusCode());
         assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.findAccountsFor(acct.getOwner()));
     }

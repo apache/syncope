@@ -80,7 +80,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void deleteAccountFor(final String owner) {
+    public void deleteAccountsFor(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
             profile.setGoogleMfaAuthAccounts(List.of());
             authProfileDAO.save(profile);
@@ -121,11 +121,14 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_UPDATE_ACCOUNT + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void update(final GoogleMfaAuthAccount acct) {
-        AuthProfile profile = authProfileDAO.findByOwner(acct.getOwner()).
-            orElseThrow(() -> new NotFoundException("Could not find account for Owner " + acct.getOwner()));
-        profile.add(acct);
-        authProfileDAO.save(profile);
+    public void update(final GoogleMfaAuthAccount account) {
+        AuthProfile authProfile = authProfileDAO.findByOwner(account.getOwner()).
+            orElseThrow(() -> new NotFoundException("Could not find account for Owner " + account.getOwner()));
+        final List<GoogleMfaAuthAccount> accounts = authProfile.getGoogleMfaAuthAccounts();
+        if (accounts.removeIf(acct -> acct.getKey().equals(account.getKey()))) {
+            authProfile.add(account);
+            authProfileDAO.save(authProfile);
+        }
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_ACCOUNT + "') "
@@ -135,6 +138,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
             stream().
             map(AuthProfile::getGoogleMfaAuthAccounts).
             filter(Objects::nonNull).
+            filter(accounts -> !accounts.isEmpty()).
             findFirst().
             orElseThrow(() -> new NotFoundException("Could not find account for Owner " + owner));
     }
@@ -179,7 +183,8 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
         return authProfileDAO.findAll().
             stream().
             filter(profile -> profile.getGoogleMfaAuthAccounts() != null).
-            count();
+            mapToInt(profile -> profile.getGoogleMfaAuthAccounts().size()).
+            sum();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_COUNT_ACCOUNTS + "') "
