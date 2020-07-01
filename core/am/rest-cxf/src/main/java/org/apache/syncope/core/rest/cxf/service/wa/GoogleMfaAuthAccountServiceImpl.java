@@ -57,10 +57,10 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
 
     @Override
     public Response save(final GoogleMfaAuthAccount acct) {
-        final GoogleMfaAuthAccount token = logic.save(acct);
-        URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
+        final GoogleMfaAuthAccount account = logic.save(acct);
+        URI location = uriInfo.getAbsolutePathBuilder().path(account.getKey()).build();
         return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, token.getKey()).
+            header(RESTHeaders.RESOURCE_KEY, account.getKey()).
             build();
     }
 
@@ -70,8 +70,13 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public GoogleMfaAuthAccount findAccountFor(final String owner) {
-        return logic.findAccountFor(owner);
+    public PagedResult<GoogleMfaAuthAccount> findAccountsFor(final String owner) {
+        PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
+        result.setSize(Long.valueOf(logic.countFor(owner)).intValue());
+        result.setPage(1);
+        result.setTotalCount(result.getSize());
+        result.getResult().addAll(logic.findAccountsFor(owner));
+        return result;
     }
 
     @Override
@@ -80,9 +85,23 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
+    public GoogleMfaAuthAccount findAccountBy(final long id) {
+        return logic.findAccountBy(id);
+    }
+
+    @Override
     public PagedResult<GoogleMfaAuthAccount> countAll() {
         PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
         result.setSize(Long.valueOf(logic.countAll()).intValue());
+        result.setPage(1);
+        result.setTotalCount(result.getSize());
+        return result;
+    }
+
+    @Override
+    public PagedResult<GoogleMfaAuthAccount> countFor(final String owner) {
+        PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
+        result.setSize(Long.valueOf(logic.countFor(owner)).intValue());
         result.setPage(1);
         result.setTotalCount(result.getSize());
         return result;

@@ -28,11 +28,14 @@ import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.gauth.token.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.core.Response;
 
 import java.util.Collection;
 import java.util.Date;
@@ -45,19 +48,83 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     private final WARestClient waRestClient;
 
     public SyncopeWAGoogleMfaAuthCredentialRepository(final WARestClient waRestClient,
-                                                         final IGoogleAuthenticator googleAuthenticator) {
+                                                      final IGoogleAuthenticator googleAuthenticator) {
         super(CipherExecutor.noOpOfStringToString(), googleAuthenticator);
         this.waRestClient = waRestClient;
     }
 
+    private static GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount account) {
+        return new GoogleMfaAuthAccount.Builder()
+            .owner(account.getUsername())
+            .registrationDate(new Date())
+            .scratchCodes(account.getScratchCodes())
+            .validationCode(account.getValidationCode())
+            .secretKey(account.getSecretKey())
+            .id(account.getId())
+            .build();
+    }
+
+    private static GoogleAuthenticatorAccount mapGoogleMfaAuthAccount(final GoogleMfaAuthAccount account) {
+        return GoogleAuthenticatorAccount.builder().
+            username(account.getOwner()).
+            secretKey(account.getSecretKey()).
+            validationCode(account.getValidationCode()).
+            scratchCodes(account.getScratchCodes()).
+            name(account.getName()).
+            id(account.getId()).
+            build();
+    }
+
     @Override
-    public OneTimeTokenAccount get(final String username) {
+    public OneTimeTokenAccount get(final long id) {
         try {
             GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthAccountService.class);
-            GoogleMfaAuthAccount account = googleService.findAccountFor(username);
-            return new GoogleAuthenticatorAccount(account.getOwner(),
-                account.getSecretKey(), account.getValidationCode(), account.getScratchCodes());
+            GoogleMfaAuthAccount account = googleService.findAccountBy(id);
+            if (account != null) {
+                return mapGoogleMfaAuthAccount(account);
+            }
+        } catch (final SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                LOG.info("Could not locate account for id {}", id);
+            } else {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public OneTimeTokenAccount get(final String username, final long id) {
+        try {
+            GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
+                getService(GoogleMfaAuthAccountService.class);
+            googleService.findAccountsFor(username).
+                getResult().
+                stream().
+                filter(account -> account.getId() == id).
+                map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
+                collect(Collectors.toList());
+        } catch (final SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                LOG.info("Could not locate account for owner {} and id {}", username, id);
+            } else {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends OneTimeTokenAccount> get(final String username) {
+        try {
+            GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
+                getService(GoogleMfaAuthAccountService.class);
+            googleService.findAccountsFor(username).
+                getResult().
+                stream().
+                map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
+                collect(Collectors.toList());
         } catch (final SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for owner {}", username);
@@ -65,7 +132,7 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
                 LOG.error(e.getMessage(), e);
             }
         }
-        return null;
+        return List.of();
     }
 
     @Override
@@ -75,37 +142,34 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
         return googleService.list().
             getResult().
             stream().
-            map(account -> new GoogleAuthenticatorAccount(account.getOwner(),
-                account.getSecretKey(), account.getValidationCode(), account.getScratchCodes())).
+            map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
             collect(Collectors.toList());
     }
 
     @Override
-    public void save(final String userName, final String secretKey,
-                     final int validationCode, final List<Integer> scratchCodes) {
+    public OneTimeTokenAccount save(final OneTimeTokenAccount tokenAccount) {
         GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthAccountService.class);
         GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder()
-            .owner(userName)
+            .owner(tokenAccount.getUsername())
             .registrationDate(new Date())
-            .scratchCodes(scratchCodes)
-            .validationCode(validationCode)
-            .secretKey(secretKey)
+            .scratchCodes(tokenAccount.getScratchCodes())
+            .validationCode(tokenAccount.getValidationCode())
+            .secretKey(tokenAccount.getSecretKey())
+            .name(tokenAccount.getName())
+            .id(tokenAccount.getId())
             .build();
-        googleService.save(account);
+        Response response = googleService.save(account);
+        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        account.setKey(key);
+        return mapGoogleMfaAuthAccount(account);
     }
 
     @Override
     public OneTimeTokenAccount update(final OneTimeTokenAccount account) {
         GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthAccountService.class);
-        GoogleMfaAuthAccount acct = new GoogleMfaAuthAccount.Builder()
-            .owner(account.getUsername())
-            .registrationDate(new Date())
-            .scratchCodes(account.getScratchCodes())
-            .validationCode(account.getValidationCode())
-            .secretKey(account.getSecretKey())
-            .build();
+        GoogleMfaAuthAccount acct = mapGoogleMfaAuthAccount(account);
         googleService.update(acct);
         return account;
     }
@@ -129,5 +193,12 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
         GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthAccountService.class);
         return googleService.countAll().getTotalCount();
+    }
+
+    @Override
+    public long count(final String username) {
+        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
+            getService(GoogleMfaAuthAccountService.class);
+        return googleService.countFor(username).getTotalCount();
     }
 }

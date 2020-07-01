@@ -90,7 +90,7 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("accts/owners/${owner}")
-    GoogleMfaAuthAccount findAccountFor(@NotNull @PathParam("owner") String owner);
+    PagedResult<GoogleMfaAuthAccount> findAccountsFor(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Path("accts/{key}")
@@ -99,10 +99,22 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     GoogleMfaAuthAccount findAccountBy(@NotNull @PathParam("key") String key);
 
     @GET
+    @Path("accts/id/{id}")
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    GoogleMfaAuthAccount findAccountBy(@NotNull @PathParam("id") long id);
+
+    @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("accts/count")
     PagedResult<GoogleMfaAuthAccount> countAll();
+
+    @GET
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("accts/count/{owner}")
+    PagedResult<GoogleMfaAuthAccount> countFor(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})

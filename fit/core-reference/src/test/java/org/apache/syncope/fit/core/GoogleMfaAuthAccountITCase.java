@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,19 +34,21 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
     private static GoogleMfaAuthAccount createGoogleMfaAuthAccount() {
-        String id = UUID.randomUUID().toString();
+        String id = SecureRandomUtils.generateRandomUUID().toString();
         return new GoogleMfaAuthAccount.Builder()
             .registrationDate(new Date())
             .scratchCodes(List.of(1, 2, 3, 4, 5))
-            .secretKey(UUID.randomUUID().toString())
+            .secretKey(SecureRandomUtils.generateRandomUUID().toString())
             .validationCode(123456)
             .owner(id)
+            .name(SecureRandomUtils.generateRandomUUID().toString())
             .build();
     }
 
@@ -73,7 +76,8 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
         googleMfaAuthAccountService.save(acct);
         assertEquals(1, googleMfaAuthAccountService.countAll().getTotalCount());
-        assertNotNull(googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
+        assertEquals(1, googleMfaAuthAccountService.countFor(acct.getOwner()).getTotalCount());
+        assertFalse(googleMfaAuthAccountService.findAccountsFor(acct.getOwner()).getResult().isEmpty());
     }
 
     @Test
@@ -84,7 +88,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         assertNotNull(key);
         response = googleMfaAuthAccountService.deleteAccountFor(acct.getOwner());
         assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.NO_CONTENT.getStatusCode());
-        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.findAccountFor(acct.getOwner()));
+        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.findAccountsFor(acct.getOwner()));
     }
 
     @Test
@@ -97,7 +101,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
         googleMfaAuthAccountService.update(acct);
         assertEquals(1, googleMfaAuthAccountService.countAll().getTotalCount());
-        acct = googleMfaAuthAccountService.findAccountFor(acct.getOwner());
+        acct = googleMfaAuthAccountService.findAccountsFor(acct.getOwner()).getResult().get(0);
         assertEquals(acct.getSecretKey(), acct.getSecretKey());
         googleMfaAuthAccountService.deleteAccountBy(acct.getKey());
     }
