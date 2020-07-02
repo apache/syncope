@@ -452,7 +452,7 @@ under the License.
   
   <profiles>
     <profile>
-      <id>zookeper-it</id>
+      <id>zookeeper-it</id>
 
       <build>
         <plugins>
