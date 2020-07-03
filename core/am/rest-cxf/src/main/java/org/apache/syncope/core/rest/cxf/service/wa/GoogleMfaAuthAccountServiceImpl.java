@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
+import java.util.List;
 
 @Service
 public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthAccountService {
@@ -38,8 +39,8 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     private GoogleMfaAuthAccountLogic logic;
 
     @Override
-    public Response deleteAccountFor(final String owner) {
-        logic.deleteAccountFor(owner);
+    public Response deleteAccountsFor(final String owner) {
+        logic.deleteAccountsFor(owner);
         return Response.noContent().build();
     }
 
@@ -57,10 +58,10 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
 
     @Override
     public Response save(final GoogleMfaAuthAccount acct) {
-        final GoogleMfaAuthAccount token = logic.save(acct);
-        URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
+        final GoogleMfaAuthAccount account = logic.save(acct);
+        URI location = uriInfo.getAbsolutePathBuilder().path(account.getKey()).build();
         return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, token.getKey()).
+            header(RESTHeaders.RESOURCE_KEY, account.getKey()).
             build();
     }
 
@@ -70,13 +71,18 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public GoogleMfaAuthAccount findAccountFor(final String owner) {
-        return logic.findAccountFor(owner);
+    public List<GoogleMfaAuthAccount> findAccountsFor(final String owner) {
+        return logic.findAccountsFor(owner);
     }
 
     @Override
     public GoogleMfaAuthAccount findAccountBy(final String key) {
         return logic.findAccountBy(key);
+    }
+
+    @Override
+    public GoogleMfaAuthAccount findAccountBy(final long id) {
+        return logic.findAccountBy(id);
     }
 
     @Override
@@ -89,12 +95,16 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public PagedResult<GoogleMfaAuthAccount> list() {
+    public PagedResult<GoogleMfaAuthAccount> countFor(final String owner) {
         PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
-        result.setSize(Long.valueOf(logic.countAll()).intValue());
+        result.setSize(Long.valueOf(logic.countFor(owner)).intValue());
         result.setPage(1);
         result.setTotalCount(result.getSize());
-        result.getResult().addAll(logic.list());
         return result;
+    }
+
+    @Override
+    public List<GoogleMfaAuthAccount> list() {
+        return logic.list();
     }
 }

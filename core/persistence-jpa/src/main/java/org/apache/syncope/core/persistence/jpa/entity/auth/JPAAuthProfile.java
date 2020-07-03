@@ -43,7 +43,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     private static final long serialVersionUID = 57352617217394093L;
 
     @Lob
-    private String googleMfaAuthAccount;
+    private String googleMfaAuthAccounts;
 
     @Lob
     private String googleMfaAuthTokens;
@@ -75,16 +75,16 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public GoogleMfaAuthAccount getGoogleMfaAuthAccount() {
-        return googleMfaAuthAccount == null
-            ? null
-            : POJOHelper.deserialize(googleMfaAuthAccount, new TypeReference<GoogleMfaAuthAccount>() {
+    public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
+        return googleMfaAuthAccounts == null
+            ? new ArrayList<>(0)
+            : POJOHelper.deserialize(googleMfaAuthAccounts, new TypeReference<List<GoogleMfaAuthAccount>>() {
         });
     }
 
     @Override
-    public void setGoogleMfaAuthAccount(final GoogleMfaAuthAccount account) {
-        this.googleMfaAuthAccount = POJOHelper.serialize(account);
+    public void setGoogleMfaAuthAccounts(final List<GoogleMfaAuthAccount> accounts) {
+        this.googleMfaAuthAccounts = POJOHelper.serialize(accounts);
     }
 
     @Override
@@ -93,5 +93,13 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
         final List<GoogleMfaAuthToken> tokens = getGoogleMfaAuthTokens();
         tokens.add(token);
         setGoogleMfaAuthTokens(tokens);
+    }
+
+    @Override
+    public void add(final GoogleMfaAuthAccount account) {
+        checkType(account, GoogleMfaAuthAccount.class);
+        final List<GoogleMfaAuthAccount> accounts = getGoogleMfaAuthAccounts();
+        accounts.add(account);
+        setGoogleMfaAuthAccounts(accounts);
     }
 }

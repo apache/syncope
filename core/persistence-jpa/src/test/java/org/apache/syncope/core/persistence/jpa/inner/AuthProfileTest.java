@@ -24,6 +24,8 @@ import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -46,9 +48,14 @@ public class AuthProfileTest extends AbstractTest {
     @Autowired
     private EntityFactory entityFactory;
 
+    @BeforeEach
+    public void beforeEach() {
+        authProfileDAO.deleteAll();
+    }
+
     @Test
     public void googleMfaToken() {
-        String id = UUID.randomUUID().toString();
+        String id = SecureRandomUtils.generateRandomUUID().toString();
 
         createAuthProfileWithToken(id, 123456);
 
@@ -70,7 +77,7 @@ public class AuthProfileTest extends AbstractTest {
 
     @Test
     public void googleMfaAccount() {
-        String id = UUID.randomUUID().toString();
+        String id = SecureRandomUtils.generateRandomUUID().toString();
 
         createAuthProfileWithAccount(id);
 
@@ -83,13 +90,14 @@ public class AuthProfileTest extends AbstractTest {
         result = authProfileDAO.findByKey(authProfile.getKey());
         assertTrue(result.isPresent());
 
-        String secret = UUID.randomUUID().toString();
-        GoogleMfaAuthAccount googleMfaAuthAccount = authProfile.getGoogleMfaAuthAccount();
+        String secret = SecureRandomUtils.generateRandomUUID().toString();
+        List<GoogleMfaAuthAccount> googleMfaAuthAccounts = authProfile.getGoogleMfaAuthAccounts();
+        GoogleMfaAuthAccount googleMfaAuthAccount = googleMfaAuthAccounts.get(0);
         googleMfaAuthAccount.setSecretKey(secret);
-        authProfile.setGoogleMfaAuthAccount(googleMfaAuthAccount);
-        authProfileDAO.save(authProfile);
-
-        assertEquals(secret, authProfileDAO.findByOwner(id).get().getGoogleMfaAuthAccount().getSecretKey());
+        
+        authProfile.setGoogleMfaAuthAccounts(googleMfaAuthAccounts);
+        authProfile = authProfileDAO.save(authProfile);
+        assertEquals(secret, authProfile.getGoogleMfaAuthAccounts().get(0).getSecretKey());
     }
 
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
@@ -107,14 +115,15 @@ public class AuthProfileTest extends AbstractTest {
     private AuthProfile createAuthProfileWithAccount(final String owner) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        GoogleMfaAuthAccount token = new GoogleMfaAuthAccount.Builder()
+        GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder()
             .registrationDate(new Date())
             .scratchCodes(List.of(1, 2, 3, 4, 5))
-            .secretKey(UUID.randomUUID().toString())
+            .secretKey(SecureRandomUtils.generateRandomUUID().toString())
             .validationCode(123456)
             .owner(owner)
+            .name(SecureRandomUtils.generateRandomUUID().toString())
             .build();
-        profile.setGoogleMfaAuthAccount(token);
+        profile.add(account);
         return authProfileDAO.save(profile);
     }
 }

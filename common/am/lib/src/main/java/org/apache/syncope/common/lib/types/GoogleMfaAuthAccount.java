@@ -36,7 +36,11 @@ public class GoogleMfaAuthAccount implements BaseBean {
 
     private String secretKey;
 
+    private String name;
+
     private int validationCode;
+
+    private long id;
 
     private List<Integer> scratchCodes = new ArrayList<>(0);
 
@@ -50,6 +54,22 @@ public class GoogleMfaAuthAccount implements BaseBean {
 
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(final long id) {
+        this.id = id;
     }
 
     public String getOwner() {
@@ -101,6 +121,8 @@ public class GoogleMfaAuthAccount implements BaseBean {
             .append(key)
             .append(secretKey)
             .append(owner)
+            .append(name)
+            .append(id)
             .append(scratchCodes)
             .append(validationCode)
             .append(registrationDate)
@@ -124,6 +146,8 @@ public class GoogleMfaAuthAccount implements BaseBean {
             .append(this.key, rhs.key)
             .append(this.secretKey, rhs.secretKey)
             .append(this.owner, rhs.owner)
+            .append(this.name, rhs.name)
+            .append(this.id, rhs.id)
             .append(this.scratchCodes, rhs.scratchCodes)
             .append(this.registrationDate, rhs.registrationDate)
             .append(this.validationCode, rhs.validationCode)
@@ -134,8 +158,10 @@ public class GoogleMfaAuthAccount implements BaseBean {
     public String toString() {
         return new ToStringBuilder(this)
             .append("key", key)
+            .append("name", name)
             .append("secretKey", secretKey)
             .append("owner", owner)
+            .append("id", id)
             .append("scratchCodes", scratchCodes)
             .append("registrationDate", registrationDate)
             .append("validationCode", validationCode)
@@ -166,8 +192,18 @@ public class GoogleMfaAuthAccount implements BaseBean {
             return this;
         }
 
+        public GoogleMfaAuthAccount.Builder id(final Long id) {
+            instance.setId(id);
+            return this;
+        }
+
         public GoogleMfaAuthAccount.Builder owner(final String owner) {
             instance.setOwner(owner);
+            return this;
+        }
+
+        public GoogleMfaAuthAccount.Builder name(final String name) {
+            instance.setName(name);
             return this;
         }
 

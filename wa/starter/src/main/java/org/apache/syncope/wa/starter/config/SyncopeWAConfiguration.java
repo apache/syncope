@@ -63,7 +63,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ResourceLoader;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,9 +73,6 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     private CasConfigurationProperties casProperties;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
 
     @Autowired
     @Qualifier("samlSelfSignedCertificateWriter")
@@ -151,7 +147,7 @@ public class SyncopeWAConfiguration {
             SamlIdPMetadataGeneratorConfigurationContext.builder().
                 samlIdPMetadataLocator(samlIdPMetadataLocator(restClient)).
                 samlIdPCertificateAndKeyWriter(samlSelfSignedCertificateWriter.getObject()).
-                resourceLoader(resourceLoader).
+                applicationContext(applicationContext).
                 casProperties(casProperties).
                 metadataCipherExecutor(CipherExecutor.noOpOfStringToString()).
                 build();

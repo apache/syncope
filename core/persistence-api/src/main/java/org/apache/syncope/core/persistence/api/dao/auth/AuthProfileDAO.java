@@ -40,4 +40,6 @@ public interface AuthProfileDAO extends DAO<AuthProfile> {
     void deleteByOwner(String owner);
 
     void delete(AuthProfile authProfile);
+
+    void deleteAll();
 }
