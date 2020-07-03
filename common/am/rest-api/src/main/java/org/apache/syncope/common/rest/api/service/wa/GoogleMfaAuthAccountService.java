@@ -43,6 +43,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.List;
+
 @Tag(name = "Google MFA Accounts")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
@@ -90,7 +92,7 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("accts/owners/${owner}")
-    PagedResult<GoogleMfaAuthAccount> findAccountsFor(@NotNull @PathParam("owner") String owner);
+    List<GoogleMfaAuthAccount> findAccountsFor(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Path("accts/{key}")
@@ -120,5 +122,5 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("accts")
-    PagedResult<GoogleMfaAuthAccount> list();
+    List<GoogleMfaAuthAccount> list();
 }

@@ -100,7 +100,6 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
             GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthAccountService.class);
             googleService.findAccountsFor(username).
-                getResult().
                 stream().
                 filter(account -> account.getId() == id).
                 map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
@@ -121,7 +120,6 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
             GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthAccountService.class);
             googleService.findAccountsFor(username).
-                getResult().
                 stream().
                 map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
                 collect(Collectors.toList());
@@ -140,7 +138,6 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
         GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
             getService(GoogleMfaAuthAccountService.class);
         return googleService.list().
-            getResult().
             stream().
             map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
             collect(Collectors.toList());

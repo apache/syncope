@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
+import java.util.List;
 
 @Service
 public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthAccountService {
@@ -70,13 +71,8 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public PagedResult<GoogleMfaAuthAccount> findAccountsFor(final String owner) {
-        PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
-        result.setSize(Long.valueOf(logic.countFor(owner)).intValue());
-        result.setPage(1);
-        result.setTotalCount(result.getSize());
-        result.getResult().addAll(logic.findAccountsFor(owner));
-        return result;
+    public List<GoogleMfaAuthAccount> findAccountsFor(final String owner) {
+        return logic.findAccountsFor(owner);
     }
 
     @Override
@@ -108,12 +104,7 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public PagedResult<GoogleMfaAuthAccount> list() {
-        PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
-        result.setSize(Long.valueOf(logic.countAll()).intValue());
-        result.setPage(1);
-        result.setTotalCount(result.getSize());
-        result.getResult().addAll(logic.list());
-        return result;
+    public List<GoogleMfaAuthAccount> list() {
+        return logic.list();
     }
 }
