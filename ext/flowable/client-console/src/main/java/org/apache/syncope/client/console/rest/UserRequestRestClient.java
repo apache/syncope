@@ -62,7 +62,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public Optional<UserRequestForm> getForm(final String userKey) {
         PagedResult<UserRequestForm> forms = getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().user(userKey).page(1).size(0).build());
+                getForms(new UserRequestFormQuery.Builder().user(userKey).page(1).size(1).build());
         UserRequestForm form = forms.getResult().isEmpty()
                 ? null
                 : forms.getResult().get(0);
