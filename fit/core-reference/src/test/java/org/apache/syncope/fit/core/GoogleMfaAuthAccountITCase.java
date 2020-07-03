@@ -74,6 +74,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
     public void count() {
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
         googleMfaAuthAccountService.save(acct);
+        assertFalse(googleMfaAuthAccountService.list().getResult().isEmpty());
         assertEquals(1, googleMfaAuthAccountService.countAll().getTotalCount());
         assertEquals(1, googleMfaAuthAccountService.countFor(acct.getOwner()).getTotalCount());
         assertFalse(googleMfaAuthAccountService.findAccountsFor(acct.getOwner()).getResult().isEmpty());
@@ -96,6 +97,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         Response response = googleMfaAuthAccountService.save(acct);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         acct = googleMfaAuthAccountService.findAccountBy(key);
+        acct = googleMfaAuthAccountService.findAccountBy(acct.getId());
         acct.setSecretKey("NewSecret");
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
         googleMfaAuthAccountService.update(acct);

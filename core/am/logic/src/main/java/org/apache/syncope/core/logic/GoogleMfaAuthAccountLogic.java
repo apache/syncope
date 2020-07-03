@@ -126,7 +126,8 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
             orElseThrow(() -> new NotFoundException("Could not find account for Owner " + account.getOwner()));
         final List<GoogleMfaAuthAccount> accounts = authProfile.getGoogleMfaAuthAccounts();
         if (accounts.removeIf(acct -> acct.getKey().equals(account.getKey()))) {
-            authProfile.add(account);
+            accounts.add(account);
+            authProfile.setGoogleMfaAuthAccounts(accounts);
             authProfileDAO.save(authProfile);
         }
     }
@@ -214,7 +215,8 @@ public class GoogleMfaAuthAccountLogic extends AbstractTransactionalLogic<AuthPr
             });
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_LIST_ACCOUNTS + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<GoogleMfaAuthAccount> list() {
         return authProfileDAO.findAll().
