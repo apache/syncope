@@ -419,16 +419,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
         return Pair.of(count, matching);
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_CREATE + "')")
+    @PreAuthorize("isAuthenticated()")
     public void create(final AuditEntry auditEntry) {
-        boolean auditRequested = auditManager.auditRequested(
-                auditEntry.getWho(),
-                auditEntry.getLogger().getType(),
-                auditEntry.getLogger().getCategory(),
-                auditEntry.getLogger().getSubcategory(),
-                auditEntry.getLogger().getEvent());
-
-        if (auditRequested) {
+        boolean authorized =
+                AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.AUDIT_CREATE)
+                || AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.ANONYMOUS)
+                && AuditElements.EventCategoryType.WA == auditEntry.getLogger().getType();
+        if (authorized) {
             auditManager.audit(
                     auditEntry.getWho(),
                     auditEntry.getLogger().getType(),
@@ -439,6 +436,10 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
                     auditEntry.getBefore(),
                     auditEntry.getOutput(),
                     auditEntry.getInputs());
+        } else {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
+            sce.getElements().add("Not allowed to create Audit entries");
+            throw sce;
         }
     }
 
