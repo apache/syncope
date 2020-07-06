@@ -1140,7 +1140,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.13</version>
+        <version>1.5.14</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
