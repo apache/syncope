@@ -85,7 +85,7 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
     public void deleteAll() {
         authProfileDAO.findAll().
             forEach(profile -> {
-                profile.setU2FRegisteredDevices(null);
+                profile.setU2FRegisteredDevices(List.of());
                 authProfileDAO.save(profile);
             });
     }
@@ -120,6 +120,7 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
         profile = authProfileDAO.save(profile);
         return profile.getU2FRegisteredDevices().
             stream().
+            filter(Objects::nonNull).
             filter(t -> t.getKey().equals(acct.getKey())).
             findFirst().
             orElse(null);
@@ -132,6 +133,7 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
         return authProfileDAO.findAll().
             stream().
             map(AuthProfile::getU2FRegisteredDevices).
+            filter(Objects::nonNull).
             flatMap(List::stream).
             filter(device -> expirationDate == null || device.getIssueDate().compareTo(expirationDate) >= 0).
             filter(Objects::nonNull).
@@ -158,6 +160,7 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
         return authProfileDAO.findAll().
             stream().
             map(AuthProfile::getU2FRegisteredDevices).
+            filter(Objects::nonNull).
             flatMap(List::stream).
             filter(record -> record.getKey().equals(key)).
             findFirst().
@@ -172,6 +175,21 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
             List<U2FRegisteredDevice> devices = profile.getU2FRegisteredDevices();
             if (devices != null) {
                 if (devices.removeIf(device -> device.getId() == id)) {
+                    profile.setU2FRegisteredDevices(devices);
+                    authProfileDAO.save(profile);
+                }
+            }
+        });
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void delete(final String key) {
+        List<AuthProfile> profiles = authProfileDAO.findAll();
+        profiles.forEach(profile -> {
+            List<U2FRegisteredDevice> devices = profile.getU2FRegisteredDevices();
+            if (devices != null) {
+                if (devices.removeIf(device -> device.getKey().equals(key))) {
                     profile.setU2FRegisteredDevices(devices);
                     authProfileDAO.save(profile);
                 }

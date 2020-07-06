@@ -26,7 +26,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
@@ -44,6 +43,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.Date;
+import java.util.List;
 
 @Tag(name = "U2F Registrations")
 @SecurityRequirements({
@@ -61,13 +61,19 @@ public interface U2FRegistrationService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices/${id}")
-    Response deleteDevice(@NotNull @PathParam("owner") long id);
+    Response deleteDevice(@NotNull @PathParam("id") long id);
+
+    @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("${key}")
+    Response deleteDevice(@NotNull @PathParam("key") String key);
     
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("devices/registered")
-    Response cleanExpiredDevices(@NotNull @QueryParam("expirationDate") Date expirationDate);
+    @Path("devices/expire")
+    Response deleteDevices(@NotNull @QueryParam("expirationDate") Date expirationDate);
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",
@@ -85,13 +91,13 @@ public interface U2FRegistrationService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
-    PagedResult<U2FRegisteredDevice> list(@QueryParam("expirationDate") Date expirationDate);
+    List<U2FRegisteredDevice> list(@QueryParam("expirationDate") Date expirationDate);
 
     @GET
     @Path("devices/{owner}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    PagedResult<U2FRegisteredDevice> findRegistrationFor(@NotNull @PathParam("owner") String owner,
+    List<U2FRegisteredDevice> findRegistrationFor(@NotNull @PathParam("owner") String owner,
                                                          @NotNull @QueryParam("expirationDate") Date expirationDate);
 
     @GET

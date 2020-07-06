@@ -25,7 +25,6 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
@@ -38,10 +37,10 @@ import javax.ws.rs.core.Response;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -79,9 +78,9 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices(final String owner) {
-        final PagedResult<U2FRegisteredDevice> records = getU2FService().
+        final List<U2FRegisteredDevice> records = getU2FService().
             findRegistrationFor(owner, Date.from(Instant.from(expirationDate)));
-        return records.getResult().
+        return records.
             stream().
             map(SyncopeWAU2FDeviceRepository::parseRegistrationRecord).
             filter(Objects::nonNull).
@@ -90,9 +89,9 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices() {
-        final PagedResult<U2FRegisteredDevice> records = getU2FService().
+        final List<U2FRegisteredDevice> records = getU2FService().
             list(Date.from(Instant.from(expirationDate)));
-        return records.getResult().
+        return records.
             stream().
             map(SyncopeWAU2FDeviceRepository::parseRegistrationRecord).
             filter(Objects::nonNull).
@@ -139,7 +138,7 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
         Date date = Date.from(expirationDate.atStartOfDay()
             .atZone(ZoneId.systemDefault())
             .toInstant());
-        getU2FService().cleanExpiredDevices(date);
+        getU2FService().deleteDevices(date);
     }
 
     @Override

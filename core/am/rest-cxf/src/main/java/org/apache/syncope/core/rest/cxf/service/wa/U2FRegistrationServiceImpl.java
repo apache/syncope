@@ -19,7 +19,6 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
@@ -28,12 +27,12 @@ import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U2FRegistrationService {
@@ -53,7 +52,13 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
     }
 
     @Override
-    public Response cleanExpiredDevices(final Date expirationDate) {
+    public Response deleteDevice(final String key) {
+        logic.delete(key);
+        return Response.noContent().build();
+    }
+
+    @Override
+    public Response deleteDevices(final Date expirationDate) {
         logic.deleteExpiredDevices(expirationDate);
         return Response.noContent().build();
     }
@@ -69,24 +74,13 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
     }
 
     @Override
-    public PagedResult<U2FRegisteredDevice> list(final Date expirationDate) {
-        Collection<? extends U2FRegisteredDevice> records = logic.list(expirationDate);
-        PagedResult<U2FRegisteredDevice> result = new PagedResult<>();
-        result.setSize(records.size());
-        result.setPage(1);
-        result.setTotalCount(result.getSize());
-        result.getResult().addAll(records);
-        return result;
+    public List<U2FRegisteredDevice> list(final Date expirationDate) {
+        return new ArrayList<>(logic.list(expirationDate));
     }
 
     @Override
-    public PagedResult<U2FRegisteredDevice> findRegistrationFor(final String owner, final Date expirationDate) {
-        PagedResult<U2FRegisteredDevice> result = new PagedResult<>();
-        Collection<? extends U2FRegisteredDevice> records = logic.findRegistrationFor(owner, expirationDate);
-        result.setSize(records.size());
-        result.setPage(1);
-        result.setTotalCount(result.getSize());
-        return result;
+    public List<U2FRegisteredDevice> findRegistrationFor(final String owner, final Date expirationDate) {
+        return new ArrayList<>(logic.findRegistrationFor(owner, expirationDate));
     }
 
     @Override
