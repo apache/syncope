@@ -30,6 +30,8 @@ public class U2FRegisteredDevice implements BaseBean {
 
     private static final long serialVersionUID = 1185073386484048953L;
 
+    private long id;
+
     private String key;
 
     private String record;
@@ -62,25 +64,34 @@ public class U2FRegisteredDevice implements BaseBean {
         this.owner = owner;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(final long id) {
+        this.id = id;
+    }
+
     public Date getIssueDate() {
         return Optional.ofNullable(this.issueDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+            map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setIssueDate(final Date issueDate) {
         this.issueDate = Optional.ofNullable(issueDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+            map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
-                .append(key)
-                .append(record)
-                .append(owner)
-                .append(issueDate)
-                .toHashCode();
+            .appendSuper(super.hashCode())
+            .append(key)
+            .append(record)
+            .append(owner)
+            .append(id)
+            .append(issueDate)
+            .toHashCode();
     }
 
     @Override
@@ -96,22 +107,24 @@ public class U2FRegisteredDevice implements BaseBean {
         }
         U2FRegisteredDevice rhs = (U2FRegisteredDevice) obj;
         return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.key, rhs.key)
-                .append(this.record, rhs.record)
-                .append(this.owner, rhs.owner)
-                .append(this.issueDate, rhs.issueDate)
-                .isEquals();
+            .appendSuper(super.equals(obj))
+            .append(this.key, rhs.key)
+            .append(this.record, rhs.record)
+            .append(this.owner, rhs.owner)
+            .append(this.id, rhs.id)
+            .append(this.issueDate, rhs.issueDate)
+            .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("key", key)
-                .append("record", record)
-                .append("owner", owner)
-                .append("issueDate", issueDate)
-                .toString();
+            .append("key", key)
+            .append("record", record)
+            .append("owner", owner)
+            .append("id", id)
+            .append("issueDate", issueDate)
+            .toString();
     }
 
     public static class Builder {
@@ -135,6 +148,11 @@ public class U2FRegisteredDevice implements BaseBean {
 
         public U2FRegisteredDevice.Builder key(final String key) {
             instance.setKey(key);
+            return this;
+        }
+
+        public U2FRegisteredDevice.Builder id(final long id) {
+            instance.setId(id);
             return this;
         }
 

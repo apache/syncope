@@ -52,7 +52,7 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
 
     @Autowired
     private AuthProfileDataBinder authProfileDataBinder;
-    
+
     @Override
     protected AuthProfileTO resolveReference(final Method method, final Object... args)
         throws UnresolvedReferenceException {
@@ -128,11 +128,12 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_LIST_DEVICE + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public Collection<? extends U2FRegisteredDevice> list() {
+    public Collection<? extends U2FRegisteredDevice> list(final Date expirationDate) {
         return authProfileDAO.findAll().
             stream().
             map(AuthProfile::getU2FRegisteredDevices).
             flatMap(List::stream).
+            filter(device -> expirationDate == null || device.getIssueDate().compareTo(expirationDate) >= 0).
             filter(Objects::nonNull).
             collect(Collectors.toList());
     }
@@ -161,5 +162,20 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
             filter(record -> record.getKey().equals(key)).
             findFirst().
             orElse(null);
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void delete(final long id) {
+        List<AuthProfile> profiles = authProfileDAO.findAll();
+        profiles.forEach(profile -> {
+            List<U2FRegisteredDevice> devices = profile.getU2FRegisteredDevices();
+            if (devices != null) {
+                if (devices.removeIf(device -> device.getId() == id)) {
+                    profile.setU2FRegisteredDevices(devices);
+                    authProfileDAO.save(profile);
+                }
+            }
+        });
     }
 }

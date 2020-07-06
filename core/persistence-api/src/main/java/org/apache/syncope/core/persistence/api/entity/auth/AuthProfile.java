@@ -40,10 +40,13 @@ public interface AuthProfile extends Entity {
 
     List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts();
 
-
     void setGoogleMfaAuthAccounts(List<GoogleMfaAuthAccount> accounts);
 
+    void setU2FRegisteredDevices(List<U2FRegisteredDevice> records);
+    
     void add(GoogleMfaAuthToken token);
 
     void add(GoogleMfaAuthAccount account);
+
+    void add(U2FRegisteredDevice account);
 }

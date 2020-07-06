@@ -28,6 +28,7 @@ import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
@@ -46,6 +47,12 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
     }
 
     @Override
+    public Response deleteDevice(final long id) {
+        logic.delete(id);
+        return Response.noContent().build();
+    }
+
+    @Override
     public Response cleanExpiredDevices(final Date expirationDate) {
         logic.deleteExpiredDevices(expirationDate);
         return Response.noContent().build();
@@ -57,12 +64,13 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
         return Response.created(location).
             header(RESTHeaders.RESOURCE_KEY, token.getKey()).
+            entity(token).
             build();
     }
 
     @Override
-    public PagedResult<U2FRegisteredDevice> list() {
-        Collection<? extends U2FRegisteredDevice> records = logic.list();
+    public PagedResult<U2FRegisteredDevice> list(final Date expirationDate) {
+        Collection<? extends U2FRegisteredDevice> records = logic.list(expirationDate);
         PagedResult<U2FRegisteredDevice> result = new PagedResult<>();
         result.setSize(records.size());
         result.setPage(1);

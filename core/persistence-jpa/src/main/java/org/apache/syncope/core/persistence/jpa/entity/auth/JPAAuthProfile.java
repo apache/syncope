@@ -44,6 +44,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     private static final long serialVersionUID = 57352617217394093L;
 
     @Lob
+    private String u2fRegisteredDevices;
+
+    @Lob
     private String googleMfaAuthAccounts;
 
     @Lob
@@ -107,6 +110,14 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void setU2FRegisteredDevices(final List<U2FRegisteredDevice> records) {
         this.u2fRegisteredDevices = POJOHelper.serialize(records);
+    }
+
+    @Override
+    public void add(final GoogleMfaAuthAccount account) {
+        checkType(account, GoogleMfaAuthAccount.class);
+        final List<GoogleMfaAuthAccount> accounts = getGoogleMfaAuthAccounts();
+        accounts.add(account);
+        setGoogleMfaAuthAccounts(accounts);
     }
 
     @Override

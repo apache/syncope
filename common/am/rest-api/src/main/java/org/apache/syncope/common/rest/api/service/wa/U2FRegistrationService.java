@@ -60,6 +60,12 @@ public interface U2FRegistrationService extends JAXRSService {
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Path("devices/${id}")
+    Response deleteDevice(@NotNull @PathParam("owner") long id);
+    
+    @DELETE
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices/registered")
     Response cleanExpiredDevices(@NotNull @QueryParam("expirationDate") Date expirationDate);
 
@@ -79,7 +85,7 @@ public interface U2FRegistrationService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
-    PagedResult<U2FRegisteredDevice> list();
+    PagedResult<U2FRegisteredDevice> list(@QueryParam("expirationDate") Date expirationDate);
 
     @GET
     @Path("devices/{owner}")
