@@ -452,7 +452,7 @@ under the License.
   
   <profiles>
     <profile>
-      <id>zookeper-it</id>
+      <id>zookeeper-it</id>
 
       <build>
         <plugins>
@@ -1519,7 +1519,6 @@ under the License.
       </build>
     </profile>
     
-    <!-- Running IT with this profile requires prior build of ../build-tools with -Ppayara -->
     <profile>
       <id>payara-it</id>
 
@@ -1541,17 +1540,36 @@ under the License.
           <artifactId>jakarta.faces</artifactId>
           <version>${javax.faces.version}</version>
         </dependency>
-
-        <dependency>
-          <groupId>com.fasterxml.jackson.dataformat</groupId>
-          <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
       </dependencies>
 
       <build>
         <defaultGoal>clean verify</defaultGoal>
 
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>adjust-buildtools-for-payara</id>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <target>
+                    <unzip src="${settings.localRepository}/org/apache/syncope/fit/syncope-fit-build-tools/${project.version}/syncope-fit-build-tools-${project.version}.war"
+                           dest="${project.build.outputDirectory}/syncope-fit-buildtools"/>
+                    <delete file="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib/bval-jsr-${bval.version}.jar"/>
+                    <copy file="${settings.localRepository}/org/glassfish/jakarta.faces/${javax.faces.version}/jakarta.faces-${javax.faces.version}.jar"
+                          todir="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib"/>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -1582,7 +1600,7 @@ under the License.
               </configuration>
               <deployables>
                 <deployable>
-                  <location>${basedir}/../build-tools/target/syncope-fit-build-tools-${project.version}</location>
+                  <location>${project.build.outputDirectory}/syncope-fit-buildtools</location>
                   <properties>
                     <context>syncope-fit-build-tools</context>
                   </properties>

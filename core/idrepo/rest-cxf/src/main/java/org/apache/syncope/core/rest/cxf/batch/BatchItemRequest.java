@@ -20,19 +20,29 @@ package org.apache.syncope.core.rest.cxf.batch;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.ws.rs.core.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 
 public class BatchItemRequest extends HttpServletRequestWrapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BatchItemRequest.class);
 
     private final String basePath;
 
@@ -86,6 +96,28 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     }
 
     @Override
+    public String getServerName() {
+        try {
+            return super.getServerName();
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+            return Optional.ofNullable(getHeader(HttpHeaders.HOST)).
+                    map(host -> StringUtils.substringBefore(host, ":")).orElse(null);
+        }
+    }
+
+    @Override
+    public int getServerPort() {
+        try {
+            return super.getServerPort();
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+            return Optional.ofNullable(getHeader(HttpHeaders.HOST)).
+                    map(host -> NumberUtils.toInt(StringUtils.substringAfter(host, ":"))).orElse(0);
+        }
+    }
+
+    @Override
     public StringBuffer getRequestURL() {
         return new StringBuffer(basePath).append(getRequestURI());
     }
@@ -121,21 +153,65 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
 
     @Override
     public String getHeader(final String name) {
-        return batchItem.getHeaders().containsKey(name)
-                ? batchItem.getHeaders().get(name).get(0).toString()
-                : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
-                ? MediaType.ALL_VALUE
-                : super.getHeader(name);
+        try {
+            return batchItem.getHeaders().containsKey(name)
+                    ? batchItem.getHeaders().get(name).get(0).toString()
+                    : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
+                    ? MediaType.ALL_VALUE
+                    : super.getHeader(name);
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+            return null;
+        }
     }
 
     @Override
     public Enumeration<String> getHeaders(final String name) {
-        return batchItem.getHeaders().containsKey(name)
-                ? Collections.enumeration(
-                        batchItem.getHeaders().get(name).stream().map(Object::toString).collect(Collectors.toList()))
-                : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
-                ? Collections.enumeration(List.of(MediaType.ALL_VALUE))
-                : super.getHeaders(name);
+        try {
+            return batchItem.getHeaders().containsKey(name)
+                    ? Collections.enumeration(batchItem.getHeaders().get(name).stream().
+                            map(Object::toString).collect(Collectors.toList()))
+                    : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
+                    ? Collections.enumeration(List.of(MediaType.ALL_VALUE))
+                    : super.getHeaders(name);
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+            return Collections.emptyEnumeration();
+        }
+    }
+
+    @Override
+    public Enumeration<String> getHeaderNames() {
+        try {
+            return super.getHeaderNames();
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+
+            Set<String> names = new HashSet<>(batchItem.getHeaders().keySet());
+            names.add(HttpHeaders.CONTENT_TYPE);
+            names.add(HttpHeaders.ACCEPT);
+            return Collections.enumeration(names);
+        }
+    }
+
+    @Override
+    public Object getAttribute(final String name) {
+        try {
+            return super.getAttribute(name);
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+            return null;
+        }
+    }
+
+    @Override
+    public String getCharacterEncoding() {
+        try {
+            return super.getCharacterEncoding();
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+            return StandardCharsets.UTF_8.name();
+        }
     }
 
     @Override

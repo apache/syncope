@@ -90,7 +90,7 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         return saml2spto;
     }
 
-    private void addAttributes(final boolean withReleaseAttributes,
+    private static void addAttributes(final boolean withReleaseAttributes,
             final boolean withAttrReleasePolicy,
             final WAClientApp waClientApp) {
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
@@ -137,12 +137,12 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         waClientApp.setClientAppTO(buildOIDCRP());
         Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
         addAttributes(true, true, waClientApp);
-
+        
         SyncopeCoreTestingServer.APPS.add(waClientApp);
         List<WAClientApp> apps = service.list();
         assertEquals(1, apps.size());
 
-        assertNull(servicesManager.findServiceBy(clientAppId));
+        assertNotNull(servicesManager.findServiceBy(clientAppId));
 
         // 3. trigger client app refresh
         Collection<RegisteredService> load = servicesManager.load();

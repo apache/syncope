@@ -44,11 +44,10 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
         protected final StringBuilder query = new StringBuilder();
 
         protected MessageCriteriaBuilder entityKey(final String entityKey) {
-            if (entityKey != null) {
-                query.append(' ').append(AUDIT_MESSAGE_COLUMN).
-                    append(" LIKE '%key%").append(entityKey).append("%'");
-            } else {
+            if (entityKey == null) {
                 query.append(" 1=1");
+            } else {
+                query.append(' ').append(AUDIT_MESSAGE_COLUMN).append(" LIKE '%key%").append(entityKey).append("%'");
             }
             return this;
         }
@@ -144,19 +143,19 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
     @Override
     public int countAuditEntries(final String entityKey,
-                                 final AuditElements.EventCategoryType type,
-                                 final String category,
-                                 final String subcategory,
-                                 final List<String> events,
-                                 final AuditElements.Result result) {
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final List<String> events,
+            final AuditElements.Result result) {
         String queryString = "SELECT COUNT(0) FROM " + AUDIT_TABLE
-            + " WHERE " + messageCriteriaBuilder(entityKey).
-            type(type).
-            category(category).
-            subcategory(subcategory).
-            result(result).
-            events(events).
-            build();
+                + " WHERE " + messageCriteriaBuilder(entityKey).
+                        type(type).
+                        category(category).
+                        subcategory(subcategory).
+                        result(result).
+                        events(events).
+                        build();
         Query countQuery = entityManager().createNativeQuery(queryString);
 
         return ((Number) countQuery.getSingleResult()).intValue();

@@ -19,8 +19,10 @@
 package org.apache.syncope.sra;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
@@ -30,16 +32,19 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.GatewayRouteTO;
-import org.apache.syncope.common.lib.types.GatewayRouteFilter;
-import org.apache.syncope.common.lib.types.GatewayRoutePredicate;
-import org.apache.syncope.common.lib.types.GatewayRouteStatus;
-import org.apache.syncope.common.rest.api.service.GatewayRouteService;
+import org.apache.syncope.common.lib.to.SRARouteTO;
+import org.apache.syncope.common.lib.types.SRARouteFilter;
+import org.apache.syncope.common.lib.types.SRARoutePredicate;
+import org.apache.syncope.sra.filters.ClientCertsToRequestHeaderFilterFactory;
+import org.apache.syncope.sra.filters.CustomGatewayFilterFactory;
+import org.apache.syncope.sra.filters.LinkRewriteGatewayFilterFactory;
+import org.apache.syncope.sra.filters.PrincipalToRequestHeaderFilterFactory;
+import org.apache.syncope.sra.filters.QueryParamToRequestHeaderFilterFactory;
+import org.apache.syncope.sra.predicates.CustomRoutePredicateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AddRequestHeaderGatewayFilterFactory;
@@ -86,6 +91,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
+import org.apache.syncope.common.rest.api.service.SRARouteService;
 
 @Component
 public class RouteProvider {
@@ -109,8 +115,10 @@ public class RouteProvider {
 
     private SyncopeClient client;
 
+    private final List<SRARouteTO> routeTOs = new ArrayList<>();
+
     @SuppressWarnings("unchecked")
-    private GatewayFilter toFilter(final String routeId, final GatewayRouteFilter gwfilter)
+    private GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
             throws ClassNotFoundException {
 
         GatewayFilter filter;
@@ -140,7 +148,7 @@ public class RouteProvider {
             case HYSTRIX:
                 String[] hystrixArgs = gwfilter.getArgs().split(",");
                 filter = ctx.getBean(HystrixGatewayFilterFactory.class).
-                        apply(routeId, c -> {
+                        apply(route.getKey(), c -> {
                             if (StringUtils.isNotBlank(hystrixArgs[0])) {
                                 c.setName(hystrixArgs[0].trim());
                             }
@@ -285,17 +293,51 @@ public class RouteProvider {
                         apply(c -> c.setMaxSize(DataSize.ofBytes(Long.valueOf(gwfilter.getArgs().trim()))));
                 break;
 
+            case LINK_REWRITE:
+                filter = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        LinkRewriteGatewayFilterFactory.class.getName(),
+                        LinkRewriteGatewayFilterFactory.class).
+                        apply(c -> c.setData(route.getTarget().toASCIIString() + "," + gwfilter.getArgs().trim()));
+                break;
+
+            case CLIENT_CERTS_TO_REQUEST_HEADER:
+                String header = StringUtils.isBlank(gwfilter.getArgs()) ? "X-Client-Certificate" : gwfilter.getArgs();
+                filter = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        ClientCertsToRequestHeaderFilterFactory.class.getName(),
+                        ClientCertsToRequestHeaderFilterFactory.class).
+                        apply(c -> c.setName(header.trim()));
+                break;
+
+            case QUERY_PARAM_TO_REQUEST_HEADER:
+                filter = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        QueryParamToRequestHeaderFilterFactory.class.getName(),
+                        QueryParamToRequestHeaderFilterFactory.class).
+                        apply(c -> c.setName(gwfilter.getArgs().trim()));
+                break;
+
+            case PRINCIPAL_TO_REQUEST_HEADER:
+                filter = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        PrincipalToRequestHeaderFilterFactory.class.getName(),
+                        PrincipalToRequestHeaderFilterFactory.class).
+                        apply(c -> c.setName(gwfilter.getArgs().trim()));
+                break;
+
             case CUSTOM:
                 String[] customArgs = gwfilter.getArgs().split(";");
-                CustomGatewayFilterFactory factory;
-                if (ctx.getBeanFactory().containsSingleton(customArgs[0])) {
-                    factory = (CustomGatewayFilterFactory) ctx.getBeanFactory().getSingleton(customArgs[0]);
-                } else {
-                    factory = (CustomGatewayFilterFactory) ctx.getBeanFactory().
-                            createBean(Class.forName(customArgs[0]), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                    ctx.getBeanFactory().registerSingleton(customArgs[0], factory);
-                }
-                filter = factory.apply(c -> c.setData(customArgs[1]));
+                Consumer<CustomGatewayFilterFactory.Config> customConsumer = customArgs.length > 1
+                        ? c -> c.setData(customArgs[1])
+                        : c -> c.setData(null);
+                CustomGatewayFilterFactory factory = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        customArgs[0],
+                        CustomGatewayFilterFactory.class);
+                filter = factory.getOrder().
+                        map(order -> (GatewayFilter) new OrderedGatewayFilter(factory.apply(customConsumer), order)).
+                        orElseGet(() -> factory.apply(customConsumer));
                 break;
 
             default:
@@ -309,7 +351,7 @@ public class RouteProvider {
         return filter instanceof Ordered ? filter : new OrderedGatewayFilter(filter, 0);
     }
 
-    private AsyncPredicate<ServerWebExchange> toPredicate(final GatewayRoutePredicate gwpredicate, final boolean negate)
+    private AsyncPredicate<ServerWebExchange> toPredicate(final SRARoutePredicate gwpredicate, final boolean negate)
             throws ClassNotFoundException {
 
         AsyncPredicate<ServerWebExchange> predicate;
@@ -339,8 +381,10 @@ public class RouteProvider {
                 break;
 
             case HEADER:
+                String[] headerArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(HeaderRoutePredicateFactory.class).
-                        applyAsync(c -> c.setHeader(gwpredicate.getArgs().trim()));
+                        applyAsync(c -> c.setHeader(headerArgs[0].trim()).
+                        setRegexp(headerArgs[1].trim()));
                 break;
 
             case HOST:
@@ -364,9 +408,12 @@ public class RouteProvider {
 
             case QUERY:
                 String[] queryArgs = gwpredicate.getArgs().split(",");
+                Consumer<QueryRoutePredicateFactory.Config> queryConsumer =
+                        queryArgs.length > 1
+                                ? c -> c.setParam(queryArgs[0].trim()).setRegexp(queryArgs[1].trim())
+                                : c -> c.setParam(queryArgs[0].trim());
                 predicate = ctx.getBean(QueryRoutePredicateFactory.class).
-                        applyAsync(c -> c.setParam(queryArgs[0].trim()).
-                        setRegexp(queryArgs[1].trim()));
+                        applyAsync(queryConsumer);
                 break;
 
             case REMOTE_ADDR:
@@ -377,15 +424,11 @@ public class RouteProvider {
 
             case CUSTOM:
                 String[] customArgs = gwpredicate.getArgs().split(";");
-                CustomRoutePredicateFactory factory;
-                if (ctx.getBeanFactory().containsSingleton(customArgs[0])) {
-                    factory = (CustomRoutePredicateFactory) ctx.getBeanFactory().getSingleton(customArgs[0]);
-                } else {
-                    factory = (CustomRoutePredicateFactory) ctx.getBeanFactory().
-                            createBean(Class.forName(customArgs[0]), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                    ctx.getBeanFactory().registerSingleton(customArgs[0], factory);
-                }
-                predicate = factory.applyAsync(c -> c.setData(customArgs[1]));
+                predicate = ApplicationContextUtils.getOrCreateBean(
+                        ctx,
+                        customArgs[0],
+                        CustomRoutePredicateFactory.class).
+                        applyAsync(c -> c.setData(customArgs[1]));
                 break;
 
             default:
@@ -393,16 +436,13 @@ public class RouteProvider {
         }
 
         if (predicate == null) {
-            throw new IllegalArgumentException("Could not translate " + gwpredicate);
+            throw new IllegalArgumentException("Could not translate predicate " + gwpredicate);
         }
 
-        if (negate) {
-            predicate.negate();
-        }
-        return predicate;
+        return negate ? predicate.negate() : predicate;
     }
 
-    private Route.AsyncBuilder toRoute(final GatewayRouteTO gwroute) {
+    private Route.AsyncBuilder toRoute(final SRARouteTO gwroute) {
         Route.AsyncBuilder builder = new Route.AsyncBuilder().
                 id(gwroute.getKey()).order(gwroute.getOrder()).uri(gwroute.getTarget());
 
@@ -438,7 +478,7 @@ public class RouteProvider {
             builder.filters(gwroute.getFilters().stream().
                     map(gwfilter -> {
                         try {
-                            return toFilter(gwroute.getKey(), gwfilter);
+                            return toFilter(gwroute, gwfilter);
                         } catch (Exception e) {
                             LOG.error("Could not translate {}, skipping", gwfilter, e);
                             return null;
@@ -466,9 +506,15 @@ public class RouteProvider {
             }
         }
 
-        return client.getService(GatewayRouteService.class).list().stream().
-                filter(gwroute -> gwroute.getStatus() == GatewayRouteStatus.PUBLISHED).
-                map(this::toRoute).
-                collect(Collectors.toList());
+        synchronized (routeTOs) {
+            routeTOs.clear();
+            routeTOs.addAll(client.getService(SRARouteService.class).list());
+        }
+
+        return routeTOs.stream().map(this::toRoute).collect(Collectors.toList());
+    }
+
+    public List<SRARouteTO> getRouteTOs() {
+        return routeTOs;
     }
 }

@@ -37,13 +37,8 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.wicket.util.tester.WicketTester;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
+import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -51,6 +46,12 @@ import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
 import org.apache.wicket.util.tester.FormTester;
+import org.apache.wicket.util.tester.WicketTester;
+import org.junit.jupiter.api.BeforeAll;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
@@ -64,7 +65,7 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     protected static SecurityQuestionService securityQuestionService;
 
-    @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class })
+    @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
     @Configuration
     public static class SyncopeEnduserWebApplicationTestConfig {
 

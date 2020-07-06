@@ -53,29 +53,31 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
             throw new IllegalStateException("Could not load /keymaster.properties", e);
         }
 
-        Configuration.setConfiguration(new Configuration() {
+        if (AbstractTest.available(port.get())) {
+            Configuration.setConfiguration(new Configuration() {
 
-            private final AppConfigurationEntry[] entries = {
-                new AppConfigurationEntry(
-                DigestLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                Map.of("user_" + username.get(), password.get()))
-            };
+                private final AppConfigurationEntry[] entries = {
+                    new AppConfigurationEntry(
+                    DigestLoginModule.class.getName(),
+                    AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                    Map.of("user_" + username.get(), password.get()))
+                };
 
-            @Override
-            public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
-                return entries;
+                @Override
+                public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
+                    return entries;
+                }
+            });
+
+            Map<String, Object> customProperties = new HashMap<>();
+            customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
+            InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, customProperties);
+
+            try {
+                new TestingServer(spec, true);
+            } catch (Exception e) {
+                fail(e);
             }
-        });
-
-        Map<String, Object> customProperties = new HashMap<>();
-        customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
-        InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, customProperties);
-
-        try {
-            new TestingServer(spec, true);
-        } catch (Exception e) {
-            fail(e);
         }
     }
 }

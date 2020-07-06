@@ -26,3 +26,14 @@ Starting with Apache Syncope 2.1, it is possible to provide implementations suit
 
 While the former shows some advantages about execution performance, the latter is extremely useful as it allows for
 runtime updates, freeing from the hassle to redeploy when something needs to be changed.
+
+[WARNING]
+.With great power comes great responsibility
+====
+Customizing and extending the Core behavior by uploading a Groovy class via REST adds further flexibility to the
+platform, allows to speed up the development cycle and can be used as Swiss army knife for maintenance and
+administration.
+
+Please beware that granting the permission to manage Implementations to non-admin users can result in security threat,
+as there is virtually no limitation in what the Groovy code has access to.
+====

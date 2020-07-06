@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.GatewayRoute;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
@@ -165,6 +164,7 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPMetadata;
+import org.apache.syncope.core.persistence.api.entity.SRARoute;
 
 public class JPAEntityFactory implements EntityFactory {
 
@@ -315,8 +315,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPARemediation();
         } else if (reference.equals(Batch.class)) {
             result = (E) new JPABatch();
-        } else if (reference.equals(GatewayRoute.class)) {
-            result = (E) new JPAGatewayRoute();
+        } else if (reference.equals(SRARoute.class)) {
+            result = (E) new JPASRARoute();
         } else if (reference.equals(AuthModule.class)) {
             result = (E) new JPAAuthModule();
         } else if (reference.equals(AuthModuleItem.class)) {

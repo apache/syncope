@@ -459,8 +459,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         user = userDAO.save(user);
 
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.USER_TO, dataBinder.
-                getUserTO(user, true));
+        engine.getRuntimeService().setVariable(
+                procInstID, FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
 
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {

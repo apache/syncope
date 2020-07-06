@@ -194,6 +194,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 ignoreResult = new ProvisioningReport();
                 ignoreResult.setKey(account.getKey());
                 ignoreResult.setAnyType(MatchType.LINKED_ACCOUNT.name());
+                ignoreResult.setUidValue(account.getConnObjectKeyValue());
 
                 profile.getResults().add(ignoreResult);
             }
@@ -216,6 +217,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
 
         result.setKey(account.getKey());
         result.setAnyType(MatchType.LINKED_ACCOUNT.name());
+        result.setUidValue(account.getConnObjectKeyValue());
         result.setName(account.getConnObjectKeyValue());
 
         LOG.debug("Pushing linked account {} towards {}", account.getKey(), profile.getTask().getResource());
