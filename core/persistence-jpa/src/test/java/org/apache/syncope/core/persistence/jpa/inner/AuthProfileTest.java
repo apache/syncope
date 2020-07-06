@@ -78,7 +78,7 @@ public class AuthProfileTest extends AbstractTest {
 
     @Test
     public void u2fRegisteredDevice() {
-        String id = UUID.randomUUID().toString();
+        String id = SecureRandomUtils.generateRandomUUID().toString();
         createAuthProfileWithU2FDevice(id, "{ 'record': 1 }");
 
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);

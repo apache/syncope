@@ -38,6 +38,7 @@ import javax.ws.rs.core.Response;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
@@ -135,7 +136,10 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public void clean() {
-        getU2FService().cleanExpiredDevices(Date.from(Instant.from(expirationDate)));
+        Date date = Date.from(expirationDate.atStartOfDay()
+            .atZone(ZoneId.systemDefault())
+            .toInstant());
+        getU2FService().cleanExpiredDevices(date);
     }
 
     @Override
