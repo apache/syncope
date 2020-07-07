@@ -115,7 +115,8 @@ public class SyncopeWAConfiguration {
 
         Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
         applicationContext.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
-            AttrReleaseMapFor attrReleaseMapFor = applicationContext.findAnnotationOnBean(name, AttrReleaseMapFor.class);
+            AttrReleaseMapFor attrReleaseMapFor =
+                applicationContext.findAnnotationOnBean(name, AttrReleaseMapFor.class);
             if (attrReleaseMapFor != null) {
                 attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
             }

@@ -31,19 +31,19 @@ public interface AuthProfile extends Entity {
     String getOwner();
 
     void setOwner(String owner);
-    
+
     List<GoogleMfaAuthToken> getGoogleMfaAuthTokens();
-    
-    List<U2FRegisteredDevice> getU2FRegisteredDevices();
 
     void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
+
+    List<U2FRegisteredDevice> getU2FRegisteredDevices();
+
+    void setU2FRegisteredDevices(List<U2FRegisteredDevice> records);
 
     List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts();
 
     void setGoogleMfaAuthAccounts(List<GoogleMfaAuthAccount> accounts);
 
-    void setU2FRegisteredDevices(List<U2FRegisteredDevice> records);
-    
     void add(GoogleMfaAuthToken token);
 
     void add(GoogleMfaAuthAccount account);
