@@ -19,6 +19,7 @@
 
 package org.apache.syncope.core.provisioning.java.data;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -51,8 +52,9 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
             RSAKey jwk = new RSAKeyGenerator(2048)
                 .keyUse(KeyUse.SIGNATURE)
                 .keyID(SecureRandomUtils.generateRandomUUID().toString())
+                .algorithm(JWSAlgorithm.RS256)
                 .generate();
-            jwks.setJson(new JWKSet(jwk).toString());
+            jwks.setJson(new JWKSet(jwk).toJSONObject(false).toString());
             return jwks;
         } catch (final Exception e) {
             throw new RuntimeException("Unable to create OIDC JWKS", e);
