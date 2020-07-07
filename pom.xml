@@ -405,7 +405,7 @@ under the License.
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
     <cxf.version>3.3.7</cxf.version>
-    <bouncycastle.version>1.65</bouncycastle.version>
+    <bouncycastle.version>1.66</bouncycastle.version>
 
     <jackson.version>2.11.1</jackson.version>
 
@@ -460,7 +460,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>5.4.0</bootbox.version>
-    <font-awesome.version>5.13.0</font-awesome.version>
+    <font-awesome.version>5.13.1</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.15.10</highlightjs.version>
     <codemirror.version>5.50.0</codemirror.version>
