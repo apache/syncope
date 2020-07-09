@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
@@ -30,24 +31,29 @@ import javax.ws.rs.core.MediaType;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UserRequestITCase extends AbstractITCase {
 
     @BeforeAll
     public static void loadBpmnProcesses() throws IOException {
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         WebClient.client(bpmnProcessService).type(MediaType.APPLICATION_XML_TYPE);
@@ -59,10 +65,14 @@ public class UserRequestITCase extends AbstractITCase {
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml")));
     }
 
+    @BeforeEach
+    public void check() {
+        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+    }
+
     @Test
     public void twoLevelsApproval() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
-
         UserTO user = createUser(UserITCase.getUniqueSampleTO("twoLevelsApproval@tirasa.net")).getEntity();
         assertNotNull(user);
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
@@ -141,8 +151,6 @@ public class UserRequestITCase extends AbstractITCase {
 
     @Test
     public void cancel() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
-
         PagedResult<UserRequestForm> forms =
                 userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
@@ -175,8 +183,6 @@ public class UserRequestITCase extends AbstractITCase {
 
     @Test
     public void userSelection() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
-
         PagedResult<UserRequestForm> forms =
                 userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
@@ -247,11 +253,9 @@ public class UserRequestITCase extends AbstractITCase {
         assertTrue(relationships.stream().
                 anyMatch(relationship -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(relationship.getOtherEndKey())));
     }
-    
+
     @Test
     public void addVariablesToUserRequestAtStart() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
-
         PagedResult<UserRequestForm> forms =
                 userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         int preForms = forms.getTotalCount();
@@ -263,7 +267,7 @@ public class UserRequestITCase extends AbstractITCase {
 
         WorkflowTaskExecInput testInput = new WorkflowTaskExecInput();
         testInput.getVariables().put("providedVariable", "test");
-        
+
         // start request as user
         UserRequest req = client.getService(UserRequestService.class).start("verifyAddedVariables", null, testInput);
         assertNotNull(req);
@@ -280,15 +284,27 @@ public class UserRequestITCase extends AbstractITCase {
         UserRequestForm form = userForms.getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         assertEquals(form.getProperty("providedVariable").get().getValue(), "test");
-        
+
         // cancel request
         userRequestService.cancel(req.getExecutionId(), "nothing in particular");
-       
+
         // no more forms available
         forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
 
         assertTrue(client.getService(UserRequestService.class).
                 list(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+    }
+
+    @Test
+    public void invalid() throws IOException {
+        WebClient.client(bpmnProcessService).type(MediaType.APPLICATION_XML_TYPE);
+        try {
+            bpmnProcessService.set("invalid",
+                    IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/invalidRequest.bpmn20.xml")));
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.Workflow, e.getType());
+        }
     }
 }

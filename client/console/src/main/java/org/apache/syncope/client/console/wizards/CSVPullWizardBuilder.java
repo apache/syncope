@@ -24,10 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.CSVConfPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
@@ -59,6 +63,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.util.lang.Bytes;
 
 public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
 
@@ -93,8 +98,14 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
 
     private final Model<byte[]> csv = new Model<>();
 
+    private final Bytes maxUploadSize;
+
     public CSVPullWizardBuilder(final CSVPullSpec defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
+
+        this.maxUploadSize = SyncopeConsoleApplication.get().getMaxUploadFileSizeMB() == null
+                ? null
+                : Bytes.megabytes(SyncopeConsoleApplication.get().getMaxUploadFileSizeMB());
     }
 
     @Override
@@ -121,14 +132,14 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
         private static final long serialVersionUID = -4736870165235853919L;
 
         public Details(final CSVPullSpec spec) {
-            FileInputConfig csvFile = new FileInputConfig();
-            csvFile.showUpload(false);
-            csvFile.showRemove(false);
-            csvFile.showPreview(false);
+            FileInputConfig csvFile = new FileInputConfig().
+                    showUpload(false).showRemove(false).showPreview(false);
+            String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+            if (!Locale.ENGLISH.getLanguage().equals(language)) {
+                csvFile.withLocale(language);
+            }
             BootstrapFileInputField csvUpload =
                     new BootstrapFileInputField("csvUpload", new ListModel<>(new ArrayList<>()), csvFile);
-            csvUpload.setRequired(true);
-            csvUpload.setOutputMarkupId(true);
             csvUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = 5538299138211283825L;
@@ -137,11 +148,18 @@ public class CSVPullWizardBuilder extends AjaxWizardBuilder<CSVPullSpec> {
                 protected void onSubmit(final AjaxRequestTarget target) {
                     FileUpload uploadedFile = csvUpload.getFileUpload();
                     if (uploadedFile != null) {
-                        csv.setObject(uploadedFile.getBytes());
+                        if (maxUploadSize != null && uploadedFile.getSize() > maxUploadSize.bytes()) {
+                            SyncopeConsoleSession.get().error(getString("tooLargeFile").
+                                    replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
+                                    replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
+                            ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
+                        } else {
+                            csv.setObject(uploadedFile.getBytes());
+                        }
                     }
                 }
             });
-            add(csvUpload);
+            add(csvUpload.setRequired(true).setOutputMarkupId(true));
 
             add(new CSVConfPanel("csvconf", spec));
         }

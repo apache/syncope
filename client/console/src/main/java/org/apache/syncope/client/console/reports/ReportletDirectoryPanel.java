@@ -162,7 +162,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE, true);
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_UPDATE);
 
         return panel;
     }

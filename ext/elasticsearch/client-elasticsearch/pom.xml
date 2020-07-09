@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.ext</groupId>
     <artifactId>syncope-ext-elasticsearch</artifactId>
-    <version>2.1.6-SNAPSHOT</version>
+    <version>2.1.7-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Ext: Elasticsearch Client</name>
@@ -64,15 +64,6 @@ under the License.
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-cbor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-joda</artifactId>
-    </dependency>
- 
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
     </dependency>
   </dependencies>
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.Assume.assumeFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,6 +29,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.FlowableDetector;
@@ -41,17 +43,18 @@ public class BpmnProcessITCase extends AbstractITCase {
 
     @BeforeAll
     public static void findDefault() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+
         bpmnProcessService.list().stream().
                 filter(BpmnProcess::isUserWorkflow).findAny().
-                ifPresent(process -> {
-                    userWorkflowKey = process.getKey();
-                });
+                ifPresent(process -> userWorkflowKey = process.getKey());
         assertNotNull(userWorkflowKey);
     }
 
     @BeforeEach
     public void check() {
+        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
     }
 

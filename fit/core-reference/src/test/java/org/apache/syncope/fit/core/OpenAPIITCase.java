@@ -40,7 +40,7 @@ public class OpenAPIITCase extends AbstractITCase {
         Response response = webClient.get();
         assumeTrue(response.getStatus() == 200);
 
-        JsonNode tree = MAPPER.readTree((InputStream) response.getEntity());
+        JsonNode tree = OBJECT_MAPPER.readTree((InputStream) response.getEntity());
         assertNotNull(tree);
 
         JsonNode info = tree.get("info");

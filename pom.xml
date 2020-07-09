@@ -26,7 +26,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>2.1.6-SNAPSHOT</version>
+  <version>2.1.7-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -404,15 +404,15 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.2.13</cxf.version>
+    <cxf.version>3.2.14</cxf.version>
 
-    <jackson.version>2.10.3</jackson.version>
+    <jackson.version>2.10.4</jackson.version>
 
-    <spring.version>5.1.14.RELEASE</spring.version>
-    <spring-security.version>5.1.9.RELEASE</spring-security.version>
+    <spring.version>5.1.16.RELEASE</spring.version>
+    <spring-security.version>5.1.11.RELEASE</spring-security.version>
 
     <openjpa.version>3.1.1</openjpa.version>
-    <hikaricp.version>3.4.2</hikaricp.version>
+    <hikaricp.version>3.4.5</hikaricp.version>
     <bval.version>2.0.3</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
@@ -421,33 +421,31 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>3.0.3</groovy.version>
+    <groovy.version>3.0.4</groovy.version>
 
-    <flowable.version>6.4.2</flowable.version>
+    <flowable.version>6.5.0</flowable.version>
 
     <camel.version>2.24.2</camel.version>	
 
     <slf4j.version>1.7.30</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>6.8.8</elasticsearch.version>
+    <elasticsearch.version>6.8.10</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
-    <log4j.version>2.13.1</log4j.version>
+    <log4j.version>2.13.3</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
-    <commons-io.version>2.6</commons-io.version>
+    <commons-io.version>2.7</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.10</commons-lang.version>
     <commons-text.version>1.8</commons-text.version>
     <commons-logging.version>1.1.3</commons-logging.version>
     
-    <tika.version>1.24</tika.version>
-
-    <joda.version>2.10.5</joda.version>
+    <tika.version>1.24.1</tika.version>
 
     <h2.version>1.4.200</h2.version>
 
@@ -460,10 +458,10 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>3.25.0</swagger-ui.version>
-    <guava.version>20.0</guava.version>
+    <swagger-ui.version>3.28.0</swagger-ui.version>
+    <guava.version>29.0-jre</guava.version>
 
-    <jquery.version>3.3.1-1</jquery.version>
+    <jquery.version>3.4.1</jquery.version>
     <jquery-ui.version>1.12.1</jquery-ui.version>
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -481,8 +479,8 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>8.7.0</wicket.version>
-    <wicket-jqueryui.version>8.6.0</wicket-jqueryui.version>
+    <wicket.version>8.8.0</wicket.version>
+    <wicket-jqueryui.version>8.8.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.13</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
@@ -510,7 +508,7 @@ under the License.
 
     <antlr4.version>4.8-1</antlr4.version>
 
-    <hotswap.version>1.4.0</hotswap.version>
+    <hotswap.version>1.4.1</hotswap.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -534,19 +532,19 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.34</tomcat.version>
+    <tomcat.version>9.0.37</tomcat.version>
 
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
 
-    <docker.postgresql.version>11.7</docker.postgresql.version>
-    <docker.mysql.version>8.0.19</docker.mysql.version>
+    <docker.postgresql.version>11</docker.postgresql.version>
+    <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.5</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.10</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.19</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.5.4</jdbc.mariadb.version>
-    <jdbc.mssql.version>8.2.0.jre</jdbc.mssql.version>
+    <jdbc.postgresql.version>42.2.12</jdbc.postgresql.version>
+    <jdbc.mysql.version>8.0.20</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.6.0</jdbc.mariadb.version>
+    <jdbc.mssql.version>8.2.2.jre</jdbc.mssql.version>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
@@ -809,10 +807,6 @@ under the License.
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-dataformat-cbor</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -911,26 +905,19 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-csv</artifactId>
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-joda</artifactId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
         <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>    
-
-      <dependency>
-        <groupId>joda-time</groupId>
-        <artifactId>joda-time</artifactId>
-        <version>${joda.version}</version>
-      </dependency>
+      </dependency>  
 
       <dependency>
         <groupId>org.springframework</groupId>
@@ -1153,7 +1140,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.13</version>
+        <version>1.5.14</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1202,23 +1189,17 @@ under the License.
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>fop</artifactId>
-        <version>2.3</version>
+        <version>2.5</version>
         <exclusions>
           <exclusion>
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+          </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-i18n</artifactId>
-        <version>1.10</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-constants</artifactId>
-        <version>1.10</version>
       </dependency>
 
       <!-- Flowable -->
@@ -1417,7 +1398,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.18</version>
+        <version>2.0.20</version>
       </dependency>
       
       <dependency>
@@ -1895,7 +1876,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>
@@ -1986,7 +1967,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.2.3</version>
+          <version>3.3.0</version>
           <configuration>
             <webResources>
               <resource>
@@ -2004,7 +1985,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.8</version>
+          <version>3.0.0</version>
         </plugin>
         
         <plugin>
@@ -2023,7 +2004,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.11</version>
+          <version>1.7.13</version>
           <configuration>
             <container>
               <containerId>tomcat9x</containerId>
@@ -2076,7 +2057,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.30</version>
+              <version>8.35-SNAPSHOT</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2100,7 +2081,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
         </plugin>
 
         <plugin>
@@ -2131,6 +2112,14 @@ under the License.
           <artifactId>tycho-p2-repository-plugin</artifactId>
           <version>${tycho.version}</version>
         </plugin>   
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-packaging-plugin</artifactId>
+          <version>${tycho.version}</version>
+          <configuration>
+            <strictVersions>false</strictVersions>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-surefire-plugin</artifactId>
@@ -2420,7 +2409,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
+        <inherited>true</inherited>
         <configuration>
           <mavenExecutorId>forked-path</mavenExecutorId>
           <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -2428,7 +2417,6 @@ under the License.
         </configuration>
       </plugin>
     </plugins>
-    
   </build>
 
   <reporting>
@@ -2436,7 +2424,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -2468,10 +2456,8 @@ under the License.
             <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.10/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.24.2/</link>
             <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.24.2/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
@@ -2571,7 +2557,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.6.0</version>
+            <version>2.0.0</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
@@ -2581,7 +2567,6 @@ under the License.
             </dependencies>
             <configuration>
               <doctype>book</doctype>
-              <relativeBaseDir>true</relativeBaseDir>
               <sourceHighlighter>highlightjs</sourceHighlighter>
               <attributes>
                 <docVersion>${project.version}</docVersion>
@@ -2611,10 +2596,11 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/getting-started</baseDir>
                   <backend>html</backend>
-                  <imagesDir>./images</imagesDir>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Getting Started</title>
+                    <imagesdir>images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2626,11 +2612,12 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/getting-started</baseDir>
                   <backend>pdf</backend>
-                  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
+                    <imagesdir>${basedir}/src/main/asciidoc/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2642,10 +2629,11 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/reference-guide</baseDir>
                   <backend>html</backend>
-                  <imagesDir>./images</imagesDir>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Reference Guide</title>
+                    <imagesdir>images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2657,11 +2645,12 @@ under the License.
                 </goals>
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
+                  <baseDir>${rootpom.basedir}/src/main/asciidoc/reference-guide</baseDir>
                   <backend>pdf</backend>
-                  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
+                    <imagesdir>${basedir}/src/main/asciidoc/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2671,7 +2660,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.9.0</version>
+            <version>3.9.1</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>

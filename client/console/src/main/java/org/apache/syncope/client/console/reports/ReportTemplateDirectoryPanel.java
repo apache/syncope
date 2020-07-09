@@ -104,7 +104,7 @@ public class ReportTemplateDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.MAIL_TEMPLATE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REPORT_TEMPLATE_CREATE);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.FO_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.FO_EDIT, StandardEntitlement.REPORT_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -154,7 +154,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.HTML, StandardEntitlement.REPORT_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -172,7 +172,7 @@ public class ReportTemplateDirectoryPanel
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
-        }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+        }, ActionLink.ActionType.TEXT, StandardEntitlement.REPORT_TEMPLATE_UPDATE);
 
         panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -190,7 +190,7 @@ public class ReportTemplateDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_TEMPLATE_DELETE, true);
 
         return panel;
     }
@@ -202,7 +202,7 @@ public class ReportTemplateDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_MAIL_TEMPLATE_PAGINATOR_ROWS;
+        return Constants.PREF_REPORT_TEMPLATE_PAGINATOR_ROWS;
     }
 
     @Override

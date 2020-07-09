@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -94,9 +93,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
-
-    @Autowired
-    private ConfDAO confDAO;
 
     @Autowired
     private ImplementationDAO implementationDAO;
@@ -431,6 +427,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     if (intAttrName.getSchemaType() != null
                             && intAttrName.getEnclosingGroup() == null
                             && intAttrName.getRelatedAnyObject() == null
+                            && intAttrName.getRelationshipType() == null
                             && intAttrName.getPrivilegesOfApplication() == null) {
 
                         switch (intAttrName.getSchemaType()) {

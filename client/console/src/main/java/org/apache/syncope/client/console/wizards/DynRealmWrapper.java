@@ -61,7 +61,8 @@ public class DynRealmWrapper implements Serializable {
             this.dynClauses.entrySet().stream().
                     filter(entry -> (CollectionUtils.isNotEmpty(entry.getValue()))).
                     forEachOrdered(entry -> {
-                        AbstractFiqlSearchConditionBuilder builder = AnyTypeKind.USER.name().equals(entry.getKey())
+                        AbstractFiqlSearchConditionBuilder<?, ?, ?> builder =
+                                AnyTypeKind.USER.name().equals(entry.getKey())
                                 ? SyncopeClient.getUserSearchConditionBuilder()
                                 : AnyTypeKind.GROUP.name().equals(entry.getKey())
                                 ? SyncopeClient.getGroupSearchConditionBuilder()

@@ -46,6 +46,30 @@ public abstract class SchemaTO implements EntityTO {
 
     private static final long serialVersionUID = 4088388951694301759L;
 
+    public static Locale toLocale(final String string) {
+        String[] splitted = string.split(";");
+
+        String language = "";
+        String country = "";
+        String variant = "";
+
+        if (splitted.length > 0) {
+            language = splitted[0];
+        }
+        if (splitted.length > 1) {
+            country = splitted[1];
+        }
+        if (splitted.length >= 2) {
+            country = splitted[2];
+        }
+
+        return new Locale(language, country, variant);
+    }
+
+    public static String toString(final Locale locale) {
+        return locale.getLanguage() + ";" + locale.getCountry() + ";" + locale.getVariant();
+    }
+
     @XmlTransient
     @JsonProperty("@class")
     private String discriminator;
@@ -55,7 +79,7 @@ public abstract class SchemaTO implements EntityTO {
     private String anyTypeClass;
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
-    private final Map<Locale, String> labels = new HashMap<>();
+    private final Map<String, String> labels = new HashMap<>();
 
     @Schema(name = "@class", required = true)
     public abstract String getDiscriminator();
@@ -85,11 +109,11 @@ public abstract class SchemaTO implements EntityTO {
 
     @JsonIgnore
     public String getLabel(final Locale locale) {
-        return labels.getOrDefault(locale, key);
+        return labels.getOrDefault(toString(locale), key);
     }
 
     @JsonProperty
-    public Map<Locale, String> getLabels() {
+    public Map<String, String> getLabels() {
         return labels;
     }
 

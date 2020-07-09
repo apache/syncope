@@ -34,7 +34,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public int countUserRequests() {
         return getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().page(1).size(1).build()).
+                list(new UserRequestQuery.Builder().page(1).size(0).build()).
                 getTotalCount();
     }
 
@@ -50,7 +50,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public int countForms() {
         return getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().page(1).size(1).build()).
+                getForms(new UserRequestFormQuery.Builder().page(1).size(0).build()).
                 getTotalCount();
     }
 

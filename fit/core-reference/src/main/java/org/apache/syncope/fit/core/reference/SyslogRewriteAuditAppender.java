@@ -35,24 +35,21 @@ public class SyslogRewriteAuditAppender extends DefaultRewriteAuditAppender {
     @Override
     public Set<AuditLoggerName> getEvents() {
         Set<AuditLoggerName> events = new HashSet<>();
-        events.add(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS));
-        events.add(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ConnectorLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS));
-        events.add(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "delete",
-                AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.LOGIC).
+                category(ResourceLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build());
+        events.add(new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.LOGIC).
+                category(ConnectorLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build());
+        events.add(new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.LOGIC).
+                category(ResourceLogic.class.getSimpleName()).
+                event("delete").
+                result(AuditElements.Result.SUCCESS).build());
         return events;
     }
 

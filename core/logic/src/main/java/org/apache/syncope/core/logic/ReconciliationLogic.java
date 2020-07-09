@@ -230,7 +230,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                             status.setMatchType(MatchType.LINKED_ACCOUNT);
                             status.setAnyTypeKind(AnyTypeKind.USER);
                             status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
-                            status.setRealm(match.getAny().getRealm().getFullPath());
+                            status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
                             status.setOnSyncope(getOnSyncope(match.getLinkedAccount(), connObjectKeyItem, provision));
                         }
                     });
@@ -436,7 +436,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 
-            int count = searchDAO.count(adminRealms, searchCond, anyType.getKind());
+            int count = searchDAO.count(adminRealms, effectiveCond, anyType.getKind());
             int pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
             for (int p = 1; p <= pages; p++) {

@@ -55,5 +55,4 @@ public class SCIMConf implements Serializable {
     public void setEnterpriseUserConf(final SCIMEnterpriseUserConf enterpriseUserConf) {
         this.enterpriseUserConf = enterpriseUserConf;
     }
-
 }

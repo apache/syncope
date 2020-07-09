@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -33,12 +34,18 @@ public final class RealmsUtils {
     }
 
     public static boolean isSearchEnabled() {
-        return new RealmRestClient().search(
-                new RealmQuery.Builder().keyword(
-                        SyncopeConsoleSession.get().getAuthRealms().contains(SyncopeConstants.ROOT_REALM)
-                        ? SyncopeConstants.ROOT_REALM
-                        : SyncopeConsoleSession.get().getAuthRealms().get(0)).build()).
-                getTotalCount() > REALMS_VIEW_SIZE;
+        return isSearchEnabled(SyncopeConsoleSession.get().getAuthRealms());
+    }
+
+    public static boolean isSearchEnabled(final List<String> realms) {
+        return realms.isEmpty()
+                ? false
+                : new RealmRestClient().search(
+                        new RealmQuery.Builder().keyword(
+                                realms.contains(SyncopeConstants.ROOT_REALM)
+                                ? SyncopeConstants.ROOT_REALM
+                                : realms.get(0)).build()).
+                        getTotalCount() > REALMS_VIEW_SIZE;
     }
 
     public static boolean checkInput(final String input) {

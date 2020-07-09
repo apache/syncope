@@ -88,7 +88,7 @@ public final class FlowableRuntimeUtils {
     }
 
     public static String getWFProcBusinessKey(final String userKey) {
-        return FlowableRuntimeUtils.getProcBusinessKey(WF_PROCESS_ID, userKey);
+        return getProcBusinessKey(WF_PROCESS_ID, userKey);
     }
 
     public static String getWFProcInstID(final DomainProcessEngine engine, final String userKey) {
@@ -179,31 +179,26 @@ public final class FlowableRuntimeUtils {
             return;
         }
 
-        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.USER_TO, userTO);
+        engine.getRuntimeService().setVariable(procInstId, USER_TO, userTO);
 
         if (password == null) {
-            String encryptedPwd = engine.getRuntimeService().
-                    getVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
+            String encryptedPwd = engine.getRuntimeService().getVariable(procInstId, ENCRYPTED_PWD, String.class);
             if (encryptedPwd != null) {
                 userTO.setPassword(decrypt(encryptedPwd));
             }
         } else {
             userTO.setPassword(password);
-            engine.getRuntimeService().
-                    setVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, encrypt(password));
+            engine.getRuntimeService().setVariable(procInstId, ENCRYPTED_PWD, encrypt(password));
         }
 
-        engine.getRuntimeService().setVariable(
-                procInstId, FlowableRuntimeUtils.ENABLED, enabled);
+        engine.getRuntimeService().setVariable(procInstId, ENABLED, enabled);
 
-        engine.getRuntimeService().setVariable(
-                procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, propByRes);
+        engine.getRuntimeService().setVariable(procInstId, PROP_BY_RESOURCE, propByRes);
         if (propByRes != null) {
             propByRes.clear();
         }
 
-        engine.getRuntimeService().setVariable(
-                procInstId, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propByLinkedAccount);
+        engine.getRuntimeService().setVariable(procInstId, PROP_BY_LINKEDACCOUNT, propByLinkedAccount);
         if (propByLinkedAccount != null) {
             propByLinkedAccount.clear();
         }

@@ -30,6 +30,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "platformInfo")
@@ -40,7 +42,7 @@ public class PlatformInfo implements Serializable {
 
     @XmlRootElement(name = "provisioningInfo")
     @XmlType
-    public class ProvisioningInfo implements Serializable {
+    public static class ProvisioningInfo implements Serializable {
 
         private static final long serialVersionUID = 533340357732839568L;
 
@@ -113,11 +115,47 @@ public class PlatformInfo implements Serializable {
         public void setAuditManager(final String auditManager) {
             this.auditManager = auditManager;
         }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().
+                    append(propagationTaskExecutor).
+                    append(virAttrCache).
+                    append(anyObjectProvisioningManager).
+                    append(userProvisioningManager).
+                    append(groupProvisioningManager).
+                    append(notificationManager).
+                    append(auditManager).
+                    build();
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final ProvisioningInfo other = (ProvisioningInfo) obj;
+            return new EqualsBuilder().
+                    append(propagationTaskExecutor, other.propagationTaskExecutor).
+                    append(virAttrCache, other.virAttrCache).
+                    append(anyObjectProvisioningManager, other.anyObjectProvisioningManager).
+                    append(userProvisioningManager, other.userProvisioningManager).
+                    append(groupProvisioningManager, other.groupProvisioningManager).
+                    append(notificationManager, other.notificationManager).
+                    append(auditManager, other.auditManager).
+                    build();
+        }
     }
 
     @XmlRootElement(name = "workflowInfo")
     @XmlType
-    public class WorkflowInfo implements Serializable {
+    public static class WorkflowInfo implements Serializable {
 
         private static final long serialVersionUID = 6736937721099195324L;
 
@@ -150,11 +188,39 @@ public class PlatformInfo implements Serializable {
         public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
             this.groupWorkflowAdapter = groupWorkflowAdapter;
         }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().
+                    append(anyObjectWorkflowAdapter).
+                    append(userWorkflowAdapter).
+                    append(groupWorkflowAdapter).
+                    build();
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final WorkflowInfo other = (WorkflowInfo) obj;
+            return new EqualsBuilder().
+                    append(anyObjectWorkflowAdapter, other.anyObjectWorkflowAdapter).
+                    append(userWorkflowAdapter, other.userWorkflowAdapter).
+                    append(groupWorkflowAdapter, other.groupWorkflowAdapter).
+                    build();
+        }
     }
 
     @XmlRootElement(name = "persistenceInfo")
     @XmlType
-    public class PersistenceInfo implements Serializable {
+    public static class PersistenceInfo implements Serializable {
 
         private static final long serialVersionUID = 2902980556801069487L;
 
@@ -247,17 +313,57 @@ public class PlatformInfo implements Serializable {
         public void setConfDAO(final String confDAO) {
             this.confDAO = confDAO;
         }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().
+                    append(entityFactory).
+                    append(plainSchemaDAO).
+                    append(plainAttrDAO).
+                    append(plainAttrValueDAO).
+                    append(anySearchDAO).
+                    append(userDAO).
+                    append(groupDAO).
+                    append(anyObjectDAO).
+                    append(confDAO).
+                    build();
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final PersistenceInfo other = (PersistenceInfo) obj;
+            return new EqualsBuilder().
+                    append(entityFactory, other.entityFactory).
+                    append(plainSchemaDAO, other.plainSchemaDAO).
+                    append(plainAttrDAO, other.plainAttrDAO).
+                    append(plainAttrValueDAO, other.plainAttrValueDAO).
+                    append(anySearchDAO, other.anySearchDAO).
+                    append(userDAO, other.userDAO).
+                    append(groupDAO, other.groupDAO).
+                    append(anyObjectDAO, other.anyObjectDAO).
+                    append(confDAO, other.confDAO).
+                    build();
+        }
     }
 
     private String version;
 
     private String buildNumber;
 
-    private final ProvisioningInfo provisioningInfo = new ProvisioningInfo();
+    private ProvisioningInfo provisioningInfo;
 
-    private final WorkflowInfo workflowInfo = new WorkflowInfo();
+    private WorkflowInfo workflowInfo;
 
-    private final PersistenceInfo persistenceInfo = new PersistenceInfo();
+    private PersistenceInfo persistenceInfo;
 
     private boolean selfRegAllowed;
 
@@ -293,12 +399,24 @@ public class PlatformInfo implements Serializable {
         return provisioningInfo;
     }
 
+    public void setProvisioningInfo(final ProvisioningInfo provisioningInfo) {
+        this.provisioningInfo = provisioningInfo;
+    }
+
     public WorkflowInfo getWorkflowInfo() {
         return workflowInfo;
     }
 
+    public void setWorkflowInfo(final WorkflowInfo workflowInfo) {
+        this.workflowInfo = workflowInfo;
+    }
+
     public PersistenceInfo getPersistenceInfo() {
         return persistenceInfo;
+    }
+
+    public void setPersistenceInfo(final PersistenceInfo persistenceInfo) {
+        this.persistenceInfo = persistenceInfo;
     }
 
     public boolean isSelfRegAllowed() {
@@ -393,5 +511,59 @@ public class PlatformInfo implements Serializable {
 
     public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
         this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(version).
+                append(buildNumber).
+                append(provisioningInfo).
+                append(workflowInfo).
+                append(persistenceInfo).
+                append(selfRegAllowed).
+                append(pwdResetAllowed).
+                append(pwdResetRequiringSecurityQuestions).
+                append(connIdLocations).
+                append(passwordGenerator).
+                append(anyTypes).
+                append(userClasses).
+                append(anyTypeClasses).
+                append(resources).
+                append(entitlements).
+                append(javaImplInfos).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PlatformInfo other = (PlatformInfo) obj;
+        return new EqualsBuilder().
+                append(version, other.version).
+                append(buildNumber, other.buildNumber).
+                append(provisioningInfo, other.provisioningInfo).
+                append(workflowInfo, other.workflowInfo).
+                append(persistenceInfo, other.persistenceInfo).
+                append(selfRegAllowed, other.selfRegAllowed).
+                append(pwdResetAllowed, other.pwdResetAllowed).
+                append(pwdResetRequiringSecurityQuestions, other.pwdResetRequiringSecurityQuestions).
+                append(connIdLocations, other.connIdLocations).
+                append(passwordGenerator, other.passwordGenerator).
+                append(anyTypes, other.anyTypes).
+                append(userClasses, other.userClasses).
+                append(anyTypeClasses, other.anyTypeClasses).
+                append(resources, other.resources).
+                append(entitlements, other.entitlements).
+                append(javaImplInfos, other.javaImplInfos).
+                build();
     }
 }

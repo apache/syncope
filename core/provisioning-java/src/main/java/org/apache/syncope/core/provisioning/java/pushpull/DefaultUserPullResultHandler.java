@@ -229,6 +229,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         report.setAnyType(MatchType.LINKED_ACCOUNT.name());
         report.setStatus(ProvisioningReport.Status.SUCCESS);
         report.setKey(account.getKey());
+        report.setUidValue(account.getConnObjectKeyValue());
 
         LinkedAccountTO before = userDataBinder.getLinkedAccountTO(account);
 
@@ -308,6 +309,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         ProvisioningReport report = new ProvisioningReport();
         report.setOperation(ResourceOperation.CREATE);
         report.setName(accountTO.getConnObjectKeyValue());
+        report.setUidValue(accountTO.getConnObjectKeyValue());
         report.setAnyType(MatchType.LINKED_ACCOUNT.name());
         report.setStatus(ProvisioningReport.Status.SUCCESS);
 
@@ -429,6 +431,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         ProvisioningReport report = new ProvisioningReport();
         report.setOperation(ResourceOperation.UPDATE);
         report.setKey(account.getKey());
+        report.setUidValue(account.getConnObjectKeyValue());
         report.setName(account.getConnObjectKeyValue());
         report.setAnyType(MatchType.LINKED_ACCOUNT.name());
         report.setStatus(ProvisioningReport.Status.SUCCESS);
@@ -558,6 +561,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         try {
             report.setKey(account.getKey());
             report.setName(account.getConnObjectKeyValue());
+            report.setUidValue(account.getConnObjectKeyValue());
             report.setOperation(ResourceOperation.DELETE);
             report.setAnyType(MatchType.LINKED_ACCOUNT.name());
             report.setStatus(ProvisioningReport.Status.SUCCESS);
@@ -630,24 +634,16 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         LOG.debug("Linked account to ignore {}", delta.getObject().getUid().getUidValue());
 
         ProvisioningReport report = new ProvisioningReport();
-        if (account == null) {
-            report.setKey(null);
-            report.setName(delta.getObject().getUid().getUidValue());
-            report.setOperation(ResourceOperation.NONE);
-            report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-            report.setStatus(ProvisioningReport.Status.SUCCESS);
-            if (message != null && message.length >= 1) {
-                report.setMessage(message[0]);
-            }
-        } else {
+        report.setName(delta.getUid().getUidValue());
+        report.setUidValue(delta.getUid().getUidValue());
+        report.setOperation(ResourceOperation.NONE);
+        report.setAnyType(MatchType.LINKED_ACCOUNT.name());
+        report.setStatus(ProvisioningReport.Status.SUCCESS);
+        if (message != null && message.length >= 1) {
+            report.setMessage(message[0]);
+        }
+        if (account != null) {
             report.setKey(account.getKey());
-            report.setName(delta.getObject().getUid().getUidValue());
-            report.setOperation(ResourceOperation.NONE);
-            report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-            report.setStatus(ProvisioningReport.Status.SUCCESS);
-            if (message != null && message.length >= 1) {
-                report.setMessage(message[0]);
-            }
         }
 
         end(AnyTypeKind.USER,

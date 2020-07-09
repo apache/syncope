@@ -139,12 +139,11 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void enableDisableAudit() {
-        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                EventCategoryType.LOGIC,
-                ReportLogic.class.getSimpleName(),
-                null,
-                "deleteExecution",
-                AuditElements.Result.FAILURE);
+        AuditLoggerName auditLoggerName = new AuditLoggerName.Builder().
+                type(EventCategoryType.LOGIC).
+                category(ReportLogic.class.getSimpleName()).
+                event("deleteExecution").
+                result(AuditElements.Result.FAILURE).build();
 
         List<AuditLoggerName> audits = LoggerWrapper.wrap(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
@@ -269,21 +268,19 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void customAuditAppender() throws IOException, InterruptedException {
-        AuditLoggerName auditLoggerResUpd = new AuditLoggerName(
-                EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS);
+        AuditLoggerName auditLoggerResUpd = new AuditLoggerName.Builder().
+                type(EventCategoryType.LOGIC).
+                category(ResourceLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build();
         LoggerTO resUpd = new LoggerTO();
         resUpd.setKey(auditLoggerResUpd.toLoggerName());
 
-        AuditLoggerName auditLoggerConnUpd = new AuditLoggerName(
-                EventCategoryType.LOGIC,
-                ConnectorLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS);
+        AuditLoggerName auditLoggerConnUpd = new AuditLoggerName.Builder().
+                type(EventCategoryType.LOGIC).
+                category(ConnectorLogic.class.getSimpleName()).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build();
         LoggerTO connUpd = new LoggerTO();
         connUpd.setKey(auditLoggerConnUpd.toLoggerName());
 
@@ -375,30 +372,30 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1446() {
-        AuditLoggerName createSuccess = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
-                RESOURCE_NAME_DBSCRIPTED,
-                "create",
-                AuditElements.Result.SUCCESS);
-        AuditLoggerName createFailure = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
-                RESOURCE_NAME_DBSCRIPTED,
-                "create",
-                AuditElements.Result.FAILURE);
-        AuditLoggerName updateSuccess = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
-                RESOURCE_NAME_DBSCRIPTED,
-                "update",
-                AuditElements.Result.SUCCESS);
-        AuditLoggerName updateFailure = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
-                RESOURCE_NAME_DBSCRIPTED,
-                "update",
-                AuditElements.Result.FAILURE);
+        AuditLoggerName createSuccess = new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.PROPAGATION).
+                category(AnyTypeKind.ANY_OBJECT.name().toLowerCase()).
+                subcategory(RESOURCE_NAME_DBSCRIPTED).
+                event("create").
+                result(AuditElements.Result.SUCCESS).build();
+        AuditLoggerName createFailure = new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.PROPAGATION).
+                category(AnyTypeKind.ANY_OBJECT.name().toLowerCase()).
+                subcategory(RESOURCE_NAME_DBSCRIPTED).
+                event("create").
+                result(AuditElements.Result.FAILURE).build();
+        AuditLoggerName updateSuccess = new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.PROPAGATION).
+                category(AnyTypeKind.ANY_OBJECT.name().toLowerCase()).
+                subcategory(RESOURCE_NAME_DBSCRIPTED).
+                event("update").
+                result(AuditElements.Result.SUCCESS).build();
+        AuditLoggerName updateFailure = new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.PROPAGATION).
+                category(AnyTypeKind.ANY_OBJECT.name().toLowerCase()).
+                subcategory(RESOURCE_NAME_DBSCRIPTED).
+                event("update").
+                result(AuditElements.Result.FAILURE).build();
         try {
             // 1. setup audit for propagation
             LoggerTO loggerTO = new LoggerTO();

@@ -74,9 +74,9 @@ public class SchemaTypeWizardBuilder extends AjaxWizardBuilder<SchemaTO> {
         modelObject.getLabels().clear();
         modelObject.getLabels().putAll(translations.getObject().stream().
                 filter(Objects::nonNull).
-                filter(translation -> translation.getKey() != null).
-                filter(translation -> translation.getValue() != null).
-                collect(Collectors.toMap(MutablePair::getKey, MutablePair::getValue)));
+                filter(translation -> translation.getLeft() != null).
+                filter(translation -> translation.getRight() != null).
+                collect(Collectors.toMap(pair -> SchemaTO.toString(pair.getLeft()), MutablePair::getRight)));
 
         if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
             restClient.create(schemaType, modelObject);
@@ -136,7 +136,7 @@ public class SchemaTypeWizardBuilder extends AjaxWizardBuilder<SchemaTO> {
 
             translations.getObject().clear();
             modelObject.getLabels().forEach((locale, display) -> {
-                translations.getObject().add(MutablePair.of(locale, display));
+                translations.getObject().add(MutablePair.of(SchemaTO.toLocale(locale), display));
             });
 
             ListView<MutablePair<Locale, String>> labels =

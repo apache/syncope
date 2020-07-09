@@ -216,13 +216,16 @@ public final class SearchUtils implements Serializable {
         return clause;
     }
 
-    public static String buildFIQL(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder builder) {
+    public static String buildFIQL(
+            final List<SearchClause> clauses,
+            final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder) {
+
         return buildFIQL(clauses, builder, Collections.emptyMap(), NO_CUSTOM_CONDITION);
     }
 
     public static String buildFIQL(
             final List<SearchClause> clauses,
-            final AbstractFiqlSearchConditionBuilder builder,
+            final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder,
             final Map<String, PlainSchemaTO> availableSchemaTypes,
             final Function<SearchClause, CompleteCondition> customCondition) {
 
@@ -306,7 +309,7 @@ public final class SearchUtils implements Serializable {
                                 }
                             }
 
-                            SyncopeProperty property = builder.is(clause.getProperty());
+                            SyncopeProperty<?> property = builder.is(clause.getProperty());
                             switch (clause.getComparator()) {
                                 case IS_NULL:
                                     condition = builder.isNull(clause.getProperty());

@@ -116,5 +116,4 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
         ProvisioningResult<?> deleted = logic.remedy(remediationKey, anyKey, isNullPriorityAsync());
         return modificationResponse(deleted);
     }
-
 }

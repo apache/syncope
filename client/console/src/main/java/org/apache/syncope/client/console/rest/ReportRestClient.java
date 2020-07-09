@@ -118,7 +118,7 @@ public class ReportRestClient extends BaseRestClient
     @Override
     public int countExecutions(final String taskKey) {
         return getService(ReportService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ReportRestClient extends BaseRestClient
                     getService(ReportTemplateService.class).getFormat(key, format).getEntity()),
                     StandardCharsets.UTF_8);
         } catch (Exception e) {
-            LOG.error("Error retrieving mail template {} as {}", key, format, e);
+            LOG.error("Error retrieving report template {} as {}", key, format, e);
             return StringUtils.EMPTY;
         }
     }

@@ -32,6 +32,7 @@ import java.util.Locale;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -39,6 +40,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -49,7 +51,6 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
-import org.apache.cxf.helpers.IOUtils;
 
 public class PlainSchemaITCase extends AbstractITCase {
 
@@ -64,8 +65,8 @@ public class PlainSchemaITCase extends AbstractITCase {
     public void create() {
         PlainSchemaTO schemaTO = buildPlainSchemaTO("testAttribute", AttrSchemaType.String);
         schemaTO.setMandatoryCondition("false");
-        schemaTO.getLabels().put(Locale.ENGLISH, "Test");
-        schemaTO.getLabels().put(Locale.ITALIAN, "Prova");
+        schemaTO.getLabels().put(SchemaTO.toString(Locale.ENGLISH), "Test");
+        schemaTO.getLabels().put(SchemaTO.toString(Locale.ITALIAN), "Prova");
 
         PlainSchemaTO newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);

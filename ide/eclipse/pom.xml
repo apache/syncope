@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-ide</artifactId>
-    <version>2.1.6-SNAPSHOT</version>
+    <version>2.1.7-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope IDE Eclipse</name>
@@ -95,6 +95,11 @@ under the License.
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-repository-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

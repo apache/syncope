@@ -81,7 +81,13 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
+                List<UserFormFinalizer> finalizers = UserFormFinalizerUtils.getInstance().getFormFinalizers(this.mode);
+
+                finalizers.forEach(finalizer -> finalizer.beforeUpdate(patch.getKey()));
+
                 result = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
+
+                finalizers.forEach(finalizer -> finalizer.afterUpdate(patch.getKey()));
             }
         }
 

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -35,7 +36,7 @@ public interface PropagationActions {
      * @param orgUnit Realm provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(PropagationTask task, OrgUnit orgUnit) {
+    default Set<String> moreAttrsToGet(Optional<PropagationTask> task, OrgUnit orgUnit) {
         return Collections.emptySet();
     }
 
@@ -46,7 +47,7 @@ public interface PropagationActions {
      * @param provision Any provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(PropagationTask task, Provision provision) {
+    default Set<String> moreAttrsToGet(Optional<PropagationTask> task, Provision provision) {
         return Collections.emptySet();
     }
 

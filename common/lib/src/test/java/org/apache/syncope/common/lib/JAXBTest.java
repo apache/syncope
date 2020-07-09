@@ -33,6 +33,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -115,6 +116,37 @@ public class JAXBTest {
         original.getConfCompleteness().put(NumbersInfo.ConfItem.RESOURCE.name(), Boolean.TRUE);
         original.getConfCompleteness().put(NumbersInfo.ConfItem.VIR_SCHEMA.name(), Boolean.TRUE);
         original.getConfCompleteness().put(NumbersInfo.ConfItem.SECURITY_QUESTION.name(), Boolean.TRUE);
+
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(original, writer);
+
+        Object actual = unmarshaller.unmarshal(new StringReader(writer.toString()));
+        assertEquals(original, actual);
+    }
+
+    @Test
+    public void platformInfo() throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance(PlatformInfo.class);
+        Marshaller marshaller = context.createMarshaller();
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+
+        PlatformInfo original = new PlatformInfo();
+        original.setBuildNumber(UUID.randomUUID().toString());
+        original.setVersion(UUID.randomUUID().toString());
+        original.setPasswordGenerator("PasswordGenerator");
+        original.setPwdResetAllowed(true);
+        original.setPwdResetRequiringSecurityQuestions(true);
+        original.setSelfRegAllowed(true);
+        original.getAnyTypeClasses().add("Type1");
+
+        original.setProvisioningInfo(new PlatformInfo.ProvisioningInfo());
+        original.getProvisioningInfo().setUserProvisioningManager("Default");
+
+        original.setWorkflowInfo(new PlatformInfo.WorkflowInfo());
+        original.getWorkflowInfo().setUserWorkflowAdapter("Default");
+
+        original.setPersistenceInfo(new PlatformInfo.PersistenceInfo());
+        original.getPersistenceInfo().setConfDAO("Default");
 
         StringWriter writer = new StringWriter();
         marshaller.marshal(original, writer);

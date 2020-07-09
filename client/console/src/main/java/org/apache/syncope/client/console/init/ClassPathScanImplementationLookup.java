@@ -40,6 +40,7 @@ import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
@@ -54,6 +55,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
+import org.apache.syncope.client.console.annotations.UserFormFinalize;
 
 public class ClassPathScanImplementationLookup {
 
@@ -91,6 +94,8 @@ public class ClassPathScanImplementationLookup {
     private List<Class<? extends BasePage>> pages;
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
+
+    private List<Class<? extends UserFormFinalizer>> userFormFinalizers;
 
     private List<Class<? extends BaseExtPage>> extPages;
 
@@ -135,6 +140,7 @@ public class ClassPathScanImplementationLookup {
         pullCorrelationRuleConfs = new HashMap<>();
         pushCorrelationRuleConfs = new HashMap<>();
         resources = new ArrayList<>();
+        userFormFinalizers = new ArrayList<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
@@ -149,6 +155,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(UserFormFinalizer.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -201,6 +208,8 @@ public class ClassPathScanImplementationLookup {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     Resource.class.getName(), clazz.getName());
                         }
+                    } else if (UserFormFinalizer.class.isAssignableFrom(clazz)) {
+                        userFormFinalizers.add((Class<? extends UserFormFinalizer>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -208,7 +217,9 @@ public class ClassPathScanImplementationLookup {
             }
         });
         pages = Collections.unmodifiableList(pages);
+
         previewers = Collections.unmodifiableList(previewers);
+        userFormFinalizers = Collections.unmodifiableList(userFormFinalizers);
 
         extPages.sort(Comparator.comparing(o -> o.getAnnotation(ExtPage.class).priority()));
         extPages = Collections.unmodifiableList(extPages);
@@ -230,6 +241,7 @@ public class ClassPathScanImplementationLookup {
         resources = Collections.unmodifiableList(resources);
 
         LOG.debug("Binary previewers found: {}", previewers);
+        LOG.debug("User Form finalizers found {}", userFormFinalizers);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("Extension widgets found: {}", extWidgets);
         LOG.debug("Extension alert widgets found: {}", extAlertWidgets);
@@ -254,6 +266,20 @@ public class ClassPathScanImplementationLookup {
             }
         }
         return previewer;
+    }
+
+    public List<Class<? extends UserFormFinalizer>> getUserFormFinalizerClasses(final AjaxWizard.Mode mode) {
+        List<Class<? extends UserFormFinalizer>> classes = new ArrayList<>();
+
+        userFormFinalizers.forEach(candidate -> {
+            if (candidate.isAnnotationPresent(UserFormFinalize.class)
+                    && candidate.getAnnotation(UserFormFinalize.class).mode() == mode) {
+
+                classes.add(candidate);
+            }
+        });
+
+        return classes;
     }
 
     public List<Class<? extends BasePage>> getPageClasses() {

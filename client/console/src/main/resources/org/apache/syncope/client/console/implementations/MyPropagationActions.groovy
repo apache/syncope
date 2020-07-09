@@ -19,6 +19,7 @@
  */
 import groovy.transform.CompileStatic
 import java.util.Collections
+import java.util.Optional
 import java.util.Set
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
 import org.apache.syncope.core.persistence.api.entity.resource.Provision
@@ -31,12 +32,12 @@ import org.identityconnectors.framework.common.objects.ConnectorObject
 class MyPropagationActions implements PropagationActions {
   
   @Override
-  Set<String> moreAttrsToGet(PropagationTask task, OrgUnit orgUnit) {
+  Set<String> moreAttrsToGet(Optional<PropagationTask> task, OrgUnit orgUnit) {
     return Collections.emptySet();
   }
 
   @Override
-  Set<String> moreAttrsToGet(PropagationTask task, Provision provision) {
+  Set<String> moreAttrsToGet(Optional<PropagationTask> task, Provision provision) {
     return Collections.emptySet();
   }
 

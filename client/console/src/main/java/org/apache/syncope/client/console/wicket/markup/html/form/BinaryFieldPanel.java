@@ -28,6 +28,7 @@ import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Locale;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -173,45 +174,44 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         downloadLink.setOutputMarkupId(true);
         uploadForm.add(downloadLink);
 
-        FileInputConfig config = new FileInputConfig();
-        config.showUpload(false);
-        config.showRemove(false);
-        config.showPreview(false);
-
+        FileInputConfig config = new FileInputConfig().
+                showUpload(false).showRemove(false).showPreview(false);
+        String language = SyncopeConsoleSession.get().getLocale().getLanguage();
+        if (!Locale.ENGLISH.getLanguage().equals(language)) {
+            config.withLocale(language);
+        }
         fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
-        fileUpload.setOutputMarkupId(true);
-
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                final FileUpload uploadedFile = fileUpload.getFileUpload();
-                if (uploadedFile != null) {
-                    if (maxUploadSize != null && uploadedFile.getSize() > maxUploadSize.bytes()) {
+                FileUpload uploaded = fileUpload.getFileUpload();
+                if (uploaded != null) {
+                    if (maxUploadSize != null && uploaded.getSize() > maxUploadSize.bytes()) {
                         // SYNCOPE-1213 manage directly max upload file size (if set in properties file)
-                        SyncopeConsoleSession.get().error(getString("tooLargeFile")
-                                .replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes()))
-                                .replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
+                        SyncopeConsoleSession.get().error(getString("tooLargeFile").
+                                replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
+                                replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
                         ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                     } else {
-                        final byte[] uploadedBytes = uploadedFile.getBytes();
-                        final String uploaded = Base64.getEncoder().encodeToString(uploadedBytes);
-                        field.setModelObject(uploaded);
+                        byte[] uploadedBytes = uploaded.getBytes();
+                        String uploadedEncoded = Base64.getEncoder().encodeToString(uploadedBytes);
+                        field.setModelObject(uploadedEncoded);
                         target.add(field);
 
                         if (previewer == null) {
                             container.addOrReplace(emptyFragment);
                         } else {
-                            final Component panelPreview = previewer.preview(uploadedBytes);
+                            Component panelPreview = previewer.preview(uploadedBytes);
                             changePreviewer(panelPreview);
                             fileUpload.setModelObject(null);
                             uploadForm.addOrReplace(fileUpload);
                         }
 
-                        setVisibleFileButtons(StringUtils.isNotBlank(uploaded));
-                        downloadLink.setEnabled(StringUtils.isNotBlank(uploaded));
+                        setVisibleFileButtons(StringUtils.isNotBlank(uploadedEncoded));
+                        downloadLink.setEnabled(StringUtils.isNotBlank(uploadedEncoded));
 
                         target.add(uploadForm);
                     }

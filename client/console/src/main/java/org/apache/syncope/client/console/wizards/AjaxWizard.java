@@ -66,6 +66,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     public enum Mode {
         CREATE,
         EDIT,
+        EDIT_APPROVAL,
         TEMPLATE,
         READONLY;
 

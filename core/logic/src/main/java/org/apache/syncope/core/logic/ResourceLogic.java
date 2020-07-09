@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -45,6 +44,7 @@ import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -270,7 +270,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     }
 
     private Provision getProvision(final String resourceKey, final String anyTypeKey) {
-        ExternalResource resource = resourceDAO.authFind(resourceKey);
+        ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
         }
@@ -383,7 +383,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
-            resource = resourceDAO.authFind(key);
+            resource = resourceDAO.find(key);
             if (resource == null) {
                 throw new NotFoundException("Resource '" + key + "'");
             }

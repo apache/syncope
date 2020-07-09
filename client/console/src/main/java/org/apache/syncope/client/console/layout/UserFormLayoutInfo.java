@@ -31,6 +31,12 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
 
     private boolean relationships = true;
 
+    private LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo;
+
+    public UserFormLayoutInfo() {
+        this.linkedAccountFormLayoutInfo = new LinkedAccountFormLayoutInfo();
+    }
+
     @Override
     protected Class<? extends UserForm> getDefaultFormClass() {
         return UserWizardBuilder.class;
@@ -60,4 +66,11 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
         this.relationships = relationships;
     }
 
+    public LinkedAccountFormLayoutInfo getLinkedAccountFormLayoutInfo() {
+        return linkedAccountFormLayoutInfo;
+    }
+
+    public void setLinkedAccountFormLayoutInfo(final LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo) {
+        this.linkedAccountFormLayoutInfo = linkedAccountFormLayoutInfo;
+    }
 }

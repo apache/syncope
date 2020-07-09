@@ -45,7 +45,7 @@ public class MailTemplateTest extends AbstractTest {
             + "<p>Hi,<br/> we are happy to inform you that the password request was successfully executed for "
             + "your account.</p>  <p>Best regards.</p> </body> </html>";
 
-    private static final String REQUEST_PASSWORD_RESET_TEMPLATE = "Hi, a password reset was request for "
+    private static final String REQUEST_PASSWORD_RESET_TEMPLATE = "Hi, a password reset was requested for "
             + "${user.getUsername()}.  In order to complete this request, you need to visit this link: "
             + "http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token="
             + "${input.get(0).replaceAll(' ', '%20')}"
@@ -97,7 +97,7 @@ public class MailTemplateTest extends AbstractTest {
         String textBody = evaluate(REQUEST_PASSWORD_RESET_TEMPLATE, ctx);
 
         assertNotNull(textBody);
-        assertTrue(textBody.contains("a password reset was request for " + username + "."));
+        assertTrue(textBody.contains("a password reset was requested for " + username + "."));
         assertFalse(textBody.contains(
                 "http://localhost:9080/syncope-enduser/app/#!/confirmpasswordreset?token="
                 + token));

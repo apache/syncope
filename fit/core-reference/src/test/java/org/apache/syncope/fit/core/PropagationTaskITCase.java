@@ -36,9 +36,12 @@ import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -57,6 +60,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -485,12 +489,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            ProvisionTO provisionGroup = 
+            ProvisionTO provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
             provisionGroup.getVirSchemas().clear();
-            
-            ProvisionTO provisionUser = 
+
+            ProvisionTO provisionUser =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
             assertNotNull(provisionUser);
             provisionUser.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
@@ -538,7 +542,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             GroupTO newGroupTO = new GroupTO();
             newGroupTO.setName("NEWSYNCOPEGROUP1473-" + getUUIDString());
-            newGroupTO.setRealm("/");
+            newGroupTO.setRealm(SyncopeConstants.ROOT_REALM);
             newGroupTO.getResources().add(ldap.getKey());
 
             newGroupTO = createGroup(newGroupTO).getEntity();
@@ -554,9 +558,69 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ConnObjectTO connObject =
                     resourceService.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
-            assertNotNull(connObject.getAttr("ldapGroups"));
-            assertTrue(connObject.getAttr("ldapGroups").get().getValues().size() == 2);
+            assertTrue(connObject.getAttr("ldapGroups").isPresent());
+            assertEquals(2, connObject.getAttr("ldapGroups").get().getValues().size());
+        } finally {
+            try {
+                resourceService.delete(ldap.getKey());
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+    }
 
+    @Test
+    public void issueSYNCOPE1567() {
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        try {
+            // 1. clone the LDAP resource and add the relationships mapping
+            ProvisionTO provisionUser =
+                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
+            assertNotNull(provisionUser);
+            provisionUser.getVirSchemas().clear();
+
+            ItemTO relationships = new ItemTO();
+            relationships.setPurpose(MappingPurpose.PROPAGATION);
+            relationships.setIntAttrName("relationships[neighborhood][PRINTER].model");
+            relationships.setExtAttrName("l");
+            provisionUser.getMapping().add(relationships);
+
+            ldap.getProvisions().clear();
+            ldap.getProvisions().add(provisionUser);
+            ldap.setKey(RESOURCE_NAME_LDAP + "1567" + getUUIDString());
+            resourceService.create(ldap);
+
+            // 1. create user with relationship and the new resource assigned
+            UserTO userTO = UserITCase.getUniqueSampleTO("syncope1567@syncope.apache.org");
+            userTO.getRelationships().add(new RelationshipTO.Builder().
+                    type("neighborhood").otherEnd(PRINTER, "fc6dbc3a-6c07-4965-8781-921e7401a4a5").build());
+            userTO.getResources().clear();
+            userTO.getResources().add(ldap.getKey());
+
+            userTO = createUser(userTO).getEntity();
+            assertNotNull(userTO);
+            assertFalse(userTO.getRelationships().isEmpty());
+
+            // 2. check attributes prepared for propagation
+            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(userTO.getResources().iterator().next()).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            Set<Attribute> propagationAttrs = Stream.of(
+                    POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)).
+                    collect(Collectors.toSet());
+            Attribute attr = AttributeUtil.find("l", propagationAttrs);
+            assertNotNull(attr);
+            assertNotNull(attr.getValue());
+            assertEquals("Canon MFC8030", attr.getValue().get(0).toString());
+
+            // 3. check propagated value
+            ConnObjectTO connObject =
+                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
+            assertNotNull(connObject);
+            assertTrue(connObject.getAttr("l").isPresent());
+            assertEquals("Canon MFC8030", connObject.getAttr("l").get().getValues().get(0));
         } finally {
             try {
                 resourceService.delete(ldap.getKey());

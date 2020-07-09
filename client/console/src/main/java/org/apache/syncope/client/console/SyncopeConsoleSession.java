@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -282,6 +283,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
     }
 
+    public List<String> getSearchableRealms() {
+        Set<String> roots = auth.get(StandardEntitlement.REALM_LIST);
+        return roots.isEmpty()
+                ? Collections.emptyList()
+                : roots.stream().sorted().collect(Collectors.toList());
+    }
+
+    public Optional<String> getRootRealm() {
+        List<String> roots = getSearchableRealms();
+        return roots.isEmpty() ? Optional.empty() : roots.stream().findFirst();
+    }
+
     public boolean owns(final String entitlements, final String... realms) {
         if (StringUtils.isEmpty(entitlements)) {
             return true;
@@ -292,7 +305,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         }
 
         Set<String> requested = ArrayUtils.isEmpty(realms)
-                ? Collections.singleton(SyncopeConstants.ROOT_REALM)
+                ? Collections.emptySet()
                 : new HashSet<>(Arrays.asList(realms));
 
         for (String entitlement : entitlements.split(",")) {
@@ -300,11 +313,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
                 boolean owns = false;
 
                 Set<String> owned = auth.get(entitlement);
-                for (String realm : requested) {
-                    if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
-                        owns |= owned.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
-                    } else {
-                        owns |= owned.contains(realm);
+                if (requested.isEmpty()) {
+                    return !owned.isEmpty();
+                } else {
+                    for (String realm : requested) {
+                        if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
+                            owns |= owned.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+                        } else {
+                            owns |= owned.contains(realm);
+                        }
                     }
                 }
 

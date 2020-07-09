@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,7 +110,9 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
     public MappingIterator<Map<String, String>> reader() throws IOException {
         synchronized (this) {
             if (reader == null) {
-                reader = new CsvMapper().readerFor(Map.class).with(schemaBuilder.build()).readValues(in);
+                reader = new CsvMapper().
+                        enable(CsvParser.Feature.SKIP_EMPTY_LINES).
+                        readerFor(Map.class).with(schemaBuilder.build()).readValues(in);
             }
         }
         return reader;

@@ -161,6 +161,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             ignoreResult.setStatus(ProvisioningReport.Status.IGNORE);
             ignoreResult.setMessage(e.getMessage());
             ignoreResult.setKey(null);
+            ignoreResult.setUidValue(delta.getUid().getUidValue());
             ignoreResult.setName(delta.getObject().getName().getNameValue());
             profile.getResults().add(ignoreResult);
 
@@ -305,6 +306,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(match.getAny().getKey());
+            result.setUidValue(delta.getUid().getUidValue());
 
             AnyTO before = getAnyTO(match.getAny());
             if (before == null) {
@@ -414,6 +416,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(match.getAny().getKey());
+            result.setUidValue(delta.getUid().getUidValue());
 
             AnyTO before = getAnyTO(match.getAny());
 
@@ -530,6 +533,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningReport.Status.SUCCESS);
             result.setKey(match.getAny().getKey());
+            result.setUidValue(delta.getUid().getUidValue());
 
             AnyTO before = getAnyTO(match.getAny());
 
@@ -636,6 +640,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 result.setOperation(ResourceOperation.DELETE);
                 result.setAnyType(provision.getAnyType().getKey());
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
+                result.setUidValue(delta.getUid().getUidValue());
 
                 if (!profile.isDryRun()) {
                     for (PullActions action : profile.getActions()) {
@@ -711,6 +716,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             report.setOperation(ResourceOperation.NONE);
             report.setAnyType(provision.getAnyType().getKey());
             report.setStatus(ProvisioningReport.Status.SUCCESS);
+            report.setUidValue(delta.getUid().getUidValue());
             if (message != null && message.length >= 1) {
                 report.setMessage(message[0]);
             }
@@ -724,6 +730,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 report.setOperation(ResourceOperation.NONE);
                 report.setAnyType(provision.getAnyType().getKey());
                 report.setStatus(ProvisioningReport.Status.SUCCESS);
+                report.setUidValue(delta.getUid().getUidValue());
                 if (message != null && message.length >= 1) {
                     report.setMessage(message[0]);
                 }

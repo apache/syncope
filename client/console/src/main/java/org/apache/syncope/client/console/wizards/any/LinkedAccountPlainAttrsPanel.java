@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,7 +43,6 @@ import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
-import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -74,12 +72,13 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
 
     public <T extends AnyTO> LinkedAccountPlainAttrsPanel(
             final EntityWrapper<LinkedAccountTO> modelObject,
-            final UserTO userTO) throws IllegalArgumentException {
+            final UserTO userTO,
+            final List<String> whichPlainAttrs) throws IllegalArgumentException {
 
         super(userTO,
                 AjaxWizard.Mode.EDIT,
                 new AnyTypeRestClient().read(userTO.getType()).getClasses(),
-                AnyLayoutUtils.fetch(Arrays.asList(userTO.getType())).getUser().getWhichPlainAttrs(),
+                whichPlainAttrs,
                 modelObject);
 
         this.linkedAccountTO = modelObject.getInnerObject();
