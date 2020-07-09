@@ -26,11 +26,6 @@ import io.swagger.v3.oas.models.info.Info;
 import org.apache.commons.lang3.StringUtils;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -78,6 +73,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.syncope.wa.starter.events.SyncopeWAEventsRepository;
+import org.apereo.cas.support.events.CasEventRepository;
+import org.apereo.cas.support.events.CasEventRepositoryFilter;
 
 public class SyncopeWAConfiguration {
 
@@ -195,6 +199,19 @@ public class SyncopeWAConfiguration {
     public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient restClient) {
         return plan -> plan.registerAuditTrailManager(new SyncopeWAAuditTrailManager(restClient));
     }
+
+    @ConditionalOnMissingBean(name = "syncopWaEventRepositoryFilter")
+    @Bean
+    public CasEventRepositoryFilter syncopWaEventRepositoryFilter() {
+        return CasEventRepositoryFilter.noOp();
+    }
+
+    @Autowired
+    @Bean
+    public CasEventRepository casEventRepository(final WARestClient restClient) {
+        return new SyncopeWAEventsRepository(syncopWaEventRepositoryFilter(), restClient);
+    }
+
 
     @Autowired
     @Bean

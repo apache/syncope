@@ -1402,6 +1402,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-core-events-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-core-authentication</artifactId>
         <version>${cas.version}</version>
       </dependency>
