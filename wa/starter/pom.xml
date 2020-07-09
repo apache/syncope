@@ -451,6 +451,9 @@ under the License.
           <resource>
             <directory>${basedir}/src/test/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>dev/**</exclude>
+            </excludes>
           </resource>
         </resources>
 
@@ -460,6 +463,54 @@ under the License.
             <filtering>true</filtering>
           </testResource>
         </testResources>
+      </build>
+    </profile>
+
+    <profile>
+      <id>dev</id>
+
+      <properties>
+        <maven.test.skip>true</maven.test.skip>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+          <artifactId>syncope-ext-self-keymaster-client</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean package spring-boot:run</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>org.apache.syncope.wa.starter.SyncopeWAApplication</mainClass>
+              <jvmArguments>
+                -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
+              </jvmArguments>
+              <profiles>
+                <profile>dev</profile>
+              </profiles>
+            </configuration>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/src/test/resources/dev</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
       </build>
     </profile>
   </profiles>
