@@ -112,7 +112,7 @@ public final class AMEntitlement {
 
     public static final String U2F_READ_DEVICE = "U2F_READ_DEVICE";
 
-    public static final String U2F_LIST_DEVICE = "U2F_LIST_DEVICE";
+    public static final String U2F_SEARCH = "U2F_SEARCH";
 
     private static final Set<String> VALUES;
 

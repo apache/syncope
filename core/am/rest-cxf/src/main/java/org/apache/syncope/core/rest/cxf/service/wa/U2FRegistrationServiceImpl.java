@@ -19,6 +19,8 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.U2FDeviceQuery;
@@ -31,8 +33,6 @@ import org.springframework.stereotype.Service;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -57,15 +57,17 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
     }
 
     @Override
-    public List<U2FRegisteredDevice> list(final Date expirationDate) {
-        return new ArrayList<>(logic.list(expirationDate));
+    public PagedResult<U2FRegisteredDevice> search(final U2FDeviceQuery query) {
+        Pair<Integer, List<U2FRegisteredDevice>> result = logic.search(
+            query.getEntityKey(),
+            query.getPage(),
+            query.getSize(),
+            query.getId(),
+            query.getExpirationDate(),
+            getOrderByClauses(query.getOrderBy()));
+        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
-
-    @Override
-    public List<U2FRegisteredDevice> findRegistrationFor(final String owner, final Date expirationDate) {
-        return new ArrayList<>(logic.findRegistrationFor(owner, expirationDate));
-    }
-
+    
     @Override
     public U2FRegisteredDevice read(final String key) {
         return logic.read(key);

@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -78,15 +79,21 @@ public class U2FRegistrationITCase extends AbstractITCase {
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(u2FRegistrationService.read(key));
         Date date = Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        List<U2FRegisteredDevice> devices = u2FRegistrationService.findRegistrationFor(acct.getOwner(), date);
-        assertEquals(1, devices.size());
 
         U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .owner(acct.getOwner())
+            .expirationDate(date)
+            .build();
+        List<U2FRegisteredDevice> devices = u2FRegistrationService.search(query).getResult();
+        assertEquals(1, devices.size());
+
+        query = new U2FDeviceQuery.Builder()
             .id(acct.getId())
             .build();
         u2FRegistrationService.delete(query);
 
-        devices = u2FRegistrationService.list(date);
+        query = new U2FDeviceQuery.Builder().build();
+        devices = u2FRegistrationService.search(query).getResult();
         assertTrue(devices.isEmpty());
     }
 
@@ -110,6 +117,9 @@ public class U2FRegistrationITCase extends AbstractITCase {
             .build();
         u2FRegistrationService.delete(query);
 
-        assertTrue(u2FRegistrationService.list(date).isEmpty());
+        query = new U2FDeviceQuery.Builder()
+            .expirationDate(date)
+            .build();
+        assertTrue(u2FRegistrationService.search(query).getResult().isEmpty());
     }
 }

@@ -79,8 +79,11 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices(final String owner) {
-        final List<U2FRegisteredDevice> records = getU2FService().
-            findRegistrationFor(owner, Date.from(Instant.from(expirationDate)));
+        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .owner(owner)
+            .expirationDate(Date.from(Instant.from(expirationDate)))
+            .build();
+        final List<U2FRegisteredDevice> records = getU2FService().search(query).getResult();
         return records.
             stream().
             map(SyncopeWAU2FDeviceRepository::parseRegistrationRecord).
@@ -90,8 +93,10 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices() {
-        final List<U2FRegisteredDevice> records = getU2FService().
-            list(Date.from(Instant.from(expirationDate)));
+        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .expirationDate(Date.from(Instant.from(expirationDate)))
+            .build();
+        final List<U2FRegisteredDevice> records = getU2FService().search(query).getResult();
         return records.
             stream().
             map(SyncopeWAU2FDeviceRepository::parseRegistrationRecord).

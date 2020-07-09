@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
@@ -39,12 +40,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import java.util.Date;
-import java.util.List;
 
 @Tag(name = "U2F Registrations")
 @SecurityRequirements({
@@ -74,15 +71,8 @@ public interface U2FRegistrationService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
-    List<U2FRegisteredDevice> list(@QueryParam("expirationDate") Date expirationDate);
-
-    @GET
-    @Path("devices/{owner}")
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    List<U2FRegisteredDevice> findRegistrationFor(@NotNull @PathParam("owner") String owner,
-                                                         @NotNull @QueryParam("expirationDate") Date expirationDate);
-
+    PagedResult<U2FRegisteredDevice> search(@BeanParam U2FDeviceQuery query);
+    
     @GET
     @Path("{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})

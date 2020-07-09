@@ -37,7 +37,9 @@ public class U2FDeviceQuery extends AbstractQuery {
     private String entityKey;
 
     private Date expirationDate;
-    
+
+    private String owner;
+
     @Parameter(name = JAXRSService.PARAM_ENTITY_KEY, in = ParameterIn.QUERY,
         schema = @Schema(implementation = String.class, example = "50592942-73ec-44c4-a377-e859524245e4"))
     public String getEntityKey() {
@@ -69,6 +71,16 @@ public class U2FDeviceQuery extends AbstractQuery {
         this.expirationDate = expirationDate;
     }
 
+    @Parameter(name = "owner", in = ParameterIn.QUERY, schema = @Schema(implementation = String.class))
+    public String getOwner() {
+        return owner;
+    }
+
+    @QueryParam("owner")
+    public void setOwner(final String owner) {
+        this.owner = owner;
+    }
+
     public static class Builder extends AbstractQuery.Builder<U2FDeviceQuery, U2FDeviceQuery.Builder> {
         @Override
         protected U2FDeviceQuery newInstance() {
@@ -77,6 +89,11 @@ public class U2FDeviceQuery extends AbstractQuery {
 
         public U2FDeviceQuery.Builder entityKey(final String entityKey) {
             getInstance().setEntityKey(entityKey);
+            return this;
+        }
+
+        public U2FDeviceQuery.Builder owner(final String owner) {
+            getInstance().setOwner(owner);
             return this;
         }
 
