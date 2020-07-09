@@ -114,6 +114,8 @@ public final class AMEntitlement {
 
     public static final String U2F_SEARCH = "U2F_SEARCH";
 
+    public static final String U2F_UPDATE_DEVICE = "U2F_UPDATE_DEVICE";
+
     private static final Set<String> VALUES;
 
     static {

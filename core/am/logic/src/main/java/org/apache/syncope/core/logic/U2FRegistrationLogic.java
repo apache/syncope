@@ -121,7 +121,6 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
             orElse(null);
     }
 
-
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String entityKey, final Long id, final Date expirationDate) {
@@ -221,4 +220,19 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
         return Pair.of(devices.size(), pagedResults);
     }
 
+    @PreAuthorize("hasRole('" + AMEntitlement.U2F_UPDATE_DEVICE + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void update(final U2FRegisteredDevice acct) {
+        List<AuthProfile> profiles = authProfileDAO.findAll();
+        profiles.forEach(profile -> {
+            List<U2FRegisteredDevice> devices = profile.getU2FRegisteredDevices();
+            if (devices != null) {
+                if (devices.removeIf(device -> device.getKey().equals(acct.getKey()))) {
+                    devices.add(acct);
+                    profile.setU2FRegisteredDevices(devices);
+                    authProfileDAO.save(profile);
+                }
+            }
+        });
+    }
 }

@@ -47,6 +47,11 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
     }
 
     @Override
+    public void update(final U2FRegisteredDevice acct) {
+        logic.update(acct);
+    }
+
+    @Override
     public Response save(final U2FRegisteredDevice acct) {
         final U2FRegisteredDevice token = logic.save(acct);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();

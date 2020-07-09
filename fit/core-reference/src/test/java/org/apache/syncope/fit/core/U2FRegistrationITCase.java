@@ -122,4 +122,18 @@ public class U2FRegistrationITCase extends AbstractITCase {
             .build();
         assertTrue(u2FRegistrationService.search(query).getResult().isEmpty());
     }
+
+    @Test
+    public void update() {
+        U2FRegisteredDevice acct1 = createDeviceRegistration();
+        Response response = u2FRegistrationService.save(acct1);
+        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(u2FRegistrationService.read(key));
+
+        acct1.setOwner("NewOwner");
+        u2FRegistrationService.update(acct1);
+        acct1 = u2FRegistrationService.read(key);
+        assertEquals("NewOwner", acct1.getOwner());
+
+    }
 }

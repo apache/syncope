@@ -37,6 +37,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -54,7 +55,7 @@ public interface U2FRegistrationService extends JAXRSService {
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
     Response delete(@BeanParam U2FDeviceQuery query);
-    
+
     @ApiResponses({
         @ApiResponse(responseCode = "201",
             description = "U2FRegistration successfully created", headers = {
@@ -67,12 +68,18 @@ public interface U2FRegistrationService extends JAXRSService {
     @Path("devices")
     Response save(@NotNull U2FRegisteredDevice acct);
 
+    @PUT
+    @Path("devices")
+    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    void update(@NotNull U2FRegisteredDevice acct);
+
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
     PagedResult<U2FRegisteredDevice> search(@BeanParam U2FDeviceQuery query);
-    
+
     @GET
     @Path("{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
