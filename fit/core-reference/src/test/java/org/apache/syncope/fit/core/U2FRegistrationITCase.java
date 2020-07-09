@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.wa.U2FDeviceQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        u2FRegistrationService.deleteAll();
+        u2FRegistrationService.delete(new U2FDeviceQuery.Builder().build());
     }
 
     @Test
@@ -80,7 +81,11 @@ public class U2FRegistrationITCase extends AbstractITCase {
         List<U2FRegisteredDevice> devices = u2FRegistrationService.findRegistrationFor(acct.getOwner(), date);
         assertEquals(1, devices.size());
 
-        u2FRegistrationService.deleteDevice(acct.getId());
+        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .id(acct.getId())
+            .build();
+        u2FRegistrationService.delete(query);
+
         devices = u2FRegistrationService.list(date);
         assertTrue(devices.isEmpty());
     }
@@ -91,12 +96,20 @@ public class U2FRegistrationITCase extends AbstractITCase {
         Response response = u2FRegistrationService.save(acct1);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(u2FRegistrationService.read(key));
-        u2FRegistrationService.deleteDevice(key);
+
+        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .entityKey(key)
+            .build();
+        u2FRegistrationService.delete(query);
         assertNull(u2FRegistrationService.read(key));
 
         Date date = Date.from(LocalDate.now().plusDays(1)
             .atStartOfDay(ZoneId.systemDefault()).toInstant());
-        u2FRegistrationService.deleteDevices(date);
+        query = new U2FDeviceQuery.Builder()
+            .expirationDate(date)
+            .build();
+        u2FRegistrationService.delete(query);
+
         assertTrue(u2FRegistrationService.list(date).isEmpty());
     }
 }

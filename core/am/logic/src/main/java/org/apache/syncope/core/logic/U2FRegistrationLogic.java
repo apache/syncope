@@ -20,6 +20,7 @@
 package org.apache.syncope.core.logic;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -78,29 +79,6 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
             }
         }
         throw new UnresolvedReferenceException();
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void deleteAll() {
-        authProfileDAO.findAll().
-            forEach(profile -> {
-                profile.setU2FRegisteredDevices(List.of());
-                authProfileDAO.save(profile);
-            });
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void deleteExpiredDevices(final Date expirationDate) {
-        final List<AuthProfile> profiles = authProfileDAO.findAll();
-        profiles.forEach(profile -> {
-            List<U2FRegisteredDevice> records = profile.getU2FRegisteredDevices();
-            if (records.removeIf(record -> record.getIssueDate().compareTo(expirationDate) < 0)) {
-                profile.setU2FRegisteredDevices(records);
-                authProfileDAO.save(profile);
-            }
-        });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_SAVE_DEVICE + "') "
@@ -167,32 +145,25 @@ public class U2FRegistrationLogic extends AbstractTransactionalLogic<AuthProfile
             orElse(null);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final long id) {
-        List<AuthProfile> profiles = authProfileDAO.findAll();
-        profiles.forEach(profile -> {
-            List<U2FRegisteredDevice> devices = profile.getU2FRegisteredDevices();
-            if (devices != null) {
-                if (devices.removeIf(device -> device.getId() == id)) {
-                    profile.setU2FRegisteredDevices(devices);
-                    authProfileDAO.save(profile);
-                }
-            }
-        });
-    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final String key) {
+    public void delete(final String entityKey, final Long id, final Date expirationDate) {
         List<AuthProfile> profiles = authProfileDAO.findAll();
         profiles.forEach(profile -> {
             List<U2FRegisteredDevice> devices = profile.getU2FRegisteredDevices();
             if (devices != null) {
-                if (devices.removeIf(device -> device.getKey().equals(key))) {
-                    profile.setU2FRegisteredDevices(devices);
-                    authProfileDAO.save(profile);
+                if (StringUtils.isNotBlank(entityKey)) {
+                    devices.removeIf(device -> device.getKey().equals(entityKey));
+                } else if (id != null) {
+                    devices.removeIf(device -> device.getId() == id);
+                } else if (expirationDate != null) {
+                    devices.removeIf(device -> device.getIssueDate().compareTo(expirationDate) < 0);
+                } else {
+                    devices = List.of();
                 }
+                profile.setU2FRegisteredDevices(devices);
+                authProfileDAO.save(profile);
             }
         });
     }

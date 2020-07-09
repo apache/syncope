@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf.service.wa;
 
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.wa.U2FDeviceQuery;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.core.logic.U2FRegistrationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
@@ -40,26 +41,8 @@ public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U
     private U2FRegistrationLogic logic;
 
     @Override
-    public Response deleteAll() {
-        logic.deleteAll();
-        return Response.noContent().build();
-    }
-
-    @Override
-    public Response deleteDevice(final long id) {
-        logic.delete(id);
-        return Response.noContent().build();
-    }
-
-    @Override
-    public Response deleteDevice(final String key) {
-        logic.delete(key);
-        return Response.noContent().build();
-    }
-
-    @Override
-    public Response deleteDevices(final Date expirationDate) {
-        logic.deleteExpiredDevices(expirationDate);
+    public Response delete(final U2FDeviceQuery query) {
+        logic.delete(query.getEntityKey(), query.getId(), query.getExpirationDate());
         return Response.noContent().build();
     }
 

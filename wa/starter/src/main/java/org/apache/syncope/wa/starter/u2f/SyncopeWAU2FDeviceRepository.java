@@ -27,6 +27,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
+import org.apache.syncope.common.rest.api.service.wa.U2FDeviceQuery;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.slf4j.Logger;
@@ -115,7 +116,10 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public void deleteRegisteredDevice(final U2FDeviceRegistration registration) {
-        getU2FService().deleteDevice(registration.getId());
+        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .id(registration.getId())
+            .build();
+        getU2FService().delete(query);
     }
 
     @Override
@@ -138,12 +142,15 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
         Date date = Date.from(expirationDate.atStartOfDay()
             .atZone(ZoneId.systemDefault())
             .toInstant());
-        getU2FService().deleteDevices(date);
+        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
+            .expirationDate(date)
+            .build();
+        getU2FService().delete(query);
     }
 
     @Override
     public void removeAll() {
-        getU2FService().deleteAll();
+        getU2FService().delete(new U2FDeviceQuery.Builder().build());
     }
 
     private U2FRegistrationService getU2FService() {
