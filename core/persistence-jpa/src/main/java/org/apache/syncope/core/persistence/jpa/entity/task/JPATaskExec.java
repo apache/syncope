@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -42,6 +43,7 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
      * The referred task.
      */
     @ManyToOne(optional = false)
+    @JoinColumn(name = "task_id", nullable = false)
     private AbstractTask task;
 
     @Override

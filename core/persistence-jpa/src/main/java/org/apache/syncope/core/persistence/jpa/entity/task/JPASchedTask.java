@@ -18,108 +18,102 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.Date;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.ImplementationType;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchedTaskCheck;
 
 @Entity
-@DiscriminatorValue("SchedTask")
+@Table(name = JPASchedTask.TABLE)
 @SchedTaskCheck
-public class JPASchedTask extends AbstractTask implements SchedTask {
+public class JPASchedTask extends AbstractSchedTask implements SchedTask {
 
     private static final long serialVersionUID = 7596236684832602180L;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startAt;
+    public static final String TABLE = "SchedTask";
 
-    private String cronExpression;
-
-    @OneToOne(optional = false)
-    private JPAImplementation jobDelegate;
-
-    @NotNull
-    private String name;
-
-    private String description;
-
-    @NotNull
-    private Boolean active = true;
-
-    @Override
-    public Date getStartAt() {
-        if (startAt != null) {
-            return new Date(startAt.getTime());
-        }
-        return null;
-    }
-
-    @Override
-    public void setStartAt(final Date start) {
-        if (start != null) {
-            this.startAt = new Date(start.getTime());
-        } else {
-            this.startAt = null;
-        }
-    }
-
-    @Override
-    public String getCronExpression() {
-        return cronExpression;
-    }
-
-    @Override
-    public void setCronExpression(final String cronExpression) {
-        this.cronExpression = cronExpression;
-    }
-
-    @Override
-    public Implementation getJobDelegate() {
-        return jobDelegate;
-    }
-
-    @Override
-    public void setJobDelegate(final Implementation jobDelegate) {
-        checkType(jobDelegate, JPAImplementation.class);
-        checkImplementationType(jobDelegate, ImplementationType.TASKJOB_DELEGATE);
-        this.jobDelegate = (JPAImplementation) jobDelegate;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
-    }
-
-    @Override
-    public void setActive(final boolean active) {
-        this.active = active;
-    }
+//    @Temporal(TemporalType.TIMESTAMP)
+//    private Date startAt;
+//
+//    private String cronExpression;
+//
+//    @OneToOne(optional = false)
+//    private JPAImplementation jobDelegate;
+//
+//    @NotNull
+//    private String name;
+//
+//    private String description;
+//
+//    @NotNull
+//    private Boolean active = true;
+//
+//    @Override
+//    public Date getStartAt() {
+//        if (startAt != null) {
+//            return new Date(startAt.getTime());
+//        }
+//        return null;
+//    }
+//
+//    @Override
+//    public void setStartAt(final Date start) {
+//        if (start != null) {
+//            this.startAt = new Date(start.getTime());
+//        } else {
+//            this.startAt = null;
+//        }
+//    }
+//
+//    @Override
+//    public String getCronExpression() {
+//        return cronExpression;
+//    }
+//
+//    @Override
+//    public void setCronExpression(final String cronExpression) {
+//        this.cronExpression = cronExpression;
+//    }
+//
+//    @Override
+//    public Implementation getJobDelegate() {
+//        return jobDelegate;
+//    }
+//
+//    @Override
+//    public void setJobDelegate(final Implementation jobDelegate) {
+//        checkType(jobDelegate, JPAImplementation.class);
+//        checkImplementationType(jobDelegate, ImplementationType.TASKJOB_DELEGATE);
+//        this.jobDelegate = (JPAImplementation) jobDelegate;
+//    }
+//
+//    @Override
+//    public String getDescription() {
+//        return description;
+//    }
+//
+//    @Override
+//    public void setDescription(final String description) {
+//        this.description = description;
+//    }
+//
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
+//
+//    @Override
+//    public void setName(final String name) {
+//        this.name = name;
+//    }
+//
+//    @Override
+//    public boolean isActive() {
+//        return active;
+//    }
+//
+//    @Override
+//    public void setActive(final boolean active) {
+//        this.active = active;
+//    }
 }

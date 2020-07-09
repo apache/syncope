@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -33,6 +32,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.ImplementationType;
@@ -46,10 +46,12 @@ import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 
 @Entity
-@DiscriminatorValue("PullTask")
+@Table(name = JPAPullTask.TABLE)
 public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
+
+    public static final String TABLE = "PullTask";
 
     @Enumerated(EnumType.STRING)
     @NotNull
