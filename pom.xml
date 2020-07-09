@@ -411,7 +411,7 @@ under the License.
     <spring.version>5.1.16.RELEASE</spring.version>
     <spring-security.version>5.1.11.RELEASE</spring-security.version>
 
-    <openjpa.version>3.1.1</openjpa.version>
+    <openjpa.version>3.1.2</openjpa.version>
     <hikaricp.version>3.4.5</hikaricp.version>
     <bval.version>2.0.3</bval.version>
 
@@ -450,7 +450,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.6.2</junit.version>
-    <mockito.version>3.3.3</mockito.version>
+    <mockito.version>3.4.0</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -2004,7 +2004,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.13</version>
+          <version>1.7.15</version>
           <configuration>
             <container>
               <containerId>tomcat9x</containerId>
