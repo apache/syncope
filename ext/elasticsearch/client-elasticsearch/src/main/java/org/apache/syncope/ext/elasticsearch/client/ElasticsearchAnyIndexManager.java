@@ -47,7 +47,7 @@ public class ElasticsearchAnyIndexManager
     @Override
     public void afterCreate(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
         GetRequest getRequest = new GetRequest(
-                elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
+                elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind().name()),
                 event.getAny().getType().getKind().name(),
                 event.getAny().getKey());
         GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
@@ -55,7 +55,7 @@ public class ElasticsearchAnyIndexManager
             LOG.debug("About to update index for {}", event.getAny());
 
             UpdateRequest request = new UpdateRequest(
-                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
+                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind().name()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
@@ -66,7 +66,7 @@ public class ElasticsearchAnyIndexManager
             LOG.debug("About to create index for {}", event.getAny());
 
             IndexRequest request = new IndexRequest(
-                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
+                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind().name()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     source(elasticsearchUtils.builder(event.getAny()));
@@ -81,7 +81,7 @@ public class ElasticsearchAnyIndexManager
         LOG.debug("About to delete index for {}[{}]", event.getAnyTypeKind(), event.getAnyKey());
 
         DeleteRequest request = new DeleteRequest(
-                elasticsearchUtils.getContextDomainName(event.getAnyTypeKind()),
+                elasticsearchUtils.getContextDomainName(event.getAnyTypeKind().name()),
                 event.getAnyTypeKind().name(),
                 event.getAnyKey());
         DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);

@@ -45,7 +45,7 @@ public class ElasticsearchTaskIndexManager
 
     @Override
     @TransactionalEventListener
-    public void afterCreate(TaskCreatedUpdatedEvent<? extends Task> event) throws IOException {
+    public void afterCreate(final TaskCreatedUpdatedEvent<? extends Task> event) throws IOException {
         GetRequest getRequest = new GetRequest(
                 Task.class.getSimpleName(),
                 event.getTask().getClass().getSimpleName(),
@@ -77,7 +77,7 @@ public class ElasticsearchTaskIndexManager
 
     @Override
     @TransactionalEventListener
-    public void afterDelete(TaskDeletedEvent event) throws IOException {
+    public void afterDelete(final TaskDeletedEvent event) throws IOException {
         LOG.debug("About to delete index for {}[{}]", event.getTaskType(), event.getTaskKey());
 
         DeleteRequest request = new DeleteRequest(

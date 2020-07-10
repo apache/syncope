@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -32,8 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 
 public interface TaskDAO extends DAO<Task> {
 
-    Class<? extends Task> getEntityReference(TaskType type);
-
     <T extends Task> T find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);
@@ -44,12 +41,12 @@ public interface TaskDAO extends DAO<Task> {
 
     List<PushTask> findByPushActions(Implementation pushActions);
 
-    <T extends Task> List<T> findToExec(TaskType type);
+    <T extends Task> List<T> findToExec(Class<T> reference);
 
-    <T extends Task> List<T> findAll(TaskType type);
+    <T extends Task> List<T> findAll(Class<T> reference);
 
     <T extends Task> List<T> findAll(
-            TaskType type,
+            Class<T> reference,
             ExternalResource resource,
             Notification notification,
             AnyTypeKind anyTypeKind,
@@ -58,8 +55,8 @@ public interface TaskDAO extends DAO<Task> {
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
 
-    int count(
-            TaskType type,
+    <T extends Task> int count(
+            Class<T> reference,
             ExternalResource resource,
             Notification notification,
             AnyTypeKind anyTypeKind,
@@ -71,6 +68,6 @@ public interface TaskDAO extends DAO<Task> {
 
     void delete(Task task);
 
-    void deleteAll(ExternalResource resource, TaskType type);
+    <T extends Task> void deleteAll(ExternalResource resource, Class<T> reference);
 
 }
