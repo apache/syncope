@@ -63,4 +63,9 @@ public class ClientAppServiceImpl extends AbstractServiceImpl implements ClientA
     public void delete(final ClientAppType type, final String key) {
         logic.delete(type, key);
     }
+
+    @Override
+    public void push() {
+        logic.push();
+    }
 }

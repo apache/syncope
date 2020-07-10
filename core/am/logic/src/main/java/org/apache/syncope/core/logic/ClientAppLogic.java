@@ -18,11 +18,21 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -42,8 +52,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.HttpHeaders;
+
 @Component
 public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
+
+    @Autowired
+    private ServiceOps serviceOps;
 
     @Autowired
     private ClientAppUtilsFactory clientAppUtilsFactory;
@@ -56,6 +73,12 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
     @Autowired
     private OIDCRPDAO oidcrpDAO;
+
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
+    @Resource(name = "anonymousKey")
+    private String anonymousKey;
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_LIST + "')")
     public <T extends ClientAppTO> List<T> list(final ClientAppType type) {
@@ -200,5 +223,23 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         }
 
         throw new UnresolvedReferenceException();
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_PUSH + "')")
+    public void push() {
+        try {
+            NetworkService wa = serviceOps.get(NetworkService.Type.WA);
+            HttpClient.newBuilder().build().send(
+                HttpRequest.newBuilder(URI.create(
+                    StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
+                    header(HttpHeaders.AUTHORIZATION,
+                        DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                    POST(HttpRequest.BodyPublishers.noBody()).build(),
+                HttpResponse.BodyHandlers.discarding());
+        } catch (KeymasterException e) {
+            throw new NotFoundException("Could not find any WA instance", e);
+        } catch (IOException | InterruptedException e) {
+            throw new InternalServerErrorException("Errors while communicating with WA instance", e);
+        }
     }
 }
