@@ -65,7 +65,7 @@ public class ClientAppServiceImpl extends AbstractServiceImpl implements ClientA
     }
 
     @Override
-    public void push() {
-        logic.push();
+    public void pushToWA() {
+        logic.pushToWA();
     }
 }

@@ -226,7 +226,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_PUSH + "')")
-    public void push() {
+    public void pushToWA() {
         try {
             NetworkService wa = serviceOps.get(NetworkService.Type.WA);
             HttpClient.newBuilder().build().send(

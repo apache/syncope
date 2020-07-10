@@ -137,5 +137,5 @@ public interface ClientAppService extends JAXRSService {
     @POST
     @Path("push")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void push();
+    void pushToWA();
 }
