@@ -234,7 +234,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                     StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
                     header(HttpHeaders.AUTHORIZATION,
                         DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
-                    POST(HttpRequest.BodyPublishers.noBody()).build(),
+                    GET().build(),
                 HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
