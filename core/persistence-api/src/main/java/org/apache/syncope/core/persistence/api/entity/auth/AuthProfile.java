@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 import java.util.List;
@@ -30,10 +31,14 @@ public interface AuthProfile extends Entity {
     String getOwner();
 
     void setOwner(String owner);
-    
+
     List<GoogleMfaAuthToken> getGoogleMfaAuthTokens();
 
     void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
+
+    List<U2FRegisteredDevice> getU2FRegisteredDevices();
+
+    void setU2FRegisteredDevices(List<U2FRegisteredDevice> records);
 
     List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts();
 
@@ -42,4 +47,6 @@ public interface AuthProfile extends Entity {
     void add(GoogleMfaAuthToken token);
 
     void add(GoogleMfaAuthAccount account);
+
+    void add(U2FRegisteredDevice account);
 }

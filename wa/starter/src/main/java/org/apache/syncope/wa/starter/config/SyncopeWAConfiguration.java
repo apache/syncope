@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.wa.starter.config;
 
+import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorProperties;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
@@ -30,9 +32,13 @@ import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerat
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
+import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -54,16 +60,19 @@ import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.SyncopeWAServiceRegistry;
+import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,39 +94,37 @@ public class SyncopeWAConfiguration {
     @Qualifier("serviceRegistryListeners")
     private Collection<ServiceRegistryListener> serviceRegistryListeners;
 
-    @Autowired
-    private ApplicationContext ctx;
-
     @ConditionalOnMissingBean
     @Bean
     public RegisteredServiceMapper registeredServiceMapper() {
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
-            AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
+        applicationContext.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
+            AuthMapFor authMapFor = applicationContext.findAnnotationOnBean(name, AuthMapFor.class);
             if (authMapFor != null) {
                 authPolicyConfMappers.put(authMapFor.authPolicyConfClass().getName(), bean);
             }
         });
 
         Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
-            AccessMapFor accessMapFor = ctx.findAnnotationOnBean(name, AccessMapFor.class);
+        applicationContext.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
+            AccessMapFor accessMapFor = applicationContext.findAnnotationOnBean(name, AccessMapFor.class);
             if (accessMapFor != null) {
                 accessPolicyConfMappers.put(accessMapFor.accessPolicyConfClass().getName(), bean);
             }
         });
 
         Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
-            AttrReleaseMapFor attrReleaseMapFor = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
+        applicationContext.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
+            AttrReleaseMapFor attrReleaseMapFor =
+                applicationContext.findAnnotationOnBean(name, AttrReleaseMapFor.class);
             if (attrReleaseMapFor != null) {
                 attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
             }
         });
 
         Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
-        ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
-            ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);
+        applicationContext.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
+            ClientAppMapFor clientAppMapFor = applicationContext.findAnnotationOnBean(name, ClientAppMapFor.class);
             if (clientAppMapFor != null) {
                 clientAppTOMappers.put(clientAppMapFor.clientAppClass().getName(), bean);
             }
@@ -190,6 +197,19 @@ public class SyncopeWAConfiguration {
     @Autowired
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(final WARestClient restClient) {
         return new SyncopeWAOIDCJWKSGeneratorService(restClient);
+    }
+
+    @Bean
+    @Autowired
+    @RefreshScope
+    public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
+        U2FMultifactorProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        final LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault())
+            .minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
+        final LoadingCache<String, String> requestStorage = Caffeine.newBuilder()
+            .expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit())
+            .build(key -> StringUtils.EMPTY);
+        return new SyncopeWAU2FDeviceRepository(requestStorage, restClient, expirationDate);
     }
 
     @Bean

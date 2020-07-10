@@ -216,7 +216,11 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-rest-service-registry</artifactId>
+      <artifactId>cas-server-support-u2f</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-u2f-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>

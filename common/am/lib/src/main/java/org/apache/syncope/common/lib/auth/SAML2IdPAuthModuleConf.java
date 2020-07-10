@@ -159,7 +159,7 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
     /**
      * Collection of signing signature blacklisted algorithms, if any, to override the global defaults.
      */
-    private final List<String> blackListedSignatureSigningAlgorithms = new ArrayList<>(0);
+    private final List<String> blockedSignatureSigningAlgorithms = new ArrayList<>(0);
 
     /**
      * Collection of signing signature algorithms, if any, to override the global defaults.
@@ -355,8 +355,8 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
         this.signServiceProviderLogoutRequest = signServiceProviderLogoutRequest;
     }
 
-    public List<String> getBlackListedSignatureSigningAlgorithms() {
-        return blackListedSignatureSigningAlgorithms;
+    public List<String> getBlockedSignatureSigningAlgorithms() {
+        return blockedSignatureSigningAlgorithms;
     }
 
     public List<String> getSignatureAlgorithms() {

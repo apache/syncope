@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.auth;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -41,6 +42,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     public static final String TABLE = "AuthProfile";
 
     private static final long serialVersionUID = 57352617217394093L;
+
+    @Lob
+    private String u2fRegisteredDevices;
 
     @Lob
     private String googleMfaAuthAccounts;
@@ -96,10 +100,31 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
+    public List<U2FRegisteredDevice> getU2FRegisteredDevices() {
+        return u2fRegisteredDevices == null
+            ? new ArrayList<>(0)
+            : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FRegisteredDevice>>() {
+        });
+    }
+
+    @Override
+    public void setU2FRegisteredDevices(final List<U2FRegisteredDevice> records) {
+        this.u2fRegisteredDevices = POJOHelper.serialize(records);
+    }
+
+    @Override
     public void add(final GoogleMfaAuthAccount account) {
         checkType(account, GoogleMfaAuthAccount.class);
         final List<GoogleMfaAuthAccount> accounts = getGoogleMfaAuthAccounts();
         accounts.add(account);
         setGoogleMfaAuthAccounts(accounts);
+    }
+
+    @Override
+    public void add(final U2FRegisteredDevice registration) {
+        checkType(registration, U2FRegisteredDevice.class);
+        final List<U2FRegisteredDevice> records = getU2FRegisteredDevices();
+        records.add(registration);
+        setU2FRegisteredDevices(records);
     }
 }
