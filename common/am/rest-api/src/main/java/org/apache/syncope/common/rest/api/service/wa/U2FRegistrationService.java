@@ -66,7 +66,7 @@ public interface U2FRegistrationService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("devices")
-    Response save(@NotNull U2FRegisteredDevice acct);
+    Response create(@NotNull U2FRegisteredDevice acct);
 
     @PUT
     @Path("devices")

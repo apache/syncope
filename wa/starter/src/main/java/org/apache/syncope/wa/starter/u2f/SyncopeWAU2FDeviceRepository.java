@@ -114,7 +114,7 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
             record(registration.getRecord()).
             id(registration.getId()).
             build();
-        Response response = getU2FService().save(record);
+        Response response = getU2FService().create(record);
         return parseRegistrationRecord(response.readEntity(new GenericType<U2FRegisteredDevice>() {
         }));
     }

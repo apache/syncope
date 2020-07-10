@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -62,7 +61,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
     public void create() {
         U2FRegisteredDevice acct = createDeviceRegistration();
         assertDoesNotThrow(() -> {
-            Response response = u2FRegistrationService.save(acct);
+            Response response = u2FRegistrationService.create(acct);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                 Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
                 if (ex != null) {
@@ -75,7 +74,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
     @Test
     public void count() {
         U2FRegisteredDevice acct = createDeviceRegistration();
-        Response response = u2FRegistrationService.save(acct);
+        Response response = u2FRegistrationService.create(acct);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(u2FRegistrationService.read(key));
         Date date = Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -100,7 +99,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
     @Test
     public void delete() {
         U2FRegisteredDevice acct1 = createDeviceRegistration();
-        Response response = u2FRegistrationService.save(acct1);
+        Response response = u2FRegistrationService.create(acct1);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
         assertNotNull(u2FRegistrationService.read(key));
 
@@ -126,10 +125,10 @@ public class U2FRegistrationITCase extends AbstractITCase {
     @Test
     public void update() {
         U2FRegisteredDevice acct1 = createDeviceRegistration();
-        Response response = u2FRegistrationService.save(acct1);
+        Response response = u2FRegistrationService.create(acct1);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(u2FRegistrationService.read(key));
-
+        acct1 = u2FRegistrationService.read(key);
+        assertNotNull(acct1);
         acct1.setOwner("NewOwner");
         u2FRegistrationService.update(acct1);
         acct1 = u2FRegistrationService.read(key);
