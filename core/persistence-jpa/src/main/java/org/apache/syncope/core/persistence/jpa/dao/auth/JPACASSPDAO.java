@@ -19,12 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSP;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
