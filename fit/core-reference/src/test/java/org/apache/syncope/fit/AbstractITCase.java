@@ -87,6 +87,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.common.lib.to.client.CASSPTO;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
@@ -819,6 +820,31 @@ public abstract class AbstractITCase {
 
         return object;
     }
+
+    protected CASSPTO buildCASSP() {
+        AuthPolicyTO authPolicyTO = new AuthPolicyTO();
+        authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
+        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
+        assertNotNull(authPolicyTO);
+
+        AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
+        accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
+        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
+        assertNotNull(accessPolicyTO);
+
+        CASSPTO casspTO = new CASSPTO();
+        casspTO.setName("ExampleRP_" + getUUIDString());
+        casspTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        casspTO.setDescription("Example OIDC RP application");
+        casspTO.setServiceId("https://cassp.example.org/" + UUID.randomUUID().getMostSignificantBits());
+
+        casspTO.setAuthPolicy(authPolicyTO.getKey());
+        casspTO.setAccessPolicy(accessPolicyTO.getKey());
+        return casspTO;
+    }
+
 
     protected OIDCRPTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();

@@ -19,13 +19,16 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.client.CASSPTO;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -34,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 
 @Component
 public class ClientAppDataBinderImpl implements ClientAppDataBinder {
@@ -52,6 +54,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             return (T) doCreate((SAML2SPTO) clientAppTO);
         } else if (clientAppTO instanceof OIDCRPTO) {
             return (T) doCreate((OIDCRPTO) clientAppTO);
+        } else if (clientAppTO instanceof CASSPTO) {
+            return (T) doCreate((CASSPTO) clientAppTO);
         } else {
             throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
@@ -63,6 +67,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             doUpdate((SAML2SP) clientApp, (SAML2SPTO) clientAppTO);
         } else if (clientAppTO instanceof OIDCRPTO) {
             doUpdate((OIDCRP) clientApp, (OIDCRPTO) clientAppTO);
+        } else if (clientAppTO instanceof CASSPTO) {
+            doUpdate((CASSP) clientApp, (CASSPTO) clientAppTO);
         } else {
             throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
@@ -75,6 +81,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             return (T) getClientAppTO((SAML2SP) clientApp);
         } else if (clientApp instanceof OIDCRP) {
             return (T) getClientAppTO((OIDCRP) clientApp);
+        } else if (clientApp instanceof CASSP) {
+            return (T) getClientAppTO((CASSP) clientApp);
         } else {
             throw new IllegalArgumentException("Unsupported client app: " + clientApp.getClass().getName());
         }
@@ -82,6 +90,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     private SAML2SP doCreate(final SAML2SPTO clientAppTO) {
         SAML2SP saml2sp = entityFactory.newEntity(SAML2SP.class);
+        update(saml2sp, clientAppTO);
+        return saml2sp;
+    }
+
+    private CASSP doCreate(final CASSPTO clientAppTO) {
+        CASSP saml2sp = entityFactory.newEntity(CASSP.class);
         update(saml2sp, clientAppTO);
         return saml2sp;
     }
@@ -147,7 +161,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         }
     }
 
-    private SAML2SPTO getClientAppTO(final SAML2SP clientApp) {
+    private static SAML2SPTO getClientAppTO(final SAML2SP clientApp) {
         SAML2SPTO clientAppTO = new SAML2SPTO();
 
         clientAppTO.setName(clientApp.getName());
@@ -240,7 +254,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         }
     }
 
-    private OIDCRPTO getClientAppTO(final OIDCRP clientApp) {
+    private static OIDCRPTO getClientAppTO(final OIDCRP clientApp) {
         OIDCRPTO clientAppTO = new OIDCRPTO();
 
         clientAppTO.setName(clientApp.getName());
@@ -262,6 +276,74 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 ? null : clientApp.getAccessPolicy().getKey());
         clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
                 ? null : clientApp.getAttrReleasePolicy().getKey());
+
+        return clientAppTO;
+    }
+
+    private void doUpdate(final CASSP clientApp, final CASSPTO clientAppTO) {
+        clientApp.setName(clientAppTO.getName());
+        clientApp.setClientAppId(clientAppTO.getClientAppId());
+        clientApp.setDescription(clientAppTO.getDescription());
+        clientApp.setServiceId(clientAppTO.getServiceId());
+
+        if (clientAppTO.getAuthPolicy() == null) {
+            clientApp.setAuthPolicy(null);
+        } else {
+            Policy policy = policyDAO.find(clientAppTO.getAuthPolicy());
+            if (policy instanceof AuthPolicy) {
+                clientApp.setAuthPolicy((AuthPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
+                    + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+
+        if (clientAppTO.getAccessPolicy() == null) {
+            clientApp.setAccessPolicy(null);
+        } else {
+            Policy policy = policyDAO.find(clientAppTO.getAccessPolicy());
+            if (policy instanceof AccessPolicy) {
+                clientApp.setAccessPolicy((AccessPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
+                    + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+
+        if (clientAppTO.getAttrReleasePolicy() == null) {
+            clientApp.setAttrReleasePolicy(null);
+        } else {
+            Policy policy = policyDAO.find(clientAppTO.getAttrReleasePolicy());
+            if (policy instanceof AttrReleasePolicy) {
+                clientApp.setAttrReleasePolicy((AttrReleasePolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
+                    + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+    }
+
+    private static CASSPTO getClientAppTO(final CASSP clientApp) {
+        CASSPTO clientAppTO = new CASSPTO();
+
+        clientAppTO.setName(clientApp.getName());
+        clientAppTO.setKey(clientApp.getKey());
+        clientAppTO.setDescription(clientApp.getDescription());
+        clientAppTO.setClientAppId(clientApp.getClientAppId());
+        clientAppTO.setServiceId(clientApp.getServiceId());
+
+        clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
+            ? null : clientApp.getAuthPolicy().getKey());
+        clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
+            ? null : clientApp.getAccessPolicy().getKey());
+        clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
+            ? null : clientApp.getAttrReleasePolicy().getKey());
 
         return clientAppTO;
     }

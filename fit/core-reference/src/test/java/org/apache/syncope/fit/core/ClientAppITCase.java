@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.to.client.CASSPTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -100,6 +101,11 @@ public class ClientAppITCase extends AbstractITCase {
     }
 
     @Test
+    public void createCASSP() {
+        createClientApp(ClientAppType.CASSP, buildCASSP());
+    }
+
+    @Test
     public void readOIDCRP() {
         OIDCRPTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
@@ -111,6 +117,17 @@ public class ClientAppITCase extends AbstractITCase {
         assertNotNull(found.getSubjectType());
         assertFalse(found.getSupportedGrantTypes().isEmpty());
         assertFalse(found.getSupportedResponseTypes().isEmpty());
+        assertNotNull(found.getAccessPolicy());
+        assertNotNull(found.getAuthPolicy());
+    }
+
+    @Test
+    public void readCASSP() {
+        CASSPTO casspTO = buildCASSP();
+        casspTO = createClientApp(ClientAppType.CASSP, casspTO);
+        CASSPTO found = clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
+        assertNotNull(found);
+        assertNotNull(found.getServiceId());
         assertNotNull(found.getAccessPolicy());
         assertNotNull(found.getAuthPolicy());
     }
@@ -146,6 +163,21 @@ public class ClientAppITCase extends AbstractITCase {
 
         try {
             clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void deleteCASSP() {
+        CASSPTO casspTO = buildCASSP();
+        casspTO = createClientApp(ClientAppType.CASSP, casspTO);
+
+        clientAppService.delete(ClientAppType.CASSP, casspTO.getKey());
+
+        try {
+            clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);

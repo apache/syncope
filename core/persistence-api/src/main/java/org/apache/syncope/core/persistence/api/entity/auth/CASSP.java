@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.persistence.api.entity.auth;
 
-public enum ClientAppType {
-    SAML2SP,
-    CASSP,
-    OIDCRP;
+public interface CASSP extends ClientApp {
 
+    void setServiceId(String serviceId);
+
+    String getServiceId();
 }
