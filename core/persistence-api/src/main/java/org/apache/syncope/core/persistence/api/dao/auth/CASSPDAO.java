@@ -16,11 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.persistence.api.dao.auth;
 
-public enum ClientAppType {
-    SAML2SP,
-    CASSP,
-    OIDCRP;
+import org.apache.syncope.core.persistence.api.dao.DAO;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 
+import java.util.List;
+
+public interface CASSPDAO extends DAO<CASSP> {
+
+    CASSP find(String key);
+
+    CASSP findByClientAppId(Long clientAppId);
+
+    CASSP findByName(String name);
+
+    List<CASSP> findAll();
+
+    CASSP save(CASSP clientApp);
+
+    void delete(String key);
+
+    void delete(CASSP clientApp);
 }

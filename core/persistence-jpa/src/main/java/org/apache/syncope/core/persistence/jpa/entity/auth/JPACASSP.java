@@ -18,36 +18,28 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 
-public class JPAClientAppUtils implements ClientAppUtils {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-    private final ClientAppType type;
+@Entity
+@Table(name = JPACASSP.TABLE)
+public class JPACASSP extends AbstractClientApp implements CASSP {
 
-    protected JPAClientAppUtils(final ClientAppType type) {
-        this.type = type;
+    public static final String TABLE = "CASSP";
+
+    private static final long serialVersionUID = 6422422526695279794L;
+
+    @Column(unique = true, nullable = false)
+    private String serviceId;
+
+    public String getServiceId() {
+        return serviceId;
     }
 
-    @Override
-    public ClientAppType getType() {
-        return type;
-    }
-
-    @Override
-    public Class<? extends ClientApp> clientAppClass() {
-        switch (type) {
-            case OIDCRP:
-                return OIDCRP.class;
-            case CASSP:
-                return CASSP.class;
-            case SAML2SP:
-            default:
-                return SAML2SP.class;
-        }
+    public void setServiceId(final String serviceId) {
+        this.serviceId = serviceId;
     }
 }

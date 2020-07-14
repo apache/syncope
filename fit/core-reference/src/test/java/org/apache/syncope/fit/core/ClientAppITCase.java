@@ -27,12 +27,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.to.client.CASSPTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
 
 public class ClientAppITCase extends AbstractITCase {
 
@@ -100,6 +104,11 @@ public class ClientAppITCase extends AbstractITCase {
     }
 
     @Test
+    public void createCASSP() {
+        createClientApp(ClientAppType.CASSP, buildCASSP());
+    }
+
+    @Test
     public void readOIDCRP() {
         OIDCRPTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
@@ -111,6 +120,17 @@ public class ClientAppITCase extends AbstractITCase {
         assertNotNull(found.getSubjectType());
         assertFalse(found.getSupportedGrantTypes().isEmpty());
         assertFalse(found.getSupportedResponseTypes().isEmpty());
+        assertNotNull(found.getAccessPolicy());
+        assertNotNull(found.getAuthPolicy());
+    }
+
+    @Test
+    public void readCASSP() {
+        CASSPTO casspTO = buildCASSP();
+        casspTO = createClientApp(ClientAppType.CASSP, casspTO);
+        CASSPTO found = clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
+        assertNotNull(found);
+        assertNotNull(found.getServiceId());
         assertNotNull(found.getAccessPolicy());
         assertNotNull(found.getAuthPolicy());
     }
@@ -151,4 +171,45 @@ public class ClientAppITCase extends AbstractITCase {
             assertNotNull(e);
         }
     }
+
+    @Test
+    public void deleteCASSP() {
+        CASSPTO casspTO = buildCASSP();
+        casspTO = createClientApp(ClientAppType.CASSP, casspTO);
+
+        clientAppService.delete(ClientAppType.CASSP, casspTO.getKey());
+
+        try {
+            clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+    }
+
+    private CASSPTO buildCASSP() {
+        AuthPolicyTO authPolicyTO = new AuthPolicyTO();
+        authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
+        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
+        assertNotNull(authPolicyTO);
+
+        AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
+        accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
+        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
+        assertNotNull(accessPolicyTO);
+
+        CASSPTO casspTO = new CASSPTO();
+        casspTO.setName("ExampleRP_" + getUUIDString());
+        casspTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        casspTO.setDescription("Example OIDC RP application");
+        casspTO.setServiceId("https://cassp.example.org/" + UUID.randomUUID().getMostSignificantBits());
+
+        casspTO.setAuthPolicy(authPolicyTO.getKey());
+        casspTO.setAccessPolicy(accessPolicyTO.getKey());
+        return casspTO;
+    }
+
+
 }

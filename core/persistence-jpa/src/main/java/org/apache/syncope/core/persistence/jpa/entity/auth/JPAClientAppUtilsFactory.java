@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
+import org.apache.syncope.common.lib.to.client.CASSPTO;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
@@ -42,6 +44,8 @@ public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
         ClientAppType type;
         if (clientApp instanceof SAML2SP) {
             type = ClientAppType.SAML2SP;
+        } else if (clientApp instanceof CASSP) {
+            type = ClientAppType.CASSP;
         } else if (clientApp instanceof OIDCRP) {
             type = ClientAppType.OIDCRP;
         } else {
@@ -56,6 +60,8 @@ public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
         ClientAppType type;
         if (clientAppClass == SAML2SPTO.class) {
             type = ClientAppType.SAML2SP;
+        } else if (clientAppClass == CASSPTO.class) {
+            type = ClientAppType.CASSP;
         } else if (clientAppClass == OIDCRPTO.class) {
             type = ClientAppType.OIDCRP;
         } else {

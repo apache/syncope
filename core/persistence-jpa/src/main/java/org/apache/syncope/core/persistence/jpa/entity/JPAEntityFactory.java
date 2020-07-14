@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
@@ -114,6 +115,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrVal
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SP;
@@ -329,6 +331,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAttrReleasePolicy();
         } else if (reference.equals(OIDCRP.class)) {
             result = (E) new JPAOIDCRP();
+        } else if (reference.equals(CASSP.class)) {
+            result = (E) new JPACASSP();
         } else if (reference.equals(SAML2SP.class)) {
             result = (E) new JPASAML2SP();
         } else if (reference.equals(SAML2IdPMetadata.class)) {
