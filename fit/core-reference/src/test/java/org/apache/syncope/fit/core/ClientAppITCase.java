@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.client.CASSPTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
@@ -34,6 +35,8 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
 
 public class ClientAppITCase extends AbstractITCase {
 
@@ -183,4 +186,30 @@ public class ClientAppITCase extends AbstractITCase {
             assertNotNull(e);
         }
     }
+
+    private CASSPTO buildCASSP() {
+        AuthPolicyTO authPolicyTO = new AuthPolicyTO();
+        authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
+        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
+        assertNotNull(authPolicyTO);
+
+        AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
+        accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
+        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
+        assertNotNull(accessPolicyTO);
+
+        CASSPTO casspTO = new CASSPTO();
+        casspTO.setName("ExampleRP_" + getUUIDString());
+        casspTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
+        casspTO.setDescription("Example OIDC RP application");
+        casspTO.setServiceId("https://cassp.example.org/" + UUID.randomUUID().getMostSignificantBits());
+
+        casspTO.setAuthPolicy(authPolicyTO.getKey());
+        casspTO.setAccessPolicy(accessPolicyTO.getKey());
+        return casspTO;
+    }
+
+
 }
