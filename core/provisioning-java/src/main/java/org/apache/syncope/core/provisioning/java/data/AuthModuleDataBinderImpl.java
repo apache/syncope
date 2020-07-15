@@ -90,12 +90,13 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
     @Override
     public AuthModule create(final AuthModuleTO authModuleTO) {
-        return update(entityFactory.newEntity(AuthModule.class), authModuleTO);
+        AuthModule authModule = entityFactory.newEntity(AuthModule.class);
+        authModule.setKey(authModuleTO.getKey());
+        return update(authModule, authModuleTO);
     }
 
     @Override
     public AuthModule update(final AuthModule authModule, final AuthModuleTO authModuleTO) {
-        authModule.setName(authModuleTO.getName());
         authModule.setDescription(authModuleTO.getDescription());
         authModule.setConf(authModuleTO.getConf());
 
@@ -126,7 +127,6 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
     public AuthModuleTO getAuthModuleTO(final AuthModule authModule) {
         AuthModuleTO authModuleTO = new AuthModuleTO();
 
-        authModuleTO.setName(authModule.getName());
         authModuleTO.setKey(authModule.getKey());
         authModuleTO.setDescription(authModule.getDescription());
         authModuleTO.setConf(authModule.getConf());

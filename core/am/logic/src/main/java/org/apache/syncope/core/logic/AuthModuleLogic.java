@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -62,18 +61,7 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<AuthModuleTO> list() {
-        return authModuleDAO.findAll().stream().
-                filter(Objects::nonNull).
-                map(authModule -> {
-                    AuthModuleTO result = null;
-                    try {
-                        result = binder.getAuthModuleTO(authModule);
-                    } catch (NotFoundException e) {
-                        LOG.error("Authentication module '{}' not found", authModule.getName());
-                    }
-
-                    return result;
-                }).collect(Collectors.toList());
+        return authModuleDAO.findAll().stream().map(binder::getAuthModuleTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_READ + "')")

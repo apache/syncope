@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -33,12 +33,12 @@ public class SAML2SPTOMapper implements ClientAppMapper {
 
     @Override
     public RegisteredService build(
-            final ClientAppTO clientAppTO,
-            final RegisteredServiceAuthenticationPolicy authPolicy,
+            final WAClientApp clientApp,
+            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
-        SAML2SPTO sp = SAML2SPTO.class.cast(clientAppTO);
+        SAML2SPTO sp = SAML2SPTO.class.cast(clientApp.getClientAppTO());
 
         SamlRegisteredService service = new SamlRegisteredService();
 
@@ -46,9 +46,6 @@ public class SAML2SPTOMapper implements ClientAppMapper {
         service.setId(sp.getClientAppId());
         service.setName(sp.getName());
         service.setDescription(sp.getDescription());
-        service.setAccessStrategy(accessStrategy);
-        service.setAuthenticationPolicy(authPolicy);
-        service.setAttributeReleasePolicy(attributeReleasePolicy);
 
         service.setMetadataLocation(sp.getMetadataLocation());
         service.setMetadataSignatureLocation(sp.getMetadataSignatureLocation());
@@ -62,6 +59,16 @@ public class SAML2SPTOMapper implements ClientAppMapper {
         service.setNameIdQualifier(sp.getNameIdQualifier());
         service.setAssertionAudiences(sp.getAssertionAudiences());
         service.setServiceProviderNameIdQualifier(sp.getServiceProviderNameIdQualifier());
+
+        if (authenticationPolicy != null) {
+            service.setAuthenticationPolicy(authenticationPolicy);
+        }
+        if (accessStrategy != null) {
+            service.setAccessStrategy(accessStrategy);
+        }
+        if (attributeReleasePolicy != null) {
+            service.setAttributeReleasePolicy(attributeReleasePolicy);
+        }
 
         return service;
     }

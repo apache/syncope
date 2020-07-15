@@ -26,39 +26,37 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
- * REST operations for SAML 2.0 SP metadata.
+ * REST operations for SAML 2.0 SP Keystore.
  */
-@Tag(name = "SAML 2.0 SP Metadata")
+@Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
-    @SecurityRequirement(name = "Bearer")})
-@Path("saml2sp/conf/metadata")
-public interface SAML2SPMetadataConfService extends JAXRSService {
+    @SecurityRequirement(name = "Bearer") })
+@Path("saml2sp/keystore")
+public interface SAML2SPKeystoreService extends JAXRSService {
 
     /**
-     * Updates SAML 2.0 SP metadata matching the given key.
+     * Updates SAML 2.0 SP keystore matching the given key.
      *
-     * @param metadataTO SAML2SPMetadata to replace existing SAML 2.0 SP metadata
+     * @param keystoreTO SAML2SPKeystoreTO to replace existing SAML 2.0 SP metadata
      */
-    @Parameter(name = "key", description = "SAML2SPMetadata's key", in = ParameterIn.PATH, schema =
-    @Schema(type = "string"))
+    @Parameter(name = "key", description = "SAML2SPKeystoreTO's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @ApiResponses(
-        @ApiResponse(responseCode = "204", description = "Operation was successful"))
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    void update(@NotNull SAML2SPMetadataTO metadataTO);
-
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void update(@NotNull SAML2SPKeystoreTO keystoreTO);
 }

@@ -24,18 +24,4 @@ public abstract class AbstractAuthModuleConf implements BaseBean, AuthModuleConf
 
     private static final long serialVersionUID = 4153200197344709778L;
 
-    private String name;
-
-    public AbstractAuthModuleConf() {
-        setName(getClass().getName());
-    }
-
-    @Override
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(final String name) {
-        this.name = name;
-    }
 }

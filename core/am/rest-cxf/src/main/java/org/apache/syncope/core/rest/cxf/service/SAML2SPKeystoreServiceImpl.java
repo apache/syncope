@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataConfService;
-import org.apache.syncope.core.logic.SAML2SPMetadataLogic;
+import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
+import org.apache.syncope.core.logic.SAML2SPKeystoreLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
 
 @Service
-public class SAML2SPMetadataConfServiceImpl extends AbstractServiceImpl implements SAML2SPMetadataConfService {
+public class SAML2SPKeystoreServiceImpl extends AbstractServiceImpl implements SAML2SPKeystoreService {
 
     @Autowired
-    private SAML2SPMetadataLogic logic;
+    private SAML2SPKeystoreLogic logic;
 
     @Override
-    public void update(final SAML2SPMetadataTO metadataTO) {
+    public void update(final SAML2SPKeystoreTO metadataTO) {
         logic.update(metadataTO);
     }
 }

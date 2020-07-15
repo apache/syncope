@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.sra;
 
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.sra.security.CsrfRouteMatcher;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
@@ -26,12 +30,14 @@ import org.apache.syncope.sra.security.OAuth2SecurityConfigUtils;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -41,11 +47,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @Configuration
@@ -87,7 +99,7 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnProperty(name = AM_TYPE, havingValue = "OIDC")
-    public ReactiveClientRegistrationRepository oidcClientRegistrationRepository() {
+    public InMemoryReactiveClientRegistrationRepository oidcClientRegistrationRepository() {
         return new InMemoryReactiveClientRegistrationRepository(
                 ClientRegistrations.fromOidcIssuerLocation(env.getProperty("am.oidc.configuration")).
                         registrationId("OIDC").
@@ -97,8 +109,32 @@ public class SecurityConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OIDC")
+    public OAuth2TokenValidator<Jwt> oidcJWTValidator() {
+        return JwtValidators.createDefaultWithIssuer(env.getProperty("am.oidc.configuration"));
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Converter<Map<String, Object>, Map<String, Object>> jwtClaimSetConverter() {
+        return MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OIDC")
+    public ReactiveJwtDecoder oidcJWTDecoder() {
+        NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(
+                oidcClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri()).build();
+        jwtDecoder.setJwtValidator(oidcJWTValidator());
+        jwtDecoder.setClaimSetConverter(jwtClaimSetConverter());
+        return jwtDecoder;
+    }
+
+    @Bean
     @ConditionalOnProperty(name = AM_TYPE, havingValue = "OAUTH2")
-    public ReactiveClientRegistrationRepository oauth2ClientRegistrationRepository() {
+    public InMemoryReactiveClientRegistrationRepository oauth2ClientRegistrationRepository() {
         return new InMemoryReactiveClientRegistrationRepository(
                 ClientRegistration.withRegistrationId("OAUTH2").
                         redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}").
@@ -109,8 +145,41 @@ public class SecurityConfig {
                         clientId(env.getProperty("am.oauth2.client.id")).
                         clientSecret(env.getProperty("am.oauth2.client.secret")).
                         scope(env.getProperty("am.oauth2.scopes", String[].class)).
-                        authorizationGrantType(new AuthorizationGrantType(env.getProperty("am.oauth2.grantType"))).
+                        authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).
+                        jwkSetUri(env.getProperty("am.oauth2.jwkSetUri")).
                         build());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OAUTH2")
+    public OAuth2TokenValidator<Jwt> oauth2JWTValidator() {
+        String issuer = env.getProperty("am.oauth2.issuer");
+        return issuer == null
+                ? JwtValidators.createDefault()
+                : JwtValidators.createDefaultWithIssuer(env.getProperty("am.oauth2.issuer"));
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OAUTH2")
+    public ReactiveJwtDecoder oauth2JWTDecoder() {
+        String jwkSetUri = oauth2ClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri();
+        NimbusReactiveJwtDecoder jwtDecoder;
+        if (StringUtils.isBlank(jwkSetUri)) {
+            jwtDecoder = new NimbusReactiveJwtDecoder(jwt -> {
+                try {
+                    return Mono.just(jwt.getJWTClaimsSet());
+                } catch (ParseException e) {
+                    return Mono.error(e);
+                }
+            });
+        } else {
+            jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        }
+        jwtDecoder.setJwtValidator(oauth2JWTValidator());
+        jwtDecoder.setClaimSetConverter(jwtClaimSetConverter());
+        return jwtDecoder;
     }
 
     @Bean
@@ -135,6 +204,7 @@ public class SecurityConfig {
             case OAUTH2:
                 OAuth2SecurityConfigUtils.forLogin(http, amType, ctx);
                 OAuth2SecurityConfigUtils.forLogout(builder, amType, cacheManager, logoutRouteMatcher, ctx);
+                http.oauth2ResourceServer().jwt().jwtDecoder(ctx.getBean(ReactiveJwtDecoder.class));
                 break;
 
             case SAML2:

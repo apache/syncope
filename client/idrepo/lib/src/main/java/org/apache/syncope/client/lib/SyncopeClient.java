@@ -136,6 +136,15 @@ public class SyncopeClient {
     }
 
     /**
+     * Gives the base address for REST calls.
+     *
+     * @return the base address for REST calls
+     */
+    public String getAddress() {
+        return restClientFactory.getAddress();
+    }
+
+    /**
      * Attempts to extend the lifespan of the JWT currently in use.
      */
     public void refresh() {

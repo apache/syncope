@@ -19,6 +19,13 @@
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
@@ -26,17 +33,9 @@ import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
-@Table(name = JPAAuthProfile.TABLE, uniqueConstraints = @UniqueConstraint(columnNames = {"owner"}))
+@Table(name = JPAAuthProfile.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "owner" }))
 public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthProfile {
 
     public static final String TABLE = "AuthProfile";
@@ -68,9 +67,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens == null
-            ? new ArrayList<>(0)
-            : POJOHelper.deserialize(googleMfaAuthTokens, new TypeReference<List<GoogleMfaAuthToken>>() {
-        });
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(googleMfaAuthTokens, new TypeReference<List<GoogleMfaAuthToken>>() {
+                });
     }
 
     @Override
@@ -81,9 +80,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
         return googleMfaAuthAccounts == null
-            ? new ArrayList<>(0)
-            : POJOHelper.deserialize(googleMfaAuthAccounts, new TypeReference<List<GoogleMfaAuthAccount>>() {
-        });
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(googleMfaAuthAccounts, new TypeReference<List<GoogleMfaAuthAccount>>() {
+                });
     }
 
     @Override
@@ -94,7 +93,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void add(final GoogleMfaAuthToken token) {
         checkType(token, GoogleMfaAuthToken.class);
-        final List<GoogleMfaAuthToken> tokens = getGoogleMfaAuthTokens();
+        List<GoogleMfaAuthToken> tokens = getGoogleMfaAuthTokens();
         tokens.add(token);
         setGoogleMfaAuthTokens(tokens);
     }
@@ -102,9 +101,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<U2FRegisteredDevice> getU2FRegisteredDevices() {
         return u2fRegisteredDevices == null
-            ? new ArrayList<>(0)
-            : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FRegisteredDevice>>() {
-        });
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FRegisteredDevice>>() {
+                });
     }
 
     @Override
@@ -115,7 +114,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void add(final GoogleMfaAuthAccount account) {
         checkType(account, GoogleMfaAuthAccount.class);
-        final List<GoogleMfaAuthAccount> accounts = getGoogleMfaAuthAccounts();
+        List<GoogleMfaAuthAccount> accounts = getGoogleMfaAuthAccounts();
         accounts.add(account);
         setGoogleMfaAuthAccounts(accounts);
     }
@@ -123,7 +122,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void add(final U2FRegisteredDevice registration) {
         checkType(registration, U2FRegisteredDevice.class);
-        final List<U2FRegisteredDevice> records = getU2FRegisteredDevices();
+        List<U2FRegisteredDevice> records = getU2FRegisteredDevices();
         records.add(registration);
         setU2FRegisteredDevices(records);
     }

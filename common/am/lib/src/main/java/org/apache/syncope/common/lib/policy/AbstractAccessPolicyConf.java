@@ -35,8 +35,6 @@ public abstract class AbstractAccessPolicyConf implements BaseBean, AccessPolicy
 
     private static final long serialVersionUID = 1153200197344709778L;
 
-    private String name;
-
     private boolean enabled = true;
 
     private boolean ssoEnabled = true;
@@ -45,19 +43,6 @@ public abstract class AbstractAccessPolicyConf implements BaseBean, AccessPolicy
     @JacksonXmlProperty(localName = "requiredAttr")
     @JsonProperty("requiredAttrs")
     private final List<Attr> requiredAttrList = new ArrayList<>();
-
-    public AbstractAccessPolicyConf() {
-        setName(getClass().getName());
-    }
-
-    @Override
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(final String name) {
-        this.name = name;
-    }
 
     @Override
     public boolean isEnabled() {

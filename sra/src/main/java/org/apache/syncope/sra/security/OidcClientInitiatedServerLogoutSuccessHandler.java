@@ -117,7 +117,8 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
                     uri = route.get().getPostLogout();
                 }
 
-                return CACHE.put(routeId, Optional.ofNullable(uri));
+                CACHE.put(routeId, Optional.ofNullable(uri));
+                return CACHE.get(routeId);
             });
             if (routePostLogout.isPresent()) {
                 postLogout = routePostLogout.get();

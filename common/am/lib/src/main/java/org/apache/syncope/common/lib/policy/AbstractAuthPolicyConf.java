@@ -18,23 +18,11 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import org.apache.syncope.common.lib.BaseBean;
-
-public abstract class AbstractAuthPolicyConf implements BaseBean, AuthPolicyConf {
+public abstract class AbstractAuthPolicyConf implements AuthPolicyConf {
 
     private static final long serialVersionUID = 9185127128182430142L;
 
-    private String name;
-
     private AuthPolicyCriteriaConf criteria;
-
-    public AbstractAuthPolicyConf() {
-        setName(getClass().getName());
-    }
-
-    public AbstractAuthPolicyConf(final String name) {
-        setName(name);
-    }
 
     @Override
     public AuthPolicyCriteriaConf getCriteria() {
@@ -43,14 +31,5 @@ public abstract class AbstractAuthPolicyConf implements BaseBean, AuthPolicyConf
 
     public void setCriteria(final AuthPolicyCriteriaConf criteria) {
         this.criteria = criteria;
-    }
-
-    @Override
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(final String name) {
-        this.name = name;
     }
 }

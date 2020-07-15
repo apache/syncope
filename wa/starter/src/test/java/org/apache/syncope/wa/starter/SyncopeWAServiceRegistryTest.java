@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,11 +40,10 @@ import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
-import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
+import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
-import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
@@ -89,9 +87,11 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         return saml2spto;
     }
 
-    private static void addAttributes(final boolean withReleaseAttributes,
+    private static void addAttributes(
+            final boolean withReleaseAttributes,
             final boolean withAttrReleasePolicy,
             final WAClientApp waClientApp) {
+
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         DefaultAuthPolicyCriteriaConf criteria = new DefaultAuthPolicyCriteriaConf();
         criteria.setAll(true);
@@ -136,7 +136,7 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         waClientApp.setClientAppTO(buildOIDCRP());
         Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
         addAttributes(true, true, waClientApp);
-        
+
         SyncopeCoreTestingServer.APPS.add(waClientApp);
         List<WAClientApp> apps = service.list();
         assertEquals(1, apps.size());
@@ -151,18 +151,15 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         RegisteredService found = servicesManager.findServiceBy(clientAppId);
         assertNotNull(found);
         assertTrue(found instanceof OidcRegisteredService);
-        OidcRegisteredService oidcRegisteredService = OidcRegisteredService.class.cast(found);
+        OidcRegisteredService oidc = OidcRegisteredService.class.cast(found);
         OIDCRPTO oidcrpto = OIDCRPTO.class.cast(waClientApp.getClientAppTO());
-        assertEquals("uri1|uri2", oidcRegisteredService.getServiceId());
-        assertEquals(oidcrpto.getClientId(), oidcRegisteredService.getClientId());
-        assertEquals(oidcrpto.getClientSecret(), oidcRegisteredService.getClientSecret());
-        assertTrue(oidcRegisteredService.getAuthenticationPolicy().getRequiredAuthenticationHandlers().
-                contains("TestAuthModule"));
-        assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidcRegisteredService.
+        assertEquals("uri1|uri2", oidc.getServiceId());
+        assertEquals(oidcrpto.getClientId(), oidc.getClientId());
+        assertEquals(oidcrpto.getClientSecret(), oidc.getClientSecret());
+        assertTrue(oidc.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
+        assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidc.
                 getAuthenticationPolicy().getCriteria()).isTryAll());
-        assertTrue(oidcRegisteredService.getAttributeReleasePolicy() instanceof ReturnMappedAttributeReleasePolicy);
-        assertFalse(oidcRegisteredService.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
-        assertFalse(oidcRegisteredService.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
+        assertTrue(oidc.getAttributeReleasePolicy() instanceof ChainingAttributeReleasePolicy);
 
         // 5. more client with different attributes 
         waClientApp = new WAClientApp();
@@ -179,16 +176,13 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
 
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found instanceof SamlRegisteredService);
-        SamlRegisteredService samlRegisteredService = SamlRegisteredService.class.cast(found);
+        SamlRegisteredService saml = SamlRegisteredService.class.cast(found);
         SAML2SPTO samlspto = SAML2SPTO.class.cast(waClientApp.getClientAppTO());
-        assertEquals(samlspto.getMetadataLocation(), samlRegisteredService.getMetadataLocation());
-        assertEquals(samlspto.getEntityId(), samlRegisteredService.getServiceId());
-        assertTrue(samlRegisteredService.getAuthenticationPolicy().getRequiredAuthenticationHandlers().
-                contains("TestAuthModule"));
+        assertEquals(samlspto.getMetadataLocation(), saml.getMetadataLocation());
+        assertEquals(samlspto.getEntityId(), saml.getServiceId());
+        assertTrue(saml.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertNotNull(found.getAccessStrategy());
-        assertFalse(samlRegisteredService.getAttributeReleasePolicy() instanceof ReturnMappedAttributeReleasePolicy);
-        assertTrue(samlRegisteredService.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
-        assertFalse(samlRegisteredService.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
+        assertTrue(saml.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
 
         waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildSAML2SP());
@@ -203,9 +197,6 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         assertEquals(5, load.size());
 
         found = servicesManager.findServiceBy(clientAppId);
-        assertFalse(found.getAttributeReleasePolicy() instanceof ReturnMappedAttributeReleasePolicy);
-        assertFalse(found.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
-        assertTrue(found.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
-
+        assertTrue(found.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
     }
 }

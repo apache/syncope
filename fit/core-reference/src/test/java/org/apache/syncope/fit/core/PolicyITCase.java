@@ -267,9 +267,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void updateAttrReleasePolicy() {
-        String policyName = "TestAttrReleasePolicy" + getUUIDString();
-        AttrReleasePolicyTO newPolicyTO = buildAttributeReleasePolicyTO(policyName);
-        newPolicyTO = createPolicy(PolicyType.ATTR_RELEASE, newPolicyTO);
+        AttrReleasePolicyTO newPolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
         assertNotNull(newPolicyTO);
 
         AllowedAttrReleasePolicyConf policyConf = (AllowedAttrReleasePolicyConf) newPolicyTO.getConf();
@@ -285,7 +283,6 @@ public class PolicyITCase extends AbstractITCase {
         assertTrue(policyConf.getAllowedAttrs().contains("cn"));
         assertTrue(policyConf.getAllowedAttrs().contains("postalCode"));
         assertTrue(policyConf.getAllowedAttrs().contains("givenName"));
-
     }
 
     @Test

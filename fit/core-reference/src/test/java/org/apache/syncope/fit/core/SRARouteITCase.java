@@ -43,12 +43,12 @@ public class SRARouteITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        SRARouteTO route = gatewayRouteService.read("ec7bada2-3dd6-460c-8441-65521d005ffa");
+        SRARouteTO route = sraRouteService.read("ec7bada2-3dd6-460c-8441-65521d005ffa");
         assertNotNull(route);
         assertEquals(1, route.getPredicates().size());
 
         try {
-            gatewayRouteService.read(UUID.randomUUID().toString());
+            sraRouteService.read(UUID.randomUUID().toString());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -57,7 +57,7 @@ public class SRARouteITCase extends AbstractITCase {
 
     @Test
     public void findAll() {
-        List<SRARouteTO> routes = gatewayRouteService.list();
+        List<SRARouteTO> routes = sraRouteService.list();
         assertNotNull(routes);
         assertFalse(routes.isEmpty());
     }
@@ -72,27 +72,27 @@ public class SRARouteITCase extends AbstractITCase {
         route.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.ADD_REQUEST_HEADER).args("X-Request-Foo, Bar").build());
 
-        int beforeCount = gatewayRouteService.list().size();
+        int beforeCount = sraRouteService.list().size();
 
-        Response response = gatewayRouteService.create(route);
+        Response response = sraRouteService.create(route);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         route = getObject(response.getLocation(), SRARouteService.class, SRARouteTO.class);
         assertNotNull(route);
         assertNotNull(route.getKey());
 
-        int afterCount = gatewayRouteService.list().size();
+        int afterCount = sraRouteService.list().size();
         assertEquals(afterCount, beforeCount + 1);
 
-        gatewayRouteService.delete(route.getKey());
+        sraRouteService.delete(route.getKey());
 
         try {
-            gatewayRouteService.read(route.getKey());
+            sraRouteService.read(route.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        int endCount = gatewayRouteService.list().size();
+        int endCount = sraRouteService.list().size();
         assertEquals(endCount, beforeCount);
     }
 
@@ -100,7 +100,7 @@ public class SRARouteITCase extends AbstractITCase {
     public void exceptions() {
         SRARouteTO route = new SRARouteTO();
         try {
-            gatewayRouteService.create(route);
+            sraRouteService.create(route);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -108,18 +108,18 @@ public class SRARouteITCase extends AbstractITCase {
 
         route.setName("createException");
         try {
-            gatewayRouteService.create(route);
+            sraRouteService.create(route);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
         route.setTarget(URI.create("http://httpbin.org:80"));
-        Response response = gatewayRouteService.create(route);
+        Response response = sraRouteService.create(route);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         try {
-            gatewayRouteService.create(route);
+            sraRouteService.create(route);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
@@ -127,13 +127,13 @@ public class SRARouteITCase extends AbstractITCase {
 
         route.setKey(UUID.randomUUID().toString());
         try {
-            gatewayRouteService.update(route);
+            sraRouteService.update(route);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            gatewayRouteService.delete(route.getKey());
+            sraRouteService.delete(route.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

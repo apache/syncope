@@ -16,28 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.policy;
+package org.apache.syncope.core.rest.cxf.service;
 
-public abstract class AbstractAuthPolicyCriteriaConf implements AuthPolicyCriteriaConf {
+import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
+import org.apache.syncope.core.logic.SAML2SPMetadataLogic;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 
-    private static final long serialVersionUID = -6882164291962510245L;
+@Service
+public class SAML2SPMetadataServiceImpl extends AbstractServiceImpl implements SAML2SPMetadataService {
 
-    private String name;
-
-    public AbstractAuthPolicyCriteriaConf() {
-        setName(getClass().getName());
-    }
-
-    public AbstractAuthPolicyCriteriaConf(final String name) {
-        setName(name);
-    }
+    @Autowired
+    private SAML2SPMetadataLogic logic;
 
     @Override
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(final String name) {
-        this.name = name;
+    public void update(final SAML2SPMetadataTO metadataTO) {
+        logic.update(metadataTO);
     }
 }

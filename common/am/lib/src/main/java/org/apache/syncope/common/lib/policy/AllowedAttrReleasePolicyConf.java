@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.policy;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllowedAttrReleasePolicyConf extends AbstractAttrReleasePolicyConf implements AttrReleasePolicyConf {
+public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private static final long serialVersionUID = -1969836661359025380L;
 

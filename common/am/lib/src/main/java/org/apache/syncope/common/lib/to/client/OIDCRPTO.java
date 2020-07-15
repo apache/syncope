@@ -40,8 +40,6 @@ public class OIDCRPTO extends ClientAppTO {
 
     private boolean signIdToken;
 
-    private String jwks;
-
     private OIDCSubjectType subjectType;
 
     private final List<String> redirectUris = new ArrayList<>();
@@ -49,6 +47,8 @@ public class OIDCRPTO extends ClientAppTO {
     private final Set<String> supportedGrantTypes = new HashSet<>();
 
     private final Set<String> supportedResponseTypes = new HashSet<>();
+
+    private String logoutUri;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -94,20 +94,20 @@ public class OIDCRPTO extends ClientAppTO {
         this.signIdToken = signIdToken;
     }
 
-    public String getJwks() {
-        return jwks;
-    }
-
-    public void setJwks(final String jwks) {
-        this.jwks = jwks;
-    }
-
     public OIDCSubjectType getSubjectType() {
         return subjectType;
     }
 
     public void setSubjectType(final OIDCSubjectType subjectType) {
         this.subjectType = subjectType;
+    }
+
+    public String getLogoutUri() {
+        return logoutUri;
+    }
+
+    public void setLogoutUri(final String logoutUri) {
+        this.logoutUri = logoutUri;
     }
 
     @Override
@@ -126,12 +126,12 @@ public class OIDCRPTO extends ClientAppTO {
                 .appendSuper(super.equals(obj))
                 .append(this.clientId, rhs.clientId)
                 .append(this.clientSecret, rhs.clientSecret)
+                .append(this.signIdToken, rhs.signIdToken)
+                .append(this.subjectType, rhs.subjectType)
                 .append(this.redirectUris, rhs.redirectUris)
                 .append(this.supportedGrantTypes, rhs.supportedGrantTypes)
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
-                .append(this.signIdToken, rhs.signIdToken)
-                .append(this.jwks, rhs.jwks)
-                .append(this.subjectType, rhs.subjectType)
+                .append(this.logoutUri, rhs.logoutUri)
                 .isEquals();
     }
 
@@ -141,12 +141,12 @@ public class OIDCRPTO extends ClientAppTO {
                 .appendSuper(super.hashCode())
                 .append(clientId)
                 .append(clientSecret)
+                .append(signIdToken)
+                .append(subjectType)
                 .append(redirectUris)
                 .append(supportedGrantTypes)
                 .append(supportedResponseTypes)
-                .append(signIdToken)
-                .append(jwks)
-                .append(subjectType)
+                .append(logoutUri)
                 .toHashCode();
     }
 }

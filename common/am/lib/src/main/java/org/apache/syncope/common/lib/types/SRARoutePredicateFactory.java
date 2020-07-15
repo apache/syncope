@@ -29,6 +29,7 @@ public enum SRARoutePredicateFactory {
     PATH,
     QUERY,
     REMOTE_ADDR,
+    WEIGHT,
     CUSTOM
 
 }

@@ -126,7 +126,7 @@ public class SRARouteDirectoryPanel
                         new AjaxWizard.EditItemActionEvent<>(
                                 SRARouteRestClient.read(model.getObject().getKey()), target));
             }
-        }, ActionLink.ActionType.EDIT, AMEntitlement.GATEWAY_ROUTE_UPDATE);
+        }, ActionLink.ActionType.EDIT, AMEntitlement.SRA_ROUTE_UPDATE);
 
         panel.add(new ActionLink<SRARouteTO>() {
 
@@ -139,7 +139,7 @@ public class SRARouteDirectoryPanel
                 send(SRARouteDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
-        }, ActionLink.ActionType.CLONE, AMEntitlement.GATEWAY_ROUTE_CREATE);
+        }, ActionLink.ActionType.CLONE, AMEntitlement.SRA_ROUTE_CREATE);
 
         panel.add(new ActionLink<SRARouteTO>() {
 
@@ -158,7 +158,7 @@ public class SRARouteDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, AMEntitlement.GATEWAY_ROUTE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, AMEntitlement.SRA_ROUTE_DELETE, true);
 
         return panel;
     }

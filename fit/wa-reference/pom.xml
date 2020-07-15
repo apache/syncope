@@ -56,6 +56,12 @@ under the License.
 
     <!-- TEST -->
     <dependency>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-sra</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <scope>test</scope>
@@ -86,6 +92,11 @@ under the License.
       <artifactId>syncope-fit-enduser-reference</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -122,7 +133,7 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded
+                -Dspring.profiles.active=embedded 
                 -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
@@ -143,18 +154,18 @@ under the License.
                 <context>syncope</context>
               </properties>
             </deployable>
-<!--            <deployable>-->
-<!--              <location>${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}</location>-->
-<!--              <properties>-->
-<!--                <context>syncope-console</context>-->
-<!--              </properties>-->
-<!--            </deployable>-->
-<!--            <deployable>-->
-<!--              <location>${basedir}/../enduser-reference/target/syncope-fit-enduser-reference-${project.version}</location>-->
-<!--              <properties>-->
-<!--                <context>syncope-enduser</context>-->
-<!--              </properties>-->
-<!--            </deployable>-->
+            <deployable>
+              <location>${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}</location>
+              <properties>
+                <context>syncope-console</context>
+              </properties>
+            </deployable>
+            <deployable>
+              <location>${basedir}/../enduser-reference/target/syncope-fit-enduser-reference-${project.version}</location>
+              <properties>
+                <context>syncope-enduser</context>
+              </properties>
+            </deployable>
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
               <properties>
@@ -163,8 +174,49 @@ under the License.
             </deployable>
           </deployables>
         </configuration>
+        <executions>
+          <execution>
+            <id>start-container</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <id>stop-container</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+            <configuration>
+              <skip>${skipTests}</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
       
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <inherited>true</inherited>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

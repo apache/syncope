@@ -72,6 +72,10 @@ under the License.
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+    </dependency>
 
     <dependency> 
       <groupId>org.springframework.session</groupId> 
@@ -176,8 +180,26 @@ under the License.
           </systemPropertyVariables>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <layout>ZIP</layout>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
-    
+
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -218,118 +240,44 @@ under the License.
       <id>debug</id>
 
       <properties>
-        <skipTests>true</skipTests>
+        <maven.test.skip>true</maven.test.skip>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>org.apache.syncope.common.keymaster</groupId>
-          <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
+          <groupId>org.apache.syncope.ext.self-keymaster</groupId>
+          <artifactId>syncope-ext-self-keymaster-client</artifactId>
           <version>${project.version}</version>
-          <scope>compile</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.curator</groupId>
-          <artifactId>curator-test</artifactId>
-          <scope>compile</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>cxf-rt-transports-http-netty-server</artifactId>
-          <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-devtools</artifactId>
         </dependency>
       </dependencies>
 
       <build>
-        <defaultGoal>clean package io.fabric8:docker-maven-plugin:start spring-boot:run</defaultGoal>
+        <defaultGoal>clean spring-boot:run</defaultGoal>
 
         <plugins>
-          <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-maven-plugin</artifactId>
-            <configuration>
-              <images>
-                <image>
-                  <name>zookeeper:${zookeeper.version}</name>
-                  <run>
-                    <ports>
-                      <port>2181:2181</port>
-                    </ports>
-                    <volumes>
-                      <bind>
-                        <volume>${project.build.testOutputDirectory}/zoo.cfg:/conf/zoo.cfg</volume>
-                        <volume>${project.build.testOutputDirectory}/java.env:/conf/java.env</volume>
-                        <volume>${project.build.testOutputDirectory}/server-jaas.conf:/conf/server-jaas.conf</volume>
-                        <volume>${project.build.testOutputDirectory}/client-jaas.conf:/conf/client-jaas.conf</volume>
-                      </bind>
-                    </volumes>
-                  </run>
-                </image>
-              </images>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>add-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>${basedir}/src/test/java</source>
-                  </sources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**/org/apache/syncope/sra/**Test.java</exclude>
-                <exclude>**/org/apache/syncope/sra/**Zookeeper*.java</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
-              <mainClass>org.apache.syncope.sra.SyncopeSRAApplication</mainClass>
               <systemPropertyVariables>
                 <reactor.netty.http.server.accessLogEnabled>true</reactor.netty.http.server.accessLogEnabled>
               </systemPropertyVariables>
               <jvmArguments>
-                -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                -Xdebug -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=n
               </jvmArguments>
+              <profiles>
+                <profile>debug</profile>
+              </profiles>
             </configuration>
           </plugin>
         </plugins>
         
         <resources>
           <resource>
-            <directory>${basedir}/src/test/resources</directory>
+            <directory>${basedir}/src/test/resources/debug</directory>
             <filtering>true</filtering>
           </resource>
         </resources>
-
-        <testResources>
-          <testResource>
-            <directory>${basedir}/../common/keymaster/client-zookeeper/src/main/resources</directory>
-            <filtering>true</filtering>
-          </testResource>
-        </testResources>
       </build>
     </profile>
 

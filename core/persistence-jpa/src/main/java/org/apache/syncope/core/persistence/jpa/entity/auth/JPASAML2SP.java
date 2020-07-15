@@ -38,34 +38,25 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     @Column(nullable = false)
     private String metadataLocation;
 
-    @Column
     private String metadataSignatureLocation;
 
-    @Column
     private boolean signAssertions;
 
-    @Column
     private boolean signResponses;
 
-    @Column
     private boolean encryptionOptional;
 
-    @Column
     private boolean encryptAssertions;
 
     @Column(name = "reqAuthnContextClass")
     private String requiredAuthenticationContextClass;
 
-    @Column
     private SAML2SPNameId requiredNameIdFormat;
 
-    @Column
     private Integer skewAllowance;
 
-    @Column
     private String nameIdQualifier;
 
-    @Column
     private String assertionAudiences;
 
     @Column(name = "spNameIdQualifier")

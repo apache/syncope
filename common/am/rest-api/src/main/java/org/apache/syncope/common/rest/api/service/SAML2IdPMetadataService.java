@@ -38,12 +38,12 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for SAML 2.0 IdP metadata.
  */
-@Tag(name = "SAML 2.0 IdP Metadata")
+@Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("saml2idp/conf/metadata")
-public interface SAML2IdPMetadataConfService extends JAXRSService {
+@Path("saml2idp/metadata")
+public interface SAML2IdPMetadataService extends JAXRSService {
 
     /**
      * Updates SAML 2.0 IdP metadata matching the given key.
@@ -59,5 +59,4 @@ public interface SAML2IdPMetadataConfService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull SAML2IdPMetadataTO saml2IdPMetadataTO);
-
 }

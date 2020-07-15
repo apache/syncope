@@ -23,11 +23,4 @@ import org.apache.syncope.common.lib.BaseBean;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AttrReleasePolicyConf extends BaseBean {
-
-    /**
-     * Give name of related attr release policy.
-     *
-     * @return name of this attr release policy
-     */
-    String getName();
 }

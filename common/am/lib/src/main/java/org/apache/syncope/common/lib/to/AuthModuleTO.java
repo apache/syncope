@@ -32,8 +32,6 @@ public class AuthModuleTO implements EntityTO {
 
     private String key;
 
-    private String name;
-
     private String description;
 
     private AuthModuleConf conf;
@@ -49,14 +47,6 @@ public class AuthModuleTO implements EntityTO {
     @Override
     public void setKey(final String key) {
         this.key = key;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public String getDescription() {
@@ -101,7 +91,6 @@ public class AuthModuleTO implements EntityTO {
         AuthModuleTO other = (AuthModuleTO) obj;
         return new EqualsBuilder().
                 append(key, other.key).
-                append(name, other.name).
                 append(description, other.description).
                 append(items, other.items).
                 append(conf, other.conf).
@@ -112,7 +101,6 @@ public class AuthModuleTO implements EntityTO {
     public int hashCode() {
         return new HashCodeBuilder().
                 append(key).
-                append(name).
                 append(description).
                 append(items).
                 append(conf).

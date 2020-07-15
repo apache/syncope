@@ -35,5 +35,4 @@ public class DefaultAccessMapper implements AccessMapper {
         accessStrategy.getRequiredAttributes().putAll(conf.getRequiredAttrs());
         return accessStrategy;
     }
-
 }

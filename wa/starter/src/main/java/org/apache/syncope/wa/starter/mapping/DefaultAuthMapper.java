@@ -34,16 +34,23 @@ public class DefaultAuthMapper implements AuthMapper {
     @Override
     public RegisteredServiceAuthenticationPolicy build(final AuthPolicyConf conf) {
         DefaultRegisteredServiceAuthenticationPolicy authPolicy = new DefaultRegisteredServiceAuthenticationPolicy();
-        AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria criteria =
-                new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
-        criteria.setTryAll(((DefaultAuthPolicyCriteriaConf) conf.getCriteria()).isAll());
-        authPolicy.setCriteria(criteria);
 
-        if (conf instanceof DefaultAuthPolicyConf && !((DefaultAuthPolicyConf) conf).getAuthModules().isEmpty()) {
-            authPolicy.setRequiredAuthenticationHandlers(
-                    new HashSet<>(((DefaultAuthPolicyConf) conf).getAuthModules()));
+        if (conf.getCriteria() instanceof DefaultAuthPolicyCriteriaConf) {
+            DefaultAuthPolicyCriteriaConf policyCriteriaConf = (DefaultAuthPolicyCriteriaConf) conf.getCriteria();
+
+            AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria criteria =
+                    new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
+            criteria.setTryAll(policyCriteriaConf.isAll());
+            authPolicy.setCriteria(criteria);
         }
+
+        if (conf instanceof DefaultAuthPolicyConf) {
+            DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) conf;
+            if (!policyConf.getAuthModules().isEmpty()) {
+                authPolicy.setRequiredAuthenticationHandlers(new HashSet<>(policyConf.getAuthModules()));
+            }
+        }
+
         return authPolicy;
     }
-
 }

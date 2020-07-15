@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,51 +36,50 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 /**
- * REST operations for SAML 2.0 IdP metadata.
+ * REST operations for SAML 2.0 IdP keystore.
  */
-@Tag(name = "SAML 2.0 IdP Metadata")
+@Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("wa/saml2idp/metadata")
-public interface SAML2IdPMetadataService extends JAXRSService {
+@Path("wa/saml2sp/keystore")
+public interface WASAML2SPKeystoreService extends JAXRSService {
 
     /**
-     * Returns a document outlining keys and metadata of Syncope as SAML 2.0 IdP.
+     * Returns a document outlining keystore for Syncope as SAML 2.0 SP.
      *
-     * @param appliesTo indicates the SAML 2.0 IdP metadata document owner and applicability, where a value of 'Syncope'
-     * indicates the Syncope server as the global owner of the metadata and keys.
-     * @return SAML 2.0 IdP metadata
+     * @param name indicates the SAML 2.0 SP keystore document owner.
+     * @return SAML 2.0 SP keystore
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2IdPMetadataTO getByOwner(@QueryParam("appliesTo") @DefaultValue("Syncope") String appliesTo);
+    SAML2SPKeystoreTO getByOwner(@QueryParam("name") String name);
 
     /**
-     * Returns the SAML 2.0 IdP metadata matching the given key.
+     * Returns the SAML 2.0 SP keystore matching the given key.
      *
-     * @param key key of requested SAML 2.0 IdP metadata
-     * @return SAML 2.0 IdP metadata with matching id
+     * @param key key of requested SAML 2.0 SP keystore
+     * @return SAML 2.0 SP keystore with matching id
      */
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2IdPMetadataTO read(@NotNull @PathParam("key") String key);
+    SAML2SPKeystoreTO read(@NotNull @PathParam("key") String key);
 
     /**
-     * Store the metadata and keys to finalize the metadata generation process.
+     * Store the keystore to finalize the keystore generation process.
      *
-     * @param saml2IdPMetadataTO SAML2IdPMetadata to be created
-     * @return Response object featuring Location header of created SAML 2.0 IdP metadata
+     * @param keystoreTO SAML2SPMetadataKeystoreTO to be created
+     * @return Response object featuring Location header of created SAML 2.0 SP keystore
      */
     @ApiResponses({
         @ApiResponse(responseCode = "201",
-                description = "SAML2IdPMetadata successfully created", headers = {
+                description = "SAML2SPKeystoreTO successfully created", headers = {
                     @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                             @Schema(type = "string"),
                             description = "UUID generated for the entity created"),
@@ -93,6 +91,5 @@ public interface SAML2IdPMetadataService extends JAXRSService {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response set(@NotNull SAML2IdPMetadataTO saml2IdPMetadataTO);
-
+    Response set(@NotNull SAML2SPKeystoreTO keystoreTO);
 }

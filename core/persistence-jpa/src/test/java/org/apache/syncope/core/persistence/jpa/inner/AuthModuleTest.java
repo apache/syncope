@@ -53,42 +53,6 @@ public class AuthModuleTest extends AbstractTest {
     private AuthModuleDAO authModuleDAO;
 
     @Test
-    public void find() {
-        AuthModule authModule = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3ed8f6-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3edbbc-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3ed7e8-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3ed4e6-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3edc98-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3ed9d2-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("4c3edd60-7008-11ea-bc55-0242ac130003");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("07c528f3-63b4-4dc1-a4da-87f35b8bdec8");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find("f6e1288d-50d9-45fe-82ee-597c42242205");
-        assertNotNull(authModule);
-
-        authModule = authModuleDAO.find(UUID.randomUUID().toString());
-        assertNull(authModule);
-    }
-
-    @Test
     public void findAll() {
         List<AuthModule> modules = authModuleDAO.findAll();
         assertNotNull(modules);
@@ -97,57 +61,46 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void findByAuthModuleImpl() {
-        AuthModule ldapAuthModule = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
-        assertNotNull(ldapAuthModule);
-        AuthModule jdbcAuthModule = authModuleDAO.find("4c3ed7e8-7008-11ea-bc55-0242ac130003");
-        assertNotNull(jdbcAuthModule);
-        AuthModule googleMfaAuthModule = authModuleDAO.find("4c3ed4e6-7008-11ea-bc55-0242ac130003");
-        assertNotNull(googleMfaAuthModule);
-        AuthModule oidcAuthModule = authModuleDAO.find("4c3ed8f6-7008-11ea-bc55-0242ac130003");
-        assertNotNull(oidcAuthModule);
-        AuthModule saml2IdPAuthModule = authModuleDAO.find("4c3ed9d2-7008-11ea-bc55-0242ac130003");
-        assertNotNull(saml2IdPAuthModule);
-        AuthModule jaasAuthModule = authModuleDAO.find("4c3edbbc-7008-11ea-bc55-0242ac130003");
-        assertNotNull(jaasAuthModule);
-        AuthModule staticAuthModule = authModuleDAO.find("4c3edc98-7008-11ea-bc55-0242ac130003");
-        assertNotNull(staticAuthModule);
-        AuthModule syncopeAuthModule = authModuleDAO.find("4c3edd60-7008-11ea-bc55-0242ac130003");
-        assertNotNull(syncopeAuthModule);
-        AuthModule radiusAuthModule = authModuleDAO.find("07c528f3-63b4-4dc1-a4da-87f35b8bdec8");
-        assertNotNull(radiusAuthModule);
-        AuthModule u2fAuthModule = authModuleDAO.find("f6e1288d-50d9-45fe-82ee-597c42242205");
-        assertNotNull(u2fAuthModule);
+    public void find() {
+        AuthModule authModule = authModuleDAO.find("DefaultLDAPAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof LDAPAuthModuleConf);
 
-        assertTrue(isSpecificConf(ldapAuthModule.getConf(), LDAPAuthModuleConf.class));
-        assertFalse(isSpecificConf(ldapAuthModule.getConf(), JDBCAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultJDBCAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof JDBCAuthModuleConf);
 
-        assertTrue(isSpecificConf(jdbcAuthModule.getConf(), JDBCAuthModuleConf.class));
-        assertFalse(isSpecificConf(jdbcAuthModule.getConf(), GoogleMfaAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultGoogleMfaAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof GoogleMfaAuthModuleConf);
 
-        assertTrue(isSpecificConf(googleMfaAuthModule.getConf(), GoogleMfaAuthModuleConf.class));
-        assertFalse(isSpecificConf(googleMfaAuthModule.getConf(), OIDCAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultOIDCAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof OIDCAuthModuleConf);
 
-        assertTrue(isSpecificConf(oidcAuthModule.getConf(), OIDCAuthModuleConf.class));
-        assertFalse(isSpecificConf(oidcAuthModule.getConf(), SAML2IdPAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultSAML2IdPAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof SAML2IdPAuthModuleConf);
 
-        assertTrue(isSpecificConf(saml2IdPAuthModule.getConf(), SAML2IdPAuthModuleConf.class));
-        assertFalse(isSpecificConf(saml2IdPAuthModule.getConf(), JaasAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultJaasAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof JaasAuthModuleConf);
 
-        assertTrue(isSpecificConf(jaasAuthModule.getConf(), JaasAuthModuleConf.class));
-        assertFalse(isSpecificConf(jaasAuthModule.getConf(), StaticAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultStaticAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof StaticAuthModuleConf);
 
-        assertTrue(isSpecificConf(staticAuthModule.getConf(), StaticAuthModuleConf.class));
-        assertFalse(isSpecificConf(staticAuthModule.getConf(), SyncopeAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultSyncopeAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof SyncopeAuthModuleConf);
 
-        assertTrue(isSpecificConf(syncopeAuthModule.getConf(), SyncopeAuthModuleConf.class));
-        assertFalse(isSpecificConf(syncopeAuthModule.getConf(), RadiusAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultU2FAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof U2FAuthModuleConf);
 
-        assertTrue(isSpecificConf(radiusAuthModule.getConf(), RadiusAuthModuleConf.class));
-        assertFalse(isSpecificConf(radiusAuthModule.getConf(), U2FAuthModuleConf.class));
-
-        assertTrue(isSpecificConf(u2fAuthModule.getConf(), U2FAuthModuleConf.class));
-        assertFalse(isSpecificConf(u2fAuthModule.getConf(), LDAPAuthModuleConf.class));
+        authModule = authModuleDAO.find("DefaultRadiusAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof RadiusAuthModuleConf);
     }
 
     @Test
@@ -155,34 +108,34 @@ public class AuthModuleTest extends AbstractTest {
         List<AuthModule> authModules = authModuleDAO.findAll();
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), LDAPAuthModuleConf.class)
-                && authModule.getName().equals("DefaultLDAPAuthModule")));
+                && authModule.getKey().equals("DefaultLDAPAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), JDBCAuthModuleConf.class)
-                && authModule.getName().equals("DefaultJDBCAuthModule")));
+                && authModule.getKey().equals("DefaultJDBCAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
-                && authModule.getName().equals("DefaultGoogleMfaAuthModule")));
+                && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
-                && authModule.getName().equals("DefaultOIDCAuthModule")));
+                && authModule.getKey().equals("DefaultOIDCAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SAML2IdPAuthModuleConf.class)
-                && authModule.getName().equals("DefaultSAML2IdPAuthModule")));
+                && authModule.getKey().equals("DefaultSAML2IdPAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), JaasAuthModuleConf.class)
-                && authModule.getName().equals("DefaultJaasAuthModule")));
+                && authModule.getKey().equals("DefaultJaasAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), StaticAuthModuleConf.class)
-                && authModule.getName().equals("DefaultStaticAuthModule")));
+                && authModule.getKey().equals("DefaultStaticAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SyncopeAuthModuleConf.class)
-                && authModule.getName().equals("DefaultSyncopeAuthModule")));
+                && authModule.getKey().equals("DefaultSyncopeAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), RadiusAuthModuleConf.class)
-                && authModule.getName().equals("DefaultRadiusAuthModule")));
+                && authModule.getKey().equals("DefaultRadiusAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), U2FAuthModuleConf.class)
-                && authModule.getName().equals("DefaultU2FAuthModule")));
+                && authModule.getKey().equals("DefaultU2FAuthModule")));
     }
 
     @Test
@@ -257,7 +210,6 @@ public class AuthModuleTest extends AbstractTest {
     public void saveWithSyncopeModule() {
         SyncopeAuthModuleConf conf = new SyncopeAuthModuleConf();
         conf.setDomain("Master");
-        conf.setUrl("http://mydomain.com/syncope/rest");
 
         saveAuthModule("SyncopeAuthModuleTest", conf);
     }
@@ -291,7 +243,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithLDAPModule() {
-        AuthModule module = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
+        AuthModule module = authModuleDAO.find("DefaultLDAPAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         LDAPAuthModuleConf.class.cast(conf).setBaseDn("dc=example2,dc=org");
@@ -310,7 +262,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithJDBCModule() {
-        AuthModule module = authModuleDAO.find("4c3ed7e8-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultJDBCAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         JDBCAuthModuleConf.class.cast(conf).setSql("SELECT * FROM otherTable WHERE name=?");
@@ -326,7 +278,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithGoogleMfaModule() {
-        AuthModule module = authModuleDAO.find("4c3ed4e6-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultGoogleMfaAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         GoogleMfaAuthModuleConf.class.cast(conf).setLabel("newLabel");
@@ -342,7 +294,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithSAML2IdPModule() {
-        AuthModule module = authModuleDAO.find("4c3ed9d2-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultSAML2IdPAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         SAML2IdPAuthModuleConf.class.cast(conf).setServiceProviderEntityId("newEntityId");
@@ -358,7 +310,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithOIDCModule() {
-        AuthModule module = authModuleDAO.find("4c3ed8f6-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultOIDCAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         OIDCAuthModuleConf.class.cast(conf).setResponseType("newCode");
@@ -374,7 +326,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithJaasModule() {
-        AuthModule module = authModuleDAO.find("4c3edbbc-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultJaasAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         JaasAuthModuleConf.class.cast(conf).setRealm("SYNCOPE_NEW");
@@ -390,7 +342,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithStaticModule() {
-        AuthModule module = authModuleDAO.find("4c3edc98-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultStaticAuthModule");
         assertNotNull(module);
         assertEquals(1, StaticAuthModuleConf.class.cast(module.getConf()).getUsers().size());
         AuthModuleConf conf = module.getConf();
@@ -407,7 +359,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithRadiusModule() {
-        AuthModule module = authModuleDAO.find("07c528f3-63b4-4dc1-a4da-87f35b8bdec8");
+        AuthModule module = authModuleDAO.find("DefaultRadiusAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         RadiusAuthModuleConf.class.cast(conf).setSocketTimeout(45);
@@ -423,7 +375,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithU2fModule() {
-        AuthModule module = authModuleDAO.find("f6e1288d-50d9-45fe-82ee-597c42242205");
+        AuthModule module = authModuleDAO.find("DefaultU2FAuthModule");
         assertNotNull(module);
         AuthModuleConf conf = module.getConf();
         U2FAuthModuleConf.class.cast(conf).setExpireDevices(24);
@@ -439,7 +391,7 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void updateWithSyncopeModule() {
-        AuthModule module = authModuleDAO.find("4c3edd60-7008-11ea-bc55-0242ac130003");
+        AuthModule module = authModuleDAO.find("DefaultSyncopeAuthModule");
         assertNotNull(module);
 
         AuthModuleConf conf = module.getConf();
@@ -456,18 +408,18 @@ public class AuthModuleTest extends AbstractTest {
 
     @Test
     public void delete() {
-        AuthModule authModule = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
+        AuthModule authModule = authModuleDAO.find("DefaultSyncopeAuthModule");
         assertNotNull(authModule);
 
-        authModuleDAO.delete("be456831-593d-4003-b273-4c3fb61700df");
+        authModuleDAO.delete("DefaultSyncopeAuthModule");
 
-        authModule = authModuleDAO.find("be456831-593d-4003-b273-4c3fb61700df");
+        authModule = authModuleDAO.find("DefaultSyncopeAuthModule");
         assertNull(authModule);
     }
 
-    private void saveAuthModule(final String name, final AuthModuleConf conf) {
+    private void saveAuthModule(final String key, final AuthModuleConf conf) {
         AuthModule module = entityFactory.newEntity(AuthModule.class);
-        module.setName(name);
+        module.setKey(key);
         module.setDescription("An authentication module");
         module.setConf(conf);
 

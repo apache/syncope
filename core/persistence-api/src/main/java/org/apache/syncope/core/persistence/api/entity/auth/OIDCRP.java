@@ -42,11 +42,11 @@ public interface OIDCRP extends ClientApp {
 
     void setSignIdToken(boolean signIdToken);
 
-    String getJwks();
-
-    void setJwks(String jwks);
-
     OIDCSubjectType getSubjectType();
 
     void setSubjectType(OIDCSubjectType subjectType);
+
+    String getLogoutUri();
+
+    void setLogoutUri(String logoutUri);
 }

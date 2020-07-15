@@ -25,13 +25,6 @@ import org.apache.syncope.common.lib.BaseBean;
 public interface AuthPolicyConf extends BaseBean {
 
     /**
-     * Give name of related authentication policy instance.
-     *
-     * @return name of this authentication policy instance
-     */
-    String getName();
-
-    /**
      * Gets the policy criteria linked to this policy
      * to establish criteria for success.
      *

@@ -29,12 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppBinder;
+import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 
 @Component
-public class WAClientAppBinderImpl implements WAClientAppBinder {
+public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WAClientAppBinder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WAClientAppDataBinder.class);
 
     @Autowired
     private ClientAppDataBinder clientAppDataBinder;
@@ -52,39 +52,39 @@ public class WAClientAppBinderImpl implements WAClientAppBinder {
             if (clientApp.getAuthPolicy() != null) {
                 authPolicyConf = clientApp.getAuthPolicy().getConf();
                 waClientApp.setAuthPolicyConf(clientApp.getAuthPolicy().getConf());
-            } else if (clientApp.getRealm().getAuthPolicy() != null) {
+            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAuthPolicy() != null) {
                 authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
                 waClientApp.setAuthPolicyConf(clientApp.getRealm().getAuthPolicy().getConf());
             }
 
             if (clientApp.getAccessPolicy() != null) {
                 waClientApp.setAccessPolicyConf(clientApp.getAccessPolicy().getConf());
-            } else if (clientApp.getRealm().getAccessPolicy() != null) {
+            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAccessPolicy() != null) {
                 waClientApp.setAccessPolicyConf(clientApp.getRealm().getAccessPolicy().getConf());
             }
 
             if (clientApp.getAttrReleasePolicy() != null) {
                 waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
-            } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
+            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
                 waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
             }
 
-            if (authPolicyConf instanceof DefaultAuthPolicyConf
-                    && !((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().isEmpty()) {
-                ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(authModuleKey -> {
-                    AuthModule authModule = authModuleDAO.find(authModuleKey);
+            if (authPolicyConf instanceof DefaultAuthPolicyConf) {
+                ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(key -> {
+                    AuthModule authModule = authModuleDAO.find(key);
                     if (authModule == null) {
-                        LOG.warn("AuthModule " + authModuleKey + " not found");
+                        LOG.warn("AuthModule " + authModule + " not found");
                     } else {
-                        authModule.getItems().forEach(item -> waClientApp.getReleaseAttrs().put(
-                                item.getExtAttrName(), item.getIntAttrName()));
+                        authModule.getItems().
+                                forEach(item -> waClientApp.getReleaseAttrs().put(
+                                item.getIntAttrName(), item.getExtAttrName()));
                     }
                 });
             }
             if (waClientApp.getReleaseAttrs().isEmpty()) {
                 if (clientApp.getAttrReleasePolicy() != null) {
                     waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
-                } else if (clientApp.getRealm().getAttrReleasePolicy() != null) {
+                } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
                     waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
                 }
             }

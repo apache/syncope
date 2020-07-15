@@ -37,23 +37,18 @@ public class JPASAML2IdPMetadata extends AbstractGeneratedKeyEntity implements S
     private String appliesTo;
 
     @Lob
-    @Column
     private String metadata;
 
     @Lob
-    @Column
     private String signingCertificate;
 
     @Lob
-    @Column
     private String signingKey;
 
     @Lob
-    @Column
     private String encryptionCertificate;
 
     @Lob
-    @Column
     private String encryptionKey;
 
     @Override

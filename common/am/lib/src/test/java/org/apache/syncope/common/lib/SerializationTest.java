@@ -39,7 +39,6 @@ public abstract class SerializationTest {
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.setEnabled(true);
-        conf.setName("TestAccessPolicyConf");
         conf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
         policy.setConf(conf);
 

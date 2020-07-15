@@ -38,10 +38,12 @@ public class OIDCJWKSTO implements EntityTO {
         this.json = json;
     }
 
+    @Override
     public String getKey() {
         return key;
     }
 
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }
@@ -49,10 +51,10 @@ public class OIDCJWKSTO implements EntityTO {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-            .appendSuper(super.hashCode())
-            .append(key)
-            .append(json)
-            .toHashCode();
+                .appendSuper(super.hashCode())
+                .append(key)
+                .append(json)
+                .toHashCode();
     }
 
     @Override
@@ -68,18 +70,18 @@ public class OIDCJWKSTO implements EntityTO {
         }
         OIDCJWKSTO rhs = (OIDCJWKSTO) obj;
         return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.key, rhs.key)
-            .append(this.json, rhs.json)
-            .isEquals();
+                .appendSuper(super.equals(obj))
+                .append(this.key, rhs.key)
+                .append(this.json, rhs.json)
+                .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("key", key)
-            .append("json", json)
-            .toString();
+                .append("key", key)
+                .append("json", json)
+                .toString();
     }
 
     public static class Builder {

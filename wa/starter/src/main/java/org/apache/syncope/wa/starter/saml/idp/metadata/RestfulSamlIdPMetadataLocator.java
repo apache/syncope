@@ -22,7 +22,6 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.wa.SAML2IdPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.locator.AbstractSamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
@@ -31,6 +30,7 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Optional;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2IdPMetadataService;
 
 public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
@@ -58,7 +58,7 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
     public SamlIdPMetadataDocument fetchInternal(final Optional<SamlRegisteredService> registeredService) {
         try {
             LOG.info("Locating SAML2 IdP metadata document");
-            SAML2IdPMetadataTO saml2IdPMetadataTO = getSyncopeClient().getService(SAML2IdPMetadataService.class).
+            SAML2IdPMetadataTO saml2IdPMetadataTO = getSyncopeClient().getService(WASAML2IdPMetadataService.class).
                 getByOwner(getAppliesToFor(registeredService));
 
             if (saml2IdPMetadataTO == null) {

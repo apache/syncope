@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPKeystore;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPKeystore;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPASAML2SPKeystore.TABLE)
@@ -38,7 +37,6 @@ public class JPASAML2SPKeystore extends AbstractGeneratedKeyEntity implements SA
     private String owner;
 
     @Lob
-    @Column
     private String keystore;
 
     @Override
@@ -60,5 +58,4 @@ public class JPASAML2SPKeystore extends AbstractGeneratedKeyEntity implements SA
     public void setOwner(final String name) {
         this.owner = name;
     }
-
 }

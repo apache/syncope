@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-public class DefaultAuthPolicyCriteriaConf extends AbstractAuthPolicyCriteriaConf {
+public class DefaultAuthPolicyCriteriaConf implements AuthPolicyCriteriaConf {
 
     private static final long serialVersionUID = 3928807032588105869L;
 

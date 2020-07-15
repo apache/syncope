@@ -40,7 +40,6 @@ public class AbstractClientAppTest extends AbstractTest {
         attrRelPolicy.setDescription("AttrRelPolicyTest");
 
         AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
-        conf.setName("Example Attr Rel Policy for an application");
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
         attrRelPolicy.setConf(conf);
 
@@ -54,7 +53,6 @@ public class AbstractClientAppTest extends AbstractTest {
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.setEnabled(true);
-        conf.setName("Example Access Policy for an application");
         conf.addRequiredAttr("attribute1", Set.of("value1", "value2"));
         conf.setSsoEnabled(false);
         accessPolicy.setConf(conf);

@@ -205,7 +205,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientSecret(clientAppTO.getClientSecret());
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
-        clientApp.setJwks(clientAppTO.getJwks());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
@@ -219,8 +218,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 clientApp.setAuthPolicy((AuthPolicy) policy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
+                if (policy == null) {
+                    sce.getElements().add("Policy " + clientAppTO.getAuthPolicy() + " not found");
+                } else {
+                    sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
+                            + ", found " + policy.getClass().getSimpleName());
+                }
                 throw sce;
             }
         }
@@ -233,8 +236,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 clientApp.setAccessPolicy((AccessPolicy) policy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
+                if (policy == null) {
+                    sce.getElements().add("Policy " + clientAppTO.getAccessPolicy() + " not found");
+                } else {
+                    sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
+                            + ", found " + policy.getClass().getSimpleName());
+                }
                 throw sce;
             }
         }
@@ -247,11 +254,17 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 clientApp.setAttrReleasePolicy((AttrReleasePolicy) policy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
+                if (policy == null) {
+                    sce.getElements().add("Policy " + clientAppTO.getAttrReleasePolicy() + " not found");
+                } else {
+                    sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
+                            + ", found " + policy.getClass().getSimpleName());
+                }
                 throw sce;
             }
         }
+
+        clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
     private static OIDCRPTO getClientAppTO(final OIDCRP clientApp) {
@@ -264,7 +277,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setClientId(clientApp.getClientId());
         clientAppTO.setClientSecret(clientApp.getClientSecret());
         clientAppTO.setSignIdToken(clientApp.isSignIdToken());
-        clientAppTO.setJwks(clientApp.getJwks());
         clientAppTO.setSubjectType(clientApp.getSubjectType());
         clientAppTO.getRedirectUris().addAll(clientApp.getRedirectUris());
         clientAppTO.getSupportedGrantTypes().addAll(clientApp.getSupportedGrantTypes());
@@ -276,6 +288,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 ? null : clientApp.getAccessPolicy().getKey());
         clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
                 ? null : clientApp.getAttrReleasePolicy().getKey());
+
+        clientAppTO.setLogoutUri(clientApp.getLogoutUri());
 
         return clientAppTO;
     }

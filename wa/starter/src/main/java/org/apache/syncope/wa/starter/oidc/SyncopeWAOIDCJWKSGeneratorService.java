@@ -16,29 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.oidc;
 
-import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
-
+import java.nio.charset.StandardCharsets;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.wa.OIDCJWKSService;
+import org.apache.syncope.common.lib.types.JWSAlgorithm;
+import org.apache.syncope.common.rest.api.service.wa.WAOIDCJWKSService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-
-import java.nio.charset.StandardCharsets;
-
 public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorService {
+
     private final WARestClient waRestClient;
 
-    public SyncopeWAOIDCJWKSGeneratorService(final WARestClient restClient) {
+    private final int size;
+
+    private final JWSAlgorithm algorithm;
+
+    public SyncopeWAOIDCJWKSGeneratorService(
+            final WARestClient restClient, final int size, final JWSAlgorithm algorithm) {
+
         this.waRestClient = restClient;
+        this.size = size;
+        this.algorithm = algorithm;
     }
 
     @Override
@@ -47,19 +53,19 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
             throw new RuntimeException("Syncope core is not yet ready");
         }
 
-        OIDCJWKSService service = waRestClient.getSyncopeClient().
-            getService(OIDCJWKSService.class);
+        WAOIDCJWKSService service = waRestClient.getSyncopeClient().getService(WAOIDCJWKSService.class);
         try {
-            Response response = service.set();
+            Response response = service.set(size, algorithm);
             OIDCJWKSTO jwksTO = response.readEntity(new GenericType<OIDCJWKSTO>() {
             });
             return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
-        } catch (final SyncopeClientException e) {
+        } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.EntityExists) {
                 OIDCJWKSTO jwksTO = service.get();
                 return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
             }
+
+            throw new RuntimeException("Unable to determine OIDC JWKS resource", e);
         }
-        throw new RuntimeException("Unable to determine OIDC JWKS resource");
     }
 }

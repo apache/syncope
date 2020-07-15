@@ -31,11 +31,4 @@ import org.apache.syncope.common.lib.BaseBean;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AuthPolicyCriteriaConf extends BaseBean {
-
-    /**
-     * Describe the name of the authentication policy criteria.
-     *
-     * @return name of this authentication policy instance
-     */
-    String getName();
 }

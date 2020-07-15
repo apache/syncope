@@ -256,7 +256,6 @@ public class RealmITCase extends AbstractITCase {
         // 1. create access policy
         DefaultAccessPolicyConf ruleConf = new DefaultAccessPolicyConf();
         ruleConf.setEnabled(true);
-        ruleConf.setName("TestAccessPolicyConf" + getUUIDString());
         ruleConf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
 
         AccessPolicyTO policy = new AccessPolicyTO();
@@ -298,7 +297,6 @@ public class RealmITCase extends AbstractITCase {
     public void deletingAttributeReleasePolicy() {
         // 1. create attribute release policy
         AllowedAttrReleasePolicyConf ruleConf = new AllowedAttrReleasePolicyConf();
-        ruleConf.setName("MyDefaultAttrReleasePolicyConf" + getUUIDString());
         ruleConf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
 
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();

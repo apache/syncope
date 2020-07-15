@@ -97,15 +97,11 @@ public class WAClientAppITCase extends AbstractITCase {
     public void readWithPolicies() {
         OIDCRPTO oidcrpto = buildOIDCRP();
 
-        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH,
-                buildAuthPolicyTO("be456831-593d-4003-b273-4c3fb61700df"));
+        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH, buildAuthPolicyTO("DefaultLDAPAuthModule"));
 
-        AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS,
-                buildAccessPolicyTO());
+        AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
 
-        String policyName = "TestAttrReleasePolicy" + getUUIDString();
-        AttrReleasePolicyTO attrReleasePolicyTO = createPolicy(PolicyType.ATTR_RELEASE,
-                buildAttributeReleasePolicyTO(policyName));
+        AttrReleasePolicyTO attrReleasePolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
 
         oidcrpto.setAuthPolicy(authPolicyTO.getKey());
         oidcrpto.setAccessPolicy(accessPolicyTO.getKey());
@@ -115,9 +111,6 @@ public class WAClientAppITCase extends AbstractITCase {
 
         WAClientApp waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
-        assertEquals("TestAuthConf", waClientApp.getAuthPolicyConf().getName());
-        assertEquals("TestAccessPolicyConf", waClientApp.getAccessPolicyConf().getName());
-        assertEquals("MyDefaultAttrReleasePolicyConf", waClientApp.getAttrReleasePolicyConf().getName());
         assertTrue(waClientApp.getReleaseAttrs().isEmpty());
 
         // add items to the authentication module
@@ -125,13 +118,13 @@ public class WAClientAppITCase extends AbstractITCase {
         waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
         assertFalse(waClientApp.getReleaseAttrs().isEmpty());
-        assertEquals("uid", waClientApp.getReleaseAttrs().get("username"));
-        assertEquals("cn", waClientApp.getReleaseAttrs().get("fullname"));
+        assertEquals("username", waClientApp.getReleaseAttrs().get("uid"));
+        assertEquals("fullname", waClientApp.getReleaseAttrs().get("cn"));
         removeItems();
     }
 
     private void addItems() {
-        AuthModuleTO authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
 
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("uid");
@@ -145,17 +138,17 @@ public class WAClientAppITCase extends AbstractITCase {
 
         authModuleService.update(authModuleTO);
 
-        authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
         assertFalse(authModuleTO.getItems().isEmpty());
     }
 
     private void removeItems() {
-        AuthModuleTO authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
         authModuleTO.getItems().clear();
 
         authModuleService.update(authModuleTO);
 
-        authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
         assertTrue(authModuleTO.getItems().isEmpty());
     }
 }
