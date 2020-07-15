@@ -242,9 +242,4 @@ public class SyncopeWAConfiguration {
     public String version() {
         return applicationContext.getEnvironment().getProperty("version");
     }
-
-    @Bean
-    public String buildNumber() {
-        return applicationContext.getEnvironment().getProperty("buildNumber");
-    }
 }
