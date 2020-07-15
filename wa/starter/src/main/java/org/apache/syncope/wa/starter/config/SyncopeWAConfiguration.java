@@ -74,8 +74,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
