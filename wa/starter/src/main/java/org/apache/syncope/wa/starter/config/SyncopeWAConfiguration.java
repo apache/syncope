@@ -38,6 +38,9 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
@@ -200,6 +203,19 @@ public class SyncopeWAConfiguration {
     }
 
     @Bean
+    public OpenAPI casSwaggerOpenApi() {
+        return new OpenAPI()
+            .info(new Info()
+                .title("Apache Syncope")
+                .description("Apache Syncope " + version())
+                .contact(new Contact()
+                    .name("The Apache Syncope community")
+                    .email("dev@syncope.apache.org")
+                    .url("http://syncope.apache.org"))
+                .version(version()));
+    }
+
+    @Bean
     @Autowired
     @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
@@ -220,5 +236,10 @@ public class SyncopeWAConfiguration {
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.WA);
+    }
+
+    @Bean
+    public String version() {
+        return applicationContext.getEnvironment().getProperty("version");
     }
 }
