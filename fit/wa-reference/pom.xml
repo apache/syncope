@@ -147,7 +147,9 @@ under the License.
               </properties>
             </deployable>
             <deployable>
-              <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
+              <groupId>org.apache.syncope.fit</groupId>
+              <artifactId>syncope-fit-core-reference</artifactId>
+              <type>war</type>
               <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
               <pingTimeout>${cargo.deployable.ping.timeout}</pingTimeout>
               <properties>
@@ -155,13 +157,17 @@ under the License.
               </properties>
             </deployable>
             <deployable>
-              <location>${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}</location>
+              <groupId>org.apache.syncope.fit</groupId>
+              <artifactId>syncope-fit-console-reference</artifactId>
+              <type>war</type>
               <properties>
                 <context>syncope-console</context>
               </properties>
             </deployable>
             <deployable>
-              <location>${basedir}/../enduser-reference/target/syncope-fit-enduser-reference-${project.version}</location>
+              <groupId>org.apache.syncope.fit</groupId>
+              <artifactId>syncope-fit-enduser-reference</artifactId>
+              <type>war</type>
               <properties>
                 <context>syncope-enduser</context>
               </properties>

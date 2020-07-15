@@ -72,6 +72,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
                 : list.get(RandomUtils.nextInt(0, list.size()));
     }
 
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     public void register(final NetworkService networkService) {
         unregister(networkService);
 
@@ -81,6 +82,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
         serviceDAO.save(service);
     }
 
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     public void unregister(final NetworkService networkService) {
         serviceDAO.findAll(networkService.getType()).stream().
                 filter(service -> service.getAddress().equals(networkService.getAddress())).
