@@ -118,6 +118,16 @@ public final class AMEntitlement {
 
     public static final String U2F_UPDATE_DEVICE = "U2F_UPDATE_DEVICE";
 
+    public static final String WA_CONFIG_LIST = "WA_CONFIG_LIST";
+
+    public static final String WA_CONFIG_UPDATE = "WA_CONFIG_UPDATE";
+
+    public static final String WA_CONFIG_DELETE = "WA_CONFIG_DELETE";
+
+    public static final String WA_CONFIG_READ = "WA_CONFIG_READ";
+
+    public static final String WA_CONFIG_CREATE = "WA_CONFIG_CREATE";
+
     private static final Set<String> VALUES;
 
     static {
