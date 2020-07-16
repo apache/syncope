@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.time.DateUtils;
@@ -38,6 +41,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -99,28 +103,25 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         Response response = taskService.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
+        String taskKey = task.getKey();
+        assertNotNull(task);
 
         Date initial = new Date();
         Date later = DateUtils.addSeconds(initial, 2);
 
-        taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).startAt(later).build());
+        AtomicReference<TaskTO> taskTO = new AtomicReference<>(task);
+        int preSyncSize = taskTO.get().getExecutions().size();
+        ExecTO execution = taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).startAt(later).build());
+        assertNotNull(execution.getExecutor());
 
-        int i = 0;
-
-        // wait for completion (executions incremented)
-        do {
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                taskTO.set(taskService.read(TaskType.SCHEDULED, taskKey, true));
+                return preSyncSize < taskTO.get().getExecutions().size();
+            } catch (Exception e) {
+                return false;
             }
-
-            task = taskService.read(TaskType.SCHEDULED, task.getKey(), true);
-
-            assertNotNull(task);
-            assertNotNull(task.getExecutions());
-
-            i++;
-        } while (task.getExecutions().isEmpty() && i < MAX_WAIT_SECONDS);
+        });
 
         PagedResult<ExecTO> execs =
                 taskService.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
@@ -165,7 +166,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE660() {
         List<JobTO> jobs = taskService.listJobs();
-        int old_size = jobs.size();
+        int oldSize = jobs.size();
 
         ImplementationTO taskJobDelegate = implementationService.read(
                 IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
@@ -180,41 +181,32 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
         jobs = taskService.listJobs();
-        assertEquals(old_size + 1, jobs.size());
+        assertEquals(oldSize + 1, jobs.size());
 
         taskService.actionJob(task.getKey(), JobAction.START);
 
-        int i = 0;
-
-        do {
+        AtomicReference<List<JobTO>> run = new AtomicReference<>();
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignore
+                run.set(taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
+                return !run.get().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            jobs = taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList());
-            i++;
-        } while (jobs.size() < 1 && i < MAX_WAIT_SECONDS);
-
-        assertEquals(1, jobs.size());
-        assertEquals(task.getKey(), jobs.get(0).getRefKey());
+        });
+        assertEquals(1, run.get().size());
+        assertEquals(task.getKey(), run.get().get(0).getRefKey());
 
         taskService.actionJob(task.getKey(), JobAction.STOP);
 
-        i = 0;
-
-        do {
+        run.set(List.of());
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // ignore
+                run.set(taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
+                return run.get().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            jobs = taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList());
-            i++;
-        } while (jobs.size() >= 1 && i < MAX_WAIT_SECONDS);
-
-        assertTrue(jobs.isEmpty());
+        });
     }
 }

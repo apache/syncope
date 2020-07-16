@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -30,6 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -61,36 +64,20 @@ import org.junit.jupiter.api.Test;
 public class ReportITCase extends AbstractITCase {
 
     protected static String execReport(final String reportKey) {
-        ReportTO reportTO = reportService.read(reportKey);
-        assertNotNull(reportTO);
-        assertNotNull(reportTO.getExecutions());
+        AtomicReference<ReportTO> reportTO = new AtomicReference<>(reportService.read(reportKey));
+        int preExecSize = reportTO.get().getExecutions().size();
+        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        assertNotNull(execution.getExecutor());
 
-        int preExecSize = reportTO.getExecutions().size();
-        ExecuteQuery query = new ExecuteQuery.Builder().key(reportKey).build();
-        ExecTO exec = reportService.execute(query);
-        assertNotNull(exec);
-        assertNotNull(exec.getExecutor());
-
-        int i = 0;
-
-        // wait for completion (executions incremented)
-        do {
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                reportTO.set(reportService.read(reportKey));
+                return preExecSize < reportTO.get().getExecutions().size();
+            } catch (Exception e) {
+                return false;
             }
-
-            reportTO = reportService.read(reportKey);
-
-            assertNotNull(reportTO);
-            assertNotNull(reportTO.getExecutions());
-
-            i++;
-        } while (preExecSize == reportTO.getExecutions().size() && i < MAX_WAIT_SECONDS);
-        if (i == MAX_WAIT_SECONDS) {
-            fail("Timeout when executing report " + reportKey);
-        }
-        exec = reportTO.getExecutions().get(reportTO.getExecutions().size() - 1);
+        });
+        ExecTO exec = reportTO.get().getExecutions().get(reportTO.get().getExecutions().size() - 1);
         assertEquals(ReportExecStatus.SUCCESS.name(), exec.getStatus());
         return exec.getKey();
     }
@@ -353,23 +340,10 @@ public class ReportITCase extends AbstractITCase {
         reportTO.setActive(true);
         reportTO.setTemplate("sample");
         reportTO = createReport(reportTO);
-        assertNotNull(reportTO);
+        assertNotNull(reportTO.getKey());
 
-        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
-        assertNotNull(execution);
-
-        int maxit = MAX_WAIT_SECONDS;
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            reportTO = reportService.read(reportTO.getKey());
-
-            maxit--;
-        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
-
+        execReport(reportTO.getKey());
+        reportTO = reportService.read(reportTO.getKey());
         assertEquals(1, reportTO.getExecutions().size());
     }
 
@@ -379,26 +353,21 @@ public class ReportITCase extends AbstractITCase {
         ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         reportTO.setName("issueSYNCOPE102" + getUUIDString());
         reportTO = createReport(reportTO);
-        assertNotNull(reportTO);
+        assertNotNull(reportTO.getKey());
+        String reportKey = reportTO.getKey();
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
-            assertNotNull(execution);
+            assertNotNull(reportService.execute(new ExecuteQuery.Builder().key(reportKey).build()));
         }
 
         // Wait for one execution
-        int maxit = MAX_WAIT_SECONDS;
-        do {
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                return !reportService.read(reportKey).getExecutions().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            reportTO = reportService.read(reportTO.getKey());
-
-            maxit--;
-        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
-        assertFalse(reportTO.getExecutions().isEmpty());
+        });
     }
 }

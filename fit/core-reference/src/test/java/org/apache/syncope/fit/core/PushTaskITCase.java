@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.Response;
@@ -157,11 +156,11 @@ public class PushTaskITCase extends AbstractTaskITCase {
                 getResources().contains(RESOURCE_NAME_TESTDB2));
         // ------------------------------------------
 
-        Set<String> pushTaskKeys = new HashSet<>();
-        pushTaskKeys.add("af558be4-9d2f-4359-bf85-a554e6e90be1");
-        pushTaskKeys.add("97f327b6-2eff-4d35-85e8-d581baaab855");
-        pushTaskKeys.add("03aa2a04-4881-4573-9117-753f81b04865");
-        pushTaskKeys.add("5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
+        Set<String> pushTaskKeys = Set.of(
+                "af558be4-9d2f-4359-bf85-a554e6e90be1",
+                "97f327b6-2eff-4d35-85e8-d581baaab855",
+                "03aa2a04-4881-4573-9117-753f81b04865",
+                "5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
         execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, MAX_WAIT_SECONDS, false);
 
         // ------------------------------------------
@@ -220,11 +219,10 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
         // ------------------------------------------
 
-        Set<String> pushTaskKeys = new HashSet<>();
-        pushTaskKeys.add("ec674143-480a-4816-98ad-b61fa090821e");
-        pushTaskKeys.add("c46edc3a-a18b-4af2-b707-f4a415507496");
-        pushTaskKeys.add("5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
-
+        Set<String> pushTaskKeys = Set.of(
+                "ec674143-480a-4816-98ad-b61fa090821e",
+                "c46edc3a-a18b-4af2-b707-f4a415507496",
+                "5e5f7c7e-9de7-4c6a-99f1-4df1af959807");
         execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, MAX_WAIT_SECONDS, false);
 
         // ------------------------------------------
@@ -255,10 +253,9 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         // ------------------------------------------
 
-        pushTaskKeys.clear();
-        pushTaskKeys.add("24b1be9c-7e3b-443a-86c9-798ebce5eaf2");
-        pushTaskKeys.add("375c7b7f-9e3a-4833-88c9-b7787b0a69f2");
-
+        pushTaskKeys = Set.of(
+                "24b1be9c-7e3b-443a-86c9-798ebce5eaf2",
+                "375c7b7f-9e3a-4833-88c9-b7787b0a69f2");
         execProvisioningTasks(taskService, TaskType.PUSH, pushTaskKeys, MAX_WAIT_SECONDS, false);
 
         // ------------------------------------------

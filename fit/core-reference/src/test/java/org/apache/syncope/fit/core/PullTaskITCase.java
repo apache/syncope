@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,13 +36,14 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -71,7 +73,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -305,9 +306,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
 
-            Set<String> otherPullTaskKeys = new HashSet<>();
-            otherPullTaskKeys.add("feae4e57-15ca-40d9-b973-8b9015efca49");
-            otherPullTaskKeys.add("55d5e74b-497e-4bc0-9156-73abef4b9adc");
+            Set<String> otherPullTaskKeys = Set.of(
+                    "feae4e57-15ca-40d9-b973-8b9015efca49",
+                    "55d5e74b-497e-4bc0-9156-73abef4b9adc");
             execProvisioningTasks(taskService, TaskType.PULL, otherPullTaskKeys, MAX_WAIT_SECONDS, false);
 
             // Matching --> UNLINK
@@ -432,25 +433,20 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
         // 4. verify that LDAP group membership is pulled as Syncope membership
-        int i = 0;
-        PagedResult<UserTO> members;
-        do {
+        AtomicReference<Integer> numMembers = new AtomicReference<>();
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                PagedResult<UserTO> members = userService.search(
+                        new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                                build());
+                numMembers.set(members.getResult().size());
+                return !members.getResult().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
-                    build());
-            assertNotNull(members);
-
-            i++;
-        } while (members.getResult().isEmpty() && i < MAX_WAIT_SECONDS);
-        if (i == MAX_WAIT_SECONDS) {
-            fail("Timeout while checking for memberships of " + groupTO.getName());
-        }
-        assertEquals(1, members.getResult().size());
+        });
+        assertEquals(1, numMembers.get());
 
         // SYNCOPE-1343, verify that the title attribute has been reset
         matchingUsers = userService.search(
@@ -471,24 +467,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(
                 taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
-        i = 0;
-        do {
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                return userService.search(
+                        new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                                build()).getResult().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
-                    build());
-            assertNotNull(members);
-
-            i++;
-        } while (!members.getResult().isEmpty() && i < MAX_WAIT_SECONDS);
-        if (i == MAX_WAIT_SECONDS) {
-            fail("Timeout while checking for memberships of " + groupTO.getName());
-        }
-        assertEquals(0, members.getResult().size());
+        });
     }
 
     @Test
@@ -1059,14 +1047,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
         taskService.update(TaskType.PULL, task);
 
         // exec task: one user from CSV will match the user created above and template will be applied
-        execProvisioningTask(taskService, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
+        ExecTO exec = execProvisioningTask(taskService, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
         // check that template was successfully applied
         // 1. propagation to db
-        PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).resource(RESOURCE_NAME_DBVIRATTR).build());
-        assertFalse(tasks.getResult().isEmpty());
-        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+        assertEquals(ExecStatus.SUCCESS.name(), exec.getStatus());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(jdbcTemplate,

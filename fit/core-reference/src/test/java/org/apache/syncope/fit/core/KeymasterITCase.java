@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,6 +34,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -152,25 +155,16 @@ public class KeymasterITCase extends AbstractITCase {
             final Function<List<NetworkService>, Boolean> check,
             final int maxWaitSeconds) {
 
-        int i = 0;
-        int maxit = maxWaitSeconds;
-
-        List<NetworkService> list = List.of();
-        do {
+        AtomicReference<List<NetworkService>> holder = new AtomicReference<>();
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                holder.set(serviceOps.list(type));
+                return !check.apply(holder.get());
+            } catch (Exception e) {
+                return false;
             }
-
-            list = serviceOps.list(type);
-
-            i++;
-        } while (check.apply(list) && i < maxit);
-        if (check.apply(list)) {
-            fail("Timeout when looking for network services of type " + type);
-        }
-
-        return list;
+        });
+        return holder.get();
     }
 
     @Test

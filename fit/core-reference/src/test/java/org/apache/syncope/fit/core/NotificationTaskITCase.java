@@ -56,14 +56,13 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         String sender = "syncopetest-" + getUUIDString() + "@syncope.apache.org";
         String subject = "Test notification " + getUUIDString();
         Pair<String, String> created = createNotificationTask(true, true, TraceLevel.ALL, sender, subject);
-        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
-        assertTrue(taskTO.getExecutions().isEmpty());
 
-        execNotificationTask(taskService, taskTO.getKey(), 50);
+        execNotificationTask(taskService, taskTO.getKey(), MAX_WAIT_SECONDS);
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 
         // verify message body
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -80,13 +79,12 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         String sender = "syncopetest-" + getUUIDString() + "@syncope.apache.org";
         String subject = "Test notification " + getUUIDString();
         Pair<String, String> created = createNotificationTask(true, false, TraceLevel.ALL, sender, subject);
-        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
-        assertTrue(taskTO.getExecutions().isEmpty());
 
-        execNotificationTask(taskService, taskTO.getKey(), 50);
+        execNotificationTask(taskService, taskTO.getKey(), MAX_WAIT_SECONDS);
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
     }
 
     @Test
@@ -105,7 +103,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
             String sender = "syncopetest-" + getUUIDString() + "@syncope.apache.org";
             String subject = "Test notification " + getUUIDString();
             Pair<String, String> created = createNotificationTask(true, true, TraceLevel.ALL, sender, subject);
-            NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+            NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
             assertNotNull(taskTO);
             assertNotNull(taskTO.getNotification());
             int preExecs = taskTO.getExecutions().size();
@@ -134,13 +132,13 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
     public void issueSYNCOPE81() {
         String sender = "syncope81@syncope.apache.org";
         Pair<String, String> created = createNotificationTask(true, true, TraceLevel.ALL, sender, "Test notification");
-        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         // generate an execution in order to verify the deletion of a notification task with one or more executions
-        execNotificationTask(taskService, taskTO.getKey(), 50);
+        execNotificationTask(taskService, taskTO.getKey(), MAX_WAIT_SECONDS);
 
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
         assertTrue(taskTO.isExecuted());
@@ -156,14 +154,14 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         Pair<String, String> created = createNotificationTask(true, true, TraceLevel.ALL, sender, "Test notification");
 
         // 2. get NotificationTaskTO for user just created
-        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         try {
             // 3. execute the generated NotificationTask
-            execNotificationTask(taskService, taskTO.getKey(), 50);
+            execNotificationTask(taskService, taskTO.getKey(), MAX_WAIT_SECONDS);
 
             // 4. verify
             taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -183,7 +181,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         String sender = "syncopetest-" + getUUIDString() + "@syncope.apache.org";
         String subject = "Test notification " + getUUIDString();
         Pair<String, String> created = createNotificationTask(true, true, TraceLevel.NONE, sender, subject);
-        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -195,7 +193,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         } catch (InterruptedException e) {
         }
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 
         // verify that last exec status was updated
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -211,14 +209,14 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         String subject = "Test notification " + getUUIDString();
         Pair<String, String> created = createNotificationTask(
                 true, true, TraceLevel.ALL, sender, subject, "syncope445@syncope.apache.org");
-        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
-        execNotificationTask(taskService, taskTO.getKey(), 50);
+        execNotificationTask(taskService, taskTO.getKey(), MAX_WAIT_SECONDS);
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 
         // verify task
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -275,20 +273,15 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         assertNotNull(groupTO);
 
         // 3. verify
-        NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
+        NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getRecipients().containsAll(
                 new TestNotificationRecipientsProvider().provideRecipients(null)));
 
-        NotificationTaskTO foundViaList = taskService.<NotificationTaskTO>search(
-                new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification.getKey()).build()).
-                getResult().get(0);
-        assertEquals(taskTO, foundViaList);
+        execNotificationTask(taskService, taskTO.getKey(), MAX_WAIT_SECONDS);
 
-        execNotificationTask(taskService, taskTO.getKey(), 50);
-
-        assertTrue(verifyMail(sender, subject, "notificationtest@syncope.apache.org", 50));
+        verifyMail(sender, subject, "notificationtest@syncope.apache.org", MAX_WAIT_SECONDS);
     }
 
     @Test
@@ -303,5 +296,4 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
                 taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(created.getLeft()).build());
         assertEquals(0, tasks.getSize());
     }
-
 }
