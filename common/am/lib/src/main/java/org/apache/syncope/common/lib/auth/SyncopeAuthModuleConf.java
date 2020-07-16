@@ -18,19 +18,13 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import org.apache.syncope.common.lib.SyncopeConstants;
+
 public class SyncopeAuthModuleConf extends AbstractAuthModuleConf {
 
     private static final long serialVersionUID = -3334329948161152222L;
 
-    /**
-     * Syncope domain used for authentication, etc.
-     */
-    private String domain = "Master";
-
-    /**
-     * Syncope instance URL primary used for REST.
-     */
-    private String url;
+    private String domain = SyncopeConstants.MASTER_DOMAIN;
 
     public String getDomain() {
         return domain;
@@ -39,13 +33,4 @@ public class SyncopeAuthModuleConf extends AbstractAuthModuleConf {
     public void setDomain(final String domain) {
         this.domain = domain;
     }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(final String url) {
-        this.url = url;
-    }
-
 }

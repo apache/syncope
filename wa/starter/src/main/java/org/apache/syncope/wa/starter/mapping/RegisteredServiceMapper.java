@@ -21,7 +21,6 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -69,20 +68,20 @@ public class RegisteredServiceMapper {
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
         if (!clientApp.getReleaseAttrs().isEmpty()) {
-            attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
-        } else if (clientApp.getAttrReleasePolicyConf() != null) {
-            AttrReleaseMapper attrReleasePolicyConfMapper =
-                    attrReleasePolicyConfMappers.get(clientApp.getAttrReleasePolicyConf().getClass().getName());
-            attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAttrReleasePolicyConf())).orElse(null);
-        } else {
-            attributeReleasePolicy = new DenyAllAttributeReleasePolicy();
+            if (clientApp.getAttrReleasePolicyConf() == null) {
+                attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
+            } else {
+                AttrReleaseMapper attrReleasePolicyConfMapper =
+                        attrReleasePolicyConfMappers.get(clientApp.getAttrReleasePolicyConf().getClass().getName());
+                attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
+                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicyConf())).orElse(null);
+            }
         }
 
         ClientAppMapper clientAppMapper = clientAppTOMappers.get(clientApp.getClientAppTO().getClass().getName());
         if (clientAppMapper == null) {
             return null;
         }
-        return clientAppMapper.build(clientApp.getClientAppTO(), authPolicy, accessStrategy, attributeReleasePolicy);
+        return clientAppMapper.build(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
     }
 }

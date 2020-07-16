@@ -59,10 +59,12 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAttrReleasePolicy attrReleasePolicy;
 
+    @Override
     public Long getClientAppId() {
         return clientAppId;
     }
 
+    @Override
     public void setClientAppId(final Long clientAppId) {
         this.clientAppId = clientAppId;
     }

@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAOIDCJWKS.TABLE)
@@ -34,7 +32,6 @@ public class JPAOIDCJWKS extends AbstractGeneratedKeyEntity implements OIDCJWKS 
 
     private static final long serialVersionUID = 47352617217394093L;
 
-    @Column
     @Lob
     private String json;
 

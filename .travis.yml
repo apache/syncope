@@ -116,6 +116,9 @@ jobs:
     - stage: fit
       name: "Integration Tests: Tomcat / H2 / JSON Content-Type + Zookeeper"
       script: mvn -f fit/core-reference/pom.xml -P zookeeper-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: SRA and WA"
+      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
       after_failure:
        - cat fit/core-reference/target/log/*
        - cat fit/core-reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt

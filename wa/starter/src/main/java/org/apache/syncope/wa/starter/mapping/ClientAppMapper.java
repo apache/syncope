@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -27,7 +27,7 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 public interface ClientAppMapper {
 
     RegisteredService build(
-            ClientAppTO clientAppTO,
+            WAClientApp clientApp,
             RegisteredServiceAuthenticationPolicy authPolicy,
             RegisteredServiceAccessStrategy accessStrategy,
             RegisteredServiceAttributeReleasePolicy attributeReleasePolicy);

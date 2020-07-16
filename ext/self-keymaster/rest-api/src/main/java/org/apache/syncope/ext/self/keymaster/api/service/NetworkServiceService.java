@@ -20,7 +20,6 @@ package org.apache.syncope.ext.self.keymaster.api.service;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -58,7 +57,7 @@ public interface NetworkServiceService extends Serializable {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    CompletableFuture<Response> action(
+    Response action(
             @NotNull NetworkService networkService,
             @QueryParam("action") Action action);
 }

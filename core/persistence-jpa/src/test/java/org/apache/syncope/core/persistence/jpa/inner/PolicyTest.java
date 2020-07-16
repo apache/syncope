@@ -192,7 +192,6 @@ public class PolicyTest extends AbstractTest {
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.addRequiredAttr("cn", Set.of("syncope"));
-        conf.setName("AttrReleasePolicyAllowEverything");
         accessPolicy.setConf(conf);
 
         accessPolicy = policyDAO.save(accessPolicy);
@@ -210,7 +209,6 @@ public class PolicyTest extends AbstractTest {
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.getAuthModules().addAll(List.of("LdapAuthentication1", "DatabaseAuthentication2"));
         DefaultAuthPolicyCriteriaConf criteria = new DefaultAuthPolicyCriteriaConf();
-        criteria.setName("DefaultConf");
         criteria.setAll(true);
         authPolicyConf.setCriteria(criteria);
         authPolicy.setConf(authPolicyConf);
@@ -229,7 +227,6 @@ public class PolicyTest extends AbstractTest {
 
         AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
         attrReleasePolicyConf.getAllowedAttrs().addAll(List.of("*"));
-        attrReleasePolicyConf.setName("AttrReleasePolicyAllowEverything");
         attrReleasePolicy.setConf(attrReleasePolicyConf);
 
         attrReleasePolicy = policyDAO.save(attrReleasePolicy);

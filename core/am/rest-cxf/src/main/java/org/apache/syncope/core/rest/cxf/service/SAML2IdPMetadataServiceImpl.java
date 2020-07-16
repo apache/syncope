@@ -16,26 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.policy;
+package org.apache.syncope.core.rest.cxf.service;
 
-import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.core.logic.SAML2IdPMetadataLogic;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
 
-public abstract class AbstractAttrReleasePolicyConf implements BaseBean, AttrReleasePolicyConf {
+@Service
+public class SAML2IdPMetadataServiceImpl extends AbstractServiceImpl implements SAML2IdPMetadataService {
 
-    private static final long serialVersionUID = 1153200197344709778L;
-
-    private String name;
-
-    public AbstractAttrReleasePolicyConf() {
-        setName(getClass().getName());
-    }
+    @Autowired
+    private SAML2IdPMetadataLogic logic;
 
     @Override
-    public final String getName() {
-        return name;
-    }
-
-    public final void setName(final String name) {
-        this.name = name;
+    public void update(final SAML2IdPMetadataTO saml2IdPMetadataTO) {
+        logic.update(saml2IdPMetadataTO);
     }
 }

@@ -38,8 +38,6 @@ import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContex
 import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
-import org.apache.wicket.IPageManagerProvider;
-import org.apache.wicket.mock.MockPageManager;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -114,20 +112,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         ctx.register(SyncopeIdMConsoleContext.class);
         ctx.refresh();
 
-        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class)) {
-
-            // Remove this method when upgrading to Wicket 9.0.0-M6 - see WICKET-6766
-            @Override
-            protected IPageManagerProvider newTestPageManagerProvider() {
-                return () -> new MockPageManager() {
-
-                    @Override
-                    public boolean supportsVersioning() {
-                        return true;
-                    }
-                };
-            }
-        };
+        TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
 
         SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
                 setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).

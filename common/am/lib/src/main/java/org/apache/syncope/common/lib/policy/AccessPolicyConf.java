@@ -26,13 +26,6 @@ import org.apache.syncope.common.lib.BaseBean;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AccessPolicyConf extends BaseBean {
 
-    /**
-     * Give name of related access policy.
-     *
-     * @return name of this access policy
-     */
-    String getName();
-
     boolean isEnabled();
 
     boolean isSsoEnabled();

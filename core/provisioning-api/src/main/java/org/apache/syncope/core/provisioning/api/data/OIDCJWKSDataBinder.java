@@ -19,13 +19,14 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 
 public interface OIDCJWKSDataBinder {
-    
+
     OIDCJWKSTO get(OIDCJWKS jwks);
 
-    OIDCJWKS create();
+    OIDCJWKS create(int size, JWSAlgorithm algorithm);
 
-    OIDCJWKS update(OIDCJWKS oidcjwks, OIDCJWKSTO jwksTO);
+    OIDCJWKS update(OIDCJWKS jwks, OIDCJWKSTO jwksTO);
 }

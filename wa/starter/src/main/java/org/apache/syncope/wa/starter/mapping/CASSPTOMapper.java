@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import org.apache.syncope.common.lib.to.client.CASSPTO;
+import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-
-import org.apache.syncope.common.lib.to.client.CASSPTO;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.springframework.stereotype.Component;
 
 @ClientAppMapFor(clientAppClass = CASSPTO.class)
@@ -34,24 +33,30 @@ public class CASSPTOMapper implements ClientAppMapper {
 
     @Override
     public RegisteredService build(
-        final ClientAppTO clientAppTO,
-        final RegisteredServiceAuthenticationPolicy authPolicy,
-        final RegisteredServiceAccessStrategy accessStrategy,
-        final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
+            final WAClientApp clientApp,
+            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
+            final RegisteredServiceAccessStrategy accessStrategy,
+            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
-        CASSPTO rp = CASSPTO.class.cast(clientAppTO);
+        CASSPTO cas = CASSPTO.class.cast(clientApp.getClientAppTO());
 
         RegexRegisteredService service = new RegexRegisteredService();
 
-        service.setServiceId(rp.getServiceId());
-        service.setId(rp.getClientAppId());
-        service.setName(rp.getName());
-        service.setDescription(rp.getDescription());
-        service.setAccessStrategy(accessStrategy);
-        service.setAuthenticationPolicy(authPolicy);
-        service.setAttributeReleasePolicy(attributeReleasePolicy);
+        service.setServiceId(cas.getServiceId());
+        service.setId(cas.getClientAppId());
+        service.setName(cas.getName());
+        service.setDescription(cas.getDescription());
+
+        if (authenticationPolicy != null) {
+            service.setAuthenticationPolicy(authenticationPolicy);
+        }
+        if (accessStrategy != null) {
+            service.setAccessStrategy(accessStrategy);
+        }
+        if (attributeReleasePolicy != null) {
+            service.setAttributeReleasePolicy(attributeReleasePolicy);
+        }
 
         return service;
     }
-
 }

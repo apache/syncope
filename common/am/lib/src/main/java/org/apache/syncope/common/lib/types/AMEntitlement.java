@@ -26,13 +26,13 @@ import java.util.TreeSet;
 
 public final class AMEntitlement {
 
-    public static final String GATEWAY_ROUTE_CREATE = "GATEWAY_ROUTE_CREATE";
+    public static final String SRA_ROUTE_CREATE = "SRA_ROUTE_CREATE";
 
-    public static final String GATEWAY_ROUTE_UPDATE = "GATEWAY_ROUTE_UPDATE";
+    public static final String SRA_ROUTE_UPDATE = "SRA_ROUTE_UPDATE";
 
-    public static final String GATEWAY_ROUTE_DELETE = "GATEWAY_ROUTE_DELETE";
+    public static final String SRA_ROUTE_DELETE = "SRA_ROUTE_DELETE";
 
-    public static final String GATEWAY_ROUTE_PUSH = "GATEWAY_ROUTE_PUSH";
+    public static final String SRA_ROUTE_PUSH = "SRA_ROUTE_PUSH";
 
     public static final String CLIENTAPP_READ = "CLIENTAPP_READ";
 
@@ -83,7 +83,7 @@ public final class AMEntitlement {
     public static final String GOOGLE_MFA_COUNT_TOKEN = "GOOGLE_MFA_COUNT_TOKEN";
 
     public static final String AUTH_PROFILE_DELETE = "AUTH_PROFILE_DELETE";
-    
+
     public static final String AUTH_PROFILE_READ = "AUTH_PROFILE_READ";
 
     public static final String AUTH_PROFILE_LIST = "AUTH_PROFILE_LIST";

@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.common.lib.types;
 
-import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataConfService;
-import org.apache.syncope.core.logic.SAML2IdPMetadataLogic;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+public enum JWSAlgorithm {
+    HS256,
+    HS384,
+    HS512,
+    RS256,
+    RS384,
+    RS512,
+    ES256,
+    ES384,
+    ES512,
+    PS256,
+    PS384,
+    PS512,
+    EdDSA,
+    ES256K;
 
-@Service
-public class SAML2IdPMetadataConfServiceImpl extends AbstractServiceImpl implements SAML2IdPMetadataConfService {
-
-    @Autowired
-    private SAML2IdPMetadataLogic logic;
-
-    @Override
-    public void update(final SAML2IdPMetadataTO saml2IdPMetadataTO) {
-        logic.update(saml2IdPMetadataTO);
-    }
 }

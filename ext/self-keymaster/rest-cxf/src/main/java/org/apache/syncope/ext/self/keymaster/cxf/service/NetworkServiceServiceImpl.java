@@ -19,13 +19,11 @@
 package org.apache.syncope.ext.self.keymaster.cxf.service;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
 import org.apache.syncope.ext.self.keymaster.api.service.NetworkServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,16 +44,13 @@ public class NetworkServiceServiceImpl implements NetworkServiceService {
         return logic.get(serviceType);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     @Override
-    public CompletableFuture<Response> action(final NetworkService networkService, final Action action) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (action == Action.unregister) {
-                logic.unregister(networkService);
-            } else {
-                logic.register(networkService);
-            }
-            return Response.noContent().build();
-        });
+    public Response action(final NetworkService networkService, final Action action) {
+        if (action == Action.unregister) {
+            logic.unregister(networkService);
+        } else {
+            logic.register(networkService);
+        }
+        return Response.noContent().build();
     }
 }

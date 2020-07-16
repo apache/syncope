@@ -16,30 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.core.rest.cxf.service.wa;
 
+import java.net.URI;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.rest.api.service.OIDCJWKSConfService;
+import org.apache.syncope.common.lib.types.JWSAlgorithm;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
+import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.core.Response;
+import org.apache.syncope.common.rest.api.service.wa.WAOIDCJWKSService;
 
 @Service
-public class OIDCJWKSConfServiceImpl extends AbstractServiceImpl implements OIDCJWKSConfService {
+public class WAOIDCJWKSServiceImpl extends AbstractServiceImpl implements WAOIDCJWKSService {
 
     @Autowired
     private OIDCJWKSLogic logic;
 
     @Override
-    public void update(final OIDCJWKSTO jwksTO) {
-        logic.update(jwksTO);
+    public OIDCJWKSTO get() {
+        return logic.get();
     }
 
     @Override
-    public Response delete() {
-        logic.delete();
-        return Response.noContent().build();
+    public Response set(final int size, final JWSAlgorithm algorithm) {
+        OIDCJWKSTO jwks = logic.set(size, algorithm);
+        URI location = uriInfo.getAbsolutePathBuilder().path(jwks.getKey()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_KEY, jwks.getKey()).
+                entity(jwks).
+                build();
     }
 }

@@ -22,7 +22,6 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.wa.SAML2SPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.junit.jupiter.api.Test;
 import org.pac4j.saml.client.SAML2Client;
@@ -40,6 +39,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPMetadataService;
+
 public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2ClientTest {
     @Test
     public void fetchMetadata() throws Exception {
@@ -53,12 +54,12 @@ public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2Client
             .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8))
             .build();
 
-        SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
+        WASAML2SPMetadataService saml2SPMetadataService = mock(WASAML2SPMetadataService.class);
         when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
         when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(SAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
+        when(syncopeClient.getService(WASAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
 
         SyncopeWASAML2MetadataResolver resolver = new SyncopeWASAML2MetadataResolver(restClient, client);

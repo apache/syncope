@@ -72,7 +72,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
         return routeDAO.findAll().stream().map(binder::getSRARouteTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_CREATE + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_CREATE + "')")
     public SRARouteTO create(final SRARouteTO routeTO) {
         SRARoute route = entityFactory.newEntity(SRARoute.class);
         binder.getSRARoute(route, routeTO);
@@ -89,7 +89,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
         return binder.getSRARouteTO(route);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_UPDATE + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_UPDATE + "')")
     public SRARouteTO update(final SRARouteTO routeTO) {
         SRARoute route = routeDAO.find(routeTO.getKey());
         if (route == null) {
@@ -101,7 +101,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
         return binder.getSRARouteTO(routeDAO.save(route));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_DELETE + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_DELETE + "')")
     public SRARouteTO delete(final String key) {
         SRARoute route = routeDAO.find(key);
         if (route == null) {
@@ -113,13 +113,13 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
         return deleted;
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GATEWAY_ROUTE_PUSH + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_PUSH + "')")
     public void pushToSRA() {
         try {
             NetworkService sra = serviceOps.get(NetworkService.Type.SRA);
             HttpClient.newBuilder().build().send(
                     HttpRequest.newBuilder(URI.create(
-                            StringUtils.appendIfMissing(sra.getAddress(), "/") + "management/routes/refresh")).
+                            StringUtils.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
                             header(HttpHeaders.AUTHORIZATION,
                                     DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),

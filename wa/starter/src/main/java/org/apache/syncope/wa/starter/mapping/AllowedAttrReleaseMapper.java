@@ -31,16 +31,17 @@ public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override
     public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyConf conf) {
+        AllowedAttrReleasePolicyConf aarpc = (AllowedAttrReleasePolicyConf) conf;
+
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy;
-        if (!((AllowedAttrReleasePolicyConf) conf).getAllowedAttrs().isEmpty()) {
-            attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
-            ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).getAllowedAttributes().addAll(
-                    ((AllowedAttrReleasePolicyConf) conf).getAllowedAttrs());
-        } else {
+        if (aarpc.getAllowedAttrs().isEmpty()) {
             attributeReleasePolicy = new DenyAllAttributeReleasePolicy();
+        } else {
+            attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
+            ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
+                    setAllowedAttributes((aarpc.getAllowedAttrs()));
         }
 
         return attributeReleasePolicy;
     }
-
 }

@@ -37,13 +37,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppBinder;
+import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 
 @Component
 public class WAClientAppLogic {
 
     @Autowired
-    private WAClientAppBinder binder;
+    private WAClientAppDataBinder binder;
 
     @Autowired
     private SAML2SPDAO saml2spDAO;

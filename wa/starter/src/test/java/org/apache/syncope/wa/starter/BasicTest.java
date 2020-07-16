@@ -88,7 +88,7 @@ public class BasicTest extends AbstractTest {
         // 3. check authentication results
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
-        Header[] cookie = response.getHeaders("Set-Cookie");
+        Header[] cookie = response.getHeaders(HttpHeaders.SET_COOKIE);
         assertNotNull(cookie);
         assertTrue(cookie.length > 0);
         assertEquals(1, Stream.of(cookie).filter(item -> item.getValue().startsWith("TGC")).count());

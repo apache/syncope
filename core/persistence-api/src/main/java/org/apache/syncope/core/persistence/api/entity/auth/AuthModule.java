@@ -20,13 +20,9 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 
 import java.util.List;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
-public interface AuthModule extends Entity {
-
-    String getName();
-
-    void setName(String name);
+public interface AuthModule extends ProvidedKeyEntity {
 
     String getDescription();
 

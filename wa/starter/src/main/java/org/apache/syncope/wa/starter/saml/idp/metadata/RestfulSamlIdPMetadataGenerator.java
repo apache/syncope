@@ -21,7 +21,6 @@ package org.apache.syncope.wa.starter.saml.idp.metadata;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
-import org.apache.syncope.common.rest.api.service.wa.SAML2IdPMetadataService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.generator.BaseSamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2IdPMetadataService;
 
 public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
 
@@ -68,7 +68,7 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
         SyncopeClient client = getSyncopeClient();
         Response response = null;
         try {
-            response = client.getService(SAML2IdPMetadataService.class).set(metadataTO);
+            response = client.getService(WASAML2IdPMetadataService.class).set(metadataTO);
         } catch (Exception ex) {
             LOG.warn("While generating SAML2 IdP metadata document", ex);
         }

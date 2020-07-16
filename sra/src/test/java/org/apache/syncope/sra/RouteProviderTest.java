@@ -376,7 +376,7 @@ public class RouteProviderTest extends AbstractTest {
         route.setKey("redirect");
         route.setTarget(URI.create("http://localhost:" + wiremockPort));
         route.getFilters().add(new SRARouteFilter.Builder().
-                factory(SRARouteFilterFactory.REDIRECT).args("307,http://127.0.0.1:" + wiremockPort).build());
+                factory(SRARouteFilterFactory.REDIRECT_TO).args("307,http://127.0.0.1:" + wiremockPort).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();

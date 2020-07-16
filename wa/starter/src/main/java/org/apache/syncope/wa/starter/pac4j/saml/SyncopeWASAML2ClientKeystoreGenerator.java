@@ -22,7 +22,6 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.wa.SAML2SPKeystoreService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
@@ -38,6 +37,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPKeystoreService;
 
 public class SyncopeWASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientKeystoreGenerator.class);
@@ -67,8 +67,8 @@ public class SyncopeWASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGene
             String encodedKeystore = Base64.getEncoder().encodeToString(out.toByteArray());
             LOG.debug("Encoded keystore {}", encodedKeystore);
 
-            SAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
-                getService(SAML2SPKeystoreService.class);
+            WASAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
+                getService(WASAML2SPKeystoreService.class);
 
             SAML2SPKeystoreTO keystoreTO = new SAML2SPKeystoreTO.Builder().
                 keystore(encodedKeystore).
@@ -94,8 +94,8 @@ public class SyncopeWASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGene
     @Override
     public InputStream retrieve() throws Exception {
         try {
-            SAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
-                getService(SAML2SPKeystoreService.class);
+            WASAML2SPKeystoreService keystoreService = restClient.getSyncopeClient().
+                getService(WASAML2SPKeystoreService.class);
             SAML2SPKeystoreTO keystoreTO = keystoreService.getByOwner(saml2Client.getName());
             LOG.debug("Retrieved keystore {}", keystoreTO);
             byte[] decode = Base64.getDecoder().decode(keystoreTO.getKeystore());

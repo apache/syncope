@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.auth;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
@@ -31,21 +30,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAAuthModule.TABLE)
-public class JPAAuthModule extends AbstractGeneratedKeyEntity implements AuthModule {
+public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModule {
 
     public static final String TABLE = "AuthModule";
 
     private static final long serialVersionUID = 5681033638234853077L;
 
-    @Column(unique = true, nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "authModule")
@@ -62,16 +57,6 @@ public class JPAAuthModule extends AbstractGeneratedKeyEntity implements AuthMod
     @Override
     public void setDescription(final String description) {
         this.description = description;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(final String name) {
-        this.name = name;
     }
 
     @Override

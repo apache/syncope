@@ -35,9 +35,9 @@ import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
- * REST operations for SAML 2.0 SP metadata.
+ * REST operations for Auth profiles.
  */
-@Tag(name = "Auth Profiles")
+@Tag(name = "AuthProfiles")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })

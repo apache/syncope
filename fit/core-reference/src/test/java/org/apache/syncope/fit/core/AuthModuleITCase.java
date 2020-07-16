@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
@@ -65,14 +66,13 @@ public class AuthModuleITCase extends AbstractITCase {
 
     private static AuthModuleTO buildAuthModuleTO(final AuthModuleSupportedType type) {
         AuthModuleTO authModuleTO = new AuthModuleTO();
-        authModuleTO.setName("Test" + type + "AuthenticationModule" + getUUIDString());
+        authModuleTO.setKey("Test" + type + "AuthenticationModule" + getUUIDString());
         authModuleTO.setDescription("A test " + type + " Authentication Module");
 
         AuthModuleConf conf;
         switch (type) {
             case LDAP:
                 conf = new LDAPAuthModuleConf();
-                LDAPAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 LDAPAuthModuleConf.class.cast(conf).setBaseDn("dc=example,dc=org");
                 LDAPAuthModuleConf.class.cast(conf).setSearchFilter("cn={user}");
                 LDAPAuthModuleConf.class.cast(conf).setSubtreeSearch(true);
@@ -84,7 +84,6 @@ public class AuthModuleITCase extends AbstractITCase {
 
             case GOOGLE_MFA:
                 conf = new GoogleMfaAuthModuleConf();
-                GoogleMfaAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 GoogleMfaAuthModuleConf.class.cast(conf).setCodeDigits(6);
                 GoogleMfaAuthModuleConf.class.cast(conf).setIssuer("SyncopeTest");
                 GoogleMfaAuthModuleConf.class.cast(conf).setLabel("Syncope");
@@ -94,7 +93,6 @@ public class AuthModuleITCase extends AbstractITCase {
 
             case JAAS:
                 conf = new JaasAuthModuleConf();
-                JaasAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 JaasAuthModuleConf.class.cast(conf).setKerberosKdcSystemProperty("sample-value");
                 JaasAuthModuleConf.class.cast(conf).setKerberosRealmSystemProperty("sample-value");
                 JaasAuthModuleConf.class.cast(conf).setLoginConfigType("JavaLoginConfig");
@@ -104,7 +102,6 @@ public class AuthModuleITCase extends AbstractITCase {
 
             case JDBC:
                 conf = new JDBCAuthModuleConf();
-                JDBCAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 JDBCAuthModuleConf.class.cast(conf).setSql("SELECT * FROM table WHERE name=?");
                 JDBCAuthModuleConf.class.cast(conf).setFieldPassword("password");
                 JDBCAuthModuleConf.class.cast(conf).getPrincipalAttributeList().addAll(
@@ -113,7 +110,6 @@ public class AuthModuleITCase extends AbstractITCase {
 
             case OIDC:
                 conf = new OIDCAuthModuleConf();
-                OIDCAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 OIDCAuthModuleConf.class.cast(conf).setId("OIDCTestId");
                 OIDCAuthModuleConf.class.cast(conf).setDiscoveryUri("www.testurl.com");
                 OIDCAuthModuleConf.class.cast(conf).setUserIdAttribute("username");
@@ -123,27 +119,22 @@ public class AuthModuleITCase extends AbstractITCase {
 
             case SAML2_IDP:
                 conf = new SAML2IdPAuthModuleConf();
-                SAML2IdPAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 SAML2IdPAuthModuleConf.class.cast(conf).setServiceProviderEntityId("testEntityId");
                 SAML2IdPAuthModuleConf.class.cast(conf).setProviderName("testProviderName");
                 break;
 
             case SYNCOPE:
                 conf = new SyncopeAuthModuleConf();
-                SyncopeAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
-                SyncopeAuthModuleConf.class.cast(conf).setDomain("Master");
-                SyncopeAuthModuleConf.class.cast(conf).setUrl("http://mydomain.com/syncope/rest");
+                SyncopeAuthModuleConf.class.cast(conf).setDomain(SyncopeConstants.MASTER_DOMAIN);
                 break;
 
             case U2F:
                 conf = new U2FAuthModuleConf();
-                U2FAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 U2FAuthModuleConf.class.cast(conf).setExpireDevices(50);
                 break;
 
             case RADIUS:
                 conf = new RadiusAuthModuleConf();
-                RadiusAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 RadiusAuthModuleConf.class.cast(conf).setProtocol("MSCHAPv2");
                 RadiusAuthModuleConf.class.cast(conf).setInetAddress("1.2.3.4");
                 RadiusAuthModuleConf.class.cast(conf).setSharedSecret("xyz");
@@ -153,7 +144,6 @@ public class AuthModuleITCase extends AbstractITCase {
             case STATIC:
             default:
                 conf = new StaticAuthModuleConf();
-                StaticAuthModuleConf.class.cast(conf).setName("TestConf" + getUUIDString());
                 StaticAuthModuleConf.class.cast(conf).getUsers().put("user1", UUID.randomUUID().toString());
                 StaticAuthModuleConf.class.cast(conf).getUsers().put("user2", "user2Password123");
                 break;
@@ -173,6 +163,10 @@ public class AuthModuleITCase extends AbstractITCase {
         return authModuleTO;
     }
 
+    private static boolean isSpecificConf(final AuthModuleConf conf, final Class<? extends AuthModuleConf> clazz) {
+        return ClassUtils.isAssignable(clazz, conf.getClass());
+    }
+
     @Test
     public void list() {
         List<AuthModuleTO> authModuleTOs = authModuleService.list();
@@ -181,42 +175,41 @@ public class AuthModuleITCase extends AbstractITCase {
 
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), LDAPAuthModuleConf.class)
-                && authModule.getName().equals("DefaultLDAPAuthModule")));
+                && authModule.getKey().equals("DefaultLDAPAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), JDBCAuthModuleConf.class)
-                && authModule.getName().equals("DefaultJDBCAuthModule")));
+                && authModule.getKey().equals("DefaultJDBCAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
-                && authModule.getName().equals("DefaultGoogleMfaAuthModule")));
+                && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
-                && authModule.getName().equals("DefaultOIDCAuthModule")));
+                && authModule.getKey().equals("DefaultOIDCAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SAML2IdPAuthModuleConf.class)
-                && authModule.getName().equals("DefaultSAML2IdPAuthModule")));
+                && authModule.getKey().equals("DefaultSAML2IdPAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), JaasAuthModuleConf.class)
-                && authModule.getName().equals("DefaultJaasAuthModule")));
+                && authModule.getKey().equals("DefaultJaasAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), StaticAuthModuleConf.class)
-                && authModule.getName().equals("DefaultStaticAuthModule")));
+                && authModule.getKey().equals("DefaultStaticAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SyncopeAuthModuleConf.class)
-                && authModule.getName().equals("DefaultSyncopeAuthModule")));
+                && authModule.getKey().equals("DefaultSyncopeAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), U2FAuthModuleConf.class)
-                && authModule.getName().equals("DefaultU2FAuthModule")));
+                && authModule.getKey().equals("DefaultU2FAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), RadiusAuthModuleConf.class)
-                && authModule.getName().equals("DefaultRadiusAuthModule")));
+                && authModule.getKey().equals("DefaultRadiusAuthModule")));
     }
 
     @Test
     public void getLDAPAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), LDAPAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), JDBCAuthModuleConf.class));
@@ -224,10 +217,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getJDBCAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3ed7e8-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultJDBCAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), JDBCAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), GoogleMfaAuthModuleConf.class));
@@ -235,10 +227,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getGoogleMfaAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3ed4e6-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultGoogleMfaAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), GoogleMfaAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), OIDCAuthModuleConf.class));
@@ -246,10 +237,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getOIDCAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3ed8f6-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultOIDCAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), OIDCAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), SAML2IdPAuthModuleConf.class));
@@ -257,10 +247,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getSAML2IdPAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3ed9d2-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultSAML2IdPAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), SAML2IdPAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), JaasAuthModuleConf.class));
@@ -268,10 +257,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getJaasAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3edbbc-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultJaasAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), JaasAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), StaticAuthModuleConf.class));
@@ -279,10 +267,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getStaticAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3edc98-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultStaticAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), StaticAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), SyncopeAuthModuleConf.class));
@@ -290,10 +277,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getSyncopeAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("4c3edd60-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultSyncopeAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), SyncopeAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), RadiusAuthModuleConf.class));
@@ -301,10 +287,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getRadiusAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("07c528f3-63b4-4dc1-a4da-87f35b8bdec8");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultRadiusAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), RadiusAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), U2FAuthModuleConf.class));
@@ -312,10 +297,9 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getU2FAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("f6e1288d-50d9-45fe-82ee-597c42242205");
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultU2FAuthModule");
 
         assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getName()));
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), U2FAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), LDAPAuthModuleConf.class));
@@ -323,12 +307,17 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void create() throws IOException {
-        EnumSet.allOf(AuthModuleSupportedType.class).forEach(type -> testCreate(type));
+        EnumSet.allOf(AuthModuleSupportedType.class).forEach(type -> {
+            AuthModuleTO authModuleTO = createAuthModule(buildAuthModuleTO(type));
+            assertNotNull(authModuleTO);
+            assertTrue(authModuleTO.getDescription().contains("A test " + type + " Authentication Module"));
+            assertEquals(2, authModuleTO.getItems().size());
+        });
     }
 
     @Test
     public void updateGoogleMfaAuthModule() {
-        AuthModuleTO googleMfaAuthModuleTO = authModuleService.read("4c3ed4e6-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO googleMfaAuthModuleTO = authModuleService.read("DefaultGoogleMfaAuthModule");
         assertNotNull(googleMfaAuthModuleTO);
 
         AuthModuleTO newGoogleMfaAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.GOOGLE_MFA);
@@ -351,7 +340,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateLDAPAuthModule() {
-        AuthModuleTO ldapAuthModuleTO = authModuleService.read("be456831-593d-4003-b273-4c3fb61700df");
+        AuthModuleTO ldapAuthModuleTO = authModuleService.read("DefaultLDAPAuthModule");
         assertNotNull(ldapAuthModuleTO);
 
         AuthModuleTO newLdapAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.LDAP);
@@ -374,7 +363,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateSAML2IdPAuthModule() {
-        AuthModuleTO saml2IdpAuthModuleTO = authModuleService.read("4c3ed9d2-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO saml2IdpAuthModuleTO = authModuleService.read("DefaultSAML2IdPAuthModule");
         assertNotNull(saml2IdpAuthModuleTO);
 
         AuthModuleTO newsaml2IdpAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.SAML2_IDP);
@@ -397,7 +386,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateOIDCAuthModule() {
-        AuthModuleTO oidcAuthModuleTO = authModuleService.read("4c3ed8f6-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO oidcAuthModuleTO = authModuleService.read("DefaultOIDCAuthModule");
         assertNotNull(oidcAuthModuleTO);
 
         AuthModuleTO newOIDCAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.OIDC);
@@ -420,7 +409,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateJDBCAuthModule() {
-        AuthModuleTO jdbcAuthModuleTO = authModuleService.read("4c3ed7e8-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO jdbcAuthModuleTO = authModuleService.read("DefaultJDBCAuthModule");
         assertNotNull(jdbcAuthModuleTO);
 
         AuthModuleTO newJDBCAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.JDBC);
@@ -443,7 +432,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateJaasAuthModule() {
-        AuthModuleTO jaasAuthModuleTO = authModuleService.read("4c3edbbc-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO jaasAuthModuleTO = authModuleService.read("DefaultJaasAuthModule");
         assertNotNull(jaasAuthModuleTO);
 
         AuthModuleTO newJaasAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.JAAS);
@@ -466,7 +455,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateStaticAuthModule() {
-        AuthModuleTO staticAuthModuleTO = authModuleService.read("4c3edc98-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO staticAuthModuleTO = authModuleService.read("DefaultStaticAuthModule");
         assertNotNull(staticAuthModuleTO);
 
         AuthModuleTO newStaticAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.STATIC);
@@ -490,7 +479,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateRadiusAuthModule() {
-        AuthModuleTO radiusAuthModuleTO = authModuleService.read("07c528f3-63b4-4dc1-a4da-87f35b8bdec8");
+        AuthModuleTO radiusAuthModuleTO = authModuleService.read("DefaultRadiusAuthModule");
         assertNotNull(radiusAuthModuleTO);
 
         AuthModuleTO newRadiusAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.RADIUS);
@@ -513,7 +502,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateU2fAuthModule() {
-        AuthModuleTO u2fAuthModuleTO = authModuleService.read("f6e1288d-50d9-45fe-82ee-597c42242205");
+        AuthModuleTO u2fAuthModuleTO = authModuleService.read("DefaultU2FAuthModule");
         assertNotNull(u2fAuthModuleTO);
 
         AuthModuleTO newU2fAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.U2F);
@@ -536,7 +525,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateSyncopeAuthModule() {
-        AuthModuleTO syncopeAuthModuleTO = authModuleService.read("4c3edd60-7008-11ea-bc55-0242ac130003");
+        AuthModuleTO syncopeAuthModuleTO = authModuleService.read("DefaultSyncopeAuthModule");
         assertNotNull(syncopeAuthModuleTO);
 
         AuthModuleTO newSyncopeAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.SYNCOPE);
@@ -559,32 +548,18 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void delete() throws IOException {
-        EnumSet.allOf(AuthModuleSupportedType.class).forEach(type -> testDelete(type));
-    }
+        EnumSet.allOf(AuthModuleSupportedType.class).forEach(type -> {
+            AuthModuleTO read = createAuthModule(buildAuthModuleTO(type));
+            assertNotNull(read);
 
-    private void testCreate(final AuthModuleSupportedType type) {
-        AuthModuleTO authModuleTO = createAuthModule(buildAuthModuleTO(type));
-        assertNotNull(authModuleTO);
-        assertTrue(authModuleTO.getName().contains("Test" + type + "AuthenticationModule"));
-        assertTrue(authModuleTO.getDescription().contains("A test " + type + " Authentication Module"));
-        assertEquals(2, authModuleTO.getItems().size());
-    }
+            authModuleService.delete(read.getKey());
 
-    private void testDelete(final AuthModuleSupportedType type) {
-        AuthModuleTO read = createAuthModule(buildAuthModuleTO(type));
-        assertNotNull(read);
-
-        authModuleService.delete(read.getKey());
-
-        try {
-            authModuleService.read(read.getKey());
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertNotNull(e);
-        }
-    }
-
-    private boolean isSpecificConf(final AuthModuleConf conf, final Class<? extends AuthModuleConf> clazz) {
-        return ClassUtils.isAssignable(clazz, conf.getClass());
+            try {
+                authModuleService.read(read.getKey());
+                fail("This should not happen");
+            } catch (SyncopeClientException e) {
+                assertNotNull(e);
+            }
+        });
     }
 }

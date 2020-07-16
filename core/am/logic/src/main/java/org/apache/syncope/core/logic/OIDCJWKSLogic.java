@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.logic;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
+import java.lang.reflect.Method;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.JWSAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
@@ -32,8 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.reflect.Method;
 
 @Component
 public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
@@ -44,8 +42,7 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     @Autowired
     private OIDCJWKSDAO dao;
 
-    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public OIDCJWKSTO get() {
         OIDCJWKS jwks = dao.get();
@@ -55,37 +52,36 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
         throw new NotFoundException("OIDC JWKS not found");
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_CREATE + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public OIDCJWKSTO set() {
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_CREATE + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public OIDCJWKSTO set(final int size, final JWSAlgorithm algorithm) {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
-            return binder.get(dao.save(binder.create()));
+            return binder.get(dao.save(binder.create(size, algorithm)));
         }
-        throw SyncopeClientException.build(ClientExceptionType.EntityExists);
+        throw new DuplicateException("OIDC JWKS already set");
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_UPDATE + "')")
     public OIDCJWKSTO update(final OIDCJWKSTO jwksTO) {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
-            throw SyncopeClientException.build(ClientExceptionType.NotFound);
+            throw new NotFoundException("OIDC JWKS not found");
         }
         return binder.get(dao.save(binder.update(jwks, jwksTO)));
     }
 
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_DELETE + "')")
+    public void delete() {
+        dao.delete();
+    }
+
     @Override
     protected OIDCJWKSTO resolveReference(final Method method, final Object... args)
-        throws UnresolvedReferenceException {
+            throws UnresolvedReferenceException {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
             throw new UnresolvedReferenceException();
         }
         return binder.get(jwks);
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_DELETE + "')")
-    public void delete() {
-         dao.delete();
     }
 }

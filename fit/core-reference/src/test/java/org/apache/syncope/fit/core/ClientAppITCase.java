@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -35,8 +36,6 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
-
-import java.util.UUID;
 
 public class ClientAppITCase extends AbstractITCase {
 
@@ -187,7 +186,7 @@ public class ClientAppITCase extends AbstractITCase {
         }
     }
 
-    private CASSPTO buildCASSP() {
+    private static CASSPTO buildCASSP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setDescription("Authentication Policy");
@@ -210,6 +209,4 @@ public class ClientAppITCase extends AbstractITCase {
         casspTO.setAccessPolicy(accessPolicyTO.getKey());
         return casspTO;
     }
-
-
 }

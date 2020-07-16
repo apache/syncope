@@ -92,6 +92,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
+import org.springframework.cloud.gateway.filter.factory.DedupeResponseHeaderGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.MapRequestHeaderGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.RewriteLocationResponseHeaderGatewayFilterFactory;
+import org.springframework.cloud.gateway.filter.factory.SetRequestHostHeaderGatewayFilterFactory;
+import org.springframework.cloud.gateway.handler.predicate.WeightRoutePredicateFactory;
 
 @Component
 public class RouteProvider {
@@ -145,6 +150,18 @@ public class RouteProvider {
                         setValue(addResponseHeaderArgs[1].trim()));
                 break;
 
+            case DEDUPE_RESPONSE_HEADER:
+                String[] dedupeResponseHeaderArgs = gwfilter.getArgs().split(",");
+                filter = ctx.getBean(DedupeResponseHeaderGatewayFilterFactory.class).
+                        apply(c -> {
+                            c.setName(dedupeResponseHeaderArgs[0].trim());
+                            if (dedupeResponseHeaderArgs.length > 1) {
+                                c.setStrategy(DedupeResponseHeaderGatewayFilterFactory.Strategy.
+                                        valueOf(dedupeResponseHeaderArgs[1].trim()));
+                            }
+                        });
+                break;
+
             case HYSTRIX:
                 String[] hystrixArgs = gwfilter.getArgs().split(",");
                 filter = ctx.getBean(HystrixGatewayFilterFactory.class).
@@ -177,6 +194,13 @@ public class RouteProvider {
                         });
                 break;
 
+            case MAP_REQUEST_HEADER:
+                String[] mapRequestHeaderArgs = gwfilter.getArgs().split(",");
+                filter = ctx.getBean(MapRequestHeaderGatewayFilterFactory.class).
+                        apply(c -> c.setFromHeader(mapRequestHeaderArgs[0].trim()).
+                        setToHeader(mapRequestHeaderArgs[1].trim()));
+                break;
+
             case PREFIX_PATH:
                 filter = ctx.getBean(PrefixPathGatewayFilterFactory.class).
                         apply(c -> c.setPrefix(gwfilter.getArgs().trim()));
@@ -186,7 +210,7 @@ public class RouteProvider {
                 filter = ctx.getBean(PreserveHostHeaderGatewayFilterFactory.class).apply();
                 break;
 
-            case REDIRECT:
+            case REDIRECT_TO:
                 String[] redirectArgs = gwfilter.getArgs().split(",");
                 filter = ctx.getBean(RedirectToGatewayFilterFactory.class).
                         apply(redirectArgs[0].trim(), redirectArgs[1].trim());
@@ -231,9 +255,40 @@ public class RouteProvider {
                         setReplacement(rewritePathArgs[1].trim()));
                 break;
 
+            case REWRITE_LOCATION:
+                String[] rewriteLocationArgs = gwfilter.getArgs().split(",");
+                filter = ctx.getBean(RewriteLocationResponseHeaderGatewayFilterFactory.class).
+                        apply(c -> {
+                            c.setStripVersion(RewriteLocationResponseHeaderGatewayFilterFactory.StripVersion.
+                                    valueOf(rewriteLocationArgs[0].trim()));
+                            if (rewriteLocationArgs.length > 1) {
+                                c.setLocationHeaderName(rewriteLocationArgs[1].trim());
+                            }
+                            if (rewriteLocationArgs.length > 2) {
+                                c.setHostValue(rewriteLocationArgs[2].trim());
+                            }
+                            if (rewriteLocationArgs.length > 3) {
+                                c.setProtocols(rewriteLocationArgs[3].trim());
+                            }
+                        });
+                break;
+
+            case REWRITE_RESPONSE_HEADER:
+                String[] rewriteResponseHeaderArgs = gwfilter.getArgs().split(",");
+                filter = ctx.getBean(RewriteResponseHeaderGatewayFilterFactory.class).
+                        apply(c -> c.setReplacement(rewriteResponseHeaderArgs[2].trim()).
+                        setRegexp(rewriteResponseHeaderArgs[1].trim()).
+                        setName(rewriteResponseHeaderArgs[0].trim()));
+                break;
+
             case RETRY:
                 filter = ctx.getBean(RetryGatewayFilterFactory.class).
                         apply(c -> c.setRetries(Integer.valueOf(gwfilter.getArgs().trim())));
+                break;
+
+            case SAVE_SESSION:
+                filter = ctx.getBean(SaveSessionGatewayFilterFactory.class).apply(c -> {
+                });
                 break;
 
             case SECURE_HEADERS:
@@ -260,22 +315,9 @@ public class RouteProvider {
                         setValue(setResponseHeaderArgs[1].trim()));
                 break;
 
-            case REWRITE_RESPONSE_HEADER:
-                String[] rewriteResponseHeaderArgs = gwfilter.getArgs().split(",");
-                filter = ctx.getBean(RewriteResponseHeaderGatewayFilterFactory.class).
-                        apply(c -> c.setReplacement(rewriteResponseHeaderArgs[2].trim()).
-                        setRegexp(rewriteResponseHeaderArgs[1].trim()).
-                        setName(rewriteResponseHeaderArgs[0].trim()));
-                break;
-
             case SET_STATUS:
                 filter = ctx.getBean(SetStatusGatewayFilterFactory.class).
                         apply(c -> c.setStatus(gwfilter.getArgs().trim()));
-                break;
-
-            case SAVE_SESSION:
-                filter = ctx.getBean(SaveSessionGatewayFilterFactory.class).apply(c -> {
-                });
                 break;
 
             case STRIP_PREFIX:
@@ -291,6 +333,11 @@ public class RouteProvider {
             case SET_REQUEST_SIZE:
                 filter = ctx.getBean(RequestSizeGatewayFilterFactory.class).
                         apply(c -> c.setMaxSize(DataSize.ofBytes(Long.valueOf(gwfilter.getArgs().trim()))));
+                break;
+
+            case SET_REQUEST_HOST:
+                filter = ctx.getBean(SetRequestHostHeaderGatewayFilterFactory.class).
+                        apply(c -> c.setHost(gwfilter.getArgs().trim()));
                 break;
 
             case LINK_REWRITE:
@@ -420,6 +467,13 @@ public class RouteProvider {
                 String[] remoteAddrArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(RemoteAddrRoutePredicateFactory.class).
                         applyAsync(c -> c.setSources(List.of(remoteAddrArgs)));
+                break;
+
+            case WEIGHT:
+                String[] weigthArgs = gwpredicate.getArgs().split(",");
+                predicate = ctx.getBean(WeightRoutePredicateFactory.class).
+                        applyAsync(c -> c.setGroup(weigthArgs[0].trim()).
+                        setWeight(Integer.valueOf(weigthArgs[1].trim())));
                 break;
 
             case CUSTOM:

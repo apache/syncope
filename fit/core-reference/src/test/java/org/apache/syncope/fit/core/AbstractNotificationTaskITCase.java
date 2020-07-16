@@ -41,7 +41,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
     @BeforeAll
     public static void conf() {
         Properties props = new Properties();
-        try (InputStream propStream = ExceptionMapperITCase.class.getResourceAsStream("/test.properties")) {
+        try (InputStream propStream = AbstractNotificationTaskITCase.class.getResourceAsStream("/test.properties")) {
             props.load(propStream);
         } catch (Exception e) {
             LOG.error("Could not load /test.properties", e);

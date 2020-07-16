@@ -23,11 +23,4 @@ import org.apache.syncope.common.lib.BaseBean;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AuthModuleConf extends BaseBean {
-
-    /**
-     * Given name of related authentication module instance.
-     *
-     * @return name of this authentication module instance
-     */
-    String getName();
 }

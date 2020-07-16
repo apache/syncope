@@ -16,22 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.core.provisioning.api.data.wa;
 
-import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreConfService;
-import org.apache.syncope.core.logic.SAML2SPKeystoreLogic;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 
-@Service
-public class SAML2SPKeystoreConfServiceImpl extends AbstractServiceImpl implements SAML2SPKeystoreConfService {
+public interface WAClientAppDataBinder {
 
-    @Autowired
-    private SAML2SPKeystoreLogic logic;
-
-    @Override
-    public void update(final SAML2SPKeystoreTO metadataTO) {
-        logic.update(metadataTO);
-    }
+    WAClientApp getWAClientApp(ClientApp clientApp);
 }

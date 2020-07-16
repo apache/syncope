@@ -16,38 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.syncope.core.rest.cxf.service.wa;
+package org.apache.syncope.core.rest.cxf.service;
 
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.wa.OIDCJWKSService;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
+import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 
 @Service
 public class OIDCJWKSServiceImpl extends AbstractServiceImpl implements OIDCJWKSService {
+
     @Autowired
     private OIDCJWKSLogic logic;
 
     @Override
-    public OIDCJWKSTO get() {
-        return logic.get();
+    public void update(final OIDCJWKSTO jwksTO) {
+        logic.update(jwksTO);
     }
 
     @Override
-    public Response set() {
-        OIDCJWKSTO jwks = logic.set();
-        URI location = uriInfo.getAbsolutePathBuilder().path(jwks.getKey()).build();
-        return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, jwks.getKey()).
-            entity(jwks).
-            build();
+    public void delete() {
+        logic.delete();
     }
 }

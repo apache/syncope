@@ -46,11 +46,11 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for SRA routes.
  */
-@Tag(name = "SRARoutes")
+@Tag(name = "SRA Routes")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("gatewayRoutes")
+@Path("sraRoutes")
 public interface SRARouteService extends JAXRSService {
 
     /**

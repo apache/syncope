@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 
@@ -43,16 +45,11 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
     @Column(unique = true, nullable = false)
     private String clientId;
 
-    @Column
     private String clientSecret;
 
-    @Column
     private boolean signIdToken;
 
-    @Column
-    private String jwks;
-
-    @Column
+    @Enumerated(EnumType.STRING)
     private OIDCSubjectType subjectType;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -75,6 +72,8 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
             joinColumns =
             @JoinColumn(name = "client_id", referencedColumnName = "id"))
     private Set<String> supportedResponseTypes = new HashSet<>();
+
+    private String logoutUri;
 
     @Override
     public List<String> getRedirectUris() {
@@ -112,16 +111,6 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
     }
 
     @Override
-    public String getJwks() {
-        return jwks;
-    }
-
-    @Override
-    public void setJwks(final String jwks) {
-        this.jwks = jwks;
-    }
-
-    @Override
     public OIDCSubjectType getSubjectType() {
         return subjectType;
     }
@@ -139,5 +128,15 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
     @Override
     public Set<String> getSupportedResponseTypes() {
         return supportedResponseTypes;
+    }
+
+    @Override
+    public String getLogoutUri() {
+        return logoutUri;
+    }
+
+    @Override
+    public void setLogoutUri(final String logoutUri) {
+        this.logoutUri = logoutUri;
     }
 }
