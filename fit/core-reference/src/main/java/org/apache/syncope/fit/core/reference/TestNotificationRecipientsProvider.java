@@ -30,5 +30,4 @@ public class TestNotificationRecipientsProvider implements RecipientsProvider {
     public Set<String> provideRecipients(final Notification notification) {
         return Set.of(getClass().getSimpleName() + "@syncope.apache.org");
     }
-
 }

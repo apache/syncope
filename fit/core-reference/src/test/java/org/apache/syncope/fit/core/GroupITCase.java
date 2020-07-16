@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -31,6 +32,8 @@ import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
@@ -74,7 +77,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -963,22 +965,16 @@ public class GroupITCase extends AbstractITCase {
             ExecTO exec = groupService.provisionMembers(groupTO.getKey(), ProvisionAction.PROVISION);
             assertNotNull(exec.getRefKey());
 
-            int i = 0;
-
-            // wait for task exec completion (executions incremented)
-            SchedTaskTO taskTO;
-            do {
-                Thread.sleep(1000);
-
-                taskTO = taskService.read(TaskType.SCHEDULED, exec.getRefKey(), true);
-
-                assertNotNull(taskTO);
-                assertNotNull(taskTO.getExecutions());
-                i++;
-            } while (taskTO.getExecutions().isEmpty() && i < MAX_WAIT_SECONDS);
-            assertFalse(taskTO.getExecutions().isEmpty());
-
-            assertEquals(TaskJob.Status.SUCCESS.name(), taskTO.getExecutions().get(0).getStatus());
+            AtomicReference<List<ExecTO>> execs = new AtomicReference<>();
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+                try {
+                    execs.set(taskService.read(TaskType.SCHEDULED, exec.getRefKey(), true).getExecutions());
+                    return !execs.get().isEmpty();
+                } catch (Exception e) {
+                    return false;
+                }
+            });
+            assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().get(0).getStatus());
 
             // 6. verify that the user above is now fond on LDAP
             ConnObjectTO userOnLdap =

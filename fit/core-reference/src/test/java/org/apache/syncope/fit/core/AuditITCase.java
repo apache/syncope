@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,6 +29,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -59,17 +62,16 @@ public class AuditITCase extends AbstractITCase {
     }
 
     private static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
-        int i = 0;
-        List<AuditEntry> results = List.of();
-        do {
+        AtomicReference<List<AuditEntry>> holder = new AtomicReference<>();
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                holder.set(loggerService.search(query).getResult());
+                return !holder.get().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-            results = loggerService.search(query).getResult();
-            i++;
-        } while (results.isEmpty() && i < maxWaitSeconds);
-        return results;
+        });
+        return holder.get();
     }
 
     @Test
@@ -201,7 +203,7 @@ public class AuditITCase extends AbstractITCase {
                 event("update").
                 result(AuditElements.Result.SUCCESS).
                 build();
-        List<AuditEntry> entries = query(query, 0);
+        List<AuditEntry> entries = loggerService.search(query).getResult();
         int pre = entries.size();
 
         ConnInstanceTO ldapConn = connectorService.read(connectorKey, null);

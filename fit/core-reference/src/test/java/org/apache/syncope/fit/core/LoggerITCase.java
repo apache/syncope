@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,6 +39,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
@@ -254,23 +257,19 @@ public class LoggerITCase extends AbstractITCase {
         assertTrue(found);
     }
 
-    private static boolean logFileContains(final Path path, final String message, final int maxWaitSeconds)
+    private static void checkLogFileFor(
+            final Path path,
+            final Function<String, Boolean> checker,
+            final int maxWaitSeconds)
             throws IOException {
 
-        int i = 0;
-        boolean messagePresent = false;
-        do {
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                return checker.apply(Files.readString(path, StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                return false;
             }
-
-            String auditLog = Files.readString(path, StandardCharsets.UTF_8);
-            messagePresent = auditLog.contains(message);
-
-            i++;
-        } while (!messagePresent && i < maxWaitSeconds);
-        return messagePresent;
+        });
     }
 
     @Test
@@ -352,14 +351,20 @@ public class LoggerITCase extends AbstractITCase {
             connectorService.update(connector);
 
             // check audit_for_Master_file.log, it should contain only a static message
-            assertTrue(logFileContains(auditFilePath,
-                    "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                    + " - This is a static test message", 10));
+            checkLogFileFor(
+                    auditFilePath,
+                    content -> content.contains(
+                            "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
+                            + " - This is a static test message"),
+                    10);
 
             // nothing expected in audit_for_Master_norewrite_file.log instead
-            assertFalse(logFileContains(auditNoRewriteFilePath,
-                    "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                    + " - This is a static test message", 10));
+            checkLogFileFor(
+                    auditNoRewriteFilePath,
+                    content -> !content.contains(
+                            "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
+                            + " - This is a static test message"),
+                    10);
 
             // clean audit_for_Master_file.log
             Files.write(auditFilePath, new byte[0], StandardOpenOption.TRUNCATE_EXISTING);

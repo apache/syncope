@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.fit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
@@ -742,30 +744,17 @@ public abstract class AbstractITCase {
             final int maxWaitSeconds,
             final String sql, final Class<T> requiredType, final Object... args) {
 
-        int i = 0;
-        int maxit = maxWaitSeconds;
-
-        T object = null;
-
-        do {
+        AtomicReference<T> object = new AtomicReference<>();
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            try {
-                object = jdbcTemplate.queryForObject(sql, requiredType, args);
+                object.set(jdbcTemplate.queryForObject(sql, requiredType, args));
+                return object.get() != null;
             } catch (Exception e) {
-                LOG.warn("While executing query {}", sql, e);
+                return false;
             }
+        });
 
-            i++;
-        } while (object == null && i < maxit);
-        if (object == null) {
-            fail("Timeout when executing query " + sql);
-        }
-
-        return object;
+        return object.get();
     }
 
     protected static OIDCRPTO buildOIDCRP() {

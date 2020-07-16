@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -228,17 +231,16 @@ public class BatchITCase extends AbstractITCase {
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
 
-        int i = 0;
-        do {
+        AtomicReference<Response> holder = new AtomicReference<>();
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                holder.set(client.get());
+                return holder.get().getStatus() != Response.Status.ACCEPTED.getStatusCode();
+            } catch (Exception e) {
+                return false;
             }
-
-            response = client.get();
-
-            i++;
-        } while (response.getStatus() == Response.Status.ACCEPTED.getStatusCode() && i < MAX_WAIT_SECONDS);
+        });
+        response = holder.get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));
