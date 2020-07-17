@@ -108,8 +108,6 @@ public interface RemediationService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
-    @Parameter(name = "remediationKey", description = "Remediations's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "201",
                     description = "Object successfully created enriched with propagation status information, as Entity,"
@@ -154,8 +152,6 @@ public interface RemediationService extends JAXRSService {
             + " with External Resources with no priority set",
             allowEmptyValue = true, schema =
             @Schema(type = "boolean", defaultValue = "false"))
-    @Parameter(name = "remediationKey", description = "Remediations's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
     @ApiResponses({
         @ApiResponse(responseCode = "200",
                 description = "Object successfully updated enriched with propagation status information, as Entity",
