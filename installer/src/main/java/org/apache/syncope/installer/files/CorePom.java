@@ -34,7 +34,8 @@ public final class CorePom {
     public static final String FLOWABLE_CONTENT_TO_ADD = "    <dependency>\n"
             + "      <groupId>org.apache.syncope.ext.flowable</groupId>\n"
             + "      <artifactId>syncope-ext-flowable-rest-cxf</artifactId>\n"
-            + "        </dependency>\n"
+            + "      <version>${syncope.version}</version>\n"
+            + "    </dependency>\n"
             + "  </dependencies>\n";
 
     private CorePom() {
