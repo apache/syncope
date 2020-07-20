@@ -23,7 +23,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.WAConfigTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
@@ -70,33 +73,46 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<WAConfigTO> list() {
-        return null;
+        return configDAO.findAll().stream().map(binder::getConfigTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_UPDATE + "')")
     public void update(final WAConfigTO configTO) {
-
+        WAConfigEntry entry = configDAO.find(configTO.getKey());
+        if (entry == null) {
+            throw new NotFoundException("Configuration entry " + configTO.getKey() + " not found");
+        }
+        binder.update(entry, configTO);
+        configDAO.save(entry);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_DELETE + "')")
     public void delete(final String key) {
-
+        configDAO.delete(key);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public WAConfigTO get(final String name) {
-        return null;
+        WAConfigEntry entry = configDAO.findByName(name);
+        if (entry == null) {
+            throw new NotFoundException("Configuration entry " + name + " not found");
+        }
+        return binder.getConfigTO(entry);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public WAConfigTO read(final String key) {
-        return null;
+        WAConfigEntry entry = configDAO.find(key);
+        if (entry == null) {
+            throw new NotFoundException("Configuration entry " + key + " not found");
+        }
+        return binder.getConfigTO(entry);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_CREATE + "')")
     public WAConfigTO create(final WAConfigTO configTO) {
-        return null;
+        return binder.getConfigTO(binder.create(configTO));
     }
 }

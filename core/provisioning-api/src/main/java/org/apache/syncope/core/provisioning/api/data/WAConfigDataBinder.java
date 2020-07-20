@@ -24,4 +24,8 @@ import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 
 public interface WAConfigDataBinder {
     WAConfigTO getConfigTO(WAConfigEntry waConfigEntry);
+
+    WAConfigEntry create(WAConfigTO configTO);
+
+    WAConfigEntry update(WAConfigEntry entry, WAConfigTO configTO);
 }

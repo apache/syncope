@@ -29,10 +29,14 @@ public interface WAConfigDAO extends DAO<WAConfigEntry> {
 
     List<WAConfigEntry> findAll();
 
-    WAConfigEntry save(WAConfigEntry authModule);
+    WAConfigEntry save(WAConfigEntry configEntry);
 
     void delete(String key);
 
-    void delete(WAConfigEntry authModule);
+    void delete(WAConfigEntry configEntry);
+
+    WAConfigEntry findByName(String name);
+
+    void deleteAll();
 
 }
