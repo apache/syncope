@@ -57,6 +57,6 @@ public abstract class AbstractTest {
 
     @BeforeEach
     public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 }
