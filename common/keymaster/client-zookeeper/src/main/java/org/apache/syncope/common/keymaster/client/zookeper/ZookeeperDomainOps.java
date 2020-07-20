@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.CuratorCache;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
@@ -61,33 +61,35 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
                 client.create().creatingParentContainersIfNeeded().forPath(buildDomainPath());
             }
 
-            new TreeCache(client, buildDomainPath()).start().getListenable().addListener((cf, event) -> {
-                switch (event.getType()) {
-                    case NODE_ADDED:
-                        LOG.debug("Domain {} added", event.getData().getPath());
+            CuratorCache cache = CuratorCache.build(client, buildDomainPath());
+            cache.listenable().addListener((type, oldData, newData) -> {
+                switch (type) {
+                    case NODE_CREATED:
+                        LOG.debug("Domain {} added", newData.getPath());
                         try {
-                            Domain domain = MAPPER.readValue(event.getData().getData(), Domain.class);
+                            Domain domain = MAPPER.readValue(newData.getData(), Domain.class);
 
                             LOG.info("Domain {} created", domain.getKey());
                             watcher.added(domain);
                         } catch (IOException e) {
-                            LOG.debug("Could not parse {}", new String(event.getData().getData()), e);
+                            LOG.debug("Could not parse {}", new String(newData.getData()), e);
                         }
                         break;
 
-                    case NODE_UPDATED:
-                        LOG.debug("Domain {} update", event.getData().getPath());
+                    case NODE_CHANGED:
+                        LOG.debug("Domain {} updated", newData.getPath());
                         break;
 
-                    case NODE_REMOVED:
-                        LOG.debug("Domain {} removed", event.getData().getPath());
-                        watcher.removed(StringUtils.substringAfter(event.getData().getPath(), DOMAIN_PATH + '/'));
+                    case NODE_DELETED:
+                        LOG.debug("Domain {} removed", newData.getPath());
+                        watcher.removed(StringUtils.substringAfter(newData.getPath(), DOMAIN_PATH + '/'));
                         break;
 
                     default:
-                        LOG.debug("Event {} received", event);
+                        LOG.debug("Event {} received with data {}", type, newData);
                 }
             });
+            cache.start();
         }
     }
 
