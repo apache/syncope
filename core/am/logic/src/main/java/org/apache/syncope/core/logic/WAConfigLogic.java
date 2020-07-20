@@ -20,6 +20,11 @@
 package org.apache.syncope.core.logic;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
+import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.WAConfigTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -32,17 +37,35 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.HttpHeaders;
+
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
     @Autowired
+    private ServiceOps serviceOps;
+
+    @Autowired
     private WAConfigDataBinder binder;
 
     @Autowired
     private WAConfigDAO configDAO;
+
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
+    @Resource(name = "anonymousKey")
+    private String anonymousKey;
 
     @Override
     protected WAConfigTO resolveReference(final Method method, final Object... args)
@@ -114,5 +137,23 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_CREATE + "')")
     public WAConfigTO create(final WAConfigTO configTO) {
         return binder.getConfigTO(configDAO.save(binder.create(configTO)));
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")
+    public void pushToWA() {
+        try {
+            NetworkService wa = serviceOps.get(NetworkService.Type.WA);
+            HttpClient.newBuilder().build().send(
+                HttpRequest.newBuilder(URI.create(
+                    StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/refresh")).
+                    header(HttpHeaders.AUTHORIZATION,
+                        DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                    POST(HttpRequest.BodyPublishers.noBody()).build(),
+                HttpResponse.BodyHandlers.discarding());
+        } catch (KeymasterException e) {
+            throw new NotFoundException("Could not find any WA instance", e);
+        } catch (IOException | InterruptedException e) {
+            throw new InternalServerErrorException("Errors while communicating with WA instance", e);
+        }
     }
 }

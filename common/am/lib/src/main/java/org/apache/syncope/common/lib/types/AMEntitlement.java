@@ -128,6 +128,8 @@ public final class AMEntitlement {
 
     public static final String WA_CONFIG_CREATE = "WA_CONFIG_CREATE";
 
+    public static final String WA_CONFIG_PUSH = "WA_CONFIG_PUSH";
+
     private static final Set<String> VALUES;
 
     static {

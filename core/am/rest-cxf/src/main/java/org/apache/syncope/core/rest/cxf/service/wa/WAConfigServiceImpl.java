@@ -72,4 +72,9 @@ public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfig
         logic.delete(key);
         return Response.noContent().build();
     }
+
+    @Override
+    public void pushToWA() {
+        logic.pushToWA();
+    }
 }

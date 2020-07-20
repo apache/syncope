@@ -104,4 +104,11 @@ public interface WAConfigService extends JAXRSService {
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("{key}")
     Response delete(@NotNull @PathParam("key") String key);
+
+    @ApiResponses(
+        @ApiResponse(responseCode = "204", description = "Operation was successful"))
+    @POST
+    @Path("push")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void pushToWA();
 }
