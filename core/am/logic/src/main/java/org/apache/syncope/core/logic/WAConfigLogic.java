@@ -113,6 +113,6 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_CREATE + "')")
     public WAConfigTO create(final WAConfigTO configTO) {
-        return binder.getConfigTO(binder.create(configTO));
+        return binder.getConfigTO(configDAO.save(binder.create(configTO)));
     }
 }
