@@ -40,11 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @ExtendWith(MockitoExtension.class)
 public abstract class AbstractTest {
 
-    @BeforeEach 
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     protected EntityManager entityManager() {
         EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
                 EntityManagerFactoryUtils.findEntityManagerFactory(
@@ -59,5 +54,10 @@ public abstract class AbstractTest {
     @BeforeAll
     public static void init() {
         EntitlementsHolder.getInstance().init(StandardEntitlement.values());
+    }
+
+    @BeforeEach
+    public void initMocks() {
+        MockitoAnnotations.openMocks(this);
     }
 }
