@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -65,23 +64,6 @@ public class JPAWAConfigDAO extends AbstractDAO<WAConfigEntry> implements WAConf
     @Override
     public void delete(final WAConfigEntry configEntry) {
         entityManager().remove(configEntry);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public WAConfigEntry findByName(final String name) {
-        TypedQuery<WAConfigEntry> query = entityManager().createQuery(
-            "SELECT e FROM " + JPAWAConfigEntry.class.getSimpleName() + " e WHERE e.name=:name",
-            WAConfigEntry.class);
-        query.setParameter("name", name);
-
-        WAConfigEntry result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (final NoResultException e) {
-            LOG.debug("No configuration entry can be found with name = {}", name);
-        }
-        return result;
     }
 
     @Override

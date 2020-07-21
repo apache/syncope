@@ -27,6 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,15 +41,37 @@ public class WAConfigTest extends AbstractTest {
 
     @Autowired
     private WAConfigDAO configDAO;
-    
+
     @BeforeEach
     public void beforeEach() {
         configDAO.deleteAll();
     }
 
     @Test
-    public void save() {
+    public void saveCommaSeparatedValueStrings() {
         create("system.example.key[0]", "value1,value2,value3");
+        assertFalse(configDAO.findAll().isEmpty());
+    }
+
+    @Test
+    public void saveNumbers() {
+        create("system.example.key[0]", 1984);
+        assertFalse(configDAO.findAll().isEmpty());
+    }
+
+    @Test
+    public void saveCollection() {
+        WAConfigEntry<ArrayList> entry = create("system.example.key[0]", new ArrayList<>(Arrays.asList(1, 2, 3)));
+        assertNotNull(entry.getValue());
+        assertFalse(configDAO.findAll().isEmpty());
+    }
+
+    @Test
+    public void saveMap() {
+        HashMap<String, Double> map = new HashMap<>();
+        map.put("Key1", 12.34);
+        map.put("Key2", 45.67);
+        create("system.example.key[0]", map);
         assertFalse(configDAO.findAll().isEmpty());
     }
 
@@ -58,19 +84,18 @@ public class WAConfigTest extends AbstractTest {
         entry = configDAO.save(entry);
         assertNotNull(entry);
         assertNotNull(entry.getKey());
-        WAConfigEntry found = configDAO.findByName(entry.getName());
+        WAConfigEntry found = configDAO.find(entry.getKey());
         assertNotNull(found);
         assertEquals("v1", found.getValue());
     }
 
     private WAConfigEntry create(final String name, final Serializable value) {
         WAConfigEntry entry = entityFactory.newEntity(WAConfigEntry.class);
-        entry.setName(name);
+        entry.setKey(name);
         entry.setValue(value);
         configDAO.save(entry);
         assertNotNull(entry);
         assertNotNull(entry.getKey());
-        assertNotNull(configDAO.findByName(entry.getName()));
         assertNotNull(configDAO.find(entry.getKey()));
         return entry;
     }

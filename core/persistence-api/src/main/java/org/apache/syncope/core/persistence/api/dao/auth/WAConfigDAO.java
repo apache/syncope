@@ -35,8 +35,6 @@ public interface WAConfigDAO extends DAO<WAConfigEntry> {
 
     void delete(WAConfigEntry configEntry);
 
-    WAConfigEntry findByName(String name);
-
     void deleteAll();
 
 }

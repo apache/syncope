@@ -116,16 +116,6 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public WAConfigTO get(final String name) {
-        WAConfigEntry entry = configDAO.findByName(name);
-        if (entry == null) {
-            throw new NotFoundException("Configuration entry " + name + " not found");
-        }
-        return binder.getConfigTO(entry);
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    @Transactional(readOnly = true)
     public WAConfigTO read(final String key) {
         WAConfigEntry entry = configDAO.find(key);
         if (entry == null) {

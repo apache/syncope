@@ -24,10 +24,6 @@ import java.io.Serializable;
 
 public interface WAConfigEntry<T extends Serializable> extends ProvidedKeyEntity {
 
-    String getName();
-
-    void setName(String name);
-
     T getValue();
 
     void setValue(T value);

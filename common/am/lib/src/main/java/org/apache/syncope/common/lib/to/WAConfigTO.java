@@ -33,8 +33,6 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
 
     private String key;
 
-    private String name;
-
     private T value;
 
     @Override
@@ -46,14 +44,6 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
     @Override
     public void setKey(final String key) {
         this.key = key;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public T getValue() {
@@ -68,7 +58,6 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
     public int hashCode() {
         return new HashCodeBuilder()
             .append(key)
-            .append(name)
             .append(value)
             .toHashCode();
     }
@@ -87,7 +76,6 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
         WAConfigTO rhs = (WAConfigTO) obj;
         return new EqualsBuilder()
             .append(this.key, rhs.key)
-            .append(this.name, rhs.name)
             .append(this.value, rhs.value)
             .isEquals();
     }
@@ -96,7 +84,6 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
     public String toString() {
         return new ToStringBuilder(this)
             .append("key", key)
-            .append("name", name)
             .append("value", value)
             .toString();
     }
@@ -107,11 +94,6 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
 
         public WAConfigTO.Builder value(final T value) {
             instance.setValue(value);
-            return this;
-        }
-
-        public WAConfigTO.Builder name(final String name) {
-            instance.setName(name);
             return this;
         }
 

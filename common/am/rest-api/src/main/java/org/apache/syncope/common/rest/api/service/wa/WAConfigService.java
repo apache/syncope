@@ -67,12 +67,6 @@ public interface WAConfigService extends JAXRSService {
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     WAConfigTO read(@NotNull @PathParam("key") String key);
 
-    @GET
-    @Path("byName/{name}")
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    WAConfigTO readByName(@NotNull @PathParam("name") String name);
-
     @ApiResponses({
         @ApiResponse(responseCode = "201",
             description = "WAConfigTO successfully created", headers = {
@@ -103,7 +97,7 @@ public interface WAConfigService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("{key}")
-    Response delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     @ApiResponses(
         @ApiResponse(responseCode = "204", description = "Operation was successful"))

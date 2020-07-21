@@ -19,9 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -30,7 +29,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = JPAWAConfigEntry.TABLE)
-public class JPAWAConfigEntry extends AbstractGeneratedKeyEntity implements WAConfigEntry {
+public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WAConfigEntry {
 
     public static final String TABLE = "ConfigEntry";
 
@@ -38,9 +37,6 @@ public class JPAWAConfigEntry extends AbstractGeneratedKeyEntity implements WACo
 
     @Lob
     private Serializable value;
-
-    @Column(unique = true, nullable = false)
-    private String name;
 
     @Override
     public Serializable getValue() {
@@ -52,13 +48,4 @@ public class JPAWAConfigEntry extends AbstractGeneratedKeyEntity implements WACo
         this.value = value;
     }
 
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public void setName(final String name) {
-       this.name = name;
-    }
 }

@@ -48,11 +48,6 @@ public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfig
     }
 
     @Override
-    public WAConfigTO readByName(final String name) {
-        return logic.get(name);
-    }
-
-    @Override
     public Response create(final WAConfigTO configTO) {
         final WAConfigTO config = logic.create(configTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(config.getKey()).build();
@@ -68,9 +63,8 @@ public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfig
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 
     @Override
