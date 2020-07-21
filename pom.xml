@@ -393,7 +393,7 @@ under the License.
 
     <jackson.version>2.10.4</jackson.version>
 
-    <spring.version>4.3.27.RELEASE</spring.version>
+    <spring.version>4.3.28.RELEASE</spring.version>
     <spring-security.version>4.2.17.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.3</openjpa.version>
@@ -470,7 +470,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
     
-    <wicket.version>7.16.0</wicket.version>
+    <wicket.version>7.17.0</wicket.version>
     <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.18</wicket-bootstrap.version>
 
