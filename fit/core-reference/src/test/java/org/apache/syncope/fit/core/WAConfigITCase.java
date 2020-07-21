@@ -67,7 +67,7 @@ public class WAConfigITCase extends AbstractITCase {
                 stream().
                 allMatch(entry -> ((Map) updatedValue).get(((Map.Entry) entry).getKey()).equals(((Map.Entry) entry).getValue()));
         } else {
-            assertEquals(updatedValue, updatedTO.getValue());
+            assertEquals(updatedValue.toString(), updatedTO.getValue());
         }
         return updatedTO;
     }
