@@ -106,7 +106,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientAppId(clientAppTO.getClientAppId());
         clientApp.setEntityId(clientAppTO.getEntityId());
         clientApp.setMetadataLocation(clientAppTO.getMetadataLocation());
-        clientApp.setMetadataSignatureLocation(clientAppTO.getMetadataLocation());
+        clientApp.setMetadataSignatureLocation(clientAppTO.getMetadataSignatureLocation());
         clientApp.setSignAssertions(clientAppTO.isSignAssertions());
         clientApp.setSignResponses(clientAppTO.isSignResponses());
         clientApp.setEncryptionOptional(clientAppTO.isEncryptionOptional());
@@ -170,7 +170,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setEntityId(clientApp.getEntityId());
         clientAppTO.setMetadataLocation(clientApp.getMetadataLocation());
-        clientAppTO.setMetadataSignatureLocation(clientApp.getMetadataLocation());
+        clientAppTO.setMetadataSignatureLocation(clientApp.getMetadataSignatureLocation());
         clientAppTO.setSignAssertions(clientApp.isSignAssertions());
         clientAppTO.setSignResponses(clientApp.isSignResponses());
         clientAppTO.setEncryptionOptional(clientApp.isEncryptionOptional());
