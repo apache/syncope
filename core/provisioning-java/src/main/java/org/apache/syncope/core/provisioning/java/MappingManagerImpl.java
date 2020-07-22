@@ -412,8 +412,14 @@ public class MappingManagerImpl implements MappingManager {
 
             if (intAttrName.getEnclosingGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup());
-                if (group == null || groupableRelatable.getMembership(group.getKey()) == null) {
-                    LOG.warn("No membership for {} in {}, ignoring",
+                if (group == null
+                        || any instanceof User
+                                ? !groupDAO.findUDynMembers(group).contains(any.getKey())
+                                : any instanceof AnyObject
+                                        ? !groupDAO.findADynMembers(group).contains(any.getKey())
+                                        : false) {
+
+                    LOG.warn("No (dyn) membership for {} in {}, ignoring",
                             intAttrName.getEnclosingGroup(), groupableRelatable);
                 } else {
                     references.add(group);
