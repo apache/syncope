@@ -625,9 +625,9 @@ public class MappingManagerImpl implements MappingManager {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup());
                 if (group == null
                         || any instanceof User
-                                ? !groupDAO.findUDynMembers(group).contains(any.getKey())
+                                ? !userDAO.findAllGroupKeys((User) any).contains(group.getKey())
                                 : any instanceof AnyObject
-                                        ? !groupDAO.findADynMembers(group).contains(any.getKey())
+                                        ? !anyObjectDAO.findAllGroupKeys((AnyObject) any).contains(group.getKey())
                                         : false) {
 
                     LOG.warn("No (dyn) membership for {} in {}, ignoring",

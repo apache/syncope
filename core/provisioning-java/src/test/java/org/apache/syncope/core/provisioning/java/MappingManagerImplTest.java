@@ -20,29 +20,18 @@ package org.apache.syncope.core.provisioning.java;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -63,21 +52,6 @@ public class MappingManagerImplTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
-
-    @Autowired
-    private AnyTypeClassDAO anyTypeClassDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -227,55 +201,5 @@ public class MappingManagerImplTest extends AbstractTest {
                 true,
                 provision);
         assertNull(AttributeUtil.getPasswordValue(attrs));
-    }
-
-    @Test
-    public void issueSYNCOPE1583() {
-        // 0. create user matching the condition below
-        User user = entityFactory.newEntity(User.class);
-        user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
-        user.add(anyTypeClassDAO.find("other"));
-
-        UPlainAttr cool = entityFactory.newEntity(UPlainAttr.class);
-        cool.setOwner(user);
-        cool.setSchema(plainSchemaDAO.find("cool"));
-        cool.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(cool);
-
-        user = userDAO.save(user);
-        String newUserKey = user.getKey();
-        assertNotNull(newUserKey);
-
-        // 1. update group with dynamic membership
-        Group group = groupDAO.findByName("root");
-        assertNotNull(group);
-
-        UDynGroupMembership dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
-        dynMembership.setFIQLCond("cool==true");
-        dynMembership.setGroup(group);
-        group.setUDynMembership(dynMembership);
-
-        group = groupDAO.saveAndRefreshDynMemberships(group);
-        assertNotNull(group);
-
-        entityManager().flush();
-
-        // 2. verify that dynamic membership is in place
-        assertTrue(groupDAO.findUDynMembers(group).contains(user.getKey()));
-
-        // 3. check propagation attrs
-        ExternalResource csv = resourceDAO.find("resource-csv");
-        Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
-        assertNotNull(provision);
-
-        Pair<String, Set<Attribute>> attrs = mappingManager.prepareAttrsFromAny(
-                user,
-                null,
-                false,
-                Boolean.TRUE,
-                provision);
-        assertTrue(attrs.getRight().stream().anyMatch(
-                attr -> "theirgroup".equals(attr.getName()) && Arrays.asList("sx-dx").equals(attr.getValue())));
     }
 }
