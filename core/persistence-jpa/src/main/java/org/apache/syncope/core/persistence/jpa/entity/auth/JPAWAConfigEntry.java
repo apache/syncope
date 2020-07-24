@@ -21,31 +21,34 @@ package org.apache.syncope.core.persistence.jpa.entity.auth;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = JPAWAConfigEntry.TABLE)
 public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WAConfigEntry {
-
     public static final String TABLE = "ConfigEntry";
 
     private static final long serialVersionUID = 6422422526695279794L;
 
-    @Lob
-    private Serializable value;
+    @ElementCollection
+    @CollectionTable(name = TABLE + "Values", joinColumns = @JoinColumn(name = "id"))
+    @Column(nullable = false)
+    private List<String> values = new ArrayList<>();
 
     @Override
-    public Serializable getValue() {
-        return value;
+    public List<String> getValues() {
+        return values;
     }
 
-    @Override
-    public void setValue(final Serializable value) {
-        this.value = value;
+    public void setValues(final List<String> values) {
+        this.values = values;
     }
-
 }

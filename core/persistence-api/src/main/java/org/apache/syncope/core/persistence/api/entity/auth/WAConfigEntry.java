@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
-import java.io.Serializable;
+import java.util.List;
 
-public interface WAConfigEntry<T extends Serializable> extends ProvidedKeyEntity {
+public interface WAConfigEntry extends ProvidedKeyEntity {
 
-    T getValue();
+    List<String> getValues();
 
-    void setValue(T value);
+    void setValues(List<String> value);
 }

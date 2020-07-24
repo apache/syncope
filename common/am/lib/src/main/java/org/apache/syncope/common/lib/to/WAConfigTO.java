@@ -25,15 +25,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.ws.rs.PathParam;
 
-import java.io.Serializable;
+import java.util.List;
 
-public class WAConfigTO<T extends Serializable> implements EntityTO {
+public class WAConfigTO implements EntityTO {
 
     private static final long serialVersionUID = 2185073386484048953L;
 
     private String key;
 
-    private T value;
+    private List<String> values;
 
     @Override
     public String getKey() {
@@ -46,19 +46,19 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
         this.key = key;
     }
 
-    public T getValue() {
-        return value;
+    public List<String> getValues() {
+        return values;
     }
 
-    public void setValue(final T value) {
-        this.value = value;
+    public void setValues(final List<String> value) {
+        this.values = value;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
             .append(key)
-            .append(value)
+            .append(values)
             .toHashCode();
     }
 
@@ -76,7 +76,7 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
         WAConfigTO rhs = (WAConfigTO) obj;
         return new EqualsBuilder()
             .append(this.key, rhs.key)
-            .append(this.value, rhs.value)
+            .append(this.values, rhs.values)
             .isEquals();
     }
 
@@ -84,16 +84,16 @@ public class WAConfigTO<T extends Serializable> implements EntityTO {
     public String toString() {
         return new ToStringBuilder(this)
             .append("key", key)
-            .append("value", value)
+            .append("value", values)
             .toString();
     }
 
-    public static class Builder<T extends Serializable> {
+    public static class Builder {
 
-        private final WAConfigTO<T> instance = new WAConfigTO<>();
+        private final WAConfigTO instance = new WAConfigTO();
 
-        public WAConfigTO.Builder value(final T value) {
-            instance.setValue(value);
+        public WAConfigTO.Builder value(final List<String> value) {
+            instance.setValues(value);
             return this;
         }
 

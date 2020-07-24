@@ -27,22 +27,17 @@ import org.junit.jupiter.api.Test;
 import javax.ws.rs.core.Response;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class WAConfigITCase extends AbstractITCase {
-    private static <T extends Serializable> WAConfigTO<T> runTest(final T initialValue, final T updatedValue) {
-        WAConfigTO<T> configTO = new WAConfigTO.Builder()
+    private static WAConfigTO runTest(final List<String> initialValue, final List<String> updatedValue) {
+        WAConfigTO configTO = new WAConfigTO.Builder()
             .key(UUID.randomUUID().toString())
             .value(initialValue)
             .build();
@@ -55,35 +50,24 @@ public class WAConfigITCase extends AbstractITCase {
         configTO = waConfigService.read(key);
         assertNotNull(configTO);
 
-        configTO.setValue(updatedValue);
+        configTO.setValues(updatedValue);
         waConfigService.update(configTO);
 
-        WAConfigTO<T> updatedTO = waConfigService.read(key);
-        if (updatedTO.getValue() instanceof Collection) {
-            ((Collection) updatedTO.getValue()).stream().allMatch(((Collection) updatedValue)::contains);
-        } else if (updatedTO.getValue() instanceof Map) {
-            ((Map) updatedTO.getValue()).
-                entrySet().
-                stream().
-                allMatch(entry -> ((Map) updatedValue).get(((Map.Entry) entry).getKey()).equals(((Map.Entry) entry).getValue()));
-        } else {
-            assertEquals(updatedValue.toString(), String.valueOf(updatedTO.getValue()));
-        }
+        WAConfigTO updatedTO = waConfigService.read(key);
+        updatedTO.getValues().stream().allMatch(((Collection) updatedValue)::contains);
         return updatedTO;
     }
 
-    private static <T extends Serializable> void deleteEntry(final WAConfigTO<T> configTO) {
+    private static <T extends Serializable> void deleteEntry(final WAConfigTO configTO) {
         waConfigService.delete(configTO.getKey());
         assertThrows(SyncopeClientException.class, () -> waConfigService.read(configTO.getKey()));
     }
 
     @Test
     public void verify() {
-        deleteEntry(runTest("v1,v2,v3", "newValue"));
-        deleteEntry(runTest(123456, 98765));
-        deleteEntry(runTest(123.45, 987.65));
-        deleteEntry(runTest(new ArrayList<>(Arrays.asList(1, 2, 3, 4)), new ArrayList<>(Arrays.asList(9, 8, 7, 6, 5))));
-        deleteEntry(runTest(new TreeSet<>(Arrays.asList(3, 4, 5)), new TreeSet<>(Arrays.asList(6, 7, 8))));
-        deleteEntry(runTest(new TreeMap<>(Map.of("key1", 12.1F)), new TreeMap<>(Map.of("key3", 22.5F))));
+        deleteEntry(runTest(List.of("v1", "v2"), List.of("newValue")));
+        deleteEntry(runTest(List.of("12345"), List.of("98765")));
+        deleteEntry(runTest(List.of("123.45"), List.of("987.65")));
+        deleteEntry(runTest(List.of("1", "2", "3"), List.of("4", "5", "6")));
     }
 }

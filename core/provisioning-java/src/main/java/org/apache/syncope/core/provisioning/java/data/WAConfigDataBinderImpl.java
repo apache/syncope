@@ -36,7 +36,7 @@ public class WAConfigDataBinderImpl implements WAConfigDataBinder {
         WAConfigTO configTO = new WAConfigTO();
 
         configTO.setKey(waConfigEntry.getKey());
-        configTO.setValue(waConfigEntry.getValue());
+        configTO.setValues(waConfigEntry.getValues());
 
         return configTO;
     }
@@ -59,7 +59,7 @@ public class WAConfigDataBinderImpl implements WAConfigDataBinder {
         if (result == null) {
             result = entityFactory.newEntity(WAConfigEntry.class);
         }
-        result.setValue(configTO.getValue());
+        result.setValues(configTO.getValues());
         result.setKey(configTO.getKey());
         return result;
     }
