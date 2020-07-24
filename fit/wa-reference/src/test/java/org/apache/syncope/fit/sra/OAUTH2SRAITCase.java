@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.fit.sra;
 
-import static org.apache.syncope.fit.sra.AbstractITCase.doStartSRA;
-import static org.apache.syncope.fit.sra.AbstractITCase.oidcClientAppSetup;
-import static org.apache.syncope.fit.sra.OIDCSRAITCase.CLIENT_ID;
-import static org.apache.syncope.fit.sra.OIDCSRAITCase.CLIENT_SECRET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

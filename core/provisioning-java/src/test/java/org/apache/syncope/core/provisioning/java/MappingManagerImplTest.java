@@ -264,7 +264,7 @@ public class MappingManagerImplTest extends AbstractTest {
         // 2. verify that dynamic membership is in place
         assertTrue(userDAO.findAllGroupKeys(user).contains(group.getKey()));
 
-        // 3.
+        // 3. check propagation attrs
         ExternalResource csv = resourceDAO.find("resource-csv");
         Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);

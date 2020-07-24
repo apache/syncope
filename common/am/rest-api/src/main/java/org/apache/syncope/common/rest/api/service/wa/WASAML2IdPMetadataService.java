@@ -51,6 +51,8 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 @Path("wa/saml2idp/metadata")
 public interface WASAML2IdPMetadataService extends JAXRSService {
 
+    String DEFAULT_OWNER = "Syncope";
+
     /**
      * Returns a document outlining keys and metadata of Syncope as SAML 2.0 IdP.
      *
@@ -60,7 +62,7 @@ public interface WASAML2IdPMetadataService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML2IdPMetadataTO getByOwner(@QueryParam("appliesTo") @DefaultValue("Syncope") String appliesTo);
+    SAML2IdPMetadataTO getByOwner(@QueryParam("appliesTo") @DefaultValue(DEFAULT_OWNER) String appliesTo);
 
     /**
      * Returns the SAML 2.0 IdP metadata matching the given key.

@@ -32,10 +32,6 @@ under the License.
   <artifactId>${artifactId}</artifactId>
   <packaging>war</packaging>
 
-  <properties>
-    <opensaml.version>3.4.5</opensaml.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${groupId}</groupId>

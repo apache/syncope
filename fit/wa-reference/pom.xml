@@ -34,8 +34,6 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <opensaml.version>4.0.0</opensaml.version>
-
     <ianal.skip>true</ianal.skip>
 
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
@@ -242,6 +240,13 @@ under the License.
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/../../sra/src/test/resources/debug</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>saml.keystore.jks</include>
+        </includes>
       </testResource>
     </testResources>
   </build>

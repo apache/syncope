@@ -46,24 +46,13 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
         this.restClient = restClient;
     }
 
-    private static String getAppliesToFor(final Optional<SamlRegisteredService> result) {
-        if (result.isPresent()) {
-            SamlRegisteredService registeredService = result.get();
-            return registeredService.getName() + '-' + registeredService.getId();
-        }
-        return RestfulSamlIdPMetadataGenerator.DEFAULT_APPLIES_FOR;
-    }
-
     @Override
     public SamlIdPMetadataDocument fetchInternal(final Optional<SamlRegisteredService> registeredService) {
         try {
             LOG.info("Locating SAML2 IdP metadata document");
-            SAML2IdPMetadataTO saml2IdPMetadataTO = getSyncopeClient().getService(WASAML2IdPMetadataService.class).
-                getByOwner(getAppliesToFor(registeredService));
 
-            if (saml2IdPMetadataTO == null) {
-                LOG.warn("No SAML2 IdP metadata document obtained from core");
-            } else {
+            SAML2IdPMetadataTO saml2IdPMetadataTO = fetchFromCore(registeredService);
+            if (saml2IdPMetadataTO != null) {
                 SamlIdPMetadataDocument document = new SamlIdPMetadataDocument();
                 document.setMetadata(saml2IdPMetadataTO.getMetadata());
                 document.setEncryptionCertificate(saml2IdPMetadataTO.getEncryptionCertificate());
@@ -75,16 +64,34 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
                     LOG.debug("Found SAML2 IdP metadata document: {}", document.getId());
                     return document;
                 }
-                LOG.warn("Not a valid SAML2 IdP metadata document");
             }
 
+            LOG.warn("Not a valid SAML2 IdP metadata document");
             return null;
-        } catch (SyncopeClientException ex) {
-            if (ex.getType() == ClientExceptionType.NotFound) {
-                LOG.debug("No SAML2 IdP metadata document is available");
+        } catch (SyncopeClientException e) {
+            LOG.error("While fetching SAML2 IdP metadata", e);
+        }
+
+        return null;
+    }
+
+    private SAML2IdPMetadataTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
+        SAML2IdPMetadataTO result = null;
+
+        String appliesToFor = registeredService.map(SamlRegisteredService::getName).
+                orElse(WASAML2IdPMetadataService.DEFAULT_OWNER);
+        try {
+            result = getSyncopeClient().getService(WASAML2IdPMetadataService.class).getByOwner(appliesToFor);
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
+                result = getSyncopeClient().getService(WASAML2IdPMetadataService.class).
+                        getByOwner(WASAML2IdPMetadataService.DEFAULT_OWNER);
+            } else {
+                throw e;
             }
         }
-        return null;
+
+        return result;
     }
 
     private SyncopeClient getSyncopeClient() {

@@ -16,33 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security;
+package org.apache.syncope.sra.security.oauth2;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.SRARouteTO;
-import org.apache.syncope.sra.RouteProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
-import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
-import org.springframework.context.ApplicationListener;
+import org.apache.syncope.sra.security.AbstractServerLogoutSuccessHandler;
 import reactor.core.publisher.Mono;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.web.server.DefaultServerRedirectStrategy;
-import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.RedirectServerLogoutSuccessHandler;
-import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -52,28 +39,22 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @see <a href="https://openid.net/specs/openid-connect-session-1_0.html#RPLogout">RP-Initiated Logout</a>
  * @see org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler
  */
-public class OidcClientInitiatedServerLogoutSuccessHandler
-        implements ServerLogoutSuccessHandler, ApplicationListener<RefreshRoutesEvent> {
-
-    private static final Map<String, Optional<URI>> CACHE = new ConcurrentHashMap<>();
-
-    private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-
-    private final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler =
-            new RedirectServerLogoutSuccessHandler();
+public class OidcClientInitiatedServerLogoutSuccessHandler extends AbstractServerLogoutSuccessHandler {
 
     @Resource(name = "oidcClientRegistrationRepository")
     private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
-    @Autowired
-    private RouteProvider routeProvider;
+    protected final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler =
+            new RedirectServerLogoutSuccessHandler();
 
-    @Value("${global.postLogout}")
-    private URI globalPostLogout;
-
-    @Override
-    public void onApplicationEvent(final RefreshRoutesEvent event) {
-        CACHE.clear();
+    /**
+     * The URL to redirect to after successfully logging out when not originally an OIDC login
+     *
+     * @param logoutSuccessUrl the url to redirect to. Default is "/login?logout".
+     */
+    public void setLogoutSuccessUrl(final URI logoutSuccessUrl) {
+        Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
+        this.serverLogoutSuccessHandler.setLogoutSuccessUrl(logoutSuccessUrl);
     }
 
     @Override
@@ -106,24 +87,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
         UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
         builder.queryParam("id_token_hint", idToken(authentication));
 
-        URI postLogout = globalPostLogout;
-        String routeId = exchange.getExchange().getAttribute(ServerWebExchangeUtils.GATEWAY_PREDICATE_ROUTE_ATTR);
-        if (StringUtils.isNotBlank(routeId)) {
-            Optional<URI> routePostLogout = Optional.ofNullable(CACHE.get(routeId)).orElseGet(() -> {
-                URI uri = null;
-                Optional<SRARouteTO> route = routeProvider.getRouteTOs().stream().
-                        filter(r -> routeId.equals(r.getKey())).findFirst();
-                if (route.isPresent()) {
-                    uri = route.get().getPostLogout();
-                }
-
-                CACHE.put(routeId, Optional.ofNullable(uri));
-                return CACHE.get(routeId);
-            });
-            if (routePostLogout.isPresent()) {
-                postLogout = routePostLogout.get();
-            }
-        }
+        URI postLogout = getPostLogout(exchange);
         builder.queryParam("post_logout_redirect_uri", postLogout);
 
         return builder.encode(StandardCharsets.UTF_8).build().toUri();
@@ -131,15 +95,5 @@ public class OidcClientInitiatedServerLogoutSuccessHandler
 
     private String idToken(final Authentication authentication) {
         return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
-    }
-
-    /**
-     * The URL to redirect to after successfully logging out when not originally an OIDC login
-     *
-     * @param logoutSuccessUrl the url to redirect to. Default is "/login?logout".
-     */
-    public void setLogoutSuccessUrl(final URI logoutSuccessUrl) {
-        Assert.notNull(logoutSuccessUrl, "logoutSuccessUrl cannot be null");
-        this.serverLogoutSuccessHandler.setLogoutSuccessUrl(logoutSuccessUrl);
     }
 }

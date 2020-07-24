@@ -37,8 +37,6 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
 
     private static final Logger LOG = LoggerFactory.getLogger(RestfulSamlIdPMetadataGenerator.class);
 
-    public static final String DEFAULT_APPLIES_FOR = "Syncope";
-
     private final WARestClient restClient;
 
     public RestfulSamlIdPMetadataGenerator(
@@ -55,7 +53,7 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
             final Optional<SamlRegisteredService> registeredService) {
 
         LOG.info("Generating new SAML2 IdP metadata document");
-        doc.setAppliesTo(DEFAULT_APPLIES_FOR);
+        doc.setAppliesTo(WASAML2IdPMetadataService.DEFAULT_OWNER);
         SAML2IdPMetadataTO metadataTO = new SAML2IdPMetadataTO.Builder().
                 metadata(doc.getMetadata()).
                 encryptionKey(doc.getEncryptionKey()).
@@ -69,8 +67,8 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
         Response response = null;
         try {
             response = client.getService(WASAML2IdPMetadataService.class).set(metadataTO);
-        } catch (Exception ex) {
-            LOG.warn("While generating SAML2 IdP metadata document", ex);
+        } catch (Exception e) {
+            LOG.warn("While generating SAML2 IdP metadata document", e);
         }
 
         return response != null && HttpStatus.valueOf(response.getStatus()).is2xxSuccessful() ? doc : null;
@@ -93,5 +91,4 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
         }
         return restClient.getSyncopeClient();
     }
-
 }

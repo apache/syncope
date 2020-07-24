@@ -34,8 +34,6 @@ under the License.
   <packaging>war</packaging>
 
   <properties>
-    <opensaml.version>4.0.0</opensaml.version>
-
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
   

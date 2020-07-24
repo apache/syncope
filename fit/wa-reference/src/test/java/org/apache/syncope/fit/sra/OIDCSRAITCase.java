@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -58,6 +57,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.common.lib.to.client.OIDCRPTO;
+import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -74,6 +77,45 @@ public class OIDCSRAITCase extends AbstractITCase {
         assumeTrue(OIDCSRAITCase.class.equals(MethodHandles.lookup().lookupClass()));
 
         doStartSRA("oidc");
+    }
+
+    protected static void oidcClientAppSetup(
+            final String appName,
+            final String sraRegistrationId,
+            final Long clientAppId,
+            final String clientId,
+            final String clientSecret) {
+
+        OIDCRPTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
+                filter(app -> appName.equals(app.getName())).
+                map(OIDCRPTO.class::cast).
+                findFirst().
+                orElseGet(() -> {
+                    OIDCRPTO app = new OIDCRPTO();
+                    app.setName(appName);
+                    app.setClientAppId(clientAppId);
+                    app.setClientId(clientId);
+                    app.setClientSecret(clientSecret);
+
+                    Response response = clientAppService.create(ClientAppType.OIDCRP, app);
+                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                        fail("Could not create OIDC Client App");
+                    }
+
+                    return clientAppService.read(
+                            ClientAppType.OIDCRP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                });
+
+        clientApp.setClientId(clientId);
+        clientApp.setClientSecret(clientSecret);
+        clientApp.setSubjectType(OIDCSubjectType.PUBLIC);
+        clientApp.getRedirectUris().add(SRA_ADDRESS + "/login/oauth2/code/" + sraRegistrationId);
+        clientApp.setAuthPolicy(getAuthPolicy().getKey());
+        clientApp.setSignIdToken(true);
+        clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
+
+        clientAppService.update(ClientAppType.OIDCRP, clientApp);
+        clientAppService.pushToWA();
     }
 
     @BeforeAll
@@ -95,37 +137,6 @@ public class OIDCSRAITCase extends AbstractITCase {
         oidcClientAppSetup(OIDCSRAITCase.class.getName(), "OIDC", 1L, CLIENT_ID, CLIENT_SECRET);
     }
 
-    private ObjectNode checkResponse(final CloseableHttpResponse response, final String originalRequestURI)
-            throws IOException {
-
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-
-        assertEquals(MediaType.APPLICATION_JSON, response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue());
-
-        JsonNode json = OBJECT_MAPPER.readTree(EntityUtils.toString(response.getEntity()));
-
-        ObjectNode args = (ObjectNode) json.get("args");
-        assertEquals("value1", args.get("key1").asText());
-
-        ArrayNode key2 = (ArrayNode) args.get("key2");
-        assertEquals("value2", key2.get(0).asText());
-        assertEquals("value3", key2.get(1).asText());
-
-        ObjectNode headers = (ObjectNode) json.get("headers");
-        assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
-        assertEquals(EN_LANGUAGE, headers.get(HttpHeaders.ACCEPT_LANGUAGE).asText());
-        assertEquals("localhost:" + PORT, headers.get("X-Forwarded-Host").asText());
-
-        assertEquals(originalRequestURI, json.get("url").asText());
-
-        return headers;
-    }
-
-    protected void checkLogout(final CloseableHttpResponse response) {
-        assertEquals(HttpStatus.SC_NO_CONTENT, response.getStatusLine().getStatusCode());
-        assertEquals("true", response.getFirstHeader(LOGGED_OUT_HEADER).getValue());
-    }
-
     @Test
     public void web() throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -138,7 +149,7 @@ public class OIDCSRAITCase extends AbstractITCase {
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         CloseableHttpResponse response = httpclient.execute(get, context);
 
-        ObjectNode headers = checkResponse(response, get.getURI().toASCIIString().replace("/public", ""));
+        ObjectNode headers = checkGetResponse(response, get.getURI().toASCIIString().replace("/public", ""));
         assertFalse(headers.has(HttpHeaders.COOKIE));
 
         // 2. protected
@@ -151,46 +162,21 @@ public class OIDCSRAITCase extends AbstractITCase {
 
         // 2a. redirected to WA login screen
         String responseBody = EntityUtils.toString(response.getEntity());
-        int begin = responseBody.indexOf("name=\"execution\" value=\"");
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/><input type=\"hidden\" name=\"_eventId\"");
-        assertNotEquals(-1, end);
-
-        String execution = responseBody.substring(begin + 24, end);
-        assertNotNull(execution);
-
-        List<NameValuePair> form = new ArrayList<>();
-        form.add(new BasicNameValuePair("_eventId", "submit"));
-        form.add(new BasicNameValuePair("execution", execution));
-        form.add(new BasicNameValuePair("username", "bellini"));
-        form.add(new BasicNameValuePair("password", "password"));
-        form.add(new BasicNameValuePair("geolocation", ""));
-
-        HttpPost post = new HttpPost(WA_ADDRESS + "/login");
-        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
-        response = httpclient.execute(post, context);
+        response = authenticateToCas(responseBody, httpclient, context);
 
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             responseBody = EntityUtils.toString(response.getEntity());
-            begin = responseBody.indexOf("name=\"execution\" value=\"");
-            assertNotEquals(-1, begin);
-            end = responseBody.indexOf("\"/><input type=\"hidden\" name=\"_eventId\"");
-            assertNotEquals(-1, end);
+            String execution = extractCASExecution(responseBody);
 
-            execution = responseBody.substring(begin + 24, end);
-            assertNotNull(execution);
-
-            form = new ArrayList<>();
+            List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
             form.add(new BasicNameValuePair("execution", execution));
             form.add(new BasicNameValuePair("option", "1"));
             form.add(new BasicNameValuePair("reminder", "30"));
             form.add(new BasicNameValuePair("reminderTimeUnit", "days"));
 
-            post = new HttpPost(WA_ADDRESS + "/login");
+            HttpPost post = new HttpPost(WA_ADDRESS + "/login");
             post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
             post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
@@ -207,11 +193,11 @@ public class OIDCSRAITCase extends AbstractITCase {
 
         responseBody = EntityUtils.toString(response.getEntity());
 
-        begin = responseBody.indexOf("name=\"allow\"");
+        int begin = responseBody.indexOf("name=\"allow\"");
         assertNotEquals(-1, begin);
         begin = responseBody.indexOf("href=\"", begin);
         assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\">", begin);
+        int end = responseBody.indexOf("\">", begin);
         assertNotEquals(-1, end);
 
         String allow = responseBody.substring(begin + 6, end).replace("&amp;", "&");
@@ -223,7 +209,7 @@ public class OIDCSRAITCase extends AbstractITCase {
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         response = httpclient.execute(get, context);
 
-        headers = checkResponse(response, originalRequestURI.replace("/protected", ""));
+        headers = checkGetResponse(response, originalRequestURI.replace("/protected", ""));
         assertTrue(headers.get(HttpHeaders.COOKIE).asText().contains("pac4jCsrfToken"));
 
         // 3. logout
