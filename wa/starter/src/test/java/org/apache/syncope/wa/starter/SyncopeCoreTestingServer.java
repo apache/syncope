@@ -19,6 +19,29 @@
 package org.apache.syncope.wa.starter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.WAConfigTO;
+import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
+import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
+
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,31 +49,12 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
-import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
-
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
-
     public static final List<WAClientApp> APPS = new ArrayList<>();
+
+    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
     @Autowired
     private ServiceOps serviceOps;
@@ -64,11 +68,17 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setAddress(ADDRESS);
                 sf.setResourceClasses(WAClientAppService.class, GoogleMfaAuthTokenService.class);
                 sf.setResourceProvider(
-                        WAClientAppService.class,
-                        new SingletonResourceProvider(new StubWAClientAppService(), true));
+                    WAClientAppService.class,
+                    new SingletonResourceProvider(new StubWAClientAppService(), true));
                 sf.setResourceProvider(
-                        GoogleMfaAuthTokenService.class,
-                        new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
+                    GoogleMfaAuthTokenService.class,
+                    new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
+                sf.setResourceProvider(
+                    WAConfigService.class,
+                    new SingletonResourceProvider(new StubWAConfigService(), true));
+                sf.setResourceProvider(
+                    AuthModuleService.class,
+                    new SingletonResourceProvider(new StubAuthModuleService(), true));
                 sf.setProviders(List.of(new JacksonJsonProvider()));
                 sf.create();
 
@@ -78,6 +88,91 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 core.setAddress(ADDRESS);
                 serviceOps.register(core);
             }
+        }
+    }
+
+    public static class StubAuthModuleService implements AuthModuleService {
+        private final List<AuthModuleTO> authModuleTOS = new ArrayList<>();
+
+        @Override
+        public AuthModuleTO read(@NotNull final String key) {
+            return authModuleTOS.
+                stream().
+                filter(entry -> entry.getKey().equalsIgnoreCase(key)).
+                findFirst().
+                orElse(null);
+        }
+
+        @Override
+        public List<AuthModuleTO> list() {
+            return this.authModuleTOS;
+        }
+
+        @Override
+        public Response create(@NotNull final AuthModuleTO authModuleTO) {
+            authModuleTOS.add(authModuleTO);
+            return Response.ok().build();
+        }
+
+        @Override
+        public void update(@NotNull final AuthModuleTO authModuleTO) {
+            authModuleTOS.removeIf(entry -> entry.getKey().equalsIgnoreCase(authModuleTO.getKey()));
+            authModuleTOS.add(authModuleTO);
+        }
+
+        @Override
+        public void delete(@NotNull final String key) {
+            authModuleTOS.removeIf(entry -> entry.getKey().equalsIgnoreCase(key));
+        }
+    }
+
+    public static class StubWAConfigService implements WAConfigService {
+        private final List<WAConfigTO> configEntries = new ArrayList<>();
+
+        public StubWAConfigService() {
+            configEntries.add(new WAConfigTO.Builder()
+                .key("cas.server.name")
+                .value(List.of("http://localhost:9080/"))
+                .build());
+            configEntries.add(new WAConfigTO.Builder()
+                .key("cas.authn.oidc.issuer")
+                .value(List.of("http://localhost:8080/syncope-wa/oidc/"))
+                .build());
+        }
+
+        @Override
+        public List<WAConfigTO> list() {
+            return configEntries;
+        }
+
+        @Override
+        public WAConfigTO read(@NotNull final String key) {
+            return configEntries.
+                stream().
+                filter(entry -> entry.getKey().equalsIgnoreCase(key)).
+                findFirst().
+                orElse(null);
+        }
+
+        @Override
+        public Response create(@NotNull final WAConfigTO configTO) {
+            configEntries.add(configTO);
+            return Response.ok().build();
+        }
+
+        @Override
+        public void update(@NotNull final WAConfigTO configTO) {
+            configEntries.removeIf(entry -> entry.getKey().equalsIgnoreCase(configTO.getKey()));
+            configEntries.add(configTO);
+        }
+
+        @Override
+        public void delete(@NotNull final String key) {
+            configEntries.removeIf(entry -> entry.getKey().equalsIgnoreCase(key));
+        }
+
+        @Override
+        public void pushToWA() {
         }
     }
 
@@ -125,16 +220,16 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public GoogleMfaAuthToken findTokenFor(@NotNull final String owner, @NotNull final Integer token) {
             return tokens.stream()
-                    .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
-                    .findFirst().get();
+                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
+                .findFirst().get();
         }
 
         @Override
         public PagedResult<GoogleMfaAuthToken> findTokensFor(@NotNull final String user) {
             PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
             result.getResult().addAll(tokens.stream().
-                    filter(to -> to.getOwner().equalsIgnoreCase(user)).
-                    collect(Collectors.toList()));
+                filter(to -> to.getOwner().equalsIgnoreCase(user)).
+                collect(Collectors.toList()));
             result.setSize(result.getResult().size());
             result.setTotalCount(result.getSize());
             return result;
@@ -143,8 +238,8 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public GoogleMfaAuthToken findTokenFor(@NotNull final String key) {
             return tokens.stream()
-                    .filter(to -> to.getKey().equalsIgnoreCase(key))
-                    .findFirst().get();
+                .filter(to -> to.getKey().equalsIgnoreCase(key))
+                .findFirst().get();
         }
 
         @Override
@@ -166,13 +261,13 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public WAClientApp read(final Long clientAppId, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(clientAppId, app.getClientAppTO().getClientAppId())).
-                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
+                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
         }
 
         @Override
         public WAClientApp read(final String name, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(name, app.getClientAppTO().getName())).
-                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
+                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
         }
     }
 }
