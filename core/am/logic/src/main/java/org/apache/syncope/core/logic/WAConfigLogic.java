@@ -25,7 +25,8 @@ import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.WAConfigTO;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -51,7 +52,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
+public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private ServiceOps serviceOps;
 
@@ -68,22 +69,33 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
     private String anonymousKey;
 
     @Override
-    protected WAConfigTO resolveReference(final Method method, final Object... args)
+    protected EntityTO resolveReference(final Method method, final Object... args)
         throws UnresolvedReferenceException {
         String key = null;
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     key = (String) args[i];
-                } else if (args[i] instanceof WAConfigTO) {
-                    key = ((WAConfigTO) args[i]).getKey();
+                } else if (args[i] instanceof Attr) {
+                    key = ((Attr) args[i]).getSchema();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getConfigTO(configDAO.find(key));
+                Attr attr = binder.getAttr(configDAO.find(key));
+                return new EntityTO() {
+                    private static final long serialVersionUID = -2683326649597260323L;
+                    @Override
+                    public String getKey() {
+                        return attr.getSchema();
+                    }
+
+                    @Override
+                    public void setKey(final String key) {
+                    }
+                };
             } catch (final Throwable e) {
                 LOG.debug("Unresolved reference", e);
                 throw new UnresolvedReferenceException(e);
@@ -95,15 +107,15 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public List<WAConfigTO> list() {
-        return configDAO.findAll().stream().map(binder::getConfigTO).collect(Collectors.toList());
+    public List<Attr> list() {
+        return configDAO.findAll().stream().map(binder::getAttr).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_UPDATE + "')")
-    public void update(final WAConfigTO configTO) {
-        WAConfigEntry entry = configDAO.find(configTO.getKey());
+    public void update(final Attr configTO) {
+        WAConfigEntry entry = configDAO.find(configTO.getSchema());
         if (entry == null) {
-            throw new NotFoundException("Configuration entry " + configTO.getKey() + " not found");
+            throw new NotFoundException("Configuration entry " + configTO.getSchema() + " not found");
         }
         binder.update(entry, configTO);
         configDAO.save(entry);
@@ -116,17 +128,17 @@ public class WAConfigLogic extends AbstractTransactionalLogic<WAConfigTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public WAConfigTO read(final String key) {
+    public Attr read(final String key) {
         WAConfigEntry entry = configDAO.find(key);
         if (entry == null) {
             throw new NotFoundException("Configuration entry " + key + " not found");
         }
-        return binder.getConfigTO(entry);
+        return binder.getAttr(entry);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_CREATE + "')")
-    public WAConfigTO create(final WAConfigTO configTO) {
-        return binder.getConfigTO(configDAO.save(binder.create(configTO)));
+    public Attr create(final Attr configTO) {
+        return binder.getAttr(configDAO.save(binder.create(configTO)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")

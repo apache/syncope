@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.fit.core;
 
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.WAConfigTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -36,10 +36,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class WAConfigITCase extends AbstractITCase {
-    private static WAConfigTO runTest(final List<String> initialValue, final List<String> updatedValue) {
-        WAConfigTO configTO = new WAConfigTO.Builder()
-            .key(UUID.randomUUID().toString())
-            .value(initialValue)
+    private static Attr runTest(final List<String> initialValue, final List<String> updatedValue) {
+        Attr configTO = new Attr.Builder(UUID.randomUUID().toString())
+            .values(initialValue)
             .build();
         Response response = waConfigService.create(configTO);
         String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
@@ -50,17 +49,19 @@ public class WAConfigITCase extends AbstractITCase {
         configTO = waConfigService.read(key);
         assertNotNull(configTO);
 
-        configTO.setValues(updatedValue);
+        configTO = new Attr.Builder(configTO.getSchema())
+            .values(updatedValue)
+            .build();
         waConfigService.update(configTO);
 
-        WAConfigTO updatedTO = waConfigService.read(key);
+        Attr updatedTO = waConfigService.read(key);
         updatedTO.getValues().stream().allMatch(((Collection) updatedValue)::contains);
         return updatedTO;
     }
 
-    private static <T extends Serializable> void deleteEntry(final WAConfigTO configTO) {
-        waConfigService.delete(configTO.getKey());
-        assertThrows(SyncopeClientException.class, () -> waConfigService.read(configTO.getKey()));
+    private static <T extends Serializable> void deleteEntry(final Attr configTO) {
+        waConfigService.delete(configTO.getSchema());
+        assertThrows(SyncopeClientException.class, () -> waConfigService.read(configTO.getSchema()));
     }
 
     @Test

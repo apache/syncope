@@ -19,7 +19,7 @@
 
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.common.lib.to.WAConfigTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
@@ -32,35 +32,30 @@ public class WAConfigDataBinderImpl implements WAConfigDataBinder {
     private EntityFactory entityFactory;
 
     @Override
-    public WAConfigTO getConfigTO(final WAConfigEntry waConfigEntry) {
-        WAConfigTO configTO = new WAConfigTO();
-
-        configTO.setKey(waConfigEntry.getKey());
-        configTO.setValues(waConfigEntry.getValues());
-
-        return configTO;
+    public Attr getAttr(final WAConfigEntry waConfigEntry) {
+        return new Attr.Builder(waConfigEntry.getKey()).values(waConfigEntry.getValues()).build();
     }
 
     @Override
-    public WAConfigEntry create(final WAConfigTO configTO) {
+    public WAConfigEntry create(final Attr configTO) {
         return update(entityFactory.newEntity(WAConfigEntry.class), configTO);
     }
 
     @Override
-    public WAConfigEntry update(final WAConfigEntry entry, final WAConfigTO configTO) {
-         return getConfigEntry(entry, configTO);
+    public WAConfigEntry update(final WAConfigEntry entry, final Attr configTO) {
+        return getConfigEntry(entry, configTO);
     }
 
     private WAConfigEntry getConfigEntry(
         final WAConfigEntry configEntry,
-        final WAConfigTO configTO) {
+        final Attr config) {
 
         WAConfigEntry result = configEntry;
         if (result == null) {
             result = entityFactory.newEntity(WAConfigEntry.class);
         }
-        result.setValues(configTO.getValues());
-        result.setKey(configTO.getKey());
+        result.setValues(config.getValues());
+        result.setKey(config.getSchema());
         return result;
     }
 }

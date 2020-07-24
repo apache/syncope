@@ -23,16 +23,12 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.WAConfigTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
-import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -73,12 +69,6 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setResourceProvider(
                     GoogleMfaAuthTokenService.class,
                     new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
-                sf.setResourceProvider(
-                    WAConfigService.class,
-                    new SingletonResourceProvider(new StubWAConfigService(), true));
-                sf.setResourceProvider(
-                    AuthModuleService.class,
-                    new SingletonResourceProvider(new StubAuthModuleService(), true));
                 sf.setProviders(List.of(new JacksonJsonProvider()));
                 sf.create();
 
@@ -88,91 +78,6 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 core.setAddress(ADDRESS);
                 serviceOps.register(core);
             }
-        }
-    }
-
-    public static class StubAuthModuleService implements AuthModuleService {
-        private final List<AuthModuleTO> authModuleTOS = new ArrayList<>();
-
-        @Override
-        public AuthModuleTO read(@NotNull final String key) {
-            return authModuleTOS.
-                stream().
-                filter(entry -> entry.getKey().equalsIgnoreCase(key)).
-                findFirst().
-                orElse(null);
-        }
-
-        @Override
-        public List<AuthModuleTO> list() {
-            return this.authModuleTOS;
-        }
-
-        @Override
-        public Response create(@NotNull final AuthModuleTO authModuleTO) {
-            authModuleTOS.add(authModuleTO);
-            return Response.ok().build();
-        }
-
-        @Override
-        public void update(@NotNull final AuthModuleTO authModuleTO) {
-            authModuleTOS.removeIf(entry -> entry.getKey().equalsIgnoreCase(authModuleTO.getKey()));
-            authModuleTOS.add(authModuleTO);
-        }
-
-        @Override
-        public void delete(@NotNull final String key) {
-            authModuleTOS.removeIf(entry -> entry.getKey().equalsIgnoreCase(key));
-        }
-    }
-
-    public static class StubWAConfigService implements WAConfigService {
-        private final List<WAConfigTO> configEntries = new ArrayList<>();
-
-        public StubWAConfigService() {
-            configEntries.add(new WAConfigTO.Builder()
-                .key("cas.server.name")
-                .value(List.of("http://localhost:9080/"))
-                .build());
-            configEntries.add(new WAConfigTO.Builder()
-                .key("cas.authn.oidc.issuer")
-                .value(List.of("http://localhost:8080/syncope-wa/oidc/"))
-                .build());
-        }
-
-        @Override
-        public List<WAConfigTO> list() {
-            return configEntries;
-        }
-
-        @Override
-        public WAConfigTO read(@NotNull final String key) {
-            return configEntries.
-                stream().
-                filter(entry -> entry.getKey().equalsIgnoreCase(key)).
-                findFirst().
-                orElse(null);
-        }
-
-        @Override
-        public Response create(@NotNull final WAConfigTO configTO) {
-            configEntries.add(configTO);
-            return Response.ok().build();
-        }
-
-        @Override
-        public void update(@NotNull final WAConfigTO configTO) {
-            configEntries.removeIf(entry -> entry.getKey().equalsIgnoreCase(configTO.getKey()));
-            configEntries.add(configTO);
-        }
-
-        @Override
-        public void delete(@NotNull final String key) {
-            configEntries.removeIf(entry -> entry.getKey().equalsIgnoreCase(key));
-        }
-
-        @Override
-        public void pushToWA() {
         }
     }
 

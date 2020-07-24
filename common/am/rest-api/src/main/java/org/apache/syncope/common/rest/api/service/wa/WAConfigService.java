@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.to.WAConfigTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
@@ -59,13 +59,13 @@ public interface WAConfigService extends JAXRSService {
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    List<WAConfigTO> list();
+    List<Attr> list();
 
     @GET
     @Path("{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    WAConfigTO read(@NotNull @PathParam("key") String key);
+    Attr read(@NotNull @PathParam("key") String key);
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",
@@ -81,7 +81,7 @@ public interface WAConfigService extends JAXRSService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response create(@NotNull WAConfigTO configTO);
+    Response create(@NotNull Attr configTO);
 
     @Parameter(name = "key", description = "WAConfigTO's key", in = ParameterIn.PATH, schema =
     @Schema(type = "string"))
@@ -91,7 +91,7 @@ public interface WAConfigService extends JAXRSService {
     @Path("{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    void update(@NotNull WAConfigTO configTO);
+    void update(@NotNull Attr configTO);
 
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})

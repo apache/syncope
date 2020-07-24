@@ -19,13 +19,13 @@
 
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.WAConfigTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 
 public interface WAConfigDataBinder {
-    WAConfigTO getConfigTO(WAConfigEntry waConfigEntry);
+    Attr getAttr(WAConfigEntry waConfigEntry);
 
-    WAConfigEntry create(WAConfigTO configTO);
+    WAConfigEntry create(Attr config);
 
-    WAConfigEntry update(WAConfigEntry entry, WAConfigTO configTO);
+    WAConfigEntry update(WAConfigEntry entry, Attr config);
 }

@@ -421,7 +421,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         });
 
         syncopeClient.getService(WAConfigService.class).list()
-            .forEach(configTO -> properties.put(configTO.getKey(), configTO.getValues()));
+            .forEach(configTO -> properties.put(configTO.getSchema(), configTO.getValues()));
         LOG.debug("Collected WA properties: {}", properties);
         return new MapPropertySource(getClass().getName(), properties);
     }

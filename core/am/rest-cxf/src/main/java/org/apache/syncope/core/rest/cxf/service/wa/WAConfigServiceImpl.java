@@ -19,7 +19,7 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import org.apache.syncope.common.lib.to.WAConfigTO;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.core.logic.WAConfigLogic;
@@ -38,27 +38,27 @@ public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfig
     private WAConfigLogic logic;
 
     @Override
-    public List<WAConfigTO> list() {
+    public List<Attr> list() {
         return logic.list();
     }
 
     @Override
-    public WAConfigTO read(final String key) {
+    public Attr read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public Response create(final WAConfigTO configTO) {
-        final WAConfigTO config = logic.create(configTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(config.getKey()).build();
+    public Response create(final Attr configTO) {
+        final Attr config = logic.create(configTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(config.getSchema()).build();
         return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, config.getKey()).
+            header(RESTHeaders.RESOURCE_KEY, config.getSchema()).
             entity(config).
             build();
     }
 
     @Override
-    public void update(final WAConfigTO configTO) {
+    public void update(final Attr configTO) {
         logic.update(configTO);
     }
 
