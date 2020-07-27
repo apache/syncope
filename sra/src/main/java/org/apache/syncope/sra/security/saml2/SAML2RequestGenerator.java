@@ -42,10 +42,9 @@ abstract class SAML2RequestGenerator {
 
         if (action instanceof WithLocationAction) {
             WithLocationAction withLocationAction = (WithLocationAction) action;
-            return Mono.fromRunnable(() -> {
-                shc.getNative().getResponse().setStatusCode(HttpStatus.SEE_OTHER);
-                shc.getNative().getResponse().getHeaders().setLocation(URI.create(withLocationAction.getLocation()));
-            });
+            shc.getNative().getResponse().setStatusCode(HttpStatus.FOUND);
+            shc.getNative().getResponse().getHeaders().setLocation(URI.create(withLocationAction.getLocation()));
+            return shc.getNative().getResponse().setComplete();
         } else if (action instanceof WithContentAction) {
             WithContentAction withContentAction = (WithContentAction) action;
             String content = withContentAction.getContent();

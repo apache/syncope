@@ -215,14 +215,18 @@ public class SecurityConfig {
                 env.getProperty("am.saml2.keystore.keypass"),
                 resourceResolver.getResource(env.getProperty("am.saml2.idp")));
         cfg.setIdentityProviderMetadataResource(resourceResolver.getResource(env.getProperty("am.saml2.idp")));
-        cfg.setAuthnRequestBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
-        cfg.setResponseBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
-        cfg.setSpLogoutRequestBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
-        cfg.setSpLogoutResponseBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
+        cfg.setAuthnRequestBindingType(
+                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.authnrequest.binding")).getUri());
+        cfg.setResponseBindingType(SAML2BindingType.POST.getUri());
+        cfg.setSpLogoutRequestBindingType(
+                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.request.binding")).getUri());
+        cfg.setSpLogoutResponseBindingType(
+                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.response.binding")).getUri());
         cfg.setServiceProviderEntityId(env.getProperty("am.saml2.sp.entityId"));
         cfg.setWantsAssertionsSigned(true);
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
+        cfg.setAcceptedSkew(env.getProperty("am.saml2.sp.skew", int.class));
 
         SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setName(AMType.SAML2.name());
