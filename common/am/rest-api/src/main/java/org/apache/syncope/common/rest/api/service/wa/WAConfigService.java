@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service.wa;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -82,16 +80,11 @@ public interface WAConfigService extends JAXRSService {
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     Response create(@NotNull Attr configTO);
-
-    @Parameter(name = "key", description = "WAConfigTO's key", in = ParameterIn.PATH, schema =
-    @Schema(type = "string"))
-    @ApiResponses(
-        @ApiResponse(responseCode = "204", description = "Operation was successful"))
+    
     @PUT
-    @Path("{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    void update(@NotNull Attr configTO);
+    void update(Attr configTO);
 
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
