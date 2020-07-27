@@ -19,17 +19,6 @@
 package org.apache.syncope.wa.starter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -45,12 +34,23 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
-
     public static final List<WAClientApp> APPS = new ArrayList<>();
+
+    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
     @Autowired
     private ServiceOps serviceOps;
@@ -64,11 +64,11 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setAddress(ADDRESS);
                 sf.setResourceClasses(WAClientAppService.class, GoogleMfaAuthTokenService.class);
                 sf.setResourceProvider(
-                        WAClientAppService.class,
-                        new SingletonResourceProvider(new StubWAClientAppService(), true));
+                    WAClientAppService.class,
+                    new SingletonResourceProvider(new StubWAClientAppService(), true));
                 sf.setResourceProvider(
-                        GoogleMfaAuthTokenService.class,
-                        new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
+                    GoogleMfaAuthTokenService.class,
+                    new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
                 sf.setProviders(List.of(new JacksonJsonProvider()));
                 sf.create();
 
@@ -125,16 +125,16 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public GoogleMfaAuthToken findTokenFor(@NotNull final String owner, @NotNull final Integer token) {
             return tokens.stream()
-                    .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
-                    .findFirst().get();
+                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
+                .findFirst().get();
         }
 
         @Override
         public PagedResult<GoogleMfaAuthToken> findTokensFor(@NotNull final String user) {
             PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
             result.getResult().addAll(tokens.stream().
-                    filter(to -> to.getOwner().equalsIgnoreCase(user)).
-                    collect(Collectors.toList()));
+                filter(to -> to.getOwner().equalsIgnoreCase(user)).
+                collect(Collectors.toList()));
             result.setSize(result.getResult().size());
             result.setTotalCount(result.getSize());
             return result;
@@ -143,8 +143,8 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public GoogleMfaAuthToken findTokenFor(@NotNull final String key) {
             return tokens.stream()
-                    .filter(to -> to.getKey().equalsIgnoreCase(key))
-                    .findFirst().get();
+                .filter(to -> to.getKey().equalsIgnoreCase(key))
+                .findFirst().get();
         }
 
         @Override
@@ -166,13 +166,13 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public WAClientApp read(final Long clientAppId, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(clientAppId, app.getClientAppTO().getClientAppId())).
-                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
+                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
         }
 
         @Override
         public WAClientApp read(final String name, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(name, app.getClientAppTO().getName())).
-                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
+                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
         }
     }
 }
