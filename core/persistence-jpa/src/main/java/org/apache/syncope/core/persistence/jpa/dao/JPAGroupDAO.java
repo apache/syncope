@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -255,11 +254,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearUDynMembers(merged);
         if (merged.getUDynMembership() != null) {
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm());
-            int count = searchDAO.count(
-                    Collections.<String>singleton(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
+            int count = searchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<User> matching = searchDAO.search(
-                        Collections.<String>singleton(merged.getRealm().getFullPath()),
+                        Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
@@ -279,11 +277,10 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearADynMembers(merged);
         merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
-            int count = searchDAO.count(
-                    Collections.<String>singleton(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
+            int count = searchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<AnyObject> matching = searchDAO.search(
-                        Collections.<String>singleton(merged.getRealm().getFullPath()),
+                        Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,

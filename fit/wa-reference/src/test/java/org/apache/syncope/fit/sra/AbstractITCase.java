@@ -19,33 +19,47 @@
 package org.apache.syncope.fit.sra;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.Consts;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.SRARouteTO;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
 import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
@@ -53,7 +67,6 @@ import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.common.lib.types.SRARoutePredicateFactory;
 import org.apache.syncope.common.lib.types.SRARouteType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
@@ -89,8 +102,6 @@ public abstract class AbstractITCase {
 
     protected static SyncopeClient adminClient;
 
-    protected static AuthModuleService authModuleService;
-
     protected static PolicyService policyService;
 
     protected static ClientAppService clientAppService;
@@ -104,11 +115,9 @@ public abstract class AbstractITCase {
         clientFactory = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS);
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
-        authModuleService = adminClient.getService(AuthModuleService.class);
         policyService = adminClient.getService(PolicyService.class);
         clientAppService = adminClient.getService(ClientAppService.class);
         sraRouteService = adminClient.getService(SRARouteService.class);
-
     }
 
     @BeforeAll
@@ -193,70 +202,6 @@ public abstract class AbstractITCase {
         }
     }
 
-    protected static void oidcClientAppSetup(
-            final String appName,
-            final String sraRegistrationId,
-            final Long clientAppId,
-            final String clientId,
-            final String clientSecret) {
-
-        AuthModuleTO syncopeAuthModule = authModuleService.list().stream().
-                filter(module -> module.getConf() instanceof SyncopeAuthModuleConf).
-                findFirst().orElseThrow(() -> new IllegalArgumentException("Could not find Syncope Auth Module"));
-
-        AuthPolicyTO syncopeAuthPolicy = policyService.list(PolicyType.AUTH).stream().
-                map(AuthPolicyTO.class::cast).
-                filter(policy -> policy.getConf() instanceof DefaultAuthPolicyConf
-                && ((DefaultAuthPolicyConf) policy.getConf()).getAuthModules().contains(syncopeAuthModule.getKey())).
-                findFirst().
-                orElseGet(() -> {
-                    DefaultAuthPolicyConf policyConf = new DefaultAuthPolicyConf();
-                    policyConf.getAuthModules().add(syncopeAuthModule.getKey());
-
-                    AuthPolicyTO policy = new AuthPolicyTO();
-                    policy.setDescription("Syncope authentication");
-                    policy.setConf(policyConf);
-
-                    Response response = policyService.create(PolicyType.AUTH, policy);
-                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create Syncope Auth Policy");
-                    }
-
-                    return policyService.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                });
-
-        OIDCRPTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
-                filter(app -> appName.equals(app.getName())).
-                map(OIDCRPTO.class::cast).
-                findFirst().
-                orElseGet(() -> {
-                    OIDCRPTO app = new OIDCRPTO();
-                    app.setName(appName);
-                    app.setClientAppId(clientAppId);
-                    app.setClientId(clientId);
-                    app.setClientSecret(clientSecret);
-
-                    Response response = clientAppService.create(ClientAppType.OIDCRP, app);
-                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create OIDC Client App");
-                    }
-
-                    return clientAppService.read(
-                            ClientAppType.OIDCRP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                });
-
-        clientApp.setClientId(clientId);
-        clientApp.setClientSecret(clientSecret);
-        clientApp.setSubjectType(OIDCSubjectType.PUBLIC);
-        clientApp.getRedirectUris().add(SRA_ADDRESS + "/login/oauth2/code/" + sraRegistrationId);
-        clientApp.setAuthPolicy(syncopeAuthPolicy.getKey());
-        clientApp.setSignIdToken(true);
-        clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
-
-        clientAppService.update(ClientAppType.OIDCRP, clientApp);
-        clientAppService.pushToWA();
-    }
-
     protected static void doStartSRA(final String activeProfile)
             throws IOException, InterruptedException, TimeoutException {
 
@@ -304,9 +249,34 @@ public abstract class AbstractITCase {
             }
             return connected;
         });
-        assertTrue(WebClient.create(SRA_ADDRESS).get().getStatus() < 400);
+        assertDoesNotThrow(() -> WebClient.create(SRA_ADDRESS).get().getStatus());
 
         sraRouteService.pushToSRA();
+    }
+
+    protected static AuthPolicyTO getAuthPolicy() {
+        String authModule = "DefaultSyncopeAuthModule";
+
+        return policyService.list(PolicyType.AUTH).stream().
+                map(AuthPolicyTO.class::cast).
+                filter(policy -> policy.getConf() instanceof DefaultAuthPolicyConf
+                && ((DefaultAuthPolicyConf) policy.getConf()).getAuthModules().contains(authModule)).
+                findFirst().
+                orElseGet(() -> {
+                    DefaultAuthPolicyConf policyConf = new DefaultAuthPolicyConf();
+                    policyConf.getAuthModules().add(authModule);
+
+                    AuthPolicyTO policy = new AuthPolicyTO();
+                    policy.setDescription("Syncope authentication");
+                    policy.setConf(policyConf);
+
+                    Response response = policyService.create(PolicyType.AUTH, policy);
+                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                        fail("Could not create Syncope Auth Policy");
+                    }
+
+                    return policyService.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                });
     }
 
     @AfterAll
@@ -315,5 +285,65 @@ public abstract class AbstractITCase {
             SRA.destroy();
             SRA.waitFor();
         }
+    }
+
+    protected static String extractCASExecution(final String responseBody) {
+        int begin = responseBody.indexOf("name=\"execution\" value=\"");
+        assertNotEquals(-1, begin);
+        int end = responseBody.indexOf("\"/><input type=\"hidden\" name=\"_eventId\"");
+        assertNotEquals(-1, end);
+
+        String execution = responseBody.substring(begin + 24, end);
+        assertNotNull(execution);
+        return execution;
+    }
+
+    protected static CloseableHttpResponse authenticateToCas(
+            final String responseBody, final CloseableHttpClient httpclient, final HttpClientContext context)
+            throws IOException {
+
+        List<NameValuePair> form = new ArrayList<>();
+        form.add(new BasicNameValuePair("_eventId", "submit"));
+        form.add(new BasicNameValuePair("execution", extractCASExecution(responseBody)));
+        form.add(new BasicNameValuePair("username", "bellini"));
+        form.add(new BasicNameValuePair("password", "password"));
+        form.add(new BasicNameValuePair("geolocation", ""));
+
+        HttpPost post = new HttpPost(WA_ADDRESS + "/login");
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
+        return httpclient.execute(post, context);
+    }
+
+    protected static ObjectNode checkGetResponse(
+            final CloseableHttpResponse response, final String originalRequestURI) throws IOException {
+
+        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+        assertEquals(MediaType.APPLICATION_JSON, response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue());
+
+        JsonNode json = OBJECT_MAPPER.readTree(EntityUtils.toString(response.getEntity()));
+
+        ObjectNode args = (ObjectNode) json.get("args");
+        assertEquals("value1", args.get("key1").asText());
+
+        ArrayNode key2 = (ArrayNode) args.get("key2");
+        assertEquals("value2", key2.get(0).asText());
+        assertEquals("value3", key2.get(1).asText());
+
+        ObjectNode headers = (ObjectNode) json.get("headers");
+        assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
+        assertEquals(EN_LANGUAGE, headers.get(HttpHeaders.ACCEPT_LANGUAGE).asText());
+        assertEquals("localhost:" + PORT, headers.get("X-Forwarded-Host").asText());
+
+        assertEquals(originalRequestURI, json.get("url").asText());
+
+        return headers;
+    }
+
+    protected void checkLogout(final CloseableHttpResponse response) throws IOException {
+        assertEquals(HttpStatus.SC_NO_CONTENT, response.getStatusLine().getStatusCode());
+        assertEquals("true", response.getFirstHeader(LOGGED_OUT_HEADER).getValue());
     }
 }

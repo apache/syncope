@@ -19,15 +19,21 @@
 package org.apache.syncope.sra;
 
 import java.text.ParseException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.sra.security.CsrfRouteMatcher;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
-import org.apache.syncope.sra.security.OAuth2SecurityConfigUtils;
+import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
+import org.apache.syncope.sra.security.saml2.SAML2BindingType;
+import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
+import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
+import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
+import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -39,6 +45,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -57,27 +65,43 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @Configuration
 public class SecurityConfig {
 
-    private static final String AM_TYPE = "am.type";
+    public static final String AM_TYPE = "am.type";
 
     public enum AMType {
         OIDC,
         OAUTH2,
         SAML2,
-        WA
+        CAS
 
     }
+
+    @Autowired
+    private ResourcePatternResolver resourceResolver;
 
     @Autowired
     private Environment env;
 
     @Bean
     @Order(0)
+    @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
+    public SecurityWebFilterChain saml2SecurityFilterChain(final ServerHttpSecurity http) {
+        ServerWebExchangeMatcher metadataMatcher =
+                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SAML2MetadataEndpoint.METADATA_URL);
+        return http.securityMatcher(metadataMatcher).
+                authorizeExchange().anyExchange().permitAll().
+                and().csrf().requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(metadataMatcher)).
+                and().build();
+    }
+
+    @Bean
+    @Order(1)
     public SecurityWebFilterChain actuatorSecurityFilterChain(final ServerHttpSecurity http) {
         ServerWebExchangeMatcher actuatorMatcher = EndpointRequest.toAnyEndpoint();
         return http.securityMatcher(actuatorMatcher).
@@ -118,7 +142,7 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnMissingBean
     public Converter<Map<String, Object>, Map<String, Object>> jwtClaimSetConverter() {
-        return MappedJwtClaimSetConverter.withDefaults(Collections.emptyMap());
+        return MappedJwtClaimSetConverter.withDefaults(Map.of());
     }
 
     @Bean
@@ -183,7 +207,39 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(1)
+    @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
+    public SAML2Client saml2Client() {
+        SAML2Configuration cfg = new SAML2Configuration(
+                resourceResolver.getResource(env.getProperty("am.saml2.keystore")),
+                env.getProperty("am.saml2.keystore.storepass"),
+                env.getProperty("am.saml2.keystore.keypass"),
+                resourceResolver.getResource(env.getProperty("am.saml2.idp")));
+        cfg.setIdentityProviderMetadataResource(resourceResolver.getResource(env.getProperty("am.saml2.idp")));
+        cfg.setAuthnRequestBindingType(
+                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.authnrequest.binding")).getUri());
+        cfg.setResponseBindingType(SAML2BindingType.POST.getUri());
+        cfg.setSpLogoutRequestBindingType(
+                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.request.binding")).getUri());
+        cfg.setSpLogoutResponseBindingType(
+                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.response.binding")).getUri());
+        cfg.setServiceProviderEntityId(env.getProperty("am.saml2.sp.entityId"));
+        cfg.setWantsAssertionsSigned(true);
+        cfg.setAuthnRequestSigned(true);
+        cfg.setSpLogoutRequestSigned(true);
+        cfg.setAcceptedSkew(env.getProperty("am.saml2.sp.skew", int.class));
+
+        SAML2Client saml2Client = new SAML2Client(cfg);
+        saml2Client.setName(AMType.SAML2.name());
+        saml2Client.setCallbackUrl(env.getProperty("am.saml2.sp.entityId")
+                + SAML2WebSsoAuthenticationWebFilter.DEFAULT_FILTER_PROCESSES_URI);
+        saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
+        saml2Client.init();
+
+        return saml2Client;
+    }
+
+    @Bean
+    @Order(2)
     @ConditionalOnProperty(name = AM_TYPE)
     public SecurityWebFilterChain routesSecurityFilterChain(
             final ServerHttpSecurity http,
@@ -208,9 +264,12 @@ public class SecurityConfig {
                 break;
 
             case SAML2:
+                SAML2Client saml2Client = saml2Client();
+                SAML2SecurityConfigUtils.forLogin(http, saml2Client, publicRouteMatcher);
+                SAML2SecurityConfigUtils.forLogout(builder, saml2Client, logoutRouteMatcher, ctx);
                 break;
 
-            case WA:
+            case CAS:
             default:
         }
 

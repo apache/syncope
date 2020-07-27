@@ -33,8 +33,6 @@ under the License.
   <packaging>pom</packaging>
   
   <properties>
-    <opensaml.version>4.0.0</opensaml.version>
-
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
 
@@ -76,13 +74,6 @@ under the License.
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <id>shibboleth</id>
-      <url>https://build.shibboleth.net/nexus/content/groups/public</url>
-    </repository>
-  </repositories>
 
   <modules>
     <module>bootstrap</module>

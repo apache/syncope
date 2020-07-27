@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security;
+package org.apache.syncope.sra.security.oauth2;
 
-import java.util.Collections;
+import java.util.Set;
 import org.apache.syncope.sra.ApplicationContextUtils;
 import org.apache.syncope.sra.SecurityConfig.AMType;
+import org.apache.syncope.sra.security.LogoutRouteMatcher;
+import org.apache.syncope.sra.security.SessionRemovalServerLogoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -89,6 +91,7 @@ public final class OAuth2SecurityConfigUtils {
 
         OAuth2AuthorizationRequestRedirectWebFilter authRequestRedirectFilter =
                 new OAuth2AuthorizationRequestRedirectWebFilter(clientRegistrationRepository);
+        http.addFilterAt(authRequestRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 
         AuthenticationWebFilter authenticationFilter =
                 new OAuth2LoginAuthenticationWebFilter(authenticationManager(amType), authorizedClientRepository);
@@ -99,15 +102,13 @@ public final class OAuth2SecurityConfigUtils {
         authenticationFilter.setAuthenticationSuccessHandler(new RedirectServerAuthenticationSuccessHandler());
         authenticationFilter.setAuthenticationFailureHandler((exchange, ex) -> Mono.error(ex));
         authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
+        http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 
         MediaTypeServerWebExchangeMatcher htmlMatcher = new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML);
-        htmlMatcher.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
+        htmlMatcher.setIgnoredMediaTypes(Set.of(MediaType.ALL));
         ServerAuthenticationEntryPoint entrypoint =
                 new RedirectServerAuthenticationEntryPoint("/oauth2/authorization/" + amType.name());
         http.exceptionHandling().authenticationEntryPoint(new DelegateEntry(htmlMatcher, entrypoint).getEntryPoint());
-
-        http.addFilterAt(authRequestRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
-        http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
     }
 
     public static void forLogout(
