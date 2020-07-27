@@ -470,7 +470,7 @@ under the License.
 
     <wicket.version>9.0.0</wicket.version>
     <wicket-jqueryui.version>9.0.0-M5.1</wicket-jqueryui.version>
-    <wicket-bootstrap.version>5.0.0-M2</wicket-bootstrap.version>
+    <wicket-bootstrap.version>5.0.0</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
@@ -2334,7 +2334,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.35-SNAPSHOT</version>
+              <version>8.35</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2488,7 +2488,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.9.0</version>
+        <version>1.9.1</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
