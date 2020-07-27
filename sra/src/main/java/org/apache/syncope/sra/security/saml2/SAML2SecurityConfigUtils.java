@@ -19,10 +19,9 @@
 package org.apache.syncope.sra.security.saml2;
 
 import org.apache.syncope.sra.ApplicationContextUtils;
-import org.apache.syncope.sra.SecurityConfig;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
-import org.opensaml.security.credential.Credential;
+import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -30,82 +29,68 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlLogoutRequestFactory;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
-public final class Saml2SecurityConfigUtils {
+public final class SAML2SecurityConfigUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Saml2SecurityConfigUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SAML2SecurityConfigUtils.class);
 
     private static ReactiveAuthenticationManager authenticationManager() {
-        OpenSamlAuthenticationProvider openSamlAuthenticationProvider = new OpenSamlAuthenticationProvider();
         return authentication -> Mono.just(authentication).
-                flatMap(a -> {
-                    try {
-                        return Mono.just(openSamlAuthenticationProvider.authenticate(a));
-                    } catch (Throwable error) {
-                        return Mono.error(error);
-                    }
-                }).
                 filter(Authentication::isAuthenticated);
     }
 
     public static void forLogin(
             final ServerHttpSecurity http,
-            final ReactiveRelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+            final SAML2Client saml2Client,
             final PublicRouteMatcher publicRouteMatcher) {
 
         ReactiveAuthenticationManager authenticationManager = authenticationManager();
 
-        Saml2WebSsoAuthenticationRequestWebFilter authRequestFilter =
-                new Saml2WebSsoAuthenticationRequestWebFilter(relyingPartyRegistrationRepository);
+        SAML2WebSsoAuthenticationRequestWebFilter authRequestFilter =
+                new SAML2WebSsoAuthenticationRequestWebFilter(saml2Client);
         http.addFilterAt(authRequestFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 
         AuthenticationWebFilter authenticationFilter =
-                new Saml2WebSsoAuthenticationWebFilter(authenticationManager, relyingPartyRegistrationRepository);
+                new SAML2WebSsoAuthenticationWebFilter(authenticationManager, saml2Client);
         authenticationFilter.setAuthenticationFailureHandler((exchange, ex) -> Mono.error(ex));
         authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
         http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 
-        WebFilter anonymousRedirectFilter =
-                new Saml2AnonymousWebFilter(publicRouteMatcher, SecurityConfig.AMType.SAML2.name());
+        WebFilter anonymousRedirectFilter = new SAML2AnonymousWebFilter(publicRouteMatcher);
         http.addFilterAt(anonymousRedirectFilter, SecurityWebFiltersOrder.AUTHENTICATION);
     }
 
     public static void forLogout(
             final ServerHttpSecurity.AuthorizeExchangeSpec builder,
-            final ReactiveRelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
+            final SAML2Client saml2Client,
             final LogoutRouteMatcher logoutRouteMatcher,
             final ConfigurableApplicationContext ctx) {
 
         LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
         logoutWebFilter.setRequiresLogoutMatcher(logoutRouteMatcher);
 
-        Saml2ServerLogoutHandler logoutHandler =
-                new Saml2ServerLogoutHandler(relyingPartyRegistrationRepository, SecurityConfig.AMType.SAML2.name());
-        logoutHandler.setLogoutRequestFactory(new OpenSamlLogoutRequestFactory(ctx.getBean(Credential.class)));
+        SAML2ServerLogoutHandler logoutHandler = new SAML2ServerLogoutHandler(saml2Client);
         logoutWebFilter.setLogoutHandler(logoutHandler);
 
         try {
-            Saml2ServerLogoutSuccessHandler handler = ApplicationContextUtils.getOrCreateBean(
-                    ctx,
-                    Saml2ServerLogoutSuccessHandler.class.getName(),
-                    Saml2ServerLogoutSuccessHandler.class);
+            SAML2ServerLogoutSuccessHandler handler = ApplicationContextUtils.getOrCreateBean(ctx,
+                    SAML2ServerLogoutSuccessHandler.class.getName(),
+                    SAML2ServerLogoutSuccessHandler.class);
             logoutWebFilter.setLogoutSuccessHandler(handler);
         } catch (ClassNotFoundException e) {
             LOG.error("While creating instance of {}",
-                    Saml2ServerLogoutSuccessHandler.class.getName(), e);
+                    SAML2ServerLogoutSuccessHandler.class.getName(), e);
         }
 
         builder.and().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 
-    private Saml2SecurityConfigUtils() {
+    private SAML2SecurityConfigUtils() {
         // private constructor for static utility class
     }
 }

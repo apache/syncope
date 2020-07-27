@@ -27,15 +27,14 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-public class Saml2AnonymousWebFilter implements WebFilter {
+public class SAML2AnonymousWebFilter implements WebFilter {
+
+    public static final String INITIAL_REQUEST_URI = "INITIAL_REQUEST_URI";
 
     private final PublicRouteMatcher publicRouteMatcher;
 
-    private final String registrationId;
-
-    public Saml2AnonymousWebFilter(final PublicRouteMatcher publicRouteMatcher, final String registrationId) {
+    public SAML2AnonymousWebFilter(final PublicRouteMatcher publicRouteMatcher) {
         this.publicRouteMatcher = publicRouteMatcher;
-        this.registrationId = registrationId;
     }
 
     @Override
@@ -47,11 +46,11 @@ public class Saml2AnonymousWebFilter implements WebFilter {
                 WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME)).
                 switchIfEmpty(chain.filter(exchange).then(Mono.empty())).
                 flatMap(session -> {
-                    session.getAttributes().put(Saml2Constants.INITIAL_REQUEST_URI, exchange.getRequest().getURI());
+                    session.getAttributes().put(INITIAL_REQUEST_URI, exchange.getRequest().getURI());
 
                     exchange.getResponse().setStatusCode(HttpStatus.SEE_OTHER);
                     exchange.getResponse().getHeaders().
-                            setLocation(URI.create("/saml2/authenticate/" + registrationId));
+                            setLocation(URI.create(SAML2WebSsoAuthenticationRequestWebFilter.AUTHENTICATE_URL));
                     return exchange.getResponse().setComplete();
                 });
     }

@@ -36,6 +36,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpStatus;
@@ -77,8 +78,8 @@ public class SAML2SRAITCase extends AbstractITCase {
                     SAML2SPTO app = new SAML2SPTO();
                     app.setName(appName);
                     app.setClientAppId(3L);
-                    app.setEntityId("http://localhost:8080/saml2/service-provider-metadata/SAML2");
-                    app.setMetadataLocation("http://localhost:8080/saml2/service-provider-metadata/SAML2");
+                    app.setEntityId("http://localhost:8080");
+                    app.setMetadataLocation("http://localhost:8080/saml2/metadata");
 
                     Response response = clientAppService.create(ClientAppType.SAML2SP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -98,10 +99,17 @@ public class SAML2SRAITCase extends AbstractITCase {
         clientAppService.pushToWA();
     }
 
-    private Pair<String, String> parseSAMLRequestForm(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"SAMLRequest\" value=\"");
+    private Triple<String, String, String> parseSAMLRequestForm(final String responseBody) {
+        int begin = responseBody.indexOf("name=\"RelayState\" value=\"");
         assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/>");
+        int end = responseBody.indexOf("\"/>", begin);
+        assertNotEquals(-1, end);
+        String relayState = responseBody.substring(begin + 25, end);
+        assertNotNull(relayState);
+
+        begin = responseBody.indexOf("name=\"SAMLRequest\" value=\"");
+        assertNotEquals(-1, begin);
+        end = responseBody.indexOf("\"/>", begin);
         assertNotEquals(-1, end);
         String samlRequest = responseBody.substring(begin + 26, end);
         assertNotNull(samlRequest);
@@ -110,16 +118,23 @@ public class SAML2SRAITCase extends AbstractITCase {
         assertNotEquals(-1, begin);
         end = responseBody.indexOf("\" method=\"post\">");
         assertNotEquals(-1, end);
-        String action = responseBody.substring(begin + 14, end);
+        String action = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 14, end));
         assertNotNull(action);
 
-        return Pair.of(action, samlRequest);
+        return Triple.of(action, relayState, samlRequest);
     }
 
-    private Pair<String, String> parseSAMLResponseForm(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"SAMLResponse\" value=\"");
+    private Triple<String, String, String> parseSAMLResponseForm(final String responseBody) {
+        int begin = responseBody.indexOf("name=\"RelayState\" value=\"");
         assertNotEquals(-1, begin);
         int end = responseBody.indexOf("\"/>");
+        assertNotEquals(-1, end);
+        String relayState = responseBody.substring(begin + 26, end);
+        assertNotNull(relayState);
+
+        begin = responseBody.indexOf("name=\"SAMLResponse\" value=\"");
+        assertNotEquals(-1, begin);
+        end = responseBody.indexOf("\"/>", begin);
         assertNotEquals(-1, end);
         String samlResponse = responseBody.substring(begin + 27, end);
         assertNotNull(samlResponse);
@@ -131,7 +146,7 @@ public class SAML2SRAITCase extends AbstractITCase {
         String action = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 14, end));
         assertNotNull(action);
 
-        return Pair.of(action, samlResponse);
+        return Triple.of(action, relayState, samlResponse);
     }
 
     @Test
@@ -159,13 +174,14 @@ public class SAML2SRAITCase extends AbstractITCase {
 
         // 2a. post SAML request
         String responseBody = EntityUtils.toString(response.getEntity());
-        Pair<String, String> parsed = parseSAMLRequestForm(responseBody);
+        Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
 
         HttpPost post = new HttpPost(parsed.getLeft());
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
+                        new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
         response = httpclient.execute(post, context);
         assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
 
@@ -213,7 +229,8 @@ public class SAML2SRAITCase extends AbstractITCase {
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
+                        new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
         response = httpclient.execute(post, context);
         assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
 
@@ -239,7 +256,8 @@ public class SAML2SRAITCase extends AbstractITCase {
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
+                        new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
         response = httpclient.execute(post, context);
         assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
 
@@ -250,7 +268,6 @@ public class SAML2SRAITCase extends AbstractITCase {
 
         // 3b. post SAML response
         // this is missing as currently WA does not responde with form for SP's SingleLogoutService
-
         checkLogout(response);
     }
 

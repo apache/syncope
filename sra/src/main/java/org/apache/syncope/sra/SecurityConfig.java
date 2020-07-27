@@ -18,32 +18,22 @@
  */
 package org.apache.syncope.sra;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.sra.security.CsrfRouteMatcher;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
-import org.apache.syncope.sra.security.saml2.ExtendedRelyingPartyRegistration;
-import org.apache.syncope.sra.security.saml2.InMemoryReactiveRelyingPartyRegistrationRepository;
-import org.apache.syncope.sra.security.saml2.ReactiveRelyingPartyRegistrationRepository;
-import org.apache.syncope.sra.security.saml2.Saml2MetadataEndpoint;
-import org.apache.syncope.sra.security.saml2.Saml2SecurityConfigUtils;
-import org.opensaml.core.criterion.EntityIdCriterion;
-import org.opensaml.security.credential.impl.KeyStoreCredentialResolver;
-import org.opensaml.security.x509.X509Credential;
+import org.apache.syncope.sra.security.saml2.SAML2BindingType;
+import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
+import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
+import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
+import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -55,7 +45,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -73,7 +62,6 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlUtils;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
@@ -105,7 +93,7 @@ public class SecurityConfig {
     @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
     public SecurityWebFilterChain saml2SecurityFilterChain(final ServerHttpSecurity http) {
         ServerWebExchangeMatcher metadataMatcher =
-                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Saml2MetadataEndpoint.METADATA_URL);
+                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SAML2MetadataEndpoint.METADATA_URL);
         return http.securityMatcher(metadataMatcher).
                 authorizeExchange().anyExchange().permitAll().
                 and().csrf().requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(metadataMatcher)).
@@ -220,33 +208,30 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
-    public X509Credential saml2Credential()
-            throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, ResolverException {
+    public SAML2Client saml2Client() {
+        SAML2Configuration cfg = new SAML2Configuration(
+                resourceResolver.getResource(env.getProperty("am.saml2.keystore")),
+                env.getProperty("am.saml2.keystore.storepass"),
+                env.getProperty("am.saml2.keystore.keypass"),
+                resourceResolver.getResource(env.getProperty("am.saml2.idp")));
+        cfg.setIdentityProviderMetadataResource(resourceResolver.getResource(env.getProperty("am.saml2.idp")));
+        cfg.setAuthnRequestBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
+        cfg.setResponseBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
+        cfg.setSpLogoutRequestBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
+        cfg.setSpLogoutResponseBindingType(SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.binding")).getUri());
+        cfg.setServiceProviderEntityId(env.getProperty("am.saml2.sp.entityId"));
+        cfg.setWantsAssertionsSigned(true);
+        cfg.setAuthnRequestSigned(true);
+        cfg.setSpLogoutRequestSigned(true);
 
-        KeyStore keystore = KeyStore.getInstance(env.getProperty("am.saml2.keystore.type"));
-        Resource keystoreLoader = resourceResolver.getResource(env.getProperty("am.saml2.keystore"));
-        try (InputStream inputStream = keystoreLoader.getInputStream()) {
-            keystore.load(inputStream, env.getProperty("am.saml2.keystore.storepass").toCharArray());
-        }
+        SAML2Client saml2Client = new SAML2Client(cfg);
+        saml2Client.setName(AMType.SAML2.name());
+        saml2Client.setCallbackUrl(env.getProperty("am.saml2.sp.entityId")
+                + SAML2WebSsoAuthenticationWebFilter.DEFAULT_FILTER_PROCESSES_URI);
+        saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
+        saml2Client.init();
 
-        KeyStoreCredentialResolver resolver = new KeyStoreCredentialResolver(
-                keystore,
-                Map.of(env.getProperty("am.saml2.sp.cert.alias"), env.getProperty("am.saml2.keystore.keypass")));
-        X509Credential credential = (X509Credential) resolver.resolveSingle(
-                new CriteriaSet(new EntityIdCriterion(env.getProperty("am.saml2.sp.cert.alias"))));
-        return credential;
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
-    public ReactiveRelyingPartyRegistrationRepository saml2RelyingPartyRegistrationRepository()
-            throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, ResolverException {
-
-        List<ExtendedRelyingPartyRegistration> registrations = OpenSamlUtils.build(
-                saml2Credential(),
-                resourceResolver.getResource(env.getProperty("am.saml2.idp")).getInputStream());
-
-        return new InMemoryReactiveRelyingPartyRegistrationRepository(registrations);
+        return saml2Client;
     }
 
     @Bean
@@ -275,17 +260,9 @@ public class SecurityConfig {
                 break;
 
             case SAML2:
-                ReactiveRelyingPartyRegistrationRepository relyingPartyRegistrationRepository =
-                        ctx.getBean(ReactiveRelyingPartyRegistrationRepository.class);
-                Saml2SecurityConfigUtils.forLogin(
-                        http,
-                        relyingPartyRegistrationRepository,
-                        publicRouteMatcher);
-                Saml2SecurityConfigUtils.forLogout(
-                        builder,
-                        relyingPartyRegistrationRepository,
-                        logoutRouteMatcher,
-                        ctx);
+                SAML2Client saml2Client = saml2Client();
+                SAML2SecurityConfigUtils.forLogin(http, saml2Client, publicRouteMatcher);
+                SAML2SecurityConfigUtils.forLogout(builder, saml2Client, logoutRouteMatcher, ctx);
                 break;
 
             case CAS:

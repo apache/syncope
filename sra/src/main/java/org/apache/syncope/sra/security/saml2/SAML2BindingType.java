@@ -18,28 +18,19 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.ProviderDetails;
+import org.opensaml.saml.common.xml.SAMLConstants;
 
-public class ExtendedRelyingPartyRegistration {
+public enum SAML2BindingType {
+    POST(SAMLConstants.SAML2_POST_BINDING_URI),
+    REDIRECT(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
 
-    private final RelyingPartyRegistration relyingPartyRegistration;
+    private final String uri;
 
-    private ProviderDetails logoutDetails;
-
-    public ExtendedRelyingPartyRegistration(final RelyingPartyRegistration relyingPartyRegistration) {
-        this.relyingPartyRegistration = relyingPartyRegistration;
+    SAML2BindingType(final String uri) {
+        this.uri = uri;
     }
 
-    public RelyingPartyRegistration getRelyingPartyRegistration() {
-        return relyingPartyRegistration;
-    }
-
-    public ProviderDetails getLogoutDetails() {
-        return logoutDetails;
-    }
-
-    public void setLogoutDetails(final ProviderDetails logoutDetails) {
-        this.logoutDetails = logoutDetails;
+    public String getUri() {
+        return uri;
     }
 }

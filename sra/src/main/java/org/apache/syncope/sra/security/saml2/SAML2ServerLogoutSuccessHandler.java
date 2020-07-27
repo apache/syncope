@@ -23,7 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import reactor.core.publisher.Mono;
 
-public class Saml2ServerLogoutSuccessHandler extends AbstractServerLogoutSuccessHandler {
+public class SAML2ServerLogoutSuccessHandler extends AbstractServerLogoutSuccessHandler {
 
     @Override
     public Mono<Void> onLogoutSuccess(final WebFilterExchange exchange, final Authentication authentication) {
