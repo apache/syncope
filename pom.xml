@@ -412,7 +412,7 @@ under the License.
     <spring.version>5.2.8.RELEASE</spring.version>
     <spring-security.version>5.3.3.RELEASE</spring-security.version>
     <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
-    <spring-cloud-gateway.version>2.2.3.RELEASE</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>2.2.4.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.2</openjpa.version>
     <hikaricp.version>3.4.5</hikaricp.version>
