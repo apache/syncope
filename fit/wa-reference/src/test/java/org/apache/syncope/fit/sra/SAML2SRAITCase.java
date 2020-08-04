@@ -222,7 +222,6 @@ public class SAML2SRAITCase extends AbstractITCase {
 
         // 2d. post SAML response
         responseBody = EntityUtils.toString(response.getEntity());
-        System.out.println("XXXXXXXXXXXXXXXXXXX3\n" + responseBody);
         parsed = parseSAMLResponseForm(responseBody);
 
         post = new HttpPost(parsed.getLeft());
