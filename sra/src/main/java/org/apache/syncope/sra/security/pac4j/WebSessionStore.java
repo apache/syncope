@@ -22,47 +22,47 @@ import java.util.Optional;
 import org.pac4j.core.context.session.SessionStore;
 import org.springframework.web.server.WebSession;
 
-public class ServerHttpSessionStore implements SessionStore<ServerHttpContext> {
+public class WebSessionStore implements SessionStore<ServerWebExchangeContext> {
 
     private final WebSession webSession;
 
-    public ServerHttpSessionStore(final WebSession webSession) {
+    public WebSessionStore(final WebSession webSession) {
         this.webSession = webSession;
     }
 
     @Override
-    public String getOrCreateSessionId(final ServerHttpContext context) {
+    public String getOrCreateSessionId(final ServerWebExchangeContext context) {
         return this.webSession.getId();
     }
 
     @Override
-    public Optional<Object> get(final ServerHttpContext context, final String key) {
+    public Optional<Object> get(final ServerWebExchangeContext context, final String key) {
         return Optional.ofNullable(this.webSession.getAttribute(key));
     }
 
     @Override
-    public void set(final ServerHttpContext context, final String key, final Object value) {
+    public void set(final ServerWebExchangeContext context, final String key, final Object value) {
     }
 
     @Override
-    public boolean destroySession(final ServerHttpContext context) {
+    public boolean destroySession(final ServerWebExchangeContext context) {
         return false;
     }
 
     @Override
-    public Optional<WebSession> getTrackableSession(final ServerHttpContext context) {
+    public Optional<WebSession> getTrackableSession(final ServerWebExchangeContext context) {
         return Optional.ofNullable(this.webSession);
     }
 
     @Override
-    public Optional<SessionStore<ServerHttpContext>> buildFromTrackableSession(
-            final ServerHttpContext context, final Object trackableSession) {
+    public Optional<SessionStore<ServerWebExchangeContext>> buildFromTrackableSession(
+            final ServerWebExchangeContext context, final Object trackableSession) {
 
         return Optional.empty();
     }
 
     @Override
-    public boolean renewSession(final ServerHttpContext context) {
+    public boolean renewSession(final ServerWebExchangeContext context) {
         return false;
     }
 }

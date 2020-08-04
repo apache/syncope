@@ -22,7 +22,6 @@ import java.util.Set;
 import org.apache.syncope.sra.ApplicationContextUtils;
 import org.apache.syncope.sra.SecurityConfig.AMType;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
-import org.apache.syncope.sra.security.SessionRemovalServerLogoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -122,7 +121,7 @@ public final class OAuth2SecurityConfigUtils {
 
         LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
         logoutWebFilter.setRequiresLogoutMatcher(logoutRouteMatcher);
-        logoutWebFilter.setLogoutHandler(new SessionRemovalServerLogoutHandler(cacheManager));
+        logoutWebFilter.setLogoutHandler(new OAuth2SessionRemovalServerLogoutHandler(cacheManager));
 
         if (AMType.OIDC == amType) {
             try {

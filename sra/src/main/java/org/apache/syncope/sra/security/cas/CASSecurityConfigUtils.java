@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security.saml2;
+package org.apache.syncope.sra.security.cas;
 
 import org.apache.syncope.sra.ApplicationContextUtils;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
-import org.pac4j.saml.client.SAML2Client;
+import org.jasig.cas.client.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -33,12 +33,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
-import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
-public final class SAML2SecurityConfigUtils {
+public final class CASSecurityConfigUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SAML2SecurityConfigUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CASSecurityConfigUtils.class);
 
     private static ReactiveAuthenticationManager authenticationManager() {
         return authentication -> Mono.just(authentication).filter(Authentication::isAuthenticated);
@@ -46,50 +45,54 @@ public final class SAML2SecurityConfigUtils {
 
     public static void forLogin(
             final ServerHttpSecurity http,
-            final SAML2Client saml2Client,
+            final String serverName,
+            final Protocol protocol,
+            final String casServerUrlPrefix,
             final PublicRouteMatcher publicRouteMatcher) {
 
         ReactiveAuthenticationManager authenticationManager = authenticationManager();
 
-        SAML2WebSsoAuthenticationRequestWebFilter authRequestFilter =
-                new SAML2WebSsoAuthenticationRequestWebFilter(saml2Client);
+        CASAuthenticationRequestWebFilter authRequestFilter = new CASAuthenticationRequestWebFilter(
+                publicRouteMatcher,
+                serverName,
+                protocol,
+                casServerUrlPrefix);
         http.addFilterAt(authRequestFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 
-        AuthenticationWebFilter authenticationFilter =
-                new SAML2WebSsoAuthenticationWebFilter(authenticationManager, saml2Client);
+        AuthenticationWebFilter authenticationFilter = new CASAuthenticationWebFilter(
+                authenticationManager,
+                serverName, protocol,
+                casServerUrlPrefix);
         authenticationFilter.setAuthenticationFailureHandler((exchange, ex) -> Mono.error(ex));
         authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());
         http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
-
-        WebFilter anonymousRedirectFilter = new SAML2AnonymousWebFilter(publicRouteMatcher);
-        http.addFilterAt(anonymousRedirectFilter, SecurityWebFiltersOrder.AUTHENTICATION);
     }
 
     public static void forLogout(
             final ServerHttpSecurity.AuthorizeExchangeSpec builder,
-            final SAML2Client saml2Client,
             final CacheManager cacheManager,
+            final String casServerUrlPrefix,
             final LogoutRouteMatcher logoutRouteMatcher,
             final ConfigurableApplicationContext ctx) {
 
         LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
         logoutWebFilter.setRequiresLogoutMatcher(logoutRouteMatcher);
 
-        logoutWebFilter.setLogoutHandler(new SAML2ServerLogoutHandler(saml2Client, cacheManager));
+        logoutWebFilter.setLogoutHandler(new CASServerLogoutHandler(cacheManager, casServerUrlPrefix));
 
         try {
-            SAML2ServerLogoutSuccessHandler handler = ApplicationContextUtils.getOrCreateBean(ctx,
-                    SAML2ServerLogoutSuccessHandler.class.getName(),
-                    SAML2ServerLogoutSuccessHandler.class);
+            CASServerLogoutSuccessHandler handler = ApplicationContextUtils.getOrCreateBean(ctx,
+                    CASServerLogoutSuccessHandler.class.getName(),
+                    CASServerLogoutSuccessHandler.class);
             logoutWebFilter.setLogoutSuccessHandler(handler);
         } catch (ClassNotFoundException e) {
-            LOG.error("While creating instance of {}", SAML2ServerLogoutSuccessHandler.class.getName(), e);
+            LOG.error("While creating instance of {}", CASServerLogoutSuccessHandler.class.getName(), e);
         }
 
         builder.and().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 
-    private SAML2SecurityConfigUtils() {
+    private CASSecurityConfigUtils() {
         // private constructor for static utility class
     }
 }

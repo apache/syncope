@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import org.apache.syncope.sra.security.pac4j.ServerHttpContext;
+import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +57,10 @@ public class SAML2WebSsoAuthenticationRequestWebFilter extends SAML2RequestGener
                     LOG.debug("Creating SAML2 SP Authentication Request for IDP[{}]",
                             saml2Client.getIdentityProviderResolvedEntityId());
 
-                    ServerHttpContext shc = new ServerHttpContext(exchange, session);
+                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange, session);
 
-                    return saml2Client.getRedirectionAction(shc).
-                            map(action -> handle(action, shc)).
+                    return saml2Client.getRedirectionAction(swec).
+                            map(action -> handle(action, swec)).
                             orElseThrow(() -> new IllegalStateException("No action generated"));
                 }).onErrorResume(Mono::error);
     }
