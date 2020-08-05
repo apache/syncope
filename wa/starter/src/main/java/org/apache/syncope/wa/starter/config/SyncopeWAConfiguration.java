@@ -79,7 +79,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.wa.starter.events.SyncopeWAEventsRepository;
+import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 
@@ -202,14 +202,14 @@ public class SyncopeWAConfiguration {
 
     @ConditionalOnMissingBean(name = "syncopWaEventRepositoryFilter")
     @Bean
-    public CasEventRepositoryFilter syncopWaEventRepositoryFilter() {
+    public CasEventRepositoryFilter syncopeWAEventRepositoryFilter() {
         return CasEventRepositoryFilter.noOp();
     }
 
     @Autowired
     @Bean
     public CasEventRepository casEventRepository(final WARestClient restClient) {
-        return new SyncopeWAEventsRepository(syncopWaEventRepositoryFilter(), restClient);
+        return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter(), restClient);
     }
 
 

@@ -37,15 +37,15 @@ import org.apereo.cas.support.events.dao.CasEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWAEventsRepository extends AbstractCasEventRepository {
+public class SyncopeWAEventRepository extends AbstractCasEventRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAEventsRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAEventRepository.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final WARestClient waRestClient;
 
-    public SyncopeWAEventsRepository(final CasEventRepositoryFilter eventRepositoryFilter,
+    public SyncopeWAEventRepository(final CasEventRepositoryFilter eventRepositoryFilter,
             final WARestClient restClient) {
         super(eventRepositoryFilter);
         this.waRestClient = restClient;

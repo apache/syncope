@@ -33,7 +33,7 @@ import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.events.dao.CasEvent;
 import org.junit.jupiter.api.Test;
 
-public class SyncopeWAEventsRepositoryTest extends AbstractTest {
+public class SyncopeWAEventRepositoryTest extends AbstractTest {
 
     private static LoggerService loggerService;
 
@@ -51,7 +51,7 @@ public class SyncopeWAEventsRepositoryTest extends AbstractTest {
     @Test
     public void saveInternal() {
         CasEvent event = new CasEvent(1L, "Auth", "principalId", "creationTime", Map.of("timestamp", "1"));
-        SyncopeWAEventsRepository eventRepository = new SyncopeWAEventsRepository(CasEventRepositoryFilter.noOp(),
+        SyncopeWAEventRepository eventRepository = new SyncopeWAEventRepository(CasEventRepositoryFilter.noOp(),
                 getWaRestClient());
         eventRepository.saveInternal(event);
         verify(loggerService).create(any(AuditEntry.class));
