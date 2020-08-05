@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import org.apache.syncope.sra.security.pac4j.ServerHttpContext;
+import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import java.net.URI;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithContentAction;
@@ -38,13 +38,13 @@ abstract class SAML2RequestGenerator {
 
     protected Mono<Void> handle(
             final RedirectionAction action,
-            final ServerHttpContext shc) {
+            final ServerWebExchangeContext swec) {
 
         if (action instanceof WithLocationAction) {
             WithLocationAction withLocationAction = (WithLocationAction) action;
-            shc.getNative().getResponse().setStatusCode(HttpStatus.FOUND);
-            shc.getNative().getResponse().getHeaders().setLocation(URI.create(withLocationAction.getLocation()));
-            return shc.getNative().getResponse().setComplete();
+            swec.getNative().getResponse().setStatusCode(HttpStatus.FOUND);
+            swec.getNative().getResponse().getHeaders().setLocation(URI.create(withLocationAction.getLocation()));
+            return swec.getNative().getResponse().setComplete();
         } else if (action instanceof WithContentAction) {
             WithContentAction withContentAction = (WithContentAction) action;
             String content = withContentAction.getContent();
@@ -54,9 +54,9 @@ abstract class SAML2RequestGenerator {
             }
 
             return Mono.defer(() -> {
-                shc.getNative().getResponse().getHeaders().setContentType(MediaType.TEXT_HTML);
-                return shc.getNative().getResponse().
-                        writeWith(Mono.just(shc.getNative().getResponse().bufferFactory().wrap(content.getBytes())));
+                swec.getNative().getResponse().getHeaders().setContentType(MediaType.TEXT_HTML);
+                return swec.getNative().getResponse().
+                        writeWith(Mono.just(swec.getNative().getResponse().bufferFactory().wrap(content.getBytes())));
             });
         } else {
             throw new IllegalArgumentException("Unsupported Action: " + action.getClass().getName());

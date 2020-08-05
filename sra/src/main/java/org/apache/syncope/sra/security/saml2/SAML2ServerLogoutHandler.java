@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import org.apache.syncope.sra.security.pac4j.ServerHttpContext;
+import org.apache.syncope.sra.SessionConfig;
+import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
@@ -32,8 +34,11 @@ public class SAML2ServerLogoutHandler extends SAML2RequestGenerator implements S
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2ServerLogoutHandler.class);
 
-    public SAML2ServerLogoutHandler(final SAML2Client saml2Client) {
+    private final CacheManager cacheManager;
+
+    public SAML2ServerLogoutHandler(final SAML2Client saml2Client, final CacheManager cacheManager) {
         super(saml2Client);
+        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -45,11 +50,12 @@ public class SAML2ServerLogoutHandler extends SAML2RequestGenerator implements S
                     LOG.debug("Creating SAML2 SP Logout Request for IDP[{}] and Profile[{}]",
                             saml2Client.getIdentityProviderResolvedEntityId(), credentials.getUserProfile());
 
-                    ServerHttpContext shc = new ServerHttpContext(exchange.getExchange(), session);
+                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange.getExchange(), session);
 
+                    cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
                     return session.invalidate().then(
-                            saml2Client.getLogoutAction(shc, credentials.getUserProfile(), null).
-                                    map(action -> handle(action, shc)).
+                            saml2Client.getLogoutAction(swec, credentials.getUserProfile(), null).
+                                    map(action -> handle(action, swec)).
                                     orElseThrow(() -> new IllegalStateException("No action generated")));
                 }).onErrorResume(Mono::error);
     }

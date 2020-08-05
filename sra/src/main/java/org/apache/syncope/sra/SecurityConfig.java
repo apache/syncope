@@ -27,10 +27,12 @@ import org.apache.syncope.sra.security.CsrfRouteMatcher;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
+import org.apache.syncope.sra.security.cas.CASSecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2BindingType;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
+import org.jasig.cas.client.Protocol;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
@@ -266,10 +268,24 @@ public class SecurityConfig {
             case SAML2:
                 SAML2Client saml2Client = saml2Client();
                 SAML2SecurityConfigUtils.forLogin(http, saml2Client, publicRouteMatcher);
-                SAML2SecurityConfigUtils.forLogout(builder, saml2Client, logoutRouteMatcher, ctx);
+                SAML2SecurityConfigUtils.forLogout(builder, saml2Client, cacheManager, logoutRouteMatcher, ctx);
                 break;
 
             case CAS:
+                CASSecurityConfigUtils.forLogin(
+                        http,
+                        env.getProperty("am.cas.server.name"),
+                        Protocol.CAS3,
+                        env.getProperty("am.cas.url.prefix"),
+                        publicRouteMatcher);
+                CASSecurityConfigUtils.forLogout(
+                        builder,
+                        cacheManager,
+                        env.getProperty("am.cas.url.prefix"),
+                        logoutRouteMatcher,
+                        ctx);
+                break;
+
             default:
         }
 

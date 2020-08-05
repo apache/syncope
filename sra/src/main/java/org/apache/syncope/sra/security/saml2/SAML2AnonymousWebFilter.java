@@ -20,8 +20,10 @@ package org.apache.syncope.sra.security.saml2;
 
 import java.net.URI;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
+import org.apache.syncope.sra.session.SessionUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -29,24 +31,22 @@ import reactor.core.publisher.Mono;
 
 public class SAML2AnonymousWebFilter implements WebFilter {
 
-    public static final String INITIAL_REQUEST_URI = "INITIAL_REQUEST_URI";
-
-    private final PublicRouteMatcher publicRouteMatcher;
+    private final ServerWebExchangeMatcher matcher;
 
     public SAML2AnonymousWebFilter(final PublicRouteMatcher publicRouteMatcher) {
-        this.publicRouteMatcher = publicRouteMatcher;
+        this.matcher = ServerWebExchangeMatchers.matchers(
+                publicRouteMatcher,
+                SessionUtils.authInSession());
     }
 
     @Override
     public Mono<Void> filter(final ServerWebExchange exchange, final WebFilterChain chain) {
-        return publicRouteMatcher.matches(exchange).
+        return matcher.matches(exchange).
                 filter(matchResult -> !matchResult.isMatch()).
-                flatMap(r -> exchange.getSession()).flatMap(r -> exchange.getSession()).
-                filter(s -> !s.getAttributes().containsKey(
-                WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME)).
                 switchIfEmpty(chain.filter(exchange).then(Mono.empty())).
+                flatMap(r -> exchange.getSession()).
                 flatMap(session -> {
-                    session.getAttributes().put(INITIAL_REQUEST_URI, exchange.getRequest().getURI());
+                    session.getAttributes().put(SessionUtils.INITIAL_REQUEST_URI, exchange.getRequest().getURI());
 
                     exchange.getResponse().setStatusCode(HttpStatus.SEE_OTHER);
                     exchange.getResponse().getHeaders().

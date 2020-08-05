@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import org.apache.syncope.sra.security.pac4j.ServerHttpContext;
 import java.net.URI;
+import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
+import org.apache.syncope.sra.session.SessionUtils;
 import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
@@ -87,12 +88,12 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
                 flatMap(form -> this.matcher.matches(exchange).
                 flatMap(matchResult -> exchange.getSession()).
                 flatMap(session -> {
-                    ServerHttpContext shc = new ServerHttpContext(exchange, session).setForm(form);
+                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange, session).setForm(form);
 
-                    SAML2Credentials credentials = saml2Client.getCredentialsExtractor().extract(shc).
+                    SAML2Credentials credentials = saml2Client.getCredentialsExtractor().extract(swec).
                             orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
-                    saml2Client.getAuthenticator().validate(credentials, shc);
+                    saml2Client.getAuthenticator().validate(credentials, swec);
 
                     return Mono.just(new SAML2AuthenticationToken(credentials));
                 }));
@@ -110,7 +111,7 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
                 return webFilterExchange.getExchange().getSession().
                         flatMap(session -> this.redirectStrategy.sendRedirect(
                         webFilterExchange.getExchange(),
-                        (URI) session.getRequiredAttribute(SAML2AnonymousWebFilter.INITIAL_REQUEST_URI)));
+                        session.<URI>getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI)));
             }
         };
     }

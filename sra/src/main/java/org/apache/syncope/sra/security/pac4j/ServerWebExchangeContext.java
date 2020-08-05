@@ -36,11 +36,11 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class ServerHttpContext implements WebContext {
+public class ServerWebExchangeContext implements WebContext {
 
     private final ServerWebExchange exchange;
 
-    private ServerHttpSessionStore sessionStore;
+    private WebSessionStore sessionStore;
 
     private MultiValueMap<String, String> form;
 
@@ -52,8 +52,8 @@ public class ServerHttpContext implements WebContext {
      * @param exchange the current exchange
      * @param webSession the current web session
      */
-    public ServerHttpContext(final ServerWebExchange exchange, final WebSession webSession) {
-        this(exchange, new ServerHttpSessionStore(webSession));
+    public ServerWebExchangeContext(final ServerWebExchange exchange, final WebSession webSession) {
+        this(exchange, new WebSessionStore(webSession));
     }
 
     /**
@@ -62,9 +62,9 @@ public class ServerHttpContext implements WebContext {
      * @param exchange the current exchange
      * @param sessionStore the session store to use
      */
-    public ServerHttpContext(
+    public ServerWebExchangeContext(
             final ServerWebExchange exchange,
-            final ServerHttpSessionStore sessionStore) {
+            final WebSessionStore sessionStore) {
 
         CommonHelper.assertNotNull("exchange", exchange);
         CommonHelper.assertNotNull("sessionStore", sessionStore);
@@ -72,12 +72,12 @@ public class ServerHttpContext implements WebContext {
         this.sessionStore = sessionStore;
     }
 
-    public ServerHttpSessionStore getNativeSessionStore() {
+    public WebSessionStore getNativeSessionStore() {
         return this.sessionStore;
     }
 
     @Override
-    public SessionStore<ServerHttpContext> getSessionStore() {
+    public SessionStore<ServerWebExchangeContext> getSessionStore() {
         return this.sessionStore;
     }
 
@@ -103,7 +103,7 @@ public class ServerHttpContext implements WebContext {
         return Optional.empty();
     }
 
-    public ServerHttpContext setForm(final MultiValueMap<String, String> form) {
+    public ServerWebExchangeContext setForm(final MultiValueMap<String, String> form) {
         this.form = form;
         return this;
     }
@@ -214,7 +214,7 @@ public class ServerHttpContext implements WebContext {
         return exchange.getRequest().getPath().value();
     }
 
-    public ServerHttpContext setBody(final String body) {
+    public ServerWebExchangeContext setBody(final String body) {
         this.body = body;
         return this;
     }

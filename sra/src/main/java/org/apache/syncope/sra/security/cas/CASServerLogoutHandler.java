@@ -16,33 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security;
+package org.apache.syncope.sra.security.cas;
 
+import java.net.URI;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.sra.SessionConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
 import reactor.core.publisher.Mono;
 
-public class SessionRemovalServerLogoutHandler implements ServerLogoutHandler {
+public class CASServerLogoutHandler implements ServerLogoutHandler {
 
-    private static final Logger EVENTS = LoggerFactory.getLogger("events");
+    private final ServerRedirectStrategy redirectStrategy = new DoNothingIfCommittedServerRedirectStrategy();
 
     private final CacheManager cacheManager;
 
-    public SessionRemovalServerLogoutHandler(final CacheManager cacheManager) {
+    /**
+     * The URL to the CAS Server logout.
+     */
+    private final String casServerLogoutUrl;
+
+    public CASServerLogoutHandler(final CacheManager cacheManager, final String casServerUrlPrefix) {
         this.cacheManager = cacheManager;
+        this.casServerLogoutUrl = StringUtils.appendIfMissing(casServerUrlPrefix, "/") + "logout";
     }
 
     @Override
     public Mono<Void> logout(final WebFilterExchange exchange, final Authentication authentication) {
-        return exchange.getExchange().getSession().doOnNext(session -> {
-            session.invalidate();
-            EVENTS.debug("Invalidate session {}", (authentication == null) ? null : authentication.getPrincipal());
-            cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
-        }).flatMap(session -> Mono.empty());
+        return exchange.getExchange().getSession().
+                flatMap(session -> {
+                    cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
+
+                    return session.invalidate().then(
+                            redirectStrategy.sendRedirect(exchange.getExchange(), URI.create(this.casServerLogoutUrl)));
+                }).onErrorResume(Mono::error);
     }
 }
