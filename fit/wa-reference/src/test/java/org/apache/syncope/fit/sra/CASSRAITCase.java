@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.fit.sra;
 
-import static org.apache.syncope.fit.sra.AbstractITCase.EN_LANGUAGE;
-import static org.apache.syncope.fit.sra.AbstractITCase.WA_ADDRESS;
-import static org.apache.syncope.fit.sra.AbstractITCase.extractCASExecution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -98,7 +95,7 @@ public class CASSRAITCase extends AbstractITCase {
         context.setCookieStore(new BasicCookieStore());
 
         // 1. public
-        HttpGet get = new HttpGet(SRA_ADDRESS + "/public/get?key1=value1&key2=value2&key2=value3");
+        HttpGet get = new HttpGet(SRA_ADDRESS + "/public/get?" + QUERY_STRING);
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         CloseableHttpResponse response = httpclient.execute(get, context);
@@ -107,7 +104,7 @@ public class CASSRAITCase extends AbstractITCase {
         assertFalse(headers.has(HttpHeaders.COOKIE));
 
         // 2. protected
-        get = new HttpGet(SRA_ADDRESS + "/protected/get?key1=value1&key2=value2&key2=value3");
+        get = new HttpGet(SRA_ADDRESS + "/protected/get?" + QUERY_STRING);
         String originalRequestURI = get.getURI().toASCIIString();
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);

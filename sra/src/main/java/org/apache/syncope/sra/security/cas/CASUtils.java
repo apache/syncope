@@ -19,6 +19,7 @@
 package org.apache.syncope.sra.security.cas;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.client.Protocol;
 import org.jasig.cas.client.util.URIBuilder;
 import org.slf4j.Logger;
@@ -63,15 +64,16 @@ public final class CASUtils {
 
         UriComponents requestURI = UriComponentsBuilder.fromHttpRequest(exchange.getRequest()).build();
 
-        URIBuilder originalRequestUrl = new URIBuilder(requestURI.toUriString(), false);
+        URIBuilder originalRequestUrl = new URIBuilder(
+                StringUtils.substringBefore(requestURI.toUriString(), "?"), true);
         originalRequestUrl.setParameters(requestURI.getQuery());
 
         URIBuilder builder;
         if (!serverName.startsWith("https://") && !serverName.startsWith("http://")) {
             String scheme = exchange.getRequest().getSslInfo() == null ? "http://" : "https://";
-            builder = new URIBuilder(scheme + serverName, false);
+            builder = new URIBuilder(scheme + serverName, true);
         } else {
-            builder = new URIBuilder(serverName, false);
+            builder = new URIBuilder(serverName, true);
         }
 
         builder.setPort(requestURI.getPort());
@@ -80,25 +82,22 @@ public final class CASUtils {
 
         List<String> serviceParameterNames = List.of(protocol.getServiceParameterName().split(","));
         if (!serviceParameterNames.isEmpty() && !originalRequestUrl.getQueryParams().isEmpty()) {
-            originalRequestUrl.getQueryParams().forEach(pair -> {
-                String name = pair.getName();
-                if (!name.equals(protocol.getArtifactParameterName()) && !serviceParameterNames.contains(name)) {
-                    if (name.contains("&") || name.contains("=")) {
-                        URIBuilder encodedParamBuilder = new URIBuilder();
-                        encodedParamBuilder.setParameters(name);
-                        encodedParamBuilder.getQueryParams().forEach(pair2 -> {
-                            String name2 = pair2.getName();
-                            if (!name2.equals(protocol.getArtifactParameterName())
-                                    && !serviceParameterNames.contains(name2)) {
-
-                                builder.addParameter(name2, pair2.getValue());
-                            }
-                        });
-                    } else {
-                        builder.addParameter(name, pair.getValue());
-                    }
-                }
-            });
+            originalRequestUrl.getQueryParams().stream().
+                    filter(pair -> !pair.getName().equals(protocol.getArtifactParameterName())
+                    && !serviceParameterNames.contains(pair.getName())).
+                    forEach(pair -> {
+                        String name = pair.getName();
+                        if (name.contains("&") || name.contains("=")) {
+                            URIBuilder encodedParamBuilder = new URIBuilder();
+                            encodedParamBuilder.setParameters(name);
+                            encodedParamBuilder.getQueryParams().stream().
+                                    filter(pair2 -> !pair2.getName().equals(protocol.getArtifactParameterName())
+                                    && !serviceParameterNames.contains(pair2.getName())).
+                                    forEach(pair2 -> builder.addParameter(pair2.getName(), pair2.getValue()));
+                        } else {
+                            builder.addParameter(name, pair.getValue());
+                        }
+                    });
         }
 
         String result = builder.toString();

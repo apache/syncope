@@ -44,6 +44,7 @@ import java.util.concurrent.TimeoutException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.HttpStatus;
@@ -95,6 +96,9 @@ public abstract class AbstractITCase {
     protected static final String WA_ADDRESS = "http://localhost:9080/syncope-wa";
 
     protected static final String SRA_ADDRESS = "http://localhost:" + PORT;
+
+    protected static final String QUERY_STRING =
+            "key1=value1&key2=value2&key2=value3&key3=an%20url%20encoded%20value%3A%20this%21";
 
     protected static final String LOGGED_OUT_HEADER = "X-LOGGED-OUT";
 
@@ -332,12 +336,16 @@ public abstract class AbstractITCase {
         assertEquals("value2", key2.get(0).asText());
         assertEquals("value3", key2.get(1).asText());
 
+        assertEquals("an url encoded value: this!", args.get("key3").asText());
+
         ObjectNode headers = (ObjectNode) json.get("headers");
         assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
         assertEquals(EN_LANGUAGE, headers.get(HttpHeaders.ACCEPT_LANGUAGE).asText());
         assertEquals("localhost:" + PORT, headers.get("X-Forwarded-Host").asText());
 
-        assertEquals(originalRequestURI, json.get("url").asText());
+        assertEquals(
+                StringUtils.substringBefore(originalRequestURI, "?"),
+                StringUtils.substringBefore(json.get("url").asText(), "?"));
 
         return headers;
     }
