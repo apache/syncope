@@ -298,6 +298,33 @@ public class LoggerITCase extends AbstractITCase {
         assertNotNull(events);
         assertEquals(1, events.getSize());
     }
+    
+    @Test
+    public void saveAuthEvent() {
+        AuditEntry auditEntry = new AuditEntry();
+        auditEntry.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEntry.setLogger(new AuditLoggerName(
+                EventCategoryType.WA,
+                "LoggerLogic",
+                "AuthenticationEvent",
+                "auth",
+                AuditElements.Result.SUCCESS));
+        auditEntry.setDate(new Date());
+        auditEntry.setBefore(UUID.randomUUID().toString());
+        auditEntry.setOutput(UUID.randomUUID().toString());
+        assertDoesNotThrow(() -> loggerService.create(auditEntry));
+
+        PagedResult<AuditEntry> events = loggerService.search(new AuditQuery.Builder().
+                size(1).
+                type(auditEntry.getLogger().getType()).
+                category(auditEntry.getLogger().getCategory()).
+                subcategory(auditEntry.getLogger().getSubcategory()).
+                event(auditEntry.getLogger().getEvent()).
+                result(auditEntry.getLogger().getResult()).
+                build());
+        assertNotNull(events);
+        assertEquals(1, events.getSize());
+    }
 
     @Test
     public void customAuditAppender() throws IOException, InterruptedException {
