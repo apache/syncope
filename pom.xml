@@ -2070,7 +2070,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.15</version>
+          <version>1.7.16</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
