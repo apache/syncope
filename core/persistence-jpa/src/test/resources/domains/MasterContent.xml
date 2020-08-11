@@ -2482,7 +2482,6 @@ $$ }&#10;
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[WA]:[LoggerLogic]:[AUTHENTICATION]:[validate]:[SUCCESS]" logLevel="DEBUG"/>
-      
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[WA]:[LoggerLogic]:[AuthenticationEvent]:[auth]:[SUCCESS]" logLevel="DEBUG"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
